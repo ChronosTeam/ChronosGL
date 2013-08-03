@@ -7,7 +7,6 @@ A scene graph for WebGL written in Dart
 Features:
 
 * very high focus on simple, minimal and elegant code and API
-
 * lightweight and fast
 * capture keyboard and mouse events
 * all scene graph nodes position and rotation are based on a single matrix4 variable.
