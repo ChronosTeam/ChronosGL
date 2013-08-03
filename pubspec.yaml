@@ -1,0 +1,8 @@
+name: ChronosGL
+version: 1.0.0
+author: rhulha
+description: A Dart WebGL scene graph
+
+dependencies:
+  browser: any
+  #unittest: any

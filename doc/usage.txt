@@ -1,0 +1,24 @@
+
+create a new Dart web project, add this as a pubspec.yaml dependency:
+dependencies:
+  ChronosGL:
+    path: ...\ChronosGL
+
+
+create a HTML page and add a canvas similar to this:
+<canvas id="webgl-canvas" style="border: none; cursor:crosshair; width:100%; height: 100%; display:block;"></canvas>
+
+in your dart file add this:
+
+import 'package:ChronosGL/chronos_gl.dart';
+
+void main() {
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas', false);
+  ShaderProgram prg = chronosGL.getShaderLib().createFixedVertexColorShaderProgram();
+  Camera camera = chronosGL.getCamera();
+  camera.setPos( 0.0, 0.0, 56.0 );
+  Mesh m = chronosGL.getUtils().createTorusKnotMesh();
+  prg.add( m);
+  chronosGL.run();
+}
+
