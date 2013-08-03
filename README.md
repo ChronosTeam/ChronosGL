@@ -30,3 +30,4 @@ Some basic ideas:
 * Camera extends Spatial
 * Node extends Spatial
 * Mesh extends Node
+* Nodes can contain child nodes and they inherit their parents transformation.
