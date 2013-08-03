@@ -10,7 +10,7 @@ Features:
 
 * lightweight and fast
 * capture keyboard and mouse events
-* all scene graph nodes positions and rotations are based on single matrix4 variable.
+* all scene graph nodes position and rotation are based on a single matrix4 variable.
   this is likely the main differentiator to other scene graphs
 * space ship camera included
 * shapes: cube, cylinder, icosahedron and torusknot
