@@ -93,17 +93,22 @@ class ShaderLib {
         
         uniform mat4 uMVMatrix;
         uniform mat4 uPMatrix;
+
+        varying vec3 vColor;
         
         void main(void) {
-        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+          vColor = vec3( sin(aVertexPosition.x), sin(aVertexPosition.y), sin(aVertexPosition.z));
+          gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
         }
         """;
     
     shaderObject.fragmentShader = """
         precision mediump float;
         
+        varying vec3 vColor;
+
         void main(void) {
-        gl_FragColor = vec4( 1., 0., 1., 1. );
+          gl_FragColor = vec4( vColor, 1. );
         }
         """;
     
