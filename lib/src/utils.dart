@@ -195,6 +195,31 @@ class Utils
     
   }
   
+  Future<Object> loadBinaryFile(String url)
+  {
+    Completer c = new Completer();
+    HTML.HttpRequest hr = new HTML.HttpRequest();
+    hr.responseType = "arraybuffer";
+    hr.open("GET", url);
+    hr.onLoadEnd.listen( (e) {
+      c.complete(hr.response);
+    });
+    hr.send();
+    return c.future;
+  }
+
+  Future<Object> loadJsonFile(String url)
+  {
+    Completer c = new Completer();
+    HTML.HttpRequest hr = new HTML.HttpRequest();
+    hr.open("GET", url);
+    hr.onLoadEnd.listen( (e) {
+      c.complete(JSON.decode( hr.responseText));
+    });
+    hr.send();
+    return c.future;
+  }
+
 
     
 }

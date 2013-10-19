@@ -19,8 +19,8 @@ void setUpCapture()
     
     clientX = e.client.x; 
     clientY = HTML.window.innerHeight - e.client.y; 
-    mouseX = e.client.x-(HTML.window.innerWidth/2).toInt();
-    mouseY = -(e.client.y-(HTML.window.innerHeight/2).toInt());
+    mouseX = e.client.x-(HTML.window.innerWidth~/2);
+    mouseY = -(e.client.y-(HTML.window.innerHeight~/2));
     
   });
 

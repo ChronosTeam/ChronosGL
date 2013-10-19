@@ -12,7 +12,7 @@ class Mesh extends Node {
   
   Texture texture;
   
-  Buffer verticesBuffer, textureCoordBuffer, vertexIndexBuffer;
+  Buffer verticesBuffer, textureCoordBuffer, normalsBuffer, vertexIndexBuffer;
   
   int numItems;
  
@@ -29,6 +29,12 @@ class Mesh extends Node {
       textureCoordBuffer = gl.createBuffer();
       gl.bindBuffer(ARRAY_BUFFER, textureCoordBuffer);
       gl.bufferDataTyped(ARRAY_BUFFER, meshData.textureCoords, STATIC_DRAW);
+    }
+    
+    if( meshData.normals != null ) {
+      normalsBuffer = gl.createBuffer();
+      gl.bindBuffer(ARRAY_BUFFER, normalsBuffer);
+      gl.bufferDataTyped(ARRAY_BUFFER, meshData.normals, STATIC_DRAW);
     }
     
     if( meshData.vertexIndices != null ) {
@@ -67,6 +73,11 @@ class Mesh extends Node {
     if( program.shaderObject.textureCoordinatesAttribute != null) {
       gl.bindBuffer(ARRAY_BUFFER, textureCoordBuffer);
       gl.vertexAttribPointer(program.textureCoordAttribute, 2, FLOAT, false, 0, 0);
+    }
+
+    if( program.shaderObject.normalAttribute != null) {
+      gl.bindBuffer(ARRAY_BUFFER, normalsBuffer);
+      gl.vertexAttribPointer(program.normalAttribute, 3, FLOAT, false, 0, 0);
     }
 
     if( program.shaderObject.textureSamplerUniform != null) {

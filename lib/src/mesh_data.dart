@@ -4,15 +4,17 @@ class MeshData {
   
   Float32List vertices;
   Float32List textureCoords;
+  Float32List normals;
   Uint16List vertexIndices;
   Texture texture;
   
-  MeshData({ this.vertices, this.textureCoords, this.vertexIndices, this.texture}) {
+  MeshData({ this.vertices, this.textureCoords, this.normals, this.vertexIndices, this.texture}) {
   }
   
   MeshData.empty(){
     vertices = new List<double>();
     textureCoords = new List<double>();
+    normals = new List<double>();
     vertexIndices = new List<int>();
   }
   
@@ -30,7 +32,7 @@ class MeshData2 {
   List<int> vertexIndices;
   Texture texture;
   
-  MeshData2({ this.vertices, this.textureCoords, this.vertexIndices, this.texture}) {
+  MeshData2({ this.vertices, this.textureCoords, this.normals, this.vertexIndices, this.texture}) {
   }
   
   MeshData2.empty(){
@@ -41,7 +43,13 @@ class MeshData2 {
   }
   
   MeshData createMeshData() {
-    return new MeshData( vertices : new Float32List.fromList(vertices), textureCoords : new Float32List.fromList(textureCoords), vertexIndices : new Uint16List.fromList(vertexIndices), texture : texture  );
+    return new MeshData(
+        vertices : new Float32List.fromList(vertices), 
+        textureCoords : new Float32List.fromList(textureCoords),
+        normals : new Float32List.fromList(normals),
+        vertexIndices : new Uint16List.fromList(vertexIndices),
+        texture : texture
+    );
   }
   
   Mesh createMesh() {

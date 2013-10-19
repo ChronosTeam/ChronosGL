@@ -8,6 +8,7 @@ class ShaderProgram implements Drawable {
   Program program;
   int vertexPositionAttribute;
   int textureCoordAttribute;
+  int normalAttribute;
   UniformLocation pMatrixUniform;
   UniformLocation mvMatrixUniform;
   UniformLocation samplerUniform;
@@ -29,8 +30,12 @@ class ShaderProgram implements Drawable {
     program = su.getProgram( shaderObject.vertexShader, shaderObject.fragmentShader);
     
     vertexPositionAttribute = gl.getAttribLocation(program, shaderObject.vertexPositionAttribute);
+
     if( shaderObject.textureCoordinatesAttribute != null)
       textureCoordAttribute = gl.getAttribLocation(program, shaderObject.textureCoordinatesAttribute);
+
+    if( shaderObject.normalAttribute != null)
+      normalAttribute = gl.getAttribLocation(program, shaderObject.normalAttribute);
 
     pMatrixUniform = getUniformLocation( shaderObject.perpectiveMatrixUniform);
     mvMatrixUniform = getUniformLocation( shaderObject.modelViewMatrixUniform);
@@ -89,7 +94,7 @@ class ShaderProgram implements Drawable {
     return false;
   }
   
-  void draw( Matrix4 pMatrix)
+  void draw( Matrix4 pMatrix, [Matrix4 overrideMvMatrix] )
   {
     
     if( !hasEnabledObjects())
@@ -102,6 +107,8 @@ class ShaderProgram implements Drawable {
     gl.enableVertexAttribArray(vertexPositionAttribute);
     if( shaderObject.textureCoordinatesAttribute != null)
       gl.enableVertexAttribArray(textureCoordAttribute);
+    if( shaderObject.normalAttribute != null)
+      gl.enableVertexAttribArray(normalAttribute);
     //print( "error: ${gl.getError()}" );
     
     //print( "pM: ${pMatrix} ${pMatrixUniform}" );
@@ -119,10 +126,17 @@ class ShaderProgram implements Drawable {
     drawObjects(followCameraObjects);   
 
     camera.getMVMatrix(mvMatrix, true);
+    
+    if( overrideMvMatrix != null) {
+      mvMatrix.setElements(overrideMvMatrix);
+    }
+    
     drawObjects(objects);   
     gl.disableVertexAttribArray(vertexPositionAttribute);
     if( shaderObject.textureCoordinatesAttribute != null)
       gl.disableVertexAttribArray(textureCoordAttribute);
+    if( shaderObject.normalAttribute != null)
+      gl.disableVertexAttribArray(normalAttribute);
   }
 
   

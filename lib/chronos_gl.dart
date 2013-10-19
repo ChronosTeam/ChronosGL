@@ -5,6 +5,7 @@ import 'dart:web_gl';
 import 'dart:math' as Math;
 import 'dart:typed_data';
 import 'dart:async';
+import 'dart:convert';
 
 part "src/node.dart";
 part "src/vector.dart";
@@ -25,6 +26,7 @@ part "src/pickray.dart";
 part "src/input.dart";
 part "src/shader_lib.dart";
 part "src/load_obj.dart";
+part "src/framebuffer.dart";
 
 abstract class Animatable {
   void animate( double elapsed);
@@ -52,15 +54,19 @@ class ChronosGL
   TextureCache _textureCache;
   Camera _camera;
   Utils _utils;
+  ChronosFramebuffer fxFramebuffer;
+  Mesh fxWall;
+  ShaderProgram fxProgram; // shortcut
+  Matrix4 fxMatrix = new Matrix4(); 
   
   Matrix4 _pMatrix = new Matrix4(); 
   
-  ChronosGL(String canvasID, [bool transparent=false])
+  ChronosGL(String canvasID, {bool transparent:false, bool useFramebuffer:false})
   {
     _canvas = HTML.document.query(canvasID);
     
     // fix a bug in current chrome v.27
-    _canvas.onDragStart.listen((HTML.MouseEvent event){      event.preventDefault();    });
+    _canvas.onDragStart.listen((HTML.MouseEvent event){ event.preventDefault(); });
 
     // TODO: add resize handler
     _canvas.width = _canvas.clientWidth; 
@@ -88,6 +94,13 @@ class ChronosGL
     _camera = new Camera();
     _utils = new Utils( this);
     
+    if( useFramebuffer) {
+      fxFramebuffer = new ChronosFramebuffer(gl, _canvas.width, _canvas.height);
+      fxWall = _utils.getWall( fxFramebuffer.texture, 1);
+      fxProgram = new ShaderProgram(this, _shaderLib.createBasicShader(), 'fx');
+      fxProgram.add(fxWall);
+    }
+
     setUpCapture();
   }
   
@@ -136,6 +149,10 @@ class ChronosGL
   
   void draw()
   {
+   
+    if( fxFramebuffer != null) {
+      gl.bindFramebuffer( FRAMEBUFFER, fxFramebuffer.framebuffer);
+    }
     
     if( _lastWidth != _canvas.clientWidth || _lastHeight != _canvas.clientHeight)
     {
@@ -152,6 +169,12 @@ class ChronosGL
     for( ShaderProgram prg in programs.values)
     {
       prg.draw(_pMatrix);
+    }
+    
+    if( fxFramebuffer != null && fxFramebuffer.ready()) {
+      gl.bindFramebuffer( FRAMEBUFFER, null);
+      gl.clear( COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+      fxProgram.draw(fxMatrix, fxMatrix);
     }
     
   }

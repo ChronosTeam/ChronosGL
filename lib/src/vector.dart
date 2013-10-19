@@ -12,7 +12,8 @@ class Vector {
   set x(double v)  => array[0] = v;
   set y(double v)  => array[1] = v;
   set z(double v)  => array[2] = v;
-  
+
+  Vector.fromList( this.array);
   
   Vector( [num x=0.0, num y=0.0, num z=0.0])
   {
@@ -109,6 +110,10 @@ class Vector {
     array[1] = z * x2 - x * z2;
     array[2] = x * y2 - y * x2;
     return this;
+  }
+  
+  double dot( Vector vec2) {
+    return array[0] * vec2[0] + array[1] * vec2[1] + array[2] * vec2[2];
   }
   
   void lerp( Vector v, double lerp) {

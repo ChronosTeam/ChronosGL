@@ -13,6 +13,7 @@ class ShaderObject {
   String fragmentShader;
   String vertexPositionAttribute;
   String textureCoordinatesAttribute;
+  String normalAttribute;
   String transformationMatrixUniform;
   String modelViewMatrixUniform;
   String perpectiveMatrixUniform;
@@ -35,11 +36,14 @@ class ShaderLib {
   ShaderProgram createBasicShaderProgram(String name) {
     return createBasicShader().createProgram(name);
   }
-  ShaderProgram createPointSpritesShaderProgram([String name='point_sprites']) {
-    return createPointSpritesShader().createProgram(name);
+  ShaderProgram createNormal2ColorShaderProgram([String name='normal2color']) {
+    return createNormal2ColorShader().createProgram(name);
   }
   ShaderProgram createFixedVertexColorShaderProgram([String name='fixed_vertex_colors']) {
     return createFixedVertexColorShader().createProgram(name);
+  }
+  ShaderProgram createPointSpritesShaderProgram([String name='point_sprites']) {
+    return createPointSpritesShader().createProgram(name);
   }
 
   
@@ -50,6 +54,7 @@ class ShaderLib {
     // or maybe cache the result in a static ?
     
     shaderObject.vertexShader = """
+        precision mediump float;
         attribute vec3 aVertexPosition;
         attribute vec2 aTextureCoord;
         
@@ -59,8 +64,8 @@ class ShaderLib {
         varying vec2 vTextureCoord;
         
         void main(void) {
-        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-        vTextureCoord = aTextureCoord;
+          gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+          vTextureCoord = aTextureCoord;
         }
         """;
     
@@ -71,8 +76,8 @@ class ShaderLib {
         uniform sampler2D uSampler;
         
         void main(void) {
-        gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-        //gl_FragColor = vec4( vec3( vTextureCoord, 0. ), 1. );
+          gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+          //gl_FragColor = vec4( vec3( vTextureCoord, 0. ), 1. );
         }
         """;
     
@@ -85,10 +90,49 @@ class ShaderLib {
     return shaderObject;
   }
   
+  ShaderObject createNormal2ColorShader() {
+    ShaderObject shaderObject = new ShaderObject(raysWebGL);
+    
+    shaderObject.vertexShader = """
+        precision mediump float;
+
+        attribute vec3 aVertexPosition;
+        attribute vec3 aNormal;
+        
+        uniform mat4 uMVMatrix;
+        uniform mat4 uPMatrix;
+        
+        varying vec3 vNormal;
+
+        void main(void) {
+          gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+          vNormal = aNormal;
+        }
+        """;
+    
+    shaderObject.fragmentShader = """
+        precision mediump float;
+        
+        varying vec3 vNormal;
+
+        void main(void) {
+          gl_FragColor = vec4( normalize( vNormal / 2.0 + vec3(0.5) ), 1.0 );
+        }
+        """;
+    
+    shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+    shaderObject.normalAttribute = "aNormal";
+    shaderObject.modelViewMatrixUniform = "uMVMatrix";
+    shaderObject.perpectiveMatrixUniform = "uPMatrix";
+    
+    return shaderObject;
+  }
+
   ShaderObject createFixedVertexColorShader() {
     ShaderObject shaderObject = new ShaderObject(raysWebGL);
     
     shaderObject.vertexShader = """
+        precision mediump float;
         attribute vec3 aVertexPosition;
         
         uniform mat4 uMVMatrix;
@@ -123,6 +167,7 @@ class ShaderLib {
     ShaderObject shaderObject = new ShaderObject(raysWebGL);
     
     shaderObject.vertexShader = """
+        precision mediump float;
         attribute vec3 aVertexPosition;
         
         uniform mat4 uMVMatrix;
