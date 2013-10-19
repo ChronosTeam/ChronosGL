@@ -2,14 +2,14 @@ part of chronos_gl;
 
 class Utils
 {
-  ChronosGL raysWebGL;
+  ChronosGL chronosGL;
   RenderingContext gl;
   TextureCache textureCache;
   
-  Utils( this.raysWebGL)
+  Utils( this.chronosGL)
   {
-    gl = raysWebGL.getRenderingContext();
-    textureCache = raysWebGL.getTextureCache();
+    gl = chronosGL.getRenderingContext();
+    textureCache = chronosGL.getTextureCache();
   }
   
   Texture createSolidTexture(String fillStyle)
@@ -105,34 +105,34 @@ class Utils
 
     Mesh skybox_nx = getWall(tnx, 1004);
     skybox_nx.setPos(-2.0,2.0,-1000.0);
-    raysWebGL.programBasic.addFollowCameraObject(skybox_nx);
+    chronosGL.programBasic.addFollowCameraObject(skybox_nx);
 
     Mesh skybox_px = getWall(tpx, 1004);
     skybox_px.setPos(-2.0,2.0,1000.0);
     skybox_px.rotY( Math.PI);
-    raysWebGL.programBasic.addFollowCameraObject(skybox_px);
+    chronosGL.programBasic.addFollowCameraObject(skybox_px);
 
     Mesh skybox_nz = getWall(tnz, 1004);
     skybox_nz.setPos(-1000.0,2.0,-2.0);
     skybox_nz.rotY(0.5*Math.PI);
-    raysWebGL.programBasic.addFollowCameraObject(skybox_nz);
+    chronosGL.programBasic.addFollowCameraObject(skybox_nz);
 
     Mesh skybox_pz = getWall(tpz, 1004);
     skybox_pz.setPos(1000.0,2.0,-2.0);
     skybox_pz.rotY( 1.5*Math.PI);
-    raysWebGL.programBasic.addFollowCameraObject(skybox_pz);
+    chronosGL.programBasic.addFollowCameraObject(skybox_pz);
 
     Mesh skybox_ny = getWall(tny, 1004);
     skybox_ny.setPos( -2.0,-1000.0,-2.0);
     skybox_ny.rotX( 1.5*Math.PI);
     skybox_ny.rotZ( 1.5*Math.PI);
-    raysWebGL.programBasic.addFollowCameraObject(skybox_ny);
+    chronosGL.programBasic.addFollowCameraObject(skybox_ny);
 
     Mesh skybox_py = getWall(tpy, 1004);
     skybox_py.setPos( -2.0,1000.0,-2.0);
     skybox_py.rotX( 0.5*Math.PI);
     skybox_py.rotZ( 0.5*Math.PI);
-    raysWebGL.programBasic.addFollowCameraObject(skybox_py);
+    chronosGL.programBasic.addFollowCameraObject(skybox_py);
   }
   
   MeshData createIcosahedron( int subdivisions) {
@@ -155,14 +155,14 @@ class Utils
     Texture t;
     if( textureWrapper!=null)
       t = textureWrapper.texture;
-    return raysWebGL.programBasic.add( createCube(t).createMesh());
+    return chronosGL.programBasic.add( createCube(t).createMesh());
   }
 
   Mesh addTorusKnot(  {double radius:20.0, double tube:4.0, int segmentsR:128, int segmentsT:16, int p:2, int q:3, double heightScale:1.0, TextureWrapper textureWrapper}) {
     Texture t;
     if( textureWrapper!=null)
       t = textureWrapper.texture;
-    return raysWebGL.programBasic.add( createTorusKnot( radius:radius, tube:tube, segmentsR:segmentsR, segmentsT:segmentsT, p:p, q:q, heightScale:heightScale, texture: t).createMesh());
+    return chronosGL.programBasic.add( createTorusKnot( radius:radius, tube:tube, segmentsR:segmentsR, segmentsT:segmentsT, p:p, q:q, heightScale:heightScale, texture: t).createMesh());
   }
   
 
@@ -185,9 +185,9 @@ class Utils
     
     MeshData md = new MeshData(vertices: vertices, texture: texture );
     
-    ShaderProgram pssp = raysWebGL.programs['point_sprites'];
+    ShaderProgram pssp = chronosGL.programs['point_sprites'];
     if( pssp == null)
-        pssp = raysWebGL.getShaderLib().createPointSpritesShaderProgram();
+        pssp = chronosGL.createProgram( 'point_sprites', chronosGL.getShaderLib().createPointSpritesShader());
     Mesh m= new Mesh( md, true);
     m.blend = true;
     m.name = 'point_sprites_mesh_'+pssp.objects.length.toString();

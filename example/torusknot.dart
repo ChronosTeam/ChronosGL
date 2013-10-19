@@ -3,7 +3,7 @@ import 'package:ChronosGL/chronos_gl.dart';
 
 void main() {
   
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas', false);
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas', transparent: false);
 
   Camera camera = chronosGL.getCamera();
   TextureCache textureCache = chronosGL.getTextureCache();

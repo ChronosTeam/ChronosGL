@@ -2,8 +2,8 @@ import 'package:ChronosGL/chronos_gl.dart';
 
 void main() {
   
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas', false);
-  ShaderProgram prg = chronosGL.getShaderLib().createFixedVertexColorShaderProgram();
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
+  ShaderProgram prg = chronosGL.createProgram('FixedVertexColor', chronosGL.getShaderLib().createFixedVertexColorShader());
   Camera camera = chronosGL.getCamera();
   camera.setPos( 0.0, 0.0, 56.0 );
   FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly

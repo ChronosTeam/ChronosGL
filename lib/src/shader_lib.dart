@@ -4,11 +4,6 @@ const String fs_precision = "precision mediump float;\n";
 //float PI = 3.14159265358979323846264;
 
 class ShaderObject {
-  
-  ChronosGL raysWebGL;
-  
-  ShaderObject( this.raysWebGL);
-  
   String vertexShader;
   String fragmentShader;
   String vertexPositionAttribute;
@@ -19,36 +14,12 @@ class ShaderObject {
   String perpectiveMatrixUniform;
   String textureSamplerUniform;
   String timeUniform;
-  
-  ShaderProgram createProgram(String name) {
-    ShaderProgram pn = new ShaderProgram(raysWebGL, this, name);
-    raysWebGL.programs[name] = pn;
-    return pn;
-  }
 }
 
 class ShaderLib {
   
-  ChronosGL raysWebGL;
-  
-  ShaderLib( this.raysWebGL);
-  
-  ShaderProgram createBasicShaderProgram(String name) {
-    return createBasicShader().createProgram(name);
-  }
-  ShaderProgram createNormal2ColorShaderProgram([String name='normal2color']) {
-    return createNormal2ColorShader().createProgram(name);
-  }
-  ShaderProgram createFixedVertexColorShaderProgram([String name='fixed_vertex_colors']) {
-    return createFixedVertexColorShader().createProgram(name);
-  }
-  ShaderProgram createPointSpritesShaderProgram([String name='point_sprites']) {
-    return createPointSpritesShader().createProgram(name);
-  }
-
-  
   ShaderObject createBasicShader() {
-    ShaderObject shaderObject = new ShaderObject(raysWebGL);
+    ShaderObject shaderObject = new ShaderObject();
     
     // TODO: think about multipying uPMatrix and uMVMatrix in Dart code...
     // or maybe cache the result in a static ?
@@ -91,7 +62,7 @@ class ShaderLib {
   }
   
   ShaderObject createNormal2ColorShader() {
-    ShaderObject shaderObject = new ShaderObject(raysWebGL);
+    ShaderObject shaderObject = new ShaderObject();
     
     shaderObject.vertexShader = """
         precision mediump float;
@@ -129,7 +100,7 @@ class ShaderLib {
   }
 
   ShaderObject createFixedVertexColorShader() {
-    ShaderObject shaderObject = new ShaderObject(raysWebGL);
+    ShaderObject shaderObject = new ShaderObject();
     
     shaderObject.vertexShader = """
         precision mediump float;
@@ -164,7 +135,7 @@ class ShaderLib {
   }
   
   ShaderObject createPointSpritesShader() {
-    ShaderObject shaderObject = new ShaderObject(raysWebGL);
+    ShaderObject shaderObject = new ShaderObject();
     
     shaderObject.vertexShader = """
         precision mediump float;

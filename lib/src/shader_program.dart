@@ -1,7 +1,7 @@
 part of chronos_gl;
 
 class ShaderProgram implements Drawable {
-  ChronosGL raysWebGL;
+  ChronosGL chronosGL;
   ShaderObject shaderObject;
   String name;
   RenderingContext gl;
@@ -21,10 +21,10 @@ class ShaderProgram implements Drawable {
   List<Node> followCameraObjects = new List<Node>(); 
   List<Node> objects = new List<Node>();
   
-  ShaderProgram( this.raysWebGL, this.shaderObject, this.name)
+  ShaderProgram( this.chronosGL, this.shaderObject, this.name)
   {
     
-    gl = raysWebGL.getRenderingContext();
+    gl = chronosGL.getRenderingContext();
   
     ShaderUtils su = new ShaderUtils(gl);
     program = su.getProgram( shaderObject.vertexShader, shaderObject.fragmentShader);
@@ -118,7 +118,7 @@ class ShaderProgram implements Drawable {
     if( shaderObject.timeUniform != null)
       gl.uniform1f(timeUniform, timeNow/1000);
     
-    Camera camera = raysWebGL.getCamera();
+    Camera camera = chronosGL.getCamera();
     camera.getMVMatrix(mvMatrix, false);
     
     //print( "mvM: ${mvMatrix}");

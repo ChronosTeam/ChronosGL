@@ -9,10 +9,10 @@ part "torusKnot_camera.dart";
 
 class CoolTexture extends Animatable {
   
-  ChronosGL raysWebGL;
+  ChronosGL chronosGL;
   Mesh m;
   
-  CoolTexture( this.raysWebGL, this.m) {
+  CoolTexture( this.chronosGL, this.m) {
     
   }
   
@@ -20,25 +20,25 @@ class CoolTexture extends Animatable {
   double time = 0.0;
   void animate(double elapsed) {
     time += elapsed/1000;
-    canvas2d = raysWebGL.getUtils().createGradientImage2( time, canvas2d);
-    raysWebGL.gl.bindTexture(TEXTURE_2D, m.texture);
-    raysWebGL.gl.texImage2DCanvas(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE,  canvas2d);
+    canvas2d = chronosGL.getUtils().createGradientImage2( time, canvas2d);
+    chronosGL.gl.bindTexture(TEXTURE_2D, m.texture);
+    chronosGL.gl.texImage2DCanvas(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE,  canvas2d);
 
   }
 }
 
 class MyGame {
 
-  ChronosGL raysWebGL;
+  ChronosGL chronosGL;
   Camera camera;
   TextureCache textureCache;
   TextureWrapper blockTex;
   
   
   MyGame() {
-    raysWebGL = new ChronosGL('#webgl-canvas', true);
-    camera = raysWebGL.getCamera();
-    textureCache = raysWebGL.getTextureCache();
+    chronosGL = new ChronosGL('#webgl-canvas', transparent: true);
+    camera = chronosGL.getCamera();
+    textureCache = chronosGL.getTextureCache();
     
     blockTex = textureCache.add("gradient.jpg");
     textureCache.add("particle.bmp");
@@ -53,18 +53,18 @@ class MyGame {
 
     //camera.setPos( 0.0, 0.0, 56.0 );
     //capturedInput.setUpCapture();
-    //FlyingCamera fc = new FlyingCamera(camera);    raysWebGL.addPhysicsObject('flyingCamera', fc);
+    //FlyingCamera fc = new FlyingCamera(camera);    chronosGL.addPhysicsObject('flyingCamera', fc);
     
-    TorusKnotCamera tkc = new TorusKnotCamera(camera);    raysWebGL.addAnimatable('tkc', tkc);
+    TorusKnotCamera tkc = new TorusKnotCamera(camera);    chronosGL.addAnimatable('tkc', tkc);
     
     
 
-    Mesh m = raysWebGL.getUtils().addTorusKnot( textureWrapper: blockTex);
+    Mesh m = chronosGL.getUtils().addTorusKnot( textureWrapper: blockTex);
     
-    CoolTexture ct = new CoolTexture( raysWebGL, m);
-    raysWebGL.addAnimatable('ct', ct);
+    CoolTexture ct = new CoolTexture( chronosGL, m);
+    chronosGL.addAnimatable('ct', ct);
         
-    //raysWebGL.programPointSprites.add( new PointSprites( 2000, textureCache.get( "textures/particle.bmp")));
+    //chronosGL.programPointSprites.add( new PointSprites( 2000, textureCache.get( "textures/particle.bmp")));
     
     int p = 2;
     int q = 3;
@@ -72,7 +72,7 @@ class MyGame {
     for ( int i = 0; i < 128; ++ i ) {
       double u = i / 128 * 2 * p * Math.PI;
       getTorusKnotPos( u, q, p, radius, 1.0, p1 );
-      //raysWebGL.programPointSprites.add(new PointSprites.fromVertex(p1, textureCache.get("textures/particle.bmp")));
+      //chronosGL.programPointSprites.add(new PointSprites.fromVertex(p1, textureCache.get("textures/particle.bmp")));
     }
     
     //html.query("#sample_container_id").onMouseUp.listen((html.MouseEvent event){    m.rotX(event.client.x/1000);      m.rotY(event.client.y/1000);    });
@@ -80,7 +80,7 @@ class MyGame {
     // fix a bug in current chrome v.27
     html.query("#webgl-canvas").onDragStart.listen((html.MouseEvent event){      event.preventDefault();    });
 
-    raysWebGL.run( 0.0);
+    chronosGL.run( 0.0);
     
     
   }

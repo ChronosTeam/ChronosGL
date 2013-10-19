@@ -13,7 +13,7 @@ import 'package:ChronosGL/chronos_gl.dart';
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas', false);
-  ShaderProgram prg = chronosGL.getShaderLib().createFixedVertexColorShaderProgram();
+  ShaderProgram prg = chronosGL.createProgram( 'FixedVertexColor', chronosGL.getShaderLib().createFixedVertexColorShader());
   Camera camera = chronosGL.getCamera();
   camera.setPos( 0.0, 0.0, 56.0 );
   Mesh m = chronosGL.getUtils().createTorusKnotMesh();

@@ -3,12 +3,12 @@ part of chronos_gl;
 class TextureCache {
   
   Map<String, TextureWrapper> textureCache = new Map<String, TextureWrapper>();
-  ChronosGL raysWebGL;
+  ChronosGL chronosGL;
   RenderingContext gl;
   
-  TextureCache(this.raysWebGL)
+  TextureCache(this.chronosGL)
   {
-    gl = raysWebGL.gl;
+    gl = chronosGL.gl;
   }
 
   TextureWrapper add(String url, [bool clamp]) {
@@ -19,7 +19,7 @@ class TextureCache {
   void addSolidColor(String url, String fillStyle) {
     TextureWrapper tw = new TextureWrapper(this.gl, false);
     tw.loaded = true;
-    tw.texture = raysWebGL.getUtils().createSolidTexture(fillStyle);
+    tw.texture = chronosGL.getUtils().createSolidTexture(fillStyle);
     textureCache[url] = tw;
   }
 

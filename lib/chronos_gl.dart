@@ -61,7 +61,7 @@ class ChronosGL
   
   Matrix4 _pMatrix = new Matrix4(); 
   
-  ChronosGL(String canvasID, {bool transparent:false, bool useFramebuffer:false})
+  ChronosGL(String canvasID, {bool transparent:false, bool useFramebuffer:false, ShaderObject fxShader})
   {
     _canvas = HTML.document.query(canvasID);
     
@@ -87,8 +87,8 @@ class ChronosGL
     
     gl.lineWidth(5);
     
-    _shaderLib = new ShaderLib(this);
-    programBasic = _shaderLib.createBasicShaderProgram('basic');
+    _shaderLib = new ShaderLib();
+    programBasic = createProgram( 'basic', _shaderLib.createBasicShader());
     
     _textureCache = new TextureCache(this);
     _camera = new Camera();
@@ -97,7 +97,7 @@ class ChronosGL
     if( useFramebuffer) {
       fxFramebuffer = new ChronosFramebuffer(gl, _canvas.width, _canvas.height);
       fxWall = _utils.getWall( fxFramebuffer.texture, 1);
-      fxProgram = new ShaderProgram(this, _shaderLib.createBasicShader(), 'fx');
+      fxProgram = new ShaderProgram(this, fxShader == null ? _shaderLib.createBasicShader() : fxShader, 'fx');
       fxProgram.add(fxWall);
     }
 
@@ -128,6 +128,13 @@ class ChronosGL
     return _utils;
   }
   
+  ShaderProgram createProgram( String name, ShaderObject so, [bool register=true]) {
+    ShaderProgram pn = new ShaderProgram(this, so, name);
+    if( register)
+      this.programs[name] = pn;
+    return pn;
+  }
+
   void addAnimatable(String name, Animatable a) {
     animatables[name] = a;
   }
