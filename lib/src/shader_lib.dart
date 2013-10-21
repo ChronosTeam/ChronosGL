@@ -13,6 +13,7 @@ class ShaderObject {
   String modelViewMatrixUniform;
   String perpectiveMatrixUniform;
   String textureSamplerUniform;
+  String texture2SamplerUniform;
   String timeUniform;
 }
 
@@ -112,7 +113,7 @@ class ShaderLib {
         varying vec3 vColor;
         
         void main(void) {
-          vColor = vec3( sin(aVertexPosition.x), sin(aVertexPosition.y), sin(aVertexPosition.z));
+          vColor = vec3( sin(aVertexPosition.x)/2.0+0.5, cos(aVertexPosition.y)/2.0+0.5, sin(aVertexPosition.z)/2.0+0.5);
           gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
         }
         """;

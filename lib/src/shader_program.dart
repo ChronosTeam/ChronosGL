@@ -12,6 +12,7 @@ class ShaderProgram implements Drawable {
   UniformLocation pMatrixUniform;
   UniformLocation mvMatrixUniform;
   UniformLocation samplerUniform;
+  UniformLocation sampler2Uniform;
   UniformLocation transformationMatrixUniform;
   UniformLocation timeUniform;
   
@@ -42,6 +43,9 @@ class ShaderProgram implements Drawable {
 
     if( shaderObject.textureSamplerUniform != null)
       samplerUniform = getUniformLocation( shaderObject.textureSamplerUniform);
+
+    if( shaderObject.texture2SamplerUniform != null)
+      sampler2Uniform = getUniformLocation( shaderObject.texture2SamplerUniform);
     
     if( shaderObject.transformationMatrixUniform != null)
       transformationMatrixUniform = getUniformLocation( shaderObject.transformationMatrixUniform);

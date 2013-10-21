@@ -96,7 +96,8 @@ class ChronosGL
     
     if( useFramebuffer) {
       fxFramebuffer = new ChronosFramebuffer(gl, _canvas.width, _canvas.height);
-      fxWall = _utils.getWall( fxFramebuffer.texture, 1);
+      fxWall = _utils.getWall( fxFramebuffer.colorTexture, 1);
+      fxWall.texture2 = fxFramebuffer.depthTexture;
       fxProgram = new ShaderProgram(this, fxShader == null ? _shaderLib.createBasicShader() : fxShader, 'fx');
       fxProgram.add(fxWall);
     }
@@ -167,7 +168,7 @@ class ChronosGL
       _canvas.width = _canvas.clientWidth; 
       _canvas.height = _canvas.clientHeight;
       gl.viewport(0, 0, _canvas.clientWidth, _canvas.clientHeight);
-      _pMatrix.setPerspective(50, _canvas.clientWidth / _canvas.clientHeight, 0.1, 2020.0);
+      _pMatrix.setPerspective(50, _canvas.clientWidth / _canvas.clientHeight, 1.0, 520.0);
       _lastWidth = _canvas.clientWidth;
       _lastHeight = _canvas.clientHeight;
     }

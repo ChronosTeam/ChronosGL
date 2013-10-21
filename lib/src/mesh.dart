@@ -11,6 +11,7 @@ class Mesh extends Node {
   bool drawPoints;
   
   Texture texture;
+  Texture texture2;
   
   Buffer verticesBuffer, textureCoordBuffer, normalsBuffer, vertexIndexBuffer;
   
@@ -18,6 +19,7 @@ class Mesh extends Node {
  
   Mesh( MeshData meshData, [this.drawPoints=false]) {
     this.texture = meshData.texture;
+    this.texture2 = meshData.texture2;
     
     gl = ChronosGL.globalGL;
 
@@ -84,6 +86,12 @@ class Mesh extends Node {
       gl.activeTexture(TEXTURE0);
       gl.bindTexture(TEXTURE_2D, texture);
       gl.uniform1i(program.samplerUniform, 0);
+    }
+
+    if( program.shaderObject.texture2SamplerUniform != null) {
+      gl.activeTexture(TEXTURE1);
+      gl.bindTexture(TEXTURE_2D, texture2);
+      gl.uniform1i(program.sampler2Uniform, 1);
     }
 
     if( program.shaderObject.transformationMatrixUniform != null) {

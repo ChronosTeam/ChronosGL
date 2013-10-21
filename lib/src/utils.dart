@@ -220,7 +220,17 @@ class Utils
     return c.future;
   }
 
-
+  String getQueryVariable( String name) {
+    String query = HTML.window.location.search.substring(1);
+    List<String> vars = query.split("&");
+    for (int i = 0; i < vars.length; i++) {
+      List<String> pair = vars[i].split("=");
+      if (pair[0] == name) {
+        return Uri.decodeComponent(pair[1]);
+      }
+    }
+    return null;
+  }
     
 }
 
