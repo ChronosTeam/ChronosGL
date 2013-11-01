@@ -48,8 +48,6 @@ class ChronosFramebuffer {
     framebuffer = gl.createFramebuffer();
     renderbuffer = gl.createRenderbuffer();
     
-    depthTextureExt = gl.getExtension("WEBGL_depth_texture");  // http://blog.tojicode.com/2012/07/using-webgldepthtexture.html
-
     colorTexture = initTexture();
 
     gl.bindRenderbuffer(RENDERBUFFER, renderbuffer);

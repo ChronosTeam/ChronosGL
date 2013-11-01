@@ -59,9 +59,12 @@ class ChronosGL
   ShaderProgram fxProgram; // shortcut
   Matrix4 fxMatrix = new Matrix4(); 
   
-  Matrix4 _pMatrix = new Matrix4(); 
+  Matrix4 _pMatrix = new Matrix4();
   
-  ChronosGL(String canvasID, {bool transparent:false, bool useFramebuffer:false, ShaderObject fxShader})
+  num near=0.1;
+  num far=1000;
+  
+  ChronosGL(String canvasID, {bool transparent:false, bool useFramebuffer:false, ShaderObject fxShader, this.near:0.1, this.far:1000.0})
   {
     _canvas = HTML.document.query(canvasID);
     
@@ -168,7 +171,7 @@ class ChronosGL
       _canvas.width = _canvas.clientWidth; 
       _canvas.height = _canvas.clientHeight;
       gl.viewport(0, 0, _canvas.clientWidth, _canvas.clientHeight);
-      _pMatrix.setPerspective(50, _canvas.clientWidth / _canvas.clientHeight, 1.0, 520.0);
+      _pMatrix.setPerspective(50, _canvas.clientWidth / _canvas.clientHeight, near, far);
       _lastWidth = _canvas.clientWidth;
       _lastHeight = _canvas.clientHeight;
     }
