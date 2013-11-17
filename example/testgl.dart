@@ -78,7 +78,7 @@ class MyGame {
     //html.query("#sample_container_id").onMouseUp.listen((html.MouseEvent event){    m.rotX(event.client.x/1000);      m.rotY(event.client.y/1000);    });
 
     // fix a bug in current chrome v.27
-    html.query("#webgl-canvas").onDragStart.listen((html.MouseEvent event){      event.preventDefault();    });
+    html.querySelector("#webgl-canvas").onDragStart.listen((html.MouseEvent event){      event.preventDefault();    });
 
     chronosGL.run( 0.0);
     

@@ -12,7 +12,7 @@ void main() {
   textureCache.loadAllThenExecute(() {
     camera.setPos( 0.0, 0.0, 56.0 );
     Mesh m = chronosGL.getUtils().createTorusKnotMesh( texture: blockTex.texture);
-    html.query("#webgl-canvas").onMouseMove.listen((html.MouseEvent event){
+    html.querySelector("#webgl-canvas").onMouseMove.listen((html.MouseEvent event){
       m.rotX(event.client.x/10000);
       m.rotY(event.client.y/10000);
     });

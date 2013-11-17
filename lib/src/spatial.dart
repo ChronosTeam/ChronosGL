@@ -9,46 +9,46 @@ class Spatial {
   
   // temp variables to avoid creating new objects:
   // CHANGES TO THE VALUES WILL NOT IMPACT THE MATRIX AND MIGHT BE SHARED WITH OTHER USERS 
-  Vector pos = new Vector();
-  Vector back = new Vector();
-  Vector up = new Vector();
-  Vector right = new Vector();
+  Vector _pos = new Vector();
+  Vector _back = new Vector();
+  Vector _up = new Vector();
+  Vector _right = new Vector();
   
   Vector getPos() {
-    pos[0] = this.matrix[Matrix4.POSX];
-    pos[1] = this.matrix[Matrix4.POSY];
-    pos[2] = this.matrix[Matrix4.POSZ];
-    return this.pos;
+    _pos[0] = this.matrix[Matrix4.POSX];
+    _pos[1] = this.matrix[Matrix4.POSY];
+    _pos[2] = this.matrix[Matrix4.POSZ];
+    return this._pos;
   }
   
   // get the values from column 2. They represent the trail direction of this matrx
   // return ReadOnly vec3
   Vector getBack()
   {
-    back[0] = matrix[Matrix4.BACKX];
-    back[1] = matrix[Matrix4.BACKY];
-    back[2] = matrix[Matrix4.BACKZ];
-    return back;
+    _back[0] = matrix[Matrix4.BACKX];
+    _back[1] = matrix[Matrix4.BACKY];
+    _back[2] = matrix[Matrix4.BACKZ];
+    return _back;
   }
 
   // get the values from column 1. They represent the up vector of this matrx
   // return ReadOnly vec3
   Vector getUp()
   {
-    up[0] = matrix[Matrix4.UPX];
-    up[1] = matrix[Matrix4.UPY];
-    up[2] = matrix[Matrix4.UPZ];
-    return up;
+    _up[0] = matrix[Matrix4.UPX];
+    _up[1] = matrix[Matrix4.UPY];
+    _up[2] = matrix[Matrix4.UPZ];
+    return _up;
   }
 
   // get the values from column 0. They represent the right vector of this matrx
   // return ReadOnly vec3
   Vector getRight()
   {
-    right[0] = matrix[Matrix4.RIGHTX];
-    right[1] = matrix[Matrix4.RIGHTY];
-    right[2] = matrix[Matrix4.RIGHTZ];
-    return right;
+    _right[0] = matrix[Matrix4.RIGHTX];
+    _right[1] = matrix[Matrix4.RIGHTY];
+    _right[2] = matrix[Matrix4.RIGHTZ];
+    return _right;
   }
   
   void setPos( double x, double y, double z )
@@ -56,6 +56,16 @@ class Spatial {
     matrix[Matrix4.POSX] = x;
     matrix[Matrix4.POSY] = y;
     matrix[Matrix4.POSZ] = z;
+  }
+
+  void addPos( num x, num y, num z )
+  {
+    translate( x, y, z); // alias
+  }
+
+  void addPosFromVec( Vector vector )
+  {
+    translateFromVec( vector); // alias
   }
 
   void setPosFromVec( Vector vector )

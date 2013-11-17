@@ -66,7 +66,7 @@ class ChronosGL
   
   ChronosGL(String canvasID, {bool transparent:false, bool useFramebuffer:false, ShaderObject fxShader, this.near:0.1, this.far:1000.0})
   {
-    _canvas = HTML.document.query(canvasID);
+    _canvas = HTML.document.querySelector(canvasID);
     
     // fix a bug in current chrome v.27
     _canvas.onDragStart.listen((HTML.MouseEvent event){ event.preventDefault(); });
