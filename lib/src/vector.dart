@@ -15,7 +15,7 @@ class Vector {
 
   Vector.fromList( this.array);
   
-  Vector( [num x=0.0, num y=0.0, num z=0.0])
+  Vector( [double x=0.0, double y=0.0, double z=0.0])
   {
     array[0] = x;
     array[1] = y;
@@ -31,37 +31,42 @@ class Vector {
     array[index] = value;
   }
 
-  void set( Vector v) {
+  Vector set( Vector v) {
       array[0] = v[0];
       array[1] = v[1];
       array[2] = v[2];
+      return this;
   }
   
-  void add( Vector v) {
+  Vector add( Vector v) {
       array[0] += v[0];
       array[1] += v[1];
       array[2] += v[2];
+      return this;
   }
 
-  void subtract( Vector v) {
+  Vector subtract( Vector v) {
       array[0] -= v[0];
       array[1] -= v[1];
       array[2] -= v[2];
+      return this;
   }
 
-  void scale( num val) {
+  Vector scale( num val) {
       array[0] *= val;
       array[1] *= val;
       array[2] *= val;
+      return this;
   }
 
-  void negate() {
+  Vector negate() {
     array[0] = -array[0];
     array[1] = -array[1];
     array[2] = -array[2];
+    return this;
   }
   
-  void normalize() {
+  Vector normalize() {
     double x = array[0], y = array[1], z = array[2];
     double len = Math.sqrt(x * x + y * y + z * z);
 
@@ -79,12 +84,13 @@ class Vector {
       array[1] = y * len;
       array[2] = z * len;
     }
+    return this;
   }
   
   // I think the from and to is swapped, but it's the same in glmatrix...
-  void direction( Vector from, Vector to)
+  Vector direction( Vector from, Vector to)
   {
-    num x = from[0] - to[0],
+    double x = from[0] - to[0],
         y = from[1] - to[1],
         z = from[2] - to[2],
         len = Math.sqrt(x * x + y * y + z * z);
@@ -99,11 +105,15 @@ class Vector {
       array[1] = y * len;
       array[2] = z * len;
     }
-
+    return this;
   }
   
-  Vector cross(Vector vec1, Vector vec2) {
-    num x = vec1[0], y = vec1[1], z = vec1[2],
+  Vector cross( Vector vec2) {
+    return cross2( this, vec2);
+  }
+
+  Vector cross2( Vector vec1, Vector vec2) {
+    double x = vec1[0], y = vec1[1], z = vec1[2],
         x2 = vec2[0], y2 = vec2[1], z2 = vec2[2];
 
     array[0] = y * z2 - z * y2;
@@ -116,10 +126,11 @@ class Vector {
     return array[0] * vec2[0] + array[1] * vec2[1] + array[2] * vec2[2];
   }
   
-  void lerp( Vector v, double lerp) {
+  Vector lerp( Vector v, double lerp) {
     array[0] += lerp * (v[0] - array[0]);
     array[1] += lerp * (v[1] - array[1]);
     array[2] += lerp * (v[2] - array[2]);
+    return this;
   }
   
   double dist( Vector to) {
@@ -130,35 +141,45 @@ class Vector {
     return Math.sqrt(x*x + y*y + z*z);
   }
   
+  double lengthSquared() {
+    double x = array[0],
+           y = array[1],
+           z = array[2];
+    return (x*x + y*y + z*z);
+  }
+
+  double length() {
+    return Math.sqrt(lengthSquared());
+  }
+
   // if we initialize the matrix here we get an endless loop
   // because Matrix also creates a new Vector...
   Matrix4 m = null;
-  List<num> v = new List<num>(4);
+  List<double> _v = new List<double>(4);
   
-  bool unproject( Matrix4 view, Matrix4 proj, List<num> viewport) {
+  bool unproject( Matrix4 view, Matrix4 proj, List<double> viewport) {
     
     if( m == null)
       m = new Matrix4(); 
 
-    v[0] = (array[0] - viewport[0]) * 2.0 / viewport[2] - 1.0;
-    v[1] = (array[1] - viewport[1]) * 2.0 / viewport[3] - 1.0;
-    v[2] = 2.0 * array[2] - 1.0;
-    v[3] = 1.0;
+    _v[0] = (array[0] - viewport[0]) * 2.0 / viewport[2] - 1.0;
+    _v[1] = (array[1] - viewport[1]) * 2.0 / viewport[3] - 1.0;
+    _v[2] = 2.0 * array[2] - 1.0;
+    _v[3] = 1.0;
     
     m.setElements(proj);
     m.multiplyWith( view );
     if(!m.invert()) { return false; }
     
-    m.multiplyVec4( v);
-    if(v[3] == 0.0) { return false; }
+    m.multiplyVec4( _v);
+    if(_v[3] == 0.0) { return false; }
 
-    array[0] = v[0] / v[3];
-    array[1] = v[1] / v[3];
-    array[2] = v[2] / v[3];
+    array[0] = _v[0] / _v[3];
+    array[1] = _v[1] / _v[3];
+    array[2] = _v[2] / _v[3];
   }
  
   String toString() {
     return array.toString();
   }
-
 }

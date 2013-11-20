@@ -289,7 +289,7 @@ class Matrix4 {
   }
   
   // dest = Vector4
-  void multiplyVec4( List<num> vec4) {
+  void multiplyVec4( List<double> vec4) {
     var x = vec4[0], y = vec4[1], z = vec4[2], w = vec4[3];
 
     vec4[0] = array[0] * x + array[4] * y + array[8] * z + array[12] * w;
@@ -347,9 +347,9 @@ class Matrix4 {
     // vec3.direction goes from argument2 to argument1 and normalizes
     // as we want a back vector, we want from target to this spatial position
     newBack.direction( eye, target );
-    newRight.cross( up, newBack);
+    newRight.cross2( up, newBack);
     newRight.normalize();
-    newUp.cross(newBack, newRight);
+    newUp.cross2(newBack, newRight);
     
     array[ 0] = newRight[0];
     array[ 1] = newUp[0];

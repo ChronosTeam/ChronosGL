@@ -7,6 +7,7 @@ int clientX=0;
 int clientY=0;
 int mouseX=0;
 int mouseY=0;
+bool skipDefaultMouseMoveListener = false;
 
 
 void setUpCapture()
@@ -14,15 +15,18 @@ void setUpCapture()
   HTML.document.onKeyDown.listen( (HTML.KeyboardEvent e) { currentlyPressedKeys[e.keyCode] = true; });
   HTML.document.onKeyUp.listen( (HTML.KeyboardEvent e) { currentlyPressedKeys[e.keyCode] = null; });
   
-  HTML.document.onMouseMove.listen( (HTML.MouseEvent e) {
-    e.preventDefault();
-    
-    clientX = e.client.x; 
-    clientY = HTML.window.innerHeight - e.client.y; 
-    mouseX = e.client.x-(HTML.window.innerWidth~/2);
-    mouseY = -(e.client.y-(HTML.window.innerHeight~/2));
-    
-  });
+  if( ! skipDefaultMouseMoveListener )
+  {
+    HTML.document.onMouseMove.listen( (HTML.MouseEvent e) {
+      e.preventDefault();
+      
+      clientX = e.client.x; 
+      clientY = HTML.window.innerHeight - e.client.y; 
+      mouseX = e.client.x-(HTML.window.innerWidth~/2);
+      mouseY = -(e.client.y-(HTML.window.innerHeight~/2));
+      
+    });
+  }
 
   HTML.document.onMouseDown.listen( (HTML.MouseEvent e) {
     e.preventDefault();
