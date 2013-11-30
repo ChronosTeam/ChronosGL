@@ -2,7 +2,7 @@ part of chronos_gl;
 
 class Vector {
   
-  Float32List array = new Float32List(3);
+  Float32List array;
 
   double get x => array[0];
   double get y => array[1];
@@ -16,6 +16,7 @@ class Vector {
   Vector.useList( this.array);
 
   Vector.fromList( Float32List array) {
+	this.array = new Float32List(3);
     this.array[0] = array[0];
     this.array[1] = array[1];
     this.array[2] = array[2];
@@ -23,6 +24,7 @@ class Vector {
   
   Vector( [double x=0.0, double y=0.0, double z=0.0])
   {
+	array = new Float32List(3);
     array[0] = x;
     array[1] = y;
     array[2] = z;
