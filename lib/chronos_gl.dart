@@ -76,6 +76,9 @@ class ChronosGL
     _canvas.height = _canvas.clientHeight;
     _aspect = _canvas.clientWidth / _canvas.clientHeight;
     gl = _canvas.getContext("experimental-webgl");
+    if( gl == null) {
+      throw new Exception('calling canvas.getContext("experimental-webgl") failed, make sure you run on a computer that supports WebGL, test here: http://get.webgl.org/');
+    }
     ChronosGL.globalGL = gl;
     
     //print( gl.getSupportedExtensions());
