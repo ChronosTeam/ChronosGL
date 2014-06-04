@@ -1,5 +1,5 @@
 name: ChronosGL
-version: 1.0.3
+version: 1.0.4
 author: rhulha <java4life@gmail.com>
 description: A simple, minimal and elegant scene graph for WebGL written in Dart
 homepage: https://github.com/rhulha/ChronosGL
