@@ -78,19 +78,19 @@ class ShaderLib {
         vec3 ambientColor = vec3(0.0,0.0,0.0);
         vec3 directionalColor = vec3(1.0,1.0,1.0);
 
-        vec3 pointLightLocation = vec3( 4, 0, 10);
+        vec3 pointLightLocation = vec3( 40, 0, 100);
         
         varying vec3 vLightWeighting;
         varying vec3 vNormal;
 
         void main(void) {
           gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+          vNormal = (uMVMatrix * vec4(aNormal, 0.0)).xyz;
 
           vec3 lightDir = normalize(pointLightLocation - aVertexPosition.xyz);
 
-          float directionalLightWeighting = max(dot(aNormal, normalize(lightDir)), 0.0);
+          float directionalLightWeighting = max(dot(vNormal, normalize(lightDir)), 0.0);
           vLightWeighting = ambientColor + directionalColor * directionalLightWeighting;
-          vNormal = aNormal;
         }
         """;
     

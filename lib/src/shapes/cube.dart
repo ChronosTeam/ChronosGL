@@ -37,6 +37,41 @@ MeshData createCubeInternal( [Texture texture]) {
                            -1.0, -1.0,  1.0,
                            -1.0,  1.0,  1.0,
                            -1.0,  1.0, -1.0];
+  List<double> normals = [// Front face
+                              0.0,  0.0,  1.0,
+                              0.0,  0.0,  1.0,
+                              0.0,  0.0,  1.0,
+                              0.0,  0.0,  1.0,
+
+                             // Back face
+                              0.0,  0.0, -1.0,
+                              0.0,  0.0, -1.0,
+                              0.0,  0.0, -1.0,
+                              0.0,  0.0, -1.0,
+
+                             // Top face
+                              0.0,  1.0,  0.0,
+                              0.0,  1.0,  0.0,
+                              0.0,  1.0,  0.0,
+                              0.0,  1.0,  0.0,
+
+                             // Bottom face
+                              0.0, -1.0,  0.0,
+                              0.0, -1.0,  0.0,
+                              0.0, -1.0,  0.0,
+                              0.0, -1.0,  0.0,
+
+                             // Right face
+                              1.0,  0.0,  0.0,
+                              1.0,  0.0,  0.0,
+                              1.0,  0.0,  0.0,
+                              1.0,  0.0,  0.0,
+
+                             // Left face
+                             -1.0,  0.0,  0.0,
+                             -1.0,  0.0,  0.0,
+                             -1.0,  0.0,  0.0,
+                             -1.0,  0.0,  0.0,];
   List<double> uvs = [// Front face
                       0.0, 0.0,
                       1.0, 0.0,
@@ -81,6 +116,6 @@ MeshData createCubeInternal( [Texture texture]) {
                            20, 21, 22,   20, 22, 23  // Left face
                            ];
 
-  return new MeshData(vertices : new Float32List.fromList(vertices), textureCoords : new Float32List.fromList(uvs), vertexIndices : new Uint16List.fromList(vertIndices), texture : texture); 
+  return new MeshData(vertices : new Float32List.fromList(vertices), normals : new Float32List.fromList(normals), textureCoords : new Float32List.fromList(uvs), vertexIndices : new Uint16List.fromList(vertIndices), texture : texture); 
   
 }
