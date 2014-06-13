@@ -1,4 +1,4 @@
-part of chronos_gl;
+part of chronosgl;
 
 // a Node is a Spatial without Mesh data that can have children
 class Node extends Spatial {

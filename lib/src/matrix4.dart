@@ -1,4 +1,4 @@
-part of chronos_gl;
+part of chronosgl;
 
 /* [1, 0, 0, 0,
  *  0, 1, 0, 0,

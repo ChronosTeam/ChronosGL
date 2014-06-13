@@ -1,4 +1,4 @@
-part of chronos_gl;
+part of chronosgl;
 
 class Uniform {
   UniformLocation uniformLocation;

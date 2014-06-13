@@ -1,4 +1,4 @@
-part of chronos_gl;
+part of chronosgl;
 
 const String fs_precision = "precision mediump float;\n";
 //float PI = 3.14159265358979323846264;

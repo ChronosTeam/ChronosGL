@@ -1,4 +1,4 @@
-part of chronos_gl;
+part of chronosgl;
 
 // http://stackoverflow.com/questions/3235385/given-a-bounding-box-and-a-line-two-points-determine-if-the-line-intersects-t
 

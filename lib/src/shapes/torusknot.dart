@@ -1,4 +1,4 @@
-part of chronos_gl;
+part of chronosgl;
 
 Vector p1 = new Vector();
 Vector p2 = new Vector();

@@ -1,4 +1,4 @@
-part of chronos_gl;
+part of chronosgl;
 
 Map<int, bool> currentlyPressedKeys = new Map<int, bool>();
 Map<String, bool> currentlyPressedMouseButtons = new Map<String, bool>();

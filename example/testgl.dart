@@ -3,7 +3,7 @@ library testgl;
 import 'dart:html' as html;
 import 'dart:math' as Math;
 import 'dart:web_gl';
-import 'package:ChronosGL/chronos_gl.dart';
+import 'package:chronosgl/chronosgl.dart';
 
 part "torusKnot_camera.dart";
 

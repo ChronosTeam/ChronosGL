@@ -1,4 +1,4 @@
-import 'package:ChronosGL/chronos_gl.dart';
+import 'package:chronosgl/chronosgl.dart';
 
 void main() {
   

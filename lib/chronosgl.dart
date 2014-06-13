@@ -1,4 +1,4 @@
-library chronos_gl;
+library chronosgl;
 
 import 'dart:html' as HTML;
 import 'dart:web_gl';
