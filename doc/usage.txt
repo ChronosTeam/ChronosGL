@@ -9,7 +9,7 @@ create a HTML page and add a canvas similar to this:
 <canvas id="webgl-canvas" style="border: none; width:100%; height: 100%; display:block;"></canvas>
 
 in your dart file add this:
-import 'package:ChronosGL/chronos_gl.dart';
+import 'package:chronosgl/chronosgl.dart';
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas', false);
