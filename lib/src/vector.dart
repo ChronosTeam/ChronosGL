@@ -189,6 +189,8 @@ class Vector {
     array[0] = _v[0] / _v[3];
     array[1] = _v[1] / _v[3];
     array[2] = _v[2] / _v[3];
+    
+    return true;
   }
  
   String toString() {

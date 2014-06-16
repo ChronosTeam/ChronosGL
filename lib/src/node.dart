@@ -24,6 +24,7 @@ class Node extends Spatial {
   Spatial add( Node child)
   {
     children.add( child);
+    return child;
   }
   
   void animate( double elapsed)
