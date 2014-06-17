@@ -27,6 +27,7 @@ part "src/input.dart";
 part "src/shader_lib.dart";
 part "src/load_obj.dart";
 part "src/framebuffer.dart";
+part "src/shader/ssao_shader.dart";
 
 abstract class Animatable {
   void animate( double elapsed);

@@ -1,6 +1,5 @@
 part of chronosgl;
 
-const String fs_precision = "precision mediump float;\n";
 //float PI = 3.14159265358979323846264;
 
 class ShaderObject {
@@ -14,6 +13,9 @@ class ShaderObject {
   String perpectiveMatrixUniform;
   String textureSamplerUniform;
   String texture2SamplerUniform;
+  String cameraNear;
+  String cameraFar;
+  String size; // canvas width and height
   String timeUniform;
 }
 
@@ -48,7 +50,7 @@ class ShaderLib {
         uniform sampler2D uSampler;
         
         void main(void) {
-          gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+          gl_FragColor = texture2D(uSampler, vTextureCoord);
           //gl_FragColor = vec4( vec3( vTextureCoord, 0. ), 1. );
         }
         """;

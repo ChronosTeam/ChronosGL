@@ -14,6 +14,9 @@ class ShaderProgram implements Drawable {
   UniformLocation samplerUniform;
   UniformLocation sampler2Uniform;
   UniformLocation transformationMatrixUniform;
+  UniformLocation cameraNear;
+  UniformLocation cameraFar;
+  UniformLocation size;
   UniformLocation timeUniform;
   
   bool debug = false;
@@ -46,6 +49,15 @@ class ShaderProgram implements Drawable {
 
     if( shaderObject.texture2SamplerUniform != null)
       sampler2Uniform = getUniformLocation( shaderObject.texture2SamplerUniform);
+
+    if( shaderObject.cameraNear != null)
+      cameraNear = getUniformLocation( shaderObject.cameraNear);
+
+    if( shaderObject.cameraFar != null)
+      cameraFar = getUniformLocation( shaderObject.cameraFar);
+    
+    if( shaderObject.size != null)
+      size = getUniformLocation( shaderObject.size);
     
     if( shaderObject.transformationMatrixUniform != null)
       transformationMatrixUniform = getUniformLocation( shaderObject.transformationMatrixUniform);
@@ -124,6 +136,16 @@ class ShaderProgram implements Drawable {
     
     Camera camera = chronosGL.getCamera();
     camera.getMVMatrix(mvMatrix, false);
+
+    if( shaderObject.cameraNear != null)
+      gl.uniform1f(cameraNear, chronosGL.near);;
+
+    if( shaderObject.cameraFar != null)
+      gl.uniform1f(cameraFar, chronosGL.far);;
+
+    if( shaderObject.size != null)
+      gl.uniform2f(size, chronosGL._canvas.clientWidth, chronosGL._canvas.clientHeight );
+
     
     //print( "mvM: ${mvMatrix}");
     
