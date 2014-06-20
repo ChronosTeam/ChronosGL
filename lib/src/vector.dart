@@ -120,6 +120,9 @@ class Vector {
     return this;
   }
   
+  // The cross product results in a vector perpendicular to the two input vectors
+  // The result's magnitude is equal to the magnitudes of the two inputs multiplied together and then multiplied by the sine of the angle between the inputs.
+  // Or in other words the result's magnitude is equal to the area of the parallelogram that the two input vectors span.
   Vector cross( Vector vec2) {
     return cross2( this, vec2);
   }
@@ -134,6 +137,8 @@ class Vector {
     return this;
   }
   
+  // The dot product is a float value equal to the magnitudes of the two vectors multiplied together and then multiplied by the cosine of the angle between them.
+  // For normalized vectors Dot returns 1 if they point in exactly the same direction, -1 if they point in completely opposite directions and zero if the vectors are perpendicular.
   double dot( Vector vec2) {
     return array[0] * vec2[0] + array[1] * vec2[1] + array[2] * vec2[2];
   }

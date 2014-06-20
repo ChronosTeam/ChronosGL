@@ -72,7 +72,6 @@ class ChronosGL
     // fix a bug in current chrome v.27
     _canvas.onDragStart.listen((HTML.MouseEvent event){ event.preventDefault(); });
 
-    // TODO: add resize handler
     _canvas.width = _canvas.clientWidth; 
     _canvas.height = _canvas.clientHeight;
     _aspect = _canvas.clientWidth / _canvas.clientHeight;
