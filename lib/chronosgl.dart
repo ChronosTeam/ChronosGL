@@ -24,10 +24,13 @@ part "src/shapes/torusknot.dart";
 part "src/shapes/icosahedron.dart";
 part "src/pickray.dart";
 part "src/input.dart";
-part "src/shader_lib.dart";
 part "src/load_obj.dart";
 part "src/framebuffer.dart";
+part "src/shader/basic_shader.dart";
+part "src/shader/plane_shader.dart";
 part "src/shader/ssao_shader.dart";
+part "src/shader/sobel_shader.dart";
+part "src/shader/debug_shader.dart";
 
 abstract class Animatable {
   void animate( double elapsed);
@@ -48,7 +51,6 @@ class ChronosGL
   Map<String, Animatable> animatables = new Map<String, Animatable>();
   
   ShaderProgram programBasic; // shortcut
-  ShaderLib _shaderLib;
   
   HTML.CanvasElement _canvas;
   double _aspect;
@@ -93,8 +95,7 @@ class ChronosGL
     
     gl.lineWidth(5);
     
-    _shaderLib = new ShaderLib();
-    programBasic = createProgram( 'basic', _shaderLib.createBasicShader());
+    programBasic = createProgram( 'basic', createBasicShader());
     
     _textureCache = new TextureCache(this);
     _camera = new Camera();
@@ -104,7 +105,7 @@ class ChronosGL
       fxFramebuffer = new ChronosFramebuffer(gl, _canvas.width, _canvas.height);
       fxWall = _utils.getWall( fxFramebuffer.colorTexture, 1);
       fxWall.texture2 = fxFramebuffer.depthTexture;
-      fxProgram = new ShaderProgram(this, fxShader == null ? _shaderLib.createBasicShader() : fxShader, 'fx');
+      fxProgram = new ShaderProgram(this, fxShader == null ? createBasicShader() : fxShader, 'fx');
       fxProgram.add(fxWall);
     }
 
@@ -125,10 +126,6 @@ class ChronosGL
   
   Camera getCamera() {
     return _camera;
-  }
-
-  ShaderLib getShaderLib() {
-    return _shaderLib;
   }
 
   Utils getUtils() {

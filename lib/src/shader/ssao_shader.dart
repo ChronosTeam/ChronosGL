@@ -1,7 +1,6 @@
 part of chronosgl;
 
-
-ShaderObject getSSAOShader() {
+ShaderObject createSSAOShader() {
   ShaderObject shaderObject = new ShaderObject();
   
   shaderObject.vertexShader = """

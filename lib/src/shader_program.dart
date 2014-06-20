@@ -1,5 +1,22 @@
 part of chronosgl;
 
+class ShaderObject {
+  String vertexShader;
+  String fragmentShader;
+  String vertexPositionAttribute;
+  String textureCoordinatesAttribute;
+  String normalAttribute;
+  String transformationMatrixUniform;
+  String modelViewMatrixUniform;
+  String perpectiveMatrixUniform;
+  String textureSamplerUniform;
+  String texture2SamplerUniform;
+  String cameraNear;
+  String cameraFar;
+  String size; // canvas width and height
+  String timeUniform;
+}
+
 class ShaderProgram implements Drawable {
   ChronosGL chronosGL;
   ShaderObject shaderObject;

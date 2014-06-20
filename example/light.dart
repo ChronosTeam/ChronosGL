@@ -37,7 +37,7 @@ void main() {
     
     chronosGL.animatables['rotate_cube'] = new RotateMesh(m);
     
-    ShaderProgram prg = chronosGL.createProgram('Light', chronosGL.getShaderLib().createLightShader());
+    ShaderProgram prg = chronosGL.createProgram('Light', createLightShader());
     prg.add(m);
     
     chronosGL.getUtils().addParticles(2000, partiTex.texture);

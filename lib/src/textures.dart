@@ -12,8 +12,7 @@ class TextureCache {
   }
 
   TextureWrapper add(String url, [bool clamp]) {
-    textureCache[url] = new TextureWrapper(this.gl, clamp);
-    return textureCache[url];
+    return textureCache[url] = new TextureWrapper(this.gl, clamp);
   }
   
   void addSolidColor(String url, String fillStyle) {
@@ -37,7 +36,7 @@ class TextureCache {
     
     for( String url in textureCache.keys)
     {
-      print(url);
+      //print(url);
       TextureWrapper textureWrapper = textureCache[url];
       if( textureWrapper.loaded )
         continue;
