@@ -33,7 +33,7 @@ class Camera extends Spatial
 class FlyingCamera extends Animatable
 {
   Camera camera;
-  Vector momentum = new Vector();
+  Vector3 momentum = new Vector3.zero();
   
   FlyingCamera( this.camera);
   
@@ -66,45 +66,45 @@ class FlyingCamera extends Animatable
   }
   
   void moveForward(double amount) {
-    Vector back = camera.getBack();
+    Vector3 back = camera.getBack();
     back.negate();
-    momentum.lerp( back, amount);
+    Vector3.mix(momentum, back, amount, momentum);
   }
   void moveBackward(double amount) {
-    Vector back = camera.getBack();
-    momentum.lerp( back, amount);
+    Vector3 back = camera.getBack();
+    Vector3.mix(momentum, back, amount, momentum);
   }
   void moveUp( num amount) {
-    Vector up = camera.getUp();
-    momentum.lerp( up, amount);
+    Vector3 up = camera.getUp();
+    Vector3.mix(momentum, up, amount, momentum);
   }
   void moveDown( num amount) {
-    Vector up = camera.getUp();
+    Vector3 up = camera.getUp();
     up.negate();
-    momentum.lerp( up, amount);
+    Vector3.mix(momentum, up, amount, momentum);
   }
   void moveLeft( num amount) {
-    Vector right = camera.getRight();
+    Vector3 right = camera.getRight();
     right.negate();
-    momentum.lerp( right, amount);
+    Vector3.mix(momentum, right, amount, momentum);
   }
   void moveRight( num amount) {
-    Vector right = camera.getRight();
-    momentum.lerp( right, amount);
+    Vector3 right = camera.getRight();
+    Vector3.mix(momentum, right, amount, momentum);
   }
 }
 
 class FPSCamera extends Animatable
 {
   Camera camera;
-  Vector momentum = new Vector();
-  Vector movement = new Vector();
-  Vector tmp = new Vector();
+  Vector3 momentum = new Vector3.zero();
+  Vector3 movement = new Vector3.zero();
+  Vector3 tmp = new Vector3.zero();
 
-  Vector traceStart = new Vector();
-  Vector traceEnd = new Vector();
+  Vector3 traceStart = new Vector3.zero();
+  Vector3 traceEnd = new Vector3.zero();
   
-  Vector up = new Vector(0.0,0.0,1.0);
+  Vector3 up = new Vector3(0.0,0.0,1.0);
   
   int movementX=0;
   int movementY=0;
@@ -129,13 +129,13 @@ class FPSCamera extends Animatable
     Map<int, bool> cpk = currentlyPressedKeys;
     Map<String, bool> cpmb = currentlyPressedMouseButtons;
     
-    movement.scale(0);
+    movement.scale(0.0);
     
     if (cpk[Key.W] != null) {
-      movement.subtract( camera.getBack() );
+      movement.sub( camera.getBack() );
     }
     if (cpk[Key.A] != null) {
-      movement.subtract( camera.getRight() );
+      movement.sub( camera.getRight() );
     }
     if (cpk[Key.S] != null) {
       movement.add( camera.getBack() );
@@ -147,11 +147,11 @@ class FPSCamera extends Animatable
     movement.z = 0.0;
     movement.normalize();
     momentum.add(movement);
-    tmp.set(momentum);
+    tmp.setFrom(momentum);
     tmp.scale(0.02);
     
-    traceStart.set(camera.getPos());
-    traceEnd.set(camera.getPos());
+    traceStart.setFrom(camera.getPos());
+    traceEnd.setFrom(camera.getPos());
     traceEnd.add(tmp);
     
     //Output output = level.trace( traceStart, traceEnd, 10.0);

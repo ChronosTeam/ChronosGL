@@ -7,8 +7,9 @@ import 'dart:typed_data';
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:vector_math/vector_math.dart';
+
 part "src/node.dart";
-part "src/vector.dart";
 part "src/matrix4.dart";
 part "src/textures.dart";
 part "src/shader_utils.dart";

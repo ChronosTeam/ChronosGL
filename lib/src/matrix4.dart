@@ -112,7 +112,7 @@ class Matrix4 {
     return true;
   }
   
-  void rotate( double angle, Vector axis) {
+  void rotate( double angle, Vector3 axis) {
     double x = axis[0], y = axis[1], z = axis[2],
         len = Math.sqrt(x * x + y * y + z * z),
         s, c, t,
@@ -336,20 +336,20 @@ class Matrix4 {
     array[14] = from[14] * factor;
   }
   
-  Vector newBack = new Vector();
-  Vector newUp = new Vector();
-  Vector newRight = new Vector();
+  Vector3 newBack = new Vector3.zero();
+  Vector3 newUp = new Vector3.zero();
+  Vector3 newRight = new Vector3.zero();
   
-  void lookAt_alt( Vector eye, Vector target, [Vector up]) {
+  void lookAt_alt( Vector3 eye, Vector3 target, [Vector3 up]) {
     if( up == null)
-      up = new Vector(0.0,1.0,0.0);
+      up = new Vector3(0.0,1.0,0.0);
     
     // vec3.direction goes from argument2 to argument1 and normalizes
     // as we want a back vector, we want from target to this spatial position
-    newBack.direction( eye, target );
-    newRight.cross2( up, newBack);
+    newBack = target - eye;
+    newRight = up.cross(newBack);
     newRight.normalize();
-    newUp.cross2(newBack, newRight);
+    newUp = newBack.cross(newRight);
     
     array[ 0] = newRight[0];
     array[ 1] = newUp[0];

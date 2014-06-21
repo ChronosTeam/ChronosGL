@@ -9,12 +9,12 @@ class Spatial {
   
   // temp variables to avoid creating new objects:
   // CHANGES TO THE VALUES WILL NOT IMPACT THE MATRIX AND MIGHT BE SHARED WITH OTHER USERS 
-  Vector _pos = new Vector();
-  Vector _back = new Vector();
-  Vector _up = new Vector();
-  Vector _right = new Vector();
+  Vector3 _pos = new Vector3.zero();
+  Vector3 _back = new Vector3.zero();
+  Vector3 _up = new Vector3.zero();
+  Vector3 _right = new Vector3.zero();
   
-  Vector getPos() {
+  Vector3 getPos() {
     _pos[0] = this.matrix[Matrix4.POSX];
     _pos[1] = this.matrix[Matrix4.POSY];
     _pos[2] = this.matrix[Matrix4.POSZ];
@@ -23,7 +23,7 @@ class Spatial {
   
   // get the values from column 2. They represent the trail direction of this matrx
   // return ReadOnly vec3
-  Vector getBack()
+  Vector3 getBack()
   {
     _back[0] = matrix[Matrix4.BACKX];
     _back[1] = matrix[Matrix4.BACKY];
@@ -33,7 +33,7 @@ class Spatial {
 
   // get the values from column 1. They represent the up vector of this matrx
   // return ReadOnly vec3
-  Vector getUp()
+  Vector3 getUp()
   {
     _up[0] = matrix[Matrix4.UPX];
     _up[1] = matrix[Matrix4.UPY];
@@ -43,7 +43,7 @@ class Spatial {
 
   // get the values from column 0. They represent the right vector of this matrx
   // return ReadOnly vec3
-  Vector getRight()
+  Vector3 getRight()
   {
     _right[0] = matrix[Matrix4.RIGHTX];
     _right[1] = matrix[Matrix4.RIGHTY];
@@ -63,12 +63,12 @@ class Spatial {
     translate( x, y, z); // alias
   }
 
-  void addPosFromVec( Vector vector )
+  void addPosFromVec( Vector3 vector )
   {
     translateFromVec( vector); // alias
   }
 
-  void setPosFromVec( Vector vector )
+  void setPosFromVec( Vector3 vector )
   {
     matrix[Matrix4.POSX] = vector[0];
     matrix[Matrix4.POSY] = vector[1];
@@ -82,7 +82,7 @@ class Spatial {
     matrix[Matrix4.POSZ] += z*factor;    
   }
 
-  void translateFromVec( Vector vector, [double factor=1.0])
+  void translateFromVec( Vector3 vector, [double factor=1.0])
   {
     matrix[Matrix4.POSX] += vector[0]*factor;
     matrix[Matrix4.POSY] += vector[1]*factor;
@@ -162,7 +162,7 @@ class Spatial {
     matrix.rotate( amount, getUp());
   }
   
-  void lookAt( Vector target, [Vector up])
+  void lookAt( Vector3 target, [Vector3 up])
   {
     matrix.lookAt_alt( getPos(), target, up);
   }

@@ -7,15 +7,15 @@ class TorusKnotCamera extends Animatable
   
   TorusKnotCamera( this.camera);
   
-  Vector p1 = new Vector();
-  Vector p2 = new Vector();
+  Vector3 p1 = new Vector3.zero();
+  Vector3 p2 = new Vector3.zero();
 
   int p = 2;
   int q = 3;
   double radius=20.0;
 
   double time=0.0;
-  Vector up = new Vector();
+  Vector3 up = new Vector3.zero();
   
   void animate( double elapsed)
   {
@@ -23,7 +23,7 @@ class TorusKnotCamera extends Animatable
     getTorusKnotPos( time/1500, q, p, radius, 1.0, p1 );
     getTorusKnotPos( (time/1500)+0.1, q, p, radius, 1.0, p2 );
     
-    up..set(p2)..normalize();
+    up..setFrom(p2)..normalize();
     camera.setPosFromVec(p1);
     camera.lookAt(p2);
     

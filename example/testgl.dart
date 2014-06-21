@@ -4,6 +4,7 @@ import 'dart:html' as html;
 import 'dart:math' as Math;
 import 'dart:web_gl';
 import 'package:chronosgl/chronosgl.dart';
+import 'package:vector_math/vector_math.dart';
 
 part "torusKnot_camera.dart";
 
@@ -46,7 +47,7 @@ class MyGame {
   }
 
 
-  Vector p1 = new Vector();
+  Vector3 p1 = new Vector3.zero();
   
   
   void init() {
