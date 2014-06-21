@@ -1,7 +1,7 @@
 part of chronosgl;
 
-Vector p1 = new Vector();
-Vector p2 = new Vector();
+Vector3 p1 = new Vector3.zero();
+Vector3 p2 = new Vector3.zero();
 
 MeshData createTorusKnotInternal(  {double radius:20.0, double tube:4.0, int segmentsR:128, int segmentsT:16, int p:2, int q:3, double heightScale:1.0, Texture texture}) {
   
@@ -10,9 +10,9 @@ MeshData createTorusKnotInternal(  {double radius:20.0, double tube:4.0, int seg
   List<double> normals = new List<double>();
   List<int> indices = new List<int>();
 
-  Vector tang = new Vector();
-  Vector n = new Vector();
-  Vector bitan = new Vector();
+  Vector3 tang = new Vector3.zero();
+  Vector3 n = new Vector3.zero();
+  Vector3 bitan = new Vector3.zero();
   List<List<int>> grid = new List<List<int>>(segmentsR);
 
   for ( int i = 0; i < segmentsR; ++ i ) {
@@ -29,8 +29,8 @@ MeshData createTorusKnotInternal(  {double radius:20.0, double tube:4.0, int seg
     n.y = p2.y + p1.y;
     n.z = p2.z + p1.z; 
     
-    bitan.cross2( tang, n).normalize();
-    n.cross2( bitan, tang ).normalize();
+    bitan = tang.cross(n).normalize();
+    n = bitan.cross(tang).normalize();
 
     for ( int j = 0; j < segmentsT; ++ j ) {
       double v = j / segmentsT * 2 * Math.PI;
@@ -87,7 +87,7 @@ MeshData createTorusKnotInternal(  {double radius:20.0, double tube:4.0, int seg
 
 
 
-Vector getTorusKnotPos( double u, int in_q, int in_p, double radius, double heightScale, Vector vec ) {
+Vector3 getTorusKnotPos( double u, int in_q, int in_p, double radius, double heightScale, Vector3 vec ) {
   double cu = Math.cos( u );
   double su = Math.sin( u );
   double quOverP = in_q / in_p * u;

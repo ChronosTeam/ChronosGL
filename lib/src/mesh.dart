@@ -58,7 +58,7 @@ class Mesh extends Node {
       print( program.shaderObject.textureSamplerUniform);
       print( drawPoints);
       print( numItems);
-      print( mvMatrix.array);
+      print( mvMatrix.storage);
       print( '-----');
       
     }
@@ -95,10 +95,10 @@ class Mesh extends Node {
     }
 
     if( program.shaderObject.transformationMatrixUniform != null) {
-      gl.uniformMatrix4fv(program.transformationMatrixUniform, false, matrix.array);
+      gl.uniformMatrix4fv(program.transformationMatrixUniform, false, matrix.storage);
     }
 
-    gl.uniformMatrix4fv(program.mvMatrixUniform, false, mvMatrix.array);
+    gl.uniformMatrix4fv(program.mvMatrixUniform, false, mvMatrix.storage);
     
     if( drawPoints ) {
       gl.drawArrays(POINTS, 0, numItems);

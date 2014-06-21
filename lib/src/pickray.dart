@@ -5,7 +5,7 @@ part of chronosgl;
 // all args are Vec3, Hit will be filled by this algo
 // returns the side where we hit the cube
 
-Vector currentHit = new Vector();
+Vector3 currentHit = new Vector3.zero();
 double currentDist = 0.0;
 int currentSide = 0;
 
@@ -14,7 +14,7 @@ int currentSide = 0;
 // L1  = Pick line start point
 // L2  = Pick line end point
 // Hit = hit point
-int checkLineBox( Vector B1, Vector B2, Vector L1, Vector L2, Vector Hit)
+int checkLineBox( Vector3 B1, Vector3 B2, Vector3 L1, Vector3 L2, Vector3 Hit)
 {
     if (L2[0] < B1[0] && L1[0] < B1[0]) return -1;
     if (L2[0] > B2[0] && L1[0] > B2[0]) return -2;
@@ -30,7 +30,7 @@ int checkLineBox( Vector B1, Vector B2, Vector L1, Vector L2, Vector Hit)
         L1[1] > B1[1] && L1[1] < B2[1] &&
         L1[2] > B1[2] && L1[2] < B2[2])
     {
-        Hit.set( L1 );
+        Hit.setFrom( L1 );
         print("this sucks");
         return 1;
     }
@@ -39,87 +39,87 @@ int checkLineBox( Vector B1, Vector B2, Vector L1, Vector L2, Vector Hit)
     currentSide = 0;
     if (getIntersection(L1[0] - B1[0], L2[0] - B1[0], L1, L2, Hit) && inBox(Hit, B1, B2, 1))
     {
-        double d = L1.dist( Hit);
+        double d = L1.distanceTo( Hit);
         if( d < currentDist )
         {
             currentDist = d;
             currentSide = 1; // LEFT
-            currentHit.set( Hit );
+            currentHit.setFrom( Hit );
         }
     }
     if (getIntersection(L1[1] - B1[1], L2[1] - B1[1], L1, L2, Hit) && inBox(Hit, B1, B2, 2))
     {
-        double d = L1.dist( Hit);
+        double d = L1.distanceTo( Hit);
         if( d < currentDist )
         {
             currentDist = d;
             currentSide = 2;  // BOTTOM
-            currentHit.set( Hit );
+            currentHit.setFrom( Hit );
         }
     }
     if (getIntersection(L1[2] - B1[2], L2[2] - B1[2], L1, L2, Hit) && inBox(Hit, B1, B2, 3))
     {
-        double d = L1.dist( Hit);
+        double d = L1.distanceTo( Hit);
         if( d < currentDist )
         {
             currentDist = d;
             currentSide = 3;  // FRONT
-            currentHit.set( Hit );
+            currentHit.setFrom( Hit );
         }
     }
     if (getIntersection(L1[0] - B2[0], L2[0] - B2[0], L1, L2, Hit) && inBox(Hit, B1, B2, 1))
     {
-        double d = L1.dist( Hit);
+        double d = L1.distanceTo( Hit);
         if( d < currentDist )
         {
             currentDist = d;
             currentSide = 4;  // RIGHT
-            currentHit.set( Hit );
+            currentHit.setFrom( Hit );
         }
     }
     if (getIntersection(L1[1] - B2[1], L2[1] - B2[1], L1, L2, Hit) && inBox(Hit, B1, B2, 2))
     {
-        double d = L1.dist( Hit);
+        double d = L1.distanceTo( Hit);
         if( d < currentDist )
         {
             currentDist = d;
             currentSide = 5; // TOP
-            currentHit.set( Hit );
+            currentHit.setFrom( Hit );
         }
     }
     if (getIntersection(L1[2] - B2[2], L2[2] - B2[2], L1, L2, Hit) && inBox(Hit, B1, B2, 3))
     {
-        double d = L1.dist( Hit);
+        double d = L1.distanceTo( Hit);
         if( d < currentDist )
         {
             currentDist = d;
             currentSide = 6; // BACK
-            currentHit.set( Hit );
+            currentHit.setFrom( Hit );
         }
     }
 
     if( currentSide > 0)
     {
-      Hit.set( currentHit );
+      Hit.setFrom( currentHit );
     }
     return currentSide;
 }
 
-Vector temp = new Vector();
-bool getIntersection( double fDst1, double fDst2, Vector P1, Vector P2, Vector Hit)
+Vector3 temp = new Vector3.zero();
+bool getIntersection( double fDst1, double fDst2, Vector3 P1, Vector3 P2, Vector3 Hit)
 {
     if ((fDst1 * fDst2) >= 0) return false;
     if (fDst1 == fDst2) return false;
 
-    temp.set( P2);
-    temp.subtract( P1);
+    temp.setFrom( P2);
+    temp.sub( P1);
     temp.scale( (-fDst1 / (fDst2 - fDst1)));
-    Hit.set( temp);
+    Hit.setFrom( temp);
     Hit.add( P1);
     return true;
 }
 
-bool inBox( Vector Hit, Vector B1, Vector B2, int axis)
+bool inBox( Vector3 Hit, Vector3 B1, Vector3 B2, int axis)
 {
     if (axis == 1 && Hit[2] > B1[2] && Hit[2] < B2[2] && Hit[1] > B1[1] && Hit[1] < B2[1]) return true;
     if (axis == 2 && Hit[2] > B1[2] && Hit[2] < B2[2] && Hit[0] > B1[0] && Hit[0] < B2[0]) return true;

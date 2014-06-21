@@ -7,9 +7,9 @@ import 'dart:typed_data';
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:vector_math/vector_math.dart';
+
 part "src/node.dart";
-part "src/vector.dart";
-part "src/matrix4.dart";
 part "src/textures.dart";
 part "src/shader_utils.dart";
 part "src/shader_program.dart";
@@ -62,9 +62,9 @@ class ChronosGL
   ChronosFramebuffer fxFramebuffer;
   Mesh fxWall;
   ShaderProgram fxProgram; // shortcut
-  Matrix4 fxMatrix = new Matrix4(); 
+  Matrix4 fxMatrix = new Matrix4.zero(); 
   
-  Matrix4 _pMatrix = new Matrix4();
+  Matrix4 _pMatrix = new Matrix4.zero();
   
   num near=0.1;
   num far=1000;
@@ -173,7 +173,7 @@ class ChronosGL
       _canvas.width = _canvas.clientWidth; 
       _canvas.height = _canvas.clientHeight;
       gl.viewport(0, 0, _canvas.clientWidth, _canvas.clientHeight);
-      _pMatrix.setPerspective(50, _canvas.clientWidth / _canvas.clientHeight, near, far);
+      _pMatrix = makePerspectiveMatrix(50, _canvas.clientWidth / _canvas.clientHeight, near, far);
       _lastWidth = _canvas.clientWidth;
       _lastHeight = _canvas.clientHeight;
     }
