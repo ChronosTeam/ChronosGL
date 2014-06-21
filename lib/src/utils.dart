@@ -195,17 +195,23 @@ class Utils
     
   }
   
-  Future<Object> loadBinaryFile(String url)
+  Future<Object> loadFile(String url, [bool binary=false])
   {
     Completer c = new Completer();
     HTML.HttpRequest hr = new HTML.HttpRequest();
-    hr.responseType = "arraybuffer";
+    if( binary)
+      hr.responseType = "arraybuffer";
     hr.open("GET", url);
     hr.onLoadEnd.listen( (e) {
       c.complete(hr.response);
     });
     hr.send();
     return c.future;
+  }
+
+  Future<Object> loadBinaryFile(String url)
+  {
+    return loadFile( url, true);
   }
 
   Future<Object> loadJsonFile(String url)

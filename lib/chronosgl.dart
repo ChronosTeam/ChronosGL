@@ -31,6 +31,8 @@ part "src/shader/plane_shader.dart";
 part "src/shader/ssao_shader.dart";
 part "src/shader/sobel_shader.dart";
 part "src/shader/debug_shader.dart";
+part "src/shader/perlin_noise_func.dart";
+part "src/shader/perlin_noise_shader.dart";
 
 abstract class Animatable {
   void animate( double elapsed);
