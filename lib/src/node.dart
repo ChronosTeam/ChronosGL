@@ -11,8 +11,8 @@ class Node extends Spatial {
   // children inheret the parent matrix for its rotation and position
   List <Node> children = new List<Node>();
   
-  Matrix4 mvMatrix = new Matrix4();
-  Matrix4 tempMatrix = new Matrix4();
+  Matrix4 mvMatrix = new Matrix4.zero();
+  Matrix4 tempMatrix = new Matrix4.zero();
   
   Node( [Node child]) {
     
@@ -39,17 +39,17 @@ class Node extends Spatial {
   void draw( ShaderProgram program, Matrix4 parentMVMatrix) {
     
     // copy the mvMatrix, so we don't change the original
-    mvMatrix.setElements( parentMVMatrix);
+    mvMatrix.setFrom( parentMVMatrix);
     
     // funky stuff going on below, I don't know why it is needed, but otherwise ship rotation is wrong
     // found this code by trial and error
-    tempMatrix.setElements( matrix);
+    tempMatrix.setFrom( matrix);
     if( invert)
     {
       tempMatrix.invert();
-      tempMatrix.copyPositionFrom( matrix );
+      tempMatrix.setTranslation( matrix.getTranslation() );
     }
-    mvMatrix.multiplyWith( tempMatrix);
+    mvMatrix.multiply( tempMatrix);
     
     draw2( program);
 

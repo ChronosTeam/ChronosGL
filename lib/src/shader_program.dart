@@ -38,7 +38,7 @@ class ShaderProgram implements Drawable {
   
   bool debug = false;
   
-  Matrix4 mvMatrix = new Matrix4();
+  Matrix4 mvMatrix = new Matrix4.zero();
   List<Node> followCameraObjects = new List<Node>(); 
   List<Node> objects = new List<Node>();
   
@@ -146,7 +146,7 @@ class ShaderProgram implements Drawable {
     
     //print( "pM: ${pMatrix} ${pMatrixUniform}" );
 
-    gl.uniformMatrix4fv(pMatrixUniform, false, pMatrix.array);
+    gl.uniformMatrix4fv(pMatrixUniform, false, pMatrix.storage);
     
     if( shaderObject.timeUniform != null)
       gl.uniform1f(timeUniform, timeNow/1000);
@@ -171,7 +171,7 @@ class ShaderProgram implements Drawable {
     camera.getMVMatrix(mvMatrix, true);
     
     if( overrideMvMatrix != null) {
-      mvMatrix.setElements(overrideMvMatrix);
+      mvMatrix.setFrom(overrideMvMatrix);
     }
     
     drawObjects(objects);   
