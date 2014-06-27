@@ -187,7 +187,7 @@ class Utils
     
     ShaderProgram pssp = chronosGL.programs['point_sprites'];
     if( pssp == null)
-        pssp = chronosGL.createProgram( 'point_sprites', createPointSpritesShader());
+        pssp = chronosGL.createProgram( createPointSpritesShader());
     Mesh m= new Mesh( md, true);
     m.blend = true;
     m.name = 'point_sprites_mesh_'+pssp.objects.length.toString();

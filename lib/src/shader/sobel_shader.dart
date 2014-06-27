@@ -1,7 +1,7 @@
 part of chronosgl;
 
 ShaderObject createSobelShader() {
-  ShaderObject shaderObject = new ShaderObject();
+  ShaderObject shaderObject = new ShaderObject("Sobel");
   
   shaderObject.vertexShader = """
   precision mediump float;

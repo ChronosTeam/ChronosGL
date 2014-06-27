@@ -1,16 +1,5 @@
 import 'package:chronosgl/chronosgl.dart';
 
-class RotateMesh extends Animatable {
-  Mesh m;
-  RotateMesh(this.m);
-  
-  void animate(double time) {
-    m.rollLeft(time*0.001);
-    m.lookLeft(time*0.001);
-  }
-}
-
-
 void main() {
   
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
@@ -35,9 +24,12 @@ void main() {
     m.lookUp(1.0);
     m.lookLeft(0.7);
     
-    chronosGL.animatables['rotate_cube'] = new RotateMesh(m);
+     m.setAnimateCallback((Node node, double time){
+         m.rollLeft(time*0.001);
+         m.lookLeft(time*0.001);
+     });
     
-    ShaderProgram prg = chronosGL.createProgram('Light', createLightShader());
+    ShaderProgram prg = chronosGL.createProgram(createLightShader());
     prg.add(m);
     
     chronosGL.getUtils().addParticles(2000, partiTex.texture);

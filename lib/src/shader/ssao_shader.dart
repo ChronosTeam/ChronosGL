@@ -1,7 +1,7 @@
 part of chronosgl;
 
 ShaderObject createSSAOShader() {
-  ShaderObject shaderObject = new ShaderObject();
+  ShaderObject shaderObject = new ShaderObject("SSAO");
   
   shaderObject.vertexShader = """
   precision mediump float;

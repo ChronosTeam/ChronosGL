@@ -33,6 +33,8 @@ part "src/shader/sobel_shader.dart";
 part "src/shader/debug_shader.dart";
 part "src/shader/perlin_noise_func.dart";
 part "src/shader/perlin_noise_shader.dart";
+part "src/shader/plasma_shader.dart";
+part "src/shader/generate_shader.dart";
 
 abstract class Animatable {
   void animate( double elapsed);
@@ -97,7 +99,7 @@ class ChronosGL
     
     gl.lineWidth(5);
     
-    programBasic = createProgram( 'basic', createBasicShader());
+    programBasic = createProgram( createTexturedShader());
     
     _textureCache = new TextureCache(this);
     _camera = new Camera();
@@ -134,10 +136,10 @@ class ChronosGL
     return _utils;
   }
   
-  ShaderProgram createProgram( String name, ShaderObject so, [bool register=true]) {
-    ShaderProgram pn = new ShaderProgram(this, so, name);
+  ShaderProgram createProgram(ShaderObject so, [bool register=true]) {
+    ShaderProgram pn = new ShaderProgram(this, so, so.name);
     if( register)
-      this.programs[name] = pn;
+      this.programs[so.name] = pn;
     return pn;
   }
 

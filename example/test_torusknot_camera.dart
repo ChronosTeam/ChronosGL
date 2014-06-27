@@ -5,7 +5,7 @@ import 'dart:math' as Math;
 import 'dart:web_gl';
 import 'package:chronosgl/chronosgl.dart';
 
-part "torusKnot_camera.dart";
+part "torusknot_camera.dart";
 
 class CoolTexture extends Animatable {
   

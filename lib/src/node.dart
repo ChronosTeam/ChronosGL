@@ -27,9 +27,16 @@ class Node extends Spatial {
     return child;
   }
   
+  var animateCallback;
+  void setAnimateCallback( cb(Node node, double elapsed) ) {
+    animateCallback = cb;
+  }
+  
   void animate( double elapsed)
   {
-    
+    if( animateCallback != null) {
+      animateCallback( this, elapsed);
+    }
   }
   
   // this should be overridden by subclasses

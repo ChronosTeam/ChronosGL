@@ -1,49 +1,23 @@
 part of chronosgl;
 
+@deprecated
 ShaderObject createBasicShader() {
-  ShaderObject shaderObject = new ShaderObject();
-  
-  // TODO: think about multipying uPMatrix and uMVMatrix in Dart code...
-  // or maybe cache the result in a static ?
-  
-  shaderObject.vertexShader = """
-        precision mediump float;
-        attribute vec3 aVertexPosition;
-        attribute vec2 aTextureCoord;
-        
-        uniform mat4 uMVMatrix;
-        uniform mat4 uPMatrix;
-        
-        varying vec2 vTextureCoord;
-        
-        void main(void) {
-          gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-          vTextureCoord = aTextureCoord;
-        }
-        """;
-  
-  shaderObject.fragmentShader = """
-        precision mediump float;
-        
-        varying vec2 vTextureCoord;
-        uniform sampler2D uSampler;
-        
-        void main(void) {
-          gl_FragColor = texture2D(uSampler, vTextureCoord);
-        }
-        """;
+  return createTexturedShader();
+}
+
+ShaderObject createTexturedShader() {
+  ShaderObject shaderObject = new ShaderObject("Textured");
   
   shaderObject.vertexPositionAttribute = "aVertexPosition"; 
   shaderObject.textureCoordinatesAttribute = "aTextureCoord";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
   shaderObject.textureSamplerUniform = "uSampler";
-  
-  return shaderObject;
+  return generateShader(shaderObject, "", "gl_FragColor = texture2D(uSampler, vaTextureCoord);");
 }
 
 ShaderObject createLightShader() {
-  ShaderObject shaderObject = new ShaderObject();
+  ShaderObject shaderObject = new ShaderObject("Light");
   
   shaderObject.vertexShader = """
         precision mediump float;
@@ -95,7 +69,7 @@ ShaderObject createLightShader() {
 }
 
 ShaderObject createNormal2ColorShader() {
-  ShaderObject shaderObject = new ShaderObject();
+  ShaderObject shaderObject = new ShaderObject("Normal2Color");
   
   shaderObject.vertexShader = """
         precision mediump float;
@@ -133,36 +107,12 @@ ShaderObject createNormal2ColorShader() {
 }
 
 ShaderObject createPointSpritesShader() {
-  ShaderObject shaderObject = new ShaderObject();
-  
-  shaderObject.vertexShader = """
-        precision mediump float;
-        attribute vec3 aVertexPosition;
-        
-        uniform mat4 uMVMatrix;
-        uniform mat4 uPMatrix;
-        
-        void main(void) {
-          gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-          gl_PointSize = 1000.0/gl_Position.z;
-        }
-        """;
-  
-  shaderObject.fragmentShader = """
-        precision mediump float;
+  ShaderObject shaderObject = new ShaderObject("PointSprites");
 
-        uniform sampler2D uSampler;
-        
-        void main(void) {
-          gl_FragColor = texture2D(uSampler, gl_PointCoord);
-          gl_FragColor.a = 0.4;
-        }
-        """;
-  
   shaderObject.vertexPositionAttribute = "aVertexPosition"; 
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
   shaderObject.textureSamplerUniform = "uSampler";
-  return shaderObject;
+  return generateShader(shaderObject, "gl_PointSize = 1000.0/gl_Position.z;", "gl_FragColor = texture2D(uSampler, gl_PointCoord);\n gl_FragColor.a = 0.4;\n");
 }
 

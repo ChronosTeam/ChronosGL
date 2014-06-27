@@ -1,6 +1,8 @@
 part of chronosgl;
 
 class ShaderObject {
+  ShaderObject(this.name);
+  String name;
   String vertexShader;
   String fragmentShader;
   String vertexPositionAttribute;

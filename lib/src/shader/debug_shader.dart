@@ -1,7 +1,11 @@
 part of chronosgl;
 
+ShaderObject createDemoShader() {
+  return createFixedVertexColorShader();
+}
+
 ShaderObject createFixedVertexColorShader() {
-  ShaderObject shaderObject = new ShaderObject();
+  ShaderObject shaderObject = new ShaderObject("FixedVertexColor");
   
   shaderObject.vertexShader = """
         precision mediump float;
@@ -35,8 +39,17 @@ ShaderObject createFixedVertexColorShader() {
   return shaderObject;
 }
 
+ShaderObject createDebugTexCoordsShader() {
+  ShaderObject shaderObject = new ShaderObject("DebugTexCoords");
+  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+  shaderObject.textureCoordinatesAttribute = "aTextureCoord";
+  shaderObject.modelViewMatrixUniform = "uMVMatrix";
+  shaderObject.perpectiveMatrixUniform = "uPMatrix";
+  return generateShader(shaderObject, "", "gl_FragColor = vec4(vaTextureCoord, 1.0, 1.0);");
+}
+
 ShaderObject createDepthShader() {
-  ShaderObject shaderObject = new ShaderObject();
+  ShaderObject shaderObject = new ShaderObject("Depth");
   
   shaderObject.vertexShader = """
         precision mediump float;

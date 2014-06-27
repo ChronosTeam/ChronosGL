@@ -174,7 +174,7 @@ class Vector {
   Matrix4 m = null;
   List<double> _v = new List<double>(4);
   
-  bool unproject( Matrix4 view, Matrix4 proj, List<double> viewport) {
+  bool unproject( Matrix4 view, Matrix4 proj, List<num> viewport) {
     
     if( m == null)
       m = new Matrix4(); 

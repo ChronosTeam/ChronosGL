@@ -1,7 +1,7 @@
 part of chronosgl;
 
-ShaderObject getPerlinNoiseVertexColorShader() {
-  ShaderObject shaderObject = new ShaderObject();
+ShaderObject createPerlinNoiseVertexColorShader() {
+  ShaderObject shaderObject = new ShaderObject("PerlinNoiseVertexColor");
   
   shaderObject.vertexShader = perlinNoisefunctions + """
       attribute vec3 aVertexPosition;
@@ -64,8 +64,8 @@ ShaderObject getPerlinNoiseVertexColorShader() {
 const String fs_precision = "precision mediump float;\n";
 
 // this shader is build for use with an icosahedron
-ShaderObject getPerlinNoiseColorShader([bool blackVariant]) {
-  ShaderObject shaderObject = new ShaderObject();
+ShaderObject createPerlinNoiseColorShader([bool blackVariant]) {
+  ShaderObject shaderObject = new ShaderObject((blackVariant==true?"Black":"")+"PerlinNoiseColor");
   
   shaderObject.vertexShader = fs_precision + perlinNoisefunctions + """
       attribute vec3 aVertexPosition;

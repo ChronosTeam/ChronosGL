@@ -1,7 +1,7 @@
 part of chronosgl;
 
 ShaderObject createPlane2GreyShader() {
-  ShaderObject shaderObject = new ShaderObject();
+  ShaderObject shaderObject = new ShaderObject("Plane2Grey");
   
   shaderObject.vertexShader = """
         precision mediump float;
@@ -39,7 +39,7 @@ ShaderObject createPlane2GreyShader() {
 }
 
 ShaderObject createPlane2ColorShader() {
-  ShaderObject shaderObject = new ShaderObject();
+  ShaderObject shaderObject = new ShaderObject("Plane2Color");
   
   shaderObject.vertexShader = """
         precision mediump float;
