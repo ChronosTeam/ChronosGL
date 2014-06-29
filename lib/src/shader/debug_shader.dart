@@ -45,7 +45,8 @@ ShaderObject createDebugTexCoordsShader() {
   shaderObject.textureCoordinatesAttribute = "aTextureCoord";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  return generateShader(shaderObject, "", "gl_FragColor = vec4(vaTextureCoord, 1.0, 1.0);");
+  shaderObject.fragmentShaderBody = "gl_FragColor = vec4(vaTextureCoord, 0.0, 1.0);";
+  return generateShader(shaderObject);
 }
 
 ShaderObject createDepthShader() {

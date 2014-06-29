@@ -109,7 +109,7 @@ class ChronosGL
       fxFramebuffer = new ChronosFramebuffer(gl, _canvas.width, _canvas.height);
       fxWall = _utils.getWall( fxFramebuffer.colorTexture, 1);
       fxWall.texture2 = fxFramebuffer.depthTexture;
-      fxProgram = new ShaderProgram(this, fxShader == null ? createBasicShader() : fxShader, 'fx');
+      fxProgram = new ShaderProgram(this, fxShader == null ? createTexturedShader() : fxShader, 'fx');
       fxProgram.add(fxWall);
     }
 
@@ -157,6 +157,10 @@ class ChronosGL
     {
       prg.animate(elapsed);
     }
+    if( fxProgram != null) {
+      fxProgram.animate(elapsed);
+    }
+      
   }
   
   int _lastWidth = 0;

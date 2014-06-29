@@ -13,7 +13,8 @@ ShaderObject createTexturedShader() {
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
   shaderObject.textureSamplerUniform = "uSampler";
-  return generateShader(shaderObject, "", "gl_FragColor = texture2D(uSampler, vaTextureCoord);");
+  shaderObject.fragmentShaderBody = "gl_FragColor = texture2D(uSampler, vaTextureCoord);";
+  return generateShader(shaderObject);
 }
 
 ShaderObject createLightShader() {
@@ -113,6 +114,8 @@ ShaderObject createPointSpritesShader() {
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
   shaderObject.textureSamplerUniform = "uSampler";
-  return generateShader(shaderObject, "gl_PointSize = 1000.0/gl_Position.z;", "gl_FragColor = texture2D(uSampler, gl_PointCoord);\n gl_FragColor.a = 0.4;\n");
+  shaderObject.vertexShaderBody = "gl_PointSize = 1000.0/gl_Position.z;";
+  shaderObject.fragmentShaderBody = "gl_FragColor = texture2D(uSampler, gl_PointCoord);\n gl_FragColor.a = 0.4;\n";
+  return generateShader(shaderObject);
 }
 

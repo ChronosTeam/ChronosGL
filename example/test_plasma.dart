@@ -2,7 +2,7 @@ import 'package:chronosgl/chronosgl.dart';
 
 void main() {
   
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas', useFramebuffer:false, fxShader: createPlasmaShader3());
 
   ShaderProgram prg = chronosGL.createProgram(createPlasmaShader());
 
@@ -23,8 +23,8 @@ void main() {
   m.lookLeft(0.7);
   
    m.setAnimateCallback((Node node, double time){
-       m.rollLeft(time*0.001);
-       m.lookLeft(time*0.001);
+       m.rollLeft(time*0.0001);
+       m.lookLeft(time*0.0001);
    });
   
   prg.add(m);

@@ -1,6 +1,6 @@
 part of chronosgl;
 
-ShaderObject generateShader( ShaderObject shaderObject, String vertexShaderBody, String fragmentShaderBody) {
+ShaderObject generateShader( ShaderObject shaderObject) {
  
   String vs = """
     precision mediump float;
@@ -18,13 +18,14 @@ ShaderObject generateShader( ShaderObject shaderObject, String vertexShaderBody,
         """;
     }
     
+    vs += shaderObject.vertexShaderHeader+"\n";
     vs += "void main(void) {\n";
     vs += "gl_Position = ${shaderObject.perpectiveMatrixUniform} * ${shaderObject.modelViewMatrixUniform} * vec4(${shaderObject.vertexPositionAttribute}, 1.0);\n";
     
     if( shaderObject.vertexPositionAttribute != null) {
       vs += "v${shaderObject.textureCoordinatesAttribute} = ${shaderObject.textureCoordinatesAttribute};\n";
     }
-    vs += vertexShaderBody;
+    vs += shaderObject.vertexShaderBody;
     
     vs += "}\n";
 
@@ -46,8 +47,9 @@ ShaderObject generateShader( ShaderObject shaderObject, String vertexShaderBody,
     fs += "uniform float ${shaderObject.timeUniform};\n";
   }
         
+  fs += shaderObject.fragmentShaderHeader+"\n";
   fs += "void main(void) {\n";
-  fs += fragmentShaderBody;
+  fs += shaderObject.fragmentShaderBody;
   fs += "\n}\n";
   shaderObject.fragmentShader = fs;
  

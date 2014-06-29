@@ -17,6 +17,10 @@ class ShaderObject {
   String cameraFar;
   String size; // canvas width and height
   String timeUniform;
+  String vertexShaderHeader="";
+  String vertexShaderBody="";
+  String fragmentShaderHeader="";
+  String fragmentShaderBody="";
 }
 
 class ShaderProgram implements Drawable {
