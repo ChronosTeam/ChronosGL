@@ -136,7 +136,7 @@ class Utils
   }
   
   MeshData createIcosahedron( int subdivisions) {
-    return new Icosahedron(subdivisions).createMeshData();
+    return new Icosahedron(subdivisions);
   }
   
   MeshData createCube([Texture texture]) {

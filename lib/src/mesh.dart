@@ -25,29 +25,42 @@ class Mesh extends Node {
 
     verticesBuffer = gl.createBuffer();
     gl.bindBuffer(ARRAY_BUFFER, verticesBuffer);
-    gl.bufferDataTyped(ARRAY_BUFFER, meshData.vertices, STATIC_DRAW);
+    gl.bufferDataTyped(ARRAY_BUFFER, meshData.vertices as Float32List, STATIC_DRAW);
 
     if( meshData.textureCoords != null ) {
       textureCoordBuffer = gl.createBuffer();
       gl.bindBuffer(ARRAY_BUFFER, textureCoordBuffer);
-      gl.bufferDataTyped(ARRAY_BUFFER, meshData.textureCoords, STATIC_DRAW);
+      gl.bufferDataTyped(ARRAY_BUFFER, meshData.textureCoords as Float32List, STATIC_DRAW);
     }
     
     if( meshData.normals != null ) {
       normalsBuffer = gl.createBuffer();
       gl.bindBuffer(ARRAY_BUFFER, normalsBuffer);
-      gl.bufferDataTyped(ARRAY_BUFFER, meshData.normals, STATIC_DRAW);
+      gl.bufferDataTyped(ARRAY_BUFFER, meshData.normals as Float32List, STATIC_DRAW);
     }
     
     if( meshData.vertexIndices != null ) {
       numItems = meshData.vertexIndices.length;
       vertexIndexBuffer = gl.createBuffer();
       gl.bindBuffer(ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
-      gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, meshData.vertexIndices, STATIC_DRAW);
+      gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, meshData.vertexIndices as Uint16List, STATIC_DRAW);
     } else {
       numItems = meshData.vertices.length ~/ 3;
     }
     
+  }
+  
+  void clearData() {
+    gl.deleteBuffer( verticesBuffer);
+    if( textureCoordBuffer != null ) {
+      gl.deleteBuffer( textureCoordBuffer);
+    }
+    if( normalsBuffer != null ) {
+      gl.deleteBuffer( normalsBuffer);
+    }
+    if( vertexIndexBuffer != null ) {
+      gl.deleteBuffer( vertexIndexBuffer);
+    }
   }
 
   // this gets called by Node.draw()

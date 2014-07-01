@@ -2,7 +2,7 @@ part of chronosgl;
 
 // only loads fully triangulated OBJ files
 
-Future<MeshData2> loadObj(String url)
+Future<MeshData> loadObj(String url)
 {
   Completer c = new Completer();
   HTML.HttpRequest hr = new HTML.HttpRequest();
@@ -10,7 +10,7 @@ Future<MeshData2> loadObj(String url)
   hr.open("GET", url);
   hr.onLoadEnd.listen( (e) {
     
-    MeshData2 result = doLoadObj( hr.response);
+    MeshData result = doLoadObj( hr.response);
     c.complete(result);
     
     
@@ -19,10 +19,10 @@ Future<MeshData2> loadObj(String url)
   return c.future;
 }
 
-MeshData2 doLoadObj(String text)
+MeshData doLoadObj(String text)
 {
-  MeshData2 endResult = new MeshData2.empty();
-  MeshData2 rawData = new MeshData2.empty();
+  MeshData endResult = new MeshData.empty();
+  MeshData rawData = new MeshData.empty();
 
     Map<String, int> facemap = new Map<String, int>();
     int index = 0;

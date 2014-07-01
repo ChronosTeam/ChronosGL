@@ -9,7 +9,7 @@ void main() {
   FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
   chronosGL.addAnimatable('flyingCamera', fc);
 
-  loadObj( "ct_logo.obj").then((MeshData2 md) {
+  loadObj( "ct_logo.obj").then((MeshData md) {
     
     Mesh mesh = md.createMesh();
     mesh.rotX(3.14/2);

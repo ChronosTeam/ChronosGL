@@ -15,9 +15,20 @@ class Node extends Spatial {
   Matrix4 tempMatrix = new Matrix4();
   
   Node( [Node child]) {
-    
     if( child!=null)
       children.add( child);
+  }
+  
+  void clear() {
+    enabled=false;
+    for ( Node node in children)
+    {
+      node.clear();
+    }
+    clearData();
+  }
+  
+  void clearData() {
     
   }
   

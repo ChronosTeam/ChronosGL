@@ -103,6 +103,10 @@ class ShaderProgram implements Drawable {
     return obj;
   }
   
+  bool remove( Node obj) {
+    return objects.remove(obj);
+  }
+  
   Node addFollowCameraObject( Node obj){
     followCameraObjects.add(obj);
     return obj;

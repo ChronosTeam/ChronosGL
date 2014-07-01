@@ -1,6 +1,6 @@
 part of chronosgl;
 
-class Icosahedron extends MeshData2 {
+class Icosahedron extends MeshData {
   
   
 
@@ -25,7 +25,7 @@ class Icosahedron extends MeshData2 {
     return 0.5 - y / 2;
   }
 
-  void f3( int a, int b, int c, MeshData2 scope ) {
+  void f3( int a, int b, int c, MeshData scope ) {
 
     List<double> v1 = vertices.sublist(a*3, a*3+3);
     List<double> v2 = vertices.sublist(b*3, b*3+3);
@@ -59,7 +59,7 @@ class Icosahedron extends MeshData2 {
 
   Icosahedron( [int subdivisions=0] ) : super.empty()
   {
-    MeshData2 tempMeshData = new MeshData2.empty();
+    MeshData tempMeshData = new MeshData.empty();
     
     // create 12 vertices of a Icosahedron
 
@@ -116,7 +116,7 @@ class Icosahedron extends MeshData2 {
 
     for ( int i = 0; i < subdivisions; i ++ ) {
 
-      MeshData2 tempMeshData2 = new MeshData2.empty();
+      MeshData tempMeshData2 = new MeshData.empty();
 
       for ( int i = 0, l = tempMeshData.vertexIndices.length~/3; i < l; i ++ ) {
 
@@ -143,7 +143,7 @@ class Icosahedron extends MeshData2 {
     vertexIndices = tempMeshData.vertexIndices;
     textureCoords = tempMeshData.textureCoords;
     
-    tempMeshData = new MeshData2.empty();
+    tempMeshData = new MeshData.empty();
     
     // we need to point vertexIndices to unique vertex and textureCoord combinations... if only OpenGL supported the obj file format natively...
     for ( int i = 0, l = vertexIndices.length; i < l; i ++ ) {

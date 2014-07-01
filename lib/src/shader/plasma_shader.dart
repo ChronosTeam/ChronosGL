@@ -2,6 +2,7 @@ part of chronosgl;
 
 // http://www.bidouille.org/prog/plasma
 // see also: https://www.shadertoy.com/view/XdX3Wn
+// and http://iq12.com/2013/04/fifty-shaders-of-grey/
 
 ShaderObject createPlasmaShader() {
   ShaderObject shaderObject = new ShaderObject("Plasma");
