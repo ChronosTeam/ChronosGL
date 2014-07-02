@@ -41,6 +41,7 @@ ShaderObject createLightShader() {
         void main(void) {
           gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
           vNormal = (uMVMatrix * vec4(aNormal, 0.0)).xyz;
+          pointLightLocation = (uMVMatrix * vec4(pointLightLocation, 0.0)).xyz;
 
           vec3 lightDir = normalize(pointLightLocation - aVertexPosition.xyz);
 
