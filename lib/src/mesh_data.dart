@@ -27,7 +27,7 @@ class MeshData {
 
     if ( textureCoords != null && !(textureCoords is Float32List)) textureCoords = new Float32List.fromList(textureCoords);
     
-    if ( normals == null && !(normals is Float32List)) normals = new Float32List.fromList(normals);
+    if ( normals != null && !(normals is Float32List)) normals = new Float32List.fromList(normals);
     
     if (!(vertexIndices is Uint16List)) vertexIndices = new Uint16List.fromList(vertexIndices);
   }
