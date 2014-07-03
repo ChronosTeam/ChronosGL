@@ -11,10 +11,17 @@ ShaderObject generateShader( ShaderObject shaderObject) {
     uniform mat4 ${shaderObject.perpectiveMatrixUniform};
     """;
 
-    if( shaderObject.vertexPositionAttribute != null) {
+    if( shaderObject.textureCoordinatesAttribute != null) {
         vs += """
         attribute vec2 ${shaderObject.textureCoordinatesAttribute};
         varying vec2 v${shaderObject.textureCoordinatesAttribute};
+        """;
+    }
+
+    if( shaderObject.colorsAttribute != null) {
+        vs += """
+        attribute vec3 ${shaderObject.colorsAttribute};
+        varying vec3 v${shaderObject.colorsAttribute};
         """;
     }
     
@@ -22,8 +29,11 @@ ShaderObject generateShader( ShaderObject shaderObject) {
     vs += "void main(void) {\n";
     vs += "gl_Position = ${shaderObject.perpectiveMatrixUniform} * ${shaderObject.modelViewMatrixUniform} * vec4(${shaderObject.vertexPositionAttribute}, 1.0);\n";
     
-    if( shaderObject.vertexPositionAttribute != null) {
+    if( shaderObject.textureCoordinatesAttribute != null) {
       vs += "v${shaderObject.textureCoordinatesAttribute} = ${shaderObject.textureCoordinatesAttribute};\n";
+    }
+    if( shaderObject.colorsAttribute != null) {
+      vs += "v${shaderObject.colorsAttribute} = ${shaderObject.colorsAttribute};\n";
     }
     vs += shaderObject.vertexShaderBody;
     
@@ -35,8 +45,12 @@ ShaderObject generateShader( ShaderObject shaderObject) {
   
   String fs = "precision mediump float;\n";
   
-  if( shaderObject.vertexPositionAttribute != null) {
+  if( shaderObject.textureCoordinatesAttribute != null) {
     fs += "varying vec2 v${shaderObject.textureCoordinatesAttribute};\n";
+  }  
+
+  if( shaderObject.colorsAttribute != null) {
+    fs += "varying vec3 v${shaderObject.colorsAttribute};\n";
   }  
 
   if( shaderObject.textureSamplerUniform != null) {

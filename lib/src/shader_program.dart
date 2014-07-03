@@ -6,6 +6,7 @@ class ShaderObject {
   String vertexShader;
   String fragmentShader;
   String vertexPositionAttribute;
+  String colorsAttribute;
   String textureCoordinatesAttribute;
   String normalAttribute;
   String transformationMatrixUniform;
@@ -30,6 +31,7 @@ class ShaderProgram implements Drawable {
   RenderingContext gl;
   Program program;
   int vertexPositionAttribute;
+  int colorsAttribute;
   int textureCoordAttribute;
   int normalAttribute;
   UniformLocation pMatrixUniform;
@@ -57,6 +59,9 @@ class ShaderProgram implements Drawable {
     program = su.getProgram( shaderObject.vertexShader, shaderObject.fragmentShader);
     
     vertexPositionAttribute = gl.getAttribLocation(program, shaderObject.vertexPositionAttribute);
+
+    if( shaderObject.colorsAttribute != null)
+      colorsAttribute = gl.getAttribLocation(program, shaderObject.colorsAttribute);
 
     if( shaderObject.textureCoordinatesAttribute != null)
       textureCoordAttribute = gl.getAttribLocation(program, shaderObject.textureCoordinatesAttribute);
@@ -148,6 +153,9 @@ class ShaderProgram implements Drawable {
     
     gl.useProgram(program);
     gl.enableVertexAttribArray(vertexPositionAttribute);
+
+    if( shaderObject.colorsAttribute != null)
+      gl.enableVertexAttribArray(colorsAttribute);
     if( shaderObject.textureCoordinatesAttribute != null)
       gl.enableVertexAttribArray(textureCoordAttribute);
     if( shaderObject.normalAttribute != null)
@@ -186,6 +194,9 @@ class ShaderProgram implements Drawable {
     
     drawObjects(objects);   
     gl.disableVertexAttribArray(vertexPositionAttribute);
+
+    if( shaderObject.colorsAttribute != null)
+      gl.disableVertexAttribArray(colorsAttribute);
     if( shaderObject.textureCoordinatesAttribute != null)
       gl.disableVertexAttribArray(textureCoordAttribute);
     if( shaderObject.normalAttribute != null)
