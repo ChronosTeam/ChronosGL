@@ -9,6 +9,7 @@ class ShaderObject {
   String colorsAttribute;
   String textureCoordinatesAttribute;
   String normalAttribute;
+  String binormalAttribute;
   String transformationMatrixUniform;
   String modelViewMatrixUniform;
   String perpectiveMatrixUniform;
@@ -34,6 +35,7 @@ class ShaderProgram implements Drawable {
   int colorsAttribute;
   int textureCoordAttribute;
   int normalAttribute;
+  int binormalAttribute;
   UniformLocation pMatrixUniform;
   UniformLocation mvMatrixUniform;
   UniformLocation samplerUniform;
@@ -68,6 +70,9 @@ class ShaderProgram implements Drawable {
 
     if( shaderObject.normalAttribute != null)
       normalAttribute = gl.getAttribLocation(program, shaderObject.normalAttribute);
+
+    if( shaderObject.binormalAttribute != null)
+      binormalAttribute = gl.getAttribLocation(program, shaderObject.binormalAttribute);
 
     pMatrixUniform = getUniformLocation( shaderObject.perpectiveMatrixUniform);
     mvMatrixUniform = getUniformLocation( shaderObject.modelViewMatrixUniform);
@@ -160,6 +165,8 @@ class ShaderProgram implements Drawable {
       gl.enableVertexAttribArray(textureCoordAttribute);
     if( shaderObject.normalAttribute != null)
       gl.enableVertexAttribArray(normalAttribute);
+    if( shaderObject.binormalAttribute != null)
+      gl.enableVertexAttribArray(binormalAttribute);
     //print( "error: ${gl.getError()}" );
     
     //print( "pM: ${pMatrix} ${pMatrixUniform}" );
@@ -201,6 +208,8 @@ class ShaderProgram implements Drawable {
       gl.disableVertexAttribArray(textureCoordAttribute);
     if( shaderObject.normalAttribute != null)
       gl.disableVertexAttribArray(normalAttribute);
+    if( shaderObject.binormalAttribute != null)
+      gl.disableVertexAttribArray(binormalAttribute);
   }
 
   

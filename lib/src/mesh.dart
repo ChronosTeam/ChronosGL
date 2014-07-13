@@ -13,7 +13,7 @@ class Mesh extends Node {
   Texture texture;
   Texture texture2;
   
-  Buffer verticesBuffer, colorsBuffer, textureCoordBuffer, normalsBuffer, vertexIndexBuffer;
+  Buffer verticesBuffer, colorsBuffer, textureCoordBuffer, normalsBuffer, binormalsBuffer, vertexIndexBuffer;
   
   int numItems;
  
@@ -45,6 +45,12 @@ class Mesh extends Node {
       gl.bufferDataTyped(ARRAY_BUFFER, meshData.normals as Float32List, STATIC_DRAW);
     }
     
+    if( meshData.binormals != null ) {
+      binormalsBuffer = gl.createBuffer();
+      gl.bindBuffer(ARRAY_BUFFER, binormalsBuffer);
+      gl.bufferDataTyped(ARRAY_BUFFER, meshData.binormals as Float32List, STATIC_DRAW);
+    }
+    
     if( meshData.vertexIndices != null ) {
       numItems = meshData.vertexIndices.length;
       vertexIndexBuffer = gl.createBuffer();
@@ -66,6 +72,9 @@ class Mesh extends Node {
     }
     if( normalsBuffer != null ) {
       gl.deleteBuffer( normalsBuffer);
+    }
+    if( binormalsBuffer != null ) {
+      gl.deleteBuffer( binormalsBuffer);
     }
     if( vertexIndexBuffer != null ) {
       gl.deleteBuffer( vertexIndexBuffer);
@@ -107,6 +116,11 @@ class Mesh extends Node {
     if( program.shaderObject.normalAttribute != null) {
       gl.bindBuffer(ARRAY_BUFFER, normalsBuffer);
       gl.vertexAttribPointer(program.normalAttribute, 3, FLOAT, false, 0, 0);
+    }
+
+    if( program.shaderObject.binormalAttribute != null) {
+      gl.bindBuffer(ARRAY_BUFFER, binormalsBuffer);
+      gl.vertexAttribPointer(program.binormalAttribute, 3, FLOAT, false, 0, 0);
     }
 
     if( program.shaderObject.textureSamplerUniform != null) {
