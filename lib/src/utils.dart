@@ -199,9 +199,9 @@ class Utils
   {
     Completer c = new Completer();
     HTML.HttpRequest hr = new HTML.HttpRequest();
+    hr.open("GET", url);
     if( binary)
       hr.responseType = "arraybuffer";
-    hr.open("GET", url);
     hr.onLoadEnd.listen( (e) {
       c.complete(hr.response);
     });
