@@ -1,15 +1,17 @@
+import 'dart:html' as html;
 import 'package:chronosgl/chronosgl.dart';
 
 void main() {
   
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas', useFramebuffer:false, fxShader: createPlasmaShader3());
 
-  ShaderProgram prg = chronosGL.createProgram(createPlasmaShader());
+  List<ShaderProgram> prgs = new List<ShaderProgram>();
+  prgs.add(chronosGL.createProgram(createPlasmaShader()));
+  prgs.add(chronosGL.createProgram(createPlasmaShader2()));
+  prgs.add(chronosGL.createProgram(createPlasmaShader3()));
 
   Camera camera = chronosGL.getCamera();
-  
   camera.setPos( 0.0, 0.0, 56.0 );
-    
   FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
   chronosGL.addAnimatable('flyingCamera', fc);
     
@@ -27,6 +29,16 @@ void main() {
        m.lookLeft(time*0.0001);
    });
   
-  prg.add(m);
+  prgs[0].add(m);
+  
+  int pointer = 0;
+  
+  
+  html.document.addEventListener('keypress', (event) {
+    prgs[pointer%3].remove(m);
+    prgs[(pointer+1)%3].add(m);
+    pointer++;
+  });
+  
   chronosGL.run();
 }

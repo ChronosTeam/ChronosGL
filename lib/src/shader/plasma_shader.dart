@@ -34,7 +34,7 @@ ShaderObject createPlasmaShader() {
 }
 
 ShaderObject createPlasmaShader2() {
-  ShaderObject shaderObject = new ShaderObject("Plasma");
+  ShaderObject shaderObject = new ShaderObject("Plasma2");
   
   shaderObject.vertexPositionAttribute = "aVertexPosition"; 
   shaderObject.textureCoordinatesAttribute = "aTextureCoord";
@@ -52,7 +52,7 @@ ShaderObject createPlasmaShader2() {
 }
 
 ShaderObject createPlasmaShader3() {
-  ShaderObject shaderObject = new ShaderObject("Plasma");
+  ShaderObject shaderObject = new ShaderObject("Plasma3");
   
   shaderObject.vertexPositionAttribute = "aVertexPosition"; 
   shaderObject.textureCoordinatesAttribute = "aTextureCoord";
