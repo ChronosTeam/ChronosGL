@@ -18,6 +18,10 @@ class Mesh extends Node {
   int numItems;
  
   Mesh( MeshData meshData, [this.drawPoints=false]) {
+    
+    if( !meshData.isOptimized)
+      meshData.optimize();
+    
     this.texture = meshData.texture;
     this.texture2 = meshData.texture2;
     
@@ -55,7 +59,10 @@ class Mesh extends Node {
       numItems = meshData.vertexIndices.length;
       vertexIndexBuffer = gl.createBuffer();
       gl.bindBuffer(ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
-      gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, meshData.vertexIndices as Uint16List, STATIC_DRAW);
+      if(ChronosGL.useElementIndexUint)
+        gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, meshData.vertexIndices as Uint32List, STATIC_DRAW);
+      else
+        gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, meshData.vertexIndices as Uint16List, STATIC_DRAW);
     } else {
       numItems = meshData.vertices.length ~/ 3;
     }
@@ -147,7 +154,7 @@ class Mesh extends Node {
       gl.drawArrays(TRIANGLES, 0, numItems);
     } else  {
       gl.bindBuffer(ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
-      gl.drawElements(TRIANGLES, numItems, UNSIGNED_SHORT, 0);
+      gl.drawElements(TRIANGLES, numItems, ChronosGL.useElementIndexUint ? UNSIGNED_INT : UNSIGNED_SHORT, 0);
     }
     
     if( debug)

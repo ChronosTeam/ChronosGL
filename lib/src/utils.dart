@@ -73,24 +73,24 @@ class Utils
   
   Mesh getWall( Texture texture, int size)
   {
-    Float32List verts = new Float32List.fromList( [
+    List<double> verts = [
         -1.0*size, -1.0*size,  0.0,
          1.0*size, -1.0*size,  0.0,
          1.0*size,  1.0*size,  0.0,
         -1.0*size,  1.0*size,  0.0
-      ]);
+      ];
       
-    Float32List textureCoords =  new Float32List.fromList( [
+    List<double> textureCoords = [
         0.0, 0.0,
         1.0, 0.0,
         1.0, 1.0,
         0.0, 1.0
-      ]);
+      ];
       
-    Uint16List vertexIndices =  new Uint16List.fromList( [
+    List<int> vertexIndices = [
         0, 1, 2,
         0, 2, 3
-      ]);
+      ];
       return new Mesh( new MeshData(vertices:verts, textureCoords:textureCoords, vertexIndices:vertexIndices, texture:texture));
   }
   

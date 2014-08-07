@@ -82,7 +82,7 @@ MeshData createTorusKnotInternal(  {double radius:20.0, double tube:4.0, int seg
     }
   }
   
-  return new MeshData(vertices : new Float32List.fromList(vertices), textureCoords : new Float32List.fromList(uvs), vertexIndices : new Uint16List.fromList(indices), texture : texture);
+  return new MeshData(vertices : vertices, textureCoords : uvs, vertexIndices : indices, texture : texture);
 }
 
 

@@ -10,6 +10,7 @@ class MeshData {
   List<int> vertexIndices;
   Texture texture;
   Texture texture2;
+  bool isOptimized=false;
 
   MeshData({this.vertices, this.colors, this.textureCoords, this.normals, this.binormals, this.vertexIndices, this.texture, this.texture2});
 
@@ -33,7 +34,10 @@ class MeshData {
     
     if ( binormals != null && !(binormals is Float32List)) binormals = new Float32List.fromList(binormals);
     
-    if (!(vertexIndices is Uint16List)) vertexIndices = new Uint16List.fromList(vertexIndices);
+    if ( vertexIndices != null && !(vertexIndices is TypedData)) {
+      vertexIndices = ChronosGL.useElementIndexUint ? new Uint32List.fromList(vertexIndices) : new Uint16List.fromList(vertexIndices);
+    }
+    isOptimized=true;
   }
 
 

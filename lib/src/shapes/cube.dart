@@ -116,6 +116,6 @@ MeshData createCubeInternal( [Texture texture]) {
                            20, 21, 22,   20, 22, 23  // Left face
                            ];
 
-  return new MeshData(vertices : new Float32List.fromList(vertices), normals : new Float32List.fromList(normals), textureCoords : new Float32List.fromList(uvs), vertexIndices : new Uint16List.fromList(vertIndices), texture : texture); 
+  return new MeshData(vertices : vertices, normals : normals, textureCoords : uvs, vertexIndices : vertIndices, texture : texture); 
   
 }

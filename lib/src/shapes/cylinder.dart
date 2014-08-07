@@ -60,7 +60,7 @@ MeshData createCylinder( double radius, double height, int radialSubdivisions, [
   }
   
   
-  return new MeshData(vertices : new Float32List.fromList(vertices), textureCoords : new Float32List.fromList(uvs), vertexIndices : new Uint16List.fromList(vertIndices), texture : texture); 
+  return new MeshData(vertices : vertices, textureCoords : uvs, vertexIndices : vertIndices, texture : texture); 
 
 }
 

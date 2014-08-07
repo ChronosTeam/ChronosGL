@@ -155,6 +155,8 @@ class Icosahedron extends MeshData {
     
     vertexIndices = tempMeshData.vertexIndices;
     vertices = tempMeshData.vertices;
+    
+    optimize();
 
 //    for ( int i = 0, l = vertexIndices.length; i < l; i ++ ) {
 //      int index = vertexIndices[i];

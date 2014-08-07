@@ -49,6 +49,9 @@ class ChronosGL
 {
   
   static RenderingContext globalGL;
+  static bool useElementIndexUint=false;
+  var elementIndexUintExt; 
+
   RenderingContext gl;
   
   Map<String, ShaderProgram> programs = new Map<String, ShaderProgram>();
@@ -71,7 +74,8 @@ class ChronosGL
   num near=0.1;
   num far=1000;
   
-  ChronosGL(String canvasID, {bool transparent:false, bool useFramebuffer:false, ShaderObject fxShader, this.near:0.1, this.far:1000.0})
+  
+  ChronosGL(String canvasID, {bool transparent:false, bool useFramebuffer:false, ShaderObject fxShader, this.near:0.1, this.far:1000.0, bool useElementIndexUint:false})
   {
     _canvas = HTML.document.querySelector(canvasID);
     
@@ -87,6 +91,12 @@ class ChronosGL
     }
     ChronosGL.globalGL = gl;
     
+    if( useElementIndexUint) {
+      elementIndexUintExt = gl.getExtension("OES_element_index_uint");
+      if(elementIndexUintExt==null) { throw "Error: OES_element_index_uint is not supported"; }
+      ChronosGL.useElementIndexUint = useElementIndexUint;
+    }
+
     //print( gl.getSupportedExtensions());
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
