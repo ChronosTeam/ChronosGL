@@ -82,9 +82,9 @@ class ChronosGL
     // fix a bug in current chrome v.27
     _canvas.onDragStart.listen((HTML.MouseEvent event){ event.preventDefault(); });
 
-    _canvas.width = _canvas.clientWidth; 
-    _canvas.height = _canvas.clientHeight;
-    _aspect = _canvas.clientWidth / _canvas.clientHeight;
+    _canvas.width = HTML.window.innerWidth; 
+    _canvas.height = HTML.window.innerHeight;
+    _aspect = _canvas.width / _canvas.height;
     gl = _canvas.getContext("experimental-webgl");
     if( gl == null) {
       throw new Exception('calling canvas.getContext("experimental-webgl") failed, make sure you run on a computer that supports WebGL, test here: http://get.webgl.org/');
@@ -183,15 +183,15 @@ class ChronosGL
       gl.bindFramebuffer( FRAMEBUFFER, fxFramebuffer.framebuffer);
     }
     
-    if( _lastWidth != _canvas.clientWidth || _lastHeight != _canvas.clientHeight)
+    if( _lastWidth != _canvas.width || _lastHeight != _canvas.height)
     {
       //print("setting viewport ${canvas.clientWidth} x ${canvas.clientHeight}");
-      _canvas.width = _canvas.clientWidth; 
-      _canvas.height = _canvas.clientHeight;
-      gl.viewport(0, 0, _canvas.clientWidth, _canvas.clientHeight);
-      _pMatrix.setPerspective(50, _canvas.clientWidth / _canvas.clientHeight, near, far);
-      _lastWidth = _canvas.clientWidth;
-      _lastHeight = _canvas.clientHeight;
+      _canvas.width = HTML.window.innerWidth; 
+      _canvas.height = HTML.window.innerHeight;
+      gl.viewport(0, 0, _canvas.width, _canvas.height);
+      _pMatrix.setPerspective(50, _canvas.height / _canvas.height, near, far);
+      _lastWidth = _canvas.width;
+      _lastHeight = _canvas.height;
     }
     gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
     
