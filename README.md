@@ -31,3 +31,6 @@ Some basic ideas:
 * Node extends Spatial
 * Mesh extends Node
 * Nodes can contain child nodes and they inherit their parents transformation.
+
+See doc/usage.txt for usage infos.
+
