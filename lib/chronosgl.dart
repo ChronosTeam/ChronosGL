@@ -186,8 +186,10 @@ class ChronosGL
     gl.viewport(0, 0, _canvas.width, _canvas.height);
     _pMatrix.setPerspective(50, _canvas.width.toDouble() / _canvas.height, near, far);
 
-    gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
-    
+    gl.enable(DEPTH_TEST);
+    gl.depthFunc(LEQUAL);
+    gl.clearDepth(1.0);
+
     for( ShaderProgram prg in programs.values)
     {
       prg.draw(_pMatrix);
