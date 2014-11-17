@@ -107,8 +107,6 @@ class ChronosGL
       gl.enable(DEPTH_TEST);
     }
     
-    gl.lineWidth(5);
-    
     programBasic = createProgram( createTexturedShader());
     
     _textureCache = new TextureCache(this);
@@ -233,6 +231,9 @@ class ChronosGL
     HTML.window.requestAnimationFrame(run);
   }
 
-  
+  void setLineWidth(int w) {
+    gl.lineWidth(w);
+  }
+
 }
 
