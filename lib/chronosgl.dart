@@ -6,10 +6,10 @@ import 'dart:math' as Math;
 import 'dart:typed_data';
 import 'dart:async';
 import 'dart:convert';
+import 'chronosmath.dart';
+export 'chronosmath.dart';
 
 part "src/node.dart";
-part "src/vector.dart";
-part "src/matrix4.dart";
 part "src/textures.dart";
 part "src/shader_utils.dart";
 part "src/shader_program.dart";
@@ -233,6 +233,6 @@ class ChronosGL
     HTML.window.requestAnimationFrame(run);
   }
 
-
+  
 }
 
