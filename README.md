@@ -18,7 +18,7 @@ Features:
 * points sprites ( very basic particles )
 * skybox
 * async texture loader with progress feedback
-* only Matrix4 and Vector3 math
+* only Quaternion, Matrix4 and Vector3 math
 
 
 
