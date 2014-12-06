@@ -61,11 +61,11 @@ class Node extends Spatial {
     
     // funky stuff going on below, I don't know why it is needed, but otherwise ship rotation is wrong
     // found this code by trial and error
-    tempMatrix.setElements( matrix);
+    tempMatrix.setElements( transform);
     if( invert)
     {
       tempMatrix.invert();
-      tempMatrix.copyPositionFrom( matrix );
+      tempMatrix.copyPositionFrom( transform );
     }
     mvMatrix.multiplyWith( tempMatrix);
     

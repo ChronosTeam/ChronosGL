@@ -9,7 +9,7 @@ class Camera extends Spatial
   void getMVMatrix( Matrix4 mvMatrix, bool translate) {
     for( var i = 0; i<16; i++)
     {
-      tempMatrix[i] = matrix[i] * ( i < 12 ? 1 : -1);
+      tempMatrix[i] = transform[i] * ( i < 12 ? 1 : -1);
     }
     //mat4.inverse( this.matrix, );
     tempMatrix.toRotationMat( mvMatrix);
@@ -17,10 +17,10 @@ class Camera extends Spatial
 
       if( alternativeTranslate)
       {
-        mvMatrix[12] = matrix[12];
-        mvMatrix[13] = matrix[13];
-        mvMatrix[14] = matrix[14];
-        mvMatrix[15] = matrix[15];
+        mvMatrix[12] = transform[12];
+        mvMatrix[13] = transform[13];
+        mvMatrix[14] = transform[14];
+        mvMatrix[15] = transform[15];
       } else {
         mvMatrix.translateLocal( tempMatrix[12], tempMatrix[13], tempMatrix[14]);
         //mat4.translate( mat, [this.tempMatrix[12], this.tempMatrix[13], this.tempMatrix[14]]);
@@ -164,9 +164,9 @@ class FPSCamera extends Animatable
     }
     
     if( movementY!=0)
-      camera.matrix.rotate( movementY*0.006, camera.getRight());
+      camera.transform.rotate( movementY*0.006, camera.getRight());
     if( movementX!=0)
-      camera.matrix.rotate( movementX*0.006, up);
+      camera.transform.rotate( movementX*0.006, up);
     
     movementX=0;
     movementY=0;
