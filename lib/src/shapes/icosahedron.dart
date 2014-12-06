@@ -2,62 +2,7 @@ part of chronosgl;
 
 class Icosahedron extends MeshData {
   
-  
-
-  void v( num x, num y, num z ) {
-    var length = Math.sqrt( x * x + y * y + z * z );
-    vertices.addAll( [x/length, y/length, z/length ] );
-  }
-  
-  double getU2( double z, double x) {
-    return 0.5 * ( 1.0 + Math.atan2( z , x ) * ( 1 / Math.PI ));
-  }
-
-  double getV2( double y) {
-    return Math.acos( y ) * ( 1 / Math.PI );
-  }
-
-  double getU1( double z, double x) {
-    return 1 - ( ( ( Math.atan2(z, x ) + Math.PI ) % Math.PI ) / Math.PI * 0.5 );
-  }
-
-  double getV1( double y) {
-    return 0.5 - y / 2;
-  }
-
-  void f3( int a, int b, int c, MeshData scope ) {
-
-    List<double> v1 = vertices.sublist(a*3, a*3+3);
-    List<double> v2 = vertices.sublist(b*3, b*3+3);
-    List<double> v3 = vertices.sublist(c*3, c*3+3);
-
-    scope.vertexIndices.addAll( [a, b, c]);
-
-    // face.vertexNormals.push( v1.clone().normalize(), v2.clone().normalize(), v3.clone().normalize() );
-
-    scope.textureCoords.addAll( [getU2( v1[2], v1[0]), getV2( v1[1] ) ,
-                                 getU2( v2[2], v2[0]), getV2( v2[1] ) ,
-                                 getU2( v3[2], v3[0]), getV2( v3[1] ) ] );
-
-  }
-  
-  int getMiddlePoint( int p1, int p2 ) {
-
-    List<double> pos1 = vertices.sublist( p1*3, p1*3+3 );
-    List<double> pos2 = vertices.sublist( p2*3, p2*3+3 );
-
-    double x = ( pos1[0] + pos2[0] ) / 2;
-    double y = ( pos1[1] + pos2[1] ) / 2;
-    double z = ( pos1[2] + pos2[2] ) / 2;
-
-    v(x, y, z);
-    return vertices.length~/3-1;
-
-
-  }
-
-
-  Icosahedron( [int subdivisions=0] ) : super.empty()
+  Icosahedron( [int subdivisions=4] ) : super.empty()
   {
     MeshData tempMeshData = new MeshData.empty();
     
@@ -172,7 +117,55 @@ class Icosahedron extends MeshData {
 //    print( textureCoords.length);
 //    print( vertices.length);
     //print( vertexIndices.length);
-    
-    
+  }
+  
+  void v( num x, num y, num z ) {
+    var length = Math.sqrt( x * x + y * y + z * z );
+    vertices.addAll( [x/length, y/length, z/length ] );
+  }
+  
+  double getU2( double z, double x) {
+    return 0.5 * ( 1.0 + Math.atan2( z , x ) * ( 1 / Math.PI ));
+  }
+
+  double getV2( double y) {
+    return Math.acos( y ) * ( 1 / Math.PI );
+  }
+
+  double getU1( double z, double x) {
+    return 1 - ( ( ( Math.atan2(z, x ) + Math.PI ) % Math.PI ) / Math.PI * 0.5 );
+  }
+
+  double getV1( double y) {
+    return 0.5 - y / 2;
+  }
+
+  void f3( int a, int b, int c, MeshData scope ) {
+
+    List<double> v1 = vertices.sublist(a*3, a*3+3);
+    List<double> v2 = vertices.sublist(b*3, b*3+3);
+    List<double> v3 = vertices.sublist(c*3, c*3+3);
+
+    scope.vertexIndices.addAll( [a, b, c]);
+
+    // face.vertexNormals.push( v1.clone().normalize(), v2.clone().normalize(), v3.clone().normalize() );
+
+    scope.textureCoords.addAll( [getU2( v1[2], v1[0]), getV2( v1[1] ) ,
+                                 getU2( v2[2], v2[0]), getV2( v2[1] ) ,
+                                 getU2( v3[2], v3[0]), getV2( v3[1] ) ] );
+
+  }
+  
+  int getMiddlePoint( int p1, int p2 ) {
+
+    List<double> pos1 = vertices.sublist( p1*3, p1*3+3 );
+    List<double> pos2 = vertices.sublist( p2*3, p2*3+3 );
+
+    double x = ( pos1[0] + pos2[0] ) / 2;
+    double y = ( pos1[1] + pos2[1] ) / 2;
+    double z = ( pos1[2] + pos2[2] ) / 2;
+
+    v(x, y, z);
+    return vertices.length~/3-1;
   }
 }

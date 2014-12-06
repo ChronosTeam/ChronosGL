@@ -135,7 +135,7 @@ class Utils
     chronosGL.programBasic.addFollowCameraObject(skybox_py);
   }
   
-  MeshData createIcosahedron( int subdivisions) {
+  MeshData createIcosahedron( [int subdivisions=4]) {
     return new Icosahedron(subdivisions);
   }
   
