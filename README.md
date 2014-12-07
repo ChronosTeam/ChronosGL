@@ -19,6 +19,8 @@ Features:
 * skybox
 * async texture loader with progress feedback
 * only Quaternion, Matrix4 and Vector3 math
+* great support for canvas based textures
+* focus on procedural content generation and textureless rendering
 
 
 

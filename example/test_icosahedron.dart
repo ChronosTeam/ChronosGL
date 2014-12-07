@@ -7,7 +7,6 @@ void main() {
   Camera camera = chronosGL.getCamera();
   TextureCache textureCache = chronosGL.getTextureCache();
   TextureWrapper blockTex = textureCache.add("gradient.jpg");
-  TextureWrapper partiTex = textureCache.add("particle.bmp");
   
   textureCache.loadAllThenExecute(() {
     camera.setPos( 0.0, 0.0, 56.0 );
@@ -20,7 +19,7 @@ void main() {
     Mesh m = md.createMesh();
     chronosGL.programBasic.add(m);
     
-    chronosGL.getUtils().addParticles(2000, partiTex.texture);
+    chronosGL.getUtils().addParticles(2000);
     
     chronosGL.run();
   });

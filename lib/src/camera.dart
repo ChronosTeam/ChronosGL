@@ -2,19 +2,34 @@ part of chronosgl;
 
 class Camera extends Spatial
 {
-  
+  Spatial parent = null; // not currently working
   Matrix4 tempMatrix = new Matrix4();
+  
+  Matrix4 tempMatrixParent = new Matrix4();
+  Matrix4 tempMatrixThis = new Matrix4();
+  
   bool alternativeTranslate=false;
   
   void getMVMatrix( Matrix4 mvMatrix, bool translate) {
-    for( var i = 0; i<16; i++)
-    {
-      tempMatrix[i] = transform[i] * ( i < 12 ? 1 : -1);
+    if( parent != null) {
+      tempMatrixParent.setElements(parent.transform);
+      tempMatrixThis.setElements(transform);
+      tempMatrixThis.invert();
+      tempMatrixThis.copyPositionFrom( transform );
+      tempMatrixParent.multiplyWith( tempMatrixThis);
+      for( var i = 0; i<16; i++)
+      {
+        tempMatrix[i] = tempMatrixParent[i] * ( i < 12 ? 1 : -1);
+      }
+    } else {
+      for( var i = 0; i<16; i++)
+      {
+        tempMatrix[i] = transform[i] * ( i < 12 ? 1 : -1);
+      }
     }
-    //mat4.inverse( this.matrix, );
+
     tempMatrix.toRotationMat( mvMatrix);
     if( translate) {
-
       if( alternativeTranslate)
       {
         mvMatrix[12] = transform[12];
@@ -23,10 +38,70 @@ class Camera extends Spatial
         mvMatrix[15] = transform[15];
       } else {
         mvMatrix.translateLocal( tempMatrix[12], tempMatrix[13], tempMatrix[14]);
-        //mat4.translate( mat, [this.tempMatrix[12], this.tempMatrix[13], this.tempMatrix[14]]);
       }
-
     }
+  }
+}
+
+class OrbitCamera extends Animatable {
+  Camera camera;
+  double radius;
+  double azimuth;
+  double polar;
+  Vector lookAt = new Vector();
+
+  double ma=0.0; // mouse azimuth
+  double mp=0.0; // mouse polar
+
+  Map<int, bool> cpk = currentlyPressedKeys;
+  Map<String, bool> cpmb = currentlyPressedMouseButtons;
+
+  OrbitCamera(this.camera, this.radius, [this.azimuth=0.0, this.polar=0.0]) {
+    HTML.document.onMouseMove.listen( (HTML.MouseEvent e) {
+      e.preventDefault();
+      if( cpmb['left'] != null) {
+        azimuth += e.movement.x*0.01;
+        polar += e.movement.y*0.01;
+      }
+    });
+  }
+  
+  void setLookAt(dynamic x, [double y, double z]) {
+    if( x is Vector ){
+      lookAt[0] = x[0];
+      lookAt[1] = x[1];
+      lookAt[2] = x[2];
+    } else {
+      lookAt[0] = x;
+      lookAt[1] = y;
+      lookAt[2] = z;
+    }
+  }
+  
+  void setPosFromSpherical(double radius, double azimuth, double polar) {
+    camera.setPosFromSpherical(radius, azimuth, polar);
+    camera.addPosFromVec(lookAt);
+    camera.lookAt(lookAt);
+  }
+  
+  void animate( double elapsed)
+  {
+    if (cpk[Key.LEFT] != null) {
+      azimuth+=(0.03);
+    } else if (cpk[Key.RIGHT] != null) {
+      azimuth-=(0.03);
+    }
+    if (cpk[Key.UP] != null) {
+      polar+=(0.03);
+    } else if (cpk[Key.DOWN] != null) {
+      polar-=(0.03);
+    }
+    if( cpk[Key.SPACE] != null) {
+      azimuth=0.0;
+      polar=0.0;
+    }
+    polar = polar.clamp(-Math.PI/2+0.1, Math.PI/2-0.1);
+    setPosFromSpherical( radius, azimuth, polar);
   }
 }
 

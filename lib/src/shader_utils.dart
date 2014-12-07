@@ -10,8 +10,14 @@ class Uniform {
     return uniformLocation;
   }
   
-  void setValue( num v) {
+  void setValue1f( num v) {
     gl.uniform1f(uniformLocation, v);
+  }
+  void setValue3f( num x, num y, num z) {
+    gl.uniform3f(uniformLocation, x, y, z);
+  }
+  void setValue3fv( Vector v) {
+    gl.uniform3fv(uniformLocation, v.array);
   }
 }
 

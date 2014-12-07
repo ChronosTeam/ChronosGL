@@ -371,21 +371,28 @@ class Matrix4 {
     return ""+array.toString();    
   }
   
+  void setScale(double x, [double y, double z]) {
+    if( y == null) y = x;
+    if( z == null) z = x;
+    array[0] *= x;
+    array[1] *= y;
+    array[2] *= z;
+    array[4] *= x;
+    array[5] *= y;
+    array[6] *= z;
+    array[8] *= x;
+    array[9] *= y;
+    array[10] *= z;
+  }
   
-  scale(double factor) {
-    array[0] *= factor;
-    array[1] *= factor;
-    array[2] *= factor;
-    array[3] *= factor;
-    array[4] *= factor;
-    array[5] *= factor;
-    array[6] *= factor;
-    array[7] *= factor;
-    array[8] *= factor;
-    array[9] *= factor;
-    array[10] *= factor;
-    array[11] *= factor;
-
+  Vector getScale(Vector store) {
+    var tx = store.set(array[0], array[4], array[8]).length();
+    var ty = store.set(array[1], array[5], array[9]).length();
+    var tz = store.set(array[2], array[6], array[10]).length();
+    store.x = tx;
+    store.y = ty;
+    store.z = tz;
+    return store;
   }
 }
 

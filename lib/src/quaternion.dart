@@ -49,11 +49,18 @@ class Quaternion {
     array[index] = value;
   }
 
-  Quaternion set(Quaternion v) {
-    array[0] = v[0];
-    array[1] = v[1];
-    array[2] = v[2];
-    array[3] = v[3];
+  Quaternion set(dynamic x, double y, double z, double w) {
+    if( x is Quaternion ){
+      array[0] = x[0];
+      array[1] = x[1];
+      array[2] = x[2];
+      array[3] = x[3];
+    } else {
+      array[0] = x;
+      array[1] = y;
+      array[2] = z;
+      array[3] = w;
+    }
     return this;
   }
 
@@ -65,6 +72,28 @@ class Quaternion {
       array[2] = s * axis[2];
       array[3] = Math.cos(rad);
       return this;
+  }
+  
+  Vector _tempLookAt = new Vector();
+  // untested
+  Quaternion lookAt(Vector direction) {
+    _tempLookAt.set(direction).normalize();
+
+    double dot = _tempLookAt.dot(Vector.BACK);
+    
+    if ((dot +1.0).abs() < 0.000001)
+    {
+      return set(0.0, 1.0, 0.0, Math.PI);
+    }
+    if ((dot - 1.0).abs() < 0.000001)
+    {
+      return set(0.0,0.0,0.0,1.0);
+    }
+    
+    double angle = Math.acos(dot);
+    Vector axis = _tempLookAt.cross( Vector.BACK);
+    //rotAxis.normalize();
+    return setAxisAngle(axis, angle);
   }
   
   Float32List m = new Float32List(9);

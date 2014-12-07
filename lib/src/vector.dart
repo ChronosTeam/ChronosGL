@@ -3,6 +3,10 @@ part of chronosmath;
 class Vector {
 
   Float32List array;
+  
+  static final Vector RIGHT = new Vector(1.0,0.0,0.0);
+  static final Vector UP = new Vector(0.0,1.0,0.0);
+  static final Vector BACK = new Vector(0.0,0.0,1.0);
 
   double get x => array[0];
   double get y => array[1];
@@ -44,10 +48,16 @@ class Vector {
     array[index] = value;
   }
 
-  Vector set(Vector v) {
-    array[0] = v[0];
-    array[1] = v[1];
-    array[2] = v[2];
+  Vector set(dynamic x, [double y, double z]) {
+    if( x is Vector ){
+      array[0] = x[0];
+      array[1] = x[1];
+      array[2] = x[2];
+    } else {
+      array[0] = x;
+      array[1] = y;
+      array[2] = z;
+    }
     return this;
   }
 
@@ -185,7 +195,7 @@ class Vector {
   double length() {
     return Math.sqrt(lengthSquared());
   }
-
+  
   // if we initialize the matrix here we get an endless loop
   // because Matrix also creates a new Vector...
   Matrix4 m = null;

@@ -7,6 +7,8 @@ int clientX=0;
 int clientY=0;
 int mouseX=0;
 int mouseY=0;
+int mouseDownX=0;
+int mouseDownY=0;
 bool skipDefaultMouseMoveListener = false;
 
 
@@ -19,17 +21,17 @@ void setUpCapture()
   {
     HTML.document.onMouseMove.listen( (HTML.MouseEvent e) {
       e.preventDefault();
-      
       clientX = e.client.x; 
       clientY = HTML.window.innerHeight - e.client.y; 
       mouseX = e.client.x-(HTML.window.innerWidth~/2);
       mouseY = -(e.client.y-(HTML.window.innerHeight~/2));
-      
     });
   }
 
   HTML.document.onMouseDown.listen( (HTML.MouseEvent e) {
     e.preventDefault();
+    mouseDownX = e.client.x-(HTML.window.innerWidth~/2);
+    mouseDownY = -(e.client.y-(HTML.window.innerHeight~/2));
     bool rightclick= e.which == 3 || e.button == 2;
     if( rightclick)
       currentlyPressedMouseButtons['right'] = true;

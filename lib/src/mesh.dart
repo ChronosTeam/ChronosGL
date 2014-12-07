@@ -12,6 +12,8 @@ class Mesh extends Node {
   
   Texture texture;
   Texture texture2;
+  Texture textureCube;
+  Vector color = new Vector();
   
   Buffer verticesBuffer, colorsBuffer, textureCoordBuffer, normalsBuffer, binormalsBuffer, vertexIndexBuffer;
   
@@ -130,23 +132,34 @@ class Mesh extends Node {
       gl.vertexAttribPointer(program.binormalAttribute, 3, FLOAT, false, 0, 0);
     }
 
+    int activeTextureCounter=0;
     if( program.shaderObject.textureSamplerUniform != null) {
-      gl.activeTexture(TEXTURE0);
+      gl.activeTexture(TEXTURE0+activeTextureCounter);
       gl.bindTexture(TEXTURE_2D, texture);
-      gl.uniform1i(program.samplerUniform, 0);
+      gl.uniform1i(program.textureSamplerUniform, activeTextureCounter++);
     }
 
     if( program.shaderObject.texture2SamplerUniform != null) {
-      gl.activeTexture(TEXTURE1);
+      gl.activeTexture(TEXTURE0+activeTextureCounter);
       gl.bindTexture(TEXTURE_2D, texture2);
-      gl.uniform1i(program.sampler2Uniform, 1);
+      gl.uniform1i(program.texture2SamplerUniform, activeTextureCounter++);
+    }
+
+    if( program.shaderObject.textureCubeSamplerUniform != null) {
+      gl.activeTexture(TEXTURE0+activeTextureCounter);
+      gl.bindTexture(TEXTURE_CUBE_MAP, textureCube);
+      gl.uniform1i(program.textureCubeSamplerUniform, activeTextureCounter++);
+    }
+    
+    if( program.shaderObject.colorUniform != null) {
+      program.colorUniform.setValue3fv(color);
     }
 
     if( program.shaderObject.transformationMatrixUniform != null) {
-      gl.uniformMatrix4fv(program.transformationMatrixUniform, false, matrix.array);
+      gl.uniformMatrix4fv(program.transformationMatrixUniform, false, transform.array);
     }
 
-    gl.uniformMatrix4fv(program.mvMatrixUniform, false, mvMatrix.array);
+    gl.uniformMatrix4fv(program.modelViewMatrixUniform, false, mvMatrix.array);
     
     if( drawPoints ) {
       gl.drawArrays(POINTS, 0, numItems);

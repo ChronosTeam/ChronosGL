@@ -17,6 +17,18 @@ ShaderObject createTexturedShader() {
   return generateShader(shaderObject);
 }
 
+ShaderObject createSolidColorShader() {
+  ShaderObject shaderObject = new ShaderObject("Color");
+  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+  shaderObject.colorUniform = "uColor";
+  shaderObject.modelViewMatrixUniform = "uMVMatrix";
+  shaderObject.perpectiveMatrixUniform = "uPMatrix";
+  
+  shaderObject.fragmentShaderHeader = "uniform vec3 uColor;";
+  shaderObject.fragmentShaderBody = "gl_FragColor = vec4( uColor, 1.0 );";
+  return generateShader(shaderObject);
+}
+
 ShaderObject createColorShader() {
   ShaderObject shaderObject = new ShaderObject("Color");
   shaderObject.vertexPositionAttribute = "aVertexPosition"; 

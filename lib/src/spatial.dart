@@ -51,7 +51,7 @@ class Spatial {
     return _right;
   }
   
-  void setPos( double x, double y, double z )
+  void setPos( double x, double y, double z ) // TODO: make dynamic
   {
     transform[Matrix4.POSX] = x;
     transform[Matrix4.POSY] = y;
@@ -75,6 +75,11 @@ class Spatial {
     transform[Matrix4.POSZ] = vector[2];
   }
   
+  void setPosFromSpherical(double radius, double azimuth, double polar) {
+    double rcp = radius * Math.cos(polar);
+    setPos(rcp * Math.cos(azimuth), radius * Math.sin(polar), rcp * Math.sin(azimuth));
+  }
+
   void translate( num x, num y, num z, [double factor=1.0])
   {
     transform[Matrix4.POSX] += x*factor;
@@ -166,7 +171,5 @@ class Spatial {
   {
     transform.lookAt_alt( getPos(), target, up);
   }
-  
-  
 }
 

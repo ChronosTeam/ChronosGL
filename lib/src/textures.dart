@@ -15,11 +15,18 @@ class TextureCache {
     return textureCache[url] = new TextureWrapper(this.gl, clamp);
   }
   
-  void addSolidColor(String url, String fillStyle) {
+  TextureWrapper addSolidColor(String url, String fillStyle) {
     TextureWrapper tw = new TextureWrapper(this.gl, false);
     tw.loaded = true;
     tw.texture = chronosGL.getUtils().createSolidTexture(fillStyle);
-    textureCache[url] = tw;
+    return textureCache[url] = tw;
+  }
+
+  TextureWrapper addCanvas(String url, HTML.CanvasElement canvas) {
+    TextureWrapper tw = new TextureWrapper(this.gl, false);
+    tw.loaded = true;
+    tw.texture = chronosGL.getUtils().createTextureFromCanvas(canvas);
+    return textureCache[url] = tw;
   }
 
   Texture get(String url) {

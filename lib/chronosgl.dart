@@ -56,6 +56,7 @@ class ChronosGL
   
   Map<String, ShaderProgram> programs = new Map<String, ShaderProgram>();
   Map<String, Animatable> animatables = new Map<String, Animatable>();
+  Map<String, Function> animateCallbacks = new Map<String, Function>();
   
   ShaderProgram programBasic; // shortcut
   
@@ -155,11 +156,18 @@ class ChronosGL
     animatables[name] = a;
   }
 
+  void addAnimateCallback(String name, Function f) {
+    animateCallbacks[name] = f;
+  }
+
   
   void animate(num timeNow, double elapsed)
   {
     for( Animatable a in animatables.values) {
       a.animate(elapsed);
+    }
+    for( Function f in animateCallbacks.values) {
+      f(elapsed, timeNow);
     }
     for( ShaderProgram prg in programs.values)
     {

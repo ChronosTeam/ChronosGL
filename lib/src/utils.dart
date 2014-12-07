@@ -12,19 +12,23 @@ class Utils
     textureCache = chronosGL.getTextureCache();
   }
   
-  Texture createSolidTexture(String fillStyle)
+  Texture createTextureFromCanvas(HTML.CanvasElement canvas)
   {
-    HTML.CanvasElement canvas = new HTML.CanvasElement(width:2, height:2);
-    HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
-    ctx.fillStyle = fillStyle;
-    ctx.fillRect( 0, 0, canvas.width, canvas.height);
-    
     var texture = gl.createTexture();
     gl.bindTexture(TEXTURE_2D, texture);
     gl.texImage2DCanvas(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, canvas);
     gl.texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR);
     gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR); // _MIPMAP_NEAREST
     return texture;
+  }
+
+  Texture createSolidTexture(String fillStyle)
+  {
+    HTML.CanvasElement canvas = new HTML.CanvasElement(width:2, height:2);
+    HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
+    ctx.fillStyle = fillStyle;
+    ctx.fillRect( 0, 0, canvas.width, canvas.height);
+    return createTextureFromCanvas(canvas);
   }
   
   Texture createCheckerboardTexture() {
@@ -45,29 +49,58 @@ class Utils
     return texture;
 }
   
+  HTML.CanvasElement createCanvas(HTML.CanvasElement canvas, callback(HTML.CanvasRenderingContext2D ctx), [int size=512]) {
+    if( canvas == null)
+      canvas = new HTML.CanvasElement(width:size, height:size);
+    HTML.CanvasRenderingContext2D context = canvas.getContext('2d');
+    callback(context);
+    return canvas;
+  }
+  
   HTML.CanvasElement createGradientImage2( double time, HTML.CanvasElement canvas)
   {
-    double sint = Math.sin( time);
-    double n = (sint+1)/2;
-    if( canvas == null)
-      canvas = new HTML.CanvasElement(width:512, height:512);
     int d = 512;
-    canvas.width = canvas.height = d;
-    HTML.CanvasRenderingContext2D context = canvas.getContext('2d');
-    context.rect(0, 0, d, d);
-    HTML.CanvasGradient grad = context.createLinearGradient(0, 0, d*n, d);
-    double cs1 = (360*n).floorToDouble();
-    double cs2 = (90*n).floorToDouble();
-    grad.addColorStop(0, 'hsla($cs1, 100%, 40%, 1)');
-    grad.addColorStop(0.2, 'black');
-    grad.addColorStop(0.3, 'black');
-    grad.addColorStop(0.5, 'hsla($cs2, 100%, 40%, 1)');
-    grad.addColorStop(0.7, 'black');
-    grad.addColorStop(0.9, 'black');
-    grad.addColorStop(1, 'hsla($cs1, 100%, 40%, 1)');
-    context.fillStyle = grad;
-    context.fill();
-    return canvas;
+    return createCanvas( canvas, (HTML.CanvasRenderingContext2D ctx){
+      double sint = Math.sin( time);
+      double n = (sint+1)/2;
+      ctx.rect(0, 0, d, d);
+      HTML.CanvasGradient grad = ctx.createLinearGradient(0, 0, d*n, d);
+      double cs1 = (360*n).floorToDouble();
+      double cs2 = (90*n).floorToDouble();
+      grad.addColorStop(0, 'hsla($cs1, 100%, 40%, 1)');
+      grad.addColorStop(0.2, 'black');
+      grad.addColorStop(0.3, 'black');
+      grad.addColorStop(0.5, 'hsla($cs2, 100%, 40%, 1)');
+      grad.addColorStop(0.7, 'black');
+      grad.addColorStop(0.9, 'black');
+      grad.addColorStop(1, 'hsla($cs1, 100%, 40%, 1)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+    });
+  }
+  
+  HTML.CanvasElement createParticleCanvas()
+  {
+    int d = 64;
+    return createCanvas( null, (HTML.CanvasRenderingContext2D ctx){
+      int x = d~/2, y = d~/2;
+
+      var gradient = ctx.createRadialGradient(x, y, 1, x, y, 22);
+      gradient.addColorStop(0, 'gray');
+      gradient.addColorStop(1, 'black');
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0,0,d,d);
+
+      gradient = ctx.createRadialGradient(x, y, 1, x, y, 6);
+      gradient.addColorStop(0, 'white');
+      gradient.addColorStop(1, 'gray');
+
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle = gradient;
+      ctx.arc(x, y, 4, 0, 2 * Math.PI);
+      ctx.fill();
+    }, d);
   }
 
   
@@ -165,24 +198,22 @@ class Utils
     return chronosGL.programBasic.add( createTorusKnot( radius:radius, tube:tube, segmentsR:segmentsR, segmentsT:segmentsT, p:p, q:q, heightScale:heightScale, texture: t).createMesh());
   }
   
-
-  //alias
-  void addParticles(int numPoints, Texture texture) {
-    addPointSprites( numPoints, texture);
+  void addParticles(int numPoints, [int dimension=100]) {
+    var canvas = chronosGL.getUtils().createParticleCanvas();
+    Texture texture = chronosGL.getUtils().createTextureFromCanvas(canvas);  
+    addPointSprites( numPoints, texture, dimension);
   }
   
-  void addPointSprites(int numPoints, Texture texture) {
+  void addPointSprites(int numPoints, Texture texture, [int dimension=500]) {
     // TODO: make this asynchronous
     Math.Random rand = new Math.Random();
     Float32List vertices = new Float32List(numPoints*3);
     for( var i=0; i < vertices.length/3; i+=3)
     {
-      vertices[i] = rand.nextDouble()*1000-500;
-      vertices[i+1] = rand.nextDouble()*1000-500;
-      vertices[i+2] = rand.nextDouble()*1000-500;
+      vertices[i] = rand.nextDouble()*dimension*2-dimension;
+      vertices[i+1] = rand.nextDouble()*dimension*2-dimension;
+      vertices[i+2] = rand.nextDouble()*dimension*2-dimension;
     }
-
-    
     MeshData md = new MeshData(vertices: vertices, texture: texture );
     
     ShaderProgram pssp = chronosGL.programs['point_sprites'];
@@ -192,7 +223,6 @@ class Utils
     m.blend = true;
     m.name = 'point_sprites_mesh_'+pssp.objects.length.toString();
     pssp.add( m);
-    
   }
   
   Future<Object> loadFile(String url, [bool binary=false])

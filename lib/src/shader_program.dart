@@ -5,20 +5,25 @@ class ShaderObject {
   String name;
   String vertexShader;
   String fragmentShader;
+  
   String vertexPositionAttribute;
   String colorsAttribute;
   String textureCoordinatesAttribute;
   String normalAttribute;
   String binormalAttribute;
+  
   String transformationMatrixUniform;
   String modelViewMatrixUniform;
   String perpectiveMatrixUniform;
   String textureSamplerUniform;
   String texture2SamplerUniform;
+  String textureCubeSamplerUniform;
+  String colorUniform;
   String cameraNear;
   String cameraFar;
   String size; // canvas width and height
   String timeUniform;
+  
   String vertexShaderHeader="";
   String vertexShaderBody="";
   String fragmentShaderHeader="";
@@ -36,11 +41,13 @@ class ShaderProgram implements Drawable {
   int textureCoordAttribute;
   int normalAttribute;
   int binormalAttribute;
-  UniformLocation pMatrixUniform;
-  UniformLocation mvMatrixUniform;
-  UniformLocation samplerUniform;
-  UniformLocation sampler2Uniform;
   UniformLocation transformationMatrixUniform;
+  UniformLocation modelViewMatrixUniform;
+  UniformLocation perpectiveMatrixUniform;
+  UniformLocation textureSamplerUniform;
+  UniformLocation texture2SamplerUniform;
+  UniformLocation textureCubeSamplerUniform;
+  Uniform colorUniform;
   UniformLocation cameraNear;
   UniformLocation cameraFar;
   UniformLocation size;
@@ -74,14 +81,20 @@ class ShaderProgram implements Drawable {
     if( shaderObject.binormalAttribute != null)
       binormalAttribute = gl.getAttribLocation(program, shaderObject.binormalAttribute);
 
-    pMatrixUniform = getUniformLocation( shaderObject.perpectiveMatrixUniform);
-    mvMatrixUniform = getUniformLocation( shaderObject.modelViewMatrixUniform);
+    perpectiveMatrixUniform = getUniformLocation( shaderObject.perpectiveMatrixUniform);
+    modelViewMatrixUniform = getUniformLocation( shaderObject.modelViewMatrixUniform);
 
     if( shaderObject.textureSamplerUniform != null)
-      samplerUniform = getUniformLocation( shaderObject.textureSamplerUniform);
+      textureSamplerUniform = getUniformLocation( shaderObject.textureSamplerUniform);
 
     if( shaderObject.texture2SamplerUniform != null)
-      sampler2Uniform = getUniformLocation( shaderObject.texture2SamplerUniform);
+      texture2SamplerUniform = getUniformLocation( shaderObject.texture2SamplerUniform);
+
+    if( shaderObject.textureCubeSamplerUniform != null)
+      textureCubeSamplerUniform = getUniformLocation( shaderObject.textureCubeSamplerUniform);
+
+    if( shaderObject.colorUniform != null)
+      colorUniform = getUniform( shaderObject.colorUniform);
 
     if( shaderObject.cameraNear != null)
       cameraNear = getUniformLocation( shaderObject.cameraNear);
@@ -105,7 +118,7 @@ class ShaderProgram implements Drawable {
   }
   
   Uniform getUniform( String name) {
-    return new Uniform( gl.getUniformLocation( program, name), gl);
+    return new Uniform( getUniformLocation( name), gl);
   }
   
   Node add( Node obj)  {
@@ -171,7 +184,7 @@ class ShaderProgram implements Drawable {
     
     //print( "pM: ${pMatrix} ${pMatrixUniform}" );
 
-    gl.uniformMatrix4fv(pMatrixUniform, false, pMatrix.array);
+    gl.uniformMatrix4fv(perpectiveMatrixUniform, false, pMatrix.array);
     
     if( shaderObject.timeUniform != null)
       gl.uniform1f(timeUniform, timeNow/1000);
@@ -191,8 +204,8 @@ class ShaderProgram implements Drawable {
     
     //print( "mvM: ${mvMatrix}");
     
-    drawObjects(followCameraObjects);   
-
+    drawObjects(followCameraObjects); // like skybox
+    
     camera.getMVMatrix(mvMatrix, true);
     
     if( overrideMvMatrix != null) {
