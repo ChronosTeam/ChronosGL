@@ -6,13 +6,11 @@ void main() {
   Camera camera = chronosGL.getCamera();
 
   OrbitCamera orbit = new OrbitCamera(camera, 15.0);
-  orbit.setPosFromSpherical(15.0, 15.0, 12.0);
-  
+  chronosGL.addAnimatable('orbitCam', orbit);
   chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
     //orbit.setPosFromSpherical(15.0, time*0.001, time*0.0005);
+    orbit.azimuth+=0.001;
   });
-  
-  chronosGL.addAnimatable('orbitCam', orbit);
   
   MeshData sphere = chronosGL.getUtils().createIcosahedron();
 
