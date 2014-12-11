@@ -5,22 +5,22 @@ void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
   Camera camera = chronosGL.getCamera();
+  OrbitCamera orbit = new OrbitCamera(camera, 25.0);
+  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
+    orbit.azimuth+=0.001;
+  });
+  chronosGL.addAnimatable('orbitCam', orbit);
+  
   TextureCache textureCache = chronosGL.getTextureCache();
   TextureWrapper blockTex = textureCache.add("gradient.jpg");
-  TextureWrapper partiTex = textureCache.add("particle.bmp");
   
   textureCache.loadAllThenExecute(() {
-    camera.setPos( 0.0, 0.0, 56.0 );
-    
-    FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
-    chronosGL.addAnimatable('flyingCamera', fc);
-    
     MeshData md = chronosGL.getUtils().createIcosahedron(3);
     md.texture = blockTex.texture;
     Mesh m = md.createMesh();
     chronosGL.programBasic.add(m);
     
-    chronosGL.getUtils().addParticles(2000, partiTex.texture);
+    chronosGL.getUtils().addParticles(2000);
     
     chronosGL.run();
   });
