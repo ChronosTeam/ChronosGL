@@ -58,6 +58,7 @@ class ShaderProgram implements Drawable {
   Matrix4 mvMatrix = new Matrix4();
   List<Node> followCameraObjects = new List<Node>(); 
   List<Node> objects = new List<Node>();
+  List<Instancer> instancers = new List<Instancer>();
   
   ShaderProgram( this.chronosGL, this.shaderObject, this.name)
   {
@@ -113,6 +114,10 @@ class ShaderProgram implements Drawable {
 
   }
   
+  int getAttributeLocation( String name) {
+    return gl.getAttribLocation( program, name);
+  }
+  
   UniformLocation getUniformLocation( String name) {
     return gl.getUniformLocation( program, name);
   }
@@ -146,23 +151,17 @@ class ShaderProgram implements Drawable {
   }
   
   bool hasEnabledObjects() {
-    for( Node node in objects)
-    {
-      if( node.enabled)
-        return true;
-    }
-    for( Node node in followCameraObjects)
-    {
-      if( node.enabled)
-        return true;
-    }
-
+    if(objects.any((Node n)=>n.enabled))
+      return true;
+    if(followCameraObjects.any((Node n)=>n.enabled))
+      return true;
+    if(instancers.any((Instancer i)=>i.enabled))
+      return true;
     return false;
   }
   
   void draw( Matrix4 pMatrix, [Matrix4 overrideMvMatrix] )
   {
-    
     if( !hasEnabledObjects())
       return;
     
@@ -184,7 +183,8 @@ class ShaderProgram implements Drawable {
     
     //print( "pM: ${pMatrix} ${pMatrixUniform}" );
 
-    gl.uniformMatrix4fv(perpectiveMatrixUniform, false, pMatrix.array);
+    if( shaderObject.perpectiveMatrixUniform != null)
+      gl.uniformMatrix4fv(perpectiveMatrixUniform, false, pMatrix.array);
     
     if( shaderObject.timeUniform != null)
       gl.uniform1f(timeUniform, timeNow/1000);
@@ -213,6 +213,9 @@ class ShaderProgram implements Drawable {
     }
     
     drawObjects(objects);   
+    
+    drawInstancers();
+    
     gl.disableVertexAttribArray(vertexPositionAttribute);
 
     if( shaderObject.colorsAttribute != null)
@@ -224,8 +227,15 @@ class ShaderProgram implements Drawable {
     if( shaderObject.binormalAttribute != null)
       gl.disableVertexAttribArray(binormalAttribute);
   }
-
   
+  void drawInstancers() {
+    for( Instancer instancer in instancers)
+    {
+      if( instancer.enabled)
+        instancer.draw(this, mvMatrix);
+    }
+  }
+
   void drawObjects(List<Spatial> objects) {
     for( Node node in objects)
     {
@@ -234,7 +244,8 @@ class ShaderProgram implements Drawable {
     }
   }
   
-  
-  
+  void addInstancer(Instancer instancer) {
+    instancers.add(instancer);
+  }
 }
 

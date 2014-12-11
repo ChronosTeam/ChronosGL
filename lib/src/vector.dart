@@ -33,11 +33,11 @@ class Vector {
     this.array[2] = vector[2];
   }
 
-  Vector([double x = 0.0, double y = 0.0, double z = 0.0]) {
+  Vector([num x = 0, num y = 0, num z = 0]) {
     array = new Float32List(3);
-    array[0] = x;
-    array[1] = y;
-    array[2] = z;
+    array[0] = x.toDouble();
+    array[1] = y.toDouble();
+    array[2] = z.toDouble();
   }
 
   double operator [](int index) {

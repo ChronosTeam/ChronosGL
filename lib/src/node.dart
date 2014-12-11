@@ -40,6 +40,7 @@ class Node extends Spatial {
   
   var animateCallback;
   // elapsed is in milliseconds (usually around 129.000 )
+  // TODO: make this a list: addAnimateCallback
   void setAnimateCallback( cb(Node node, double elapsed) ) {
     animateCallback = cb;
   }

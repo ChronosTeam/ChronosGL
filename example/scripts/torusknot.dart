@@ -1,4 +1,3 @@
-import 'dart:html' as html;
 import 'package:chronosgl/chronosgl.dart';
 
 void main() {
@@ -6,17 +5,19 @@ void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas', transparent: false);
 
   Camera camera = chronosGL.getCamera();
+  OrbitCamera orbit = new OrbitCamera(camera, 65.0);
+  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
+    orbit.azimuth+=0.001;
+  });
+  chronosGL.addAnimatable('orbitCam', orbit);
+    
   TextureCache textureCache = chronosGL.getTextureCache();
   TextureWrapper blockTex = textureCache.add("gradient.jpg");
   
   textureCache.loadAllThenExecute(() {
-    camera.setPos( 0.0, 0.0, 56.0 );
     Mesh m = chronosGL.getUtils().createTorusKnotMesh( texture: blockTex.texture);
-    html.querySelector("#webgl-canvas").onMouseMove.listen((html.MouseEvent event){
-      m.rotX(event.client.x/10000);
-      m.rotY(event.client.y/10000);
-    });
     chronosGL.programBasic.add(m);
+    chronosGL.getUtils().addParticles(2000, 100);
     chronosGL.run();
   });
   

@@ -24,8 +24,8 @@ class Matrix4 {
     return array[index];
   }
   
-  void operator []=(int index, double value) {
-    array[index] = value;
+  void operator []=(int index, num value) {
+    array[index] = value.toDouble();
   }
 
   void clear() {

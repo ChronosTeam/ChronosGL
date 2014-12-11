@@ -11,16 +11,18 @@ void main() {
   prgs.add(chronosGL.createProgram(createPlasmaShader3()));
 
   Camera camera = chronosGL.getCamera();
-  camera.setPos( 0.0, 0.0, 56.0 );
-  FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
-  chronosGL.addAnimatable('flyingCamera', fc);
+  OrbitCamera orbit = new OrbitCamera(camera, 65.0);
+  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
+    orbit.azimuth+=0.001;
+  });
+  chronosGL.addAnimatable('orbitCam', orbit);
     
   MeshData md = chronosGL.getUtils().createCube();
   for( int i=0; i<md.vertices.length;i++) {
     md.vertices[i] = md.vertices[i]*10;
   }
   Mesh m = md.createMesh();
-  m.setPos(0.0, 0.0, -150.0);
+  m.setPos(0, 0, 0);
   m.lookUp(1.0);
   m.lookLeft(0.7);
   
@@ -40,5 +42,6 @@ void main() {
     pointer++;
   });
   
+  chronosGL.getUtils().addParticles(2000, 100);
   chronosGL.run();
 }

@@ -5,10 +5,9 @@ void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
   ShaderProgram prg = chronosGL.createProgram(createDemoShader());
   Camera camera = chronosGL.getCamera();
-  camera.setPos( 0.0, 0.0, 56.0 );
-  FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
-  chronosGL.addAnimatable('flyingCamera', fc);
-
+  OrbitCamera orbit = new OrbitCamera(camera, 65.0);
+  chronosGL.addAnimatable('orbitCam', orbit);
+    
   loadObj( "ct_logo.obj").then((MeshData md) {
     
     Mesh mesh = md.createMesh();
@@ -33,11 +32,8 @@ void main() {
     });
     
     prg.add( n);
+    chronosGL.getUtils().addParticles(2000, 100);
     chronosGL.run();
     
   });
-  
-  
-  
-  
 }

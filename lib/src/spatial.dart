@@ -51,7 +51,7 @@ class Spatial {
     return _right;
   }
   
-  void setPos( double x, double y, double z ) // TODO: make dynamic
+  void setPos( num x, num y, num z ) // TODO: make dynamic
   {
     transform[Matrix4.POSX] = x;
     transform[Matrix4.POSY] = y;

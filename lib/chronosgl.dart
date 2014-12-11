@@ -26,6 +26,7 @@ part "src/pickray.dart";
 part "src/input.dart";
 part "src/load_obj.dart";
 part "src/framebuffer.dart";
+part "src/instancer.dart";
 part "src/shader/basic_shader.dart";
 part "src/shader/plane_shader.dart";
 part "src/shader/ssao_shader.dart";
@@ -44,6 +45,7 @@ abstract class Drawable extends Animatable {
   void draw( Matrix4 pMatrix);
 }
 
+typedef void AnimateCallback(double elapsed, double time);
 
 class ChronosGL
 {
@@ -54,9 +56,10 @@ class ChronosGL
 
   RenderingContext gl;
   
+  
   Map<String, ShaderProgram> programs = new Map<String, ShaderProgram>();
   Map<String, Animatable> animatables = new Map<String, Animatable>();
-  Map<String, Function> animateCallbacks = new Map<String, Function>();
+  Map<String, AnimateCallback> animateCallbacks = new Map<String, AnimateCallback>();
   
   ShaderProgram programBasic; // shortcut
   

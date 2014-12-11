@@ -2,46 +2,23 @@ part of chronosgl;
 
 class Camera extends Spatial
 {
-  Spatial parent = null; // not currently working
-  Matrix4 tempMatrix = new Matrix4();
-  
-  Matrix4 tempMatrixParent = new Matrix4();
-  Matrix4 tempMatrixThis = new Matrix4();
-  
-  bool alternativeTranslate=false;
-  
+  // Get the model view matrix. The view matrix is the inverse of the camera’s transformation matrix in world-space.
   void getMVMatrix( Matrix4 mvMatrix, bool translate) {
-    if( parent != null) {
-      tempMatrixParent.setElements(parent.transform);
-      tempMatrixThis.setElements(transform);
-      tempMatrixThis.invert();
-      tempMatrixThis.copyPositionFrom( transform );
-      tempMatrixParent.multiplyWith( tempMatrixThis);
-      for( var i = 0; i<16; i++)
-      {
-        tempMatrix[i] = tempMatrixParent[i] * ( i < 12 ? 1 : -1);
-      }
-    } else {
-      for( var i = 0; i<16; i++)
-      {
-        tempMatrix[i] = transform[i] * ( i < 12 ? 1 : -1);
-      }
-    }
-
-    tempMatrix.toRotationMat( mvMatrix);
+    transform.toRotationMat( mvMatrix); // why does this seem to be already inverted/transposed ?
     if( translate) {
-      if( alternativeTranslate)
-      {
-        mvMatrix[12] = transform[12];
-        mvMatrix[13] = transform[13];
-        mvMatrix[14] = transform[14];
-        mvMatrix[15] = transform[15];
-      } else {
-        mvMatrix.translateLocal( tempMatrix[12], tempMatrix[13], tempMatrix[14]);
-      }
+      // The eye position is negated which is equivalent to the inverse of the translation matrix: T(v)^-1 == T(-v)
+      // T = translation matrix, v = eye position.
+      mvMatrix.translateLocal( -transform[12], -transform[13], -transform[14]); // short cut for rotationMatrixInverted * translationMatrixInverted, see http://3dgep.com/understanding-the-view-matrix/#Look_At_Camera
     }
   }
 }
+
+/*
+  html.querySelector("#webgl-canvas").onMouseMove.listen((html.MouseEvent event){
+    m.rotX(event.client.x/10000);
+    m.rotY(event.client.y/10000);
+  });
+*/
 
 class OrbitCamera extends Animatable {
   Camera camera;
@@ -57,6 +34,11 @@ class OrbitCamera extends Animatable {
   Map<String, bool> cpmb = currentlyPressedMouseButtons;
 
   OrbitCamera(this.camera, this.radius, [this.azimuth=0.0, this.polar=0.0]) {
+    HTML.document.onMouseWheel.listen( (HTML.WheelEvent e) {
+      radius -= e.wheelDeltaY*0.1;
+      if(radius<=0)
+        radius=0.1;
+    });
     HTML.document.onMouseMove.listen( (HTML.MouseEvent e) {
       e.preventDefault();
       if( cpmb['left'] != null) {
@@ -246,5 +228,32 @@ class FPSCamera extends Animatable
     movementX=0;
     movementY=0;
   }
+}
+
+// this class lets a Camera fly through a TorusKnot like through a tunnel
+class TorusKnotCamera extends Animatable
+{
+  Camera camera;
   
+  TorusKnotCamera( this.camera);
+  
+  Vector p1 = new Vector();
+  Vector p2 = new Vector();
+  
+  int p = 2;
+  int q = 3;
+  double radius=20.0;
+  
+  double time=0.0;
+  Vector up = new Vector();
+  
+  void animate( double elapsed)
+  {
+    time += elapsed;
+    getTorusKnotPos( time/1500, q, p, radius, 1.0, p1 );
+    getTorusKnotPos( (time/1500)+0.1, q, p, radius, 1.0, p2 );
+    up..set(p2)..normalize();
+    camera.setPosFromVec(p1);
+    camera.lookAt(p2);
+  }
 }

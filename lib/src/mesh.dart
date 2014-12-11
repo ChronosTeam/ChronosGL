@@ -109,47 +109,8 @@ class Mesh extends Node {
       gl.blendFunc(blend_sFactor, blend_dFactor);
     }
        
-    gl.bindBuffer(ARRAY_BUFFER, verticesBuffer);
-    gl.vertexAttribPointer(program.vertexPositionAttribute, 3, FLOAT, false, 0, 0);
-
-    if( program.shaderObject.colorsAttribute != null) {
-      gl.bindBuffer(ARRAY_BUFFER, colorsBuffer);
-      gl.vertexAttribPointer(program.colorsAttribute, 3, FLOAT, false, 0, 0);
-    }
-
-    if( program.shaderObject.textureCoordinatesAttribute != null) {
-      gl.bindBuffer(ARRAY_BUFFER, textureCoordBuffer);
-      gl.vertexAttribPointer(program.textureCoordAttribute, 2, FLOAT, false, 0, 0);
-    }
-
-    if( program.shaderObject.normalAttribute != null) {
-      gl.bindBuffer(ARRAY_BUFFER, normalsBuffer);
-      gl.vertexAttribPointer(program.normalAttribute, 3, FLOAT, false, 0, 0);
-    }
-
-    if( program.shaderObject.binormalAttribute != null) {
-      gl.bindBuffer(ARRAY_BUFFER, binormalsBuffer);
-      gl.vertexAttribPointer(program.binormalAttribute, 3, FLOAT, false, 0, 0);
-    }
-
-    int activeTextureCounter=0;
-    if( program.shaderObject.textureSamplerUniform != null) {
-      gl.activeTexture(TEXTURE0+activeTextureCounter);
-      gl.bindTexture(TEXTURE_2D, texture);
-      gl.uniform1i(program.textureSamplerUniform, activeTextureCounter++);
-    }
-
-    if( program.shaderObject.texture2SamplerUniform != null) {
-      gl.activeTexture(TEXTURE0+activeTextureCounter);
-      gl.bindTexture(TEXTURE_2D, texture2);
-      gl.uniform1i(program.texture2SamplerUniform, activeTextureCounter++);
-    }
-
-    if( program.shaderObject.textureCubeSamplerUniform != null) {
-      gl.activeTexture(TEXTURE0+activeTextureCounter);
-      gl.bindTexture(TEXTURE_CUBE_MAP, textureCube);
-      gl.uniform1i(program.textureCubeSamplerUniform, activeTextureCounter++);
-    }
+    bindBuffers(program);
+    bindTextures(program);
     
     if( program.shaderObject.colorUniform != null) {
       program.colorUniform.setValue3fv(color);
@@ -179,6 +140,52 @@ class Mesh extends Node {
     }
     
     
+  }
+
+  void bindBuffers(ShaderProgram program) {
+    gl.bindBuffer(ARRAY_BUFFER, verticesBuffer);
+    gl.vertexAttribPointer(program.vertexPositionAttribute, 3, FLOAT, false, 0, 0);
+    
+    if( program.shaderObject.colorsAttribute != null) {
+      gl.bindBuffer(ARRAY_BUFFER, colorsBuffer);
+      gl.vertexAttribPointer(program.colorsAttribute, 3, FLOAT, false, 0, 0);
+    }
+    
+    if( program.shaderObject.textureCoordinatesAttribute != null) {
+      gl.bindBuffer(ARRAY_BUFFER, textureCoordBuffer);
+      gl.vertexAttribPointer(program.textureCoordAttribute, 2, FLOAT, false, 0, 0);
+    }
+    
+    if( program.shaderObject.normalAttribute != null) {
+      gl.bindBuffer(ARRAY_BUFFER, normalsBuffer);
+      gl.vertexAttribPointer(program.normalAttribute, 3, FLOAT, false, 0, 0);
+    }
+    
+    if( program.shaderObject.binormalAttribute != null) {
+      gl.bindBuffer(ARRAY_BUFFER, binormalsBuffer);
+      gl.vertexAttribPointer(program.binormalAttribute, 3, FLOAT, false, 0, 0);
+    }
+  }
+
+  void bindTextures(ShaderProgram program) {
+    int activeTextureCounter=0;
+    if( program.shaderObject.textureSamplerUniform != null) {
+      gl.activeTexture(TEXTURE0+activeTextureCounter);
+      gl.bindTexture(TEXTURE_2D, texture);
+      gl.uniform1i(program.textureSamplerUniform, activeTextureCounter++);
+    }
+    
+    if( program.shaderObject.texture2SamplerUniform != null) {
+      gl.activeTexture(TEXTURE0+activeTextureCounter);
+      gl.bindTexture(TEXTURE_2D, texture2);
+      gl.uniform1i(program.texture2SamplerUniform, activeTextureCounter++);
+    }
+    
+    if( program.shaderObject.textureCubeSamplerUniform != null) {
+      gl.activeTexture(TEXTURE0+activeTextureCounter);
+      gl.bindTexture(TEXTURE_CUBE_MAP, textureCube);
+      gl.uniform1i(program.textureCubeSamplerUniform, activeTextureCounter++);
+    }
   }
 
   

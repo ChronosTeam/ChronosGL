@@ -205,7 +205,7 @@ class Utils
   }
   
   void addPointSprites(int numPoints, Texture texture, [int dimension=500]) {
-    // TODO: make this asynchronous
+    // TODO: make this asynchronous (async/await?)
     Math.Random rand = new Math.Random();
     Float32List vertices = new Float32List(numPoints*3);
     for( var i=0; i < vertices.length/3; i+=3)
