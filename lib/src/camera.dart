@@ -13,13 +13,6 @@ class Camera extends Spatial
   }
 }
 
-/*
-  html.querySelector("#webgl-canvas").onMouseMove.listen((html.MouseEvent event){
-    m.rotX(event.client.x/10000);
-    m.rotY(event.client.y/10000);
-  });
-*/
-
 class OrbitCamera extends Animatable {
   Camera camera;
   double radius;
@@ -35,9 +28,13 @@ class OrbitCamera extends Animatable {
 
   OrbitCamera(this.camera, this.radius, [this.azimuth=0.0, this.polar=0.0]) {
     HTML.document.onMouseWheel.listen( (HTML.WheelEvent e) {
-      radius -= e.wheelDeltaY*0.1;
-      if(radius<=0)
-        radius=0.1;
+      try {
+        double d = e.wheelDeltaY*0.1;
+        if(radius-d>0)
+          radius -= d;
+      } catch(e) {
+        print(e);
+      }
     });
     HTML.document.onMouseMove.listen( (HTML.MouseEvent e) {
       e.preventDefault();
@@ -249,11 +246,11 @@ class TorusKnotCamera extends Animatable
   
   void animate( double elapsed)
   {
-    time += elapsed;
-    getTorusKnotPos( time/1500, q, p, radius, 1.0, p1 );
-    getTorusKnotPos( (time/1500)+0.1, q, p, radius, 1.0, p2 );
-    up..set(p2)..normalize();
-    camera.setPosFromVec(p1);
-    camera.lookAt(p2);
+   time += elapsed;
+   getTorusKnotPos( time/1500, q, p, radius, 1.0, p1 );
+   getTorusKnotPos( (time/1500)+0.1, q, p, radius, 1.0, p2 );
+   up..set(p2)..normalize();
+   camera.setPosFromVec(p1);
+   camera.lookAt(p2);
   }
 }
