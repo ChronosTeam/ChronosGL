@@ -46,6 +46,19 @@ class OrbitCamera extends Animatable {
 
       }
     });
+    HTML.document.onTouchStart.listen((HTML.TouchEvent e) {
+      mouseDownX = e.touches[0].client.x;
+      mouseDownY = e.touches[0].client.y;
+    });
+    HTML.document.onTouchMove.listen((HTML.TouchEvent e) {
+      //azimuth += e.movement.x*0.01;
+      //polar += e.movement.y*0.01;
+      HTML.Point p = e.touches[0].client;
+      azimuth += (p.x - mouseDownX)*0.01;
+      polar += (mouseDownY - p.y)*0.01;
+      mouseDownX = p.x;
+      mouseDownY = p.y;
+    });
   }
 
   void setLookAt(dynamic x, [double y, double z]) {
