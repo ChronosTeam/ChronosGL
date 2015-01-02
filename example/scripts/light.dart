@@ -11,9 +11,8 @@ void main() {
   chronosGL.addAnimatable('flyingCamera', fc);
   
   MeshData md = chronosGL.getUtils().createCube();
-  for( int i=0; i<md.vertices.length;i++) {
-    md.vertices[i] = md.vertices[i]*10;
-  }
+  md.multiplyVertices(10);
+
   Mesh m = md.createMesh();
   m.setPos(0.0, 0.0, -150.0);
   m.lookUp(1.0);

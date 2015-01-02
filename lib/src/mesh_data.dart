@@ -46,4 +46,9 @@ class MeshData {
     return new Mesh(this);
   }
 
+  void multiplyVertices(num m) {
+    for(int i = 0; i < vertices.length; i++) {
+      vertices[i] *= m;
+    }
+  }
 }

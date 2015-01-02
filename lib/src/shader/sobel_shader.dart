@@ -62,7 +62,7 @@ ShaderObject createSobelShader() {
   shaderObject.textureSamplerUniform = "colorSampler";
   shaderObject.cameraNear = "cameraNear";
   shaderObject.cameraFar = "cameraFar";
-  shaderObject.size = "size";
+  shaderObject.canvasSize = "size";
  
   return shaderObject;
 }

@@ -18,10 +18,10 @@ class ShaderObject {
   String textureSamplerUniform;
   String texture2SamplerUniform;
   String textureCubeSamplerUniform;
-  String colorUniform;
+  String colorUniform; // 3 floats
   String cameraNear;
   String cameraFar;
-  String size; // canvas width and height
+  String canvasSize; // canvas width and height
   String timeUniform;
   
   String vertexShaderHeader="";
@@ -103,8 +103,8 @@ class ShaderProgram implements Drawable {
     if( shaderObject.cameraFar != null)
       cameraFar = getUniformLocation( shaderObject.cameraFar);
     
-    if( shaderObject.size != null)
-      size = getUniformLocation( shaderObject.size);
+    if( shaderObject.canvasSize != null)
+      size = getUniformLocation( shaderObject.canvasSize);
     
     if( shaderObject.transformationMatrixUniform != null)
       transformationMatrixUniform = getUniformLocation( shaderObject.transformationMatrixUniform);
@@ -198,7 +198,7 @@ class ShaderProgram implements Drawable {
     if( shaderObject.cameraFar != null)
       gl.uniform1f(cameraFar, chronosGL.far);;
 
-    if( shaderObject.size != null)
+    if( shaderObject.canvasSize != null)
       gl.uniform2f(size, chronosGL._canvas.clientWidth, chronosGL._canvas.clientHeight );
 
     

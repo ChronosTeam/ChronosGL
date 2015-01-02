@@ -79,6 +79,11 @@ class Utils
     });
   }
   
+  Texture createParticleTexture()
+  {
+    return createTextureFromCanvas(createParticleCanvas());
+  }
+
   HTML.CanvasElement createParticleCanvas()
   {
     int d = 64;

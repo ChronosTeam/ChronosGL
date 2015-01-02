@@ -180,7 +180,7 @@ ShaderObject createSSAOShader() {
   shaderObject.texture2SamplerUniform = "tDepth";
   shaderObject.cameraNear = "cameraNear";
   shaderObject.cameraFar = "cameraFar";
-  shaderObject.size = "size";
+  shaderObject.canvasSize = "size";
     
   return shaderObject;
 }
