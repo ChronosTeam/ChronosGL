@@ -31,7 +31,7 @@ ShaderObject createFireWorksShader() {
        vp += normalize(disperse)*(t-3.0);
       }
       gl_Position = uPMatrix * uMVMatrix * vec4(vp, 1.0);
-      gl_PointSize = 1000.0/gl_Position.z;
+      gl_PointSize = 100.0/gl_Position.z;
     }
   """;
 
@@ -51,7 +51,7 @@ ShaderObject createFireWorksShader() {
          //gl_FragColor.x = 1.0;
       } else {
          //gl_FragColor.rgb = color;
-         //gl_FragColor.a -= (t-3.0);
+         gl_FragColor.a -= (t-3.0);
       }
     }
   """;
@@ -68,36 +68,46 @@ ShaderObject createFireWorksShader() {
 
 }
 
+Math.Random rand = new Math.Random();
+
+Mesh getRocket(ChronosGL chronosGL) {
+
+  int numPoints = 200;
+
+  Float32List vertices = new Float32List(numPoints * 3);
+  Float32List normals = new Float32List(numPoints * 3);
+  for (var i = 0; i < normals.length; i++) {
+    normals[i] = rand.nextDouble() - 0.5;
+  }
+
+  MeshData md = new MeshData(vertices: vertices, normals: normals, texture: chronosGL.getUtils().createParticleTexture());
+
+  Mesh m = new Mesh(md, true);
+  m.color.set(1.0, 0.0, 0.0);
+  m.blend = true;
+  m.depth = false;
+  m.blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;
+
+  return m;
+}
+
 void main() {
 
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
   Camera camera = chronosGL.getCamera();
-  camera.setPos(0.0, 0.0, 56.0);
+  OrbitCamera orbit = new OrbitCamera(camera, 15.0);
+  chronosGL.addAnimatable('orbitCam', orbit);
+  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
+    //orbit.setPosFromSpherical(15.0, time*0.001, time*0.0005);
+    orbit.azimuth += 0.001;
+  });
 
-  FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
-  chronosGL.addAnimatable('flyingCamera', fc);
 
-  Math.Random rand = new Math.Random();
-  
-  int numPoints = 100;
-  
-  Float32List vertices = new Float32List(numPoints*3);
-  Float32List normals = new Float32List(numPoints*3);
-  for( var i=0; i < normals.length; i++)
-  {
-    normals[i] = rand.nextDouble()-0.5;
-  }
+  ShaderProgram pssp = chronosGL.createProgram(createFireWorksShader());
 
-  MeshData md = new MeshData(vertices: vertices, normals: normals, texture: chronosGL.getUtils().createParticleTexture() );
-  
-  Mesh m= new Mesh( md, true);
-  m.color.set(1.0,0.0,0.0);
-  m.blend = true;
-  
-  ShaderProgram pssp = chronosGL.createProgram( createFireWorksShader());
-  pssp.add( m);
-      
+  pssp.add(getRocket(chronosGL));
+
   chronosGL.getUtils().addParticles(2000);
 
   chronosGL.run();
