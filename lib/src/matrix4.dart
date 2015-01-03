@@ -136,30 +136,7 @@ class Matrix4 {
         y = axis[1],
         z = axis[2],
         len = Math.sqrt(x * x + y * y + z * z),
-        s,
-        c,
-        t,
-        a00,
-        a01,
-        a02,
-        a03,
-        a10,
-        a11,
-        a12,
-        a13,
-        a20,
-        a21,
-        a22,
-        a23,
-        b00,
-        b01,
-        b02,
-        b10,
-        b11,
-        b12,
-        b20,
-        b21,
-        b22;
+        s,c,t,a00,a01,a02,a03,a10,a11,a12,a13,a20,a21,a22,a23,b00,b01,b02,b10,b11,b12,b20,b21,b22;
 
     if (len == 0) {
       return null;
