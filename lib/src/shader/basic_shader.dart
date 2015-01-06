@@ -130,6 +130,35 @@ ShaderObject createNormal2ColorShader() {
   return shaderObject;
 }
 
+// this shader works well for cube shapes, for other shapes it might be better to use the normals attribute to sample the cube texture
+ShaderObject createCubeMapShader() { 
+  ShaderObject shaderObject = new ShaderObject("CubeMap");
+  shaderObject.vertexShader = """
+    precision mediump float;
+    attribute vec3 vertexPosition;
+    uniform mat4 uPMatrix;
+    uniform mat4 uMVMatrix;
+    varying vec3 vertexPos;
+    void main(void) {
+      vertexPos = normalize(vertexPosition);
+      gl_Position = uPMatrix * uMVMatrix * vec4(vertexPosition, 1.0);
+    }
+  """;
+  shaderObject.fragmentShader = """
+    precision mediump float;
+    uniform samplerCube sampler;
+    varying vec3 vertexPos;
+    void main() {
+      gl_FragColor = textureCube(sampler, vertexPos);
+    }
+  """;
+  shaderObject.vertexPositionAttribute = "vertexPosition";
+  shaderObject.modelViewMatrixUniform = "uMVMatrix";
+  shaderObject.perpectiveMatrixUniform = "uPMatrix";
+  shaderObject.textureCubeSamplerUniform = "sampler";
+  return shaderObject;
+}
+
 ShaderObject createPointSpritesShader() {
   ShaderObject shaderObject = new ShaderObject("PointSprites");
 
