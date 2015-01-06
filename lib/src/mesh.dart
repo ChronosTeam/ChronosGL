@@ -20,13 +20,10 @@ class Mesh extends Node {
   
   int numItems;
  
-  Mesh( MeshData meshData, [this.drawPoints=false]) {
+  Mesh( MeshData meshData, {this.drawPoints:false, this.texture, this.texture2, this.textureCube}) {
     
     if( !meshData.isOptimized)
       meshData.optimize();
-    
-    this.texture = meshData.texture;
-    this.texture2 = meshData.texture2;
     
     gl = ChronosGL.globalGL;
 
@@ -69,7 +66,6 @@ class Mesh extends Node {
     } else {
       numItems = meshData.vertices.length ~/ 3;
     }
-    
   }
   
   void clearData() {
@@ -101,7 +97,6 @@ class Mesh extends Node {
       print( numItems);
       print( mvMatrix.array);
       print( '-----');
-      
     }
     
     if( blend) {
@@ -144,8 +139,6 @@ class Mesh extends Node {
     if(!depth) {
       gl.enable(DEPTH_TEST);
     }
-    
-    
   }
 
   void bindBuffers(ShaderProgram program) {
@@ -194,5 +187,8 @@ class Mesh extends Node {
     }
   }
 
-  
+  Mesh setTexture(Texture t) {
+    texture = t;
+    return this;
+  }
 }

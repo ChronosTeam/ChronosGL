@@ -16,8 +16,8 @@ void main() {
   
   textureCache.loadAllThenExecute(() {
     MeshData md = chronosGL.getUtils().createIcosahedron(3);
-    md.texture = blockTex.texture;
     Mesh m = md.createMesh();
+    m.texture = blockTex.texture;
     chronosGL.programBasic.add(m);
     
     chronosGL.getUtils().addParticles(2000);

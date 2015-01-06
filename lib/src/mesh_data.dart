@@ -8,11 +8,9 @@ class MeshData {
   List<double> binormals;
   List<double> textureCoords;
   List<int> vertexIndices;
-  Texture texture;
-  Texture texture2;
   bool isOptimized=false;
 
-  MeshData({this.vertices, this.colors, this.textureCoords, this.normals, this.binormals, this.vertexIndices, this.texture, this.texture2});
+  MeshData({this.vertices, this.colors, this.textureCoords, this.normals, this.binormals, this.vertexIndices});
 
   MeshData.empty() {
     vertices = new List<double>();
@@ -39,7 +37,6 @@ class MeshData {
     }
     isOptimized=true;
   }
-
 
   Mesh createMesh() {
     optimize();

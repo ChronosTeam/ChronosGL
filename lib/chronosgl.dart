@@ -119,7 +119,7 @@ class ChronosGL
     
     if( useFramebuffer) {
       fxFramebuffer = new ChronosFramebuffer(gl, _canvas.width, _canvas.height);
-      fxWall = _utils.getWall( fxFramebuffer.colorTexture, 1);
+      fxWall = _utils.createQuad( fxFramebuffer.colorTexture, 1);
       fxWall.texture2 = fxFramebuffer.depthTexture;
       fxProgram = new ShaderProgram(this, fxShader == null ? createTexturedShader() : fxShader, 'fx');
       fxProgram.add(fxWall);
@@ -246,5 +246,15 @@ class ChronosGL
     gl.lineWidth(w);
   }
 
+  
+  void installOrbitCamera(num distance) {
+    OrbitCamera orbit = new OrbitCamera(_camera, distance.toDouble());
+    addAnimatable('orbitCam', orbit);
+    addAnimateCallback('rotateCamera', (double elapsed, double time) {
+      //orbit.setPosFromSpherical(15.0, time*0.001, time*0.0005);
+      orbit.azimuth += 0.001;
+    });
+
+  }
 }
 

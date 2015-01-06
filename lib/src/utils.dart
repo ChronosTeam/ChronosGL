@@ -109,7 +109,7 @@ class Utils
   }
 
   
-  Mesh getWall( Texture texture, int size)
+  Mesh createQuad( Texture texture, int size)
   {
     List<double> verts = [
         -1.0*size, -1.0*size,  0.0,
@@ -129,7 +129,7 @@ class Utils
         0, 1, 2,
         0, 2, 3
       ];
-      return new Mesh( new MeshData(vertices:verts, textureCoords:textureCoords, vertexIndices:vertexIndices, texture:texture));
+      return new Mesh( new MeshData(vertices:verts, textureCoords:textureCoords, vertexIndices:vertexIndices), texture:texture);
   }
   
   void addSkybox( String prefix, String suffix, String nx, String px, String nz, String pz, String ny, String py)
@@ -141,32 +141,32 @@ class Utils
     Texture tny = textureCache.get(prefix+ny+suffix);
     Texture tpy = textureCache.get(prefix+py+suffix);
 
-    Mesh skybox_nx = getWall(tnx, 1004);
+    Mesh skybox_nx = createQuad(tnx, 1004);
     skybox_nx.setPos(-2.0,2.0,-1000.0);
     chronosGL.programBasic.addFollowCameraObject(skybox_nx);
 
-    Mesh skybox_px = getWall(tpx, 1004);
+    Mesh skybox_px = createQuad(tpx, 1004);
     skybox_px.setPos(-2.0,2.0,1000.0);
     skybox_px.rotY( Math.PI);
     chronosGL.programBasic.addFollowCameraObject(skybox_px);
 
-    Mesh skybox_nz = getWall(tnz, 1004);
+    Mesh skybox_nz = createQuad(tnz, 1004);
     skybox_nz.setPos(-1000.0,2.0,-2.0);
     skybox_nz.rotY(0.5*Math.PI);
     chronosGL.programBasic.addFollowCameraObject(skybox_nz);
 
-    Mesh skybox_pz = getWall(tpz, 1004);
+    Mesh skybox_pz = createQuad(tpz, 1004);
     skybox_pz.setPos(1000.0,2.0,-2.0);
     skybox_pz.rotY( 1.5*Math.PI);
     chronosGL.programBasic.addFollowCameraObject(skybox_pz);
 
-    Mesh skybox_ny = getWall(tny, 1004);
+    Mesh skybox_ny = createQuad(tny, 1004);
     skybox_ny.setPos( -2.0,-1000.0,-2.0);
     skybox_ny.rotX( 1.5*Math.PI);
     skybox_ny.rotZ( 1.5*Math.PI);
     chronosGL.programBasic.addFollowCameraObject(skybox_ny);
 
-    Mesh skybox_py = getWall(tpy, 1004);
+    Mesh skybox_py = createQuad(tpy, 1004);
     skybox_py.setPos( -2.0,1000.0,-2.0);
     skybox_py.rotX( 0.5*Math.PI);
     skybox_py.rotZ( 0.5*Math.PI);
@@ -177,8 +177,8 @@ class Utils
     return new Icosahedron(subdivisions);
   }
   
-  MeshData createCube([Texture texture]) {
-    return createCubeInternal(texture);
+  MeshData createCube() {
+    return createCubeInternal();
   }
   
   Mesh createTorusKnotMesh( {double radius:20.0, double tube:4.0, int segmentsR:128, int segmentsT:16, int p:2, int q:3, double heightScale:1.0, Texture texture}) {
@@ -186,14 +186,14 @@ class Utils
   }
   
   MeshData createTorusKnot( {double radius:20.0, double tube:4.0, int segmentsR:128, int segmentsT:16, int p:2, int q:3, double heightScale:1.0, Texture texture}) {
-    return createTorusKnotInternal( radius:radius, tube:tube, segmentsR:segmentsR, segmentsT:segmentsT, p:p, q:q, heightScale:heightScale, texture:texture);
+    return createTorusKnotInternal( radius:radius, tube:tube, segmentsR:segmentsR, segmentsT:segmentsT, p:p, q:q, heightScale:heightScale);
   }
   
   Mesh addCube( [TextureWrapper textureWrapper]) {
     Texture t;
     if( textureWrapper!=null)
       t = textureWrapper.texture;
-    return chronosGL.programBasic.add( createCube(t).createMesh());
+    return chronosGL.programBasic.add( createCube().createMesh().setTexture(t));
   }
 
   Mesh addTorusKnot(  {double radius:20.0, double tube:4.0, int segmentsR:128, int segmentsT:16, int p:2, int q:3, double heightScale:1.0, TextureWrapper textureWrapper}) {
@@ -213,18 +213,16 @@ class Utils
     // TODO: make this asynchronous (async/await?)
     Math.Random rand = new Math.Random();
     Float32List vertices = new Float32List(numPoints*3);
-    for( var i=0; i < vertices.length/3; i+=3)
+    for( var i=0; i < vertices.length; i++)
     {
-      vertices[i] = rand.nextDouble()*dimension*2-dimension;
-      vertices[i+1] = rand.nextDouble()*dimension*2-dimension;
-      vertices[i+2] = rand.nextDouble()*dimension*2-dimension;
+      vertices[i] = (rand.nextDouble()-0.5)*dimension;
     }
-    MeshData md = new MeshData(vertices: vertices, texture: texture );
+    MeshData md = new MeshData(vertices: vertices );
     
     ShaderProgram pssp = chronosGL.programs['point_sprites'];
     if( pssp == null)
         pssp = chronosGL.createProgram( createPointSpritesShader());
-    Mesh m= new Mesh( md, true);
+    Mesh m= new Mesh( md, drawPoints:true, texture: texture);
     m.blend = true;
     m.name = 'point_sprites_mesh_'+pssp.objects.length.toString();
     pssp.add( m);

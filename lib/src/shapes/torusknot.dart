@@ -3,7 +3,7 @@ part of chronosgl;
 Vector p1 = new Vector();
 Vector p2 = new Vector();
 
-MeshData createTorusKnotInternal(  {double radius:20.0, double tube:4.0, int segmentsR:128, int segmentsT:16, int p:2, int q:3, double heightScale:1.0, Texture texture}) {
+MeshData createTorusKnotInternal(  {double radius:20.0, double tube:4.0, int segmentsR:128, int segmentsT:16, int p:2, int q:3, double heightScale:1.0}) {
   
   List<double> vertices = new List<double>();
   List<double> uvs = new List<double>();
@@ -82,7 +82,7 @@ MeshData createTorusKnotInternal(  {double radius:20.0, double tube:4.0, int seg
     }
   }
   
-  return new MeshData(vertices : vertices, textureCoords : uvs, vertexIndices : indices, texture : texture);
+  return new MeshData(vertices : vertices, textureCoords : uvs, vertexIndices : indices);
 }
 
 
