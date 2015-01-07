@@ -1,5 +1,14 @@
 import 'package:chronosgl/chronosgl.dart';
 
+// Simple Gyroid Isosurface (spherical crop)
+//
+// Mikael Hvidtfeldt Christensen
+// @SyntopiaDK
+//
+// License:
+// Creative Commons Attribution
+// http://creativecommons.org/licenses/by/3.0/
+
 //https://www.shadertoy.com/view/Md23Rd
 //https://www.shadertoy.com/view/Ms2Gzd
   
@@ -21,15 +30,6 @@ ShaderObject createSphericalGyroidShader() {
   shaderObject.fragmentShader = """
         precision mediump float;
         
-// Simple Gyroid Isosurface (spherical crop)
-//
-// Mikael Hvidtfeldt Christensen
-// @SyntopiaDK
-//
-// License:
-// Creative Commons Attribution
-// http://creativecommons.org/licenses/by/3.0/
-
 uniform vec2      iResolution;
 uniform float     iGlobalTime;
 
@@ -68,16 +68,16 @@ vec3 getLight(in vec3 color, in vec3 normal, in vec3 dir, int mat) {
   float a = pow(abs(dot(normal,dir)),2.0);
   vec3 l = vec3(0.0);
     
-  if (mat < 2) { 
-    l+=(Specular*specular)*LightColor+(diffuse*Diffuse)*(LightColor*color) +
-    (Specular*specular2)*LightColor2+(diffuse2*Diffuse)*(LightColor2*color);
-    l+=textureCube(iChannel0, reflect(dir, normal)).xyz*Specular;
-  } else {
+  //if (mat < 2) { 
+    //l+=(Specular*specular)*LightColor+(diffuse*Diffuse)*(LightColor*color) +
+    //(Specular*specular2)*LightColor2+(diffuse2*Diffuse)*(LightColor2*color);
+    //l+=textureCube(iChannel0, reflect(dir, normal)).xyz*Specular;
+  //} else {
     l+= 
       //(diffuse*0.8)*(LightColor*color) 
       +(diffuse2*0.7)*(LightColor2*color);
     
-  }
+  //}
   return l*a*1.7;
 }
 
@@ -212,7 +212,7 @@ void main(void)
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
   shaderObject.timeUniform = "iGlobalTime";
-  shaderObject.size = "iResolution";
+  shaderObject.canvasSize = "iResolution";
   
   shaderObject.textureSamplerUniform = "iChannel0";
   
