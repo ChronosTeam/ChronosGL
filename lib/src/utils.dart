@@ -132,6 +132,13 @@ class Utils
       return new Mesh( new MeshData(vertices:verts, textureCoords:textureCoords, vertexIndices:vertexIndices), texture:texture);
   }
   
+  void addSkycube(Texture cubeTexture) {
+    ShaderProgram cm = chronosGL.createProgram(createCubeMapShader());
+    Mesh m = createCube().multiplyVertices(512).createMesh();
+    m.textureCube = cubeTexture;
+    cm.addFollowCameraObject(m);
+  }
+  
   void addSkybox( String prefix, String suffix, String nx, String px, String nz, String pz, String ny, String py)
   {
     Texture tnx = textureCache.get(prefix+nx+suffix);
