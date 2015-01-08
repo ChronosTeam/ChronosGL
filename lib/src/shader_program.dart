@@ -14,6 +14,7 @@ class ShaderObject {
   
   String transformationMatrixUniform;
   String modelViewMatrixUniform;
+  String viewMatrixUniform;
   String perpectiveMatrixUniform;
   String textureSamplerUniform;
   String texture2SamplerUniform;
@@ -23,6 +24,7 @@ class ShaderObject {
   String cameraFar;
   String canvasSize; // canvas width and height
   String timeUniform;
+  String pointLightLocationUniform;
   
   String vertexShaderHeader="";
   String vertexShaderBody="";
@@ -43,6 +45,7 @@ class ShaderProgram implements Drawable {
   int binormalAttribute;
   UniformLocation transformationMatrixUniform;
   UniformLocation modelViewMatrixUniform;
+  UniformLocation viewMatrixUniform;
   UniformLocation perpectiveMatrixUniform;
   UniformLocation textureSamplerUniform;
   UniformLocation texture2SamplerUniform;
@@ -52,6 +55,7 @@ class ShaderProgram implements Drawable {
   UniformLocation cameraFar;
   UniformLocation size;
   UniformLocation timeUniform;
+  Uniform pointLightLocationUniform;
   
   bool debug = false;
   
@@ -85,6 +89,9 @@ class ShaderProgram implements Drawable {
     perpectiveMatrixUniform = getUniformLocation( shaderObject.perpectiveMatrixUniform);
     modelViewMatrixUniform = getUniformLocation( shaderObject.modelViewMatrixUniform);
 
+    if( shaderObject.viewMatrixUniform != null)
+      viewMatrixUniform = getUniformLocation( shaderObject.viewMatrixUniform);
+
     if( shaderObject.textureSamplerUniform != null)
       textureSamplerUniform = getUniformLocation( shaderObject.textureSamplerUniform);
 
@@ -112,6 +119,8 @@ class ShaderProgram implements Drawable {
     if( shaderObject.timeUniform != null)
       timeUniform = getUniformLocation( shaderObject.timeUniform);
 
+    if( shaderObject.pointLightLocationUniform != null)
+      pointLightLocationUniform = getUniform( shaderObject.pointLightLocationUniform);
   }
   
   int getAttributeLocation( String name) {
@@ -189,6 +198,9 @@ class ShaderProgram implements Drawable {
     if( shaderObject.timeUniform != null)
       gl.uniform1f(timeUniform, timeNow/1000);
     
+    if( shaderObject.pointLightLocationUniform != null)
+      pointLightLocationUniform.setValue3fv(chronosGL.pointLightLocation);
+    
     Camera camera = chronosGL.getCamera();
     camera.getMVMatrix(mvMatrix, false);
 
@@ -208,6 +220,9 @@ class ShaderProgram implements Drawable {
     
     camera.getMVMatrix(mvMatrix, true);
     
+    if( shaderObject.viewMatrixUniform != null)
+      gl.uniformMatrix4fv(viewMatrixUniform, false, mvMatrix.array);
+
     if( overrideMvMatrix != null) {
       mvMatrix.setElements(overrideMvMatrix);
     }

@@ -48,15 +48,15 @@ class Vector {
     array[index] = value;
   }
 
-  Vector set(dynamic x, [double y, double z]) {
+  Vector set(dynamic x, [num y, num z]) {
     if( x is Vector ){
       array[0] = x[0];
       array[1] = x[1];
       array[2] = x[2];
     } else {
-      array[0] = x;
-      array[1] = y;
-      array[2] = z;
+      array[0] = x.toDouble();
+      array[1] = y.toDouble();
+      array[2] = z.toDouble();
     }
     return this;
   }

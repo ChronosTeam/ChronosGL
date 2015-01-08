@@ -49,23 +49,25 @@ ShaderObject createLightShader() {
         attribute vec3 aNormal;
         
         uniform mat4 uMVMatrix;
+        uniform mat4 uViewMatrix;
         uniform mat4 uPMatrix;
+        uniform vec3 pointLightLocation;
+
+        vec3 pointLightLocation_;
 
         vec3 lightDir = vec3(1.0,0.0,1.0);
         vec3 ambientColor = vec3(0.0,0.0,0.0);
         vec3 directionalColor = vec3(1.0,1.0,1.0);
 
-        vec3 pointLightLocation = vec3( 40, 0, 100);
-        
         varying vec3 vLightWeighting;
         varying vec3 vNormal;
 
         void main(void) {
           gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
           vNormal = (uMVMatrix * vec4(aNormal, 0.0)).xyz;
-          pointLightLocation = (uMVMatrix * vec4(pointLightLocation, 0.0)).xyz;
+          pointLightLocation_ = (uViewMatrix * vec4(pointLightLocation, 0.0)).xyz;
 
-          vec3 lightDir = normalize(pointLightLocation - aVertexPosition.xyz);
+          vec3 lightDir = normalize(pointLightLocation_ - aVertexPosition.xyz);
 
           float directionalLightWeighting = max(dot(vNormal, normalize(lightDir)), 0.0);
           vLightWeighting = ambientColor + directionalColor * directionalLightWeighting;
@@ -87,7 +89,9 @@ ShaderObject createLightShader() {
   shaderObject.vertexPositionAttribute = "aVertexPosition"; 
   shaderObject.normalAttribute = "aNormal";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
+  shaderObject.viewMatrixUniform = "uViewMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
+  shaderObject.pointLightLocationUniform = "pointLightLocation";
   
   return shaderObject;
 }

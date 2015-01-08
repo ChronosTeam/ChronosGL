@@ -72,12 +72,12 @@ class ChronosGL
   Mesh fxWall;
   ShaderProgram fxProgram; // shortcut
   Matrix4 fxMatrix = new Matrix4(); 
-  
   Matrix4 _pMatrix = new Matrix4();
   
   num near=0.1;
   num far=1000;
-  
+
+  Vector pointLightLocation = new Vector();
   
   ChronosGL(String canvasID, {bool transparent:false, bool useFramebuffer:false, ShaderObject fxShader, this.near:0.1, this.far:1000.0, bool useElementIndexUint:false})
   {
