@@ -11,7 +11,7 @@ class TextureCache {
     gl = chronosGL.gl;
   }
 
-  TextureWrapper add(String url, [bool clamp]) {
+  TextureWrapper add(String url, [bool clamp=false]) {
     return textureCache[url] = new TextureWrapper(this.gl, clamp:clamp, type:TEXTURE_2D);
   }
 

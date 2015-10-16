@@ -211,9 +211,7 @@ class Utils
   }
   
   void addParticles(int numPoints, [int dimension=100]) {
-    var canvas = chronosGL.getUtils().createParticleCanvas();
-    Texture texture = chronosGL.getUtils().createTextureFromCanvas(canvas);  
-    addPointSprites( numPoints, texture, dimension);
+    addPointSprites( numPoints, createParticleTexture(), dimension);
   }
   
   void addPointSprites(int numPoints, Texture texture, [int dimension=500]) {
@@ -231,6 +229,8 @@ class Utils
         pssp = chronosGL.createProgram( createPointSpritesShader());
     Mesh m= new Mesh( md, drawPoints:true, texture: texture);
     m.blend = true;
+    m.depth = false;
+    m.blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;
     m.name = 'point_sprites_mesh_'+pssp.objects.length.toString();
     pssp.add( m);
   }

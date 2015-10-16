@@ -79,9 +79,13 @@ class ChronosGL
 
   Vector pointLightLocation = new Vector();
   
-  ChronosGL(String canvasID, {bool transparent:false, bool useFramebuffer:false, ShaderObject fxShader, this.near:0.1, this.far:1000.0, bool useElementIndexUint:false})
+  ChronosGL(dynamic canvasOrID, {bool transparent:false, bool useFramebuffer:false, ShaderObject fxShader, this.near:0.1, this.far:1000.0, bool useElementIndexUint:false})
   {
-    _canvas = HTML.document.querySelector(canvasID);
+    if( canvasOrID is HTML.CanvasElement) {
+      _canvas = canvasOrID;
+    } else {
+      _canvas = HTML.document.querySelector(canvasOrID);  
+    }
     
     // fix a bug in current chrome v.27
     _canvas.onDragStart.listen((HTML.MouseEvent event){ event.preventDefault(); });
