@@ -73,7 +73,7 @@ class OrbitCamera extends Animatable {
     }
   }
 
-  void setPosFromSpherical(double radius, double azimuth, double polar) {
+  void _setPosFromSpherical(double radius, double azimuth, double polar) {
     camera.setPosFromSpherical(radius, azimuth, polar);
     camera.addPosFromVec(lookAt);
     camera.lookAt(lookAt);
@@ -95,7 +95,7 @@ class OrbitCamera extends Animatable {
       polar = 0.0;
     }
     polar = polar.clamp(-Math.PI / 2 + 0.1, Math.PI / 2 - 0.1);
-    setPosFromSpherical(radius, azimuth, polar);
+    _setPosFromSpherical(radius, azimuth, polar);
   }
 }
 
