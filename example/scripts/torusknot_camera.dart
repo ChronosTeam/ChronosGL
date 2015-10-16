@@ -10,9 +10,7 @@ class CoolTexture extends Animatable {
   ChronosGL chronosGL;
   Mesh m;
   
-  CoolTexture( this.chronosGL, this.m) {
-    
-  }
+  CoolTexture( this.chronosGL, this.m);
   
   html.CanvasElement canvas2d;
   double time = 0.0;
@@ -53,10 +51,9 @@ class MyGame {
     //capturedInput.setUpCapture();
     //FlyingCamera fc = new FlyingCamera(camera);    chronosGL.addPhysicsObject('flyingCamera', fc);
     
-    TorusKnotCamera tkc = new TorusKnotCamera(camera);    chronosGL.addAnimatable('tkc', tkc);
+    TorusKnotCamera tkc = new TorusKnotCamera(camera);
+    chronosGL.addAnimatable('tkc', tkc);
     
-    
-
     Mesh m = chronosGL.getUtils().addTorusKnot( textureWrapper: blockTex);
     
     CoolTexture ct = new CoolTexture( chronosGL, m);
@@ -78,7 +75,7 @@ class MyGame {
     // fix a bug in current chrome v.27
     html.querySelector("#webgl-canvas").onDragStart.listen((html.MouseEvent event){      event.preventDefault();    });
 
-    chronosGL.run( 0.0);
+    chronosGL.run();
     
     
   }

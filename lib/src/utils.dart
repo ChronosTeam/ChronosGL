@@ -189,10 +189,10 @@ class Utils
   }
   
   Mesh createTorusKnotMesh( {double radius:20.0, double tube:4.0, int segmentsR:128, int segmentsT:16, int p:2, int q:3, double heightScale:1.0, Texture texture}) {
-    return createTorusKnot(radius:radius, tube:tube, segmentsR:segmentsR, segmentsT:segmentsT, p:p, q:q, heightScale:heightScale, texture:texture).createMesh();
+    return new Mesh(createTorusKnot(radius:radius, tube:tube, segmentsR:segmentsR, segmentsT:segmentsT, p:p, q:q, heightScale:heightScale), texture:texture);
   }
   
-  MeshData createTorusKnot( {double radius:20.0, double tube:4.0, int segmentsR:128, int segmentsT:16, int p:2, int q:3, double heightScale:1.0, Texture texture}) {
+  MeshData createTorusKnot( {double radius:20.0, double tube:4.0, int segmentsR:128, int segmentsT:16, int p:2, int q:3, double heightScale:1.0}) {
     return createTorusKnotInternal( radius:radius, tube:tube, segmentsR:segmentsR, segmentsT:segmentsT, p:p, q:q, heightScale:heightScale);
   }
   
@@ -207,7 +207,7 @@ class Utils
     Texture t;
     if( textureWrapper!=null)
       t = textureWrapper.texture;
-    return chronosGL.programBasic.add( createTorusKnot( radius:radius, tube:tube, segmentsR:segmentsR, segmentsT:segmentsT, p:p, q:q, heightScale:heightScale, texture: t).createMesh());
+    return chronosGL.programBasic.add( createTorusKnotMesh( radius:radius, tube:tube, segmentsR:segmentsR, segmentsT:segmentsT, p:p, q:q, heightScale:heightScale, texture: t));
   }
   
   void addParticles(int numPoints, [int dimension=100]) {
