@@ -82,6 +82,6 @@ class MyGame {
 }
 
 void main() {
-  MyGame myGame = new MyGame();
+  new MyGame();
 }
 

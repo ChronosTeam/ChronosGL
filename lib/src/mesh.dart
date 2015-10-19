@@ -4,7 +4,8 @@ class Mesh extends Node {
   
   RenderingContext gl;
   bool debug=false;
-  bool depth=true;
+  bool depthTest=true;
+  bool depthWrite=true;
   bool blend=false;
   int blend_sFactor = SRC_ALPHA;
   int blend_dFactor = ONE;
@@ -104,8 +105,11 @@ class Mesh extends Node {
       gl.blendFunc(blend_sFactor, blend_dFactor);
     }
     
-    if(!depth) {
+    if(!depthTest) {
       gl.disable(DEPTH_TEST);
+    }
+    if(!depthWrite) {
+      gl.depthMask(false);
     }
        
     bindBuffers(program);
@@ -136,8 +140,11 @@ class Mesh extends Node {
     if( blend) {
       gl.disable(BLEND);
     }
-    if(!depth) {
+    if(!depthTest) {
       gl.enable(DEPTH_TEST);
+    }
+    if(!depthWrite) {
+      gl.depthMask(true);
     }
   }
 

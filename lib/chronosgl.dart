@@ -64,7 +64,7 @@ class ChronosGL
   ShaderProgram programBasic; // shortcut
   
   HTML.CanvasElement _canvas;
-  double _aspect;
+  //double _aspect; // this might be useful in shaders sometimes
   TextureCache _textureCache;
   Camera _camera;
   Utils _utils;
@@ -92,7 +92,7 @@ class ChronosGL
 
     _canvas.width = _canvas.clientWidth; 
     _canvas.height = _canvas.clientHeight;
-    _aspect = _canvas.clientWidth / _canvas.clientHeight;
+    //_aspect = _canvas.clientWidth / _canvas.clientHeight;
     gl = _canvas.getContext("experimental-webgl");
     if( gl == null) {
       throw new Exception('calling canvas.getContext("experimental-webgl") failed, make sure you run on a computer that supports WebGL, test here: http://get.webgl.org/');

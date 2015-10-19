@@ -85,7 +85,7 @@ Mesh getRocket(ChronosGL chronosGL) {
   Mesh m = new Mesh(md, drawPoints: true, texture: chronosGL.getUtils().createParticleTexture());
   m.color.set(1.0, 0.0, 0.0);
   m.blend = true;
-  m.depth = false;
+  m.depthWrite = false;
   m.blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;
 
   return m;

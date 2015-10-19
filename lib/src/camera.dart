@@ -107,7 +107,7 @@ class FlyingCamera extends Animatable {
 
   void animate(double elapsed) {
     Map<int, bool> cpk = currentlyPressedKeys;
-    Map<String, bool> cpmb = currentlyPressedMouseButtons;
+    //Map<String, bool> cpmb = currentlyPressedMouseButtons;
 
     if (cpk[Key.A] != null) {
       moveLeft(0.03);
@@ -190,7 +190,7 @@ class FPSCamera extends Animatable {
 
   void animate(double elapsed) {
     Map<int, bool> cpk = currentlyPressedKeys;
-    Map<String, bool> cpmb = currentlyPressedMouseButtons;
+    //Map<String, bool> cpmb = currentlyPressedMouseButtons;
 
     movement.scale(0);
 
