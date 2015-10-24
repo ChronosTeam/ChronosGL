@@ -1,6 +1,6 @@
 part of chronosgl;
 
-MeshData createCubeInternal({double x:1.0, double y:1.0, double z:1.0}) {
+MeshData createCubeInternal({double x:1.0, double y:1.0, double z:1.0, double uMin:0.0, double uMax:1.0, double vMin:0.0, double vMax:1.0 }) {
   
   List<double> vertices = [// Front face
                            -x, -y,  z,
@@ -73,40 +73,40 @@ MeshData createCubeInternal({double x:1.0, double y:1.0, double z:1.0}) {
                              -1.0,  0.0,  0.0,
                              -1.0,  0.0,  0.0,];
   List<double> uvs = [// Front face
-                      0.0, 0.0,
-                      1.0, 0.0,
-                      1.0, 1.0,
-                      0.0, 1.0,
+                      uMin, vMin,
+                      uMax, vMin,
+                      uMax, vMax,
+                      uMin, vMax,
 
                       // Back face
-                      1.0, 0.0,
-                      1.0, 1.0,
-                      0.0, 1.0,
-                      0.0, 0.0,
+                      uMax, vMin,
+                      uMax, vMax,
+                      uMin, vMax,
+                      uMin, vMin,
 
                       // Top face
-                      0.0, 1.0,
-                      0.0, 0.0,
-                      1.0, 0.0,
-                      1.0, 1.0,
+                      uMin, vMax,
+                      uMin, vMin,
+                      uMax, vMin,
+                      uMax, vMax,
 
                       // Bottom face
-                      1.0, 1.0,
-                      0.0, 1.0,
-                      0.0, 0.0,
-                      1.0, 0.0,
+                      uMax, vMax,
+                      uMin, vMax,
+                      uMin, vMin,
+                      uMax, vMin,
 
                       // Right face
-                      1.0, 0.0,
-                      1.0, 1.0,
-                      0.0, 1.0,
-                      0.0, 0.0,
+                      uMax, vMin,
+                      uMax, vMax,
+                      uMin, vMax,
+                      uMin, vMin,
 
                       // Left face
-                      0.0, 0.0,
-                      1.0, 0.0,
-                      1.0, 1.0,
-                      0.0, 1.0];
+                      uMin, vMin,
+                      uMax, vMin,
+                      uMax, vMax,
+                      uMin, vMax];
   
   List<int> vertIndices = [0, 1, 2,      0, 2, 3,    // Front face
                            4, 5, 6,      4, 6, 7,    // Back face
