@@ -1,42 +1,42 @@
 part of chronosgl;
 
-MeshData createCubeInternal() {
+MeshData createCubeInternal({double x:1.0, double y:1.0, double z:1.0}) {
   
   List<double> vertices = [// Front face
-                           -1.0, -1.0,  1.0,
-                           1.0, -1.0,  1.0,
-                           1.0,  1.0,  1.0,
-                           -1.0,  1.0,  1.0,
+                           -x, -y,  z,
+                           x, -y,  z,
+                           x,  y,  z,
+                           -x,  y,  z,
 
                            // Back face
-                           -1.0, -1.0, -1.0,
-                           -1.0,  1.0, -1.0,
-                           1.0,  1.0, -1.0,
-                           1.0, -1.0, -1.0,
+                           -x, -y, -z,
+                           -x,  y, -z,
+                           x,  y, -z,
+                           x, -y, -z,
 
                            // Top face
-                           -1.0,  1.0, -1.0,
-                           -1.0,  1.0,  1.0,
-                           1.0,  1.0,  1.0,
-                           1.0,  1.0, -1.0,
+                           -x,  y, -z,
+                           -x,  y,  z,
+                           x,  y,  z,
+                           x,  y, -z,
 
                            // Bottom face
-                           -1.0, -1.0, -1.0,
-                           1.0, -1.0, -1.0,
-                           1.0, -1.0,  1.0,
-                           -1.0, -1.0,  1.0,
+                           -x, -y, -z,
+                           x, -y, -z,
+                           x, -y,  z,
+                           -x, -y,  z,
 
                            // Right face
-                           1.0, -1.0, -1.0,
-                           1.0,  1.0, -1.0,
-                           1.0,  1.0,  1.0,
-                           1.0, -1.0,  1.0,
+                           x, -y, -z,
+                           x,  y, -z,
+                           x,  y,  z,
+                           x, -y,  z,
 
                            // Left face
-                           -1.0, -1.0, -1.0,
-                           -1.0, -1.0,  1.0,
-                           -1.0,  1.0,  1.0,
-                           -1.0,  1.0, -1.0];
+                           -x, -y, -1.0,
+                           -x, -y,  1.0,
+                           -x,  y,  1.0,
+                           -x,  y, -1.0];
   List<double> normals = [// Front face
                               0.0,  0.0,  1.0,
                               0.0,  0.0,  1.0,

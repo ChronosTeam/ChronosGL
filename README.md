@@ -75,16 +75,18 @@ replace your main.dart file with this:
 	
 	void main() {
 	  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-	  ShaderProgram prg = chronosGL.createProgram( createDemoShader());
+      
 	  Camera camera = chronosGL.getCamera();
 	  OrbitCamera orbit = new OrbitCamera(camera, 65.0);
 	  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
 	    orbit.azimuth+=0.001;
 	  });
 	  chronosGL.addAnimatable('orbitCam', orbit);
-	    
+	  
+	  ShaderProgram prg = chronosGL.createProgram( createDemoShader());
 	  Mesh m = chronosGL.getUtils().createTorusKnotMesh();
 	  prg.add( m);
+      
 	  chronosGL.getUtils().addParticles(2000, 100);
 	  chronosGL.run();
 	}

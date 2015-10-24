@@ -184,8 +184,8 @@ class Utils
     return new Icosahedron(subdivisions);
   }
   
-  MeshData createCube() {
-    return createCubeInternal();
+  MeshData createCube({double x:1.0, double y:1.0, double z:1.0}) {
+    return createCubeInternal(x:x,y:y,z:z);
   }
   
   Mesh createTorusKnotMesh( {double radius:20.0, double tube:4.0, int segmentsR:128, int segmentsT:16, int p:2, int q:3, double heightScale:1.0, Texture texture}) {
