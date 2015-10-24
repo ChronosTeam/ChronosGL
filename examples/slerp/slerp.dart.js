@@ -295,7 +295,7 @@ Gv:{
 m:function(a,b){return a===b},
 giO:function(a){return H.wP(a)},
 X:["VE",function(a){return H.a5(a)}],
-"%":"ANGLEInstancedArrays|Animation|AnimationEffect|AnimationNode|AnimationTimeline|AudioListener|AudioParam|BarProp|Body|CSS|Cache|CacheStorage|Canvas2DContextAttributes|CanvasGradient|CanvasPattern|CanvasRenderingContext2D|CircularGeofencingRegion|ConsoleBase|Coordinates|Counter|Credential|CredentialsContainer|Crypto|CryptoKey|DOMError|DOMFileSystem|DOMFileSystemSync|DOMImplementation|DOMMatrix|DOMMatrixReadOnly|DOMParser|DataTransfer|Database|DeprecatedStorageInfo|DeprecatedStorageQuota|DeviceRotationRate|DirectoryEntrySync|DirectoryReader|DirectoryReaderSync|EXTBlendMinMax|EXTFragDepth|EXTShaderTextureLOD|EXTTextureFilterAnisotropic|EntrySync|FederatedCredential|FileEntrySync|FileError|FileReaderSync|FileWriterSync|FormData|GamepadButton|Geofencing|GeofencingRegion|Geolocation|Geoposition|HTMLAllCollection|IDBCursor|IDBCursorWithValue|IDBFactory|IDBKeyRange|IDBObjectStore|ImageBitmap|ImageData|InjectedScriptHost|LocalCredential|MIDIInputMap|MIDIOutputMap|MediaDeviceInfo|MediaError|MediaKeyError|MediaKeys|MemoryInfo|MessageChannel|Metadata|MutationObserver|MutationRecord|NavigatorUserMediaError|NodeFilter|NodeIterator|OESElementIndexUint|OESStandardDerivatives|OESTextureFloat|OESTextureFloatLinear|OESTextureHalfFloat|OESTextureHalfFloatLinear|OESVertexArrayObject|PagePopupController|PerformanceEntry|PerformanceMark|PerformanceMeasure|PerformanceNavigation|PerformanceResourceTiming|PerformanceTiming|PeriodicWave|PositionError|PushManager|PushRegistration|RGBColor|RTCIceCandidate|RTCSessionDescription|RTCStatsResponse|Range|ReadableStream|Rect|Request|Response|SQLError|SQLResultSet|SQLTransaction|SVGAngle|SVGAnimatedAngle|SVGAnimatedBoolean|SVGAnimatedEnumeration|SVGAnimatedInteger|SVGAnimatedLength|SVGAnimatedLengthList|SVGAnimatedNumber|SVGAnimatedNumberList|SVGAnimatedPreserveAspectRatio|SVGAnimatedRect|SVGAnimatedString|SVGAnimatedTransformList|SVGMatrix|SVGPreserveAspectRatio|SVGRenderingIntent|SVGUnitTypes|Screen|Selection|ServiceWorkerClient|ServiceWorkerClients|ServiceWorkerContainer|SourceInfo|SpeechRecognitionAlternative|SpeechSynthesisVoice|StorageInfo|StorageQuota|Stream|StyleMedia|SubtleCrypto|TextMetrics|Timing|TreeWalker|VTTRegion|ValidityState|VideoPlaybackQuality|VideoTrack|WebGLActiveInfo|WebGLBuffer|WebGLCompressedTextureATC|WebGLCompressedTextureETC1|WebGLCompressedTexturePVRTC|WebGLCompressedTextureS3TC|WebGLContextAttributes|WebGLDebugRendererInfo|WebGLDebugShaders|WebGLDepthTexture|WebGLDrawBuffers|WebGLExtensionLoseContext|WebGLFramebuffer|WebGLLoseContext|WebGLProgram|WebGLRenderbuffer|WebGLShader|WebGLShaderPrecisionFormat|WebGLTexture|WebGLUniformLocation|WebGLVertexArrayObjectOES|WebKitCSSMatrix|WebKitMutationObserver|WorkerConsole|WorkerPerformance|XMLSerializer|XPathEvaluator|XPathExpression|XPathNSResolver|XPathResult|XSLTProcessor|mozRTCIceCandidate|mozRTCSessionDescription"},
+"%":"ANGLEInstancedArrays|Animation|AnimationEffect|AnimationNode|AnimationTimeline|AudioListener|AudioParam|BarProp|Body|CSS|Cache|CacheStorage|Canvas2DContextAttributes|CanvasGradient|CanvasPattern|CircularGeofencingRegion|ConsoleBase|Coordinates|Counter|Credential|CredentialsContainer|Crypto|CryptoKey|DOMError|DOMFileSystem|DOMFileSystemSync|DOMImplementation|DOMMatrix|DOMMatrixReadOnly|DOMParser|DataTransfer|Database|DeprecatedStorageInfo|DeprecatedStorageQuota|DeviceRotationRate|DirectoryEntrySync|DirectoryReader|DirectoryReaderSync|EXTBlendMinMax|EXTFragDepth|EXTShaderTextureLOD|EXTTextureFilterAnisotropic|EntrySync|FederatedCredential|FileEntrySync|FileError|FileReaderSync|FileWriterSync|FormData|GamepadButton|Geofencing|GeofencingRegion|Geolocation|Geoposition|HTMLAllCollection|IDBCursor|IDBCursorWithValue|IDBFactory|IDBKeyRange|IDBObjectStore|ImageBitmap|ImageData|InjectedScriptHost|LocalCredential|MIDIInputMap|MIDIOutputMap|MediaDeviceInfo|MediaError|MediaKeyError|MediaKeys|MemoryInfo|MessageChannel|Metadata|MutationObserver|MutationRecord|NavigatorUserMediaError|NodeFilter|NodeIterator|OESElementIndexUint|OESStandardDerivatives|OESTextureFloat|OESTextureFloatLinear|OESTextureHalfFloat|OESTextureHalfFloatLinear|OESVertexArrayObject|PagePopupController|PerformanceEntry|PerformanceMark|PerformanceMeasure|PerformanceNavigation|PerformanceResourceTiming|PerformanceTiming|PeriodicWave|PositionError|PushManager|PushRegistration|RGBColor|RTCIceCandidate|RTCSessionDescription|RTCStatsResponse|Range|ReadableStream|Rect|Request|Response|SQLError|SQLResultSet|SQLTransaction|SVGAngle|SVGAnimatedAngle|SVGAnimatedBoolean|SVGAnimatedEnumeration|SVGAnimatedInteger|SVGAnimatedLength|SVGAnimatedLengthList|SVGAnimatedNumber|SVGAnimatedNumberList|SVGAnimatedPreserveAspectRatio|SVGAnimatedRect|SVGAnimatedString|SVGAnimatedTransformList|SVGMatrix|SVGPreserveAspectRatio|SVGRenderingIntent|SVGUnitTypes|Screen|Selection|ServiceWorkerClient|ServiceWorkerClients|ServiceWorkerContainer|SourceInfo|SpeechRecognitionAlternative|SpeechSynthesisVoice|StorageInfo|StorageQuota|Stream|StyleMedia|SubtleCrypto|TextMetrics|Timing|TreeWalker|VTTRegion|ValidityState|VideoPlaybackQuality|VideoTrack|WebGLActiveInfo|WebGLBuffer|WebGLCompressedTextureATC|WebGLCompressedTextureETC1|WebGLCompressedTexturePVRTC|WebGLCompressedTextureS3TC|WebGLContextAttributes|WebGLDebugRendererInfo|WebGLDebugShaders|WebGLDepthTexture|WebGLDrawBuffers|WebGLExtensionLoseContext|WebGLFramebuffer|WebGLLoseContext|WebGLProgram|WebGLRenderbuffer|WebGLShader|WebGLShaderPrecisionFormat|WebGLTexture|WebGLUniformLocation|WebGLVertexArrayObjectOES|WebKitCSSMatrix|WebKitMutationObserver|WorkerConsole|WorkerPerformance|XMLSerializer|XPathEvaluator|XPathExpression|XPathNSResolver|XPathResult|XSLTProcessor|mozRTCIceCandidate|mozRTCSessionDescription"},
 yE:{
 "^":"Gv;",
 X:function(a){return String(a)},
@@ -1900,28 +1900,35 @@ if(1>=v.length)return H.e(v,1)
 r=J.WB(v[1],1)
 if(1>=v.length)return H.e(v,1)
 v[1]=r}}}}}}}return z},
-R4:function(){var z,y,x
-z=new B.W("Textured",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"","","","")
+R4:function(){var z=new B.W("Textured",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"","","","")
 z.c="aVertexPosition"
 z.e="aTextureCoord"
 z.y="uMVMatrix"
 z.ch="uPMatrix"
 z.cx="uSampler"
 z.k3="gl_FragColor = texture2D(uSampler, vaTextureCoord);"
-y="    precision mediump float;\r\n\r\n    attribute vec3 aVertexPosition;\r\n    \r\n    uniform mat4 uMVMatrix;\r\n    uniform mat4 uPMatrix;\r\n            attribute vec2 aTextureCoord;\r\n        varying vec2 vaTextureCoord;\r\n        \nvoid main(void) {\ngl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\nvaTextureCoord = aTextureCoord;\n"
-z.a=y+"}\n"
-x="precision mediump float;\nvarying vec2 vaTextureCoord;\nuniform sampler2D uSampler;\n"
-z.b=x+"\nvoid main(void) {\ngl_FragColor = texture2D(uSampler, vaTextureCoord);\n}\n"
-return z},
+return B.FC(z)},
+FC:function(a){var z,y,x
+z="    precision mediump float;\r\n\r\n    attribute vec3 "+H.d(a.c)+";\r\n    \r\n    uniform mat4 "+H.d(a.y)+";\r\n    uniform mat4 "+H.d(a.ch)+";\r\n    "
+y=a.e
+if(y!=null)z+="        attribute vec2 "+H.d(y)+";\r\n        varying vec2 v"+H.d(a.e)+";\r\n        "
+z=z+(a.id+"\n")+"void main(void) {\n"+("gl_Position = "+H.d(a.ch)+" * "+H.d(a.y)+" * vec4("+H.d(a.c)+", 1.0);\n")
+y=a.e
+if(y!=null)z+="v"+H.d(y)+" = "+H.d(a.e)+";\n"
+a.a=z+a.k1+"}\n"
+y=a.e
+x=y!=null?"precision mediump float;\n"+("varying vec2 v"+H.d(y)+";\n"):"precision mediump float;\n"
+y=a.cx
+if(y!=null)x+="uniform sampler2D "+H.d(y)+";\n"
+a.b=x+(a.k2+"\n")+"void main(void) {\n"+a.k3+"\n}\n"
+return a},
 DM:{
 "^":"a;"},
 Ps:{
 "^":"a;Q,a,b,c,d,e,f,r,x,y,z,ch,cx,cy,db,dx,dy,fr,fx,fy,go",
-KX:function(a,b,c){var z,y
-z=b.Q
-y=B.Bg(this,b,z)
-if(c)this.b.q(0,z,y)
-return y},
+KX:function(a,b,c){var z=B.Bg(this,b,b.Q)
+if(c)this.b.q(0,b.Q,z)
+return z},
 Lh:function(a,b){return this.KX(a,b,!0)},
 XC:function(a,b,c){var z
 for(z=this.c,z=z.gUQ(z),z=H.J(new H.MH(null,J.Nx(z.Q),z.a),[H.Kp(z,0),H.Kp(z,1)]);z.D();)J.QY(z.Q,c)
@@ -2032,7 +2039,7 @@ y.toString
 z=B.oH(new B.co([-1,-1,0,1,-1,0,1,1,0,-1,1,0],null,null,null,[0,0,1,0,1,1,0,1],[0,1,2,0,2,3],!1),!1,z,null,null)
 this.ch=z
 z.k1=this.z.f
-z=B.Bg(this,c,"fx")
+z=B.Bg(this,B.R4(),"fx")
 this.cx=z
 z.r1.push(this.ch)}B.vw()},
 static:{R:function(a,b,c,d,e,f,g){var z,y,x,w,v
@@ -2197,7 +2204,7 @@ $.PL=u}},
 Rk:{
 "^":"a;Q,a,b,c,d,e,f,r",
 bO:function(a){var z,y,x,w
-z=J.Jw(this.Q)
+z=J.LI(this.Q)
 J.cZ(this.Q,3553,z)
 J.Lb(this.Q,3553,10240,9728)
 J.Lb(this.Q,3553,10241,9728)
@@ -2274,39 +2281,36 @@ N:{
 $1:function(a){this.Q.oo(0,B.wF(W.DA(this.a.response)))}},
 ba:{
 "^":"KV;cy,db,dx,dy,fr,fx,fy,go,id,k1,k2,k3,k4,r1,r2,rx,ry,x1,x2,e,f,r,x,y,z,ch,cx,Q,a,b,c,d",
-xk:function(a){var z,y,x,w,v,u
+xk:function(a){var z,y,x,w
 z=this.db
 if(z){P.JS("Mesh: "+this.e)
 P.JS(a.a.cx)
 P.JS(this.go)
 P.JS(this.x2)
 P.JS(this.z.Q)
-P.JS("-----")}y=this.fr
-if(y){J.aS(this.cy,3042)
-J.FL(this.cy,this.fx,this.fy)}x=!this.dx
-if(x)J.c2(this.cy,2929)
-w=!this.dy
-if(w)J.cl(this.cy,!1)
+P.JS("-----")}if(this.fr){J.aS(this.cy,3042)
+J.FL(this.cy,this.fx,this.fy)}y=!this.dx
+if(y)J.rF(this.cy,2929)
+if(!this.dy)J.cl(this.cy,!1)
 J.wY(this.cy,34962,this.k4)
-J.GB(this.cy,a.e,3,5126,!1,0,0)
-v=a.a
-if(v.e!=null){J.wY(this.cy,34962,this.r2)
-J.GB(this.cy,a.r,2,5126,!1,0,0)}if(v.f!=null){J.wY(this.cy,34962,this.rx)
-J.GB(this.cy,a.x,3,5126,!1,0,0)}if(v.cx!=null){J.ED(this.cy,33984)
+J.ae(this.cy,a.e,3,5126,!1,0,0)
+x=a.a
+if(x.e!=null){J.wY(this.cy,34962,this.r2)
+J.ae(this.cy,a.r,2,5126,!1,0,0)}if(x.cx!=null){J.ED(this.cy,33984)
 J.cZ(this.cy,3553,this.id)
-J.X6(this.cy,a.db,0)}v.x
+J.X6(this.cy,a.db,0)}x.x
 J.pL(this.cy,a.ch,!1,this.z.Q)
 if(this.go)J.id(this.cy,0,0,this.x2)
-else{v=this.x1
-u=this.cy
-if(v==null)J.id(u,4,0,this.x2)
-else{J.wY(u,34963,v)
-v=this.cy
-u=this.x2
-J.Hb(v,4,u,$.eu?5125:5123,0)}}if(z)P.JS(J.LV(this.cy,a.d))
-if(y)J.c2(this.cy,3042)
-if(x)J.aS(this.cy,2929)
-if(w)J.cl(this.cy,!0)},
+else{x=this.x1
+w=this.cy
+if(x==null)J.id(w,4,0,this.x2)
+else{J.wY(w,34963,x)
+x=this.cy
+w=this.x2
+J.Hb(x,4,w,$.eu?5125:5123,0)}}if(z)P.JS(J.LV(this.cy,a.d))
+if(this.fr)J.rF(this.cy,3042)
+if(y)J.aS(this.cy,2929)
+if(!this.dy)J.cl(this.cy,!0)},
 NQ:function(a,b,c,d,e){var z,y,x
 if(!a.f)a.vE()
 z=$.El
@@ -2314,29 +2318,29 @@ this.cy=z
 z=J.Rw(z)
 this.k4=z
 J.wY(this.cy,34962,z)
-J.LI(this.cy,34962,H.Go(a.Q,"$isoI"),35044)
+J.Xe(this.cy,34962,H.Go(a.Q,"$isoI"),35044)
 if(a.a!=null){z=J.Rw(this.cy)
 this.r1=z
 J.wY(this.cy,34962,z)
-J.LI(this.cy,34962,H.Go(a.a,"$isoI"),35044)}z=J.Rw(this.cy)
+J.Xe(this.cy,34962,H.Go(a.a,"$isoI"),35044)}if(a.d!=null){z=J.Rw(this.cy)
 this.r2=z
 J.wY(this.cy,34962,z)
-J.LI(this.cy,34962,H.Go(a.d,"$isoI"),35044)
-if(a.b!=null){z=J.Rw(this.cy)
+J.Xe(this.cy,34962,H.Go(a.d,"$isoI"),35044)}if(a.b!=null){z=J.Rw(this.cy)
 this.rx=z
 J.wY(this.cy,34962,z)
-J.LI(this.cy,34962,H.Go(a.b,"$isoI"),35044)}if(a.c!=null){z=J.Rw(this.cy)
+J.Xe(this.cy,34962,H.Go(a.b,"$isoI"),35044)}if(a.c!=null){z=J.Rw(this.cy)
 this.ry=z
 J.wY(this.cy,34962,z)
-J.LI(this.cy,34962,H.Go(a.c,"$isoI"),35044)}this.x2=a.e.length
+J.Xe(this.cy,34962,H.Go(a.c,"$isoI"),35044)}z=a.e
+if(z!=null){this.x2=z.length
 z=J.Rw(this.cy)
 this.x1=z
 J.wY(this.cy,34963,z)
 z=$.eu
 y=this.cy
 x=a.e
-if(z)J.LI(y,34963,H.Go(x,"$isPz"),35044)
-else J.LI(y,34963,H.Go(x,"$isyc"),35044)},
+if(z)J.Xe(y,34963,H.Go(x,"$isPz"),35044)
+else J.Xe(y,34963,H.Go(x,"$isyc"),35044)}else this.x2=C.jn.BU(a.Q.length,3)},
 static:{oH:function(a,b,c,d,e){var z,y,x,w,v
 z=Q.JH(0,0,0)
 y=H.J([],[B.KV])
@@ -2351,19 +2355,19 @@ v.NQ(a,b,c,d,e)
 return v}}},
 co:{
 "^":"a;Q,a,b,c,d,e,f",
-vE:function(){var z,y
-z=this.Q
+vE:function(){var z=this.Q
 if(!J.t(z).$isoI)this.Q=new Float32Array(H.XF(z))
 z=this.a
 if(z!=null&&!J.t(z).$isoI)this.a=new Float32Array(H.XF(z))
-if(!J.t(this.d).$isoI)this.d=new Float32Array(H.XF(this.d))
+z=this.d
+if(z!=null&&!J.t(z).$isoI)this.d=new Float32Array(H.XF(z))
 z=this.b
 if(z!=null&&!J.t(z).$isoI)this.b=new Float32Array(H.XF(z))
 z=this.c
 if(z!=null&&!J.t(z).$isoI)this.c=new Float32Array(H.XF(z))
-if(!J.t(this.e).$isAS){z=$.eu
-y=this.e
-this.e=z?new Uint32Array(H.XF(y)):new Uint16Array(H.XF(y))}this.f=!0},
+z=this.e
+if(z!=null&&!J.t(z).$isAS)this.e=$.eu?new Uint32Array(H.XF(z)):new Uint16Array(H.XF(z))
+this.f=!0},
 LX:function(){this.vE()
 return B.oH(this,!1,null,null,null)},
 nO:function(){this.Q=H.J([],[P.CP])
@@ -2377,7 +2381,7 @@ z.nO()
 return z}}},
 KV:{
 "^":"Ur;e,f,yw:r>,x,y,z,ch,cx,Q,a,b,c,d",
-WE:function(a,b){},
+WE:function(a,b){if(this.cx!=null)this.jR(this,b)},
 xk:function(a){},
 VF:function(a,b){var z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c
 z=this.z
@@ -2441,11 +2445,12 @@ x[13]=f*u+e*q+d*m+c*i
 x[14]=f*t+e*p+d*l+c*h
 x[15]=f*s+e*o+d*k+c*g
 this.xk(a)
-for(y=this.y,y=new J.m1(y,y.length,0,null);y.D();)y.c.VF(a,z)}},
+for(y=this.y,y=new J.m1(y,y.length,0,null);y.D();)y.c.VF(a,z)},
+jR:function(a,b){return this.cx.$2(a,b)}},
 W:{
 "^":"a;Q,a,b,c,d,e,f,r,x,y,z,ch,cx,cy,db,dx,dy,fr,fx,fy,go,id,k1,k2,k3"},
 Wj:{
-"^":"a;Q,a,b,c,d,e,f,r,x,y,z,ch,cx,cy,db,dx,dy,fr,fx,fy,go,id,k1,k2,k3,k4,r1,r2,rx",
+"^":"a;Q,a,b,c,d,e,f,r,x,y,z,ch,cx,cy,db,dx,dy,fr,fx,fy,go,id,k1,k2,k3,k4,bD:r1<,r2,rx",
 WE:function(a,b){var z,y,x
 this.rx+=b
 for(z=this.r1,z=new J.m1(z,z.length,0,null);z.D();){y=z.c
@@ -2455,32 +2460,27 @@ fX:function(){if(C.Nm.Vr(this.r1,new B.YU()))return!0
 if(C.Nm.Vr(this.k4,new B.rl()))return!0
 if(C.Nm.Vr(this.r2,new B.jC()))return!0
 return!1},
-VF:function(a,b){var z,y,x,w
+VF:function(a,b){var z,y,x
 if(!this.fX())return
 if(this.k2)P.JS("name: "+this.b)
 J.jO(this.c,this.d)
 J.Oo(this.c,this.e)
 z=this.a
 if(z.e!=null)J.Oo(this.c,this.r)
-if(z.f!=null)J.Oo(this.c,this.x)
 if(z.ch!=null)J.pL(this.c,this.cy,!1,a.gTI())
 z.go
-y=this.Q
-x=y.x
-w=this.k3
-x.DI(w,!1)
-if(z.dy!=null)J.QM(this.c,this.fx,y.dx)
-if(z.fr!=null)J.QM(this.c,this.fy,y.dy)
-if(z.fx!=null)J.OV(this.c,this.go,C.CD.zQ(y.f.clientWidth),C.CD.zQ(y.f.clientHeight))
+y=this.Q.x
+x=this.k3
+y.DI(x,!1)
+z.fx
 this.vU(this.k4)
-x.DI(w,!0)
+y.DI(x,!0)
 z.z
-if(b!=null)w.O9(b)
+if(b!=null)x.O9(b)
 this.vU(this.r1)
 this.vu()
 J.i3(this.c,this.e)
 if(z.e!=null)J.i3(this.c,this.r)
-if(z.f!=null)J.i3(this.c,this.x)
 z.r},
 Am:function(a){return this.VF(a,null)},
 vu:function(){var z,y,x
@@ -2505,20 +2505,12 @@ this.d=u
 this.e=J.E4(this.c,u,x.c)
 z=x.e
 if(z!=null)this.r=J.E4(this.c,this.d,z)
-z=x.f
-if(z!=null)this.x=J.E4(this.c,this.d,z)
 z=x.ch
 this.cy=J.w0(this.c,this.d,z)
 z=x.y
 this.ch=J.w0(this.c,this.d,z)
 z=x.cx
 if(z!=null)this.db=J.w0(this.c,this.d,z)
-z=x.dy
-if(z!=null)this.fx=J.w0(this.c,this.d,z)
-z=x.fr
-if(z!=null)this.fy=J.w0(this.c,this.d,z)
-z=x.fx
-if(z!=null)this.go=J.w0(this.c,this.d,z)
 x.go},
 static:{Bg:function(a,b,c){var z=new Q.aI(new Float32Array(16),Q.JH(0,0,0),Q.JH(0,0,0),Q.JH(0,0,0))
 z.c0()
@@ -2565,7 +2557,50 @@ r8:{
 v4:{
 "^":"a;"},
 US:{
-"^":"a;Q,a,b"}}],["","",,Q,{
+"^":"a;Q,a,b",
+Yc:function(){var z,y
+z=document.createElement("canvas",null)
+J.TZ(z,64)
+J.OE(z,64)
+y=z
+new B.jF(64).$1(J.PB(y,"2d"))
+return y},
+l6:function(a,b,c){var z,y,x,w,v,u
+z=a*3
+y=new Float32Array(z)
+for(x=0;x<z;++x)y[x]=(C.pr.w7()-0.5)*c
+z=this.Q
+w=z.b.p(0,"point_sprites")
+if(w==null){v=new B.W("PointSprites",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"","","","")
+v.c="aVertexPosition"
+v.y="uMVMatrix"
+v.ch="uPMatrix"
+v.cx="uSampler"
+v.k1="gl_PointSize = 1000.0/gl_Position.z;"
+v.k3="gl_FragColor = texture2D(uSampler, gl_PointCoord);\n gl_FragColor.a = 0.4;\n"
+w=z.Lh(0,B.FC(v))}u=B.oH(new B.co(y,null,null,null,null,null,!1),!0,b,null,null)
+u.fr=!0
+u.dy=!1
+u.fy=769
+u.e="point_sprites_mesh_"+C.jn.X(w.gbD().length)
+w.r1.push(u)}},
+jF:{
+"^":"r:12;Q",
+$1:function(a){var z,y,x
+z=this.Q
+y=z/2|0
+x=J.BQ(a,y,y,1,y,y,22)
+x.addColorStop(0,"gray")
+x.addColorStop(1,"black")
+a.fillStyle=x
+a.fillRect(0,0,z,z)
+x=a.createRadialGradient(y,y,1,y,y,6)
+x.addColorStop(0,"white")
+x.addColorStop(1,"gray")
+a.globalAlpha=0.9
+a.fillStyle=x
+a.arc(y,y,4,0,6.283185307179586,!1)
+a.fill("nonzero")}}}],["","",,Q,{
 "^":"",
 aI:{
 "^":"a;TI:Q<,a,b,c",
@@ -2654,21 +2689,8 @@ y[0]=v*s
 y[1]=u*s
 y[2]=t*s}y=this.c
 y.lm(c,z)
-x=y.Q
-v=x[0]
-u=x[1]
-t=x[2]
-s=Math.sqrt(H.E0(v*v+u*u+t*t))
-if(s===0){x=y.Q
-x[0]=0
-x[1]=0
-x[2]=0}else{x=y.Q
-if(s===1){x[0]=v
-x[1]=u
-x[2]=t}else{s=1/s
-x[0]=v*s
-x[1]=u*s
-x[2]=t*s}}x=this.b
+y.p3(0)
+x=this.b
 x.lm(z,y)
 w=this.Q
 y=y.Q
@@ -2688,6 +2710,36 @@ w[10]=z[2]
 w[11]=0
 w[15]=1},
 X:function(a){return C.fm.X(this.Q)}},
+DS:{
+"^":"a;Q,a,b",
+gx:function(a){return this.Q[0]},
+gy:function(a){return this.Q[1]},
+p:function(a,b){var z=this.Q
+if(b>>>0!==b||b>=4)return H.e(z,b)
+return z[b]},
+q:function(a,b,c){var z=this.Q
+if(b>=4)return H.e(z,b)
+z[b]=c},
+yB:function(a,b){var z,y,x
+b*=0.5
+z=Math.sin(H.E0(b))
+y=this.Q
+x=a.Q
+y[0]=z*x[0]
+y[1]=z*x[1]
+y[2]=z*x[2]
+y[3]=Math.cos(H.E0(b))
+return this},
+pW:function(a,b,c,d){var z=new Float32Array(4)
+this.Q=z
+z[0]=a
+z[1]=b
+z[2]=c
+z[3]=d},
+static:{Jd:function(a,b,c,d){var z=Q.JH(0,0,0)
+z=new Q.DS(null,z,new Float32Array(9))
+z.pW(a,b,c,d)
+return z}}},
 xy:{
 "^":"a;Q,a,b",
 gx:function(a){return this.Q[0]},
@@ -2698,6 +2750,22 @@ return z[b]},
 q:function(a,b,c){var z=this.Q
 if(b>=3)return H.e(z,b)
 z[b]=c},
+p3:function(a){var z,y,x,w,v
+z=this.Q
+y=z[0]
+x=z[1]
+w=z[2]
+v=Math.sqrt(H.E0(y*y+x*x+w*w))
+if(v===0){z=this.Q
+z[0]=0
+z[1]=0
+z[2]=0}else{z=this.Q
+if(v===1){z[0]=y
+z[1]=x
+z[2]=w}else{v=1/v
+z[0]=y*v
+z[1]=x*v
+z[2]=w*v}}return this},
 lm:function(a,b){var z,y,x,w,v,u,t
 z=a.Q
 y=z[0]
@@ -2717,7 +2785,7 @@ z=this.Q
 y=z[0]
 x=z[1]
 w=z[2]
-return Math.sqrt(H.E0(y*y+x*x+w*w))},"$0","gv",0,0,12],
+return Math.sqrt(H.E0(y*y+x*x+w*w))},"$0","gv",0,0,13],
 X:function(a){return C.fm.X(this.Q)},
 c9:function(a,b,c){var z=new Float32Array(3)
 this.Q=z
@@ -2767,9 +2835,9 @@ return z},
 gv:function(a){return J.wS(this.Q)},
 $asmW:function(a,b){return[b]},
 $asQV:function(a,b){return[b]},
-static:{K1:function(a,b,c,d){if(!!J.t(a).$isqC)return H.J(new H.Y7(a,b),[c,d])
+static:{K1:function(a,b,c,d){if(!!J.t(a).$isqC)return H.J(new H.OV(a,b),[c,d])
 return H.J(new H.i1(a,b),[c,d])}}},
-Y7:{
+OV:{
 "^":"i1;Q,a",
 $isqC:1},
 MH:{
@@ -2807,10 +2875,10 @@ new self.MutationObserver(H.tR(new P.th(z),1)).observe(y,{childList:true})
 return new P.ha(z,y,x)}else if(self.setImmediate!=null)return P.q9()
 return P.K7()},
 ZV:[function(a){++init.globalState.e.a
-self.scheduleImmediate(H.tR(new P.C6(a),0))},"$1","Sx",2,0,27],
+self.scheduleImmediate(H.tR(new P.C6(a),0))},"$1","Sx",2,0,29],
 oA:[function(a){++init.globalState.e.a
-self.setImmediate(H.tR(new P.Ft(a),0))},"$1","q9",2,0,27],
-Bz:[function(a){P.YF(C.RT,a)},"$1","K7",2,0,27],
+self.setImmediate(H.tR(new P.Ft(a),0))},"$1","q9",2,0,29],
+Bz:[function(a){P.YF(C.RT,a)},"$1","K7",2,0,29],
 VH:function(a,b){var z=H.N7()
 z=H.KT(z,[z,z]).Zg(a)
 if(z){b.toString
@@ -2836,10 +2904,10 @@ $.k8=y}},
 rb:function(a){var z=$.X
 if(C.NU===z){P.Tk(null,null,C.NU,a)
 return}P.Tk(null,null,z,z.kb(a,!0))},
-YE:[function(a){},"$1","IK",2,0,28],
+YE:[function(a){},"$1","IK",2,0,30],
 Z0:[function(a,b){var z=$.X
 z.toString
-P.L2(null,null,z,a,b)},function(a){return P.Z0(a,null)},null,"$2","$1","SD",2,2,14,0],
+P.L2(null,null,z,a,b)},function(a){return P.Z0(a,null)},null,"$2","$1","SD",2,2,15,0],
 dL:[function(){},"$0","v3",0,0,1],
 FE:function(a,b,c){var z,y,x,w,v,u,t
 try{b.$1(a.$0())}catch(u){t=H.Ru(u)
@@ -2905,7 +2973,7 @@ y=z.Q
 z.Q=null
 y.$0()}},
 ha:{
-"^":"r:13;Q,a,b",
+"^":"r:14;Q,a,b",
 $1:function(a){var z,y;++init.globalState.e.a
 this.Q.Q=a
 z=this.a
@@ -2995,7 +3063,7 @@ this.vd(a)
 P.HZ(this,z)},
 ZL:[function(a,b){var z=this.ah()
 this.P9(new P.OH(a,b))
-P.HZ(this,z)},function(a){return this.ZL(a,null)},"yk","$2","$1","gFa",2,2,14,0],
+P.HZ(this,z)},function(a){return this.ZL(a,null)},"yk","$2","$1","gFa",2,2,15,0],
 Xf:function(a){var z
 if(a==null);else{z=J.t(a)
 if(!!z.$isb8){if(!!z.$isM){z=a.Q
@@ -3079,7 +3147,7 @@ pV:{
 "^":"r:2;Q",
 $1:function(a){this.Q.X2(a)}},
 U7:{
-"^":"r:15;Q",
+"^":"r:16;Q",
 $2:function(a,b){this.Q.ZL(a,b)},
 $1:function(a){return this.$2(a,null)}},
 vr:{
@@ -3092,7 +3160,7 @@ cX:{
 "^":"r:0;Q,a",
 $0:function(){this.Q.X2(this.a)}},
 rq:{
-"^":"r:16;Q,a,b,c",
+"^":"r:17;Q,a,b,c",
 $0:function(){var z,y,x,w
 try{this.Q.a=this.c.FI(this.a.gdU(),this.b)
 return!0}catch(x){w=H.Ru(x)
@@ -3162,7 +3230,7 @@ jZ:{
 "^":"r:2;Q,a",
 $1:function(a){P.HZ(this.Q.Q,new P.Fe(null,this.a,0,null,null))}},
 FZ:{
-"^":"r:15;Q,a",
+"^":"r:16;Q,a",
 $2:function(a,b){var z,y
 z=this.Q
 if(!(z.Q instanceof P.M)){y=H.J(new P.M(0,$.X,null),[null])
@@ -3259,7 +3327,7 @@ else this.C2(new P.fZ(b,null))}],
 UI:["AV",function(a,b){var z=this.d
 if((z&8)!==0)return
 if(z<32)this.y7(a,b)
-else this.C2(new P.DS(a,b,null))}],
+else this.C2(new P.Dn(a,b,null))}],
 Ig:function(){var z=this.d
 if((z&8)!==0)return
 z=(z|2)>>>0
@@ -3355,7 +3423,7 @@ fI:{
 fZ:{
 "^":"fI;a,Q",
 dP:function(a){a.MW(this.a)}},
-DS:{
+Dn:{
 "^":"fI;kc:a>,I4:b<,Q",
 dP:function(a){a.y7(this.a,this.b)}},
 yR:{
@@ -3396,7 +3464,7 @@ dR:{
 "^":"r:0;Q,a,b",
 $0:function(){return this.Q.ZL(this.a,this.b)}},
 uR:{
-"^":"r:17;Q,a",
+"^":"r:18;Q,a",
 $2:function(a,b){return P.NX(this.Q,this.a,a,b)}},
 YR:{
 "^":"qh;",
@@ -3421,7 +3489,7 @@ cZ:function(){var z=this.x
 if(z!=null){this.x=null
 z.Gv(0)}return},
 yi:[function(a){this.r.FC(a,this)},"$1","gwU",2,0,function(){return H.IG(function(a,b){return{func:"",void:true,args:[a]}},this.$receiver,"fB")}],
-SW:[function(a,b){this.UI(a,b)},"$2","gPr",4,0,18],
+SW:[function(a,b){this.UI(a,b)},"$2","gPr",4,0,19],
 oZ:[function(){this.Ig()},"$0","gos",0,0,1],
 JC:function(a,b,c,d,e,f,g){var z,y
 z=this.gwU()
@@ -3440,7 +3508,7 @@ try{z=this.Eh(a)}catch(w){v=H.Ru(w)
 y=v
 x=H.ts(w)
 P.Wv(b,y,x)
-return}J.aO(b,z)},
+return}J.QM(b,z)},
 Eh:function(a){return this.a.$1(a)}},
 OH:{
 "^":"a;kc:Q>,I4:a<",
@@ -3502,8 +3570,8 @@ $1:function(a){return this.Q.FI(this.a,a)}}}],["","",,P,{
 "^":"",
 B:function(a,b,c){return H.B7(a,H.J(new H.N5(0,null,null,null,null,null,0),[b,c]))},
 A:function(a,b){return H.J(new H.N5(0,null,null,null,null,null,0),[a,b])},
-Ou:[function(a,b){return J.mG(a,b)},"$2","bd",4,0,29],
-T9:[function(a){return J.v1(a)},"$1","rm",2,0,23],
+Ou:[function(a,b){return J.mG(a,b)},"$2","iv",4,0,31],
+T9:[function(a){return J.v1(a)},"$1","rm",2,0,24],
 EP:function(a,b,c){var z,y
 if(P.nH(a)){if(b==="("&&c===")")return"(...)"
 return b+"..."+c}z=[]
@@ -3738,7 +3806,7 @@ $isqC:1,
 $isQV:1,
 $asQV:null},
 W0:{
-"^":"r:19;Q,a",
+"^":"r:20;Q,a",
 $2:function(a,b){var z,y
 z=this.Q
 if(!z.Q)this.a.Q+=", "
@@ -3821,7 +3889,7 @@ this.c=(y+1&x-1)>>>0
 return!0}},
 Ma:{
 "^":"a;",
-ez:function(a,b){return H.J(new H.Y7(this,b),[H.Kp(this,0),null])},
+ez:function(a,b){return H.J(new H.OV(this,b),[H.Kp(this,0),null])},
 X:function(a){return P.WE(this,"{","}")},
 aN:function(a,b){var z
 for(z=this.gu(this);z.D();)b.$1(z.c)},
@@ -3836,8 +3904,8 @@ hl:function(a){if(typeof a==="number"||typeof a==="boolean"||null==a)return J.Lz
 if(typeof a==="string")return JSON.stringify(a)
 return"Instance of '"+H.lh(a)+"'"},
 FM:function(a){return new P.HG(a)},
-ad:[function(a,b){return a==null?b==null:a===b},"$2","n0",4,0,30],
-xv:[function(a){return H.CU(a)},"$1","J2",2,0,31],
+ad:[function(a,b){return a==null?b==null:a===b},"$2","n0",4,0,32],
+xv:[function(a){return H.CU(a)},"$1","J2",2,0,33],
 z:function(a,b,c){var z,y
 z=H.J([],[c])
 for(y=J.Nx(a);y.D();)z.push(y.gk())
@@ -3847,7 +3915,7 @@ return z},
 JS:function(a){var z=H.d(a)
 H.qw(z)},
 CL:{
-"^":"r:20;Q",
+"^":"r:21;Q",
 $2:function(a,b){var z=this.Q
 if(z.a>0)z.Q.Q+=", "
 P.Hp(a)}},
@@ -3908,7 +3976,7 @@ w=z.$1(C.jn.JV(C.jn.BU(y,1e6),60))
 v=new P.P7().$1(C.jn.JV(y,1e6))
 return""+C.jn.BU(y,36e8)+":"+H.d(x)+":"+H.d(w)+"."+H.d(v)}},
 P7:{
-"^":"r:21;",
+"^":"r:22;",
 $1:function(a){if(a>=1e5)return""+a
 if(a>=1e4)return"0"+a
 if(a>=1000)return"00"+a
@@ -3916,7 +3984,7 @@ if(a>=100)return"000"+a
 if(a>=10)return"0000"+a
 return"00000"+a}},
 DW:{
-"^":"r:21;",
+"^":"r:22;",
 $1:function(a){if(a>=10)return""+a
 return"0"+a}},
 Ge:{
@@ -4069,7 +4137,7 @@ wv:{
 "^":"",
 Z3:[function(a){if(a.onwheel!==undefined)return"wheel"
 else if(a.onmousewheel!==undefined)return"mousewheel"
-else return"DOMMouseScroll"},"$1","wQ",2,0,32],
+else return"DOMMouseScroll"},"$1","wQ",2,0,34],
 C0:function(a,b){a=536870911&a+b
 a=536870911&a+((524287&a)<<10>>>0)
 return a^a>>>6},
@@ -4125,6 +4193,12 @@ Ny:{
 eW:function(a,b,c){return a.getContext(b)},
 Bf:function(a,b){return this.eW(a,b,null)},
 "%":"HTMLCanvasElement"},
+Gc:{
+"^":"Gv;",
+Ln:function(a,b,c,d,e,f,g){return a.createRadialGradient(b,c,d,e,f,g)},
+$isGc:1,
+$isa:1,
+"%":"CanvasRenderingContext2D"},
 nx:{
 "^":"h8;v:length=",
 $isGv:1,
@@ -4411,7 +4485,7 @@ G9:{
 tL:{
 "^":"Gv;v:length=",
 "%":"MediaList"},
-QD:{
+Jw:{
 "^":"D0;yw:enabled=",
 "%":"MediaStreamTrack"},
 bn:{
@@ -5558,7 +5632,7 @@ pC:function(a){return a.createProgram()},
 WV:function(a,b){return a.createShader(b)},
 Wp:function(a){return a.createTexture()},
 Iv:function(a,b){return a.depthMask(b)},
-yB:function(a,b){return a.disable(b)},
+d5:function(a,b){return a.disable(b)},
 zx:function(a,b){return a.disableVertexAttribArray(b)},
 rZ:function(a,b,c,d){return a.drawArrays(b,c,d)},
 rn:function(a,b,c,d,e){return a.drawElements(b,c,d,e)},
@@ -5574,13 +5648,12 @@ p6:function(a,b,c){return a.getShaderParameter(b,c)},
 YE:function(a,b,c){return a.getUniformLocation(b,c)},
 Ev:function(a,b){return a.linkProgram(b)},
 Yw:function(a,b,c){return a.shaderSource(b,c)},
+Rv:function(a,b,c,d,e,f,g){return a.texImage2D(b,c,d,e,f,g)},
 rz:function(a,b,c,d){return a.texParameteri(b,c,d)},
-Wl:function(a,b,c){return a.uniform1f(b,c)},
 ug:function(a,b,c){return a.uniform1i(b,c)},
-pW:function(a,b,c,d){return a.uniform2f(b,c,d)},
 d2:function(a,b,c,d){return a.uniformMatrix4fv(b,c,d)},
 nA:function(a,b){return a.useProgram(b)},
-l6:function(a,b,c,d,e,f,g){return a.vertexAttribPointer(b,c,d,e,f,g)},
+qi:function(a,b,c,d,e,f,g){return a.vertexAttribPointer(b,c,d,e,f,g)},
 fw:function(a,b,c,d,e){return a.viewport(b,c,d,e)},
 m8:function(a,b,c,d,e,f,g,h,i,j){return a.texImage2D(b,c,d,e,f,g,h,i,j)},
 "%":"WebGLRenderingContext"}}],["","",,P,{
@@ -5622,6 +5695,9 @@ return a^a>>>6},
 xk:function(a){a=536870911&a+((67108863&a)<<3>>>0)
 a^=a>>>11
 return 536870911&a+((16383&a)<<15>>>0)},
+hR:{
+"^":"a;",
+w7:function(){return Math.random()}},
 hL:{
 "^":"a;x:Q>,y:a>",
 X:function(a){return"Point("+H.d(this.Q)+", "+H.d(this.a)+")"},
@@ -5878,14 +5954,14 @@ ed:[function(a){var z
 if(a==null)return
 z={}
 J.kH(a,new P.zW(z))
-return z},"$1","Y1",2,0,33],
+return z},"$1","Y1",2,0,35],
 o0:function(a,b){var z=[]
 return new P.xL(b,new P.a9([],z),new P.YL(z),new P.KC(z)).$1(a)},
 zW:{
-"^":"r:22;Q",
+"^":"r:23;Q",
 $2:function(a,b){this.Q[a]=b}},
 a9:{
-"^":"r:23;Q,a",
+"^":"r:24;Q,a",
 $1:function(a){var z,y,x,w
 z=this.Q
 y=z.length
@@ -5894,12 +5970,12 @@ if(w==null?a==null:w===a)return x}z.push(a)
 this.a.push(null)
 return y}},
 YL:{
-"^":"r:24;Q",
+"^":"r:25;Q",
 $1:function(a){var z=this.Q
 if(a>=z.length)return H.e(z,a)
 return z[a]}},
 KC:{
-"^":"r:25;Q",
+"^":"r:26;Q",
 $2:function(a,b){var z=this.Q
 if(a>=z.length)return H.e(z,a)
 z[a]=b}},
@@ -5930,92 +6006,209 @@ if(typeof u!=="number")return H.o(u)
 t=J.w1(x)
 s=0
 for(;s<u;++s)t.q(x,s,this.$1(w.p(a,s)))
-return x}return a}}}],["","",,S,{
+return x}return a}}}],["","",,F,{
 "^":"",
 Q:[function(){var z,y,x
-z=new B.W("Sobel",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"","","","")
-z.a="  precision mediump float;\n  attribute vec3 aVertexPosition;\n  attribute vec2 aTextureCoord;\n  \n  uniform mat4 uMVMatrix;\n  uniform mat4 uPMatrix;\n  \n  varying vec2 vTextureCoord;\n  \n  void main(void) {\n    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\n    vTextureCoord = aTextureCoord;\n  }\n  "
-z.b="  precision mediump float;\n  \n  varying vec2 vTextureCoord;\n  uniform sampler2D colorSampler;\n  \n  uniform float cameraNear;\n  uniform float cameraFar;\n  uniform vec2 size;\n\n  float lum(vec4 c) {\n    return dot(c.xyz, vec3(0.3, 0.59, 0.11));\n  }\n\n  float sobel() {\n      vec2 imageIncrement = vec2(1.0/size.x,1.0/size.y);\n      float t00 = lum(texture2D(colorSampler, vTextureCoord + imageIncrement * vec2(-1, -1)));\n      float t10 = lum(texture2D(colorSampler, vTextureCoord + imageIncrement * vec2( 0, -1)));\n      float t20 = lum(texture2D(colorSampler, vTextureCoord + imageIncrement * vec2( 1, -1)));\n      float t01 = lum(texture2D(colorSampler, vTextureCoord + imageIncrement * vec2(-1,  0)));\n      float t21 = lum(texture2D(colorSampler, vTextureCoord + imageIncrement * vec2( 1,  0)));\n      float t02 = lum(texture2D(colorSampler, vTextureCoord + imageIncrement * vec2(-1,  1)));\n      float t12 = lum(texture2D(colorSampler, vTextureCoord + imageIncrement * vec2( 0,  1)));\n      float t22 = lum(texture2D(colorSampler, vTextureCoord + imageIncrement * vec2( 1,  1)));\n      vec2 grad;\n      grad.x = t00 + 2.0 * t01 + t02 - t20 - 2.0 * t21 - t22;\n      grad.y = t00 + 2.0 * t10 + t20 - t02 - 2.0 * t12 - t22;\n      return length(grad);\n  } \n\n  void main(void) {\n      float len = sobel();\n      gl_FragColor = vec4(len, len, len, 1.0); // \n  }\n  "
-z.c="aVertexPosition"
-z.e="aTextureCoord"
-z.y="uMVMatrix"
-z.ch="uPMatrix"
-z.cx="colorSampler"
-z.dy="cameraNear"
-z.fr="cameraFar"
-z.fx="size"
-y=B.R("#webgl-canvas",2520,z,0.1,!1,!1,!0)
-z=new B.W("Plane2Grey",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"","","","")
-z.a="        precision mediump float;\r\n\r\n        attribute vec3 aVertexPosition;\r\n        attribute vec3 aNormal;\r\n        \r\n        uniform mat4 uMVMatrix;\r\n        uniform mat4 uPMatrix;\r\n        \r\n        varying vec3 vColor;\r\n\r\n        void main(void) {\r\n          gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\r\n          float d=sin(dot( aVertexPosition, aNormal)) / 2.0 + 0.5;\r\n          vColor = vec3(d,d,d);\r\n        }\r\n        "
-z.b="        precision mediump float;\r\n\r\n        varying vec3 vColor;\r\n        void main(void) {\r\n          gl_FragColor = vec4( vColor, 1.0 );\r\n        }\r\n        "
-z.c="aVertexPosition"
-z.f="aNormal"
-z.y="uMVMatrix"
-z.ch="uPMatrix"
-x=y.Lh(0,z)
-y.c.q(0,"orbitCam",B.S(y.x,65,0,0))
-B.V("ct_logo.obj").Z(new S.L(y,x))},"$0","ao",0,0,1],
+z=B.R("#webgl-canvas",1000,null,0.1,!1,!1,!1)
+y=new B.W("FixedVertexColor",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"","","","")
+y.a="        precision mediump float;\r\n        attribute vec3 aVertexPosition;\r\n        \r\n        uniform mat4 uMVMatrix;\r\n        uniform mat4 uPMatrix;\r\n\r\n        varying vec3 vColor;\r\n        \r\n        void main(void) {\r\n          vColor = vec3( sin(aVertexPosition.x)/2.0+0.5, cos(aVertexPosition.y)/2.0+0.5, sin(aVertexPosition.z)/2.0+0.5);\r\n          gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\r\n        }\r\n        "
+y.b="        precision mediump float;\r\n        \r\n        varying vec3 vColor;\r\n\r\n        void main(void) {\r\n          gl_FragColor = vec4( vColor, 1. );\r\n        }\r\n        "
+y.c="aVertexPosition"
+y.y="uMVMatrix"
+y.ch="uPMatrix"
+x=z.Lh(0,y)
+z.c.q(0,"orbitCam",B.S(z.x,65,0,0))
+B.V("../ct_logo.obj").Z(new F.L(z,x))},"$0","ao",0,0,1],
 L:{
-"^":"r:26;Q,a",
-$1:function(a){var z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c
-z=a.LX()
+"^":"r:27;Q,a",
+$1:function(a7){var z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2,a3,a4,a5,a6
+z={}
+y=a7.LX()
+x=y.Q
+w=Math.sin(H.E0(1.57))
+v=Math.cos(H.E0(1.57))
+u=x.Q
+t=u[4]
+s=u[5]
+r=u[6]
+q=u[7]
+p=u[8]
+o=u[9]
+n=u[10]
+m=u[11]
+u[4]=t*v+p*w
+u[5]=s*v+o*w
+u[6]=r*v+n*w
+u[7]=q*v+m*w
+l=-w
+u[8]=t*l+p*v
+u[9]=s*l+o*v
+u[10]=r*l+n*v
+u[11]=q*l+m*v
+w=Math.sin(H.E0(3.14))
+v=Math.cos(H.E0(3.14))
+x=x.Q
+k=x[0]
+j=x[1]
+i=x[2]
+h=x[3]
+t=x[4]
+s=x[5]
+r=x[6]
+q=x[7]
+x[0]=k*v+t*w
+x[1]=j*v+s*w
+x[2]=i*v+r*w
+x[3]=h*v+q*w
+l=-w
+x[4]=k*l+t*v
+x[5]=j*l+s*v
+x[6]=i*l+r*v
+x[7]=h*l+q*v
+l=H.J([],[B.KV])
+x=new Q.aI(new Float32Array(16),Q.JH(0,0,0),Q.JH(0,0,0),Q.JH(0,0,0))
+x.c0()
+u=new Q.aI(new Float32Array(16),Q.JH(0,0,0),Q.JH(0,0,0),Q.JH(0,0,0))
+u.c0()
+g=new Q.aI(new Float32Array(16),Q.JH(0,0,0),Q.JH(0,0,0),Q.JH(0,0,0))
+g.c0()
+f=new B.KV("","",!0,!1,l,x,u,null,g,Q.JH(0,0,0),Q.JH(0,0,0),Q.JH(0,0,0),Q.JH(0,0,0))
+l.push(y)
+x=Q.JH(100,0,-100)
+g.OK(f.WO(),x,null)
+e=Q.Jd(0,0,0,1)
+x=e.b
+g=g.Q
+x[0]=g[0]
+x[1]=g[1]
+x[2]=g[2]
+x[3]=g[4]
+x[4]=g[5]
+x[5]=g[6]
+x[6]=g[8]
+x[7]=g[9]
+x[8]=g[10]
+g=x[0]
+u=x[4]
+l=x[8]
+d=g+u+l
+if(d>0){c=Math.sqrt(H.E0(d+1))
+u=e.Q
+u[3]=0.5*c
+c=0.5/c
+u[0]=(x[5]-x[7])*c
+u[1]=(x[6]-x[2])*c
+u[2]=(x[1]-x[3])*c}else{b=u>g?1:0
+u=b*3+b
+if(u>=9)return H.e(x,u)
+if(l>x[u])b=2
+a=C.jn.V(b+1,3)
+a0=C.jn.V(b+2,3)
+u=b*3
+l=u+b
+if(l>=9)return H.e(x,l)
+l=x[l]
+g=a*3
+a1=g+a
+if(a1>=9)return H.e(x,a1)
+a1=x[a1]
+a2=a0*3
+a3=a2+a0
+if(a3>=9)return H.e(x,a3)
+c=Math.sqrt(H.E0(l-a1-x[a3]+1))
+a3=e.Q
+a3[b]=0.5*c
+c=0.5/c
+a1=g+a0
+if(a1>=9)return H.e(x,a1)
+a1=x[a1]
+l=a2+a
+if(l>=9)return H.e(x,l)
+a3[3]=(a1-x[l])*c
+g+=b
+if(g>=9)return H.e(x,g)
+g=x[g]
+l=u+a
+if(l>=9)return H.e(x,l)
+a3[a]=(g+x[l])*c
+a2+=b
+if(a2>=9)return H.e(x,a2)
+a2=x[a2]
+u+=a0
+if(u>=9)return H.e(x,u)
+a3[a0]=(a2+x[u])*c}a4=Q.Jd(0,0,0,1).yB(Q.JH(0,0,1),3.14)
+a5=Q.Jd(0,0,0,1)
+z.Q=0
+f.cx=new F.VW(z,e,a4,a5)
+this.a.r1.push(f)
+z=this.Q
+x=z.y
+u=x.Yc()
+a6=J.LI(x.a)
+J.cZ(x.a,3553,a6)
+J.v6(x.a,3553,0,6408,6408,5121,u)
+J.Lb(x.a,3553,10240,9729)
+J.Lb(x.a,3553,10241,9729)
+x.l6(2000,a6,100)
+z.bL()}},
+VW:{
+"^":"r:28;Q,a,b,c",
+$2:function(a4,a5){var z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2,a3
+z=this.Q
 y=z.Q
-x=Math.sin(H.E0(1.57))
-w=Math.cos(H.E0(1.57))
-v=y.Q
-u=v[4]
-t=v[5]
-s=v[6]
-r=v[7]
-q=v[8]
-p=v[9]
-o=v[10]
-n=v[11]
-v[4]=u*w+q*x
-v[5]=t*w+p*x
-v[6]=s*w+o*x
-v[7]=r*w+n*x
-m=-x
-v[8]=u*m+q*w
-v[9]=t*m+p*w
-v[10]=s*m+o*w
-v[11]=r*m+n*w
-x=Math.sin(H.E0(3.14))
-w=Math.cos(H.E0(3.14))
-y=y.Q
-l=y[0]
-k=y[1]
-j=y[2]
-i=y[3]
-u=y[4]
-t=y[5]
-s=y[6]
-r=y[7]
-y[0]=l*w+u*x
-y[1]=k*w+t*x
-y[2]=j*w+s*x
-y[3]=i*w+r*x
-m=-x
-y[4]=l*m+u*w
-y[5]=k*m+t*w
-y[6]=j*m+s*w
-y[7]=i*m+r*w
-m=H.J([],[B.KV])
-y=new Q.aI(new Float32Array(16),Q.JH(0,0,0),Q.JH(0,0,0),Q.JH(0,0,0))
-y.c0()
-v=new Q.aI(new Float32Array(16),Q.JH(0,0,0),Q.JH(0,0,0),Q.JH(0,0,0))
-v.c0()
-h=new Q.aI(new Float32Array(16),Q.JH(0,0,0),Q.JH(0,0,0),Q.JH(0,0,0))
-h.c0()
-g=Q.JH(0,0,0)
-f=Q.JH(0,0,0)
-e=Q.JH(0,0,0)
-d=Q.JH(0,0,0)
-m.push(z)
-c=Q.JH(100,0,-100)
-h.OK(new B.KV("","",!0,!1,m,y,v,null,h,g,f,e,d).WO(),c,null)
-this.a.r1.push(z)
-this.Q.bL()}}},1],]
+if(y<1){x=y+a5/1e4
+z.Q=x
+z=this.a.Q
+w=z[0]
+v=z[1]
+u=z[2]
+t=z[3]
+z=this.b.Q
+s=z[0]
+r=z[1]
+q=z[2]
+p=z[3]
+o=w*s+v*r+u*q+t*p
+if(o<0){o=-o
+s=-s
+r=-r
+q=-q
+p=-p}n=1-x
+if(1-o>0.000001){m=Math.acos(H.E0(o))
+l=Math.sin(H.E0(m))
+n=Math.sin(H.E0(n*m))/l
+k=Math.sin(H.E0(x*m))/l}else k=x
+z=this.c.Q
+z[0]=n*w+k*s
+z[1]=n*v+k*r
+z[2]=n*u+k*q
+z[3]=n*t+k*p
+y=a4.Q
+j=z[0]
+i=j+j
+h=z[1]
+g=h+h
+f=z[2]
+e=f+f
+d=h*i
+c=h*g
+b=f*i
+a=f*g
+a0=f*e
+z=z[3]
+a1=z*i
+a2=z*g
+a3=z*e
+y.Q[0]=C.CD.Hp(1-c-a0)
+y.Q[4]=C.CD.Hp(d-a3)
+y.Q[8]=C.CD.Hp(b+a2)
+y.Q[1]=C.CD.Hp(d+a3)
+j=1-j*i
+y.Q[5]=C.CD.Hp(j-a0)
+y.Q[9]=C.CD.Hp(a-a1)
+y.Q[2]=C.CD.Hp(b-a2)
+y.Q[6]=C.CD.Hp(a+a1)
+y.Q[10]=C.CD.Hp(j-c)}}}},1],]
 setupProgram(dart)
 J.Qc=function(a){if(typeof a=="number")return J.F.prototype
 if(typeof a=="string")return J.E.prototype
@@ -6053,19 +6246,18 @@ if(a.constructor==Array)return J.G.prototype
 if(typeof a!="object")return a
 if(a instanceof P.a)return a
 return J.ks(a)}
+J.BQ=function(a,b,c,d,e,f,g){return J.U(a).Ln(a,b,c,d,e,f,g)}
 J.E4=function(a,b,c){return J.U(a).ci(a,b,c)}
 J.ED=function(a,b){return J.U(a).GA(a,b)}
 J.Ef=function(a,b){return J.U(a).jV(a,b)}
 J.FL=function(a,b,c){return J.U(a).Gk(a,b,c)}
-J.GB=function(a,b,c,d,e,f,g){return J.U(a).l6(a,b,c,d,e,f,g)}
 J.GJ=function(a,b,c,d){return J.U(a).Y9(a,b,c,d)}
 J.Hb=function(a,b,c,d,e){return J.U(a).rn(a,b,c,d,e)}
 J.Iz=function(a,b){return J.w1(a).Sl(a,b)}
 J.JA=function(a,b,c){return J.rY(a).h8(a,b,c)}
-J.Jw=function(a){return J.U(a).Wp(a)}
 J.Kr=function(a){return J.U(a).e6(a)}
 J.LF=function(a,b,c){return J.U(a).IW(a,b,c)}
-J.LI=function(a,b,c,d){return J.U(a).Vn(a,b,c,d)}
+J.LI=function(a){return J.U(a).Wp(a)}
 J.LO=function(a,b,c,d,e,f,g,h,i,j){return J.U(a).m8(a,b,c,d,e,f,g,h,i,j)}
 J.LV=function(a,b){return J.U(a).fc(a,b)}
 J.Lb=function(a,b,c,d){return J.U(a).rz(a,b,c,d)}
@@ -6077,13 +6269,12 @@ J.Nx=function(a){return J.w1(a).gu(a)}
 J.O7=function(a,b){return J.U(a).AW(a,b)}
 J.OB=function(a){return J.U(a).gfg(a)}
 J.OE=function(a,b){return J.U(a).sfg(a,b)}
-J.OV=function(a,b,c,d){return J.U(a).pW(a,b,c,d)}
 J.Oo=function(a,b){return J.U(a).CF(a,b)}
 J.Oq=function(a){return J.Wx(a).Hp(a)}
 J.PB=function(a,b){return J.U(a).Bf(a,b)}
 J.PD=function(a,b){return J.U(a).Hn(a,b)}
 J.Q7=function(a){return J.rY(a).bS(a)}
-J.QM=function(a,b,c){return J.U(a).Wl(a,b,c)}
+J.QM=function(a,b){return J.U(a).Rg(a,b)}
 J.QY=function(a,b){return J.U(a).WE(a,b)}
 J.Rb=function(a,b,c){return J.U(a).Yw(a,b,c)}
 J.Rw=function(a){return J.U(a).Gp(a)}
@@ -6097,14 +6288,14 @@ J.WB=function(a,b){if(typeof a=="number"&&typeof b=="number")return a+b
 return J.Qc(a).g(a,b)}
 J.WG=function(a){return J.U(a).pC(a)}
 J.X6=function(a,b,c){return J.U(a).ug(a,b,c)}
+J.Xe=function(a,b,c,d){return J.U(a).Vn(a,b,c,d)}
 J.Zm=function(a){return J.U(a).gHQ(a)}
 J.aF=function(a,b){if(typeof a=="number"&&typeof b=="number")return a-b
 return J.Wx(a).T(a,b)}
-J.aO=function(a,b){return J.U(a).Rg(a,b)}
 J.aS=function(a,b){return J.U(a).Qc(a,b)}
+J.ae=function(a,b,c,d,e,f,g){return J.U(a).qi(a,b,c,d,e,f,g)}
 J.au=function(a,b){return J.U(a).Ev(a,b)}
 J.bu=function(a){return J.U(a).gyw(a)}
-J.c2=function(a,b){return J.U(a).yB(a,b)}
 J.cE=function(a){return J.Wx(a).gG0(a)}
 J.cN=function(a,b,c){return J.U(a).p6(a,b,c)}
 J.cZ=function(a,b,c){return J.U(a).rd(a,b,c)}
@@ -6127,9 +6318,11 @@ if(typeof a!="object")return b!=null&&a===b
 return J.t(a).m(a,b)}
 J.pL=function(a,b,c,d){return J.U(a).d2(a,b,c,d)}
 J.qV=function(a,b,c,d){return J.U(a).On(a,b,c,d)}
+J.rF=function(a,b){return J.U(a).d5(a,b)}
 J.to=function(a,b,c){return J.U(a).v3(a,b,c)}
 J.uH=function(a,b){return J.rY(a).Fr(a,b)}
 J.v1=function(a){return J.t(a).giO(a)}
+J.v6=function(a,b,c,d,e,f,g){return J.U(a).Rv(a,b,c,d,e,f,g)}
 J.vU=function(a,b){if(typeof a=="number"&&typeof b=="number")return a>b
 return J.Wx(a).A(a,b)}
 J.w0=function(a,b,c){return J.U(a).YE(a,b,c)}
@@ -6147,6 +6340,7 @@ C.vB=J.kd.prototype
 C.ol=W.K5.prototype
 C.KZ=new H.hJ()
 C.ZB=new P.yR()
+C.pr=new P.hR()
 C.NU=new P.R8()
 C.RT=new P.a6(0)
 C.BC=new W.I2("contextmenu")
@@ -6351,7 +6545,7 @@ I.$lazy(x,w,v)}})(["Kb","Rs",function(){return H.Td()},"rS","p6",function(){retu
 try{null.$method$($argumentsExpr$)}catch(z){return z.message}}())},"qi","rx",function(){return H.cM(H.S7(void 0))},"rZ","Y9",function(){return H.cM(function(){var $argumentsExpr$='$arguments$'
 try{(void 0).$method$($argumentsExpr$)}catch(z){return z.message}}())},"BX","zO",function(){return H.cM(H.Mj(null))},"tt","Bi",function(){return H.cM(function(){try{null.$method$}catch(z){return z.message}}())},"dt","eA",function(){return H.cM(H.Mj(void 0))},"A7","ko",function(){return H.cM(function(){try{(void 0).$method$}catch(z){return z.message}}())},"rP","Tu",function(){return P.L5(null,null,null,P.KN,P.a2)},"vJ","d3",function(){return P.L5(null,null,null,P.I,P.a2)},"lI","ej",function(){return P.xg()},"nM","Ex",function(){return[]}])
 
-init.metadata=[,];init.types=[{func:""},{func:"",void:true},{func:"",args:[,]},{func:"",args:[,P.I]},{func:"",args:[P.I]},{func:"",void:true,opt:[P.CP]},{func:"",args:[W.Aj]},{func:"",args:[W.J6]},{func:"",args:[W.y6]},{func:"",args:[W.HL]},{func:"",args:[B.KV]},{func:"",args:[B.xK]},{func:"",ret:P.CP},{func:"",args:[{func:"",void:true}]},{func:"",void:true,args:[,],opt:[P.Gz]},{func:"",args:[,],opt:[,]},{func:"",ret:P.a2},{func:"",args:[,P.Gz]},{func:"",void:true,args:[,P.Gz]},{func:"",args:[,,]},{func:"",args:[P.wv,,]},{func:"",ret:P.I,args:[P.KN]},{func:"",args:[P.I,,]},{func:"",ret:P.KN,args:[,]},{func:"",args:[P.KN]},{func:"",args:[P.KN,,]},{func:"",args:[B.co]},{func:"",void:true,args:[{func:"",void:true}]},{func:"",void:true,args:[,]},{func:"",ret:P.a2,args:[,,]},{func:"",ret:P.a2,args:[P.a,P.a]},{func:"",ret:P.KN,args:[P.a]},{func:"",ret:P.I,args:[W.D0]},{func:"",args:[P.w]},];$=null
+init.metadata=[,];init.types=[{func:""},{func:"",void:true},{func:"",args:[,]},{func:"",args:[,P.I]},{func:"",args:[P.I]},{func:"",void:true,opt:[P.CP]},{func:"",args:[W.Aj]},{func:"",args:[W.J6]},{func:"",args:[W.y6]},{func:"",args:[W.HL]},{func:"",args:[B.KV]},{func:"",args:[B.xK]},{func:"",args:[W.Gc]},{func:"",ret:P.CP},{func:"",args:[{func:"",void:true}]},{func:"",void:true,args:[,],opt:[P.Gz]},{func:"",args:[,],opt:[,]},{func:"",ret:P.a2},{func:"",args:[,P.Gz]},{func:"",void:true,args:[,P.Gz]},{func:"",args:[,,]},{func:"",args:[P.wv,,]},{func:"",ret:P.I,args:[P.KN]},{func:"",args:[P.I,,]},{func:"",ret:P.KN,args:[,]},{func:"",args:[P.KN]},{func:"",args:[P.KN,,]},{func:"",args:[B.co]},{func:"",args:[B.KV,P.CP]},{func:"",void:true,args:[{func:"",void:true}]},{func:"",void:true,args:[,]},{func:"",ret:P.a2,args:[,,]},{func:"",ret:P.a2,args:[P.a,P.a]},{func:"",ret:P.KN,args:[P.a]},{func:"",ret:P.I,args:[W.D0]},{func:"",args:[P.w]},];$=null
 I = I.$finishIsolateConstructor(I)
 $=new I()
 function convertToFastObject(a){function MyClass(){}MyClass.prototype=a
@@ -6428,6 +6622,6 @@ return}if(document.currentScript){a(document.currentScript)
 return}var z=document.scripts
 function onLoad(b){for(var x=0;x<z.length;++x)z[x].removeEventListener("load",onLoad,false)
 a(b.target)}for(var y=0;y<z.length;++y)z[y].addEventListener("load",onLoad,false)})(function(a){init.currentScript=a
-if(typeof dartMainRunner==="function")dartMainRunner(function(b){H.Rq(S.ao(),b)},[])
-else (function(b){H.Rq(S.ao(),b)})([])})
+if(typeof dartMainRunner==="function")dartMainRunner(function(b){H.Rq(F.ao(),b)},[])
+else (function(b){H.Rq(F.ao(),b)})([])})
 })()
