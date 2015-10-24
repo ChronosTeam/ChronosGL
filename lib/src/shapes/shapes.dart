@@ -16,4 +16,11 @@ class Shapes {
   MeshData createTorusKnot({double radius: 20.0, double tube: 4.0, int segmentsR: 128, int segmentsT: 16, int p: 2, int q: 3, double heightScale: 1.0}) {
     return createTorusKnotInternal(radius: radius, tube: tube, segmentsR: segmentsR, segmentsT: segmentsT, p: p, q: q, heightScale: heightScale);
   }
+
+  MeshData createQuad(int size) {
+    List<double> verts = [-1.0 * size, -1.0 * size, 0.0, 1.0 * size, -1.0 * size, 0.0, 1.0 * size, 1.0 * size, 0.0, -1.0 * size, 1.0 * size, 0.0];
+    List<double> textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
+    List<int> vertexIndices = [0, 1, 2, 0, 2, 3];
+    return new MeshData(vertices: verts, textureCoords: textureCoords, vertexIndices: vertexIndices);
+  }
 }

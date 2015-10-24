@@ -11,23 +11,31 @@ void main() {
   chronosGL.addAnimatable('orbitCam', orbit);
   
   TextureCache textureCache = chronosGL.getTextureCache();
-  TextureWrapper blockTex = textureCache.add("../gradient.jpg");
+  TextureWrapper gradient = textureCache.add("../gradient.jpg");
 
   //ShaderProgram perlinNoise = chronosGL.createProgram(createPerlinNoiseColorShader(), true);
 
   textureCache.loadAllThenExecute(() {
     
-    Mesh m = chronosGL.shapes.createCube().createMesh().setTexture(blockTex.texture);
+    Mesh ico = chronosGL.shapes.createIcosahedron(3).createMesh().setTexture(gradient.texture);
+    ico.setPos(0, 0, 0);
+    chronosGL.programBasic.add(ico);
+
+    Mesh m = chronosGL.shapes.createCube().createMesh().setTexture(gradient.texture);
     m.setPos(-5, 0, -5);
     chronosGL.programBasic.add(m);
     
-    Mesh ico = chronosGL.shapes.createIcosahedron(3).createMesh().setTexture(blockTex.texture);
-    ico.setPos(5, 0, 5);
-    chronosGL.programBasic.add(ico);
-
-    Mesh cyl = chronosGL.shapes.createIcosahedron(3).createMesh().setTexture(blockTex.texture);
+    Mesh cyl = chronosGL.shapes.createCylinder(3.0, 2.0, 32).createMesh().setTexture(gradient.texture);
     cyl.setPos(5, 0, -5);
     chronosGL.programBasic.add(cyl);
+
+    Mesh quad = chronosGL.shapes.createQuad(2).createMesh().setTexture(gradient.texture);
+    quad.setPos(-5, 0, 5);
+    chronosGL.programBasic.add(quad);
+
+    Mesh torus = chronosGL.shapes.createTorusKnot(radius:1.0, tube:0.4).createMesh().setTexture(gradient.texture);
+    torus.setPos(5, 0, 5);
+    chronosGL.programBasic.add(torus);
 
     chronosGL.getUtils().addParticles(2000, 100);
     chronosGL.run();
