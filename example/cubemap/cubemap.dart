@@ -11,7 +11,7 @@ void main() {
 
     chronosGL.getUtils().addSkycube( textureCache.get("stars"));
 
-    Mesh m = chronosGL.getUtils().createCube().multiplyVertices(2).createMesh();
+    Mesh m = chronosGL.shapes.createCube().multiplyVertices(2).createMesh();
     m.textureCube = textureCache.get("stars");
     chronosGL.programs["CubeMap"].add(m);
     

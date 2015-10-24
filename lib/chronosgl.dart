@@ -18,6 +18,7 @@ part "src/camera.dart";
 part "src/utils.dart";
 part "src/mesh.dart";
 part "src/mesh_data.dart";
+part "src/shapes/shapes.dart";
 part "src/shapes/cylinder.dart";
 part "src/shapes/cube.dart";
 part "src/shapes/torusknot.dart";
@@ -73,6 +74,8 @@ class ChronosGL
   ShaderProgram fxProgram; // shortcut
   Matrix4 fxMatrix = new Matrix4(); 
   Matrix4 _pMatrix = new Matrix4();
+  
+  Shapes shapes = new Shapes();
   
   num near=0.1;
   num far=1000;

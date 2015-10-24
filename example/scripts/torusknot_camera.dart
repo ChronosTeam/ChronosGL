@@ -54,7 +54,7 @@ class MyGame {
     TorusKnotCamera tkc = new TorusKnotCamera(camera);
     chronosGL.addAnimatable('tkc', tkc);
     
-    Mesh m = chronosGL.getUtils().addTorusKnot( textureWrapper: blockTex);
+    Mesh m = chronosGL.shapes.createTorusKnot().createMesh().setTexture(blockTex.texture);
     
     CoolTexture ct = new CoolTexture( chronosGL, m);
     chronosGL.addAnimatable('ct', ct);

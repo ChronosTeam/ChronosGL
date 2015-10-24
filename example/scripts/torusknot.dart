@@ -18,11 +18,11 @@ void main() {
 
   textureCache.loadAllThenExecute(() {
     
-    Mesh m1 = chronosGL.getUtils().createTorusKnotMesh( texture: blockTex.texture);
+    Mesh m1 = chronosGL.shapes.createTorusKnot().createMesh().setTexture(blockTex.texture);
     m1.setPos(-50, 0, 0);
     chronosGL.programBasic.add(m1);
 
-    Mesh m2 = chronosGL.getUtils().createTorusKnotMesh();
+    Mesh m2 = chronosGL.shapes.createTorusKnot().createMesh();
     m2.setPos(50, 0, 0);
     perlinNoise.add(m2);
     

@@ -10,7 +10,7 @@ void main() {
   FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
   chronosGL.addAnimatable('flyingCamera', fc);
   
-  MeshData cubeMeshData = chronosGL.getUtils().createCube();
+  MeshData cubeMeshData = chronosGL.shapes.createCube();
   cubeMeshData.multiplyVertices(2);
 
   Mesh cubeMesh = cubeMeshData.createMesh();
@@ -29,7 +29,7 @@ void main() {
 
   chronosGL.pointLightLocation.set(11, 11, 1);
   
-  Mesh ico = chronosGL.getUtils().createIcosahedron().createMesh();
+  Mesh ico = chronosGL.shapes.createIcosahedron().createMesh();
   ico.setPos(11, 11, 1);
   ico.color.set(1,1,0);
   fixedShaderPrg.add(ico);

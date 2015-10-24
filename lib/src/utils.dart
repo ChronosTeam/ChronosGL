@@ -134,7 +134,7 @@ class Utils
   
   void addSkycube(Texture cubeTexture) {
     ShaderProgram cm = chronosGL.createProgram(createCubeMapShader());
-    Mesh m = createCube().multiplyVertices(512).createMesh();
+    Mesh m = createCubeInternal().multiplyVertices(512).createMesh();
     m.textureCube = cubeTexture;
     cm.addFollowCameraObject(m);
   }
@@ -180,29 +180,35 @@ class Utils
     chronosGL.programBasic.addFollowCameraObject(skybox_py);
   }
   
+  @deprecated // use chronosGL.shapes.create...
   MeshData createIcosahedron( [int subdivisions=4]) {
     return new Icosahedron(subdivisions);
   }
   
+  @deprecated // use chronosGL.shapes.create...
   MeshData createCube({double x:1.0, double y:1.0, double z:1.0, double uMin:0.0, double uMax:1.0, double vMin:0.0, double vMax:1.0}) {
     return createCubeInternal(x:x,y:y,z:z, uMin:uMin, uMax:uMax, vMin:vMin, vMax:vMax);
   }
   
+  @deprecated // use chronosGL.shapes.create...
   Mesh createTorusKnotMesh( {double radius:20.0, double tube:4.0, int segmentsR:128, int segmentsT:16, int p:2, int q:3, double heightScale:1.0, Texture texture}) {
-    return new Mesh(createTorusKnot(radius:radius, tube:tube, segmentsR:segmentsR, segmentsT:segmentsT, p:p, q:q, heightScale:heightScale), texture:texture);
+    return new Mesh(createTorusKnotInternal(radius:radius, tube:tube, segmentsR:segmentsR, segmentsT:segmentsT, p:p, q:q, heightScale:heightScale), texture:texture);
   }
   
+  @deprecated // use chronosGL.shapes.create...
   MeshData createTorusKnot( {double radius:20.0, double tube:4.0, int segmentsR:128, int segmentsT:16, int p:2, int q:3, double heightScale:1.0}) {
     return createTorusKnotInternal( radius:radius, tube:tube, segmentsR:segmentsR, segmentsT:segmentsT, p:p, q:q, heightScale:heightScale);
   }
   
+  @deprecated // use chronosGL.shapes.create...
   Mesh addCube( [TextureWrapper textureWrapper]) {
     Texture t;
     if( textureWrapper!=null)
       t = textureWrapper.texture;
-    return chronosGL.programBasic.add( createCube().createMesh().setTexture(t));
+    return chronosGL.programBasic.add( createCubeInternal().createMesh().setTexture(t));
   }
 
+  @deprecated // use chronosGL.shapes.create...
   Mesh addTorusKnot(  {double radius:20.0, double tube:4.0, int segmentsR:128, int segmentsT:16, int p:2, int q:3, double heightScale:1.0, TextureWrapper textureWrapper}) {
     Texture t;
     if( textureWrapper!=null)

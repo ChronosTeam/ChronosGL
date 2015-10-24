@@ -28,7 +28,7 @@ A scene graph for WebGL written in Dart
 
 # Some basic ideas:
 
-* ChronosGL contains getters for all important objects.
+* ChronosGL contains getters for all important objects: Make it easy to find everything using code completion.
 * The main loop iterates over all ShaderPrograms
 * A ShaderProgam contains all Meshes that shall use its Shader
 * Camera extends Spatial
@@ -84,7 +84,7 @@ replace your main.dart file with this:
 	  chronosGL.addAnimatable('orbitCam', orbit);
 	  
 	  ShaderProgram prg = chronosGL.createProgram( createDemoShader());
-	  Mesh m = chronosGL.getUtils().createTorusKnotMesh();
+	  Mesh m = chronosGL.shapes.createTorusKnot().createMesh();
 	  prg.add( m);
       
 	  chronosGL.getUtils().addParticles(2000, 100);

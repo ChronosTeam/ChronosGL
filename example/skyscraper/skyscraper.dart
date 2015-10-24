@@ -62,7 +62,7 @@ void main() {
   
   // Sky Sphere
   ShaderProgram skyprg = chronosGL.createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
-  MeshData md = chronosGL.getUtils().createIcosahedron(3).multiplyVertices(100);
+  MeshData md = chronosGL.shapes.createIcosahedron(3).multiplyVertices(100);
   Mesh m = md.createMesh();
   skyprg.add(m);
 
@@ -71,7 +71,7 @@ void main() {
   for (int x = -10; x < 10; x += 4) {
     for (int z = -10; z < 10; z += 4) {
       // 0.01 and 0.99 is to remove some artifacts on the edges
-      MeshData md = chronosGL.getUtils().createCube(x: 1.0, y: 2.0, z: 1.0, uMin: 0.01, uMax: 0.99, vMin: 0.01, vMax: 0.99);
+      MeshData md = chronosGL.shapes.createCube(x: 1.0, y: 2.0, z: 1.0, uMin: 0.01, uMax: 0.99, vMin: 0.01, vMax: 0.99);
       md.textureCoords[17]=0.01; // remove top face uv coords so the top of the SkySraper has no windows
       md.textureCoords[20]=0.01;
       md.textureCoords[22]=0.01;

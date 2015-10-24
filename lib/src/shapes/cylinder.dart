@@ -3,7 +3,7 @@ part of chronosgl;
 // single color cylinder
 // uv mapping is weird to help with debugging
 
-MeshData createCylinder( double radius, double height, int radialSubdivisions) {
+MeshData createCylinderInternal( double radius, double height, int radialSubdivisions) {
   
   double halfHeight = height / 2;
   

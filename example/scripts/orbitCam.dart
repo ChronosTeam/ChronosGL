@@ -12,7 +12,7 @@ void main() {
     orbit.azimuth+=0.001;
   });
   
-  MeshData sphere = chronosGL.getUtils().createIcosahedron();
+  MeshData sphere = chronosGL.shapes.createIcosahedron();
 
   Mesh head = sphere.createMesh();
   head.color.set(0.94, 0.72, 0.63);

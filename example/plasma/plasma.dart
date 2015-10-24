@@ -17,7 +17,7 @@ void main() {
   });
   chronosGL.addAnimatable('orbitCam', orbit);
     
-  MeshData md = chronosGL.getUtils().createCube();
+  MeshData md = chronosGL.shapes.createCube();
   for( int i=0; i<md.vertices.length;i++) {
     md.vertices[i] = md.vertices[i]*10;
   }
