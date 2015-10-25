@@ -3,7 +3,6 @@ import 'package:chronosgl/chronosgl.dart';
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
   TextureCache textureCache = chronosGL.getTextureCache();
-  textureCache.addSolidColor("red", "rgba(255,0,0,255)");
   textureCache.addCube("stars", "skybox_", ".png");
   textureCache.loadAllThenExecute(() {
     chronosGL.installOrbitCamera(15.0);

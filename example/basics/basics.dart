@@ -8,9 +8,10 @@ void main() {
   chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
     orbit.azimuth += 0.001;
   });
-  chronosGL.addAnimatable('orbitCam', orbit);
-
+  chronosGL.addAnimatable('OrbitCam', orbit);
+  
   TextureCache textureCache = chronosGL.getTextureCache();
+  textureCache.addSolidColor("red", "rgba(255,0,0,1)");
   TextureWrapper gradient = textureCache.add("../gradient.jpg");
 
   //ShaderProgram perlinNoise = chronosGL.createProgram(createPerlinNoiseColorShader(), true);
@@ -20,9 +21,9 @@ void main() {
     ico.setPos(0, 0, 0);
     chronosGL.programBasic.add(ico);
 
-    Mesh m = chronosGL.shapes.createCube().createMesh().setTexture(gradient.texture);
-    m.setPos(-5, 0, -5);
-    chronosGL.programBasic.add(m);
+    Mesh cube = chronosGL.shapes.createCube().createMesh().setTexture(gradient.texture);
+    cube.setPos(-5, 0, -5);
+    chronosGL.programBasic.add(cube);
 
     Mesh cyl = chronosGL.shapes.createCylinder(3.0, 2.0, 32).createMesh().setTexture(gradient.texture);
     cyl.setPos(5, 0, -5);

@@ -39,6 +39,7 @@ part "src/shader/plasma_shader.dart";
 part "src/shader/generate_shader.dart";
 
 abstract class Animatable {
+  bool active=true;
   void animate(double elapsed);
 }
 
@@ -111,7 +112,7 @@ class ChronosGL {
     //print( gl.getSupportedExtensions());
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    if (transparent) {
+    if (transparent) { // a gloabl transapreny setting is probably not the right approach. consider removing this
       gl.enable(BLEND);
       gl.blendFunc(SRC_ALPHA, DST_COLOR);
     } else {
@@ -171,7 +172,8 @@ class ChronosGL {
 
   void animate(num timeNow, double elapsed) {
     for (Animatable a in animatables.values) {
-      a.animate(elapsed);
+      if(a.active)
+        a.animate(elapsed);
     }
     for (Function f in animateCallbacks.values) {
       f(elapsed, timeNow);
