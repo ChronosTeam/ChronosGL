@@ -144,14 +144,7 @@ class Icosahedron extends MeshData {
 
     // face.vertexNormals.push( v1.clone().normalize(), v2.clone().normalize(), v3.clone().normalize() );
 
-    scope.textureCoords.addAll([
-      getU2(v1[2], v1[0]),
-      getV2(v1[1]),
-      getU2(v2[2], v2[0]),
-      getV2(v2[1]),
-      getU2(v3[2], v3[0]),
-      getV2(v3[1])
-    ]);
+    scope.textureCoords.addAll([getU2(v1[2], v1[0]), getV2(v1[1]), getU2(v2[2], v2[0]), getV2(v2[1]), getU2(v3[2], v3[0]), getV2(v3[1])]);
   }
 
   int getMiddlePoint(int p1, int p2) {

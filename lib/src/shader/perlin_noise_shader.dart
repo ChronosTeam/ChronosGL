@@ -65,8 +65,7 @@ const String fs_precision = "precision mediump float;\n";
 
 // this shader is build for use with an icosahedron
 ShaderObject createPerlinNoiseColorShader([bool blackVariant]) {
-  ShaderObject shaderObject = new ShaderObject(
-      (blackVariant == true ? "Black" : "") + "PerlinNoiseColor");
+  ShaderObject shaderObject = new ShaderObject((blackVariant == true ? "Black" : "") + "PerlinNoiseColor");
 
   shaderObject.vertexShader = fs_precision + perlinNoisefunctions + """
       attribute vec3 aVertexPosition;
@@ -87,10 +86,7 @@ ShaderObject createPerlinNoiseColorShader([bool blackVariant]) {
       }
       """;
 
-  shaderObject.fragmentShader = fs_precision +
-      perlinNoisefunctions +
-      (blackVariant == true ? "#define BLACK 1\n" : "") +
-      """
+  shaderObject.fragmentShader = fs_precision + perlinNoisefunctions + (blackVariant == true ? "#define BLACK 1\n" : "") + """
 
 varying vec3 vNormal;
 uniform mat4 uTMatrix;

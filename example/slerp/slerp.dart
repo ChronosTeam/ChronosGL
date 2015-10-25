@@ -17,8 +17,7 @@ void main() {
     //n.matrix.scale(0.02);
 
     Quaternion start = new Quaternion().fromRotationMatrix4(n.transform);
-    Quaternion end =
-        new Quaternion().setAxisAngle(new Vector(0.0, 0.0, 1.0), 3.14);
+    Quaternion end = new Quaternion().setAxisAngle(new Vector(0.0, 0.0, 1.0), 3.14);
     Quaternion work = new Quaternion();
     double time = 0.0;
 

@@ -2,8 +2,7 @@ import 'dart:html' as html;
 import 'package:chronosgl/chronosgl.dart';
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
-      useFramebuffer: false, fxShader: createPlasmaShader3());
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas', useFramebuffer: false, fxShader: createPlasmaShader3());
 
   List<ShaderProgram> prgs = new List<ShaderProgram>();
   prgs.add(chronosGL.createProgram(createPlasmaShader()));

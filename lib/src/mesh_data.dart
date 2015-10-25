@@ -9,8 +9,7 @@ class MeshData {
   List<int> vertexIndices;
   bool isOptimized = false;
 
-  MeshData({this.vertices, this.colors, this.textureCoords, this.normals,
-      this.binormals, this.vertexIndices});
+  MeshData({this.vertices, this.colors, this.textureCoords, this.normals, this.binormals, this.vertexIndices});
 
   MeshData.empty() {
     vertices = new List<double>();
@@ -22,26 +21,18 @@ class MeshData {
   }
 
   void optimize() {
-    if (!(vertices is Float32List)) vertices =
-        new Float32List.fromList(vertices);
+    if (!(vertices is Float32List)) vertices = new Float32List.fromList(vertices);
 
-    if (colors != null && !(colors is Float32List)) colors =
-        new Float32List.fromList(colors);
+    if (colors != null && !(colors is Float32List)) colors = new Float32List.fromList(colors);
 
-    if (textureCoords != null &&
-        !(textureCoords is Float32List)) textureCoords =
-        new Float32List.fromList(textureCoords);
+    if (textureCoords != null && !(textureCoords is Float32List)) textureCoords = new Float32List.fromList(textureCoords);
 
-    if (normals != null && !(normals is Float32List)) normals =
-        new Float32List.fromList(normals);
+    if (normals != null && !(normals is Float32List)) normals = new Float32List.fromList(normals);
 
-    if (binormals != null && !(binormals is Float32List)) binormals =
-        new Float32List.fromList(binormals);
+    if (binormals != null && !(binormals is Float32List)) binormals = new Float32List.fromList(binormals);
 
     if (vertexIndices != null && !(vertexIndices is TypedData)) {
-      vertexIndices = ChronosGL.useElementIndexUint
-          ? new Uint32List.fromList(vertexIndices)
-          : new Uint16List.fromList(vertexIndices);
+      vertexIndices = ChronosGL.useElementIndexUint ? new Uint32List.fromList(vertexIndices) : new Uint16List.fromList(vertexIndices);
     }
     isOptimized = true;
   }

@@ -68,65 +68,42 @@ class ShaderProgram implements Drawable {
     gl = chronosGL.getRenderingContext();
 
     ShaderUtils su = new ShaderUtils(gl);
-    program =
-        su.getProgram(shaderObject.vertexShader, shaderObject.fragmentShader);
+    program = su.getProgram(shaderObject.vertexShader, shaderObject.fragmentShader);
 
-    vertexPositionAttribute =
-        gl.getAttribLocation(program, shaderObject.vertexPositionAttribute);
+    vertexPositionAttribute = gl.getAttribLocation(program, shaderObject.vertexPositionAttribute);
 
-    if (shaderObject.colorsAttribute != null) colorsAttribute =
-        gl.getAttribLocation(program, shaderObject.colorsAttribute);
+    if (shaderObject.colorsAttribute != null) colorsAttribute = gl.getAttribLocation(program, shaderObject.colorsAttribute);
 
-    if (shaderObject.textureCoordinatesAttribute !=
-        null) textureCoordAttribute =
-        gl.getAttribLocation(program, shaderObject.textureCoordinatesAttribute);
+    if (shaderObject.textureCoordinatesAttribute != null) textureCoordAttribute = gl.getAttribLocation(program, shaderObject.textureCoordinatesAttribute);
 
-    if (shaderObject.normalAttribute != null) normalAttribute =
-        gl.getAttribLocation(program, shaderObject.normalAttribute);
+    if (shaderObject.normalAttribute != null) normalAttribute = gl.getAttribLocation(program, shaderObject.normalAttribute);
 
-    if (shaderObject.binormalAttribute != null) binormalAttribute =
-        gl.getAttribLocation(program, shaderObject.binormalAttribute);
+    if (shaderObject.binormalAttribute != null) binormalAttribute = gl.getAttribLocation(program, shaderObject.binormalAttribute);
 
-    perpectiveMatrixUniform =
-        getUniformLocation(shaderObject.perpectiveMatrixUniform);
-    modelViewMatrixUniform =
-        getUniformLocation(shaderObject.modelViewMatrixUniform);
+    perpectiveMatrixUniform = getUniformLocation(shaderObject.perpectiveMatrixUniform);
+    modelViewMatrixUniform = getUniformLocation(shaderObject.modelViewMatrixUniform);
 
-    if (shaderObject.viewMatrixUniform != null) viewMatrixUniform =
-        getUniformLocation(shaderObject.viewMatrixUniform);
+    if (shaderObject.viewMatrixUniform != null) viewMatrixUniform = getUniformLocation(shaderObject.viewMatrixUniform);
 
-    if (shaderObject.textureSamplerUniform != null) textureSamplerUniform =
-        getUniformLocation(shaderObject.textureSamplerUniform);
+    if (shaderObject.textureSamplerUniform != null) textureSamplerUniform = getUniformLocation(shaderObject.textureSamplerUniform);
 
-    if (shaderObject.texture2SamplerUniform != null) texture2SamplerUniform =
-        getUniformLocation(shaderObject.texture2SamplerUniform);
+    if (shaderObject.texture2SamplerUniform != null) texture2SamplerUniform = getUniformLocation(shaderObject.texture2SamplerUniform);
 
-    if (shaderObject.textureCubeSamplerUniform !=
-        null) textureCubeSamplerUniform =
-        getUniformLocation(shaderObject.textureCubeSamplerUniform);
+    if (shaderObject.textureCubeSamplerUniform != null) textureCubeSamplerUniform = getUniformLocation(shaderObject.textureCubeSamplerUniform);
 
-    if (shaderObject.colorUniform != null) colorUniform =
-        getUniform(shaderObject.colorUniform);
+    if (shaderObject.colorUniform != null) colorUniform = getUniform(shaderObject.colorUniform);
 
-    if (shaderObject.cameraNear != null) cameraNear =
-        getUniformLocation(shaderObject.cameraNear);
+    if (shaderObject.cameraNear != null) cameraNear = getUniformLocation(shaderObject.cameraNear);
 
-    if (shaderObject.cameraFar != null) cameraFar =
-        getUniformLocation(shaderObject.cameraFar);
+    if (shaderObject.cameraFar != null) cameraFar = getUniformLocation(shaderObject.cameraFar);
 
-    if (shaderObject.canvasSize != null) size =
-        getUniformLocation(shaderObject.canvasSize);
+    if (shaderObject.canvasSize != null) size = getUniformLocation(shaderObject.canvasSize);
 
-    if (shaderObject.transformationMatrixUniform !=
-        null) transformationMatrixUniform =
-        getUniformLocation(shaderObject.transformationMatrixUniform);
+    if (shaderObject.transformationMatrixUniform != null) transformationMatrixUniform = getUniformLocation(shaderObject.transformationMatrixUniform);
 
-    if (shaderObject.timeUniform != null) timeUniform =
-        getUniformLocation(shaderObject.timeUniform);
+    if (shaderObject.timeUniform != null) timeUniform = getUniformLocation(shaderObject.timeUniform);
 
-    if (shaderObject.pointLightLocationUniform !=
-        null) pointLightLocationUniform =
-        getUniform(shaderObject.pointLightLocationUniform);
+    if (shaderObject.pointLightLocationUniform != null) pointLightLocationUniform = getUniform(shaderObject.pointLightLocationUniform);
   }
 
   int getAttributeLocation(String name) {
@@ -178,40 +155,30 @@ class ShaderProgram implements Drawable {
     gl.useProgram(program);
     gl.enableVertexAttribArray(vertexPositionAttribute);
 
-    if (shaderObject.colorsAttribute != null) gl
-        .enableVertexAttribArray(colorsAttribute);
-    if (shaderObject.textureCoordinatesAttribute != null) gl
-        .enableVertexAttribArray(textureCoordAttribute);
-    if (shaderObject.normalAttribute != null) gl
-        .enableVertexAttribArray(normalAttribute);
-    if (shaderObject.binormalAttribute != null) gl
-        .enableVertexAttribArray(binormalAttribute);
+    if (shaderObject.colorsAttribute != null) gl.enableVertexAttribArray(colorsAttribute);
+    if (shaderObject.textureCoordinatesAttribute != null) gl.enableVertexAttribArray(textureCoordAttribute);
+    if (shaderObject.normalAttribute != null) gl.enableVertexAttribArray(normalAttribute);
+    if (shaderObject.binormalAttribute != null) gl.enableVertexAttribArray(binormalAttribute);
     //print( "error: ${gl.getError()}" );
 
     //print( "pM: ${pMatrix} ${pMatrixUniform}" );
 
-    if (shaderObject.perpectiveMatrixUniform != null) gl.uniformMatrix4fv(
-        perpectiveMatrixUniform, false, pMatrix.array);
+    if (shaderObject.perpectiveMatrixUniform != null) gl.uniformMatrix4fv(perpectiveMatrixUniform, false, pMatrix.array);
 
-    if (shaderObject.timeUniform != null) gl.uniform1f(
-        timeUniform, timeNow / 1000);
+    if (shaderObject.timeUniform != null) gl.uniform1f(timeUniform, timeNow / 1000);
 
-    if (shaderObject.pointLightLocationUniform !=
-        null) pointLightLocationUniform
-            .setValue3fv(chronosGL.pointLightLocation);
+    if (shaderObject.pointLightLocationUniform != null) pointLightLocationUniform.setValue3fv(chronosGL.pointLightLocation);
 
     Camera camera = chronosGL.getCamera();
     camera.getMVMatrix(mvMatrix, false);
 
-    if (shaderObject.cameraNear != null) gl.uniform1f(
-        cameraNear, chronosGL.near);
+    if (shaderObject.cameraNear != null) gl.uniform1f(cameraNear, chronosGL.near);
     ;
 
     if (shaderObject.cameraFar != null) gl.uniform1f(cameraFar, chronosGL.far);
     ;
 
-    if (shaderObject.canvasSize != null) gl.uniform2f(
-        size, chronosGL._canvas.clientWidth, chronosGL._canvas.clientHeight);
+    if (shaderObject.canvasSize != null) gl.uniform2f(size, chronosGL._canvas.clientWidth, chronosGL._canvas.clientHeight);
 
     //print( "mvM: ${mvMatrix}");
 
@@ -219,8 +186,7 @@ class ShaderProgram implements Drawable {
 
     camera.getMVMatrix(mvMatrix, true);
 
-    if (shaderObject.viewMatrixUniform != null) gl.uniformMatrix4fv(
-        viewMatrixUniform, false, mvMatrix.array);
+    if (shaderObject.viewMatrixUniform != null) gl.uniformMatrix4fv(viewMatrixUniform, false, mvMatrix.array);
 
     if (overrideMvMatrix != null) {
       mvMatrix.setElements(overrideMvMatrix);
@@ -232,14 +198,10 @@ class ShaderProgram implements Drawable {
 
     gl.disableVertexAttribArray(vertexPositionAttribute);
 
-    if (shaderObject.colorsAttribute != null) gl
-        .disableVertexAttribArray(colorsAttribute);
-    if (shaderObject.textureCoordinatesAttribute != null) gl
-        .disableVertexAttribArray(textureCoordAttribute);
-    if (shaderObject.normalAttribute != null) gl
-        .disableVertexAttribArray(normalAttribute);
-    if (shaderObject.binormalAttribute != null) gl
-        .disableVertexAttribArray(binormalAttribute);
+    if (shaderObject.colorsAttribute != null) gl.disableVertexAttribArray(colorsAttribute);
+    if (shaderObject.textureCoordinatesAttribute != null) gl.disableVertexAttribArray(textureCoordAttribute);
+    if (shaderObject.normalAttribute != null) gl.disableVertexAttribArray(normalAttribute);
+    if (shaderObject.binormalAttribute != null) gl.disableVertexAttribArray(binormalAttribute);
   }
 
   void drawInstancers() {

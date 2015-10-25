@@ -14,33 +14,23 @@ class TextureCache {
   }
 
   TextureWrapper add(String url, [bool clamp = false]) {
-    return textureCache[url] =
-        new TextureWrapper(this.gl, clamp: clamp, type: TEXTURE_2D);
+    return textureCache[url] = new TextureWrapper(this.gl, clamp: clamp, type: TEXTURE_2D);
   }
 
-  void addCube(String name, String prefix, String suffix, {bool clamp: false,
-      String nx: "nx", String px: "px", String ny: "ny", String py: "py",
-      String nz: "nz", String pz: "pz"}) {
-    TextureWrapper tw = textureCache[name] =
-        new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP);
+  void addCube(String name, String prefix, String suffix, {bool clamp: false, String nx: "nx", String px: "px", String ny: "ny", String py: "py", String nz: "nz", String pz: "pz"}) {
+    TextureWrapper tw = textureCache[name] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP);
     TextureWrapper temp;
-    temp = textureCache[prefix + nx + suffix] = new TextureWrapper(this.gl,
-        cubemap: true, type: TEXTURE_CUBE_MAP_NEGATIVE_X);
+    temp = textureCache[prefix + nx + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_NEGATIVE_X);
     tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + px + suffix] = new TextureWrapper(this.gl,
-        cubemap: true, type: TEXTURE_CUBE_MAP_POSITIVE_X);
+    temp = textureCache[prefix + px + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_POSITIVE_X);
     tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + ny + suffix] = new TextureWrapper(this.gl,
-        cubemap: true, type: TEXTURE_CUBE_MAP_NEGATIVE_Y);
+    temp = textureCache[prefix + ny + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_NEGATIVE_Y);
     tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + py + suffix] = new TextureWrapper(this.gl,
-        cubemap: true, type: TEXTURE_CUBE_MAP_POSITIVE_Y);
+    temp = textureCache[prefix + py + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_POSITIVE_Y);
     tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + nz + suffix] = new TextureWrapper(this.gl,
-        cubemap: true, type: TEXTURE_CUBE_MAP_NEGATIVE_Z);
+    temp = textureCache[prefix + nz + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_NEGATIVE_Z);
     tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + pz + suffix] = new TextureWrapper(this.gl,
-        cubemap: true, type: TEXTURE_CUBE_MAP_POSITIVE_Z);
+    temp = textureCache[prefix + pz + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_POSITIVE_Z);
     tw.cubeTextureChildren.add(temp);
 
     tw.loaded = true;
@@ -56,8 +46,7 @@ class TextureCache {
   TextureWrapper addCanvas(String url, HTML.CanvasElement canvas) {
     TextureWrapper tw = new TextureWrapper(this.gl, clamp: false);
     tw.loaded = true;
-    tw.texture = chronosGL.getUtils().createTextureFromCanvas(canvas,
-        minFilter: minFilter, magFilter: magFilter, mipmap: mipmap);
+    tw.texture = chronosGL.getUtils().createTextureFromCanvas(canvas, minFilter: minFilter, magFilter: magFilter, mipmap: mipmap);
     return textureCache[url] = tw;
   }
 
@@ -88,11 +77,9 @@ class TextureCache {
     Future.wait(futures).then((List list) {
       for (String url in textureCache.keys) {
         TextureWrapper textureWrapper = textureCache[url];
-        if (textureWrapper.loaded &&
-            textureWrapper.type != TEXTURE_CUBE_MAP) continue;
+        if (textureWrapper.loaded && textureWrapper.type != TEXTURE_CUBE_MAP) continue;
 
-        if (textureWrapper.cubemap &&
-            textureWrapper.type != TEXTURE_CUBE_MAP) continue;
+        if (textureWrapper.cubemap && textureWrapper.type != TEXTURE_CUBE_MAP) continue;
 
         gl.bindTexture(textureWrapper.type, textureWrapper.texture);
 
@@ -104,8 +91,7 @@ class TextureCache {
         gl.texParameteri(textureWrapper.type, TEXTURE_MIN_FILTER, minFilter);
 
         if (textureWrapper.clamp) {
-          gl.texParameteri(textureWrapper.type, TEXTURE_WRAP_S,
-              CLAMP_TO_EDGE); // this fixes glitches on skybox seams
+          gl.texParameteri(textureWrapper.type, TEXTURE_WRAP_S, CLAMP_TO_EDGE); // this fixes glitches on skybox seams
           gl.texParameteri(textureWrapper.type, TEXTURE_WRAP_T, CLAMP_TO_EDGE);
         }
 
@@ -114,8 +100,7 @@ class TextureCache {
             gl.texImage2DImage(tw.type, 0, RGBA, RGBA, UNSIGNED_BYTE, tw.image);
           }
         } else {
-          gl.texImage2DImage(textureWrapper.type, 0, RGBA, RGBA, UNSIGNED_BYTE,
-              textureWrapper.image);
+          gl.texImage2DImage(textureWrapper.type, 0, RGBA, RGBA, UNSIGNED_BYTE, textureWrapper.image);
         }
 
         if (mipmap) {
@@ -154,8 +139,7 @@ class TextureWrapper {
   int type;
   List<TextureWrapper> cubeTextureChildren = new List<TextureWrapper>();
 
-  TextureWrapper(RenderingContext gl,
-      {this.clamp: false, this.cubemap: false, this.type: TEXTURE_2D}) {
+  TextureWrapper(RenderingContext gl, {this.clamp: false, this.cubemap: false, this.type: TEXTURE_2D}) {
     texture = gl.createTexture();
   }
 

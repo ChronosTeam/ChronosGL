@@ -26,16 +26,13 @@ ShaderObject generateShader(ShaderObject shaderObject) {
 
   vs += shaderObject.vertexShaderHeader + "\n";
   vs += "void main(void) {\n";
-  vs +=
-      "gl_Position = ${shaderObject.perpectiveMatrixUniform} * ${shaderObject.modelViewMatrixUniform} * vec4(${shaderObject.vertexPositionAttribute}, 1.0);\n";
+  vs += "gl_Position = ${shaderObject.perpectiveMatrixUniform} * ${shaderObject.modelViewMatrixUniform} * vec4(${shaderObject.vertexPositionAttribute}, 1.0);\n";
 
   if (shaderObject.textureCoordinatesAttribute != null) {
-    vs +=
-        "v${shaderObject.textureCoordinatesAttribute} = ${shaderObject.textureCoordinatesAttribute};\n";
+    vs += "v${shaderObject.textureCoordinatesAttribute} = ${shaderObject.textureCoordinatesAttribute};\n";
   }
   if (shaderObject.colorsAttribute != null) {
-    vs +=
-        "v${shaderObject.colorsAttribute} = ${shaderObject.colorsAttribute};\n";
+    vs += "v${shaderObject.colorsAttribute} = ${shaderObject.colorsAttribute};\n";
   }
   vs += shaderObject.vertexShaderBody;
 

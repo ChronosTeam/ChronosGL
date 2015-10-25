@@ -16,36 +16,23 @@ void main() {
   //ShaderProgram perlinNoise = chronosGL.createProgram(createPerlinNoiseColorShader(), true);
 
   textureCache.loadAllThenExecute(() {
-    Mesh ico = chronosGL.shapes
-        .createIcosahedron(3)
-        .createMesh()
-        .setTexture(gradient.texture);
+    Mesh ico = chronosGL.shapes.createIcosahedron(3).createMesh().setTexture(gradient.texture);
     ico.setPos(0, 0, 0);
     chronosGL.programBasic.add(ico);
 
-    Mesh m =
-        chronosGL.shapes.createCube().createMesh().setTexture(gradient.texture);
+    Mesh m = chronosGL.shapes.createCube().createMesh().setTexture(gradient.texture);
     m.setPos(-5, 0, -5);
     chronosGL.programBasic.add(m);
 
-    Mesh cyl = chronosGL.shapes
-        .createCylinder(3.0, 2.0, 32)
-        .createMesh()
-        .setTexture(gradient.texture);
+    Mesh cyl = chronosGL.shapes.createCylinder(3.0, 2.0, 32).createMesh().setTexture(gradient.texture);
     cyl.setPos(5, 0, -5);
     chronosGL.programBasic.add(cyl);
 
-    Mesh quad = chronosGL.shapes
-        .createQuad(2)
-        .createMesh()
-        .setTexture(gradient.texture);
+    Mesh quad = chronosGL.shapes.createQuad(2).createMesh().setTexture(gradient.texture);
     quad.setPos(-5, 0, 5);
     chronosGL.programBasic.add(quad);
 
-    Mesh torus = chronosGL.shapes
-        .createTorusKnot(radius: 1.0, tube: 0.4)
-        .createMesh()
-        .setTexture(gradient.texture);
+    Mesh torus = chronosGL.shapes.createTorusKnot(radius: 1.0, tube: 0.4).createMesh().setTexture(gradient.texture);
     torus.setPos(5, 0, 5);
     chronosGL.programBasic.add(torus);
 

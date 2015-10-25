@@ -13,8 +13,7 @@ ShaderObject createPlasmaShader() {
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
   shaderObject.timeUniform = "u_time";
 
-  shaderObject.fragmentShaderHeader =
-      "#define PI 3.1415926535897932384626433832795\n vec2 u_k = vec2(10.0,10.0);\n";
+  shaderObject.fragmentShaderHeader = "#define PI 3.1415926535897932384626433832795\n vec2 u_k = vec2(10.0,10.0);\n";
 
   shaderObject.fragmentShaderBody = """
     float v = 0.0;

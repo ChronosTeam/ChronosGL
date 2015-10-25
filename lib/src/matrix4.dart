@@ -47,8 +47,7 @@ class Matrix4 {
     return this;
   }
 
-  void frustum(double left, double right, double bottom, double top,
-      double near, double far) {
+  void frustum(double left, double right, double bottom, double top, double near, double far) {
     double rl = (right - left),
         tb = (top - bottom),
         fn = (far - near);
@@ -99,8 +98,7 @@ class Matrix4 {
         b09 = a21 * a32 - a22 * a31,
         b10 = a21 * a33 - a23 * a31,
         b11 = a22 * a33 - a23 * a32,
-        d =
-        (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06),
+        d = (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06),
         invDet;
 
     // Calculate the determinant

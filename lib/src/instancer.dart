@@ -81,8 +81,7 @@ class Instancer {
   }
 
   void draw(ShaderProgram program, Matrix4 mvMatrix) {
-    AngleInstancedArrays extension = ChronosGL.globalGL
-        .getExtension("ANGLE_instanced_arrays"); // Vendor prefixes may apply!
+    AngleInstancedArrays extension = ChronosGL.globalGL.getExtension("ANGLE_instanced_arrays"); // Vendor prefixes may apply!
 
     mesh.bindBuffers(program);
     mesh.bindTextures(program);
@@ -99,8 +98,7 @@ class Instancer {
     int transLocation = program.getAttributeLocation("trans");
     gl.enableVertexAttribArray(transLocation);
     gl.vertexAttribPointer(transLocation, 3, FLOAT, false, 0, 0);
-    extension.vertexAttribDivisorAngle(
-        transLocation, 1); // This makes it instanced!
+    extension.vertexAttribDivisorAngle(transLocation, 1); // This makes it instanced!
 
     // Bind the instance rotation data
     gl.bindBuffer(ARRAY_BUFFER, rotationsBuffer);
@@ -108,8 +106,7 @@ class Instancer {
     int rotLocation = program.getAttributeLocation("rot");
     gl.enableVertexAttribArray(rotLocation);
     gl.vertexAttribPointer(rotLocation, 4, FLOAT, false, 0, 0);
-    extension.vertexAttribDivisorAngle(
-        rotLocation, 1); // This makes it instanced!
+    extension.vertexAttribDivisorAngle(rotLocation, 1); // This makes it instanced!
 
     // Bind the instance color data
     //gl.bindBuffer(ARRAY_BUFFER, colorBuffer);
@@ -121,13 +118,10 @@ class Instancer {
 
     if (mesh.vertexIndexBuffer == null) {
       print("arg");
-      extension.drawArraysInstancedAngle(
-          TRIANGLES, 0, mesh.numItems, this.count);
+      extension.drawArraysInstancedAngle(TRIANGLES, 0, mesh.numItems, this.count);
     } else {
       gl.bindBuffer(ELEMENT_ARRAY_BUFFER, mesh.vertexIndexBuffer);
-      extension.drawElementsInstancedAngle(TRIANGLES, mesh.numItems,
-          ChronosGL.useElementIndexUint ? UNSIGNED_INT : UNSIGNED_SHORT, 0,
-          this.count);
+      extension.drawElementsInstancedAngle(TRIANGLES, mesh.numItems, ChronosGL.useElementIndexUint ? UNSIGNED_INT : UNSIGNED_SHORT, 0, this.count);
     }
 
     extension.vertexAttribDivisorAngle(transLocation, 0);

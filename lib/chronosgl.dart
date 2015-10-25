@@ -57,8 +57,7 @@ class ChronosGL {
 
   Map<String, ShaderProgram> programs = new Map<String, ShaderProgram>();
   Map<String, Animatable> animatables = new Map<String, Animatable>();
-  Map<String, AnimateCallback> animateCallbacks =
-      new Map<String, AnimateCallback>();
+  Map<String, AnimateCallback> animateCallbacks = new Map<String, AnimateCallback>();
 
   ShaderProgram programBasic; // shortcut
 
@@ -80,9 +79,7 @@ class ChronosGL {
 
   Vector pointLightLocation = new Vector();
 
-  ChronosGL(dynamic canvasOrID, {bool transparent: false,
-      bool useFramebuffer: false, ShaderObject fxShader, this.near: 0.1,
-      this.far: 1000.0, bool useElementIndexUint: false}) {
+  ChronosGL(dynamic canvasOrID, {bool transparent: false, bool useFramebuffer: false, ShaderObject fxShader, this.near: 0.1, this.far: 1000.0, bool useElementIndexUint: false}) {
     if (canvasOrID is HTML.CanvasElement) {
       _canvas = canvasOrID;
     } else {
@@ -99,8 +96,7 @@ class ChronosGL {
     //_aspect = _canvas.clientWidth / _canvas.clientHeight;
     gl = _canvas.getContext("experimental-webgl");
     if (gl == null) {
-      throw new Exception(
-          'calling canvas.getContext("experimental-webgl") failed, make sure you run on a computer that supports WebGL, test here: http://get.webgl.org/');
+      throw new Exception('calling canvas.getContext("experimental-webgl") failed, make sure you run on a computer that supports WebGL, test here: http://get.webgl.org/');
     }
     ChronosGL.globalGL = gl;
 
@@ -132,8 +128,7 @@ class ChronosGL {
       fxFramebuffer = new ChronosFramebuffer(gl, _canvas.width, _canvas.height);
       fxWall = _utils.createQuad(fxFramebuffer.colorTexture, 1);
       fxWall.texture2 = fxFramebuffer.depthTexture;
-      fxProgram = new ShaderProgram(
-          this, fxShader == null ? createTexturedShader() : fxShader, 'fx');
+      fxProgram = new ShaderProgram(this, fxShader == null ? createTexturedShader() : fxShader, 'fx');
       fxProgram.add(fxWall);
     }
 
@@ -197,14 +192,12 @@ class ChronosGL {
       gl.bindFramebuffer(FRAMEBUFFER, fxFramebuffer.framebuffer);
     }
 
-    if (_lastWidth != _canvas.clientWidth ||
-        _lastHeight != _canvas.clientHeight) {
+    if (_lastWidth != _canvas.clientWidth || _lastHeight != _canvas.clientHeight) {
       //print("setting viewport ${canvas.clientWidth} x ${canvas.clientHeight}");
       _canvas.width = _canvas.clientWidth;
       _canvas.height = _canvas.clientHeight;
       gl.viewport(0, 0, _canvas.clientWidth, _canvas.clientHeight);
-      _pMatrix.setPerspective(
-          50, _canvas.clientWidth / _canvas.clientHeight, near, far);
+      _pMatrix.setPerspective(50, _canvas.clientWidth / _canvas.clientHeight, near, far);
       _lastWidth = _canvas.clientWidth;
       _lastHeight = _canvas.clientHeight;
     }

@@ -80,8 +80,7 @@ Mesh getRocket(ChronosGL chronosGL) {
 
   MeshData md = new MeshData(vertices: vertices, normals: normals);
 
-  Mesh m = new Mesh(md,
-      drawPoints: true, texture: chronosGL.getUtils().createParticleTexture());
+  Mesh m = new Mesh(md, drawPoints: true, texture: chronosGL.getUtils().createParticleTexture());
   m.color.set(1.0, 0.0, 0.0);
   m.blend = true;
   m.depthWrite = false;

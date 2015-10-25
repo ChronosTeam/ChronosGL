@@ -71,8 +71,7 @@ class Spatial {
 
   void setPosFromSpherical(double radius, double azimuth, double polar) {
     double rcp = radius * Math.cos(polar);
-    setPos(rcp * Math.cos(azimuth), radius * Math.sin(polar),
-        rcp * Math.sin(azimuth));
+    setPos(rcp * Math.cos(azimuth), radius * Math.sin(polar), rcp * Math.sin(azimuth));
   }
 
   void translate(num x, num y, num z, [double factor = 1.0]) {

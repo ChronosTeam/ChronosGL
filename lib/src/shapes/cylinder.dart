@@ -3,8 +3,7 @@ part of chronosgl;
 // single color cylinder
 // uv mapping is weird to help with debugging
 
-MeshData createCylinderInternal(
-    double radius, double height, int radialSubdivisions) {
+MeshData createCylinderInternal(double radius, double height, int radialSubdivisions) {
   double halfHeight = height / 2;
 
   List<double> vertices = new List<double>();
@@ -56,6 +55,5 @@ MeshData createCylinderInternal(
     vertIndices.addAll([p - 1, 3, p - 2]);
   }
 
-  return new MeshData(
-      vertices: vertices, textureCoords: uvs, vertexIndices: vertIndices);
+  return new MeshData(vertices: vertices, textureCoords: uvs, vertexIndices: vertIndices);
 }

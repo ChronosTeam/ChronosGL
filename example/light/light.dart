@@ -24,8 +24,7 @@ void main() {
 
   ShaderProgram lightShaderPrg = chronosGL.createProgram(createLightShader());
   lightShaderPrg.add(cubeMesh);
-  ShaderProgram fixedShaderPrg =
-      chronosGL.createProgram(createSolidColorShader());
+  ShaderProgram fixedShaderPrg = chronosGL.createProgram(createSolidColorShader());
 
   chronosGL.pointLightLocation.set(11, 11, 1);
 
