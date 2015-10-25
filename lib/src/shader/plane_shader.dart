@@ -2,7 +2,7 @@ part of chronosgl;
 
 ShaderObject createPlane2GreyShader() {
   ShaderObject shaderObject = new ShaderObject("Plane2Grey");
-  
+
   shaderObject.vertexShader = """
         precision mediump float;
 
@@ -20,7 +20,7 @@ ShaderObject createPlane2GreyShader() {
           vColor = vec3(d,d,d);
         }
         """;
-  
+
   shaderObject.fragmentShader = """
         precision mediump float;
 
@@ -29,18 +29,18 @@ ShaderObject createPlane2GreyShader() {
           gl_FragColor = vec4( vColor, 1.0 );
         }
         """;
-  
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.normalAttribute = "aNormal";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  
+
   return shaderObject;
 }
 
 ShaderObject createPlane2ColorShader() {
   ShaderObject shaderObject = new ShaderObject("Plane2Color");
-  
+
   shaderObject.vertexShader = """
         precision mediump float;
 
@@ -76,7 +76,7 @@ ShaderObject createPlane2ColorShader() {
           vColor=HSV2RGB(hsv);
         }
         """;
-  
+
   shaderObject.fragmentShader = """
         precision mediump float;
 
@@ -85,12 +85,11 @@ ShaderObject createPlane2ColorShader() {
           gl_FragColor = vec4( vColor, 1.0 );
         }
         """;
-  
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.normalAttribute = "aNormal";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  
+
   return shaderObject;
 }
-

@@ -2,7 +2,7 @@ part of chronosgl;
 
 ShaderObject createSobelShader() {
   ShaderObject shaderObject = new ShaderObject("Sobel");
-  
+
   shaderObject.vertexShader = """
   precision mediump float;
   attribute vec3 aVertexPosition;
@@ -18,7 +18,7 @@ ShaderObject createSobelShader() {
     vTextureCoord = aTextureCoord;
   }
   """;
-  
+
   shaderObject.fragmentShader = """
   precision mediump float;
   
@@ -54,8 +54,8 @@ ShaderObject createSobelShader() {
       gl_FragColor = vec4(len, len, len, 1.0); // 
   }
   """;
-  
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.textureCoordinatesAttribute = "aTextureCoord";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
@@ -63,6 +63,6 @@ ShaderObject createSobelShader() {
   shaderObject.cameraNear = "cameraNear";
   shaderObject.cameraFar = "cameraFar";
   shaderObject.canvasSize = "size";
- 
+
   return shaderObject;
 }

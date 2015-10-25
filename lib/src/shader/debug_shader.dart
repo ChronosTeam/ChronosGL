@@ -6,7 +6,7 @@ ShaderObject createDemoShader() {
 
 ShaderObject createFixedVertexColorShader() {
   ShaderObject shaderObject = new ShaderObject("FixedVertexColor");
-  
+
   shaderObject.vertexShader = """
         precision mediump float;
         attribute vec3 aVertexPosition;
@@ -21,7 +21,7 @@ ShaderObject createFixedVertexColorShader() {
           gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
         }
         """;
-  
+
   shaderObject.fragmentShader = """
         precision mediump float;
         
@@ -31,27 +31,28 @@ ShaderObject createFixedVertexColorShader() {
           gl_FragColor = vec4( vColor, 1. );
         }
         """;
-  
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  
+
   return shaderObject;
 }
 
 ShaderObject createDebugTexCoordsShader() {
   ShaderObject shaderObject = new ShaderObject("DebugTexCoords");
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.textureCoordinatesAttribute = "aTextureCoord";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  shaderObject.fragmentShaderBody = "gl_FragColor = vec4(vaTextureCoord, 0.0, 1.0);";
+  shaderObject.fragmentShaderBody =
+      "gl_FragColor = vec4(vaTextureCoord, 0.0, 1.0);";
   return generateShader(shaderObject);
 }
 
 ShaderObject createDepthShader() {
   ShaderObject shaderObject = new ShaderObject("Depth");
-  
+
   shaderObject.vertexShader = """
         precision mediump float;
         attribute vec3 aVertexPosition;
@@ -67,7 +68,7 @@ ShaderObject createDepthShader() {
           vTextureCoord = aTextureCoord;
         }
         """;
-  
+
   shaderObject.fragmentShader = """
         precision mediump float;
         
@@ -90,8 +91,8 @@ ShaderObject createDepthShader() {
           gl_FragColor = vec4(vec3(linearizeDepth(texel.x)), 1.0);
         }
         """;
-  
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.textureCoordinatesAttribute = "aTextureCoord";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
@@ -99,6 +100,6 @@ ShaderObject createDepthShader() {
   shaderObject.texture2SamplerUniform = "depthSampler";
   shaderObject.cameraNear = "cameraNear";
   shaderObject.cameraFar = "cameraFar";
-    
+
   return shaderObject;
 }

@@ -11,10 +11,10 @@ import 'package:chronosgl/chronosgl.dart';
 
 //https://www.shadertoy.com/view/Md23Rd
 //https://www.shadertoy.com/view/Ms2Gzd
-  
+
 ShaderObject createSphericalGyroidShader() {
   ShaderObject shaderObject = new ShaderObject("SphericalGyroid");
-  
+
   shaderObject.vertexShader = """
         precision mediump float;
         attribute vec3 aVertexPosition;
@@ -26,7 +26,7 @@ ShaderObject createSphericalGyroidShader() {
           gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
         }
         """;
-  
+
   shaderObject.fragmentShader = """
         precision mediump float;
         
@@ -207,23 +207,23 @@ void main(void)
 }
 
         """;
-  
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
   shaderObject.timeUniform = "iGlobalTime";
   shaderObject.canvasSize = "iResolution";
-  
+
   shaderObject.textureSamplerUniform = "iChannel0";
-  
+
   return shaderObject;
 }
 
-
-
 void main() {
-  
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas', useFramebuffer:true, fxShader: createSphericalGyroidShader(), near: 0.1, far:2520.0);
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
+      useFramebuffer: true,
+      fxShader: createSphericalGyroidShader(),
+      near: 0.1,
+      far: 2520.0);
   chronosGL.run();
-  
 }

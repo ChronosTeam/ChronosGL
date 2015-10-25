@@ -3,11 +3,13 @@ part of chronosgl;
 class Camera extends Spatial {
   // Get the model view matrix. The view matrix is the inverse of the camera’s transformation matrix in world-space.
   void getMVMatrix(Matrix4 mvMatrix, bool translate) {
-    transform.toRotationMat(mvMatrix); // why does this seem to be already inverted/transposed ?
+    transform.toRotationMat(
+        mvMatrix); // why does this seem to be already inverted/transposed ?
     if (translate) {
       // The eye position is negated which is equivalent to the inverse of the translation matrix: T(v)^-1 == T(-v)
       // T = translation matrix, v = eye position.
-      mvMatrix.translateLocal(-transform[12], -transform[13], -transform[14]); // short cut for rotationMatrixInverted * translationMatrixInverted, see http://3dgep.com/understanding-the-view-matrix/#Look_At_Camera
+      mvMatrix.translateLocal(-transform[12], -transform[13], -transform[
+          14]); // short cut for rotationMatrixInverted * translationMatrixInverted, see http://3dgep.com/understanding-the-view-matrix/#Look_At_Camera
     }
   }
 }
@@ -25,7 +27,8 @@ class OrbitCamera extends Animatable {
   Map<int, bool> cpk = currentlyPressedKeys;
   Map<String, bool> cpmb = currentlyPressedMouseButtons;
 
-  OrbitCamera(this.camera, this.radius, [this.azimuth = 0.0, this.polar = 0.0]) {
+  OrbitCamera(this.camera, this.radius,
+      [this.azimuth = 0.0, this.polar = 0.0]) {
     HTML.document.onMouseWheel.listen((HTML.WheelEvent e) {
       try {
         double d = e.wheelDeltaY * 0.01;
@@ -39,11 +42,10 @@ class OrbitCamera extends Animatable {
       if (cpmb['left'] != null) {
         //azimuth += e.movement.x*0.01;
         //polar += e.movement.y*0.01;
-        azimuth += (mouseX - mouseDownX)*0.01;
-        polar += (mouseDownY - mouseY)*0.01;
+        azimuth += (mouseX - mouseDownX) * 0.01;
+        polar += (mouseDownY - mouseY) * 0.01;
         mouseDownX = mouseX;
         mouseDownY = mouseY;
-
       }
     });
     HTML.document.onTouchStart.listen((HTML.TouchEvent e) {
@@ -54,8 +56,8 @@ class OrbitCamera extends Animatable {
       //azimuth += e.movement.x*0.01;
       //polar += e.movement.y*0.01;
       HTML.Point p = e.touches[0].client;
-      azimuth += (p.x - mouseDownX)*0.01;
-      polar += (mouseDownY - p.y)*0.01;
+      azimuth += (p.x - mouseDownX) * 0.01;
+      polar += (mouseDownY - p.y) * 0.01;
       mouseDownX = p.x;
       mouseDownY = p.y;
     });
@@ -174,7 +176,6 @@ class FPSCamera extends Animatable {
   int movementY = 0;
 
   FPSCamera(this.camera) {
-
     HTML.document.onMouseDown.listen((HTML.MouseEvent e) {
       e.preventDefault();
       HTML.document.body.requestPointerLock();
@@ -185,7 +186,6 @@ class FPSCamera extends Animatable {
       movementX += e.movement.x;
       movementY += e.movement.y;
     });
-
   }
 
   void animate(double elapsed) {
@@ -223,10 +223,10 @@ class FPSCamera extends Animatable {
     camera.translateFromVec(tmp);
     momentum.scale(0.85);
 
-    if (cpk[Key.SPACE] != null) {
-    }
+    if (cpk[Key.SPACE] != null) {}
 
-    if (movementY != 0) camera.transform.rotate(movementY * 0.006, camera.getRight());
+    if (movementY != 0) camera.transform.rotate(
+        movementY * 0.006, camera.getRight());
     if (movementX != 0) camera.transform.rotate(movementX * 0.006, up);
 
     movementX = 0;
@@ -255,8 +255,8 @@ class TorusKnotCamera extends Animatable {
     getTorusKnotPos(time / 1500, q, p, radius, 1.0, p1);
     getTorusKnotPos((time / 1500) + 0.1, q, p, radius, 1.0, p2);
     up
-        ..set(p2)
-        ..normalize();
+      ..set(p2)
+      ..normalize();
     camera.setPosFromVec(p1);
     camera.lookAt(p2);
   }

@@ -2,7 +2,7 @@ part of chronosgl;
 
 ShaderObject createPerlinNoiseVertexColorShader() {
   ShaderObject shaderObject = new ShaderObject("PerlinNoiseVertexColor");
-  
+
   shaderObject.vertexShader = perlinNoisefunctions + """
       attribute vec3 aVertexPosition;
       
@@ -42,7 +42,7 @@ ShaderObject createPerlinNoiseVertexColorShader() {
       gl_Position = uPMatrix * uMVMatrix * vec4( aVertexPosition, 1.0 );
       }
       """;
-  
+
   shaderObject.fragmentShader = """
       precision mediump float;
       
@@ -52,12 +52,12 @@ ShaderObject createPerlinNoiseVertexColorShader() {
         gl_FragColor = vColor;
       }
       """;
-  
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
   shaderObject.timeUniform = "time";
-  
+
   return shaderObject;
 }
 
@@ -65,8 +65,9 @@ const String fs_precision = "precision mediump float;\n";
 
 // this shader is build for use with an icosahedron
 ShaderObject createPerlinNoiseColorShader([bool blackVariant]) {
-  ShaderObject shaderObject = new ShaderObject((blackVariant==true?"Black":"")+"PerlinNoiseColor");
-  
+  ShaderObject shaderObject = new ShaderObject(
+      (blackVariant == true ? "Black" : "") + "PerlinNoiseColor");
+
   shaderObject.vertexShader = fs_precision + perlinNoisefunctions + """
       attribute vec3 aVertexPosition;
       
@@ -85,12 +86,11 @@ ShaderObject createPerlinNoiseColorShader([bool blackVariant]) {
         gl_Position = uPMatrix * uMVMatrix * vec4( aVertexPosition + f * normal, 1.0 );
       }
       """;
-  
-shaderObject.fragmentShader = fs_precision + perlinNoisefunctions+ 
 
-(blackVariant==true ? "#define BLACK 1\n" : "") 
-
-+ """
+  shaderObject.fragmentShader = fs_precision +
+      perlinNoisefunctions +
+      (blackVariant == true ? "#define BLACK 1\n" : "") +
+      """
 
 varying vec3 vNormal;
 uniform mat4 uTMatrix;
@@ -134,11 +134,11 @@ gl_FragColor = vec4( color, 1.0 );
 }
 """;
 
-shaderObject.vertexPositionAttribute = "aVertexPosition"; 
-shaderObject.modelViewMatrixUniform = "uMVMatrix";
-shaderObject.perpectiveMatrixUniform = "uPMatrix";
-shaderObject.transformationMatrixUniform = "uTMatrix";
-shaderObject.timeUniform = "time";
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
+  shaderObject.modelViewMatrixUniform = "uMVMatrix";
+  shaderObject.perpectiveMatrixUniform = "uPMatrix";
+  shaderObject.transformationMatrixUniform = "uTMatrix";
+  shaderObject.timeUniform = "time";
 
-return shaderObject;
+  return shaderObject;
 }

@@ -7,7 +7,6 @@ part of chronosmath;
  */
 
 class Matrix4 {
-
   Float32List array = new Float32List(16);
 
   Matrix4() {
@@ -48,8 +47,8 @@ class Matrix4 {
     return this;
   }
 
-
-  void frustum(double left, double right, double bottom, double top, double near, double far) {
+  void frustum(double left, double right, double bottom, double top,
+      double near, double far) {
     double rl = (right - left),
         tb = (top - bottom),
         fn = (far - near);
@@ -88,7 +87,6 @@ class Matrix4 {
         a31 = array[13],
         a32 = array[14],
         a33 = array[15],
-
         b00 = a00 * a11 - a01 * a10,
         b01 = a00 * a12 - a02 * a10,
         b02 = a00 * a13 - a03 * a10,
@@ -101,8 +99,8 @@ class Matrix4 {
         b09 = a21 * a32 - a22 * a31,
         b10 = a21 * a33 - a23 * a31,
         b11 = a22 * a33 - a23 * a32,
-
-        d = (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06),
+        d =
+        (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06),
         invDet;
 
     // Calculate the determinant
@@ -136,7 +134,30 @@ class Matrix4 {
         y = axis[1],
         z = axis[2],
         len = Math.sqrt(x * x + y * y + z * z),
-        s,c,t,a00,a01,a02,a03,a10,a11,a12,a13,a20,a21,a22,a23,b00,b01,b02,b10,b11,b12,b20,b21,b22;
+        s,
+        c,
+        t,
+        a00,
+        a01,
+        a02,
+        a03,
+        a10,
+        a11,
+        a12,
+        a13,
+        a20,
+        a21,
+        a22,
+        a23,
+        b00,
+        b01,
+        b02,
+        b10,
+        b11,
+        b12,
+        b20,
+        b21,
+        b22;
 
     if (len == 0) {
       return null;
@@ -229,7 +250,6 @@ class Matrix4 {
         a22 = array[10],
         a23 = array[11];
 
-
     // Perform axis-specific matrix multiplication
     array[0] = a00 * c + a20 * -s;
     array[1] = a01 * c + a21 * -s;
@@ -265,7 +285,6 @@ class Matrix4 {
     array[6] = a02 * -s + a12 * c;
     array[7] = a03 * -s + a13 * c;
   }
-
 
   setElements(Matrix4 other) {
     // TODO: why doesn't setElements work ? gives: "Dart_IntegerToInt64 expects argument 'integer' to be of type Integer."

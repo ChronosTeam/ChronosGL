@@ -7,23 +7,24 @@ ShaderObject createBasicShader() {
 
 ShaderObject createTexturedShader() {
   ShaderObject shaderObject = new ShaderObject("Textured");
-  
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.textureCoordinatesAttribute = "aTextureCoord";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
   shaderObject.textureSamplerUniform = "uSampler";
-  shaderObject.fragmentShaderBody = "gl_FragColor = texture2D(uSampler, vaTextureCoord);";
+  shaderObject.fragmentShaderBody =
+      "gl_FragColor = texture2D(uSampler, vaTextureCoord);";
   return generateShader(shaderObject);
 }
 
 ShaderObject createSolidColorShader() {
   ShaderObject shaderObject = new ShaderObject("Color");
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.colorUniform = "uColor";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  
+
   shaderObject.fragmentShaderHeader = "uniform vec3 uColor;";
   shaderObject.fragmentShaderBody = "gl_FragColor = vec4( uColor, 1.0 );";
   return generateShader(shaderObject);
@@ -31,7 +32,7 @@ ShaderObject createSolidColorShader() {
 
 ShaderObject createColorShader() {
   ShaderObject shaderObject = new ShaderObject("Color");
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.colorsAttribute = "aColor";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
@@ -41,7 +42,7 @@ ShaderObject createColorShader() {
 
 ShaderObject createLightShader() {
   ShaderObject shaderObject = new ShaderObject("Light");
-  
+
   shaderObject.vertexShader = """
         precision mediump float;
 
@@ -73,7 +74,7 @@ ShaderObject createLightShader() {
           vLightWeighting = ambientColor + directionalColor * directionalLightWeighting;
         }
         """;
-  
+
   shaderObject.fragmentShader = """
         precision mediump float;
         
@@ -85,20 +86,20 @@ ShaderObject createLightShader() {
           gl_FragColor = vec4( vLightWeighting, 1.0 );
         }
         """;
-  
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.normalAttribute = "aNormal";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.viewMatrixUniform = "uViewMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
   shaderObject.pointLightLocationUniform = "pointLightLocation";
-  
+
   return shaderObject;
 }
 
 ShaderObject createNormal2ColorShader() {
   ShaderObject shaderObject = new ShaderObject("Normal2Color");
-  
+
   shaderObject.vertexShader = """
         precision mediump float;
 
@@ -115,7 +116,7 @@ ShaderObject createNormal2ColorShader() {
           vColor=normalize( aNormal / 2.0 + vec3(0.5) );
         }
         """;
-  
+
   shaderObject.fragmentShader = """
         precision mediump float;
         
@@ -125,17 +126,17 @@ ShaderObject createNormal2ColorShader() {
           gl_FragColor = vec4( vColor, 1.0 );
         }
         """;
-  
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.normalAttribute = "aNormal";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  
+
   return shaderObject;
 }
 
 // this shader works well for cube shapes, for other shapes it might be better to use the normals attribute to sample the cube texture
-ShaderObject createCubeMapShader() { 
+ShaderObject createCubeMapShader() {
   ShaderObject shaderObject = new ShaderObject("CubeMap");
   shaderObject.vertexShader = """
     precision mediump float;
@@ -166,12 +167,12 @@ ShaderObject createCubeMapShader() {
 ShaderObject createPointSpritesShader() {
   ShaderObject shaderObject = new ShaderObject("PointSprites");
 
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
   shaderObject.textureSamplerUniform = "uSampler";
   shaderObject.vertexShaderBody = "gl_PointSize = 1000.0/gl_Position.z;";
-  shaderObject.fragmentShaderBody = "gl_FragColor = texture2D(uSampler, gl_PointCoord);\n gl_FragColor.a = 0.4;\n";
+  shaderObject.fragmentShaderBody =
+      "gl_FragColor = texture2D(uSampler, gl_PointCoord);\n gl_FragColor.a = 0.4;\n";
   return generateShader(shaderObject);
 }
-

@@ -2,7 +2,7 @@ part of chronosgl;
 
 ShaderObject createSSAOShader() {
   ShaderObject shaderObject = new ShaderObject("SSAO");
-  
+
   shaderObject.vertexShader = """
   precision mediump float;
   attribute vec3 aVertexPosition;
@@ -18,7 +18,7 @@ ShaderObject createSSAOShader() {
     vUv = aTextureCoord;
   }
   """;
-  
+
   shaderObject.fragmentShader = """
     precision mediump float;
     uniform float cameraNear;
@@ -171,8 +171,8 @@ ShaderObject createSSAOShader() {
     }
     
     """;
-  
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.textureCoordinatesAttribute = "aTextureCoord";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
@@ -181,6 +181,6 @@ ShaderObject createSSAOShader() {
   shaderObject.cameraNear = "cameraNear";
   shaderObject.cameraFar = "cameraFar";
   shaderObject.canvasSize = "size";
-    
+
   return shaderObject;
 }

@@ -1,12 +1,11 @@
 part of chronosmath;
 
 class Vector {
-
   Float32List array;
-  
-  static final Vector RIGHT = new Vector(1.0,0.0,0.0);
-  static final Vector UP = new Vector(0.0,1.0,0.0);
-  static final Vector BACK = new Vector(0.0,0.0,1.0);
+
+  static final Vector RIGHT = new Vector(1.0, 0.0, 0.0);
+  static final Vector UP = new Vector(0.0, 1.0, 0.0);
+  static final Vector BACK = new Vector(0.0, 0.0, 1.0);
 
   double get x => array[0];
   double get y => array[1];
@@ -49,7 +48,7 @@ class Vector {
   }
 
   Vector set(dynamic x, [num y, num z]) {
-    if( x is Vector ){
+    if (x is Vector) {
       array[0] = x[0];
       array[1] = x[1];
       array[2] = x[2];
@@ -88,8 +87,8 @@ class Vector {
 
   Vector addScaledVector(Vector v, num val) {
     array[0] += v[0] * val;
-    array[1] += v[1] *val;
-    array[2] += v[2] *val;
+    array[1] += v[1] * val;
+    array[2] += v[2] * val;
     return this;
   }
 
@@ -195,14 +194,13 @@ class Vector {
   double length() {
     return Math.sqrt(lengthSquared());
   }
-  
+
   // if we initialize the matrix here we get an endless loop
   // because Matrix also creates a new Vector...
   Matrix4 m = null;
   List<double> _v = new List<double>(4);
 
   bool unproject(Matrix4 view, Matrix4 proj, List<num> viewport) {
-
     if (m == null) m = new Matrix4();
 
     _v[0] = (array[0] - viewport[0]) * 2.0 / viewport[2] - 1.0;

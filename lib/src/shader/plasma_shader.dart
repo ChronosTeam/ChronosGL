@@ -6,15 +6,16 @@ part of chronosgl;
 
 ShaderObject createPlasmaShader() {
   ShaderObject shaderObject = new ShaderObject("Plasma");
-  
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.textureCoordinatesAttribute = "_coords";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
   shaderObject.timeUniform = "u_time";
 
-  shaderObject.fragmentShaderHeader = "#define PI 3.1415926535897932384626433832795\n vec2 u_k = vec2(10.0,10.0);\n";
- 
+  shaderObject.fragmentShaderHeader =
+      "#define PI 3.1415926535897932384626433832795\n vec2 u_k = vec2(10.0,10.0);\n";
+
   shaderObject.fragmentShaderBody = """
     float v = 0.0;
     vec2 c = v_coords * u_k - u_k/2.0;
@@ -29,14 +30,14 @@ ShaderObject createPlasmaShader() {
     vec3 col = mix(col1, col2, sin(u_time)*.5+.5);
     gl_FragColor = vec4(col*.5 + .5, 1.0);
   """;
-  
+
   return generateShader(shaderObject);
 }
 
 ShaderObject createPlasmaShader2() {
   ShaderObject shaderObject = new ShaderObject("Plasma2");
-  
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.textureCoordinatesAttribute = "aTextureCoord";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
@@ -47,14 +48,14 @@ ShaderObject createPlasmaShader2() {
     float y = vaTextureCoord.y;
     gl_FragColor = vec4(1,sin(x * cos(time/15.0) * 120.0) + cos(y * sin(time/10.0) * 120.0) + sin(sqrt(y * y + x * x) * 40.0),1,1);
   """;
-  
+
   return generateShader(shaderObject);
 }
 
 ShaderObject createPlasmaShader3() {
   ShaderObject shaderObject = new ShaderObject("Plasma3");
-  
-  shaderObject.vertexPositionAttribute = "aVertexPosition"; 
+
+  shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.textureCoordinatesAttribute = "aTextureCoord";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
@@ -71,7 +72,6 @@ ShaderObject createPlasmaShader3() {
     float c3 = abs(sin(c2+cos(mov1+mov2+c2)+cos(mov2)+sin(x/1000.)));
     gl_FragColor = vec4( c1,c2,c3,1.0);
   """;
-  
+
   return generateShader(shaderObject);
 }
-

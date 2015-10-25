@@ -65,13 +65,11 @@ ShaderObject createFireWorksShader() {
   shaderObject.colorUniform = "color";
 
   return shaderObject;
-
 }
 
 Math.Random rand = new Math.Random();
 
 Mesh getRocket(ChronosGL chronosGL) {
-
   int numPoints = 200;
 
   Float32List vertices = new Float32List(numPoints * 3);
@@ -82,7 +80,8 @@ Mesh getRocket(ChronosGL chronosGL) {
 
   MeshData md = new MeshData(vertices: vertices, normals: normals);
 
-  Mesh m = new Mesh(md, drawPoints: true, texture: chronosGL.getUtils().createParticleTexture());
+  Mesh m = new Mesh(md,
+      drawPoints: true, texture: chronosGL.getUtils().createParticleTexture());
   m.color.set(1.0, 0.0, 0.0);
   m.blend = true;
   m.depthWrite = false;
@@ -92,7 +91,6 @@ Mesh getRocket(ChronosGL chronosGL) {
 }
 
 void main() {
-
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
   Camera camera = chronosGL.getCamera();
@@ -102,7 +100,6 @@ void main() {
     //orbit.setPosFromSpherical(15.0, time*0.001, time*0.0005);
     orbit.azimuth += 0.001;
   });
-
 
   ShaderProgram pssp = chronosGL.createProgram(createFireWorksShader());
 
