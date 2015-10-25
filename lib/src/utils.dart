@@ -12,13 +12,20 @@ class Utils
     textureCache = chronosGL.getTextureCache();
   }
   
-  Texture createTextureFromCanvas(HTML.CanvasElement canvas)
+  Texture createTextureFromCanvas(HTML.CanvasElement canvas, {int minFilter:LINEAR, int magFilter:LINEAR, bool mipmap:false, bool flipY:true})
   {
     var texture = gl.createTexture();
     gl.bindTexture(TEXTURE_2D, texture);
+    if( flipY) {
+      gl.pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
+    }
     gl.texImage2DCanvas(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, canvas);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR); // _MIPMAP_NEAREST
+    gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, minFilter);
+    gl.texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, magFilter);
+    if( mipmap) {
+      gl.generateMipmap(TEXTURE_2D);
+    }
+    gl.bindTexture(TEXTURE_2D, null);
     return texture;
   }
 
@@ -109,6 +116,7 @@ class Utils
   }
 
   
+  // TODO: think about deprecating this
   Mesh createQuad( Texture texture, int size)
   {
     List<double> verts = [

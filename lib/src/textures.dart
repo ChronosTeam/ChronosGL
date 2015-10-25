@@ -5,6 +5,10 @@ class TextureCache {
   Map<String, TextureWrapper> textureCache = new Map<String, TextureWrapper>();
   ChronosGL chronosGL;
   RenderingContext gl;
+  bool flipY = true;
+  bool mipmap = false;
+  int minFilter = LINEAR; // LINEAR_MIPMAP_LINEAR
+  int magFilter = LINEAR;
   
   TextureCache(this.chronosGL)
   {
@@ -44,7 +48,7 @@ class TextureCache {
   TextureWrapper addCanvas(String url, HTML.CanvasElement canvas) {
     TextureWrapper tw = new TextureWrapper(this.gl, clamp:false);
     tw.loaded = true;
-    tw.texture = chronosGL.getUtils().createTextureFromCanvas(canvas);
+    tw.texture = chronosGL.getUtils().createTextureFromCanvas(canvas, minFilter:minFilter, magFilter:magFilter, mipmap:mipmap);
     return textureCache[url] = tw;
   }
 
@@ -89,9 +93,14 @@ class TextureCache {
           continue;
         
         gl.bindTexture(textureWrapper.type, textureWrapper.texture);
-        gl.pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
-        gl.texParameteri(textureWrapper.type, TEXTURE_MAG_FILTER, LINEAR);
-        gl.texParameteri(textureWrapper.type, TEXTURE_MIN_FILTER, LINEAR); // _MIPMAP_NEAREST
+        
+        if( flipY) {
+          gl.pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
+        }
+        
+        gl.texParameteri(textureWrapper.type, TEXTURE_MAG_FILTER, magFilter);
+        gl.texParameteri(textureWrapper.type, TEXTURE_MIN_FILTER, minFilter);
+        
         if( textureWrapper.clamp  )
         {
           gl.texParameteri(textureWrapper.type, TEXTURE_WRAP_S, CLAMP_TO_EDGE); // this fixes glitches on skybox seams
@@ -106,7 +115,10 @@ class TextureCache {
         } else {
           gl.texImage2DImage(textureWrapper.type, 0, RGBA, RGBA, UNSIGNED_BYTE, textureWrapper.image);
         }
-        //gl.generateMipmap(gl.TEXTURE_2D);
+
+        if( mipmap) {
+          gl.generateMipmap(TEXTURE_2D);
+        }
         
         gl.bindTexture(TEXTURE_2D, null);
         textureWrapper.loaded = true;
