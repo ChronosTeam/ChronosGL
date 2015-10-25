@@ -1,7 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas', transparent: false);
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 165.0);

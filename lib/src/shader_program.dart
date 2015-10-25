@@ -58,6 +58,7 @@ class ShaderProgram implements Drawable {
   Uniform pointLightLocationUniform;
 
   bool debug = false;
+  bool active;
 
   Matrix4 mvMatrix = new Matrix4();
   List<Node> followCameraObjects = new List<Node>();

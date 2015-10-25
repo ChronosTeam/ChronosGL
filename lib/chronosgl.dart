@@ -80,7 +80,7 @@ class ChronosGL {
 
   Vector pointLightLocation = new Vector();
 
-  ChronosGL(dynamic canvasOrID, {bool transparent: false, bool useFramebuffer: false, ShaderObject fxShader, this.near: 0.1, this.far: 1000.0, bool useElementIndexUint: false}) {
+  ChronosGL(dynamic canvasOrID, {bool useFramebuffer: false, ShaderObject fxShader, this.near: 0.1, this.far: 1000.0, bool useElementIndexUint: false}) {
     if (canvasOrID is HTML.CanvasElement) {
       _canvas = canvasOrID;
     } else {
@@ -112,12 +112,7 @@ class ChronosGL {
     //print( gl.getSupportedExtensions());
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    if (transparent) { // a gloabl transapreny setting is probably not the right approach. consider removing this
-      gl.enable(BLEND);
-      gl.blendFunc(SRC_ALPHA, DST_COLOR);
-    } else {
-      gl.enable(DEPTH_TEST);
-    }
+    gl.enable(DEPTH_TEST);
 
     programBasic = createProgram(createTexturedShader());
 

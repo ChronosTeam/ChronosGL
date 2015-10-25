@@ -6,8 +6,13 @@ void main() {
   Camera camera = chronosGL.getCamera();
   camera.setPos(0.0, 0.0, 56.0);
 
-  FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
-  chronosGL.addAnimatable('flyingCamera', fc);
+  OrbitCamera orbit = new OrbitCamera(camera, 25.0, 10.0);
+  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
+    orbit.azimuth += 0.001;
+  });
+  chronosGL.addAnimatable('OrbitCam', orbit);
+  //FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
+  //chronosGL.addAnimatable('flyingCamera', fc);
 
   MeshData cubeMeshData = chronosGL.shapes.createCube();
   cubeMeshData.multiplyVertices(2);
