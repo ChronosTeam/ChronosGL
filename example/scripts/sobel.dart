@@ -8,7 +8,7 @@ void main() {
       far: 2520.0);
   ShaderProgram prg = chronosGL.createProgram(createPlane2GreyShader());
   Camera camera = chronosGL.getCamera();
-  OrbitCamera orbit = new OrbitCamera(camera, 65.0);
+  OrbitCamera orbit = new OrbitCamera(camera, 15.0, -45.0, 0.3);
   chronosGL.addAnimatable('orbitCam', orbit);
 
   loadObj("ct_logo.obj").then((MeshData md) {
