@@ -214,7 +214,7 @@ class Utils {
     Mesh m = new Mesh(md, drawPoints: true, texture: texture);
     m.blend = true;
     m.depthWrite = false;
-    m.blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;
+    m.blend_dFactor = ONE_MINUS_SRC_COLOR;
     m.name = 'point_sprites_mesh_' + pssp.objects.length.toString();
     pssp.add(m);
   }

@@ -74,6 +74,7 @@ class ChronosGL {
   Matrix4 _pMatrix = new Matrix4();
 
   Shapes shapes = new Shapes();
+  BlendConstants blendConstants = new BlendConstants();
 
   num near = 0.1;
   num far = 1000;
@@ -244,4 +245,14 @@ class ChronosGL {
       orbit.azimuth += 0.001;
     });
   }
+}
+
+class BlendConstants {
+  final int ONE = 1;
+  final int SRC_ALPHA = 0x0302;
+  final int ONE_MINUS_SRC_ALPHA = 0x0303;
+  final int FUNC_ADD = 0x8006;
+  final int ONE_MINUS_SRC_COLOR = 0x0301;
+  final int SRC_COLOR = 0x0300;
+  final int DST_COLOR = 0x0306;
 }
