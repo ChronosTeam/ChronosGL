@@ -4,6 +4,8 @@ part of chronosgl;
 // see also: https://www.shadertoy.com/view/XdX3Wn
 // and http://iq12.com/2013/04/fifty-shaders-of-grey/
 
+// TODO: Add www.shadertoy.com/view/4dlGDN www.shadertoy.com/view/lsfGzr
+
 ShaderObject createPlasmaShader() {
   ShaderObject shaderObject = new ShaderObject("Plasma");
 

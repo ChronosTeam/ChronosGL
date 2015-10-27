@@ -42,6 +42,13 @@ class MeshData {
     return new Mesh(this);
   }
   
+  void generateEmptyNormals() {
+    if( normals == null || normals.length != vertices.length) {
+      normals = new List<double>.generate(vertices.length, (idx) => 0.0);
+    }
+    
+  }
+  
   Vector temp = new Vector();
   bool normalFromPoints(Vector a, Vector b, Vector c, Vector normal) {
 
