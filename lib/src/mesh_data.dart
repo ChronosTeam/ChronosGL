@@ -41,6 +41,70 @@ class MeshData {
     optimize();
     return new Mesh(this);
   }
+  
+  Vector temp = new Vector();
+  bool normalFromPoints(Vector a, Vector b, Vector c, Vector normal) {
+
+    temp.set(b).subtract(a);
+    normal.set(c).subtract(a);
+
+    normal.cross(temp);
+    double len = normal.length();
+    if (len == 0) {
+      return false;
+    }
+
+    normal.scale(-1 / len); // normalize // added the minus to make it the correct normal compared to the base cube
+    return true;
+  }
+
+  void setVector( Vector v, int i) {
+    i = vertexIndices[i]*3;
+    v.set( vertices[i+0], vertices[i+1], vertices[i+2] );
+  }
+  
+  Vector tempa = new Vector();
+  Vector tempb = new Vector();
+  Vector tempc = new Vector();
+  Vector tempd = new Vector();
+  MeshData generateNormalsAssumingTriangleMode() {
+    if( normals == null || normals.length != vertices.length) {
+      normals = new List<double>(vertices.length);
+    }
+    for (int i = 0; i < vertexIndices.length; i+=3) {
+      setVector( tempa, i+0);
+      setVector( tempb, i+1);
+      setVector( tempc, i+2);
+      normalFromPoints( tempa, tempb, tempc, tempd);
+      for (int j = 0; j < 3; j++) {
+        int t = vertexIndices[i+j]*3;
+        normals[t+0] = tempd.array[0];
+        normals[t+1] = tempd.array[1];
+        normals[t+2] = tempd.array[2];
+      }
+    }
+    return this;
+  }
+  
+  // use this so normals have room and don't need to share a vertex
+  // for example a cube can have 3 different normals for the same vertex
+  // so we need 3 different places where we store the same vertex so we have room for 3 different normals
+  // TODO: add UV Map and the other stuff
+  MeshData deDeuplicateIndices() { 
+    List<double> newVertices = new List<double>(vertexIndices.length*3);
+    int pos=0;
+    for (int i = 0; i < vertexIndices.length; i++) {
+      int t = vertexIndices[i]*3;
+      newVertices[pos++] = vertices[t+0];
+      newVertices[pos++] = vertices[t+1];
+      newVertices[pos++] = vertices[t+2];
+    }
+    for (int i = 0; i < vertexIndices.length; i++) {
+      vertexIndices[i]=i;
+    }
+    vertices = newVertices;
+    return this;
+  }
 
   MeshData multiplyVertices(num m) {
     for (int i = 0; i < vertices.length; i++) {
