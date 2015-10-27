@@ -29,6 +29,7 @@ part "src/load_obj.dart";
 part "src/framebuffer.dart";
 part "src/instancer.dart";
 part "src/shader/basic_shader.dart";
+part "src/shader/blur_shader.dart";
 part "src/shader/plane_shader.dart";
 part "src/shader/ssao_shader.dart";
 part "src/shader/sobel_shader.dart";
