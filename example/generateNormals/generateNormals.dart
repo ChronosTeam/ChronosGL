@@ -17,7 +17,8 @@ void main() {
     
     for (var i = 0; i < mymd.length; i++) {
       MeshData md = mymd[i];
-      md.generateNormalsAssumingTriangleMode(); // .generateEmptyNormals();
+      // the logo is missing normals so we generate them here, but wait, why are the colors all wrong ?
+      md.generateNormalsAssumingTriangleMode();
       Mesh mesh = md.createMesh();
       if( md == ctLogo) {
         mesh.rotX(3.14 / 2);
@@ -29,6 +30,7 @@ void main() {
      
     for (var i = 0; i < mymd.length; i++) {
       MeshData md = mymd[i];
+      // because some vertices were reused for different faces, so we need to deduplicate the indices
       md.deDeuplicateIndices().generateNormalsAssumingTriangleMode();
       Mesh mesh = md.createMesh();
       if( md == ctLogo) {
