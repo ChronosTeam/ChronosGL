@@ -171,6 +171,6 @@ ShaderObject createPointSpritesShader() {
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
   shaderObject.textureSamplerUniform = "uSampler";
   shaderObject.vertexShaderBody = "gl_PointSize = 1000.0/gl_Position.z;";
-  shaderObject.fragmentShaderBody = "gl_FragColor = texture2D(uSampler, gl_PointCoord);\n gl_FragColor.a = 0.4;\n";
+  shaderObject.fragmentShaderBody = "gl_FragColor = texture2D(uSampler, gl_PointCoord);";
   return generateShader(shaderObject);
 }
