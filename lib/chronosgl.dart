@@ -40,7 +40,7 @@ part "src/shader/plasma_shader.dart";
 part "src/shader/generate_shader.dart";
 
 abstract class Animatable {
-  bool active=true;
+  bool active = true;
   void animate(double elapsed);
 }
 
@@ -82,7 +82,7 @@ class ChronosGL {
 
   Vector pointLightLocation = new Vector();
 
-  ChronosGL(dynamic canvasOrID, {bool useFramebuffer: false, ShaderObject fxShader, this.near: 0.1, this.far: 1000.0, bool useElementIndexUint: false}) {
+  ChronosGL(dynamic canvasOrID, {bool useFramebuffer: false, ShaderObject fxShader, this.near: 0.1, this.far: 1000.0, bool useElementIndexUint: false, var element: null}) {
     if (canvasOrID is HTML.CanvasElement) {
       _canvas = canvasOrID;
     } else {
@@ -129,8 +129,7 @@ class ChronosGL {
       fxProgram = new ShaderProgram(this, fxShader == null ? createTexturedShader() : fxShader, 'fx');
       fxProgram.add(fxWall);
     }
-
-    setUpCapture();
+    setUpCapture(element == null ? HTML.document : element);
   }
 
   RenderingContext getRenderingContext() {
@@ -169,8 +168,7 @@ class ChronosGL {
 
   void animate(num timeNow, double elapsed) {
     for (Animatable a in animatables.values) {
-      if(a.active)
-        a.animate(elapsed);
+      if (a.active) a.animate(elapsed);
     }
     for (Function f in animateCallbacks.values) {
       f(elapsed, timeNow);
