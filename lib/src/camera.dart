@@ -29,7 +29,7 @@ class OrbitCamera extends Animatable {
   OrbitCamera(this.camera, this.radius, [this.azimuth = 0.0, this.polar = 0.0]) {
     HTML.document.onMouseWheel.listen((HTML.WheelEvent e) {
       try {
-        double d = e.wheelDeltaY * 0.01;
+        double d = e.deltaY * 0.01;
         if (radius - d > 0) radius -= d;
       } catch (e) {
         print(e);
