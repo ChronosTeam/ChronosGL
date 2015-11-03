@@ -130,7 +130,7 @@ class ChronosGL {
       fxProgram.add(fxWall);
     }
 
-    setUpCapture();
+    setUpCapture(_canvas);
   }
 
   RenderingContext getRenderingContext() {

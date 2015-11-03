@@ -37,7 +37,14 @@ void main() {
   html.document.addEventListener('keypress', (event) {
     prgs[pointer % 3].remove(m);
     prgs[(pointer + 1) % 3].add(m);
-    pointer++;
+    pointer=(pointer+1)%3;
+  });
+  
+  html.SelectElement myselect = html.document.querySelector('#myselect') as html.SelectElement;
+  myselect.onChange.listen((html.Event e) {
+    prgs[pointer].remove(m);
+    pointer=myselect.selectedIndex;
+    prgs[(pointer)].add(m);
   });
 
   chronosGL.getUtils().addParticles(2000, 100);

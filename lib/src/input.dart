@@ -11,7 +11,7 @@ int mouseDownX = 0;
 int mouseDownY = 0;
 bool skipDefaultMouseMoveListener = false;
 
-void setUpCapture() {
+void setUpCapture(HTML.CanvasElement canvas) {
   HTML.document.onKeyDown.listen((HTML.KeyboardEvent e) {
     currentlyPressedKeys[e.keyCode] = true;
   });
@@ -21,7 +21,7 @@ void setUpCapture() {
 
   if (!skipDefaultMouseMoveListener) {
     HTML.document.onMouseMove.listen((HTML.MouseEvent e) {
-      e.preventDefault();
+      //e.preventDefault();
       clientX = e.client.x;
       clientY = HTML.window.innerHeight - e.client.y;
       mouseX = e.client.x - (HTML.window.innerWidth ~/ 2);
@@ -30,7 +30,7 @@ void setUpCapture() {
   }
 
   HTML.document.onMouseDown.listen((HTML.MouseEvent e) {
-    e.preventDefault();
+    //e.preventDefault();
     mouseDownX = e.client.x - (HTML.window.innerWidth ~/ 2);
     mouseDownY = -(e.client.y - (HTML.window.innerHeight ~/ 2));
     bool rightclick = e.which == 3 || e.button == 2;
@@ -38,14 +38,14 @@ void setUpCapture() {
     else currentlyPressedMouseButtons['left'] = true;
   });
 
-  HTML.document.onContextMenu.listen((HTML.MouseEvent e) {
+  canvas.onContextMenu.listen((HTML.MouseEvent e) {
     e.preventDefault();
     //e.stopPropagation();
     //e.cancelBubble = true;
   });
 
   HTML.document.onMouseUp.listen((HTML.MouseEvent e) {
-    e.preventDefault();
+    //e.preventDefault();
     bool rightclick = e.which == 3 || e.button == 2;
     if (rightclick) currentlyPressedMouseButtons['right'] = null;
     else currentlyPressedMouseButtons['left'] = null;
