@@ -19,6 +19,7 @@ class OrbitCamera extends Animatable {
   double azimuth;
   double polar;
   Vector lookAt = new Vector();
+  num mouseWheelFactor = -0.01;
 
   double ma = 0.0; // mouse azimuth
   double mp = 0.0; // mouse polar
@@ -26,10 +27,11 @@ class OrbitCamera extends Animatable {
   Map<int, bool> cpk = currentlyPressedKeys;
   Map<String, bool> cpmb = currentlyPressedMouseButtons;
 
+
   OrbitCamera(this.camera, this.radius, [this.azimuth = 0.0, this.polar = 0.0]) {
     HTML.document.onMouseWheel.listen((HTML.WheelEvent e) {
       try {
-        double d = e.deltaY * 0.01;
+        double d = e.deltaY * mouseWheelFactor;
         if (radius - d > 0) radius -= d;
       } catch (e) {
         print(e);

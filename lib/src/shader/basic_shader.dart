@@ -10,10 +10,13 @@ ShaderObject createTexturedShader() {
 
   shaderObject.vertexPositionAttribute = "aVertexPosition";
   shaderObject.textureCoordinatesAttribute = "aTextureCoord";
+  shaderObject.colorUniform = "uColor";
   shaderObject.modelViewMatrixUniform = "uMVMatrix";
   shaderObject.perpectiveMatrixUniform = "uPMatrix";
   shaderObject.textureSamplerUniform = "uSampler";
-  shaderObject.fragmentShaderBody = "gl_FragColor = texture2D(uSampler, vaTextureCoord);";
+  shaderObject.fragmentShaderHeader = "uniform vec3 uColor;";
+  //shaderObject.fragmentShaderBody = "gl_FragColor = mix( texture2D(uSampler, vaTextureCoord), vec4( uColor, 0.0 ), 0.5);";
+  shaderObject.fragmentShaderBody = "gl_FragColor = texture2D(uSampler, vaTextureCoord) + vec4( uColor, 0.0 );";
   return generateShader(shaderObject);
 }
 

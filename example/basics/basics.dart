@@ -1,7 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas', useFramebuffer:false, fxShader: createBlurShader2());
 
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 25.0, 10.0);
@@ -14,11 +14,13 @@ void main() {
   textureCache.addSolidColor("red", "rgba(255,0,0,1)");
   TextureWrapper gradient = textureCache.add("../gradient.jpg");
   TextureWrapper trans = textureCache.add("../transparent.png");
+  TextureWrapper wood = textureCache.add("../wood.jpg");
 
   //ShaderProgram perlinNoise = chronosGL.createProgram(createPerlinNoiseColorShader(), true);
 
   textureCache.loadAllThenExecute(() {
-    Mesh ico = chronosGL.shapes.createIcosahedron(3).createMesh().setTexture(gradient.texture);
+    Mesh ico = chronosGL.shapes.createIcosahedron(3).createMesh().setTexture(wood.texture);
+    ico.color.set(1, 0, 0);
     ico.setPos(0, 0, 0);
     chronosGL.programBasic.add(ico);
 
