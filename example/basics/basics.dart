@@ -18,7 +18,7 @@ void main() {
 
   //ShaderProgram perlinNoise = chronosGL.createProgram(createPerlinNoiseColorShader(), true);
 
-  textureCache.loadAllThenExecute(() {
+  textureCache.loadAll().then((_) {
     Mesh ico = chronosGL.shapes.createIcosahedron(3).createMesh().setTexture(wood.texture);
     ico.color.set(1, 0, 0);
     ico.setPos(0, 0, 0);
