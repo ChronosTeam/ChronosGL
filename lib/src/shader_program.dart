@@ -1,61 +1,186 @@
 part of chronosgl;
 
+class ShaderVarDesc {
+  String type;
+  String purpose = "";
+
+  ShaderVarDesc(this.type, this.purpose);
+}
+
+// Used both as enum and as string. The latter allows for a limited form
+// of syntax checking inside shader programs.
+const String aColors = "aColors";
+const String aVertexPosition = "aVertexPosition";
+const String aTextureCoordinates = "aTextureCoordinates";
+const String aNormal = "aNormal";
+const String aBinormal = "aBinormal";
+
+const String vColors = "vColors";
+const String vTextureCoordinates = "vTextureCoordinates";
+const String vLightWeighting = "vLightWeighting";
+const String vNormal = "vNormal";
+const String vVertexPosition = "vVertexPosition";
+
+const String uTransformationMatrix = "uTransformationMatrix";
+const String uModelViewMatrix = "uModelViewMatrix";
+const String uViewMatrix = "uViewMatrix";
+const String uPerspectiveMatrix = "uPerpectiveMatrix";
+const String uTextureSampler = "uTextureSampler";
+const String uTextureCubeSampler = "uTextureCubeSampler";
+const String uTexture2Sampler = "uTexture2Sampler";
+const String uPointLightLocation = "uPointLightLocation";
+const String uTime = "uTime";
+const String uColor = "uColor";
+const String uCameraNear = "uCameraNear";
+const String uCameraFar = "uCameraFar";
+const String uCanvasSize = "uCanvasSize";
+
+Map<String, ShaderVarDesc> _VarsDb = {
+  // attribute vars
+  aColors: new ShaderVarDesc("vec3", "per vertex color"),
+  aVertexPosition: new ShaderVarDesc("vec3", "vertex coordinates"),
+  aTextureCoordinates: new ShaderVarDesc("vec2", "texture uvs"),
+  aNormal: new ShaderVarDesc("vec3", "vertex normals"),
+  aBinormal: new ShaderVarDesc("vec3", "vertex binormals"),
+
+  // Varying
+  vColors: new ShaderVarDesc("vec3", "per vertex color"),
+  vTextureCoordinates: new ShaderVarDesc("vec2", ""),
+  vLightWeighting: new ShaderVarDesc("vec3", ""),
+  vNormal: new ShaderVarDesc("vec3", ""),
+
+  // uniform vars
+  uTransformationMatrix: new ShaderVarDesc("mat4", ""),
+  uModelViewMatrix: new ShaderVarDesc("mat4", ""),
+  uViewMatrix: new ShaderVarDesc("mat4", ""),
+  uPerspectiveMatrix: new ShaderVarDesc("mat4", ""),
+  uTextureSampler: new ShaderVarDesc("sampler2D", ""),
+  uTexture2Sampler: new ShaderVarDesc("sampler2D", ""),
+  uPointLightLocation: new ShaderVarDesc("vec", ""),
+  uTime: new ShaderVarDesc("float", "time since program start in sec"),
+  uCameraNear: new ShaderVarDesc("float", ""),
+  uCameraFar: new ShaderVarDesc("float", ""),
+  uCanvasSize: new ShaderVarDesc("vec 2", ""),
+  uColor: new ShaderVarDesc("vec3", ""),
+  // "textureCubeSampler": new ShaderVarDesc(""),
+};
+
+void IntroduceNewShaderVar(String name, ShaderVarDesc desc) {
+  assert(!_VarsDb.containsKey(name));
+  _VarsDb[name] = desc;
+}
+
+// ShaderObject describes a shader (either fragment or vertex) and its
+// interface to the world.
 class ShaderObject {
-  ShaderObject(this.name);
   String name;
-  String vertexShader;
-  String fragmentShader;
+  String shader = null;
+  List<String> _header = null;
+  List<String> _body = null;
 
-  String vertexPositionAttribute;
-  String colorsAttribute;
-  String textureCoordinatesAttribute;
-  String normalAttribute;
-  String binormalAttribute;
+  Map<String, String> attributeVars = {};
+  Map<String, String> uniformVars = {};
+  Map<String, String> varyingVars = {};
 
-  String transformationMatrixUniform;
-  String modelViewMatrixUniform;
-  String viewMatrixUniform;
-  String perpectiveMatrixUniform;
-  String textureSamplerUniform;
-  String texture2SamplerUniform;
-  String textureCubeSamplerUniform;
-  String colorUniform; // 3 floats
-  String cameraNear;
-  String cameraFar;
-  String canvasSize; // canvas width and height
-  String timeUniform;
-  String pointLightLocationUniform;
+  ShaderObject(this.name);
 
-  String vertexShaderHeader = "";
-  String vertexShaderBody = "";
-  String fragmentShaderHeader = "";
-  String fragmentShaderBody = "";
+  void AddAttributeVar(String canonicalName, String actualName) {
+    assert(_VarsDb.containsKey(canonicalName));
+    assert(!attributeVars.containsKey(canonicalName));
+    attributeVars[canonicalName] = actualName;
+  }
+
+  void AddUniformVar(String canonicalName, String actualName) {
+    assert(_VarsDb.containsKey(canonicalName));
+    assert(!uniformVars.containsKey(canonicalName));
+    uniformVars[canonicalName] = actualName;
+  }
+
+  void AddVaryingVar(String canonicalName, String actualName) {
+    assert(_VarsDb.containsKey(canonicalName));
+    assert(!varyingVars.containsKey(canonicalName));
+    varyingVars[canonicalName] = actualName;
+  }
+
+  void SetBody(List<String> s) {
+    assert(_body == null);
+    _body = s;
+  }
+
+  void SetHeader(List<String> s) {
+    assert(_header == null);
+    _header = s;
+  }
+
+  // InitializeShader updates the shader field from header and body.
+  // If you have set shader manually do not call this.
+  void InitializeShader(bool addWrapperForMain) {
+    assert(shader == null);
+    List<String> out = [];
+    out.add("precision mediump float;");
+    out.add("");
+    for (String v in attributeVars.keys) {
+      ShaderVarDesc d = _VarsDb[v];
+      out.add("attribute ${d.type} ${attributeVars[v]};");
+    }
+    out.add("");
+    for (String v in varyingVars.keys) {
+      ShaderVarDesc d = _VarsDb[v];
+      out.add("varying ${d.type} ${varyingVars[v]};");
+    }
+    out.add("");
+    for (String v in uniformVars.keys) {
+      ShaderVarDesc d = _VarsDb[v];
+      out.add("uniform ${d.type} ${uniformVars[v]};");
+    }
+    out.add("");
+    if (_header != null) {
+      out.addAll(_header);
+      out.add("");
+    }
+
+    if (addWrapperForMain) {
+      out.add("void main(void) {");
+    }
+    out.addAll(_body);
+    if (addWrapperForMain) {
+      out.add("}");
+    }
+
+    shader = out.join("\n");
+  }
+}
+
+// For use with uniforms
+class ShaderProgramInputs {
+  double timeNow = 0.0;
+  Vector color = new Vector();
+  double near = 0.0;
+  double far = 0.0;
+  double width = 0.0;
+  double height = 0.0;
+
+  Matrix4 modelviewMatrix = new Matrix4();
+  Matrix4 transformMatrix = new Matrix4();
+  Matrix4 perspectiveMatrix = new Matrix4();
+
+  Texture texture;
+  Texture texture2;
+  Texture textureCube;
 }
 
 class ShaderProgram implements Drawable {
   ChronosGL chronosGL;
-  ShaderObject shaderObject;
+  ShaderObject shaderObjectV;
+  ShaderObject shaderObjectF;
+  ShaderProgramInputs inputs = new ShaderProgramInputs();
+
   String name;
   RenderingContext gl;
   Program program;
-  int vertexPositionAttribute;
-  int colorsAttribute;
-  int textureCoordAttribute;
-  int normalAttribute;
-  int binormalAttribute;
-  UniformLocation transformationMatrixUniform;
-  UniformLocation modelViewMatrixUniform;
-  UniformLocation viewMatrixUniform;
-  UniformLocation perpectiveMatrixUniform;
-  UniformLocation textureSamplerUniform;
-  UniformLocation texture2SamplerUniform;
-  UniformLocation textureCubeSamplerUniform;
-  Uniform colorUniform;
-  UniformLocation cameraNear;
-  UniformLocation cameraFar;
-  UniformLocation size;
-  UniformLocation timeUniform;
-  Uniform pointLightLocationUniform;
+
+  Map<String, int> attributeLocations = {};
+  Map<String, UniformLocation> uniformLocations = {};
 
   bool debug = false;
   bool active;
@@ -65,46 +190,24 @@ class ShaderProgram implements Drawable {
   List<Node> objects = new List<Node>();
   List<Instancer> instancers = new List<Instancer>();
 
-  ShaderProgram(this.chronosGL, this.shaderObject, this.name) {
+  ShaderProgram(
+      this.chronosGL, this.shaderObjectV, this.shaderObjectF, this.name) {
     gl = chronosGL.getRenderingContext();
 
     ShaderUtils su = new ShaderUtils(gl);
-    program = su.getProgram(shaderObject.vertexShader, shaderObject.fragmentShader);
+    program = su.getProgram(shaderObjectV.shader, shaderObjectF.shader);
+    for (String v in shaderObjectV.attributeVars.keys) {
+      attributeLocations[v] = gl.getAttribLocation(program, v);
+    }
 
-    vertexPositionAttribute = gl.getAttribLocation(program, shaderObject.vertexPositionAttribute);
+    for (String v in shaderObjectV.uniformVars.keys) {
+      uniformLocations[v] = getUniformLocation(v);
+    }
 
-    if (shaderObject.colorsAttribute != null) colorsAttribute = gl.getAttribLocation(program, shaderObject.colorsAttribute);
-
-    if (shaderObject.textureCoordinatesAttribute != null) textureCoordAttribute = gl.getAttribLocation(program, shaderObject.textureCoordinatesAttribute);
-
-    if (shaderObject.normalAttribute != null) normalAttribute = gl.getAttribLocation(program, shaderObject.normalAttribute);
-
-    if (shaderObject.binormalAttribute != null) binormalAttribute = gl.getAttribLocation(program, shaderObject.binormalAttribute);
-
-    perpectiveMatrixUniform = getUniformLocation(shaderObject.perpectiveMatrixUniform);
-    modelViewMatrixUniform = getUniformLocation(shaderObject.modelViewMatrixUniform);
-
-    if (shaderObject.viewMatrixUniform != null) viewMatrixUniform = getUniformLocation(shaderObject.viewMatrixUniform);
-
-    if (shaderObject.textureSamplerUniform != null) textureSamplerUniform = getUniformLocation(shaderObject.textureSamplerUniform);
-
-    if (shaderObject.texture2SamplerUniform != null) texture2SamplerUniform = getUniformLocation(shaderObject.texture2SamplerUniform);
-
-    if (shaderObject.textureCubeSamplerUniform != null) textureCubeSamplerUniform = getUniformLocation(shaderObject.textureCubeSamplerUniform);
-
-    if (shaderObject.colorUniform != null) colorUniform = getUniform(shaderObject.colorUniform);
-
-    if (shaderObject.cameraNear != null) cameraNear = getUniformLocation(shaderObject.cameraNear);
-
-    if (shaderObject.cameraFar != null) cameraFar = getUniformLocation(shaderObject.cameraFar);
-
-    if (shaderObject.canvasSize != null) size = getUniformLocation(shaderObject.canvasSize);
-
-    if (shaderObject.transformationMatrixUniform != null) transformationMatrixUniform = getUniformLocation(shaderObject.transformationMatrixUniform);
-
-    if (shaderObject.timeUniform != null) timeUniform = getUniformLocation(shaderObject.timeUniform);
-
-    if (shaderObject.pointLightLocationUniform != null) pointLightLocationUniform = getUniform(shaderObject.pointLightLocationUniform);
+    for (String v in shaderObjectF.uniformVars.keys) {
+      assert(!uniformLocations.containsKey(v));
+      uniformLocations[v] = getUniformLocation(v);
+    }
   }
 
   int getAttributeLocation(String name) {
@@ -113,10 +216,6 @@ class ShaderProgram implements Drawable {
 
   UniformLocation getUniformLocation(String name) {
     return gl.getUniformLocation(program, name);
-  }
-
-  Uniform getUniform(String name) {
-    return new Uniform(getUniformLocation(name), gl);
   }
 
   Node add(Node obj) {
@@ -133,9 +232,8 @@ class ShaderProgram implements Drawable {
     return obj;
   }
 
-  double timeNow = 0.0;
   void animate(double elapsed) {
-    timeNow += elapsed;
+    inputs.timeNow += elapsed;
     for (Node node in objects) {
       if (node.enabled) node.animate(elapsed);
     }
@@ -148,38 +246,113 @@ class ShaderProgram implements Drawable {
     return false;
   }
 
+  void MaybeSetAttribute(String a, Buffer buffer, int size, int type,
+      bool normalized, int stride, int offset) {
+    if (!attributeLocations.containsKey(a)) return;
+    int index = attributeLocations[a];
+    gl.bindBuffer(ARRAY_BUFFER, buffer);
+    gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
+  }
+
+  // Maybe take inputs as an argument
+  // This could also be table driven by adding more info ShaderVarDesc
+  void MaybeSetUniform(String u) {
+    if (!uniformLocations.containsKey(u)) return;
+    UniformLocation l = uniformLocations[u];
+    switch (u) {
+      case uPerspectiveMatrix:
+        gl.uniformMatrix4fv(l, false, inputs.perspectiveMatrix.array);
+        break;
+      case uModelViewMatrix:
+        gl.uniformMatrix4fv(l, false, inputs.modelviewMatrix.array);
+        break;
+      case uTransformationMatrix:
+        gl.uniformMatrix4fv(l, false, inputs.transformMatrix.array);
+        break;
+      case uTime:
+        gl.uniform1f(l, inputs.timeNow / 1000);
+        break;
+      case uPointLightLocation:
+        //gl.uniform3fv(l, inputs.pointLightLocation.array);
+        assert(false);
+        break;
+      case uCameraNear:
+        gl.uniform1f(l, inputs.near);
+        break;
+      case uCameraFar:
+        gl.uniform1f(l, inputs.far);
+        break;
+      case uCanvasSize:
+        gl.uniform2f(l, inputs.width, inputs.height);
+        break;
+      case uTextureSampler:
+        int n = 0;
+        gl.activeTexture(TEXTURE0 + n);
+        gl.bindTexture(TEXTURE_2D, inputs.texture);
+        gl.uniform1i(l, n);
+        break;
+      case uTextureSampler:
+        int n = 0;
+        gl.activeTexture(TEXTURE0 + n);
+        gl.bindTexture(TEXTURE_2D, inputs.texture);
+        gl.uniform1i(l, n);
+        break;
+      case uTexture2Sampler:
+        int n = uniformLocations.containsKey(uTextureSampler) ? 1 : 0;
+        gl.activeTexture(TEXTURE0 + n);
+        gl.bindTexture(TEXTURE_2D, inputs.texture2);
+        gl.uniform1i(l, n);
+        break;
+      case uTextureCubeSampler:
+        int n = (uniformLocations.containsKey(uTextureSampler) ? 1 : 0) +
+            (uniformLocations.containsKey(uTexture2Sampler) ? 1 : 0);
+        gl.activeTexture(TEXTURE0 + n);
+        gl.bindTexture(TEXTURE_CUBE_MAP, inputs.textureCube);
+        gl.uniform1i(l, n);
+        break;
+      case uColor:
+        gl.uniform3fv(l, inputs.color.array);
+        break;
+      default:
+        assert(false);
+        break;
+    }
+  }
+
   void draw(Matrix4 pMatrix, [Matrix4 overrideMvMatrix]) {
     if (!hasEnabledObjects()) return;
 
     if (debug) print("name: $name");
 
     gl.useProgram(program);
-    gl.enableVertexAttribArray(vertexPositionAttribute);
-
-    if (shaderObject.colorsAttribute != null) gl.enableVertexAttribArray(colorsAttribute);
-    if (shaderObject.textureCoordinatesAttribute != null) gl.enableVertexAttribArray(textureCoordAttribute);
-    if (shaderObject.normalAttribute != null) gl.enableVertexAttribArray(normalAttribute);
-    if (shaderObject.binormalAttribute != null) gl.enableVertexAttribArray(binormalAttribute);
-    //print( "error: ${gl.getError()}" );
-
-    //print( "pM: ${pMatrix} ${pMatrixUniform}" );
-
-    if (shaderObject.perpectiveMatrixUniform != null) gl.uniformMatrix4fv(perpectiveMatrixUniform, false, pMatrix.array);
-
-    if (shaderObject.timeUniform != null) gl.uniform1f(timeUniform, timeNow / 1000);
-
-    if (shaderObject.pointLightLocationUniform != null) pointLightLocationUniform.setValue3fv(chronosGL.pointLightLocation);
+    for (String a in attributeLocations.keys) {
+      gl.enableVertexAttribArray(attributeLocations[a]);
+    }
 
     Camera camera = chronosGL.getCamera();
     camera.getMVMatrix(mvMatrix, false);
 
-    if (shaderObject.cameraNear != null) gl.uniform1f(cameraNear, chronosGL.near);
-    ;
+    inputs.near = chronosGL.near;
+    inputs.far = chronosGL.far;
+    inputs.width = chronosGL._canvas.clientWidth * 1.0;
+    inputs.height = chronosGL._canvas.clientHeight * 1.0;
+    inputs.perspectiveMatrix = pMatrix;
+    // Only do a subset here
+    for (String u in uniformLocations.keys) {
+      switch (u) {
+        case uPerspectiveMatrix:
+        case uTime:
+        case uPointLightLocation:
+        case uCameraFar:
+        case uCameraNear:
+        case uCanvasSize:
+          MaybeSetUniform(u);
+          break;
+      }
+    }
+    //print( "error: ${gl.getError()}" );
 
-    if (shaderObject.cameraFar != null) gl.uniform1f(cameraFar, chronosGL.far);
-    ;
-
-    if (shaderObject.canvasSize != null) gl.uniform2f(size, chronosGL._canvas.clientWidth, chronosGL._canvas.clientHeight);
+    //print( "pM: ${pMatrix} ${pMatrixUniform}" );
 
     //print( "mvM: ${mvMatrix}");
 
@@ -187,7 +360,8 @@ class ShaderProgram implements Drawable {
 
     camera.getMVMatrix(mvMatrix, true);
 
-    if (shaderObject.viewMatrixUniform != null) gl.uniformMatrix4fv(viewMatrixUniform, false, mvMatrix.array);
+    inputs.modelviewMatrix = mvMatrix;
+    MaybeSetUniform(uViewMatrix);
 
     if (overrideMvMatrix != null) {
       mvMatrix.setElements(overrideMvMatrix);
@@ -196,13 +370,9 @@ class ShaderProgram implements Drawable {
     drawObjects(objects);
 
     drawInstancers();
-
-    gl.disableVertexAttribArray(vertexPositionAttribute);
-
-    if (shaderObject.colorsAttribute != null) gl.disableVertexAttribArray(colorsAttribute);
-    if (shaderObject.textureCoordinatesAttribute != null) gl.disableVertexAttribArray(textureCoordAttribute);
-    if (shaderObject.normalAttribute != null) gl.disableVertexAttribArray(normalAttribute);
-    if (shaderObject.binormalAttribute != null) gl.disableVertexAttribArray(binormalAttribute);
+    for (String a in attributeLocations.keys) {
+      gl.disableVertexAttribArray(attributeLocations[a]);
+    }
   }
 
   void drawInstancers() {

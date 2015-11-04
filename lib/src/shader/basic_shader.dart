@@ -1,179 +1,154 @@
 part of chronosgl;
 
-@deprecated
-ShaderObject createBasicShader() {
-  return createTexturedShader();
+const String StdVertexBody =
+    "gl_Position = ${uPerspectiveMatrix} * ${uModelViewMatrix} * vec4(${aVertexPosition}, 1.0);";
+
+    // TODO: consider collapsing: AddAttributeVar(x, x) => .AddAttributeVar(x)
+List<ShaderObject> createTexturedShader() {
+  return [
+    new ShaderObject("TexturedV")
+      ..AddAttributeVar(aVertexPosition, aVertexPosition)
+      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..AddAttributeVar(aTextureCoordinates, aTextureCoordinates)
+      ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
+      ..SetBody(
+          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"])
+      ..InitializeShader(true),
+    new ShaderObject("TexturedF")
+      ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
+      ..AddUniformVar(uColor, uColor)
+      ..AddUniformVar(uTextureSampler, uTextureSampler)
+      ..SetBody([
+        "gl_FragColor = texture2D(${uTextureSampler}, ${vTextureCoordinates}) + vec4( ${uColor}, 0.0 );"
+      ])
+      ..InitializeShader(true)
+  ];
 }
 
-ShaderObject createTexturedShader() {
-  ShaderObject shaderObject = new ShaderObject("Textured");
-
-  shaderObject.vertexPositionAttribute = "aVertexPosition";
-  shaderObject.textureCoordinatesAttribute = "aTextureCoord";
-  shaderObject.colorUniform = "uColor";
-  shaderObject.modelViewMatrixUniform = "uMVMatrix";
-  shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  shaderObject.textureSamplerUniform = "uSampler";
-  shaderObject.fragmentShaderHeader = "uniform vec3 uColor;";
-  //shaderObject.fragmentShaderBody = "gl_FragColor = mix( texture2D(uSampler, vaTextureCoord), vec4( uColor, 0.0 ), 0.5);";
-  shaderObject.fragmentShaderBody = "gl_FragColor = texture2D(uSampler, vaTextureCoord) + vec4( uColor, 0.0 );";
-  return generateShader(shaderObject);
+List<ShaderObject> createSolidColorShader() {
+  return [
+    new ShaderObject("SolidColorV")
+      ..AddAttributeVar(aVertexPosition, aVertexPosition)
+      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..SetBody([StdVertexBody])
+      ..InitializeShader(true),
+    new ShaderObject("SolidColorF")
+      ..AddUniformVar(uColor, uColor)
+      ..SetBody(["gl_FragColor = vec4( ${uColor}, 1.0 );"])
+      ..InitializeShader(true)
+  ];
 }
 
-ShaderObject createSolidColorShader() {
-  ShaderObject shaderObject = new ShaderObject("Color");
-  shaderObject.vertexPositionAttribute = "aVertexPosition";
-  shaderObject.colorUniform = "uColor";
-  shaderObject.modelViewMatrixUniform = "uMVMatrix";
-  shaderObject.perpectiveMatrixUniform = "uPMatrix";
-
-  shaderObject.fragmentShaderHeader = "uniform vec3 uColor;";
-  shaderObject.fragmentShaderBody = "gl_FragColor = vec4( uColor, 1.0 );";
-  return generateShader(shaderObject);
+List<ShaderObject> createColorShader() {
+  return [
+    new ShaderObject("ColorV")
+      ..AddAttributeVar(aVertexPosition, aVertexPosition)
+      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..AddAttributeVar(aColors, aColors)
+      ..AddVaryingVar(vColors, vColors)
+      ..SetBody([StdVertexBody, "${vColors} = ${aColors};"])
+      ..InitializeShader(true),
+    new ShaderObject("ColorF")
+      ..AddVaryingVar(vColors, "vaColor")
+      ..SetBody(["gl_FragColor = vec4( vaColor, 1.0 );"])
+      ..InitializeShader(true)
+  ];
 }
 
-ShaderObject createColorShader() {
-  ShaderObject shaderObject = new ShaderObject("Color");
-  shaderObject.vertexPositionAttribute = "aVertexPosition";
-  shaderObject.colorsAttribute = "aColor";
-  shaderObject.modelViewMatrixUniform = "uMVMatrix";
-  shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  shaderObject.fragmentShaderBody = "gl_FragColor = vec4( vaColor, 1.0 );";
-  return generateShader(shaderObject);
+List<ShaderObject> createLightShader() {
+  return [
+    new ShaderObject("LightV")
+      ..AddAttributeVar(aVertexPosition, aVertexPosition)
+      ..AddAttributeVar(aNormal, aNormal)
+      ..AddVaryingVar(vNormal, vNormal)
+      ..AddVaryingVar(vLightWeighting, vLightWeighting)
+      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..AddUniformVar(uViewMatrix, uViewMatrix)
+      ..AddUniformVar(uPointLightLocation, uPointLightLocation)
+      ..SetBody([
+        StdVertexBody,
+        "${vNormal} = (${uModelViewMatrix} * vec4(${aNormal}, 0.0)).xyz;",
+        // Point Light Location
+        "vec3 pll = (uViewMatrix * vec4(${uPointLightLocation}, 0.0)).xyz;",
+        // Light Dir
+        "vec3 ld = normalize(pll - ${aVertexPosition}.xyz);",
+        // Ambient Color
+        "vec3 ac = vec3(0.0,0.0,0.0);",
+        // Directional Color
+        "vec3 dc = vec3(1.0,1.0,1.0);",
+        // Directional Light Weighting
+        "float dlw = max(dot(${vNormal}, normalize(ld)), 0.0);",
+        "${vLightWeighting} = ac + dc * dlw;",
+      ])
+      ..InitializeShader(true),
+    new ShaderObject("LightF")
+      ..AddVaryingVar(vNormal, vNormal)
+      ..AddVaryingVar(vLightWeighting, vLightWeighting)
+      // ..SetBody(["gl_FragColor = vec4( ${vNormal} * ${vLightWeighting}, 1.0 );"])
+      ..SetBody(["gl_FragColor = vec4( ${vLightWeighting}, 1.0 );"])
+      ..InitializeShader(true)
+  ];
 }
 
-ShaderObject createLightShader() {
-  ShaderObject shaderObject = new ShaderObject("Light");
-
-  shaderObject.vertexShader = """
-        precision mediump float;
-
-        attribute vec3 aVertexPosition;
-        attribute vec3 aNormal;
-        
-        uniform mat4 uMVMatrix;
-        uniform mat4 uViewMatrix;
-        uniform mat4 uPMatrix;
-        uniform vec3 pointLightLocation;
-
-        vec3 pointLightLocation_;
-
-        vec3 lightDir = vec3(1.0,0.0,1.0);
-        vec3 ambientColor = vec3(0.0,0.0,0.0);
-        vec3 directionalColor = vec3(1.0,1.0,1.0);
-
-        varying vec3 vLightWeighting;
-        varying vec3 vNormal;
-
-        void main(void) {
-          gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-          vNormal = (uMVMatrix * vec4(aNormal, 0.0)).xyz;
-          pointLightLocation_ = (uViewMatrix * vec4(pointLightLocation, 0.0)).xyz;
-
-          vec3 lightDir = normalize(pointLightLocation_ - aVertexPosition.xyz);
-
-          float directionalLightWeighting = max(dot(vNormal, normalize(lightDir)), 0.0);
-          vLightWeighting = ambientColor + directionalColor * directionalLightWeighting;
-        }
-        """;
-
-  shaderObject.fragmentShader = """
-        precision mediump float;
-        
-        varying vec3 vLightWeighting;
-        varying vec3 vNormal;
-
-        void main(void) {
-          //gl_FragColor = vec4( vNormal * vLightWeighting, 1.0 );
-          gl_FragColor = vec4( vLightWeighting, 1.0 );
-        }
-        """;
-
-  shaderObject.vertexPositionAttribute = "aVertexPosition";
-  shaderObject.normalAttribute = "aNormal";
-  shaderObject.modelViewMatrixUniform = "uMVMatrix";
-  shaderObject.viewMatrixUniform = "uViewMatrix";
-  shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  shaderObject.pointLightLocationUniform = "pointLightLocation";
-
-  return shaderObject;
-}
-
-ShaderObject createNormal2ColorShader() {
-  ShaderObject shaderObject = new ShaderObject("Normal2Color");
-
-  shaderObject.vertexShader = """
-        precision mediump float;
-
-        attribute vec3 aVertexPosition;
-        attribute vec3 aNormal;
-        
-        uniform mat4 uMVMatrix;
-        uniform mat4 uPMatrix;
-        
-        varying vec3 vColor;
-
-        void main(void) {
-          gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-          vColor=normalize( aNormal / 2.0 + vec3(0.5) );
-        }
-        """;
-
-  shaderObject.fragmentShader = """
-        precision mediump float;
-        
-        varying vec3 vColor;
-
-        void main(void) {
-          gl_FragColor = vec4( vColor, 1.0 );
-        }
-        """;
-
-  shaderObject.vertexPositionAttribute = "aVertexPosition";
-  shaderObject.normalAttribute = "aNormal";
-  shaderObject.modelViewMatrixUniform = "uMVMatrix";
-  shaderObject.perpectiveMatrixUniform = "uPMatrix";
-
-  return shaderObject;
+List<ShaderObject> createNormal2ColorShader() {
+  return [
+    new ShaderObject("Normal2ColorV")
+      ..AddAttributeVar(aVertexPosition, aVertexPosition)
+      ..AddAttributeVar(aNormal, aNormal)
+      ..AddVaryingVar(vColors, vColors)
+      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..SetBody([
+        StdVertexBody,
+        "vColors = normalize(${aNormal} / 2.0 + vec3(0.5) );"
+      ])
+      ..InitializeShader(true),
+    new ShaderObject("Normal2ColorF")
+      ..AddVaryingVar(vNormal, vNormal)
+      ..SetBody(["gl_FragColor = vec4( ${vColors}, 1.0 );"])
+      ..InitializeShader(true)
+  ];
 }
 
 // this shader works well for cube shapes, for other shapes it might be better to use the normals attribute to sample the cube texture
-ShaderObject createCubeMapShader() {
-  ShaderObject shaderObject = new ShaderObject("CubeMap");
-  shaderObject.vertexShader = """
-    precision mediump float;
-    attribute vec3 vertexPosition;
-    uniform mat4 uPMatrix;
-    uniform mat4 uMVMatrix;
-    varying vec3 vertexPos;
-    void main(void) {
-      vertexPos = normalize(vertexPosition);
-      gl_Position = uPMatrix * uMVMatrix * vec4(vertexPosition, 1.0);
-    }
-  """;
-  shaderObject.fragmentShader = """
-    precision mediump float;
-    uniform samplerCube sampler;
-    varying vec3 vertexPos;
-    void main() {
-      gl_FragColor = textureCube(sampler, vertexPos);
-    }
-  """;
-  shaderObject.vertexPositionAttribute = "vertexPosition";
-  shaderObject.modelViewMatrixUniform = "uMVMatrix";
-  shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  shaderObject.textureCubeSamplerUniform = "sampler";
-  return shaderObject;
+List<ShaderObject> createCubeMapShader() {
+  return [
+    new ShaderObject("CubeMapV")
+      ..AddAttributeVar(aVertexPosition, aVertexPosition)
+      ..AddVaryingVar(vVertexPosition, vVertexPosition)
+      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..SetBody([
+        StdVertexBody,
+        "${vVertexPosition} = normalize(${aVertexPosition});"
+      ])
+      ..InitializeShader(true),
+    new ShaderObject("CubeMapF")
+      ..AddVaryingVar(vVertexPosition, vVertexPosition)
+      ..AddUniformVar(uTextureCubeSampler, uTextureCubeSampler)
+      ..SetBody([
+        "gl_FragColor = textureCube( ${uTextureCubeSampler}, ${vVertexPosition} );"
+      ])
+      ..InitializeShader(true)
+  ];
 }
 
-ShaderObject createPointSpritesShader() {
-  ShaderObject shaderObject = new ShaderObject("PointSprites");
-
-  shaderObject.vertexPositionAttribute = "aVertexPosition";
-  shaderObject.modelViewMatrixUniform = "uMVMatrix";
-  shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  shaderObject.textureSamplerUniform = "uSampler";
-  shaderObject.vertexShaderBody = "gl_PointSize = 1000.0/gl_Position.z;";
-  shaderObject.fragmentShaderBody = "gl_FragColor = texture2D(uSampler, gl_PointCoord);";
-  return generateShader(shaderObject);
+List<ShaderObject> createPointSpritesShader() {
+  return [
+    new ShaderObject("PointSprites")
+      ..AddAttributeVar(aVertexPosition, aVertexPosition)
+      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..SetBody([StdVertexBody, "gl_PointSize = 1000.0/gl_Position.z;"])
+      ..InitializeShader(true),
+    new ShaderObject("PointSpritesF")
+      ..AddUniformVar(uTextureSampler, uTextureSampler)
+      ..SetBody(
+          ["gl_FragColor = texture2D( ${uTextureSampler},  gl_PointCoord);"])
+      ..InitializeShader(true)
+  ];
 }
