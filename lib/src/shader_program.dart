@@ -37,6 +37,7 @@ const String uCanvasSize = "uCanvasSize";
 
 Map<String, ShaderVarDesc> _VarsDb = {
   // attribute vars
+  // This should also contain an alpha channel
   aColors: new ShaderVarDesc("vec3", "per vertex color"),
   aVertexPosition: new ShaderVarDesc("vec3", "vertex coordinates"),
   aTextureCoordinates: new ShaderVarDesc("vec2", "texture uvs"),
@@ -48,6 +49,7 @@ Map<String, ShaderVarDesc> _VarsDb = {
   vTextureCoordinates: new ShaderVarDesc("vec2", ""),
   vLightWeighting: new ShaderVarDesc("vec3", ""),
   vNormal: new ShaderVarDesc("vec3", ""),
+  vVertexPosition: new ShaderVarDesc("vec3", "vertex coordinates"),
 
   // uniform vars
   uTransformationMatrix: new ShaderVarDesc("mat4", ""),
@@ -56,13 +58,13 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uPerspectiveMatrix: new ShaderVarDesc("mat4", ""),
   uTextureSampler: new ShaderVarDesc("sampler2D", ""),
   uTexture2Sampler: new ShaderVarDesc("sampler2D", ""),
-  uPointLightLocation: new ShaderVarDesc("vec", ""),
+  uTextureCubeSampler: new ShaderVarDesc("samplerCube", ""),
+  uPointLightLocation: new ShaderVarDesc("vec3", ""),
   uTime: new ShaderVarDesc("float", "time since program start in sec"),
   uCameraNear: new ShaderVarDesc("float", ""),
   uCameraFar: new ShaderVarDesc("float", ""),
-  uCanvasSize: new ShaderVarDesc("vec 2", ""),
+  uCanvasSize: new ShaderVarDesc("vec2", ""),
   uColor: new ShaderVarDesc("vec3", ""),
-  // "textureCubeSampler": new ShaderVarDesc(""),
 };
 
 void IntroduceNewShaderVar(String name, ShaderVarDesc desc) {
@@ -154,15 +156,19 @@ class ShaderObject {
 // For use with uniforms
 class ShaderProgramInputs {
   double timeNow = 0.0;
-  Vector color = new Vector();
+
   double near = 0.0;
   double far = 0.0;
   double width = 0.0;
   double height = 0.0;
 
   Matrix4 modelviewMatrix = new Matrix4();
+  Matrix4 viewMatrix = new Matrix4();
   Matrix4 transformMatrix = new Matrix4();
   Matrix4 perspectiveMatrix = new Matrix4();
+
+  Vector color = new Vector();
+  Vector pointLightLocation = new Vector();
 
   Texture texture;
   Texture texture2;
@@ -193,11 +199,11 @@ class ShaderProgram implements Drawable {
   ShaderProgram(
       this.chronosGL, this.shaderObjectV, this.shaderObjectF, this.name) {
     gl = chronosGL.getRenderingContext();
-
     ShaderUtils su = new ShaderUtils(gl);
     program = su.getProgram(shaderObjectV.shader, shaderObjectF.shader);
     for (String v in shaderObjectV.attributeVars.keys) {
       attributeLocations[v] = gl.getAttribLocation(program, v);
+      assert(attributeLocations[v] >= 0);
     }
 
     for (String v in shaderObjectV.uniformVars.keys) {
@@ -205,7 +211,8 @@ class ShaderProgram implements Drawable {
     }
 
     for (String v in shaderObjectF.uniformVars.keys) {
-      assert(!uniformLocations.containsKey(v));
+      // This can happen! Example both shaders use uTime.
+      // assert(!uniformLocations.containsKey(v));
       uniformLocations[v] = getUniformLocation(v);
     }
   }
@@ -266,6 +273,9 @@ class ShaderProgram implements Drawable {
       case uModelViewMatrix:
         gl.uniformMatrix4fv(l, false, inputs.modelviewMatrix.array);
         break;
+      case uViewMatrix:
+        gl.uniformMatrix4fv(l, false, inputs.modelviewMatrix.array);
+        break;
       case uTransformationMatrix:
         gl.uniformMatrix4fv(l, false, inputs.transformMatrix.array);
         break;
@@ -273,8 +283,7 @@ class ShaderProgram implements Drawable {
         gl.uniform1f(l, inputs.timeNow / 1000);
         break;
       case uPointLightLocation:
-        //gl.uniform3fv(l, inputs.pointLightLocation.array);
-        assert(false);
+        gl.uniform3fv(l, inputs.pointLightLocation.array);
         break;
       case uCameraNear:
         gl.uniform1f(l, inputs.near);
@@ -337,6 +346,9 @@ class ShaderProgram implements Drawable {
     inputs.width = chronosGL._canvas.clientWidth * 1.0;
     inputs.height = chronosGL._canvas.clientHeight * 1.0;
     inputs.perspectiveMatrix = pMatrix;
+    inputs.pointLightLocation = chronosGL.pointLightLocation;
+
+    // TODO: make the WHEN gets WHAT updated more rigorous
     // Only do a subset here
     for (String u in uniformLocations.keys) {
       switch (u) {
@@ -360,7 +372,7 @@ class ShaderProgram implements Drawable {
 
     camera.getMVMatrix(mvMatrix, true);
 
-    inputs.modelviewMatrix = mvMatrix;
+    inputs.viewMatrix = mvMatrix;
     MaybeSetUniform(uViewMatrix);
 
     if (overrideMvMatrix != null) {

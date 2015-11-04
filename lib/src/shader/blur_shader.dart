@@ -1,39 +1,25 @@
 part of chronosgl;
 
-ShaderObject createBlurShader() {
-  // addapted from http://www.geeks3d.com/20100909/shader-library-gaussian-blur-post-processing-filter-in-glsl/
-  ShaderObject shaderObject = new ShaderObject("Blur");
-
-  shaderObject.vertexShader = """
-  precision mediump float;
-  attribute vec3 aVertexPosition;
-  attribute vec2 aTextureCoord;
-  
-  uniform mat4 uMVMatrix;
-  uniform mat4 uPMatrix;
-  
-  varying vec2 vTextureCoord;
-  
-  void main(void) {
-    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-    vTextureCoord = aTextureCoord;
-  }
-  """;
-
-  shaderObject.fragmentShader = """
-  precision mediump float;
-  
-  varying vec2 vTextureCoord;
-  uniform sampler2D colorSampler;
-  
-  uniform float cameraNear;
-  uniform float cameraFar;
-  uniform vec2 size;
-
-
-
-  void main(void)
-  {
+// addapted from http://www.geeks3d.com/20100909/shader-library-gaussian-blur-post-processing-filter-in-glsl/
+List<ShaderObject> createBlurShader() {
+  return [
+    new ShaderObject("BlurV")
+      ..AddAttributeVar(aVertexPosition, aVertexPosition)
+      ..AddAttributeVar(aTextureCoordinates, aTextureCoordinates)
+      ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
+      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..SetBody(
+          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"])
+      ..InitializeShader(true),
+    new ShaderObject("BlurF")
+      ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
+      ..AddUniformVar(uCameraFar, uCameraFar)
+      ..AddUniformVar(uCameraNear, uCameraNear)
+      ..AddUniformVar(uCanvasSize, uCanvasSize)
+      ..AddUniformVar(uTextureSampler, uTextureSampler)
+      ..SetBody([
+        """
       float offset[3];
       offset[0]=0.;
       offset[1]=1.3846153846;
@@ -44,63 +30,23 @@ ShaderObject createBlurShader() {
       weight[2]=0.0702702703;
 
       //gl_FragColor = vec4(gl_FragCoord.x/size.x, gl_FragCoord.y/size.y, 0., 0.);
-      //gl_FragColor = vec4(vTextureCoord.x, vTextureCoord.y, 0., 0.);
+      //gl_FragColor = vec4(${vTextureCoordinates}.x, ${vTextureCoordinates}.y, 0., 0.);
 
-      gl_FragColor = texture2D( colorSampler, vTextureCoord)* weight[0];
+      gl_FragColor = texture2D( ${uTextureSampler}, ${vTextureCoordinates})* weight[0];
       for (int i=1; i<3; i++) {
-          gl_FragColor += texture2D( colorSampler, vTextureCoord+vec2(0.0, offset[i]/size.y) ) * weight[i];
-          gl_FragColor += texture2D( colorSampler, vTextureCoord-vec2(0.0, offset[i]/size.y) ) * weight[i];
+          gl_FragColor += texture2D( ${uTextureSampler}, ${vTextureCoordinates}+vec2(0.0, offset[i]/size.y) ) * weight[i];
+          gl_FragColor += texture2D( ${uTextureSampler}, ${vTextureCoordinates}-vec2(0.0, offset[i]/size.y) ) * weight[i];
       }
 
-  }
-
-  """;
-
-  shaderObject.vertexPositionAttribute = "aVertexPosition";
-  shaderObject.textureCoordinatesAttribute = "aTextureCoord";
-  shaderObject.modelViewMatrixUniform = "uMVMatrix";
-  shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  shaderObject.textureSamplerUniform = "colorSampler";
-  shaderObject.cameraNear = "cameraNear";
-  shaderObject.cameraFar = "cameraFar";
-  shaderObject.canvasSize = "size";
-
-  return shaderObject;
+"""
+      ])
+      ..InitializeShader(true)
+  ];
 }
 
-
 // https://www.shadertoy.com/view/XdfGDH
-ShaderObject createBlurShader2() {
-  ShaderObject shaderObject = new ShaderObject("Blur");
 
-  shaderObject.vertexShader = """
-  precision mediump float;
-  attribute vec3 aVertexPosition;
-  attribute vec2 aTextureCoord;
-  
-  uniform mat4 uMVMatrix;
-  uniform mat4 uPMatrix;
-  
-  varying vec2 vTextureCoord;
-  
-  void main(void) {
-    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-    vTextureCoord = aTextureCoord;
-  }
-  """;
-
-  shaderObject.fragmentShader = """
-  precision mediump float;
-  
-  varying vec2 vTextureCoord;
-  uniform sampler2D iChannel0;
-  
-  uniform vec2      iResolution;
-  uniform float     iGlobalTime;
-
-  uniform float cameraNear;
-  uniform float cameraFar;
-
+const String Blur2FragShader = """
   float normpdf(in float x, in float sigma)
   {
     return 0.39894*exp(-0.5*x*x/(sigma*sigma))/sigma;
@@ -148,17 +94,22 @@ ShaderObject createBlurShader2() {
   {
     mainImage( gl_FragColor, gl_FragCoord.xy);
   }
-
   """;
 
-  shaderObject.vertexPositionAttribute = "aVertexPosition";
-  shaderObject.textureCoordinatesAttribute = "aTextureCoord";
-  shaderObject.modelViewMatrixUniform = "uMVMatrix";
-  shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  shaderObject.textureSamplerUniform = "iChannel0";
-  shaderObject.cameraNear = "cameraNear";
-  shaderObject.cameraFar = "cameraFar";
-  shaderObject.canvasSize = "iResolution";
-
-  return shaderObject;
+List<ShaderObject> createBlurShader2() {
+  return [
+    new ShaderObject("Blur2V")
+      ..AddAttributeVar(aVertexPosition, aVertexPosition)
+      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..SetBody([StdVertexBody])
+      ..InitializeShader(true),
+    new ShaderObject("Blur2F")
+      ..AddUniformVar(uCameraFar, "cameraFar")
+      ..AddUniformVar(uCameraNear, "cameraNear")
+      ..AddUniformVar(uCanvasSize, "iResolution")
+      ..AddUniformVar(uTextureSampler, "iChannel0")
+      ..SetBody([Blur2FragShader])
+      ..InitializeShader(false),
+  ];
 }
