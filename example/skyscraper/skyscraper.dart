@@ -1,26 +1,41 @@
 import 'package:chronosgl/chronosgl.dart';
 
-ShaderObject createSkyScraperShader() {
-  ShaderObject shaderObject = new ShaderObject("SkyScraper");
+List<ShaderObject> createSkyScraperShader() {
+  return [
+    new ShaderObject("SkyScraperV")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVar(aTextureCoordinates)
+      ..AddVaryingVar(vVertexPosition)
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix)
+      ..SetBody([
+        StdVertexBody,
+        "${vVertexPosition} = ${aVertexPosition};",
+        "${vTextureCoordinates} = ${aTextureCoordinates};",
+      ])
+      ..InitializeShader(true),
+    new ShaderObject("SkyScraperF")
+      ..AddVaryingVar(vVertexPosition)
+      ..AddVaryingVar(vTextureCoordinates)
+      ..SetBody(["""
+          float s1 = step(mod(${vTextureCoordinates}.x*11.+1., 2.), 1.);
+          float s2 = step(mod(${vTextureCoordinates}.y*21.+1., 2.), 1.);
+          float s3 = step( s1+s2, 1.1);
 
-  shaderObject.vertexShader = """
-        precision mediump float;
-        attribute vec3 aVertexPosition;
+          gl_FragColor = vec4( 1.-s3, 1.-s3, 1.-s3, 1. );
+          
+          //gl_FragColor = vec4( mod(vVertexPosition.x*10.0,2.0) , 
+          //                       mod(vVertexPosition.y*20.0,2.0), 
+          //                       mod(vVertexPosition.z*10.0,2.0), 1. );
+"""
+      ])
+      ..InitializeShader(true)
+  ];
+}
 
-        attribute vec2 aTextureCoord;
-        varying vec2 vTextureCoord;
-        
-        uniform mat4 uMVMatrix;
-        uniform mat4 uPMatrix;
-
-        varying vec3 vVertexPosition;
-        
-        void main(void) {
-          vVertexPosition=aVertexPosition;
-          vTextureCoord=aTextureCoord;
-          gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-        }
-        """;
+/*
+ 
 
   shaderObject.fragmentShader = """
         precision mediump float;
@@ -50,7 +65,7 @@ ShaderObject createSkyScraperShader() {
 
   return shaderObject;
 }
-
+*/
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
   Camera camera = chronosGL.getCamera();
@@ -61,7 +76,8 @@ void main() {
   chronosGL.addAnimatable('orbitCam', orbit);
 
   // Sky Sphere
-  ShaderProgram skyprg = chronosGL.createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
+  ShaderProgram skyprg = chronosGL
+      .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
   MeshData md = chronosGL.shapes.createIcosahedron(3).multiplyVertices(100);
   Mesh m = md.createMesh();
   skyprg.add(m);
@@ -71,8 +87,16 @@ void main() {
   for (int x = -10; x < 10; x += 4) {
     for (int z = -10; z < 10; z += 4) {
       // 0.01 and 0.99 is to remove some artifacts on the edges
-      MeshData md = chronosGL.shapes.createCube(x: 1.0, y: 2.0, z: 1.0, uMin: 0.01, uMax: 0.99, vMin: 0.01, vMax: 0.99);
-      md.textureCoords[17] = 0.01; // remove top face uv coords so the top of the SkySraper has no windows
+      MeshData md = chronosGL.shapes.createCube(
+          x: 1.0,
+          y: 2.0,
+          z: 1.0,
+          uMin: 0.01,
+          uMax: 0.99,
+          vMin: 0.01,
+          vMax: 0.99);
+      md.textureCoords[17] =
+          0.01; // remove top face uv coords so the top of the SkySraper has no windows
       md.textureCoords[20] = 0.01;
       md.textureCoords[22] = 0.01;
       md.textureCoords[23] = 0.01;

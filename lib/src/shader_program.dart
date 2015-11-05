@@ -86,21 +86,24 @@ class ShaderObject {
 
   ShaderObject(this.name);
 
-  void AddAttributeVar(String canonicalName, String actualName) {
+  void AddAttributeVar(String canonicalName, [String actualName=null]) {
     assert(_VarsDb.containsKey(canonicalName));
     assert(!attributeVars.containsKey(canonicalName));
+    if (actualName == null) actualName = canonicalName;
     attributeVars[canonicalName] = actualName;
   }
 
-  void AddUniformVar(String canonicalName, String actualName) {
+  void AddUniformVar(String canonicalName, [String actualName=null]) {
     assert(_VarsDb.containsKey(canonicalName));
     assert(!uniformVars.containsKey(canonicalName));
+    if (actualName == null) actualName = canonicalName;
     uniformVars[canonicalName] = actualName;
   }
 
-  void AddVaryingVar(String canonicalName, String actualName) {
+  void AddVaryingVar(String canonicalName, [String actualName=null]) {
     assert(_VarsDb.containsKey(canonicalName));
     assert(!varyingVars.containsKey(canonicalName));
+    if (actualName == null) actualName = canonicalName;
     varyingVars[canonicalName] = actualName;
   }
 
@@ -263,6 +266,10 @@ class ShaderProgram implements Drawable {
 
   // Maybe take inputs as an argument
   // This could also be table driven by adding more info ShaderVarDesc
+  // in particular, the gl functio used to set the value could be determined
+  // from the type.
+  // We also should add some sanity check that every uniform in the shaders
+  // is set exactly once.
   void MaybeSetUniform(String u) {
     if (!uniformLocations.containsKey(u)) return;
     UniformLocation l = uniformLocations[u];
