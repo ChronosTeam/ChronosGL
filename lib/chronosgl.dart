@@ -31,15 +31,14 @@ part "src/instancer.dart";
 part "src/shader/basic_shader.dart";
 part "src/shader/blur_shader.dart";
 
-// TODO: Not yet ported
 
 part "src/shader/plane_shader.dart";
-//part "src/shader/ssao_shader.dart";
+part "src/shader/ssao_shader.dart";
 part "src/shader/sobel_shader.dart";
 part "src/shader/debug_shader.dart";
 
-//part "src/shader/perlin_noise_func.dart";
-//part "src/shader/perlin_noise_shader.dart";
+part "src/shader/perlin_noise_func.dart";
+part "src/shader/perlin_noise_shader.dart";
 part "src/shader/plasma_shader.dart";
 
 
@@ -139,7 +138,7 @@ class ChronosGL {
       fxWall = _utils.createQuad(fxFramebuffer.colorTexture, 1);
       fxWall.texture2 = fxFramebuffer.depthTexture;
       if (fxShader == null) {
-        fxShader = [createTexturedShaderV(), createTexturedShaderF()];
+        fxShader = createTexturedShader();
       }
       fxProgram = new ShaderProgram(this, fxShader[0], fxShader[1], "fx");
 

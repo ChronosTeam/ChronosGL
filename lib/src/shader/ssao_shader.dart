@@ -1,39 +1,12 @@
 part of chronosgl;
 
-ShaderObject createSSAOShader() {
-  ShaderObject shaderObject = new ShaderObject("SSAO");
-
-  shaderObject.vertexShader = """
-  precision mediump float;
-  attribute vec3 aVertexPosition;
-  attribute vec2 aTextureCoord;
-  
-  uniform mat4 uMVMatrix;
-  uniform mat4 uPMatrix;
-  
-  varying vec2 vUv;
-  
-  void main(void) {
-    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-    vUv = aTextureCoord;
-  }
-  """;
-
-  shaderObject.fragmentShader = """
-    precision mediump float;
-    uniform float cameraNear;
-    uniform float cameraFar;
-    
-    //uniform float fogNear;
-    //uniform float fogFar;
-
+String _SSAOShaderImpl = """
     //uniform bool fogEnabled;
     const bool fogEnabled=false;
 
     //uniform bool onlyAO;
     const bool onlyAO=false;
 
-    uniform vec2 size;
 
     //uniform float aoClamp;
     const float aoClamp = 0.45;
@@ -41,18 +14,16 @@ ShaderObject createSSAOShader() {
     //uniform float lumInfluence;
     const float lumInfluence = 0.4;
 
-    uniform sampler2D tDiffuse;
-    uniform sampler2D tDepth;
     varying vec2 vUv;
     
     #define DL 2.399963229728653
     #define EULER 2.718281828459045
     
-    float width = size.x;
-    float height = size.y;
-    float cameraFarPlusNear = cameraFar + cameraNear;
-    float cameraFarMinusNear = cameraFar - cameraNear;
-    float cameraCoef = 2.0 * cameraNear;
+    float width = ${uCanvasSize}.x;
+    float height = ${uCanvasSize}.y;
+    float cameraFarPlusNear = ${uCameraFar} + ${uCameraNear};
+    float cameraFarMinusNear = ${uCameraFar} - ${uCameraNear};
+    float cameraCoef = 2.0 * ${uCameraNear};
     
     const int samples = 8;
     const float radius = 5.0;
@@ -87,7 +58,7 @@ ShaderObject createSSAOShader() {
     
 /*
     float doFog() {
-      float zdepth = unpackDepth( texture2D( tDepth, vUv ) );
+      float zdepth = unpackDepth( texture2D( tDepth, ${vTextureCoordinates} ) );
       float depth = -cameraFar * cameraNear / ( zdepth * cameraFarMinusNear - cameraFar );
       return smoothstep( fogNear, fogFar, depth );
     }
@@ -114,8 +85,8 @@ ShaderObject createSSAOShader() {
     float calcAO( float depth, float dw, float dh ) {
       float dd = radius - depth * radius;
       vec2 vv = vec2( dw, dh );
-      vec2 coord1 = vUv + dd * vv;
-      vec2 coord2 = vUv - dd * vv;
+      vec2 coord1 = ${vTextureCoordinates} + dd * vv;
+      vec2 coord2 = ${vTextureCoordinates} - dd * vv;
       float temp1 = 0.0;
       float temp2 = 0.0;
       int far = 0;
@@ -128,8 +99,8 @@ ShaderObject createSSAOShader() {
     }
     
     void main() {
-      vec2 noise = rand( vUv );
-      float depth = readDepth( vUv );
+      vec2 noise = rand( ${vTextureCoordinates} );
+      float depth = readDepth( ${vTextureCoordinates} );
       float tt = clamp( depth, aoClamp, 1.0 );
       float w = ( 1.0 / width )  / tt + ( noise.x * ( 1.0 - noise.x ) );
       float h = ( 1.0 / height ) / tt + ( noise.y * ( 1.0 - noise.y ) );
@@ -157,7 +128,7 @@ ShaderObject createSSAOShader() {
       }
 */
 
-      vec3 color = texture2D( tDiffuse, vUv ).rgb;
+      vec3 color = texture2D( tDiffuse, ${vTextureCoordinates} ).rgb;
       vec3 lumcoeff = vec3( 0.299, 0.587, 0.114 );
       float lum = dot( color.rgb, lumcoeff );
       vec3 luminance = vec3( lum );
@@ -172,15 +143,28 @@ ShaderObject createSSAOShader() {
     
     """;
 
-  shaderObject.vertexPositionAttribute = "aVertexPosition";
-  shaderObject.textureCoordinatesAttribute = "aTextureCoord";
-  shaderObject.modelViewMatrixUniform = "uMVMatrix";
-  shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  shaderObject.textureSamplerUniform = "tDiffuse";
-  shaderObject.texture2SamplerUniform = "tDepth";
-  shaderObject.cameraNear = "cameraNear";
-  shaderObject.cameraFar = "cameraFar";
-  shaderObject.canvasSize = "size";
-
-  return shaderObject;
+List<ShaderObject> createSSAOShader() {
+  return [
+    new ShaderObject("SSAOV")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix)
+      ..SetBodyWithMain([
+        StdVertexBody,
+        "${vTextureCoordinates} = normalize(${aTextureCoordinates});"
+      ]),
+    new ShaderObject("SSAOF")
+      ..AddVaryingVar(vTextureCoordinates)
+      //..AddUniformVar(uFogEnabled)
+      //..AddUniformVar(uFogNear)
+      //..AddUniformVar(uFogFar)
+      ..AddUniformVar(uCanvasSize)
+      ..AddUniformVar(uCameraNear)
+      ..AddUniformVar(uCameraFar)
+      ..AddUniformVar(uTextureSampler, "tDiffuse")
+      ..AddUniformVar(uTexture2Sampler, "tDepth")
+      ..SetBody([_SSAOShaderImpl])
+  ];
 }
+
