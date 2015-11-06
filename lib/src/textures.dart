@@ -46,7 +46,7 @@ class TextureCache {
   TextureWrapper addCanvas(String url, HTML.CanvasElement canvas) {
     TextureWrapper tw = new TextureWrapper(this.gl, clamp: false);
     tw.loaded = true;
-    tw.texture = chronosGL.getUtils().createTextureFromCanvas(canvas, minFilter: minFilter, magFilter: magFilter, mipmap: mipmap);
+    tw.texture = chronosGL.getUtils().createTextureFromCanvas(canvas, minFilter: minFilter, magFilter: magFilter, mipmap: mipmap, flipY: flipY);
     return textureCache[url] = tw;
   }
 
@@ -57,8 +57,14 @@ class TextureCache {
   TextureWrapper getTW(String url) {
     return textureCache[url];
   }
-
+  
   void loadAllThenExecute(callBackFunc()) {
+    loadAll().then((_){
+      callBackFunc();
+    });    
+  }
+  
+  Future<dynamic> loadAll() {
     List<Future<HTML.Event>> futures = new List<Future<HTML.Event>>();
 
     for (String url in textureCache.keys) {
@@ -74,7 +80,7 @@ class TextureCache {
     }
 
     // TODO: check for error !!
-    Future.wait(futures).then((List list) {
+    return Future.wait(futures).then((List list) {
       for (String url in textureCache.keys) {
         TextureWrapper textureWrapper = textureCache[url];
         if (textureWrapper.loaded && textureWrapper.type != TEXTURE_CUBE_MAP) continue;
@@ -112,8 +118,6 @@ class TextureCache {
 
         print("loaded: $url");
       }
-
-      callBackFunc();
     });
   }
 
