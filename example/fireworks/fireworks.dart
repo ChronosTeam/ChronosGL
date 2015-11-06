@@ -5,10 +5,10 @@ import 'dart:math' as Math;
 List<ShaderObject> createFireWorksShader() {
   return [
     new ShaderObject("FireWorksV")
-      ..AddAttributeVar(aVertexPosition, aVertexPosition)
-      ..AddAttributeVar(aNormal, "disperse")
-      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVar(aNormal)
+      ..AddUniformVar(uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix)
       ..AddUniformVar(uTime, uTime)
       ..SetBodyWithMain([
         """
@@ -18,16 +18,16 @@ List<ShaderObject> createFireWorksShader() {
        vp.y = t;
       } else {
        vp.y = 3.0;
-       vp += normalize(disperse)*(t-3.0);
+       vp += normalize(${aNormal})*(t-3.0);
       }
       gl_Position = ${uPerspectiveMatrix} * ${uModelViewMatrix} * vec4(vp, 1.0);
       gl_PointSize = 100.0/gl_Position.z;
 """
       ]),
     new ShaderObject("FireWorksF")
-      ..AddUniformVar(uTime, uTime)
-      ..AddUniformVar(uColor, uColor)
-      ..AddUniformVar(uTextureSampler, uTextureSampler)
+      ..AddUniformVar(uTime)
+      ..AddUniformVar(uColor)
+      ..AddUniformVar(uTextureSampler)
       ..SetBodyWithMain([
         """
       gl_FragColor = texture2D(${uTextureSampler}, gl_PointCoord);
