@@ -147,12 +147,13 @@ List<ShaderObject> createSSAOShader() {
   return [
     new ShaderObject("SSAOV")
       ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVar(aTextureCoordinates)
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix)
       ..SetBodyWithMain([
         StdVertexBody,
-        "${vTextureCoordinates} = normalize(${aTextureCoordinates});"
+        "${vTextureCoordinates} = ${aTextureCoordinates};"
       ]),
     new ShaderObject("SSAOF")
       ..AddVaryingVar(vTextureCoordinates)
