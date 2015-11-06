@@ -127,13 +127,13 @@ class Mesh extends Node {
     bindTextures(program);
 
     // TODO: improve this interface
-    program.inputs.color = color;
+    program.inputs.SetUniformVal(uColor, color.array);
     program.MaybeSetUniform(uColor);
 
-    program.inputs.transformMatrix = transform;
+    program.inputs.SetUniformVal(uTransformationMatrix, transform.array);
     program.MaybeSetUniform(uTransformationMatrix);
 
-    program.inputs.modelviewMatrix = mvMatrix;
+    program.inputs.SetUniformVal(uModelViewMatrix, mvMatrix.array);
     program.MaybeSetUniform(uModelViewMatrix);
 
     if (drawPoints) {
@@ -160,25 +160,18 @@ class Mesh extends Node {
   }
 
   void bindBuffers(ShaderProgram program) {
-    program.MaybeSetAttribute(
-        aVertexPosition, verticesBuffer, 3, FLOAT, false, 0, 0);
-
-    program.MaybeSetAttribute(aColors, colorsBuffer, 3, FLOAT, false, 0, 0);
-
-    program.MaybeSetAttribute(
-        aTextureCoordinates, textureCoordBuffer, 2, FLOAT, false, 0, 0);
-
-    program.MaybeSetAttribute(aNormal, normalsBuffer, 3, FLOAT, false, 0, 0);
-
-    program.MaybeSetAttribute(
-        aBinormal, binormalsBuffer, 3, FLOAT, false, 0, 0);
+    program.MaybeSetAttribute(aVertexPosition, verticesBuffer, "vec3");
+    program.MaybeSetAttribute(aColors, colorsBuffer, "vec3");
+    program.MaybeSetAttribute(aTextureCoordinates, textureCoordBuffer, "vec2");
+    program.MaybeSetAttribute(aNormal, normalsBuffer, "vec3");
+    program.MaybeSetAttribute(aBinormal, binormalsBuffer, "vec3");
   }
 
   // move this function into class SahderProgram
   void bindTextures(ShaderProgram program) {
-    program.inputs.texture = texture;
-    program.inputs.texture2 = texture2;
-    program.inputs.textureCube = textureCube;
+    program.inputs.SetUniformVal(uTextureSampler, texture);
+    program.inputs.SetUniformVal(uTexture2Sampler, texture2);
+    program.inputs.SetUniformVal(uTextureCubeSampler, textureCube);
     program.MaybeSetUniform(uTextureSampler);
     program.MaybeSetUniform(uTexture2Sampler);
     program.MaybeSetUniform(uTextureCubeSampler);
