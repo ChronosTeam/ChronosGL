@@ -40,6 +40,8 @@ const String aVertexPosition = "aVertexPosition";
 const String aTextureCoordinates = "aTextureCoordinates";
 const String aNormal = "aNormal";
 const String aBinormal = "aBinormal";
+const String aInstancerRotatation = "aInstancerRotation";
+const String aInstancerTranslation = "aInstancerTranslation";
 
 const String vColors = "vColors";
 const String vTextureCoordinates = "vTextureCoordinates";
@@ -69,6 +71,8 @@ Map<String, ShaderVarDesc> _VarsDb = {
   aTextureCoordinates: new ShaderVarDesc("vec2", "texture uvs"),
   aNormal: new ShaderVarDesc("vec3", "vertex normals"),
   aBinormal: new ShaderVarDesc("vec3", "vertex binormals"),
+  aInstancerRotatation: new ShaderVarDesc("vec4", ""),
+  aInstancerTranslation: new ShaderVarDesc("vec3", ""),
 
   // Varying
   vColors: new ShaderVarDesc("vec3", "per vertex color"),
