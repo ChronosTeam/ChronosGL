@@ -71,7 +71,7 @@ class Instancer {
         .getExtension("ANGLE_instanced_arrays"); // Vendor prefixes may apply!
 
     mesh.bindBuffers(program);
-    mesh.bindTextures(program);
+    mesh.bindUniforms(program);
 
     /*
     if( program.shaderObject.colorUniform != null) {

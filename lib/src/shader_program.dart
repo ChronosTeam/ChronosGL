@@ -186,9 +186,6 @@ class ShaderObject {
 // For use with uniforms
 class ShaderProgramInputs {
   Map _uniforms = {};
-  Texture texture;
-  Texture texture2;
-  Texture textureCube;
 
   void SetUniformVal(String canonical, var val) {
     assert(_VarsDb.containsKey(canonical));
@@ -198,6 +195,10 @@ class ShaderProgramInputs {
   GetUniformVal(String canonical) {
     assert(_VarsDb.containsKey(canonical));
     return _uniforms[canonical];
+  }
+  
+  Iterable<String> GetCanonicals() {
+    return _uniforms.keys;
   }
 }
 
@@ -291,11 +292,10 @@ class ShaderProgram implements Drawable {
         _VarsDb[a].GetScalarType(), normalized, stride, offset);
   }
 
-  void SetUniform(String canonical) {
+  void SetUniform(String canonical, var val) {
     assert(_VarsDb.containsKey(canonical));
     ShaderVarDesc desc = _VarsDb[canonical];
     UniformLocation l = uniformLocations[canonical];
-    var val = inputs.GetUniformVal(canonical);
     switch (desc.type) {
       case "mat4":
         gl.uniformMatrix4fv(l, false, val);
@@ -329,15 +329,25 @@ class ShaderProgram implements Drawable {
         int n = (uniformLocations.containsKey(uTextureSampler) ? 1 : 0) +
             (uniformLocations.containsKey(uTexture2Sampler) ? 1 : 0);
         gl.activeTexture(TEXTURE0 + n);
-        gl.bindTexture(TEXTURE_CUBE_MAP, inputs.textureCube);
+        gl.bindTexture(TEXTURE_CUBE_MAP, val);
         gl.uniform1i(l, n);
         break;
       default:
         assert(false);
     }
   }
+  
   void MaybeSetUniform(String canonical) {
-    if (uniformLocations.containsKey(canonical)) SetUniform(canonical);
+    if (uniformLocations.containsKey(canonical)) {
+      SetUniform(canonical, inputs.GetUniformVal(canonical));
+    }
+  }
+  
+  void MaybeSetUniformsBulk(ShaderProgramInputs inputs) {
+    for (String canonical in inputs.GetCanonicals()) {
+      var val = inputs.GetUniformVal(canonical);
+      SetUniform(canonical, val);
+    }
   }
   
   void draw(Matrix4 pMatrix, [Matrix4 overrideMvMatrix]) {

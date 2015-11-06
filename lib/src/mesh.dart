@@ -11,7 +11,8 @@ class Mesh extends Node {
   int blendEquation = FUNC_ADD;
 
   bool drawPoints;
-
+  ShaderProgramInputs _inputs = new ShaderProgramInputs();
+  
   Texture texture;
   Texture texture2;
   Texture textureCube;
@@ -124,18 +125,9 @@ class Mesh extends Node {
     }
 
     bindBuffers(program);
-    bindTextures(program);
+    bindUniforms(program);
 
-    // TODO: improve this interface
-    program.inputs.SetUniformVal(uColor, color.array);
-    program.MaybeSetUniform(uColor);
-
-    program.inputs.SetUniformVal(uTransformationMatrix, transform.array);
-    program.MaybeSetUniform(uTransformationMatrix);
-
-    program.inputs.SetUniformVal(uModelViewMatrix, mvMatrix.array);
-    program.MaybeSetUniform(uModelViewMatrix);
-
+  
     if (drawPoints) {
       gl.drawArrays(POINTS, 0, numItems);
     } else if (vertexIndexBuffer == null) {
@@ -167,14 +159,14 @@ class Mesh extends Node {
     program.MaybeSetAttribute(aBinormal, binormalsBuffer, "vec3");
   }
 
-  // move this function into class SahderProgram
-  void bindTextures(ShaderProgram program) {
-    program.inputs.SetUniformVal(uTextureSampler, texture);
-    program.inputs.SetUniformVal(uTexture2Sampler, texture2);
-    program.inputs.SetUniformVal(uTextureCubeSampler, textureCube);
-    program.MaybeSetUniform(uTextureSampler);
-    program.MaybeSetUniform(uTexture2Sampler);
-    program.MaybeSetUniform(uTextureCubeSampler);
+  void bindUniforms(ShaderProgram program) {
+    _inputs.SetUniformVal(uTextureSampler, texture);
+    _inputs.SetUniformVal(uTexture2Sampler, texture2);
+    _inputs.SetUniformVal(uTextureCubeSampler, textureCube);
+    _inputs.SetUniformVal(uColor, color.array);
+    _inputs.SetUniformVal(uTransformationMatrix, transform.array);
+    _inputs.SetUniformVal(uModelViewMatrix, mvMatrix.array);
+    program.MaybeSetUniformsBulk(_inputs);
   }
 
   Mesh setTexture(Texture t) {
