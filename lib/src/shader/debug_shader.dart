@@ -11,19 +11,17 @@ List<ShaderObject> createFixedVertexColorShader() {
       ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
       ..AddVaryingVar(vColors, vColors)
-      ..SetBody([
+      ..SetBodyWithMain([
         StdVertexBody,
         """
       ${vColors} = vec3( sin(${aVertexPosition}.x)/2.0+0.5, 
                          cos(${aVertexPosition}.y)/2.0+0.5, 
                          sin(${aVertexPosition}.z)/2.0+0.5);
 """
-      ])
-      ..InitializeShader(true),
+      ]),
     new ShaderObject("FixedVertexColorF")
       ..AddVaryingVar(vColors, vColors)
-      ..SetBody(["gl_FragColor = vec4( ${vColors}, 1.0 );"])
-      ..InitializeShader(true)
+      ..SetBodyWithMain(["gl_FragColor = vec4( ${vColors}, 1.0 );"])
   ];
 }
 
@@ -35,13 +33,12 @@ List<ShaderObject> createDebugTexCoordsShader() {
       ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
       ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
-      ..SetBody(
-          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"])
-      ..InitializeShader(true),
+      ..SetBodyWithMain(
+          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("DebugTexCoordsF")
       ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
-      ..SetBody(["gl_FragColor = vec4(${vTextureCoordinates}, 0.0, 1.0);"])
-      ..InitializeShader(true)
+      ..SetBodyWithMain(
+          ["gl_FragColor = vec4(${vTextureCoordinates}, 0.0, 1.0);"])
   ];
 }
 
@@ -53,9 +50,8 @@ List<ShaderObject> createDepthShader() {
       ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
       ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
-      ..SetBody(
-          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"])
-      ..InitializeShader(true),
+      ..SetBodyWithMain(
+          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("DepthsF")
       ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
       ..AddUniformVar(uTextureSampler, "uSampler")
@@ -77,6 +73,5 @@ List<ShaderObject> createDepthShader() {
         }
         """
       ])
-      ..InitializeShader(false)
   ];
 }

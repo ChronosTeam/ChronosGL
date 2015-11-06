@@ -1,34 +1,21 @@
 part of chronosgl;
 
-ShaderObject createSobelShader() {
-  ShaderObject shaderObject = new ShaderObject("Sobel");
-
-  shaderObject.vertexShader = """
-  precision mediump float;
-  attribute vec3 aVertexPosition;
-  attribute vec2 aTextureCoord;
-  
-  uniform mat4 uMVMatrix;
-  uniform mat4 uPMatrix;
-  
-  varying vec2 vTextureCoord;
-  
-  void main(void) {
-    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-    vTextureCoord = aTextureCoord;
-  }
-  """;
-
-  shaderObject.fragmentShader = """
-  precision mediump float;
-  
-  varying vec2 vTextureCoord;
-  uniform sampler2D colorSampler;
-  
-  uniform float cameraNear;
-  uniform float cameraFar;
-  uniform vec2 size;
-
+List<ShaderObject> createSobelShader() {
+  return [
+    new ShaderObject("SobelV")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddUniformVar(uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix)
+      ..AddAttributeVar(aTextureCoordinates)
+      ..AddVaryingVar(vTextureCoordinates)
+      ..SetBodyWithMain(
+          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+    new ShaderObject("SobelF")
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uTextureSampler, "colorSampler")
+      ..AddUniformVar(uCanvasSize, "size")
+      ..SetBody([
+        """"
   float lum(vec4 c) {
     return dot(c.xyz, vec3(0.3, 0.59, 0.11));
   }
@@ -53,16 +40,7 @@ ShaderObject createSobelShader() {
       float len = sobel();
       gl_FragColor = vec4(len, len, len, 1.0); // 
   }
-  """;
-
-  shaderObject.vertexPositionAttribute = "aVertexPosition";
-  shaderObject.textureCoordinatesAttribute = "aTextureCoord";
-  shaderObject.modelViewMatrixUniform = "uMVMatrix";
-  shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  shaderObject.textureSamplerUniform = "colorSampler";
-  shaderObject.cameraNear = "cameraNear";
-  shaderObject.cameraFar = "cameraFar";
-  shaderObject.canvasSize = "size";
-
-  return shaderObject;
+  """
+      ])
+  ];
 }

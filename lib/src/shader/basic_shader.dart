@@ -12,17 +12,15 @@ List<ShaderObject> createTexturedShader() {
       ..AddUniformVar(uModelViewMatrix)
       ..AddAttributeVar(aTextureCoordinates)
       ..AddVaryingVar(vTextureCoordinates)
-      ..SetBody(
-          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"])
-      ..InitializeShader(true),
+      ..SetBodyWithMain(
+          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("TexturedF")
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uColor)
       ..AddUniformVar(uTextureSampler)
-      ..SetBody([
+      ..SetBodyWithMain([
         "gl_FragColor = texture2D(${uTextureSampler}, ${vTextureCoordinates}) + vec4( ${uColor}, 0.0 );"
       ])
-      ..InitializeShader(true)
   ];
 }
 
@@ -32,12 +30,10 @@ List<ShaderObject> createSolidColorShader() {
       ..AddAttributeVar(aVertexPosition)
       ..AddUniformVar(uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix)
-      ..SetBody([StdVertexBody])
-      ..InitializeShader(true),
+      ..SetBodyWithMain([StdVertexBody]),
     new ShaderObject("SolidColorF")
       ..AddUniformVar(uColor)
-      ..SetBody(["gl_FragColor = vec4( ${uColor}, 1.0 );"])
-      ..InitializeShader(true)
+      ..SetBodyWithMain(["gl_FragColor = vec4( ${uColor}, 1.0 );"])
   ];
 }
 
@@ -49,12 +45,10 @@ List<ShaderObject> createColorShader() {
       ..AddUniformVar(uModelViewMatrix)
       ..AddAttributeVar(aColors)
       ..AddVaryingVar(vColors)
-      ..SetBody([StdVertexBody, "${vColors} = ${aColors};"])
-      ..InitializeShader(true),
+      ..SetBodyWithMain([StdVertexBody, "${vColors} = ${aColors};"]),
     new ShaderObject("ColorF")
       ..AddVaryingVar(vColors)
-      ..SetBody(["gl_FragColor = vec4( ${vColor}, 1.0 );"])
-      ..InitializeShader(true)
+      ..SetBodyWithMain(["gl_FragColor = vec4( ${vColors}, 1.0 );"])
   ];
 }
 
@@ -69,7 +63,7 @@ List<ShaderObject> createLightShader() {
       ..AddUniformVar(uModelViewMatrix)
       ..AddUniformVar(uViewMatrix)
       ..AddUniformVar(uPointLightLocation)
-      ..SetBody([
+      ..SetBodyWithMain([
         StdVertexBody,
         "${vNormal} = (${uModelViewMatrix} * vec4(${aNormal}, 0.0)).xyz;",
         // Point Light Location
@@ -83,14 +77,12 @@ List<ShaderObject> createLightShader() {
         // Directional Light Weighting
         "float dlw = max(dot(${vNormal}, normalize(ld)), 0.0);",
         "${vLightWeighting} = ac + dc * dlw;",
-      ])
-      ..InitializeShader(true),
+      ]),
     new ShaderObject("LightF")
       ..AddVaryingVar(vNormal, vNormal)
       ..AddVaryingVar(vLightWeighting, vLightWeighting)
       // ..SetBody(["gl_FragColor = vec4( ${vNormal} * ${vLightWeighting}, 1.0 );"])
-      ..SetBody(["gl_FragColor = vec4( ${vLightWeighting}, 1.0 );"])
-      ..InitializeShader(true)
+      ..SetBodyWithMain(["gl_FragColor = vec4( ${vLightWeighting}, 1.0 );"])
   ];
 }
 
@@ -102,15 +94,13 @@ List<ShaderObject> createNormal2ColorShader() {
       ..AddVaryingVar(vColors)
       ..AddUniformVar(uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix)
-      ..SetBody([
+      ..SetBodyWithMain([
         StdVertexBody,
         "vColors = normalize(${aNormal} / 2.0 + vec3(0.5) );"
-      ])
-      ..InitializeShader(true),
+      ]),
     new ShaderObject("Normal2ColorF")
       ..AddVaryingVar(vColors)
-      ..SetBody(["gl_FragColor = vec4( ${vColors}, 1.0 );"])
-      ..InitializeShader(true)
+      ..SetBodyWithMain(["gl_FragColor = vec4( ${vColors}, 1.0 );"])
   ];
 }
 
@@ -122,18 +112,16 @@ List<ShaderObject> createCubeMapShader() {
       ..AddVaryingVar(vVertexPosition)
       ..AddUniformVar(uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix)
-      ..SetBody([
+      ..SetBodyWithMain([
         StdVertexBody,
         "${vVertexPosition} = normalize(${aVertexPosition});"
-      ])
-      ..InitializeShader(true),
+      ]),
     new ShaderObject("CubeMapF")
       ..AddVaryingVar(vVertexPosition)
       ..AddUniformVar(uTextureCubeSampler)
-      ..SetBody([
+      ..SetBodyWithMain([
         "gl_FragColor = textureCube( ${uTextureCubeSampler}, ${vVertexPosition} );"
-      ])
-      ..InitializeShader(true)
+      ]),
   ];
 }
 
@@ -143,12 +131,11 @@ List<ShaderObject> createPointSpritesShader() {
       ..AddAttributeVar(aVertexPosition)
       ..AddUniformVar(uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix)
-      ..SetBody([StdVertexBody, "gl_PointSize = 1000.0/gl_Position.z;"])
-      ..InitializeShader(true),
+      ..SetBodyWithMain(
+          [StdVertexBody, "gl_PointSize = 1000.0/gl_Position.z;"]),
     new ShaderObject("PointSpritesF")
       ..AddUniformVar(uTextureSampler)
-      ..SetBody(
+      ..SetBodyWithMain(
           ["gl_FragColor = texture2D( ${uTextureSampler},  gl_PointCoord);"])
-      ..InitializeShader(true)
   ];
 }

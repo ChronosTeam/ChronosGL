@@ -9,63 +9,33 @@ List<ShaderObject> createSkyScraperShader() {
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix)
-      ..SetBody([
+      ..SetBodyWithMain([
         StdVertexBody,
         "${vVertexPosition} = ${aVertexPosition};",
         "${vTextureCoordinates} = ${aTextureCoordinates};",
-      ])
-      ..InitializeShader(true),
+      ]),
     new ShaderObject("SkyScraperF")
       ..AddVaryingVar(vVertexPosition)
       ..AddVaryingVar(vTextureCoordinates)
-      ..SetBody(["""
-          float s1 = step(mod(${vTextureCoordinates}.x*11.+1., 2.), 1.);
-          float s2 = step(mod(${vTextureCoordinates}.y*21.+1., 2.), 1.);
-          float s3 = step( s1+s2, 1.1);
+      ..SetBodyWithMain(["""
+      // the step finds the windows
+      // multiplying the tex coord with 11 gives it a black column on the right side but with artifacts
+      // multiplying the tex coord with 10.9 gives it a black column on the right side WITHOUT the artifacts on the right side
+      float s1 = step(mod(${vTextureCoordinates}.x*11.+1., 2.), 1.);
+      float s2 = step(mod(${vTextureCoordinates}.y*21.+1., 2.), 1.);
+      float s3 = step( s1+s2, 1.1);
 
-          gl_FragColor = vec4( 1.-s3, 1.-s3, 1.-s3, 1. );
+      gl_FragColor = vec4( 1.-s3, 1.-s3, 1.-s3, 1. );
           
-          //gl_FragColor = vec4( mod(vVertexPosition.x*10.0,2.0) , 
-          //                       mod(vVertexPosition.y*20.0,2.0), 
-          //                       mod(vVertexPosition.z*10.0,2.0), 1. );
+      //gl_FragColor = vec4( mod(vVertexPosition.x*10.0,2.0) , 
+      //                       mod(vVertexPosition.y*20.0,2.0), 
+      //                       mod(vVertexPosition.z*10.0,2.0), 1. );
 """
       ])
-      ..InitializeShader(true)
   ];
 }
 
-/*
- 
 
-  shaderObject.fragmentShader = """
-        precision mediump float;
-        
-        varying vec3 vVertexPosition;
-        varying vec2 vTextureCoord;
-
-        // the step finds the windows
-        // multiplying the tex coord with 11 gives it a black column on the right side but with artifacts
-        // multiplying the tex coord with 10.9 gives it a black column on the right side WITHOUT the artifacts on the right side
-        void main(void) {
-          
-          float s1 = step(mod(vTextureCoord.x*11.+1., 2.), 1.);
-          float s2 = step(mod(vTextureCoord.y*21.+1., 2.), 1.);
-          float s3 = step( s1+s2, 1.1);
-
-          gl_FragColor = vec4( 1.-s3, 1.-s3, 1.-s3, 1. );
-          
-          //gl_FragColor = vec4( mod(vVertexPosition.x*10.0,2.0) , mod(vVertexPosition.y*20.0,2.0), mod(vVertexPosition.z*10.0,2.0), 1. );
-        }
-        """;
-
-  shaderObject.vertexPositionAttribute = "aVertexPosition";
-  shaderObject.textureCoordinatesAttribute = "aTextureCoord";
-  shaderObject.modelViewMatrixUniform = "uMVMatrix";
-  shaderObject.perpectiveMatrixUniform = "uPMatrix";
-
-  return shaderObject;
-}
-*/
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
   Camera camera = chronosGL.getCamera();

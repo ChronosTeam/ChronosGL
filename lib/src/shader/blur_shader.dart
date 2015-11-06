@@ -9,16 +9,15 @@ List<ShaderObject> createBlurShader() {
       ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
       ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
-      ..SetBody(
-          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"])
-      ..InitializeShader(true),
+      ..SetBodyWithMain(
+          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("BlurF")
       ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
       ..AddUniformVar(uCameraFar, uCameraFar)
       ..AddUniformVar(uCameraNear, uCameraNear)
       ..AddUniformVar(uCanvasSize, uCanvasSize)
       ..AddUniformVar(uTextureSampler, uTextureSampler)
-      ..SetBody([
+      ..SetBodyWithMain([
         """
       float offset[3];
       offset[0]=0.;
@@ -40,7 +39,6 @@ List<ShaderObject> createBlurShader() {
 
 """
       ])
-      ..InitializeShader(true)
   ];
 }
 
@@ -102,14 +100,12 @@ List<ShaderObject> createBlurShader2() {
       ..AddAttributeVar(aVertexPosition, aVertexPosition)
       ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
-      ..SetBody([StdVertexBody])
-      ..InitializeShader(true),
+      ..SetBodyWithMain([StdVertexBody]),
     new ShaderObject("Blur2F")
       ..AddUniformVar(uCameraFar, "cameraFar")
       ..AddUniformVar(uCameraNear, "cameraNear")
       ..AddUniformVar(uCanvasSize, "iResolution")
       ..AddUniformVar(uTextureSampler, "iChannel0")
       ..SetBody([Blur2FragShader])
-      ..InitializeShader(false),
   ];
 }

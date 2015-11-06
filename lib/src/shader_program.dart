@@ -77,9 +77,7 @@ void IntroduceNewShaderVar(String name, ShaderVarDesc desc) {
 class ShaderObject {
   String name;
   String shader = null;
-  List<String> _header = null;
-  List<String> _body = null;
-
+ 
   Map<String, String> attributeVars = {};
   Map<String, String> uniformVars = {};
   Map<String, String> varyingVars = {};
@@ -87,6 +85,7 @@ class ShaderObject {
   ShaderObject(this.name);
 
   void AddAttributeVar(String canonicalName, [String actualName=null]) {
+    assert(shader == null);
     assert(_VarsDb.containsKey(canonicalName));
     assert(!attributeVars.containsKey(canonicalName));
     if (actualName == null) actualName = canonicalName;
@@ -94,6 +93,7 @@ class ShaderObject {
   }
 
   void AddUniformVar(String canonicalName, [String actualName=null]) {
+    assert(shader == null);
     assert(_VarsDb.containsKey(canonicalName));
     assert(!uniformVars.containsKey(canonicalName));
     if (actualName == null) actualName = canonicalName;
@@ -101,25 +101,26 @@ class ShaderObject {
   }
 
   void AddVaryingVar(String canonicalName, [String actualName=null]) {
+    assert(shader == null);
     assert(_VarsDb.containsKey(canonicalName));
     assert(!varyingVars.containsKey(canonicalName));
     if (actualName == null) actualName = canonicalName;
     varyingVars[canonicalName] = actualName;
   }
 
-  void SetBody(List<String> s) {
-    assert(_body == null);
-    _body = s;
+  void SetBodyWithMain(List<String> body) {
+    assert(shader == null);
+    shader = _CreateShader(true, body);
   }
 
-  void SetHeader(List<String> s) {
-    assert(_header == null);
-    _header = s;
-  }
+  void SetBody(List<String> body) {
+      assert(shader == null);
+      shader = _CreateShader(false, body);
+    }
 
   // InitializeShader updates the shader field from header and body.
   // If you have set shader manually do not call this.
-  void InitializeShader(bool addWrapperForMain) {
+  String _CreateShader(bool addWrapperForMain, List<String> body) {
     assert(shader == null);
     List<String> out = [];
     out.add("precision mediump float;");
@@ -139,20 +140,16 @@ class ShaderObject {
       out.add("uniform ${d.type} ${uniformVars[v]};");
     }
     out.add("");
-    if (_header != null) {
-      out.addAll(_header);
-      out.add("");
-    }
-
+    
     if (addWrapperForMain) {
       out.add("void main(void) {");
     }
-    out.addAll(_body);
+    out.addAll(body);
     if (addWrapperForMain) {
       out.add("}");
     }
 
-    shader = out.join("\n");
+    return out.join("\n");
   }
 }
 

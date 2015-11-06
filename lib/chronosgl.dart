@@ -32,18 +32,16 @@ part "src/shader/basic_shader.dart";
 part "src/shader/blur_shader.dart";
 
 // TODO: Not yet ported
-/*
+
 part "src/shader/plane_shader.dart";
-part "src/shader/ssao_shader.dart";
+//part "src/shader/ssao_shader.dart";
 part "src/shader/sobel_shader.dart";
- */
 part "src/shader/debug_shader.dart";
-/*
-part "src/shader/perlin_noise_func.dart";
-part "src/shader/perlin_noise_shader.dart";
+
+//part "src/shader/perlin_noise_func.dart";
+//part "src/shader/perlin_noise_shader.dart";
 part "src/shader/plasma_shader.dart";
-part "src/shader/generate_shader.dart";
-*/
+
 
 abstract class Animatable {
   bool active = true;

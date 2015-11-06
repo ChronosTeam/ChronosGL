@@ -12,27 +12,7 @@ import 'package:chronosgl/chronosgl.dart';
 //https://www.shadertoy.com/view/Md23Rd
 //https://www.shadertoy.com/view/Ms2Gzd
 
-ShaderObject createSphericalGyroidShader() {
-  ShaderObject shaderObject = new ShaderObject("SphericalGyroid");
-
-  shaderObject.vertexShader = """
-        precision mediump float;
-        attribute vec3 aVertexPosition;
-        
-        uniform mat4 uMVMatrix;
-        uniform mat4 uPMatrix;
-
-        void main(void) {
-          gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-        }
-        """;
-
-  shaderObject.fragmentShader = """
-        precision mediump float;
-        
-uniform vec2      iResolution;
-uniform float     iGlobalTime;
-
+const String _FragmentShader = """
 #define MaxSteps 60
 #define MinimumDistance 0.01
 #define normalDistance     0.0002
@@ -206,18 +186,24 @@ void main(void)
   gl_FragColor = rayMarch(camPos, rayDir);
 }
 
-        """;
+""";
 
-  shaderObject.vertexPositionAttribute = "aVertexPosition";
-  shaderObject.modelViewMatrixUniform = "uMVMatrix";
-  shaderObject.perpectiveMatrixUniform = "uPMatrix";
-  shaderObject.timeUniform = "iGlobalTime";
-  shaderObject.canvasSize = "iResolution";
 
-  shaderObject.textureSamplerUniform = "iChannel0";
+List<ShaderObject> createSphericalGyroidShader() {
+  return[ new ShaderObject("SphericalGyroidV")
+      ..AddAttributeVar(aVertexPosition)
+         ..AddUniformVar(uPerspectiveMatrix)
+         ..AddUniformVar(uModelViewMatrix)
+         ..SetBodyWithMain(
+             [StdVertexBody]),
+  
+             new ShaderObject("SphericalGyroidF")
 
-  return shaderObject;
+      ..AddUniformVar(uCanvasSize, "iResolution")
+         ..AddUniformVar(uTime, "iGlobalTime")
+         ..SetBody([_FragmentShader])];
 }
+ 
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas', useFramebuffer: true, fxShader: createSphericalGyroidShader(), near: 0.1, far: 2520.0);

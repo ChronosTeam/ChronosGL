@@ -10,7 +10,7 @@ List<ShaderObject> createFireWorksShader() {
       ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
       ..AddUniformVar(uTime, uTime)
-      ..SetBody([
+      ..SetBodyWithMain([
         """
       float t = mod(${uTime}, 5.0);
       vec3 vp = ${aVertexPosition};
@@ -23,13 +23,12 @@ List<ShaderObject> createFireWorksShader() {
       gl_Position = ${uPerspectiveMatrix} * ${uModelViewMatrix} * vec4(vp, 1.0);
       gl_PointSize = 100.0/gl_Position.z;
 """
-      ])
-      ..InitializeShader(true),
+      ]),
     new ShaderObject("FireWorksF")
       ..AddUniformVar(uTime, uTime)
       ..AddUniformVar(uColor, uColor)
       ..AddUniformVar(uTextureSampler, uTextureSampler)
-      ..SetBody([
+      ..SetBodyWithMain([
         """
       gl_FragColor = texture2D(${uTextureSampler}, gl_PointCoord);
       float t = mod(${uTime}, 5.0);
@@ -41,7 +40,6 @@ List<ShaderObject> createFireWorksShader() {
       }
 """
       ])
-      ..InitializeShader(true)
   ];
 }
 
