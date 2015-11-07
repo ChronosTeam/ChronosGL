@@ -12,11 +12,6 @@ class Mesh extends Node {
 
   bool drawPoints;
   ShaderProgramInputs _inputs = new ShaderProgramInputs();
-  
-  Texture texture;
-  Texture texture2;
-  Texture textureCube;
-  Vector color = new Vector();
 
   Buffer verticesBuffer,
       colorsBuffer,
@@ -27,8 +22,11 @@ class Mesh extends Node {
 
   int numItems;
 
-  Mesh(MeshData meshData,
-      {this.drawPoints: false, this.texture, this.texture2, this.textureCube}) {
+  void SetUniform(String canonical, val) {
+    _inputs.SetUniformVal(canonical, val);
+  }
+
+  Mesh(MeshData meshData, {this.drawPoints: false}) {
     if (!meshData.isOptimized) meshData.optimize();
 
     gl = ChronosGL.globalGL;
@@ -126,8 +124,12 @@ class Mesh extends Node {
 
     bindBuffers(program);
     bindUniforms(program);
-
-  
+    if(!program.AllUniformsInitialized()) {
+      LogInfo("program ${program.name}");
+      LogInfo("want: ${program._uniformLocations}");
+      LogInfo("have: ${program._uniformInitialized}");
+      assert(false);
+    }
     if (drawPoints) {
       gl.drawArrays(POINTS, 0, numItems);
     } else if (vertexIndexBuffer == null) {
@@ -160,17 +162,8 @@ class Mesh extends Node {
   }
 
   void bindUniforms(ShaderProgram program) {
-    _inputs.SetUniformVal(uTextureSampler, texture);
-    _inputs.SetUniformVal(uTexture2Sampler, texture2);
-    _inputs.SetUniformVal(uTextureCubeSampler, textureCube);
-    _inputs.SetUniformVal(uColor, color.array);
-    _inputs.SetUniformVal(uTransformationMatrix, transform.array);
-    _inputs.SetUniformVal(uModelViewMatrix, mvMatrix.array);
+    _inputs.SetUniformVal(uTransformationMatrix, transform);
+    _inputs.SetUniformVal(uModelViewMatrix, mvMatrix);
     program.MaybeSetUniformsBulk(_inputs);
-  }
-
-  Mesh setTexture(Texture t) {
-    texture = t;
-    return this;
   }
 }

@@ -17,10 +17,10 @@ void main() {
   MeshData cubeMeshData = chronosGL.shapes.createCube();
   cubeMeshData.multiplyVertices(2);
 
-  Mesh cubeMesh = cubeMeshData.createMesh();
-  cubeMesh.setPos(0.0, 0.0, 0.0);
-  cubeMesh.lookUp(1.0);
-  cubeMesh.lookLeft(0.7);
+  Mesh cubeMesh = cubeMeshData.createMesh()
+    ..setPos(0.0, 0.0, 0.0)
+    ..lookUp(1.0)
+    ..lookLeft(0.7);
 
   cubeMesh.setAnimateCallback((Node node, double time) {
     cubeMesh.rollLeft(time * 0.0001);
@@ -29,13 +29,15 @@ void main() {
 
   ShaderProgram lightShaderPrg = chronosGL.createProgram(createLightShader());
   lightShaderPrg.add(cubeMesh);
-  ShaderProgram fixedShaderPrg = chronosGL.createProgram(createSolidColorShader());
+  ShaderProgram fixedShaderPrg =
+      chronosGL.createProgram(createSolidColorShader());
 
   chronosGL.pointLightLocation.set(11, 11, 1);
 
-  Mesh ico = chronosGL.shapes.createIcosahedron().createMesh();
-  ico.setPos(11, 11, 1);
-  ico.color.set(1, 1, 0);
+  Mesh ico = chronosGL.shapes.createIcosahedron().createMesh()
+    ..SetUniform(uColor, new Vector(1, 1, 0))
+    ..setPos(11, 11, 1);
+
   fixedShaderPrg.add(ico);
 
   chronosGL.getUtils().addParticles(2000);

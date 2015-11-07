@@ -20,13 +20,15 @@ void main() {
   TextureWrapper generatedTexture = textureCache.addCanvas("gen", canvas2d);
   
   textureCache.loadAllThenExecute(() {
-    Mesh m = chronosGL.shapes.createTorusKnot().createMesh().setTexture(generatedTexture.texture);
-    m.blend=true;
-    m.depthTest=false;
+    Mesh m = chronosGL.shapes.createTorusKnot().createMesh()
+    ..SetUniform(uTextureSampler, generatedTexture.texture)
+    ..SetUniform(uColor, new Vector())
+    ..blend=true
+    ..depthTest=false;
     chronosGL.programBasic.add( m);
     chronosGL.addAnimateCallback('changeTexture', (double elapsed, double time) {
       canvas2d = chronosGL.getUtils().createGradientImage2(time/1000, canvas2d);
-      chronosGL.gl.bindTexture(TEXTURE_2D, m.texture);
+      chronosGL.gl.bindTexture(TEXTURE_2D, generatedTexture.texture);
       chronosGL.gl.texImage2DCanvas(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, canvas2d);
     });
   });

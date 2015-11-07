@@ -131,8 +131,9 @@ List<ShaderObject> createPointSpritesShader() {
       ..AddAttributeVar(aVertexPosition)
       ..AddUniformVar(uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix)
+      ..AddUniformVar(uPointSize)
       ..SetBodyWithMain(
-          [StdVertexBody, "gl_PointSize = 1000.0/gl_Position.z;"]),
+          [StdVertexBody, "gl_PointSize = ${uPointSize}/gl_Position.z;"]),
     new ShaderObject("PointSpritesF")
       ..AddUniformVar(uTextureSampler)
       ..SetBodyWithMain(

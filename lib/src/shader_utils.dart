@@ -13,9 +13,11 @@ class Uniform {
   void setValue1f(num v) {
     gl.uniform1f(uniformLocation, v);
   }
+
   void setValue3f(num x, num y, num z) {
     gl.uniform3f(uniformLocation, x, y, z);
   }
+
   void setValue3fv(Vector v) {
     gl.uniform3fv(uniformLocation, v.array);
   }
@@ -34,6 +36,7 @@ class ShaderUtils {
 
     var result = gl.getShaderParameter(shader, COMPILE_STATUS);
     if (result != null && result == false) {
+      HTML.window.console.log("@@@@@@@@@@@@@@\n" + text);
       throw gl.getShaderInfoLog(shader);
     }
     return shader;

@@ -13,15 +13,17 @@ void main() {
   TextureCache textureCache = chronosGL.getTextureCache();
   TextureWrapper blockTex = textureCache.add("gradient.jpg");
 
-  ShaderProgram perlinNoise = chronosGL.createProgram(createPerlinNoiseColorShader(false), true);
+  ShaderProgram perlinNoise =
+      chronosGL.createProgram(createPerlinNoiseColorShader(false), true);
 
   textureCache.loadAllThenExecute(() {
-    Mesh m1 = chronosGL.shapes.createTorusKnot().createMesh().setTexture(blockTex.texture);
-    m1.setPos(-50, 0, 0);
+    Mesh m1 = chronosGL.shapes.createTorusKnot().createMesh()
+      ..SetUniform(uTextureSampler, blockTex.texture)
+      ..SetUniform(uColor, new Vector())
+      ..setPos(-50, 0, 0);
     chronosGL.programBasic.add(m1);
 
-    Mesh m2 = chronosGL.shapes.createTorusKnot().createMesh();
-    m2.setPos(50, 0, 0);
+    Mesh m2 = chronosGL.shapes.createTorusKnot().createMesh()..setPos(50, 0, 0);
     perlinNoise.add(m2);
 
     chronosGL.getUtils().addParticles(2000, 100);

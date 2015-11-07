@@ -20,39 +20,34 @@ void main() {
   //ShaderProgram perlinNoise = chronosGL.createProgram(createPerlinNoiseColorShader(), true);
 
   textureCache.loadAllThenExecute(() {
-    Mesh ico = chronosGL.shapes
-        .createIcosahedron(3)
-        .createMesh()
-        .setTexture(wood.texture);
-    ico.color.set(1, 0, 0);
-    ico.setPos(0, 0, 0);
+    Mesh ico = chronosGL.shapes.createIcosahedron(3).createMesh()
+      ..SetUniform(uTextureSampler, wood.texture)
+      ..SetUniform(uColor, new Vector(1, 0, 0))
+      ..setPos(0, 0, 0);
     chronosGL.programBasic.add(ico);
 
-    Mesh cube =
-        chronosGL.shapes.createCube().createMesh().setTexture(gradient.texture);
-    cube.setPos(-5, 0, -5);
+    Mesh cube = chronosGL.shapes.createCube().createMesh()
+      ..SetUniform(uTextureSampler, gradient.texture)
+      ..setPos(-5, 0, -5);
     chronosGL.programBasic.add(cube);
 
-    Mesh cyl = chronosGL.shapes
-        .createCylinder(3.0, 2.0, 32)
-        .createMesh()
-        .setTexture(trans.texture)..blend = true;
-    cyl.setPos(5, 0, -5);
+    Mesh cyl = chronosGL.shapes.createCylinder(3.0, 2.0, 32).createMesh()
+      ..SetUniform(uTextureSampler, trans.texture)
+      ..blend = true
+      ..setPos(5, 0, -5);
     chronosGL.programBasic.add(cyl);
 
-    Mesh quad = chronosGL.shapes
-        .createQuad(2)
-        .createMesh()
-        .setTexture(trans.texture)..blend = true;
-    //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
-    quad.setPos(-5, 0, 5);
+    Mesh quad = chronosGL.shapes.createQuad(2).createMesh()
+      ..SetUniform(uTextureSampler, trans.texture)
+      ..blend = true
+      //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
+      ..setPos(-5, 0, 5);
     chronosGL.programBasic.add(quad);
 
-    Mesh torus = chronosGL.shapes
-        .createTorusKnot(radius: 1.0, tube: 0.4)
-        .createMesh()
-        .setTexture(gradient.texture);
-    torus.setPos(5, 0, 5);
+    Mesh torus =
+        chronosGL.shapes.createTorusKnot(radius: 1.0, tube: 0.4).createMesh()
+          ..SetUniform(uTextureSampler, gradient.texture)
+          ..setPos(5, 0, 5);
     chronosGL.programBasic.add(torus);
 
     chronosGL.getUtils().addParticles(2000, 100);

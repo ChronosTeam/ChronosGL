@@ -28,7 +28,7 @@ const String _FragmentShader = """
 #define LightDir2 vec3(1.0,-0.62886,1.0)
 #define LightColor2 vec3(0.9,0.8,1.0)
 
-float time = iGlobalTime + 38.0;
+float time = ${uTime} + 38.0;
 float scale = 0.8+(0.1*cos(time/3.0));
 
 vec2 rotate(vec2 v, float a) {
@@ -177,8 +177,8 @@ void main(void)
   camUp = normalize(camUp-dot(camDir,camUp)*camDir); // orthogonalize
   vec3 camRight = normalize(cross(camDir,camUp));
   
-  vec2 coord =-1.0+2.0*gl_FragCoord.xy/iResolution.xy;
-  coord.x *= iResolution.x/iResolution.y;
+  vec2 coord =-1.0+2.0*gl_FragCoord.xy/${uCanvasSize}.xy;
+  coord.x *= ${uCanvasSize}.x/${uCanvasSize}.y;
    
   // Get direction for this pixel
   vec3 rayDir = normalize(camDir + (coord.x*camRight + coord.y*camUp)*FieldOfView);
@@ -199,8 +199,8 @@ List<ShaderObject> createSphericalGyroidShader() {
   
              new ShaderObject("SphericalGyroidF")
 
-      ..AddUniformVar(uCanvasSize, "iResolution")
-         ..AddUniformVar(uTime, "iGlobalTime")
+      ..AddUniformVar(uCanvasSize)
+         ..AddUniformVar(uTime)
          ..SetBody([_FragmentShader])];
 }
  

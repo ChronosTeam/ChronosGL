@@ -62,6 +62,7 @@ const String uColor = "uColor";
 const String uCameraNear = "uCameraNear";
 const String uCameraFar = "uCameraFar";
 const String uCanvasSize = "uCanvasSize";
+const String uPointSize = "uPointSize";
 
 Map<String, ShaderVarDesc> _VarsDb = {
   // attribute vars
@@ -93,6 +94,7 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uTime: new ShaderVarDesc("float", "time since program start in sec"),
   uCameraNear: new ShaderVarDesc("float", ""),
   uCameraFar: new ShaderVarDesc("float", ""),
+  uPointSize: new ShaderVarDesc("float", ""),
   uCanvasSize: new ShaderVarDesc("vec2", ""),
   uColor: new ShaderVarDesc("vec3", ""),
 };
@@ -196,7 +198,7 @@ class ShaderProgramInputs {
     assert(_VarsDb.containsKey(canonical));
     return _uniforms[canonical];
   }
-  
+
   Iterable<String> GetCanonicals() {
     return _uniforms.keys;
   }
@@ -212,8 +214,10 @@ class ShaderProgram implements Drawable {
   RenderingContext gl;
   Program program;
 
-  Map<String, int> attributeLocations = {};
-  Map<String, UniformLocation> uniformLocations = {};
+  Map<String, int> _attributeLocations = {};
+  Map<String, UniformLocation> _uniformLocations = {};
+  // Should this be done per processed Mesh?
+  Set<String> _uniformInitialized = new Set<String>();
 
   bool debug = false;
   bool active;
@@ -229,21 +233,25 @@ class ShaderProgram implements Drawable {
     ShaderUtils su = new ShaderUtils(gl);
     program = su.getProgram(shaderObjectV.shader, shaderObjectF.shader);
     for (String v in shaderObjectV.attributeVars.keys) {
-      attributeLocations[v] = gl.getAttribLocation(program, v);
-      HTML.window.console.log("$v ${attributeLocations[v]} ");
-      assert(attributeLocations[v] >= 0);
+      _attributeLocations[v] = gl.getAttribLocation(program, v);
+      HTML.window.console.log("$v ${_attributeLocations[v]} ");
+      assert(_attributeLocations[v] >= 0);
     }
 
     for (String v in shaderObjectV.uniformVars.keys) {
-      uniformLocations[v] = getUniformLocation(v);
+      _uniformLocations[v] = getUniformLocation(v);
     }
 
     for (String v in shaderObjectF.uniformVars.keys) {
       // This can happen! Example both shaders use uTime.
       // assert(!uniformLocations.containsKey(v));
-      uniformLocations[v] = getUniformLocation(v);
+      _uniformLocations[v] = getUniformLocation(v);
     }
     inputs.SetUniformVal(uTime, 0.0);
+  }
+
+  bool AllUniformsInitialized() {
+    return _uniformInitialized.length == _uniformLocations.length;
   }
 
   int getAttributeLocation(String name) {
@@ -285,29 +293,33 @@ class ShaderProgram implements Drawable {
   void MaybeSetAttribute(String a, Buffer buffer, String type,
       [bool normalized = false, int stride = 0, int offset = 0]) {
     assert(type == _VarsDb[a].type);
-    if (!attributeLocations.containsKey(a)) return;
-    int index = attributeLocations[a];
+    if (!_attributeLocations.containsKey(a)) return;
+    int index = _attributeLocations[a];
     gl.bindBuffer(ARRAY_BUFFER, buffer);
     gl.vertexAttribPointer(index, _VarsDb[a].GetSize(),
         _VarsDb[a].GetScalarType(), normalized, stride, offset);
   }
 
   void SetUniform(String canonical, var val) {
+    // Note, we could make this smarter and skip
+    // overwriting values with the same values;
     assert(_VarsDb.containsKey(canonical));
     ShaderVarDesc desc = _VarsDb[canonical];
-    UniformLocation l = uniformLocations[canonical];
+    assert(_uniformLocations.containsKey(canonical));
+    UniformLocation l = _uniformLocations[canonical];
+    _uniformInitialized.add(canonical);
     switch (desc.type) {
-      case "mat4":
-        gl.uniformMatrix4fv(l, false, val);
-        break;
       case "float":
         gl.uniform1f(l, val);
         break;
+      case "mat4":
+        gl.uniformMatrix4fv(l, false, val.array);
+        break;
       case "vec3":
-        gl.uniform3fv(l, val);
+        gl.uniform3fv(l, val.array);
         break;
       case "vec2":
-        gl.uniform2fv(l, val);
+        gl.uniform2fv(l, val.array);
         break;
       case "sampler2D":
         if (canonical == uTextureSampler) {
@@ -316,7 +328,7 @@ class ShaderProgram implements Drawable {
           gl.bindTexture(TEXTURE_2D, val);
           gl.uniform1i(l, n);
         } else if (canonical == uTexture2Sampler) {
-          int n = uniformLocations.containsKey(uTextureSampler) ? 1 : 0;
+          int n = _uniformLocations.containsKey(uTextureSampler) ? 1 : 0;
           gl.activeTexture(TEXTURE0 + n);
           gl.bindTexture(TEXTURE_2D, val);
           gl.uniform1i(l, n);
@@ -326,8 +338,8 @@ class ShaderProgram implements Drawable {
         break;
       case "samplerCube":
         assert(canonical == uTextureCubeSampler);
-        int n = (uniformLocations.containsKey(uTextureSampler) ? 1 : 0) +
-            (uniformLocations.containsKey(uTexture2Sampler) ? 1 : 0);
+        int n = (_uniformLocations.containsKey(uTextureSampler) ? 1 : 0) +
+            (_uniformLocations.containsKey(uTexture2Sampler) ? 1 : 0);
         gl.activeTexture(TEXTURE0 + n);
         gl.bindTexture(TEXTURE_CUBE_MAP, val);
         gl.uniform1i(l, n);
@@ -336,28 +348,30 @@ class ShaderProgram implements Drawable {
         assert(false);
     }
   }
-  
+
   void MaybeSetUniform(String canonical) {
-    if (uniformLocations.containsKey(canonical)) {
+    if (_uniformLocations.containsKey(canonical)) {
       SetUniform(canonical, inputs.GetUniformVal(canonical));
     }
   }
-  
+
   void MaybeSetUniformsBulk(ShaderProgramInputs inputs) {
     for (String canonical in inputs.GetCanonicals()) {
       var val = inputs.GetUniformVal(canonical);
-      SetUniform(canonical, val);
+      if (_uniformLocations.containsKey(canonical)) {
+        SetUniform(canonical, val);
+      }
     }
   }
-  
+
   void draw(Matrix4 pMatrix, [Matrix4 overrideMvMatrix]) {
     if (!hasEnabledObjects()) return;
 
     if (debug) print("name: $name");
 
     gl.useProgram(program);
-    for (String a in attributeLocations.keys) {
-      gl.enableVertexAttribArray(attributeLocations[a]);
+    for (String a in _attributeLocations.keys) {
+      gl.enableVertexAttribArray(_attributeLocations[a]);
     }
 
     Camera camera = chronosGL.getCamera();
@@ -368,11 +382,9 @@ class ShaderProgram implements Drawable {
     inputs.SetUniformVal(
         uCanvasSize,
         new Vector(
-                chronosGL._canvas.clientWidth, chronosGL._canvas.clientHeight)
-            .array);
-    inputs.SetUniformVal(uPerspectiveMatrix, pMatrix.array);
-    inputs.SetUniformVal(
-        uPointLightLocation, chronosGL.pointLightLocation.array);
+            chronosGL._canvas.clientWidth, chronosGL._canvas.clientHeight));
+    inputs.SetUniformVal(uPerspectiveMatrix, pMatrix);
+    inputs.SetUniformVal(uPointLightLocation, chronosGL.pointLightLocation);
 
     // TODO: make the WHEN gets WHAT updated more rigorous
     // Only do a subset here
@@ -396,8 +408,7 @@ class ShaderProgram implements Drawable {
 
     camera.getMVMatrix(mvMatrix, true);
 
-    
-    inputs.SetUniformVal(uViewMatrix, mvMatrix.array);
+    inputs.SetUniformVal(uViewMatrix, mvMatrix);
     MaybeSetUniform(uViewMatrix);
 
     if (overrideMvMatrix != null) {
@@ -407,8 +418,8 @@ class ShaderProgram implements Drawable {
     drawObjects(objects);
 
     drawInstancers();
-    for (String a in attributeLocations.keys) {
-      gl.disableVertexAttribArray(attributeLocations[a]);
+    for (String a in _attributeLocations.keys) {
+      gl.disableVertexAttribArray(_attributeLocations[a]);
     }
   }
 

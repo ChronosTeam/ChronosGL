@@ -56,12 +56,12 @@ Mesh getRocket(ChronosGL chronosGL) {
 
   MeshData md = new MeshData(vertices: vertices, normals: normals);
 
-  Mesh m = new Mesh(md,
-      drawPoints: true, texture: chronosGL.getUtils().createParticleTexture());
-  m.color.set(1.0, 0.0, 0.0);
-  m.blend = true;
-  m.depthWrite = false;
-  m.blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;
+  Mesh m = new Mesh(md, drawPoints: true)
+    ..SetUniform(uTextureSampler, chronosGL.getUtils().createParticleTexture())
+    ..SetUniform(uColor, new Vector(1.0, 0.0, 0.0))
+    ..blend = true
+    ..depthWrite = false
+    ..blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;
 
   return m;
 }

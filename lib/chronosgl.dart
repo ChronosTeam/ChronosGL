@@ -41,6 +41,9 @@ part "src/shader/perlin_noise_func.dart";
 part "src/shader/perlin_noise_shader.dart";
 part "src/shader/plasma_shader.dart";
 
+void LogInfo(String s) {
+  HTML.window.console.log(s);
+}
 
 abstract class Animatable {
   bool active = true;
@@ -135,8 +138,8 @@ class ChronosGL {
 
     if (useFramebuffer) {
       fxFramebuffer = new ChronosFramebuffer(gl, _canvas.width, _canvas.height);
-      fxWall = _utils.createQuad(fxFramebuffer.colorTexture, 1);
-      fxWall.texture2 = fxFramebuffer.depthTexture;
+      fxWall = _utils.createQuad(fxFramebuffer.colorTexture, 1)
+      ..SetUniform(uTexture2Sampler, fxFramebuffer.depthTexture);
       if (fxShader == null) {
         fxShader = createTexturedShader();
       }

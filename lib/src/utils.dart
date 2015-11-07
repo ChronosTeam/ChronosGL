@@ -10,7 +10,11 @@ class Utils {
     textureCache = chronosGL.getTextureCache();
   }
 
-  Texture createTextureFromCanvas(HTML.CanvasElement canvas, {int minFilter: LINEAR, int magFilter: LINEAR, bool mipmap: false, bool flipY: true}) {
+  Texture createTextureFromCanvas(HTML.CanvasElement canvas,
+      {int minFilter: LINEAR,
+      int magFilter: LINEAR,
+      bool mipmap: false,
+      bool flipY: true}) {
     var texture = gl.createTexture();
     gl.bindTexture(TEXTURE_2D, texture);
     if (flipY) {
@@ -35,7 +39,8 @@ class Utils {
   }
 
   Texture createCheckerboardTexture() {
-    var pixels = new Uint8List.fromList([255, 255, 255, 0, 0, 0, 0, 0, 0, 255, 255, 255]);
+    var pixels = new Uint8List.fromList(
+        [255, 255, 255, 0, 0, 0, 0, 0, 0, 255, 255, 255]);
     var texture = gl.createTexture();
     gl.bindTexture(TEXTURE_2D, texture);
     gl.texParameteri(TEXTURE_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE);
@@ -49,14 +54,18 @@ class Utils {
     return texture;
   }
 
-  HTML.CanvasElement createCanvas(HTML.CanvasElement canvas, callback(HTML.CanvasRenderingContext2D ctx), [int size = 512]) {
-    if (canvas == null) canvas = new HTML.CanvasElement(width: size, height: size);
+  HTML.CanvasElement createCanvas(
+      HTML.CanvasElement canvas, callback(HTML.CanvasRenderingContext2D ctx),
+      [int size = 512]) {
+    if (canvas == null) canvas =
+        new HTML.CanvasElement(width: size, height: size);
     HTML.CanvasRenderingContext2D context = canvas.getContext('2d');
     callback(context);
     return canvas;
   }
 
-  HTML.CanvasElement createGradientImage2(double time, HTML.CanvasElement canvas) {
+  HTML.CanvasElement createGradientImage2(
+      double time, HTML.CanvasElement canvas) {
     int d = 512;
     return createCanvas(canvas, (HTML.CanvasRenderingContext2D ctx) {
       double sint = Math.sin(time);
@@ -84,8 +93,7 @@ class Utils {
   HTML.CanvasElement createParticleCanvas() {
     int d = 64;
     return createCanvas(null, (HTML.CanvasRenderingContext2D ctx) {
-      int x = d ~/ 2,
-          y = d ~/ 2;
+      int x = d ~/ 2, y = d ~/ 2;
 
       var gradient = ctx.createRadialGradient(x, y, 1, x, y, 22);
       gradient.addColorStop(0, 'gray');
@@ -107,22 +115,41 @@ class Utils {
 
   // TODO: think about deprecating this
   Mesh createQuad(Texture texture, int size) {
-    List<double> verts = [-1.0 * size, -1.0 * size, 0.0, 1.0 * size, -1.0 * size, 0.0, 1.0 * size, 1.0 * size, 0.0, -1.0 * size, 1.0 * size, 0.0];
+    List<double> verts = [
+      -1.0 * size,
+      -1.0 * size,
+      0.0,
+      1.0 * size,
+      -1.0 * size,
+      0.0,
+      1.0 * size,
+      1.0 * size,
+      0.0,
+      -1.0 * size,
+      1.0 * size,
+      0.0
+    ];
 
     List<double> textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
 
     List<int> vertexIndices = [0, 1, 2, 0, 2, 3];
-    return new Mesh(new MeshData(vertices: verts, textureCoords: textureCoords, vertexIndices: vertexIndices), texture: texture);
+    return new Mesh(
+        new MeshData(
+            vertices: verts,
+            textureCoords: textureCoords,
+            vertexIndices: vertexIndices))
+    ..SetUniform(uTextureSampler, texture);
   }
 
   void addSkycube(Texture cubeTexture) {
     ShaderProgram cm = chronosGL.createProgram(createCubeMapShader());
-    Mesh m = createCubeInternal().multiplyVertices(512).createMesh();
-    m.textureCube = cubeTexture;
+    Mesh m = createCubeInternal().multiplyVertices(512).createMesh()
+    ..SetUniform(uTextureCubeSampler,cubeTexture);
     cm.addFollowCameraObject(m);
   }
 
-  void addSkybox(String prefix, String suffix, String nx, String px, String nz, String pz, String ny, String py) {
+  void addSkybox(String prefix, String suffix, String nx, String px, String nz,
+      String pz, String ny, String py) {
     Texture tnx = textureCache.get(prefix + nx + suffix);
     Texture tpx = textureCache.get(prefix + px + suffix);
     Texture tnz = textureCache.get(prefix + nz + suffix);
@@ -168,32 +195,87 @@ class Utils {
   }
 
   @deprecated // use chronosGL.shapes.create...
-  MeshData createCube({double x: 1.0, double y: 1.0, double z: 1.0, double uMin: 0.0, double uMax: 1.0, double vMin: 0.0, double vMax: 1.0}) {
-    return createCubeInternal(x: x, y: y, z: z, uMin: uMin, uMax: uMax, vMin: vMin, vMax: vMax);
+  MeshData createCube(
+      {double x: 1.0,
+      double y: 1.0,
+      double z: 1.0,
+      double uMin: 0.0,
+      double uMax: 1.0,
+      double vMin: 0.0,
+      double vMax: 1.0}) {
+    return createCubeInternal(
+        x: x, y: y, z: z, uMin: uMin, uMax: uMax, vMin: vMin, vMax: vMax);
   }
 
   @deprecated // use chronosGL.shapes.create...
-  Mesh createTorusKnotMesh({double radius: 20.0, double tube: 4.0, int segmentsR: 128, int segmentsT: 16, int p: 2, int q: 3, double heightScale: 1.0, Texture texture}) {
-    return new Mesh(createTorusKnotInternal(radius: radius, tube: tube, segmentsR: segmentsR, segmentsT: segmentsT, p: p, q: q, heightScale: heightScale), texture: texture);
+  Mesh createTorusKnotMesh(
+      {double radius: 20.0,
+      double tube: 4.0,
+      int segmentsR: 128,
+      int segmentsT: 16,
+      int p: 2,
+      int q: 3,
+      double heightScale: 1.0,
+      Texture texture}) {
+    return new Mesh(
+        createTorusKnotInternal(
+            radius: radius,
+            tube: tube,
+            segmentsR: segmentsR,
+            segmentsT: segmentsT,
+            p: p,
+            q: q,
+            heightScale: heightScale))..SetUniform(uTextureSampler, texture);
   }
 
   @deprecated // use chronosGL.shapes.create...
-  MeshData createTorusKnot({double radius: 20.0, double tube: 4.0, int segmentsR: 128, int segmentsT: 16, int p: 2, int q: 3, double heightScale: 1.0}) {
-    return createTorusKnotInternal(radius: radius, tube: tube, segmentsR: segmentsR, segmentsT: segmentsT, p: p, q: q, heightScale: heightScale);
+  MeshData createTorusKnot(
+      {double radius: 20.0,
+      double tube: 4.0,
+      int segmentsR: 128,
+      int segmentsT: 16,
+      int p: 2,
+      int q: 3,
+      double heightScale: 1.0}) {
+    return createTorusKnotInternal(
+        radius: radius,
+        tube: tube,
+        segmentsR: segmentsR,
+        segmentsT: segmentsT,
+        p: p,
+        q: q,
+        heightScale: heightScale);
   }
 
   @deprecated // use chronosGL.shapes.create...
   Mesh addCube([TextureWrapper textureWrapper]) {
     Texture t;
     if (textureWrapper != null) t = textureWrapper.texture;
-    return chronosGL.programBasic.add(createCubeInternal().createMesh().setTexture(t));
+    return chronosGL.programBasic
+        .add(createCubeInternal().createMesh()..SetUniform(uTextureSampler, t));
   }
 
   @deprecated // use chronosGL.shapes.create...
-  Mesh addTorusKnot({double radius: 20.0, double tube: 4.0, int segmentsR: 128, int segmentsT: 16, int p: 2, int q: 3, double heightScale: 1.0, TextureWrapper textureWrapper}) {
+  Mesh addTorusKnot(
+      {double radius: 20.0,
+      double tube: 4.0,
+      int segmentsR: 128,
+      int segmentsT: 16,
+      int p: 2,
+      int q: 3,
+      double heightScale: 1.0,
+      TextureWrapper textureWrapper}) {
     Texture t;
     if (textureWrapper != null) t = textureWrapper.texture;
-    return chronosGL.programBasic.add(createTorusKnotMesh(radius: radius, tube: tube, segmentsR: segmentsR, segmentsT: segmentsT, p: p, q: q, heightScale: heightScale, texture: t));
+    return chronosGL.programBasic.add(createTorusKnotMesh(
+        radius: radius,
+        tube: tube,
+        segmentsR: segmentsR,
+        segmentsT: segmentsT,
+        p: p,
+        q: q,
+        heightScale: heightScale,
+        texture: t));
   }
 
   void addParticles(int numPoints, [int dimension = 100]) {
@@ -210,12 +292,16 @@ class Utils {
     MeshData md = new MeshData(vertices: vertices);
 
     ShaderProgram pssp = chronosGL.programs['point_sprites'];
-    if (pssp == null) pssp = chronosGL.createProgram(createPointSpritesShader());
-    Mesh m = new Mesh(md, drawPoints: true, texture: texture);
-    m.blend = true;
-    m.depthWrite = false;
-    m.blend_dFactor = ONE_MINUS_SRC_COLOR;
-    m.name = 'point_sprites_mesh_' + pssp.objects.length.toString();
+    if (pssp == null) pssp =
+        chronosGL.createProgram(createPointSpritesShader());
+    Mesh m = new Mesh(md, drawPoints: true)
+      //..SetUniform(uColor, new Vector(0, 0,0))
+      ..SetUniform(uTextureSampler, texture)
+      ..SetUniform(uPointSize, 1000)
+      ..blend = true
+      ..depthWrite = false
+      ..blend_dFactor = ONE_MINUS_SRC_COLOR
+      ..name = 'point_sprites_mesh_' + pssp.objects.length.toString();
     pssp.add(m);
   }
 

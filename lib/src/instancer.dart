@@ -103,7 +103,7 @@ class Instancer {
     //gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 16, 0);
     //extension.vertexAttribDivisorAngle(colorLocation, 1); // This makes it instanced!
 
-    program.inputs.SetUniformVal(uModelViewMatrix, mvMatrix.array);
+    program.inputs.SetUniformVal(uModelViewMatrix, mvMatrix);
     program.MaybeSetUniform(uModelViewMatrix);
 
     if (mesh.vertexIndexBuffer == null) {
