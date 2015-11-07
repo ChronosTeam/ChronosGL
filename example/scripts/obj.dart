@@ -11,8 +11,9 @@ void main() {
   chronosGL.addAnimatable('orbitCam', orbit);
 
   loadObj("ct_logo.obj").then((MeshData md) {
-    Mesh mesh = md.createMesh();
-    mesh.rotX(3.14 / 2);
+    Material mat = new Material();
+    Mesh mesh = md.createMesh(mat)
+    ..rotX(3.14 / 2);
     //mesh.rotY(3.14);
     Node n = new Node(mesh);
     //n.invert = true;

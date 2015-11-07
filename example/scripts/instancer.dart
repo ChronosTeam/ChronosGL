@@ -9,7 +9,8 @@ void main() {
   });
   chronosGL.addAnimatable('orbitCam', orbit);
 
-  Mesh m = chronosGL.shapes.createTorusKnot(radius: 12.0).createMesh();
+  Material mat = new Material();
+  Mesh m = chronosGL.shapes.createTorusKnot(radius: 12.0).createMesh(mat);
 
   int count = 1000;
 

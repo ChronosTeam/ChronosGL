@@ -8,9 +8,10 @@ void main() {
   chronosGL.addAnimatable('orbitCam', orbit);
 
   loadObj("../ct_logo.obj").then((MeshData md) {
-    Mesh mesh = md.createMesh();
-    mesh.rotX(3.14 / 2);
-    mesh.rotZ(3.14);
+    Material mat = new Material();
+    Mesh mesh = md.createMesh(mat)
+    ..rotX(3.14 / 2)
+    ..rotZ(3.14);
     Node n = new Node(mesh);
     //n.invert = true;
     n.lookAt(new Vector(100.0, 0.0, -100.0));

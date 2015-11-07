@@ -19,34 +19,36 @@ void main() {
 
   //ShaderProgram perlinNoise = chronosGL.createProgram(createPerlinNoiseColorShader(), true);
 
+  Material matWood = new Material()
+    ..SetUniform(uTextureSampler, wood.texture)
+    ..SetUniform(uColor, new Vector(1, 0, 0));
   textureCache.loadAllThenExecute(() {
-    Mesh ico = chronosGL.shapes.createIcosahedron(3).createMesh()
-      ..SetUniform(uTextureSampler, wood.texture)
-      ..SetUniform(uColor, new Vector(1, 0, 0))
+    Mesh ico = chronosGL.shapes.createIcosahedron(3).createMesh(matWood)
       ..setPos(0, 0, 0);
     chronosGL.programBasic.add(ico);
 
-    Mesh cube = chronosGL.shapes.createCube().createMesh()
-      ..SetUniform(uTextureSampler, gradient.texture)
+    Material matGradient = new Material()
+      ..SetUniform(uTextureSampler, gradient.texture);
+
+    Mesh cube = chronosGL.shapes.createCube().createMesh(matGradient)
       ..setPos(-5, 0, -5);
     chronosGL.programBasic.add(cube);
 
-    Mesh cyl = chronosGL.shapes.createCylinder(3.0, 2.0, 32).createMesh()
+    Material matTrans = new Material()
       ..SetUniform(uTextureSampler, trans.texture)
-      ..blend = true
-      ..setPos(5, 0, -5);
+      ..blend = true;
+    Mesh cyl = chronosGL.shapes
+        .createCylinder(3.0, 2.0, 32)
+        .createMesh(matTrans)..setPos(5, 0, -5);
     chronosGL.programBasic.add(cyl);
 
-    Mesh quad = chronosGL.shapes.createQuad(2).createMesh()
-      ..SetUniform(uTextureSampler, trans.texture)
-      ..blend = true
+    Mesh quad = chronosGL.shapes.createQuad(2).createMesh(matTrans)
       //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
       ..setPos(-5, 0, 5);
     chronosGL.programBasic.add(quad);
 
     Mesh torus =
-        chronosGL.shapes.createTorusKnot(radius: 1.0, tube: 0.4).createMesh()
-          ..SetUniform(uTextureSampler, gradient.texture)
+        chronosGL.shapes.createTorusKnot(radius: 1.0, tube: 0.4).createMesh(matGradient)
           ..setPos(5, 0, 5);
     chronosGL.programBasic.add(torus);
 

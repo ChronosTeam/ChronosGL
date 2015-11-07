@@ -114,7 +114,7 @@ class Utils {
   }
 
   // TODO: think about deprecating this
-  Mesh createQuad(Texture texture, int size) {
+  Mesh createQuad(Material mat, int size) {
     List<double> verts = [
       -1.0 * size,
       -1.0 * size,
@@ -133,30 +133,29 @@ class Utils {
     List<double> textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
 
     List<int> vertexIndices = [0, 1, 2, 0, 2, 3];
-    return new Mesh(
-        new MeshData(
-            vertices: verts,
-            textureCoords: textureCoords,
-            vertexIndices: vertexIndices))
-    ..SetUniform(uTextureSampler, texture);
+    return new Mesh(new MeshData(
+        vertices: verts,
+        textureCoords: textureCoords,
+        vertexIndices: vertexIndices), mat);
   }
 
   void addSkycube(Texture cubeTexture) {
     ShaderProgram cm = chronosGL.createProgram(createCubeMapShader());
-    Mesh m = createCubeInternal().multiplyVertices(512).createMesh()
-    ..SetUniform(uTextureCubeSampler,cubeTexture);
+    Material mat  = new Material()..SetUniform(uTextureCubeSampler, cubeTexture);
+    Mesh m = createCubeInternal().multiplyVertices(512).createMesh(mat);
     cm.addFollowCameraObject(m);
   }
 
   void addSkybox(String prefix, String suffix, String nx, String px, String nz,
       String pz, String ny, String py) {
-    Texture tnx = textureCache.get(prefix + nx + suffix);
-    Texture tpx = textureCache.get(prefix + px + suffix);
-    Texture tnz = textureCache.get(prefix + nz + suffix);
-    Texture tpz = textureCache.get(prefix + pz + suffix);
-    Texture tny = textureCache.get(prefix + ny + suffix);
-    Texture tpy = textureCache.get(prefix + py + suffix);
+    Material tnx = new Material()..SetUniform(uTextureSampler, textureCache.get(prefix + nx + suffix));
+    Material tpx = new Material()..SetUniform(uTextureSampler,textureCache.get(prefix + px + suffix));
+    Material tnz = new Material()..SetUniform(uTextureSampler,textureCache.get(prefix + nz + suffix));
+    Material tpz = new Material()..SetUniform(uTextureSampler,textureCache.get(prefix + pz + suffix));
+    Material tny = new Material()..SetUniform(uTextureSampler,textureCache.get(prefix + ny + suffix));
+    Material tpy = new Material()..SetUniform(uTextureSampler,textureCache.get(prefix + py + suffix));
 
+    
     Mesh skybox_nx = createQuad(tnx, 1004);
     skybox_nx.setPos(-2.0, 2.0, -1000.0);
     chronosGL.programBasic.addFollowCameraObject(skybox_nx);
@@ -217,66 +216,16 @@ class Utils {
       int q: 3,
       double heightScale: 1.0,
       Texture texture}) {
-    return new Mesh(
-        createTorusKnotInternal(
-            radius: radius,
-            tube: tube,
-            segmentsR: segmentsR,
-            segmentsT: segmentsT,
-            p: p,
-            q: q,
-            heightScale: heightScale))..SetUniform(uTextureSampler, texture);
-  }
-
-  @deprecated // use chronosGL.shapes.create...
-  MeshData createTorusKnot(
-      {double radius: 20.0,
-      double tube: 4.0,
-      int segmentsR: 128,
-      int segmentsT: 16,
-      int p: 2,
-      int q: 3,
-      double heightScale: 1.0}) {
-    return createTorusKnotInternal(
+    Material mat = new Material()..SetUniform(uTextureSampler, texture);
+    return new Mesh(createTorusKnotInternal(
         radius: radius,
         tube: tube,
         segmentsR: segmentsR,
         segmentsT: segmentsT,
         p: p,
         q: q,
-        heightScale: heightScale);
-  }
-
-  @deprecated // use chronosGL.shapes.create...
-  Mesh addCube([TextureWrapper textureWrapper]) {
-    Texture t;
-    if (textureWrapper != null) t = textureWrapper.texture;
-    return chronosGL.programBasic
-        .add(createCubeInternal().createMesh()..SetUniform(uTextureSampler, t));
-  }
-
-  @deprecated // use chronosGL.shapes.create...
-  Mesh addTorusKnot(
-      {double radius: 20.0,
-      double tube: 4.0,
-      int segmentsR: 128,
-      int segmentsT: 16,
-      int p: 2,
-      int q: 3,
-      double heightScale: 1.0,
-      TextureWrapper textureWrapper}) {
-    Texture t;
-    if (textureWrapper != null) t = textureWrapper.texture;
-    return chronosGL.programBasic.add(createTorusKnotMesh(
-        radius: radius,
-        tube: tube,
-        segmentsR: segmentsR,
-        segmentsT: segmentsT,
-        p: p,
-        q: q,
-        heightScale: heightScale,
-        texture: t));
-  }
+        heightScale: heightScale), mat);
+  } 
 
   void addParticles(int numPoints, [int dimension = 100]) {
     addPointSprites(numPoints, createParticleTexture(), dimension);
@@ -294,13 +243,13 @@ class Utils {
     ShaderProgram pssp = chronosGL.programs['point_sprites'];
     if (pssp == null) pssp =
         chronosGL.createProgram(createPointSpritesShader());
-    Mesh m = new Mesh(md, drawPoints: true)
-      //..SetUniform(uColor, new Vector(0, 0,0))
+    Material mat = new Material()
       ..SetUniform(uTextureSampler, texture)
       ..SetUniform(uPointSize, 1000)
       ..blend = true
       ..depthWrite = false
-      ..blend_dFactor = ONE_MINUS_SRC_COLOR
+      ..blend_dFactor = ONE_MINUS_SRC_COLOR;
+    Mesh m = new Mesh(md, mat, drawPoints: true)
       ..name = 'point_sprites_mesh_' + pssp.objects.length.toString();
     pssp.add(m);
   }

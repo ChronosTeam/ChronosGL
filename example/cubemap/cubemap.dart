@@ -9,8 +9,9 @@ void main() {
 
     chronosGL.getUtils().addSkycube(textureCache.get("stars"));
 
-    Mesh m = chronosGL.shapes.createCube().multiplyVertices(2).createMesh()
+    Material mat = new Material()
       ..SetUniform(uTextureCubeSampler, textureCache.get("stars"));
+    Mesh m = chronosGL.shapes.createCube().multiplyVertices(2).createMesh(mat);
     chronosGL.programs["CubeMap"].add(m);
 
     chronosGL.getUtils().addParticles(200);

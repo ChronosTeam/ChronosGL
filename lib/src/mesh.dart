@@ -3,15 +3,8 @@ part of chronosgl;
 class Mesh extends Node {
   RenderingContext gl;
   bool debug = false;
-  bool depthTest = true;
-  bool depthWrite = true;
-  bool blend = false;
-  int blend_sFactor = SRC_ALPHA;
-  int blend_dFactor = ONE_MINUS_SRC_ALPHA; // This was ONE;
-  int blendEquation = FUNC_ADD;
 
   bool drawPoints;
-  ShaderProgramInputs _inputs = new ShaderProgramInputs();
 
   Buffer verticesBuffer,
       colorsBuffer,
@@ -22,11 +15,9 @@ class Mesh extends Node {
 
   int numItems;
 
-  void SetUniform(String canonical, val) {
-    _inputs.SetUniformVal(canonical, val);
-  }
+  Material material;
 
-  Mesh(MeshData meshData, {this.drawPoints: false}) {
+  Mesh(MeshData meshData, this.material,{this.drawPoints: false}) {
     if (!meshData.isOptimized) meshData.optimize();
 
     gl = ChronosGL.globalGL;
@@ -109,22 +100,11 @@ class Mesh extends Node {
       print('-----');
     }
 
-    if (blend) {
-      gl.enable(BLEND);
-      gl.blendFunc(blend_sFactor, blend_dFactor);
-      gl.blendEquation(blendEquation);
-    }
-
-    if (!depthTest) {
-      gl.disable(DEPTH_TEST);
-    }
-    if (!depthWrite) {
-      gl.depthMask(false);
-    }
+    material.RenderingInit(gl);
 
     bindBuffers(program);
     bindUniforms(program);
-    if(!program.AllUniformsInitialized()) {
+    if (!program.AllUniformsInitialized()) {
       LogInfo("program ${program.name}");
       LogInfo("want: ${program._uniformLocations}");
       LogInfo("have: ${program._uniformInitialized}");
@@ -142,15 +122,7 @@ class Mesh extends Node {
 
     if (debug) print(gl.getProgramInfoLog(program.program));
 
-    if (blend) {
-      gl.disable(BLEND);
-    }
-    if (!depthTest) {
-      gl.enable(DEPTH_TEST);
-    }
-    if (!depthWrite) {
-      gl.depthMask(true);
-    }
+    material.RenderingExit(gl);
   }
 
   void bindBuffers(ShaderProgram program) {
@@ -161,9 +133,11 @@ class Mesh extends Node {
     program.MaybeSetAttribute(aBinormal, binormalsBuffer, "vec3");
   }
 
+  // This code is still a bit awkward.
   void bindUniforms(ShaderProgram program) {
-    _inputs.SetUniformVal(uTransformationMatrix, transform);
-    _inputs.SetUniformVal(uModelViewMatrix, mvMatrix);
-    program.MaybeSetUniformsBulk(_inputs);
+    ShaderProgramInputs inp = material._inputs;
+    inp.SetUniformVal(uTransformationMatrix, transform);
+    inp.SetUniformVal(uModelViewMatrix, mvMatrix);
+    program.MaybeSetUniformsBulk(inp);
   }
 }

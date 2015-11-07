@@ -45,11 +45,12 @@ void main() {
   });
   chronosGL.addAnimatable('orbitCam', orbit);
 
+  Material mat = new Material();
   // Sky Sphere
   ShaderProgram skyprg = chronosGL
       .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
   MeshData md = chronosGL.shapes.createIcosahedron(3).multiplyVertices(100);
-  Mesh m = md.createMesh();
+  Mesh m = md.createMesh(mat);
   skyprg.add(m);
 
   ShaderProgram prg = chronosGL.createProgram(createSkyScraperShader());
@@ -70,8 +71,8 @@ void main() {
       md.textureCoords[20] = 0.01;
       md.textureCoords[22] = 0.01;
       md.textureCoords[23] = 0.01;
-      Mesh m = md.createMesh();
-      m.setPos(x, 0, z);
+      Mesh m = md.createMesh(mat)
+      ..setPos(x, 0, z);
       prg.add(m);
     }
   }

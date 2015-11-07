@@ -14,12 +14,12 @@ void main() {
     mymd.add(ctLogo);
     mymd.add(chronosGL.shapes.createCylinder(1.0, 2.0, 16));
     mymd.add(chronosGL.shapes.createCube());
-    
+    Material mat = new Material();
     for (var i = 0; i < mymd.length; i++) {
       MeshData md = mymd[i];
       // the logo is missing normals so we generate them here, but wait, why are the colors all wrong ?
       md.generateNormalsAssumingTriangleMode();
-      Mesh mesh = md.createMesh();
+      Mesh mesh = md.createMesh(mat);
       if( md == ctLogo) {
         mesh.rotX(3.14 / 2);
         mesh.rotZ(3.14);
@@ -32,7 +32,7 @@ void main() {
       MeshData md = mymd[i];
       // because some vertices were reused for different faces, so we need to deduplicate the indices
       md.deDeuplicateIndices().generateNormalsAssumingTriangleMode();
-      Mesh mesh = md.createMesh();
+      Mesh mesh = md.createMesh(mat);
       if( md == ctLogo) {
         mesh.rotX(3.14 / 2);
         mesh.rotZ(3.14);

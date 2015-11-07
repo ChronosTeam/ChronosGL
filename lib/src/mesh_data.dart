@@ -37,9 +37,9 @@ class MeshData {
     isOptimized = true;
   }
 
-  Mesh createMesh() {
+  Mesh createMesh(Material m) {
     optimize();
-    return new Mesh(this);
+    return new Mesh(this, m);
   }
   
   void generateEmptyNormals() {

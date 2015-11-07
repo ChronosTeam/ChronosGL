@@ -17,7 +17,8 @@ void main() {
   MeshData cubeMeshData = chronosGL.shapes.createCube();
   cubeMeshData.multiplyVertices(2);
 
-  Mesh cubeMesh = cubeMeshData.createMesh()
+  Material cubeMat = new Material();
+  Mesh cubeMesh = cubeMeshData.createMesh(cubeMat)
     ..setPos(0.0, 0.0, 0.0)
     ..lookUp(1.0)
     ..lookLeft(0.7);
@@ -33,9 +34,8 @@ void main() {
       chronosGL.createProgram(createSolidColorShader());
 
   chronosGL.pointLightLocation.set(11, 11, 1);
-
-  Mesh ico = chronosGL.shapes.createIcosahedron().createMesh()
-    ..SetUniform(uColor, new Vector(1, 1, 0))
+  Material icoMat = new Material()..SetUniform(uColor, new Vector(1, 1, 0));
+  Mesh ico = chronosGL.shapes.createIcosahedron().createMesh(icoMat)
     ..setPos(11, 11, 1);
 
   fixedShaderPrg.add(ico);

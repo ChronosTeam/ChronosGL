@@ -16,6 +16,7 @@ part "src/shader_program.dart";
 part "src/spatial.dart";
 part "src/camera.dart";
 part "src/utils.dart";
+part "src/material.dart";
 part "src/mesh.dart";
 part "src/mesh_data.dart";
 part "src/shapes/shapes.dart";
@@ -138,8 +139,9 @@ class ChronosGL {
 
     if (useFramebuffer) {
       fxFramebuffer = new ChronosFramebuffer(gl, _canvas.width, _canvas.height);
-      fxWall = _utils.createQuad(fxFramebuffer.colorTexture, 1)
-      ..SetUniform(uTexture2Sampler, fxFramebuffer.depthTexture);
+      Material mat = new Material()..SetUniform(uTexture2Sampler, fxFramebuffer.depthTexture)
+                                    ..SetUniform(uTextureSampler, fxFramebuffer.colorTexture);
+      fxWall = _utils.createQuad(mat, 1);
       if (fxShader == null) {
         fxShader = createTexturedShader();
       }

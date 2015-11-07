@@ -13,24 +13,22 @@ void main() {
   });
 
   MeshData sphere = chronosGL.shapes.createIcosahedron();
-
-  Mesh head = sphere.createMesh()
-    ..SetUniform(uColor, new Vector(0.94, 0.72, 0.63));
-
-  Mesh leftEye = sphere.createMesh()
-    ..SetUniform(uColor, new Vector(0.0, 0.0, 1.0))
+  Material headMat = new Material()..SetUniform(uColor, new Vector(0.94, 0.72, 0.63));
+  Mesh head = sphere.createMesh(headMat);
+  
+  Material eyeMat = new Material()..SetUniform(uColor, new Vector(0.0, 0.0, 1.0));
+  Mesh leftEye = sphere.createMesh(eyeMat)
     ..setPos(-0.2, 0.4, -0.8)
     ..transform.setScale(0.2);
   head.add(leftEye);
 
-  Mesh rightEye = sphere.createMesh()
-    ..SetUniform(uColor, new Vector(0.0, 0.0, 1.0))
+  Mesh rightEye = sphere.createMesh(eyeMat)
     ..transform.setScale(0.2)
     ..setPos(0.2, 0.4, -0.8);
   head.add(rightEye);
-
-  Mesh nose = sphere.createMesh()
-      ..SetUniform(uColor, new Vector(0.9, 0.7, 0.6))
+  
+  Material noseMat = new Material()..SetUniform(uColor, new Vector(0.9, 0.7, 0.6));
+  Mesh nose = sphere.createMesh(noseMat)
     ..transform.setScale(0.3)
     ..setPos(0.0, 0.0, -0.9);
   head.add(nose);
