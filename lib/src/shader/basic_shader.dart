@@ -6,7 +6,7 @@ const String StdVertexBody =
 // TODO: consider collapsing: AddAttributeVar(x, x) => .AddAttributeVar(x)
 List<ShaderObject> createTexturedShader() {
   return [
-    new ShaderObject("TexturedV")
+    new ShaderObject("Textured")
       ..AddAttributeVar(aVertexPosition)
       ..AddUniformVar(uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix)
@@ -26,7 +26,7 @@ List<ShaderObject> createTexturedShader() {
 
 List<ShaderObject> createSolidColorShader() {
   return [
-    new ShaderObject("SolidColorV")
+    new ShaderObject("SolidColor")
       ..AddAttributeVar(aVertexPosition)
       ..AddUniformVar(uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix)
@@ -39,7 +39,7 @@ List<ShaderObject> createSolidColorShader() {
 
 List<ShaderObject> createColorShader() {
   return [
-    new ShaderObject("ColorV")
+    new ShaderObject("Color")
       ..AddAttributeVar(aVertexPosition)
       ..AddUniformVar(uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix)
@@ -54,7 +54,7 @@ List<ShaderObject> createColorShader() {
 
 List<ShaderObject> createLightShader() {
   return [
-    new ShaderObject("LightV")
+    new ShaderObject("Light")
       ..AddAttributeVar(aVertexPosition)
       ..AddAttributeVar(aNormal)
       ..AddVaryingVar(vNormal)
@@ -88,7 +88,7 @@ List<ShaderObject> createLightShader() {
 
 List<ShaderObject> createNormal2ColorShader() {
   return [
-    new ShaderObject("Normal2ColorV")
+    new ShaderObject("Normal2Color")
       ..AddAttributeVar(aVertexPosition)
       ..AddAttributeVar(aNormal)
       ..AddVaryingVar(vColors)
@@ -107,7 +107,7 @@ List<ShaderObject> createNormal2ColorShader() {
 // this shader works well for cube shapes, for other shapes it might be better to use the normals attribute to sample the cube texture
 List<ShaderObject> createCubeMapShader() {
   return [
-    new ShaderObject("CubeMapV")
+    new ShaderObject("CubeMap")
       ..AddAttributeVar(aVertexPosition)
       ..AddVaryingVar(vVertexPosition)
       ..AddUniformVar(uPerspectiveMatrix)

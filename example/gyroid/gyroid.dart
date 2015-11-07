@@ -188,24 +188,25 @@ void main(void)
 
 """;
 
-
 List<ShaderObject> createSphericalGyroidShader() {
-  return[ new ShaderObject("SphericalGyroidV")
+  return [
+    new ShaderObject("SphericalGyroidV")
       ..AddAttributeVar(aVertexPosition)
-         ..AddUniformVar(uPerspectiveMatrix)
-         ..AddUniformVar(uModelViewMatrix)
-         ..SetBodyWithMain(
-             [StdVertexBody]),
-  
-             new ShaderObject("SphericalGyroidF")
-
+      ..AddUniformVar(uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix)
+      ..SetBodyWithMain([StdVertexBody]),
+    new ShaderObject("SphericalGyroidF")
       ..AddUniformVar(uCanvasSize)
-         ..AddUniformVar(uTime)
-         ..SetBody([_FragmentShader])];
+      ..AddUniformVar(uTime)
+      ..SetBody([_FragmentShader])
+  ];
 }
- 
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas', useFramebuffer: true, fxShader: createSphericalGyroidShader(), near: 0.1, far: 2520.0);
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
+      useFramebuffer: true,
+      fxShader: createSphericalGyroidShader(),
+      near: 0.1,
+      far: 2520.0);
   chronosGL.run();
 }

@@ -9,13 +9,14 @@ List<ShaderObject> createPlane2GreyShader() {
       ..AddUniformVar(uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix)
       ..SetBodyWithMain([
-        StdVertexBody,
         "float d = sin(dot( ${aVertexPosition}, ${aNormal})) / 2.0 + 0.5;",
-        "${vColors} = vec3(d,d,d);"
+        "${vColors} = vec3(d,d,d);",
+        StdVertexBody,  
       ]),
     new ShaderObject("Plane2GreyF")
       ..AddVaryingVar(vColors)
-      ..SetBodyWithMain(["gl_FragColor = vec4(${vColors}, 1.0 );"])
+      ..SetBodyWithMain(["gl_FragColor = vec4(${vColors}, 1.0);"])
+       
   ];
 }
 

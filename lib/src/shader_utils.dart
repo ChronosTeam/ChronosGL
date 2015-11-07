@@ -36,8 +36,13 @@ class ShaderUtils {
 
     var result = gl.getShaderParameter(shader, COMPILE_STATUS);
     if (result != null && result == false) {
-      HTML.window.console.log("@@@@@@@@@@@@@@\n" + text);
-      throw gl.getShaderInfoLog(shader);
+      
+      String error = gl.getShaderInfoLog(shader);
+      LogInfo("Compilation failed:");
+      LogInfo(text);
+      LogInfo("Failure:");
+      LogInfo(error);
+      throw error;
     }
     return shader;
   }

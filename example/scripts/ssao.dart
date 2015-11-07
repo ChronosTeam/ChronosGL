@@ -8,13 +8,13 @@ void main() {
   chronosGL.addAnimatable('orbitCam', orbit);
 
   loadObj("ct_logo.obj").then((MeshData md) {
-    Mesh mesh = md.createMesh();
-    mesh.color.set(0.9, 0.9, 0.9);
-    mesh.rotX(3.14 / 2);
-    mesh.rotZ(3.14);
-    Node n = new Node(mesh);
+    Mesh mesh = md.createMesh()
+    ..SetUniform(uColor, new Vector(0.9, 0.9, 0.9))
+    ..rotX(3.14 / 2)
+    ..rotZ(3.14);
+    Node n = new Node(mesh)
     //n.invert = true;
-    n.lookAt(new Vector(100.0, 0.0, -100.0));
+    ..lookAt(new Vector(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);
 
     prg.add(mesh);
