@@ -106,12 +106,12 @@ class Instancer {
     program.inputs.SetUniformVal(uModelViewMatrix, mvMatrix);
     program.MaybeSetUniform(uModelViewMatrix);
 
-    if (mesh.vertexIndexBuffer == null) {
+    if (mesh._indexBuffer == null) {
       print("arg");
       extension.drawArraysInstancedAngle(
           TRIANGLES, 0, mesh.numItems, this.count);
     } else {
-      gl.bindBuffer(ELEMENT_ARRAY_BUFFER, mesh.vertexIndexBuffer);
+      gl.bindBuffer(ELEMENT_ARRAY_BUFFER, mesh._indexBuffer);
       extension.drawElementsInstancedAngle(
           TRIANGLES,
           mesh.numItems,

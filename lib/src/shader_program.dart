@@ -202,11 +202,11 @@ class ShaderProgramInputs {
     assert(_VarsDb.containsKey(canonical));
     return _uniforms[canonical];
   }
-  
+
   bool HasUniform(String canonical) {
-     return _uniforms.containsKey(canonical);
-   }
-  
+    return _uniforms.containsKey(canonical);
+  }
+
   Iterable<String> GetCanonicals() {
     return _uniforms.keys;
   }
@@ -298,14 +298,29 @@ class ShaderProgram implements Drawable {
     return false;
   }
 
-  void MaybeSetAttribute(String a, Buffer buffer, String type,
+  void MaybeSetAttribute(String a, Buffer buffer,
       [bool normalized = false, int stride = 0, int offset = 0]) {
-    assert(type == _VarsDb[a].type);
     if (!_attributeLocations.containsKey(a)) return;
     int index = _attributeLocations[a];
     gl.bindBuffer(ARRAY_BUFFER, buffer);
     gl.vertexAttribPointer(index, _VarsDb[a].GetSize(),
         _VarsDb[a].GetScalarType(), normalized, stride, offset);
+  }
+
+  void SetElementArray(Buffer b) {
+    gl.bindBuffer(ELEMENT_ARRAY_BUFFER, b);
+  }
+
+  void Draw(int numItems, bool drawPoints, bool useArrayBuffer) {
+    if (drawPoints) {
+      gl.drawArrays(POINTS, 0, numItems);
+    } else if (useArrayBuffer) {
+      gl.drawElements(TRIANGLES, numItems,
+          ChronosGL.useElementIndexUint ? UNSIGNED_INT : UNSIGNED_SHORT, 0);
+    } else {
+      gl.drawArrays(TRIANGLES, 0, numItems);
+    }
+    if (debug) print(gl.getProgramInfoLog(program));
   }
 
   void SetUniform(String canonical, var val) {

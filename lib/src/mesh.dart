@@ -1,91 +1,82 @@
 part of chronosgl;
 
+Buffer CreateAndInitializeArrayBufferFloat32(RenderingContext gl, Float32List data) {
+   Buffer b = gl.createBuffer();
+   gl.bindBuffer(ARRAY_BUFFER, b);
+   gl.bufferDataTyped(ARRAY_BUFFER, data, STATIC_DRAW);
+   return b;
+ }
+ 
+ Buffer CreateAndInitializeArrayElementBufferUint32(
+     RenderingContext gl, Uint32List data) {
+    Buffer b = gl.createBuffer();
+    gl.bindBuffer(ELEMENT_ARRAY_BUFFER, b);
+    gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, data, STATIC_DRAW);
+    return b;
+  }
+ 
+ Buffer CreateAndInitializeArrayElementBufferUint16(
+      RenderingContext gl, Uint16List data) {
+     Buffer b = gl.createBuffer();
+     gl.bindBuffer(ELEMENT_ARRAY_BUFFER, b);
+     gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, data, STATIC_DRAW);
+     return b;
+   }
+ 
+ 
 class Mesh extends Node {
   RenderingContext gl;
   bool debug = false;
 
   bool drawPoints;
 
-  Buffer verticesBuffer,
-      colorsBuffer,
-      textureCoordBuffer,
-      normalsBuffer,
-      binormalsBuffer,
-      vertexIndexBuffer;
-
+  Map<String, Buffer> _buffers = {};
+  Buffer _indexBuffer = null;
   int numItems;
-
   Material material;
 
-  Mesh(MeshData meshData, this.material,{this.drawPoints: false}) {
+ 
+  Mesh(MeshData meshData, this.material, {this.drawPoints: false}) {
     if (!meshData.isOptimized) meshData.optimize();
 
     gl = ChronosGL.globalGL;
 
-    verticesBuffer = gl.createBuffer();
-    gl.bindBuffer(ARRAY_BUFFER, verticesBuffer);
-    gl.bufferDataTyped(
-        ARRAY_BUFFER, meshData.vertices as Float32List, STATIC_DRAW);
-
+    assert(meshData.vertices != null);
+    _buffers[aVertexPosition] = CreateAndInitializeArrayBufferFloat32(gl, meshData.vertices);
     if (meshData.colors != null) {
-      colorsBuffer = gl.createBuffer();
-      gl.bindBuffer(ARRAY_BUFFER, colorsBuffer);
-      gl.bufferDataTyped(
-          ARRAY_BUFFER, meshData.colors as Float32List, STATIC_DRAW);
+      _buffers[aColors] = CreateAndInitializeArrayBufferFloat32(gl, meshData.colors);
     }
-
     if (meshData.textureCoords != null) {
-      textureCoordBuffer = gl.createBuffer();
-      gl.bindBuffer(ARRAY_BUFFER, textureCoordBuffer);
-      gl.bufferDataTyped(
-          ARRAY_BUFFER, meshData.textureCoords as Float32List, STATIC_DRAW);
+      _buffers[aTextureCoordinates] = CreateAndInitializeArrayBufferFloat32(
+         gl, meshData.textureCoords);
     }
-
     if (meshData.normals != null) {
-      normalsBuffer = gl.createBuffer();
-      gl.bindBuffer(ARRAY_BUFFER, normalsBuffer);
-      gl.bufferDataTyped(
-          ARRAY_BUFFER, meshData.normals as Float32List, STATIC_DRAW);
+      _buffers[aNormal] = CreateAndInitializeArrayBufferFloat32(gl, meshData.normals);
     }
 
     if (meshData.binormals != null) {
-      binormalsBuffer = gl.createBuffer();
-      gl.bindBuffer(ARRAY_BUFFER, binormalsBuffer);
-      gl.bufferDataTyped(
-          ARRAY_BUFFER, meshData.binormals as Float32List, STATIC_DRAW);
+      _buffers[aBinormal] = CreateAndInitializeArrayBufferFloat32(gl, meshData.binormals);
     }
+
 
     if (meshData.vertexIndices != null) {
       numItems = meshData.vertexIndices.length;
-      vertexIndexBuffer = gl.createBuffer();
-      gl.bindBuffer(ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
-      if (ChronosGL.useElementIndexUint) gl.bufferDataTyped(
-          ELEMENT_ARRAY_BUFFER,
-          meshData.vertexIndices as Uint32List,
-          STATIC_DRAW);
-      else gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER,
-          meshData.vertexIndices as Uint16List, STATIC_DRAW);
+      if (ChronosGL.useElementIndexUint) {
+        _indexBuffer = CreateAndInitializeArrayElementBufferUint32(gl, meshData.vertexIndices);
+      } else {
+        _indexBuffer = CreateAndInitializeArrayElementBufferUint16(gl, meshData.vertexIndices);
+      }
     } else {
       numItems = meshData.vertices.length ~/ 3;
     }
   }
 
   void clearData() {
-    gl.deleteBuffer(verticesBuffer);
-    if (colorsBuffer != null) {
-      gl.deleteBuffer(colorsBuffer);
+    for (String canonical in _buffers.keys) {
+      gl.deleteBuffer(_buffers[canonical]);
     }
-    if (textureCoordBuffer != null) {
-      gl.deleteBuffer(textureCoordBuffer);
-    }
-    if (normalsBuffer != null) {
-      gl.deleteBuffer(normalsBuffer);
-    }
-    if (binormalsBuffer != null) {
-      gl.deleteBuffer(binormalsBuffer);
-    }
-    if (vertexIndexBuffer != null) {
-      gl.deleteBuffer(vertexIndexBuffer);
+    if (_indexBuffer != null) {
+      gl.deleteBuffer(_indexBuffer);
     }
   }
 
@@ -110,27 +101,20 @@ class Mesh extends Node {
       LogInfo("have: ${program._uniformInitialized}");
       assert(false);
     }
-    if (drawPoints) {
-      gl.drawArrays(POINTS, 0, numItems);
-    } else if (vertexIndexBuffer == null) {
-      gl.drawArrays(TRIANGLES, 0, numItems);
-    } else {
-      gl.bindBuffer(ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
-      gl.drawElements(TRIANGLES, numItems,
-          ChronosGL.useElementIndexUint ? UNSIGNED_INT : UNSIGNED_SHORT, 0);
-    }
-
-    if (debug) print(gl.getProgramInfoLog(program.program));
-
+    
+    program.Draw(numItems, drawPoints, _indexBuffer != null);
+ 
     material.RenderingExit(gl);
   }
 
   void bindBuffers(ShaderProgram program) {
-    program.MaybeSetAttribute(aVertexPosition, verticesBuffer, "vec3");
-    program.MaybeSetAttribute(aColors, colorsBuffer, "vec3");
-    program.MaybeSetAttribute(aTextureCoordinates, textureCoordBuffer, "vec2");
-    program.MaybeSetAttribute(aNormal, normalsBuffer, "vec3");
-    program.MaybeSetAttribute(aBinormal, binormalsBuffer, "vec3");
+    for (String canonical in _buffers.keys) {
+      program.MaybeSetAttribute(canonical, _buffers[canonical]);
+    }
+    // should this really be here - interaction with indexer
+    if (_indexBuffer != null ) {
+      program.SetElementArray(_indexBuffer);
+    }
   }
 
   // This code is still a bit awkward.
