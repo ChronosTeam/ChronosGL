@@ -3,7 +3,6 @@ part of chronosgl;
 const String StdVertexBody =
     "gl_Position = ${uPerspectiveMatrix} * ${uModelViewMatrix} * vec4(${aVertexPosition}, 1.0);";
 
-// TODO: consider collapsing: AddAttributeVar(x, x) => .AddAttributeVar(x)
 List<ShaderObject> createTexturedShader() {
   return [
     new ShaderObject("Textured")

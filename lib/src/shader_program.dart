@@ -63,6 +63,8 @@ const String uCameraNear = "uCameraNear";
 const String uCameraFar = "uCameraFar";
 const String uCanvasSize = "uCanvasSize";
 const String uPointSize = "uPointSize";
+const String uFogNear = "uFogNear";
+const String uFogFar = "uFogFar";
 
 Map<String, ShaderVarDesc> _VarsDb = {
   // attribute vars
@@ -94,6 +96,8 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uTime: new ShaderVarDesc("float", "time since program start in sec"),
   uCameraNear: new ShaderVarDesc("float", ""),
   uCameraFar: new ShaderVarDesc("float", ""),
+  uFogNear: new ShaderVarDesc("float", ""),
+  uFogFar: new ShaderVarDesc("float", ""),
   uPointSize: new ShaderVarDesc("float", ""),
   uCanvasSize: new ShaderVarDesc("vec2", ""),
   uColor: new ShaderVarDesc("vec3", ""),
@@ -198,7 +202,11 @@ class ShaderProgramInputs {
     assert(_VarsDb.containsKey(canonical));
     return _uniforms[canonical];
   }
-
+  
+  bool HasUniform(String canonical) {
+     return _uniforms.containsKey(canonical);
+   }
+  
   Iterable<String> GetCanonicals() {
     return _uniforms.keys;
   }
@@ -234,7 +242,7 @@ class ShaderProgram implements Drawable {
     program = su.getProgram(shaderObjectV.shader, shaderObjectF.shader);
     for (String v in shaderObjectV.attributeVars.keys) {
       _attributeLocations[v] = gl.getAttribLocation(program, v);
-      HTML.window.console.log("$v ${_attributeLocations[v]} ");
+      //HTML.window.console.log("$v ${_attributeLocations[v]} ");
       assert(_attributeLocations[v] >= 0);
     }
 

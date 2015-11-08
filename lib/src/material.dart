@@ -14,6 +14,10 @@ class Material {
     _inputs.SetUniformVal(canonical, val);
   }
   
+  bool HasUniform(String canonical) {
+    return _inputs.HasUniform(canonical);
+  }
+  
   void RenderingInit(RenderingContext gl) {
     if (blend) {
       gl.enable(BLEND);
