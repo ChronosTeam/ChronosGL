@@ -26,10 +26,10 @@ class OrbitCamera extends Animatable {
 
   Map<int, bool> cpk = currentlyPressedKeys;
   Map<String, bool> cpmb = currentlyPressedMouseButtons;
-
-
-  OrbitCamera(this.camera, this.radius, [this.azimuth = 0.0, this.polar = 0.0]) {
-    HTML.document.onMouseWheel.listen((HTML.WheelEvent e) {
+  
+  OrbitCamera(this.camera, this.radius, [this.azimuth = 0.0, this.polar = 0.0, HTML.Element eventElement = null]) {
+    if (eventElement == null) eventElement =  HTML.document.body;
+    eventElement.onMouseWheel.listen((HTML.WheelEvent e) {
       try {
         double d = e.deltaY * mouseWheelFactor;
         if (radius - d > 0) radius -= d;
@@ -37,7 +37,7 @@ class OrbitCamera extends Animatable {
         print(e);
       }
     });
-    HTML.document.onMouseMove.listen((HTML.MouseEvent e) {
+    eventElement.onMouseMove.listen((HTML.MouseEvent e) {
       e.preventDefault();
       if (cpmb['left'] != null) {
         //azimuth += e.movement.x*0.01;
@@ -48,11 +48,11 @@ class OrbitCamera extends Animatable {
         mouseDownY = mouseY;
       }
     });
-    HTML.document.onTouchStart.listen((HTML.TouchEvent e) {
+    eventElement.onTouchStart.listen((HTML.TouchEvent e) {
       mouseDownX = e.touches[0].client.x;
       mouseDownY = e.touches[0].client.y;
     });
-    HTML.document.onTouchMove.listen((HTML.TouchEvent e) {
+    eventElement.onTouchMove.listen((HTML.TouchEvent e) {
       //azimuth += e.movement.x*0.01;
       //polar += e.movement.y*0.01;
       HTML.Point p = e.touches[0].client;
@@ -175,13 +175,14 @@ class FPSCamera extends Animatable {
   int movementX = 0;
   int movementY = 0;
 
-  FPSCamera(this.camera) {
-    HTML.document.onMouseDown.listen((HTML.MouseEvent e) {
+  FPSCamera(this.camera, [HTML.Element eventElement = null]) {
+    if (eventElement == null) eventElement =  HTML.document.body;
+    eventElement.onMouseDown.listen((HTML.MouseEvent e) {
       e.preventDefault();
-      HTML.document.body.requestPointerLock();
+      eventElement.requestPointerLock();
     });
 
-    HTML.document.body.onMouseMove.listen((HTML.MouseEvent e) {
+    eventElement.onMouseMove.listen((HTML.MouseEvent e) {
       e.preventDefault();
       movementX += e.movement.x;
       movementY += e.movement.y;
