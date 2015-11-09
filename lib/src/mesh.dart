@@ -39,7 +39,12 @@ class Mesh extends Node {
   void AddBuffer(String canonical, Float32List data) {
     _buffers[canonical] = CreateAndInitializeArrayBufferFloat32(gl, data);
   }
-
+  
+  void ChangeBuffer(String canonical, Float32List data) {
+    gl.bindBuffer(ARRAY_BUFFER, _buffers[canonical]);
+    gl.bufferDataTyped(ARRAY_BUFFER, data, DYNAMIC_DRAW);
+  }
+  
   Mesh(MeshData meshData, this.material, {this.drawPoints: false}) {
     if (!meshData.isOptimized) meshData.optimize();
     gl = ChronosGL.globalGL;

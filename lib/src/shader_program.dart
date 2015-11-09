@@ -6,6 +6,8 @@ class ShaderVarDesc {
 
   int GetSize() {
     switch (type) {
+      case "float":
+        return 1;
       case "vec2":
         return 2;
       case "vec3":
@@ -20,6 +22,7 @@ class ShaderVarDesc {
 
   int GetScalarType() {
     switch (type) {
+      case "float":
       case "vec2":
       case "vec3":
       case "vec4":
