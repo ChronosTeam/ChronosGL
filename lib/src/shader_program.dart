@@ -235,7 +235,6 @@ class ShaderProgram implements Drawable {
   Matrix4 mvMatrix = new Matrix4();
   List<Node> followCameraObjects = new List<Node>();
   List<Node> objects = new List<Node>();
-  List<Instancer> instancers = new List<Instancer>();
 
   ShaderProgram(
       this.chronosGL, this.shaderObjectV, this.shaderObjectF, this.name) {
@@ -296,7 +295,6 @@ class ShaderProgram implements Drawable {
   bool hasEnabledObjects() {
     if (objects.any((Node n) => n.enabled)) return true;
     if (followCameraObjects.any((Node n) => n.enabled)) return true;
-    if (instancers.any((Instancer i) => i.enabled)) return true;
     return false;
   }
 
@@ -452,7 +450,10 @@ class ShaderProgram implements Drawable {
 
     //print( "mvM: ${mvMatrix}");
 
-    drawObjects(followCameraObjects); // like skybox
+    // like skybox
+    for (Node node in followCameraObjects) {
+      if (node.enabled) node.draw(this, mvMatrix);
+    }
 
     camera.getMVMatrix(mvMatrix, true);
 
@@ -463,9 +464,9 @@ class ShaderProgram implements Drawable {
       mvMatrix.setElements(overrideMvMatrix);
     }
 
-    drawObjects(objects);
-
-    drawInstancers();
+    for (Node node in objects) {
+      if (node.enabled) node.draw(this, mvMatrix);
+    }
 
     for (String canonical in _attributeLocations.keys) {
       int index = _attributeLocations[canonical];
@@ -475,21 +476,5 @@ class ShaderProgram implements Drawable {
       }
       gl.disableVertexAttribArray(index);
     }
-  }
-
-  void drawInstancers() {
-    for (Instancer instancer in instancers) {
-      if (instancer.enabled) instancer.draw(this, mvMatrix);
-    }
-  }
-
-  void drawObjects(List<Spatial> objects) {
-    for (Node node in objects) {
-      if (node.enabled) node.draw(this, mvMatrix);
-    }
-  }
-
-  void addInstancer(Instancer instancer) {
-    instancers.add(instancer);
   }
 }

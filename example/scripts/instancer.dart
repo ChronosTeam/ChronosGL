@@ -1,6 +1,37 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:typed_data';
 
+List<ShaderObject> createInstancedShader() {
+  return [
+    new ShaderObject("InstancedV")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVar(iaRotatation)
+      ..AddAttributeVar(iaTranslation)
+      ..AddVaryingVar(vColors)
+      ..AddUniformVar(uPerspectiveMatrix)
+      ..AddUniformVar(uModelViewMatrix)
+      ..SetBody([
+        """
+        vec3 rotate_vertex_position(vec3 pos, vec4 rot) { 
+          return pos + 2.0 * cross(rot.xyz, cross(rot.xyz, pos) + rot.w * pos);
+        }
+
+        void main(void) {
+          vec3 P = rotate_vertex_position(${aVertexPosition}, ${iaRotatation}) + 
+                    ${iaTranslation};
+          gl_Position = ${uPerspectiveMatrix} * ${uModelViewMatrix} * vec4(P, 1);
+          ${vColors} = vec3( sin(${aVertexPosition}.x)/2.0+0.5, 
+                       cos(${aVertexPosition}.y)/2.0+0.5, 
+                       sin(${aVertexPosition}.z)/2.0+0.5);
+        }
+        """
+      ]),
+    new ShaderObject("InstancedF")
+      ..AddVaryingVar(vColors)
+      ..SetBodyWithMain([" gl_FragColor = vec4( ${vColors}, 1. );"])
+  ];
+}
+
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
   Camera camera = chronosGL.getCamera();
@@ -17,11 +48,9 @@ void main() {
   Float32List translations = new Float32List(count * 3);
   Float32List rotations = new Float32List(count * 4);
 
-  Instancer instancer = new Instancer(m, count);
-
   Spatial spatial = new Spatial();
   Quaternion q = new Quaternion();
-  
+
   int pos = 0;
   for (int x = -5; x < 5; x++) {
     for (int y = -5; y < 5; y++) {
@@ -37,8 +66,10 @@ void main() {
 
   m.AddBuffer(iaRotatation, rotations);
   m.AddBuffer(iaTranslation, translations);
-  ShaderProgram prg = chronosGL.createProgram(instancer.instancedShader);
-  prg.addInstancer(instancer);
+  m.numInstances = 1000;
+
+  ShaderProgram prg = chronosGL.createProgram(createInstancedShader());
+  prg.add(m);
   chronosGL.getUtils().addParticles(2000, 100);
   chronosGL.run();
 }
