@@ -1,70 +1,74 @@
 part of chronosgl;
 
-Buffer CreateAndInitializeArrayBufferFloat32(RenderingContext gl, Float32List data) {
-   Buffer b = gl.createBuffer();
-   gl.bindBuffer(ARRAY_BUFFER, b);
-   gl.bufferDataTyped(ARRAY_BUFFER, data, STATIC_DRAW);
-   return b;
- }
- 
- Buffer CreateAndInitializeArrayElementBufferUint32(
-     RenderingContext gl, Uint32List data) {
-    Buffer b = gl.createBuffer();
-    gl.bindBuffer(ELEMENT_ARRAY_BUFFER, b);
-    gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, data, STATIC_DRAW);
-    return b;
-  }
- 
- Buffer CreateAndInitializeArrayElementBufferUint16(
-      RenderingContext gl, Uint16List data) {
-     Buffer b = gl.createBuffer();
-     gl.bindBuffer(ELEMENT_ARRAY_BUFFER, b);
-     gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, data, STATIC_DRAW);
-     return b;
-   }
- 
- 
+Buffer CreateAndInitializeArrayBufferFloat32(
+    RenderingContext gl, Float32List data) {
+  Buffer b = gl.createBuffer();
+  gl.bindBuffer(ARRAY_BUFFER, b);
+  gl.bufferDataTyped(ARRAY_BUFFER, data, STATIC_DRAW);
+  return b;
+}
+
+Buffer CreateAndInitializeArrayElementBufferUint32(
+    RenderingContext gl, Uint32List data) {
+  Buffer b = gl.createBuffer();
+  gl.bindBuffer(ELEMENT_ARRAY_BUFFER, b);
+  gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, data, STATIC_DRAW);
+  return b;
+}
+
+Buffer CreateAndInitializeArrayElementBufferUint16(
+    RenderingContext gl, Uint16List data) {
+  Buffer b = gl.createBuffer();
+  gl.bindBuffer(ELEMENT_ARRAY_BUFFER, b);
+  gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, data, STATIC_DRAW);
+  return b;
+}
+
 class Mesh extends Node {
   RenderingContext gl;
   bool debug = false;
-
+ 
   bool drawPoints;
 
   Map<String, Buffer> _buffers = {};
   Buffer _indexBuffer = null;
   int numItems;
+  int numInstances = 0;
   Material material;
 
- 
+  void AddBuffer(String canonical, Float32List data) {
+    _buffers[canonical] = CreateAndInitializeArrayBufferFloat32(gl, data);
+  }
+
   Mesh(MeshData meshData, this.material, {this.drawPoints: false}) {
     if (!meshData.isOptimized) meshData.optimize();
-
     gl = ChronosGL.globalGL;
-
     assert(meshData.vertices != null);
-    _buffers[aVertexPosition] = CreateAndInitializeArrayBufferFloat32(gl, meshData.vertices);
+    AddBuffer(aVertexPosition, meshData.vertices);
     if (meshData.colors != null) {
-      _buffers[aColors] = CreateAndInitializeArrayBufferFloat32(gl, meshData.colors);
+      AddBuffer(aColors, meshData.colors);
     }
     if (meshData.textureCoords != null) {
-      _buffers[aTextureCoordinates] = CreateAndInitializeArrayBufferFloat32(
-         gl, meshData.textureCoords);
+      AddBuffer(aTextureCoordinates, meshData.textureCoords);
     }
     if (meshData.normals != null) {
-      _buffers[aNormal] = CreateAndInitializeArrayBufferFloat32(gl, meshData.normals);
+      AddBuffer(aNormal, meshData.normals);
+      _buffers[aNormal] =
+          CreateAndInitializeArrayBufferFloat32(gl, meshData.normals);
     }
 
     if (meshData.binormals != null) {
-      _buffers[aBinormal] = CreateAndInitializeArrayBufferFloat32(gl, meshData.binormals);
+      AddBuffer(aBinormal, meshData.binormals);
     }
-
 
     if (meshData.vertexIndices != null) {
       numItems = meshData.vertexIndices.length;
       if (ChronosGL.useElementIndexUint) {
-        _indexBuffer = CreateAndInitializeArrayElementBufferUint32(gl, meshData.vertexIndices);
+        _indexBuffer = CreateAndInitializeArrayElementBufferUint32(
+            gl, meshData.vertexIndices);
       } else {
-        _indexBuffer = CreateAndInitializeArrayElementBufferUint16(gl, meshData.vertexIndices);
+        _indexBuffer = CreateAndInitializeArrayElementBufferUint16(
+            gl, meshData.vertexIndices);
       }
     } else {
       numItems = meshData.vertices.length ~/ 3;
@@ -101,9 +105,9 @@ class Mesh extends Node {
       LogInfo("have: ${program._uniformInitialized}");
       assert(false);
     }
-    
-    program.Draw(numItems, drawPoints, _indexBuffer != null);
- 
+
+    program.Draw(numInstances, numItems, drawPoints, _indexBuffer != null);
+
     material.RenderingExit(gl);
   }
 
@@ -111,8 +115,9 @@ class Mesh extends Node {
     for (String canonical in _buffers.keys) {
       program.MaybeSetAttribute(canonical, _buffers[canonical]);
     }
+    
     // should this really be here - interaction with indexer
-    if (_indexBuffer != null ) {
+    if (_indexBuffer != null) {
       program.SetElementArray(_indexBuffer);
     }
   }

@@ -40,8 +40,10 @@ const String aVertexPosition = "aVertexPosition";
 const String aTextureCoordinates = "aTextureCoordinates";
 const String aNormal = "aNormal";
 const String aBinormal = "aBinormal";
-const String aInstancerRotatation = "aInstancerRotation";
-const String aInstancerTranslation = "aInstancerTranslation";
+
+// Instancer
+const String iaRotatation = "iaRotation";
+const String iaTranslation = "iaTranslation";
 
 const String vColors = "vColors";
 const String vTextureCoordinates = "vTextureCoordinates";
@@ -74,8 +76,8 @@ Map<String, ShaderVarDesc> _VarsDb = {
   aTextureCoordinates: new ShaderVarDesc("vec2", "texture uvs"),
   aNormal: new ShaderVarDesc("vec3", "vertex normals"),
   aBinormal: new ShaderVarDesc("vec3", "vertex binormals"),
-  aInstancerRotatation: new ShaderVarDesc("vec4", ""),
-  aInstancerTranslation: new ShaderVarDesc("vec3", ""),
+  iaRotatation: new ShaderVarDesc("vec4", ""),
+  iaTranslation: new ShaderVarDesc("vec3", ""),
 
   // Varying
   vColors: new ShaderVarDesc("vec3", "per vertex color"),
@@ -305,20 +307,42 @@ class ShaderProgram implements Drawable {
     gl.bindBuffer(ARRAY_BUFFER, buffer);
     gl.vertexAttribPointer(index, _VarsDb[a].GetSize(),
         _VarsDb[a].GetScalarType(), normalized, stride, offset);
+    // Hack for instances - can this be moved to where we enable the attribute?
+    if (a.startsWith("ia")) {
+      AngleInstancedArrays ext = gl.getExtension("ANGLE_instanced_arrays");
+      ext.vertexAttribDivisorAngle(index, 1);
+    }
   }
 
   void SetElementArray(Buffer b) {
     gl.bindBuffer(ELEMENT_ARRAY_BUFFER, b);
   }
 
-  void Draw(int numItems, bool drawPoints, bool useArrayBuffer) {
-    if (drawPoints) {
-      gl.drawArrays(POINTS, 0, numItems);
-    } else if (useArrayBuffer) {
-      gl.drawElements(TRIANGLES, numItems,
-          ChronosGL.useElementIndexUint ? UNSIGNED_INT : UNSIGNED_SHORT, 0);
+  void Draw(
+      int numInstances, int numItems, bool drawPoints, bool useArrayBuffer) {
+    if (numInstances > 0) {
+      AngleInstancedArrays ext = gl.getExtension("ANGLE_instanced_arrays");
+      if (drawPoints) {
+        ext.drawArraysInstancedAngle(POINTS, 0, numItems, numInstances);
+      } else if (useArrayBuffer) {
+        ext.drawElementsInstancedAngle(
+            TRIANGLES,
+            numItems,
+            ChronosGL.useElementIndexUint ? UNSIGNED_INT : UNSIGNED_SHORT,
+            0,
+            numInstances);
+      } else {
+        ext.drawArraysInstancedAngle(TRIANGLES, 0, numItems, numInstances);
+      }
     } else {
-      gl.drawArrays(TRIANGLES, 0, numItems);
+      if (drawPoints) {
+        gl.drawArrays(POINTS, 0, numItems);
+      } else if (useArrayBuffer) {
+        gl.drawElements(TRIANGLES, numItems,
+            ChronosGL.useElementIndexUint ? UNSIGNED_INT : UNSIGNED_SHORT, 0);
+      } else {
+        gl.drawArrays(TRIANGLES, 0, numItems);
+      }
     }
     if (debug) print(gl.getProgramInfoLog(program));
   }
@@ -395,6 +419,7 @@ class ShaderProgram implements Drawable {
     gl.useProgram(program);
     for (String a in _attributeLocations.keys) {
       gl.enableVertexAttribArray(_attributeLocations[a]);
+      // see whether we can move the instancing stuff here as well
     }
 
     Camera camera = chronosGL.getCamera();
@@ -441,8 +466,14 @@ class ShaderProgram implements Drawable {
     drawObjects(objects);
 
     drawInstancers();
-    for (String a in _attributeLocations.keys) {
-      gl.disableVertexAttribArray(_attributeLocations[a]);
+
+    for (String canonical in _attributeLocations.keys) {
+      int index = _attributeLocations[canonical];
+      if (canonical.startsWith("ia")) {
+        AngleInstancedArrays ext = gl.getExtension("ANGLE_instanced_arrays");
+        ext.vertexAttribDivisorAngle(index, 0);
+      }
+      gl.disableVertexAttribArray(index);
     }
   }
 
