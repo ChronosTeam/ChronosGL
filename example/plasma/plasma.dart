@@ -2,7 +2,8 @@ import 'dart:html' as html;
 import 'package:chronosgl/chronosgl.dart';
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas', useFramebuffer: false, fxShader: createPlasmaShader3());
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
+      useFramebuffer: false, fxShader: createPlasmaShader3());
 
   List<ShaderProgram> prgs = new List<ShaderProgram>();
   prgs.add(chronosGL.createProgram(createPlasmaShader()));
@@ -38,16 +39,20 @@ void main() {
   html.document.addEventListener('keypress', (event) {
     prgs[pointer % 3].remove(m);
     prgs[(pointer + 1) % 3].add(m);
-    pointer=(pointer+1)%3;
+    pointer = (pointer + 1) % 3;
   });
-  
-  html.SelectElement myselect = html.document.querySelector('#myselect') as html.SelectElement;
+
+  html.SelectElement myselect =
+      html.document.querySelector('#myselect') as html.SelectElement;
   myselect.onChange.listen((html.Event e) {
     prgs[pointer].remove(m);
-    pointer=myselect.selectedIndex;
+    pointer = myselect.selectedIndex;
     prgs[(pointer)].add(m);
   });
 
-  chronosGL.getUtils().addParticles(2000, 100);
-  chronosGL.run();
+  TextureWrapper tw = chronosGL.getUtils().createParticleTexture();
+  chronosGL.getUtils().addParticles(2000, tw);
+  TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+    chronosGL.run();
+  });
 }

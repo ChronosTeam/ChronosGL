@@ -373,12 +373,12 @@ class ShaderProgram implements Drawable {
         if (canonical == uTextureSampler) {
           int n = 0;
           gl.activeTexture(TEXTURE0 + n);
-          gl.bindTexture(TEXTURE_2D, val);
+          gl.bindTexture(TEXTURE_2D, val.GetTexture());
           gl.uniform1i(l, n);
         } else if (canonical == uTexture2Sampler) {
           int n = _uniformLocations.containsKey(uTextureSampler) ? 1 : 0;
           gl.activeTexture(TEXTURE0 + n);
-          gl.bindTexture(TEXTURE_2D, val);
+          gl.bindTexture(TEXTURE_2D, val.GetTexture());
           gl.uniform1i(l, n);
         } else {
           assert(false);
@@ -389,7 +389,7 @@ class ShaderProgram implements Drawable {
         int n = (_uniformLocations.containsKey(uTextureSampler) ? 1 : 0) +
             (_uniformLocations.containsKey(uTexture2Sampler) ? 1 : 0);
         gl.activeTexture(TEXTURE0 + n);
-        gl.bindTexture(TEXTURE_CUBE_MAP, val);
+        gl.bindTexture(TEXTURE_CUBE_MAP, val.GetTexture());
         gl.uniform1i(l, n);
         break;
       default:

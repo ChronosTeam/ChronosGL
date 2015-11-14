@@ -39,8 +39,9 @@ void main() {
     ..setPos(11, 11, 1);
 
   fixedShaderPrg.add(ico);
-
-  chronosGL.getUtils().addParticles(2000);
-
-  chronosGL.run();
+  TextureWrapper tw = chronosGL.getUtils().createParticleTexture();
+  chronosGL.getUtils().addParticles(2000, tw);
+  TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+    chronosGL.run();
+  });
 }

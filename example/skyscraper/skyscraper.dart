@@ -77,6 +77,7 @@ void main() {
     }
   }
 
-  //chronosGL.getUtils().addParticles(2000, 100);
-  chronosGL.run();
+  TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+     chronosGL.run();
+   });
 }

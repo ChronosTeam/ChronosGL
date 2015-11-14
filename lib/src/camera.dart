@@ -3,12 +3,16 @@ part of chronosgl;
 class Camera extends Spatial {
   // Get the model view matrix. The view matrix is the inverse of the camera’s transformation matrix in world-space.
   void getMVMatrix(Matrix4 mvMatrix, bool translate) {
-    transform.toRotationMat(mvMatrix); // why does this seem to be already inverted/transposed ?
+    transform.toRotationMat(
+        mvMatrix); // why does this seem to be already inverted/transposed ?
     if (translate) {
       // The eye position is negated which is equivalent to the inverse of the translation matrix: T(v)^-1 == T(-v)
       // T = translation matrix, v = eye position.
       mvMatrix.translateLocal(
-          -transform[12], -transform[13], -transform[14]); // short cut for rotationMatrixInverted * translationMatrixInverted, see http://3dgep.com/understanding-the-view-matrix/#Look_At_Camera
+          -transform[12],
+          -transform[13],
+          -transform[
+              14]); // short cut for rotationMatrixInverted * translationMatrixInverted, see http://3dgep.com/understanding-the-view-matrix/#Look_At_Camera
     }
   }
 }
@@ -26,9 +30,12 @@ class OrbitCamera extends Animatable {
 
   Map<int, bool> cpk = currentlyPressedKeys;
   Map<String, bool> cpmb = currentlyPressedMouseButtons;
-  
-  OrbitCamera(this.camera, this.radius, [this.azimuth = 0.0, this.polar = 0.0, HTML.Element eventElement = null]) {
-    if (eventElement == null) eventElement =  HTML.document.body;
+
+  OrbitCamera(this.camera, this.radius,
+      [this.azimuth = 0.0,
+      this.polar = 0.0,
+      HTML.Element eventElement = null]) {
+    if (eventElement == null) eventElement = HTML.document.body;
     eventElement.onMouseWheel.listen((HTML.WheelEvent e) {
       try {
         double d = e.deltaY * mouseWheelFactor;
@@ -137,24 +144,29 @@ class FlyingCamera extends Animatable {
     back.negate();
     momentum.lerp(back, amount);
   }
+
   void moveBackward(double amount) {
     Vector back = camera.getBack();
     momentum.lerp(back, amount);
   }
+
   void moveUp(num amount) {
     Vector up = camera.getUp();
     momentum.lerp(up, amount);
   }
+
   void moveDown(num amount) {
     Vector up = camera.getUp();
     up.negate();
     momentum.lerp(up, amount);
   }
+
   void moveLeft(num amount) {
     Vector right = camera.getRight();
     right.negate();
     momentum.lerp(right, amount);
   }
+
   void moveRight(num amount) {
     Vector right = camera.getRight();
     momentum.lerp(right, amount);
@@ -176,7 +188,7 @@ class FPSCamera extends Animatable {
   int movementY = 0;
 
   FPSCamera(this.camera, [HTML.Element eventElement = null]) {
-    if (eventElement == null) eventElement =  HTML.document.body;
+    if (eventElement == null) eventElement = HTML.document.body;
     eventElement.onMouseDown.listen((HTML.MouseEvent e) {
       e.preventDefault();
       eventElement.requestPointerLock();
@@ -226,7 +238,8 @@ class FPSCamera extends Animatable {
 
     if (cpk[Key.SPACE] != null) {}
 
-    if (movementY != 0) camera.transform.rotate(movementY * 0.006, camera.getRight());
+    if (movementY != 0) camera.transform
+        .rotate(movementY * 0.006, camera.getRight());
     if (movementX != 0) camera.transform.rotate(movementX * 0.006, up);
 
     movementX = 0;

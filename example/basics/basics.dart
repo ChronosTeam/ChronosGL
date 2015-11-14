@@ -11,48 +11,49 @@ void main() {
   });
   chronosGL.addAnimatable('OrbitCam', orbit);
 
-  TextureCache textureCache = chronosGL.getTextureCache();
-  textureCache.addSolidColor("red", "rgba(255,0,0,1)");
-  TextureWrapper gradient = textureCache.add("../gradient.jpg");
-  TextureWrapper trans = textureCache.add("../transparent.png");
-  TextureWrapper wood = textureCache.add("../wood.jpg");
-
+  //TextureWrapper red = new TextureWrapper.SolidColor("red", "rgba(255,0,0,1)");
+  TextureWrapper gradient = new TextureWrapper.Image("../gradient.jpg");
+  TextureWrapper trans = new TextureWrapper.Image("../transparent.png");
+  TextureWrapper wood = new TextureWrapper.Image("../wood.jpg");
+  
   //ShaderProgram perlinNoise = chronosGL.createProgram(createPerlinNoiseColorShader(), true);
 
   Material matWood = new Material()
-    ..SetUniform(uTextureSampler, wood.texture)
+    ..SetUniform(uTextureSampler, wood)
     ..SetUniform(uColor, new Vector(1, 0, 0));
-  textureCache.loadAllThenExecute(() {
-    Mesh ico = chronosGL.shapes.createIcosahedron(3).createMesh(matWood)
-      ..setPos(0, 0, 0);
-    chronosGL.programBasic.add(ico);
 
-    Material matGradient = new Material()
-      ..SetUniform(uTextureSampler, gradient.texture);
+  Mesh ico = chronosGL.shapes.createIcosahedron(3).createMesh(matWood)
+    ..setPos(0, 0, 0);
+  chronosGL.programBasic.add(ico);
 
-    Mesh cube = chronosGL.shapes.createCube().createMesh(matGradient)
-      ..setPos(-5, 0, -5);
-    chronosGL.programBasic.add(cube);
+  Material matGradient = new Material()
+    ..SetUniform(uTextureSampler, gradient);
 
-    Material matTrans = new Material()
-      ..SetUniform(uTextureSampler, trans.texture)
-      ..blend = true;
-    Mesh cyl = chronosGL.shapes
-        .createCylinder(3.0, 2.0, 32)
-        .createMesh(matTrans)..setPos(5, 0, -5);
-    chronosGL.programBasic.add(cyl);
+  Mesh cube = chronosGL.shapes.createCube().createMesh(matGradient)
+    ..setPos(-5, 0, -5);
+  chronosGL.programBasic.add(cube);
 
-    Mesh quad = chronosGL.shapes.createQuad(2).createMesh(matTrans)
-      //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
-      ..setPos(-5, 0, 5);
-    chronosGL.programBasic.add(quad);
+  Material matTrans = new Material()
+    ..SetUniform(uTextureSampler, trans)
+    ..blend = true;
+  Mesh cyl = chronosGL.shapes.createCylinder(3.0, 2.0, 32).createMesh(matTrans)
+    ..setPos(5, 0, -5);
+  chronosGL.programBasic.add(cyl);
 
-    Mesh torus =
-        chronosGL.shapes.createTorusKnot(radius: 1.0, tube: 0.4).createMesh(matGradient)
-          ..setPos(5, 0, 5);
-    chronosGL.programBasic.add(torus);
+  Mesh quad = chronosGL.shapes.createQuad(2).createMesh(matTrans)
+    //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
+    ..setPos(-5, 0, 5);
+  chronosGL.programBasic.add(quad);
 
-    chronosGL.getUtils().addParticles(2000, 100);
+  Mesh torus = chronosGL.shapes
+      .createTorusKnot(radius: 1.0, tube: 0.4)
+      .createMesh(matGradient)..setPos(5, 0, 5);
+  chronosGL.programBasic.add(torus);
+  
+  TextureWrapper tw = chronosGL.getUtils().createParticleTexture();
+  chronosGL.getUtils().addParticles(2000, tw);
+
+  TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });
 }

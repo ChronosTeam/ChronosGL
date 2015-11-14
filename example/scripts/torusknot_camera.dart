@@ -14,27 +14,22 @@ void main() {
   TorusKnotCamera tkc = new TorusKnotCamera(camera);
   chronosGL.addAnimatable('tkc', tkc);
 
-  TextureCache textureCache = chronosGL.getTextureCache();
   canvas2d = chronosGL.getUtils().createGradientImage2(0.0, canvas2d);
-  TextureWrapper generatedTexture = textureCache.addCanvas("gen", canvas2d);
+  TextureWrapper generatedTexture = new TextureWrapper.Canvas("gen", canvas2d);
 
-  textureCache.loadAllThenExecute(() {
-    Material mat = new Material()
-      ..SetUniform(uTextureSampler, generatedTexture.texture)
-      ..SetUniform(uColor, new Vector())
-      ..blend = true
-      ..depthTest = false;
-    Mesh m = chronosGL.shapes.createTorusKnot().createMesh(mat);
+  Material mat = new Material()
+    ..SetUniform(uTextureSampler, generatedTexture)
+    ..SetUniform(uColor, new Vector())
+    ..blend = true
+    ..depthTest = false;
+  Mesh m = chronosGL.shapes.createTorusKnot().createMesh(mat);
 
-    chronosGL.programBasic.add(m);
-    chronosGL.addAnimateCallback('changeTexture',
-        (double elapsed, double time) {
-      canvas2d =
-          chronosGL.getUtils().createGradientImage2(time / 1000, canvas2d);
-      chronosGL.gl.bindTexture(TEXTURE_2D, generatedTexture.texture);
-      chronosGL.gl
-          .texImage2DCanvas(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, canvas2d);
-    });
+  chronosGL.programBasic.add(m);
+  chronosGL.addAnimateCallback('changeTexture', (double elapsed, double time) {
+    canvas2d = chronosGL.getUtils().createGradientImage2(time / 1000, canvas2d);
+    chronosGL.gl.bindTexture(TEXTURE_2D, generatedTexture.GetTexture());
+    chronosGL.gl
+        .texImage2DCanvas(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, canvas2d);
   });
 
   int p = 2;
@@ -47,7 +42,10 @@ void main() {
   }
 
   //chronosGL.programPointSprites.add( new PointSprites( 2000, textureCache.get( "textures/particle.bmp")));
-  chronosGL.getUtils().addParticles(2000, 100);
-
-  chronosGL.run();
+ 
+  TextureWrapper tw = chronosGL.getUtils().createParticleTexture();
+   chronosGL.getUtils().addParticles(2000, tw);
+   TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+     chronosGL.run();
+   });
 }

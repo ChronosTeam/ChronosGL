@@ -1,153 +1,167 @@
 part of chronosgl;
 
-class TextureCache {
-  Map<String, TextureWrapper> textureCache = new Map<String, TextureWrapper>();
-  ChronosGL chronosGL;
-  RenderingContext gl;
-  bool flipY = true;
-  bool mipmap = false;
-  int minFilter = LINEAR; // LINEAR_MIPMAP_LINEAR
-  int magFilter = LINEAR;
+GetGlExtensionAnisotropic(RenderingContext gl) {
+  var ext = null;
+  for (String prefix in ["", "MOZ_", "WEBKIT_"]) {
+    ext = gl.getExtension(prefix + "EXT_texture_filter_anisotropic");
+    if (ext != null) break;
+  }
+  return ext;
+}
 
-  TextureCache(this.chronosGL) {
-    gl = chronosGL.gl;
+
+HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {
+  HTML.CanvasElement canvas = new HTML.CanvasElement(width: 2, height: 2);
+  HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
+  ctx.fillStyle = fillStyle;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  return canvas;
+}
+
+const int kNoAnisotropicFilterLevel = 1;
+
+int MaxAnisotropicFilterLevel(RenderingContext gl) {
+  var ext = GetGlExtensionAnisotropic(gl);
+  if (ext == null) {
+    return kNoAnisotropicFilterLevel;
+  }
+  return gl
+      .getParameter(ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+}
+
+class TextureWrapper {
+  static Map<String, TextureWrapper> _cache = new Map<String, TextureWrapper>();
+
+  static TextureWrapper Lookup(String url) {
+    assert(_cache.containsKey(url));
+    return _cache[url];
   }
 
-  TextureWrapper add(String url, [bool clamp = false]) {
-    return textureCache[url] = new TextureWrapper(this.gl, clamp: clamp, type: TEXTURE_2D);
-  }
-
-  void addCube(String name, String prefix, String suffix, {bool clamp: false, String nx: "nx", String px: "px", String ny: "ny", String py: "py", String nz: "nz", String pz: "pz"}) {
-    TextureWrapper tw = textureCache[name] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP);
-    TextureWrapper temp;
-    temp = textureCache[prefix + nx + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_NEGATIVE_X);
-    tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + px + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_POSITIVE_X);
-    tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + ny + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_NEGATIVE_Y);
-    tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + py + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_POSITIVE_Y);
-    tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + nz + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_NEGATIVE_Z);
-    tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + pz + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_POSITIVE_Z);
-    tw.cubeTextureChildren.add(temp);
-
-    tw.loaded = true;
-  }
-
-  TextureWrapper addSolidColor(String url, String fillStyle) {
-    TextureWrapper tw = new TextureWrapper(this.gl, clamp: false);
-    tw.loaded = true;
-    tw.texture = chronosGL.getUtils().createSolidTexture(fillStyle);
-    return textureCache[url] = tw;
-  }
-
-  TextureWrapper addCanvas(String url, HTML.CanvasElement canvas) {
-    TextureWrapper tw = new TextureWrapper(this.gl, clamp: false);
-    tw.loaded = true;
-    tw.texture = chronosGL.getUtils().createTextureFromCanvas(canvas, minFilter: minFilter, magFilter: magFilter, mipmap: mipmap, flipY: flipY);
-    return textureCache[url] = tw;
-  }
-
-  Texture get(String url) {
-    return textureCache[url].texture;
-  }
-
-  TextureWrapper getTW(String url) {
-    return textureCache[url];
-  }
-  
-  void loadAllThenExecute(callBackFunc()) {
-    loadAll().then((_){
-      callBackFunc();
-    });    
-  }
-  
-  Future<dynamic> loadAll() {
-    List<Future<HTML.Event>> futures = new List<Future<HTML.Event>>();
-
-    for (String url in textureCache.keys) {
-      //print(url);
-      TextureWrapper textureWrapper = textureCache[url];
-      if (textureWrapper.loaded) continue;
-
-      futures.add(textureWrapper.image.onLoad.first);
-
-      textureWrapper.image.src = url;
-
-      if (textureWrapper.cubemap) textureWrapper.loaded = true;
+  static Future<dynamic> loadAndInstallAllTextures(RenderingContext gl) {
+    List<Future<HTML.Event>> futures = [];
+    for (String key in _cache.keys) {
+      Future<dynamic> f = _cache[key]._future;
+      if (f != null) futures.add(f);
     }
-
-    // TODO: check for error !!
     return Future.wait(futures).then((List list) {
-      for (String url in textureCache.keys) {
-        TextureWrapper textureWrapper = textureCache[url];
-        if (textureWrapper.loaded && textureWrapper.type != TEXTURE_CUBE_MAP) continue;
-
-        if (textureWrapper.cubemap && textureWrapper.type != TEXTURE_CUBE_MAP) continue;
-
-        gl.bindTexture(textureWrapper.type, textureWrapper.texture);
-
-        if (flipY) {
-          gl.pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
-        }
-
-        gl.texParameteri(textureWrapper.type, TEXTURE_MAG_FILTER, magFilter);
-        gl.texParameteri(textureWrapper.type, TEXTURE_MIN_FILTER, minFilter);
-
-        if (textureWrapper.clamp) {
-          gl.texParameteri(textureWrapper.type, TEXTURE_WRAP_S, CLAMP_TO_EDGE); // this fixes glitches on skybox seams
-          gl.texParameteri(textureWrapper.type, TEXTURE_WRAP_T, CLAMP_TO_EDGE);
-        }
-
-        if (textureWrapper.type == TEXTURE_CUBE_MAP) {
-          for (TextureWrapper tw in textureWrapper.cubeTextureChildren) {
-            gl.texImage2DImage(tw.type, 0, RGBA, RGBA, UNSIGNED_BYTE, tw.image);
-          }
-        } else {
-          gl.texImage2DImage(textureWrapper.type, 0, RGBA, RGBA, UNSIGNED_BYTE, textureWrapper.image);
-        }
-
-        if (mipmap) {
-          gl.generateMipmap(TEXTURE_2D);
-        }
-
-        gl.bindTexture(TEXTURE_2D, null);
-        textureWrapper.loaded = true;
-
-        print("loaded: $url");
+      LogInfo("All images have loaded");
+      for (String key in _cache.keys) {
+        TextureWrapper tw = _cache[key];
+        if (tw._texture != null) continue;
+        if (tw._type != TEXTURE_2D && tw._type != TEXTURE_CUBE_MAP) continue;
+        tw.Install(gl);
       }
     });
   }
 
-  int check() {
-    print("check");
-    int notReadyCount = 0;
-    for (String url in textureCache.keys) {
-      //console.log("check: " + url + " : " + textureCache[url].ready);
-      if (!textureCache[url].loaded) {
-        notReadyCount++;
+  final String _url;
+  int _type;
+  Texture _texture = null;
+  Future<dynamic> _future = null;
+
+  // Exactly one of the next three must be non-null
+  HTML.ImageElement _image = null;
+  HTML.CanvasElement _canvas = null;
+  List<TextureWrapper> _cubeChildren = null;
+
+  // TODO: consolidate
+  bool mipmap = false;
+  bool clamp = false;
+  bool flipY = true;
+  int anisotropicFilterLevel = kNoAnisotropicFilterLevel;
+  int minFilter = LINEAR; // LINEAR_MIPMAP_LINEAR
+  int magFilter = LINEAR;
+
+  Texture GetTexture() {
+    return _texture;
+  }
+  
+  TextureWrapper.Canvas(this._url, this._canvas, [this._type = TEXTURE_2D]) {
+    assert(!_cache.containsKey(_url));
+    _cache[_url] = this;
+  }
+
+  TextureWrapper.SolidColor(String url, String fillStyle, [type = TEXTURE_2D])
+      : this.Canvas(url, MakeSolidColorCanvas(fillStyle), type);
+
+  TextureWrapper.Image(this._url, [this._type = TEXTURE_2D]) {
+    _image = new HTML.ImageElement();
+    _future = _image.onLoad.first;
+    _image.src = _url;
+    _cache[_url] = this;
+  }
+
+  TextureWrapper.ImageCube(this._url, String prefix, String suffix) {
+    _type = TEXTURE_CUBE_MAP;
+    _cubeChildren = [
+      new TextureWrapper.Image(
+          prefix + "nx" + suffix, TEXTURE_CUBE_MAP_NEGATIVE_X),
+      new TextureWrapper.Image(
+          prefix + "px" + suffix, TEXTURE_CUBE_MAP_POSITIVE_X),
+      new TextureWrapper.Image(
+          prefix + "ny" + suffix, TEXTURE_CUBE_MAP_NEGATIVE_Y),
+      new TextureWrapper.Image(
+          prefix + "py" + suffix, TEXTURE_CUBE_MAP_POSITIVE_Y),
+      new TextureWrapper.Image(
+          prefix + "nz" + suffix, TEXTURE_CUBE_MAP_NEGATIVE_Z),
+      new TextureWrapper.Image(
+          prefix + "pz" + suffix, TEXTURE_CUBE_MAP_POSITIVE_Z),
+    ];
+    _cache[_url] = this;
+  }
+
+  void InstallCubeChild(RenderingContext gl) {
+    if (_canvas != null) {
+      gl.texImage2DCanvas(_type, 0, RGBA, RGBA, UNSIGNED_BYTE, _canvas);
+    } else {
+      assert(_image != null);
+      gl.texImage2DImage(_type, 0, RGBA, RGBA, UNSIGNED_BYTE, _image);
+    }
+  }
+
+  void Install(RenderingContext gl) {
+    LogInfo("Installing texture ${_url}");
+    assert(_texture == null);
+    _texture = gl.createTexture();
+    gl.bindTexture(_type, _texture);
+    if (flipY) {
+      gl.pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
+    }
+
+    if (anisotropicFilterLevel != kNoAnisotropicFilterLevel) {
+      gl.texParameterf(
+          _type,
+          ExtTextureFilterAnisotropic.TEXTURE_MAX_ANISOTROPY_EXT,
+          anisotropicFilterLevel);
+    }
+    gl.texParameteri(_type, TEXTURE_MAG_FILTER, magFilter);
+    gl.texParameteri(_type, TEXTURE_MIN_FILTER, minFilter);
+
+    if (clamp) {
+      // this fixes glitches on skybox seams
+      gl.texParameteri(_type, TEXTURE_WRAP_S, CLAMP_TO_EDGE);
+      gl.texParameteri(_type, TEXTURE_WRAP_T, CLAMP_TO_EDGE);
+    }
+
+    if (_canvas != null) {
+      gl.texImage2DCanvas(_type, 0, RGBA, RGBA, UNSIGNED_BYTE, _canvas);
+    } else if (_image != null) {
+      gl.texImage2DImage(_type, 0, RGBA, RGBA, UNSIGNED_BYTE, _image);
+    } else if (_cubeChildren != null) {
+      assert(_type == TEXTURE_CUBE_MAP);
+      for (TextureWrapper child in _cubeChildren) {
+        child.InstallCubeChild(gl);
       }
     }
-    return notReadyCount;
-  }
-}
 
-class TextureWrapper {
-  Texture texture;
-  HTML.ImageElement image = new HTML.ImageElement();
-  bool loaded = false;
-  bool clamp = false;
-  bool cubemap = false;
-  int type;
-  List<TextureWrapper> cubeTextureChildren = new List<TextureWrapper>();
+    if (mipmap) {
+      gl.generateMipmap(TEXTURE_2D);
+    }
 
-  TextureWrapper(RenderingContext gl, {this.clamp: false, this.cubemap: false, this.type: TEXTURE_2D}) {
-    texture = gl.createTexture();
+    gl.bindTexture(TEXTURE_2D, null);
   }
 
   String toString() {
-    return "${image.src} - loaded: $loaded, clamp: $clamp, cubemap: $cubemap, type: $type";
+    return "${_image.src} - texture: ${_texture}, clamp: $clamp,  type: $_type";
   }
 }

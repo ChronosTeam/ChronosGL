@@ -70,6 +70,10 @@ void main() {
 
   ShaderProgram prg = chronosGL.createProgram(createInstancedShader());
   prg.add(m);
-  chronosGL.getUtils().addParticles(2000, 100);
-  chronosGL.run();
+
+  TextureWrapper tw = chronosGL.getUtils().createParticleTexture();
+  chronosGL.getUtils().addParticles(2000, tw);
+  TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+    chronosGL.run();
+  });
 }

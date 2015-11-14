@@ -72,7 +72,6 @@ class ChronosGL {
 
   HTML.CanvasElement _canvas;
   //double _aspect; // this might be useful in shaders sometimes
-  TextureCache _textureCache;
   Camera _camera;
   Utils _utils;
   ChronosFramebuffer fxFramebuffer;
@@ -132,7 +131,6 @@ class ChronosGL {
     programBasic =
         createProgram(createTexturedShader());
 
-    _textureCache = new TextureCache(this);
     _camera = new Camera();
     _utils = new Utils(this);
 
@@ -154,10 +152,6 @@ class ChronosGL {
 
   RenderingContext getRenderingContext() {
     return gl;
-  }
-
-  TextureCache getTextureCache() {
-    return _textureCache;
   }
 
   Matrix4 getPerspectiveMatrix() {

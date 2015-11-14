@@ -7,18 +7,19 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(camera, 15.0, -45.0, 0.3);
   chronosGL.addAnimatable('orbitCam', orbit);
   Material mat = new Material();
-  
+
   loadObj("../ct_logo.obj").then((MeshData md) {
     Mesh mesh = md.createMesh(mat)
-    ..rotX(3.14 / 2)
-    ..rotZ(3.14);
+      ..rotX(3.14 / 2)
+      ..rotZ(3.14);
     Node n = new Node(mesh);
     //n.invert = true;
     n.lookAt(new Vector(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);
 
     Quaternion start = new Quaternion().fromRotationMatrix4(n.transform);
-    Quaternion end = new Quaternion().setAxisAngle(new Vector(0.0, 0.0, 1.0), 3.14);
+    Quaternion end =
+        new Quaternion().setAxisAngle(new Vector(0.0, 0.0, 1.0), 3.14);
     Quaternion work = new Quaternion();
     double time = 0.0;
 
@@ -30,7 +31,11 @@ void main() {
     });
 
     prg.add(n);
-    chronosGL.getUtils().addParticles(2000, 100);
-    chronosGL.run();
+
+    TextureWrapper tw = chronosGL.getUtils().createParticleTexture();
+    chronosGL.getUtils().addParticles(2000, tw);
+    TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+      chronosGL.run();
+    });
   });
 }

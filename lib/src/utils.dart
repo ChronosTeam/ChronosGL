@@ -3,41 +3,11 @@ part of chronosgl;
 class Utils {
   ChronosGL chronosGL;
   RenderingContext gl;
-  TextureCache textureCache;
 
   Utils(this.chronosGL) {
     gl = chronosGL.getRenderingContext();
-    textureCache = chronosGL.getTextureCache();
   }
-
-  Texture createTextureFromCanvas(HTML.CanvasElement canvas,
-      {int minFilter: LINEAR,
-      int magFilter: LINEAR,
-      bool mipmap: false,
-      bool flipY: true}) {
-    var texture = gl.createTexture();
-    gl.bindTexture(TEXTURE_2D, texture);
-    if (flipY) {
-      gl.pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
-    }
-    gl.texImage2DCanvas(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, canvas);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, minFilter);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, magFilter);
-    if (mipmap) {
-      gl.generateMipmap(TEXTURE_2D);
-    }
-    gl.bindTexture(TEXTURE_2D, null);
-    return texture;
-  }
-
-  Texture createSolidTexture(String fillStyle) {
-    HTML.CanvasElement canvas = new HTML.CanvasElement(width: 2, height: 2);
-    HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
-    ctx.fillStyle = fillStyle;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    return createTextureFromCanvas(canvas);
-  }
-
+/*
   Texture createCheckerboardTexture() {
     var pixels = new Uint8List.fromList(
         [255, 255, 255, 0, 0, 0, 0, 0, 0, 255, 255, 255]);
@@ -53,7 +23,8 @@ class Utils {
     gl.texImage2DTyped(TEXTURE_2D, 0, RGB, 2, 2, 0, RGB, UNSIGNED_BYTE, pixels);
     return texture;
   }
-
+*/
+  
   HTML.CanvasElement createCanvas(
       HTML.CanvasElement canvas, callback(HTML.CanvasRenderingContext2D ctx),
       [int size = 512]) {
@@ -86,8 +57,8 @@ class Utils {
     });
   }
 
-  Texture createParticleTexture() {
-    return createTextureFromCanvas(createParticleCanvas());
+  TextureWrapper createParticleTexture() {
+    return new TextureWrapper.Canvas("Utils::Particles", createParticleCanvas());
   }
 
   HTML.CanvasElement createParticleCanvas() {
@@ -139,55 +110,53 @@ class Utils {
         vertexIndices: vertexIndices), mat);
   }
 
-  void addSkycube(Texture cubeTexture) {
+  void addSkycube(TextureWrapper cubeTexture) {
     ShaderProgram cm = chronosGL.createProgram(createCubeMapShader());
     Material mat  = new Material()..SetUniform(uTextureCubeSampler, cubeTexture);
     Mesh m = createCubeInternal().multiplyVertices(512).createMesh(mat);
     cm.addFollowCameraObject(m);
   }
 
+  /*
   void addSkybox(String prefix, String suffix, String nx, String px, String nz,
       String pz, String ny, String py) {
-    Material tnx = new Material()..SetUniform(uTextureSampler, textureCache.get(prefix + nx + suffix));
-    Material tpx = new Material()..SetUniform(uTextureSampler,textureCache.get(prefix + px + suffix));
-    Material tnz = new Material()..SetUniform(uTextureSampler,textureCache.get(prefix + nz + suffix));
-    Material tpz = new Material()..SetUniform(uTextureSampler,textureCache.get(prefix + pz + suffix));
-    Material tny = new Material()..SetUniform(uTextureSampler,textureCache.get(prefix + ny + suffix));
-    Material tpy = new Material()..SetUniform(uTextureSampler,textureCache.get(prefix + py + suffix));
-
+    Material mm(String middle) {
+      return new Material()..SetUniform(uTextureSampler, textureCache.getTW(prefix + middle + suffix).texture);
+    }
     
-    Mesh skybox_nx = createQuad(tnx, 1004);
+    Mesh skybox_nx = createQuad(mm(nx), 1004);
     skybox_nx.setPos(-2.0, 2.0, -1000.0);
     chronosGL.programBasic.addFollowCameraObject(skybox_nx);
 
-    Mesh skybox_px = createQuad(tpx, 1004);
+    Mesh skybox_px = createQuad(mm(px), 1004);
     skybox_px.setPos(-2.0, 2.0, 1000.0);
     skybox_px.rotY(Math.PI);
     chronosGL.programBasic.addFollowCameraObject(skybox_px);
 
-    Mesh skybox_nz = createQuad(tnz, 1004);
+    Mesh skybox_nz = createQuad(mm(nz), 1004);
     skybox_nz.setPos(-1000.0, 2.0, -2.0);
     skybox_nz.rotY(0.5 * Math.PI);
     chronosGL.programBasic.addFollowCameraObject(skybox_nz);
 
-    Mesh skybox_pz = createQuad(tpz, 1004);
+    Mesh skybox_pz = createQuad(mm(pz), 1004);
     skybox_pz.setPos(1000.0, 2.0, -2.0);
     skybox_pz.rotY(1.5 * Math.PI);
     chronosGL.programBasic.addFollowCameraObject(skybox_pz);
 
-    Mesh skybox_ny = createQuad(tny, 1004);
+    Mesh skybox_ny = createQuad(mm(ny), 1004);
     skybox_ny.setPos(-2.0, -1000.0, -2.0);
     skybox_ny.rotX(1.5 * Math.PI);
     skybox_ny.rotZ(1.5 * Math.PI);
     chronosGL.programBasic.addFollowCameraObject(skybox_ny);
 
-    Mesh skybox_py = createQuad(tpy, 1004);
+    Mesh skybox_py = createQuad(mm(py), 1004);
     skybox_py.setPos(-2.0, 1000.0, -2.0);
     skybox_py.rotX(0.5 * Math.PI);
     skybox_py.rotZ(0.5 * Math.PI);
     chronosGL.programBasic.addFollowCameraObject(skybox_py);
-  }
+  }*/
 
+  /*
   @deprecated // use chronosGL.shapes.create...
   MeshData createIcosahedron([int subdivisions = 4]) {
     return new Icosahedron(subdivisions);
@@ -226,12 +195,15 @@ class Utils {
         q: q,
         heightScale: heightScale), mat);
   } 
+   */
 
-  void addParticles(int numPoints, [int dimension = 100]) {
-    addPointSprites(numPoints, createParticleTexture(), dimension);
+  
+  void addParticles(int numPoints, TextureWrapper tw, [int dimension = 100]) {
+    addPointSprites(numPoints, tw, dimension);
   }
+  
 
-  void addPointSprites(int numPoints, Texture texture, [int dimension = 500]) {
+  void addPointSprites(int numPoints, TextureWrapper texture, [int dimension = 500]) {
     // TODO: make this asynchronous (async/await?)
     Math.Random rand = new Math.Random();
     Float32List vertices = new Float32List(numPoints * 3);

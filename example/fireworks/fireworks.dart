@@ -45,7 +45,7 @@ List<ShaderObject> createFireWorksShader() {
 
 Math.Random rand = new Math.Random();
 
-Mesh getRocket(ChronosGL chronosGL) {
+Mesh getRocket(ChronosGL chronosGL, TextureWrapper tw) {
   int numPoints = 200;
 
   Float32List vertices = new Float32List(numPoints * 3);
@@ -56,11 +56,11 @@ Mesh getRocket(ChronosGL chronosGL) {
 
   MeshData md = new MeshData(vertices: vertices, normals: normals);
   Material mat = new Material()
-      ..SetUniform(uTextureSampler, chronosGL.getUtils().createParticleTexture())
-         ..SetUniform(uColor, new Vector(1.0, 0.0, 0.0))
-         ..blend = true
-         ..depthWrite = false
-         ..blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;
+    ..SetUniform(uTextureSampler, tw)
+    ..SetUniform(uColor, new Vector(1.0, 0.0, 0.0))
+    ..blend = true
+    ..depthWrite = false
+    ..blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;
   return new Mesh(md, mat, drawPoints: true);
 }
 
@@ -74,12 +74,13 @@ void main() {
     //orbit.setPosFromSpherical(15.0, time*0.001, time*0.0005);
     orbit.azimuth += 0.001;
   });
-
+  TextureWrapper tw = chronosGL.getUtils().createParticleTexture();
   ShaderProgram pssp = chronosGL.createProgram(createFireWorksShader());
 
-  pssp.add(getRocket(chronosGL));
+  pssp.add(getRocket(chronosGL, tw));
 
-  chronosGL.getUtils().addParticles(2000);
-
-  chronosGL.run();
+  chronosGL.getUtils().addParticles(2000, tw);
+  TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+    chronosGL.run();
+  });
 }
