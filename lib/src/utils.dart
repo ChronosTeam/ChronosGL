@@ -2,7 +2,7 @@ part of chronosgl;
 
 class Utils {
   ChronosGL chronosGL;
-  RenderingContext gl;
+  WEBGL.RenderingContext gl;
 
   Utils(this.chronosGL) {
     gl = chronosGL.getRenderingContext();
@@ -220,7 +220,7 @@ class Utils {
       ..SetUniform(uPointSize, 1000)
       ..blend = true
       ..depthWrite = false
-      ..blend_dFactor = ONE_MINUS_SRC_COLOR;
+      ..blend_dFactor = WEBGL.ONE_MINUS_SRC_COLOR;
     Mesh m = new Mesh(md, mat, drawPoints: true)
       ..name = 'point_sprites_mesh_' + pssp.objects.length.toString();
     pssp.add(m);

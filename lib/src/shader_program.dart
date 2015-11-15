@@ -26,7 +26,7 @@ class ShaderVarDesc {
       case "vec2":
       case "vec3":
       case "vec4":
-        return FLOAT;
+        return WEBGL.FLOAT;
       default:
         assert(false);
         return -1;
@@ -224,11 +224,11 @@ class ShaderProgram implements Drawable {
   ShaderProgramInputs inputs = new ShaderProgramInputs();
 
   String name;
-  RenderingContext gl;
-  Program program;
+  WEBGL.RenderingContext gl;
+  WEBGL.Program program;
 
   Map<String, int> _attributeLocations = {};
-  Map<String, UniformLocation> _uniformLocations = {};
+  Map<String, WEBGL.UniformLocation> _uniformLocations = {};
   // Should this be done per processed Mesh?
   Set<String> _uniformInitialized = new Set<String>();
 
@@ -270,7 +270,7 @@ class ShaderProgram implements Drawable {
     return gl.getAttribLocation(program, name);
   }
 
-  UniformLocation getUniformLocation(String name) {
+  WEBGL.UniformLocation getUniformLocation(String name) {
     return gl.getUniformLocation(program, name);
   }
 
@@ -301,48 +301,48 @@ class ShaderProgram implements Drawable {
     return false;
   }
 
-  void MaybeSetAttribute(String a, Buffer buffer,
+  void MaybeSetAttribute(String a, WEBGL.Buffer buffer,
       [bool normalized = false, int stride = 0, int offset = 0]) {
     if (!_attributeLocations.containsKey(a)) return;
     int index = _attributeLocations[a];
-    gl.bindBuffer(ARRAY_BUFFER, buffer);
+    gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
     gl.vertexAttribPointer(index, _VarsDb[a].GetSize(),
         _VarsDb[a].GetScalarType(), normalized, stride, offset);
     // Hack for instances - can this be moved to where we enable the attribute?
     if (a.startsWith("ia")) {
-      AngleInstancedArrays ext = gl.getExtension("ANGLE_instanced_arrays");
+      WEBGL.AngleInstancedArrays ext = gl.getExtension("ANGLE_instanced_arrays");
       ext.vertexAttribDivisorAngle(index, 1);
     }
   }
 
-  void SetElementArray(Buffer b) {
-    gl.bindBuffer(ELEMENT_ARRAY_BUFFER, b);
+  void SetElementArray(WEBGL.Buffer b) {
+    gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, b);
   }
 
   void Draw(
       int numInstances, int numItems, bool drawPoints, bool useArrayBuffer) {
     if (numInstances > 0) {
-      AngleInstancedArrays ext = gl.getExtension("ANGLE_instanced_arrays");
+      WEBGL.AngleInstancedArrays ext = gl.getExtension("ANGLE_instanced_arrays");
       if (drawPoints) {
-        ext.drawArraysInstancedAngle(POINTS, 0, numItems, numInstances);
+        ext.drawArraysInstancedAngle(WEBGL.POINTS, 0, numItems, numInstances);
       } else if (useArrayBuffer) {
         ext.drawElementsInstancedAngle(
-            TRIANGLES,
+            WEBGL.TRIANGLES,
             numItems,
-            ChronosGL.useElementIndexUint ? UNSIGNED_INT : UNSIGNED_SHORT,
+            ChronosGL.useElementIndexUint ? WEBGL.UNSIGNED_INT : WEBGL.UNSIGNED_SHORT,
             0,
             numInstances);
       } else {
-        ext.drawArraysInstancedAngle(TRIANGLES, 0, numItems, numInstances);
+        ext.drawArraysInstancedAngle(WEBGL.TRIANGLES, 0, numItems, numInstances);
       }
     } else {
       if (drawPoints) {
-        gl.drawArrays(POINTS, 0, numItems);
+        gl.drawArrays(WEBGL.POINTS, 0, numItems);
       } else if (useArrayBuffer) {
-        gl.drawElements(TRIANGLES, numItems,
-            ChronosGL.useElementIndexUint ? UNSIGNED_INT : UNSIGNED_SHORT, 0);
+        gl.drawElements(WEBGL.TRIANGLES, numItems,
+            ChronosGL.useElementIndexUint ? WEBGL.UNSIGNED_INT : WEBGL.UNSIGNED_SHORT, 0);
       } else {
-        gl.drawArrays(TRIANGLES, 0, numItems);
+        gl.drawArrays(WEBGL.TRIANGLES, 0, numItems);
       }
     }
     if (debug) print(gl.getProgramInfoLog(program));
@@ -354,7 +354,7 @@ class ShaderProgram implements Drawable {
     assert(_VarsDb.containsKey(canonical));
     ShaderVarDesc desc = _VarsDb[canonical];
     assert(_uniformLocations.containsKey(canonical));
-    UniformLocation l = _uniformLocations[canonical];
+    WEBGL.UniformLocation l = _uniformLocations[canonical];
     _uniformInitialized.add(canonical);
     switch (desc.type) {
       case "float":
@@ -374,13 +374,13 @@ class ShaderProgram implements Drawable {
       case "sampler2D":
         if (canonical == uTextureSampler) {
           int n = 0;
-          gl.activeTexture(TEXTURE0 + n);
-          gl.bindTexture(TEXTURE_2D, val.GetTexture());
+          gl.activeTexture(WEBGL.TEXTURE0 + n);
+          gl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
           gl.uniform1i(l, n);
         } else if (canonical == uTexture2Sampler) {
           int n = _uniformLocations.containsKey(uTextureSampler) ? 1 : 0;
-          gl.activeTexture(TEXTURE0 + n);
-          gl.bindTexture(TEXTURE_2D, val.GetTexture());
+          gl.activeTexture(WEBGL.TEXTURE0 + n);
+          gl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
           gl.uniform1i(l, n);
         } else {
           assert(false);
@@ -390,8 +390,8 @@ class ShaderProgram implements Drawable {
         assert(canonical == uTextureCubeSampler);
         int n = (_uniformLocations.containsKey(uTextureSampler) ? 1 : 0) +
             (_uniformLocations.containsKey(uTexture2Sampler) ? 1 : 0);
-        gl.activeTexture(TEXTURE0 + n);
-        gl.bindTexture(TEXTURE_CUBE_MAP, val.GetTexture());
+        gl.activeTexture(WEBGL.TEXTURE0 + n);
+        gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, val.GetTexture());
         gl.uniform1i(l, n);
         break;
       default:
@@ -476,7 +476,7 @@ class ShaderProgram implements Drawable {
     for (String canonical in _attributeLocations.keys) {
       int index = _attributeLocations[canonical];
       if (canonical.startsWith("ia")) {
-        AngleInstancedArrays ext = gl.getExtension("ANGLE_instanced_arrays");
+        WEBGL.AngleInstancedArrays ext = gl.getExtension("ANGLE_instanced_arrays");
         ext.vertexAttribDivisorAngle(index, 0);
       }
       gl.disableVertexAttribArray(index);

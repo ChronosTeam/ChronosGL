@@ -1,12 +1,12 @@
 part of chronosgl;
 
 class Uniform {
-  UniformLocation uniformLocation;
-  RenderingContext gl;
+  WEBGL.UniformLocation uniformLocation;
+  WEBGL.RenderingContext gl;
 
   Uniform(this.uniformLocation, this.gl);
 
-  UniformLocation getUniformLocation() {
+  WEBGL.UniformLocation getUniformLocation() {
     return uniformLocation;
   }
 
@@ -24,17 +24,17 @@ class Uniform {
 }
 
 class ShaderUtils {
-  RenderingContext gl;
+  WEBGL.RenderingContext gl;
 
   ShaderUtils(this.gl);
 
-  Shader getShader(int type, String text) {
-    Shader shader = gl.createShader(type);
+  WEBGL.Shader getShader(int type, String text) {
+    WEBGL.Shader shader = gl.createShader(type);
 
     gl.shaderSource(shader, text);
     gl.compileShader(shader);
 
-    var result = gl.getShaderParameter(shader, COMPILE_STATUS);
+    var result = gl.getShaderParameter(shader, WEBGL.COMPILE_STATUS);
     if (result != null && result == false) {
       
       String error = gl.getShaderInfoLog(shader);
@@ -47,13 +47,13 @@ class ShaderUtils {
     return shader;
   }
 
-  Program getProgram(String vertexShaderText, String fragmentShaderText) {
-    Program program = gl.createProgram();
-    gl.attachShader(program, getShader(VERTEX_SHADER, vertexShaderText));
-    gl.attachShader(program, getShader(FRAGMENT_SHADER, fragmentShaderText));
+  WEBGL.Program getProgram(String vertexShaderText, String fragmentShaderText) {
+    WEBGL.Program program = gl.createProgram();
+    gl.attachShader(program, getShader(WEBGL.VERTEX_SHADER, vertexShaderText));
+    gl.attachShader(program, getShader(WEBGL.FRAGMENT_SHADER, fragmentShaderText));
     gl.linkProgram(program);
 
-    if (!gl.getProgramParameter(program, LINK_STATUS)) {
+    if (!gl.getProgramParameter(program, WEBGL.LINK_STATUS)) {
       throw gl.getProgramInfoLog(program);
     }
 

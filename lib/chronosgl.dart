@@ -1,7 +1,7 @@
 library chronosgl;
 
 import 'dart:html' as HTML;
-import 'dart:web_gl';
+import 'dart:web_gl' as WEBGL;
 import 'dart:math' as Math;
 import 'dart:typed_data';
 import 'dart:async';
@@ -56,11 +56,11 @@ abstract class Drawable extends Animatable {
 typedef void AnimateCallback(double elapsed, double time);
 
 class ChronosGL {
-  static RenderingContext globalGL;
+  static WEBGL.RenderingContext globalGL;
   static bool useElementIndexUint = false;
   var elementIndexUintExt;
 
-  RenderingContext gl;
+  WEBGL.RenderingContext gl;
 
   Map<String, ShaderProgram> programs = new Map<String, ShaderProgram>();
   Map<String, Animatable> animatables = new Map<String, Animatable>();
@@ -80,7 +80,6 @@ class ChronosGL {
   Matrix4 _pMatrix = new Matrix4();
 
   Shapes shapes = new Shapes();
-  BlendConstants blendConstants = new BlendConstants();
 
   num near = 0.1;
   num far = 1000;
@@ -125,7 +124,7 @@ class ChronosGL {
     //print( gl.getSupportedExtensions());
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(DEPTH_TEST);
+    gl.enable(WEBGL.DEPTH_TEST);
 
     programBasic = createProgram(createTexturedShader());
 
@@ -149,7 +148,7 @@ class ChronosGL {
     setUpEventCapture(_canvas);
   }
 
-  RenderingContext getRenderingContext() {
+  WEBGL.RenderingContext getRenderingContext() {
     return gl;
   }
 
@@ -199,7 +198,7 @@ class ChronosGL {
 
   void draw() {
     if (fxFramebuffer != null) {
-      gl.bindFramebuffer(FRAMEBUFFER, fxFramebuffer.framebuffer);
+      gl.bindFramebuffer(WEBGL.FRAMEBUFFER, fxFramebuffer.framebuffer);
     }
 
     if (_lastWidth != _canvas.clientWidth ||
@@ -213,15 +212,15 @@ class ChronosGL {
       _lastWidth = _canvas.clientWidth;
       _lastHeight = _canvas.clientHeight;
     }
-    gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+    gl.clear(WEBGL.COLOR_BUFFER_BIT | WEBGL.DEPTH_BUFFER_BIT);
 
     for (ShaderProgram prg in programs.values) {
       prg.draw(_pMatrix);
     }
 
     if (fxFramebuffer != null && fxFramebuffer.ready()) {
-      gl.bindFramebuffer(FRAMEBUFFER, null);
-      gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+      gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
+      gl.clear(WEBGL.COLOR_BUFFER_BIT | WEBGL.DEPTH_BUFFER_BIT);
       fxProgram.draw(fxMatrix, fxMatrix);
     }
   }
@@ -261,12 +260,3 @@ class ChronosGL {
   }
 }
 
-class BlendConstants {
-  final int ONE = 1;
-  final int SRC_ALPHA = 0x0302;
-  final int ONE_MINUS_SRC_ALPHA = 0x0303;
-  final int FUNC_ADD = 0x8006;
-  final int ONE_MINUS_SRC_COLOR = 0x0301;
-  final int SRC_COLOR = 0x0300;
-  final int DST_COLOR = 0x0306;
-}

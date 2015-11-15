@@ -1,37 +1,37 @@
 part of chronosgl;
 
-Buffer CreateAndInitializeArrayBufferFloat32(
-    RenderingContext gl, Float32List data) {
-  Buffer b = gl.createBuffer();
-  gl.bindBuffer(ARRAY_BUFFER, b);
-  gl.bufferDataTyped(ARRAY_BUFFER, data, STATIC_DRAW);
+WEBGL.Buffer CreateAndInitializeArrayBufferFloat32(
+    WEBGL.RenderingContext gl, Float32List data) {
+  WEBGL.Buffer b = gl.createBuffer();
+  gl.bindBuffer(WEBGL.ARRAY_BUFFER, b);
+  gl.bufferDataTyped(WEBGL.ARRAY_BUFFER, data, WEBGL.STATIC_DRAW);
   return b;
 }
 
-Buffer CreateAndInitializeArrayElementBufferUint32(
-    RenderingContext gl, Uint32List data) {
-  Buffer b = gl.createBuffer();
-  gl.bindBuffer(ELEMENT_ARRAY_BUFFER, b);
-  gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, data, STATIC_DRAW);
+WEBGL.Buffer CreateAndInitializeArrayElementBufferUint32(
+    WEBGL.RenderingContext gl, Uint32List data) {
+  WEBGL.Buffer b = gl.createBuffer();
+  gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, b);
+  gl.bufferDataTyped(WEBGL.ELEMENT_ARRAY_BUFFER, data, WEBGL.STATIC_DRAW);
   return b;
 }
 
-Buffer CreateAndInitializeArrayElementBufferUint16(
-    RenderingContext gl, Uint16List data) {
-  Buffer b = gl.createBuffer();
-  gl.bindBuffer(ELEMENT_ARRAY_BUFFER, b);
-  gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, data, STATIC_DRAW);
+WEBGL.Buffer CreateAndInitializeArrayElementBufferUint16(
+    WEBGL.RenderingContext gl, Uint16List data) {
+  WEBGL.Buffer b = gl.createBuffer();
+  gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, b);
+  gl.bufferDataTyped(WEBGL.ELEMENT_ARRAY_BUFFER, data, WEBGL.STATIC_DRAW);
   return b;
 }
 
 class Mesh extends Node {
-  RenderingContext gl;
+  WEBGL.RenderingContext gl;
   bool debug = false;
  
   bool drawPoints;
 
-  Map<String, Buffer> _buffers = {};
-  Buffer _indexBuffer = null;
+  Map<String, WEBGL.Buffer> _buffers = {};
+  WEBGL.Buffer _indexBuffer = null;
   int numItems;
   int numInstances = 0;
   Material material;
@@ -41,8 +41,8 @@ class Mesh extends Node {
   }
   
   void ChangeBuffer(String canonical, Float32List data) {
-    gl.bindBuffer(ARRAY_BUFFER, _buffers[canonical]);
-    gl.bufferDataTyped(ARRAY_BUFFER, data, DYNAMIC_DRAW);
+    gl.bindBuffer(WEBGL.ARRAY_BUFFER, _buffers[canonical]);
+    gl.bufferDataTyped(WEBGL.ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
   }
   
   Mesh(MeshData meshData, this.material, {this.drawPoints: false}) {

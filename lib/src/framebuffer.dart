@@ -1,12 +1,12 @@
 part of chronosgl;
 
 class ChronosFramebuffer {
-  RenderingContext gl;
+  WEBGL.RenderingContext gl;
   int width;
   int height;
 
-  Framebuffer framebuffer;
-  Renderbuffer renderbuffer;
+  WEBGL.Framebuffer framebuffer;
+  WEBGL.Renderbuffer renderbuffer;
   TextureWrapper colorTexture;
   TextureWrapper depthTexture;
   var depthTextureExt;
@@ -26,19 +26,19 @@ class ChronosFramebuffer {
     depthTexture = new TextureWrapper.Null("frame::depth", width, height, true);
     depthTexture.Install(gl);
 
-    gl.bindFramebuffer(FRAMEBUFFER, framebuffer);
-    gl.framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, TEXTURE_2D,
+    gl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
+    gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.COLOR_ATTACHMENT0, WEBGL.TEXTURE_2D,
         colorTexture.GetTexture(), 0);
     gl.framebufferTexture2D(
-        FRAMEBUFFER, DEPTH_ATTACHMENT, TEXTURE_2D, depthTexture.GetTexture(), 0);
+        WEBGL.FRAMEBUFFER, WEBGL.DEPTH_ATTACHMENT, WEBGL.TEXTURE_2D, depthTexture.GetTexture(), 0);
 
-    gl.bindTexture(TEXTURE_2D, null);
-    gl.bindFramebuffer(FRAMEBUFFER, null);
+    gl.bindTexture(WEBGL.TEXTURE_2D, null);
+    gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
   }
 
   bool ready() {
     bool result =
-        gl.checkFramebufferStatus(FRAMEBUFFER) == FRAMEBUFFER_COMPLETE;
+        gl.checkFramebufferStatus(WEBGL.FRAMEBUFFER) == WEBGL.FRAMEBUFFER_COMPLETE;
     if (!result) {
       print("FRAMEBUFFER_INCOMPLETE");
     }
