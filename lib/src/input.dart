@@ -11,7 +11,7 @@ int mouseDownX = 0;
 int mouseDownY = 0;
 bool skipDefaultMouseMoveListener = false;
 
-void setUpCapture(HTML.CanvasElement canvas) {
+void setUpEventCapture(HTML.CanvasElement canvas) {
   HTML.document.onKeyDown.listen((HTML.KeyboardEvent e) {
     currentlyPressedKeys[e.keyCode] = true;
   });

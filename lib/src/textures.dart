@@ -1,5 +1,14 @@
 part of chronosgl;
 
+GetGlExtensionDepth(RenderingContext gl) {
+  var ext = null;
+  for (String prefix in ["", "MOZ_", "WEBKIT_"]) {
+    ext = gl.getExtension(prefix + "WEBGL_depth_texture");
+    if (ext != null) break;
+  }
+  return ext;
+}
+
 GetGlExtensionAnisotropic(RenderingContext gl) {
   var ext = null;
   for (String prefix in ["", "MOZ_", "WEBKIT_"]) {
@@ -8,7 +17,6 @@ GetGlExtensionAnisotropic(RenderingContext gl) {
   }
   return ext;
 }
-
 
 HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {
   HTML.CanvasElement canvas = new HTML.CanvasElement(width: 2, height: 2);
@@ -29,6 +37,7 @@ int MaxAnisotropicFilterLevel(RenderingContext gl) {
       .getParameter(ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
 }
 
+// Consider using subclasses
 class TextureWrapper {
   static Map<String, TextureWrapper> _cache = new Map<String, TextureWrapper>();
 
@@ -63,6 +72,9 @@ class TextureWrapper {
   HTML.ImageElement _image = null;
   HTML.CanvasElement _canvas = null;
   List<TextureWrapper> _cubeChildren = null;
+  int _nullWidth;
+  int _nullHeight;
+  bool _isNullDepth = false;
 
   // TODO: consolidate
   bool mipmap = false;
@@ -75,7 +87,7 @@ class TextureWrapper {
   Texture GetTexture() {
     return _texture;
   }
-  
+
   TextureWrapper.Canvas(this._url, this._canvas, [this._type = TEXTURE_2D]) {
     assert(!_cache.containsKey(_url));
     _cache[_url] = this;
@@ -89,6 +101,16 @@ class TextureWrapper {
     _future = _image.onLoad.first;
     _image.src = _url;
     _cache[_url] = this;
+  }
+
+  TextureWrapper.Null(
+      this._url, this._nullWidth, this._nullHeight, this._isNullDepth,
+      [this._type = TEXTURE_2D]) {
+    flipY = false;
+    clamp = true;
+    mipmap = false;
+    minFilter = NEAREST;
+    magFilter = NEAREST;
   }
 
   TextureWrapper.ImageCube(this._url, String prefix, String suffix) {
@@ -151,6 +173,15 @@ class TextureWrapper {
       assert(_type == TEXTURE_CUBE_MAP);
       for (TextureWrapper child in _cubeChildren) {
         child.InstallCubeChild(gl);
+      }
+    } else {
+      assert(_nullWidth > 0 && _nullHeight > 0);
+      if (_isNullDepth) {
+        gl.texImage2DTyped(TEXTURE_2D, 0, DEPTH_COMPONENT, _nullWidth,
+            _nullHeight, 0, DEPTH_COMPONENT, UNSIGNED_SHORT, null);
+      } else {
+        gl.texImage2DTyped(TEXTURE_2D, 0, RGB, _nullWidth, _nullHeight, 0, RGB,
+            UNSIGNED_BYTE, null);
       }
     }
 

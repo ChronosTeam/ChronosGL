@@ -31,7 +31,6 @@ part "src/framebuffer.dart";
 part "src/shader/basic_shader.dart";
 part "src/shader/blur_shader.dart";
 
-
 part "src/shader/plane_shader.dart";
 part "src/shader/ssao_shader.dart";
 part "src/shader/sobel_shader.dart";
@@ -128,16 +127,16 @@ class ChronosGL {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(DEPTH_TEST);
 
-    programBasic =
-        createProgram(createTexturedShader());
+    programBasic = createProgram(createTexturedShader());
 
     _camera = new Camera();
     _utils = new Utils(this);
 
     if (useFramebuffer) {
       fxFramebuffer = new ChronosFramebuffer(gl, _canvas.width, _canvas.height);
-      Material mat = new Material()..SetUniform(uTexture2Sampler, fxFramebuffer.depthTexture)
-                                    ..SetUniform(uTextureSampler, fxFramebuffer.colorTexture);
+      Material mat = new Material()
+        ..SetUniform(uTexture2Sampler, fxFramebuffer.depthTexture)
+        ..SetUniform(uTextureSampler, fxFramebuffer.colorTexture);
       fxWall = _utils.createQuad(mat, 1);
       if (fxShader == null) {
         fxShader = createTexturedShader();
@@ -147,7 +146,7 @@ class ChronosGL {
       fxProgram.add(fxWall);
     }
 
-    setUpCapture(_canvas);
+    setUpEventCapture(_canvas);
   }
 
   RenderingContext getRenderingContext() {
@@ -166,8 +165,7 @@ class ChronosGL {
     return _utils;
   }
 
-  ShaderProgram createProgram(List<ShaderObject> so,
-      [bool register = true]) {
+  ShaderProgram createProgram(List<ShaderObject> so, [bool register = true]) {
     ShaderProgram pn = new ShaderProgram(this, so[0], so[1], so[0].name);
     if (register) this.programs[so[0].name] = pn;
     return pn;

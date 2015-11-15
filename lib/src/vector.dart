@@ -1,5 +1,15 @@
 part of chronosmath;
 
+class Vector2 {
+  Float32List array;
+
+  Vector2(num x, num y) {
+    array = new Float32List(2);
+    array[0] = x.toDouble();
+    array[1] = y.toDouble();
+  }
+}
+
 class Vector {
   Float32List array;
 
@@ -100,9 +110,7 @@ class Vector {
   }
 
   Vector normalize() {
-    double x = array[0],
-        y = array[1],
-        z = array[2];
+    double x = array[0], y = array[1], z = array[2];
     double len = Math.sqrt(x * x + y * y + z * z);
 
     if (len == 0) {
@@ -177,17 +185,13 @@ class Vector {
   }
 
   double dist(Vector to) {
-    double x = to[0] - array[0],
-        y = to[1] - array[1],
-        z = to[2] - array[2];
+    double x = to[0] - array[0], y = to[1] - array[1], z = to[2] - array[2];
 
     return Math.sqrt(x * x + y * y + z * z);
   }
 
   double lengthSquared() {
-    double x = array[0],
-        y = array[1],
-        z = array[2];
+    double x = array[0], y = array[1], z = array[2];
     return (x * x + y * y + z * z);
   }
 

@@ -364,9 +364,11 @@ class ShaderProgram implements Drawable {
         gl.uniformMatrix4fv(l, false, val.array);
         break;
       case "vec3":
+        assert (val.array.length == 3);
         gl.uniform3fv(l, val.array);
         break;
       case "vec2":
+        assert (val.array.length == 2);
         gl.uniform2fv(l, val.array);
         break;
       case "sampler2D":
@@ -430,7 +432,7 @@ class ShaderProgram implements Drawable {
     inputs.SetUniformVal(uCameraFar, chronosGL.far);
     inputs.SetUniformVal(
         uCanvasSize,
-        new Vector(
+        new Vector2(
             chronosGL._canvas.clientWidth, chronosGL._canvas.clientHeight));
     inputs.SetUniformVal(uPerspectiveMatrix, pMatrix);
     inputs.SetUniformVal(uPointLightLocation, chronosGL.pointLightLocation);
