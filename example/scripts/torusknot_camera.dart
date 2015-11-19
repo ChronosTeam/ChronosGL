@@ -14,6 +14,8 @@ void main() {
   TorusKnotCamera tkc = new TorusKnotCamera(camera);
   chronosGL.addAnimatable('tkc', tkc);
 
+  ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
+
   canvas2d = chronosGL.getUtils().createGradientImage2(0.0, canvas2d);
   TextureWrapper generatedTexture = new TextureWrapper.Canvas("gen", canvas2d);
 
@@ -24,7 +26,7 @@ void main() {
     ..depthTest = false;
   Mesh m = chronosGL.shapes.createTorusKnot().createMesh(mat);
 
-  chronosGL.programBasic.add(m);
+  programBasic.add(m);
   chronosGL.addAnimateCallback('changeTexture', (double elapsed, double time) {
     canvas2d = chronosGL.getUtils().createGradientImage2(time / 1000, canvas2d);
     chronosGL.gl.bindTexture(TEXTURE_2D, generatedTexture.GetTexture());
@@ -42,10 +44,10 @@ void main() {
   }
 
   //chronosGL.programPointSprites.add( new PointSprites( 2000, textureCache.get( "textures/particle.bmp")));
- 
+
   TextureWrapper tw = chronosGL.getUtils().createParticleTexture();
-   chronosGL.getUtils().addParticles(2000, tw);
-   TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-     chronosGL.run();
-   });
+  chronosGL.getUtils().addParticles(2000, tw);
+  TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+    chronosGL.run();
+  });
 }

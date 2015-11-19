@@ -21,34 +21,35 @@ void main() {
   Material matWood = new Material()
     ..SetUniform(uTextureSampler, wood)
     ..SetUniform(uColor, new Vector(1, 0, 0));
-
+  ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
+  
   Mesh ico = chronosGL.shapes.createIcosahedron(3).createMesh(matWood)
     ..setPos(0, 0, 0);
-  chronosGL.programBasic.add(ico);
+  programBasic.add(ico);
 
   Material matGradient = new Material()
     ..SetUniform(uTextureSampler, gradient);
 
   Mesh cube = chronosGL.shapes.createCube().createMesh(matGradient)
     ..setPos(-5, 0, -5);
-  chronosGL.programBasic.add(cube);
+  programBasic.add(cube);
 
   Material matTrans = new Material()
     ..SetUniform(uTextureSampler, trans)
     ..blend = true;
   Mesh cyl = chronosGL.shapes.createCylinder(3.0, 2.0, 32).createMesh(matTrans)
     ..setPos(5, 0, -5);
-  chronosGL.programBasic.add(cyl);
+  programBasic.add(cyl);
 
   Mesh quad = chronosGL.shapes.createQuad(2).createMesh(matTrans)
     //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
     ..setPos(-5, 0, 5);
-  chronosGL.programBasic.add(quad);
+  programBasic.add(quad);
 
   Mesh torus = chronosGL.shapes
       .createTorusKnot(radius: 1.0, tube: 0.4)
       .createMesh(matGradient)..setPos(5, 0, 5);
-  chronosGL.programBasic.add(torus);
+  programBasic.add(torus);
   
   TextureWrapper tw = chronosGL.getUtils().createParticleTexture();
   chronosGL.getUtils().addParticles(2000, tw);

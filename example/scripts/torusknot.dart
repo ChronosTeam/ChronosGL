@@ -9,6 +9,7 @@ void main() {
     orbit.azimuth += 0.001;
   });
   chronosGL.addAnimatable('orbitCam', orbit);
+  ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
 
   TextureWrapper blockTex = new TextureWrapper.Image("gradient.jpg");
 
@@ -20,7 +21,7 @@ void main() {
     ..SetUniform(uColor, new Vector());
   Mesh m1 = chronosGL.shapes.createTorusKnot().createMesh(mat)
     ..setPos(-50, 0, 0);
-  chronosGL.programBasic.add(m1);
+  programBasic.add(m1);
   Material matDummy = new Material();
   Mesh m2 = chronosGL.shapes.createTorusKnot().createMesh(matDummy)
     ..setPos(50, 0, 0);

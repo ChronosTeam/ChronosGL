@@ -67,8 +67,6 @@ class ChronosGL {
   Map<String, AnimateCallback> animateCallbacks =
       new Map<String, AnimateCallback>();
 
-  ShaderProgram programBasic; // shortcut
-
   HTML.CanvasElement _canvas;
   //double _aspect; // this might be useful in shaders sometimes
   Camera _camera;
@@ -125,8 +123,6 @@ class ChronosGL {
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(WEBGL.DEPTH_TEST);
-
-    programBasic = createProgram(createTexturedShader());
 
     _camera = new Camera();
     _utils = new Utils(this);
@@ -259,4 +255,3 @@ class ChronosGL {
     });
   }
 }
-
