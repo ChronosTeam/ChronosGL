@@ -56,7 +56,6 @@ void LogWarn(String s) {
   HTML.window.console.warn(s);
 }
 
-
 class PerspectiveParams {
   int width;
   int height;
@@ -75,10 +74,16 @@ abstract class Animatable {
 }
 
 abstract class Drawable extends Animatable {
-  void draw(PerspectiveParams dynpar, LightParams lightpar, Camera camera, Matrix4 pMatrix);
+  void draw(PerspectiveParams dynpar, LightParams lightpar, Camera camera,
+      Matrix4 pMatrix);
 }
 
 typedef void AnimateCallback(double elapsed, double time);
+
+void UpdatePerspective(final PerspectiveParams dynpar, Matrix4 mat) {
+  mat.setPerspective(
+      dynpar.fov, dynpar.width / dynpar.height, dynpar.near, dynpar.far);
+}
 
 class RenderingPhase {
   WEBGL.RenderingContext _gl;
@@ -88,23 +93,22 @@ class RenderingPhase {
   bool clearBuffer = true;
 
   RenderingPhase(this._gl, this._framebuffer);
-  
-  void UpdatePerspective(final PerspectiveParams dynpar) {
-    _pMatrix.setPerspective(
-        dynpar.fov, dynpar.width / dynpar.height, dynpar.near, dynpar.far);
-  }
 
-  void draw(PerspectiveParams dynpar, LightParams lightpar, Camera camera) {
-    _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, _framebuffer.framebuffer);
-
+  void draw(PerspectiveParams perspar, LightParams lightpar, Camera camera) {
+    if (_framebuffer == null) {
+      _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
+    } else {
+      _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, _framebuffer.framebuffer);
+    }
     _gl.viewport(0, 0, _framebuffer.width, _framebuffer.height);
+    UpdatePerspective(perspar, _pMatrix);
 
     if (clearBuffer) {
       _gl.clear(WEBGL.COLOR_BUFFER_BIT | WEBGL.DEPTH_BUFFER_BIT);
     }
 
     for (ShaderProgram prg in _programs.values) {
-      prg.draw(dynpar, lightpar, camera, _pMatrix);
+      prg.draw(perspar, lightpar, camera, _pMatrix);
     }
   }
 
@@ -151,7 +155,6 @@ class ChronosGL {
 
   Shapes shapes = new Shapes();
 
- 
   ChronosGL(dynamic canvasOrID,
       {bool useFramebuffer: false,
       List<ShaderObject> fxShader,
@@ -173,8 +176,8 @@ class ChronosGL {
 
     perspar.width = _canvas.clientWidth;
     perspar.height = _canvas.clientHeight;
-    _canvas.width =  perspar.width; 
-    _canvas.height =   perspar.height;
+    _canvas.width = perspar.width;
+    _canvas.height = perspar.height;
     //_aspect = _canvas.clientWidth / _canvas.clientHeight;
     gl = _canvas.getContext("experimental-webgl");
     if (gl == null) {
@@ -272,9 +275,7 @@ class ChronosGL {
     perspar.height = _canvas.clientHeight;
     _canvas.width = _canvas.clientWidth;
     _canvas.height = _canvas.clientHeight;
-    gl.viewport(0, 0, _canvas.clientWidth, _canvas.clientHeight);
-    _pMatrix.setPerspective(
-        perspar.fov, perspar.width / perspar.height, perspar.near, perspar.far);
+
     _lastWidth = _canvas.clientWidth;
     _lastHeight = _canvas.clientHeight;
     _lastFov_ = perspar.fov;
@@ -289,7 +290,9 @@ class ChronosGL {
     if (_PerspectiveHasChanged()) {
       _SetupNewPerspective();
     }
-    
+    gl.viewport(0, 0, perspar.width, perspar.height);
+    UpdatePerspective(perspar, _pMatrix);
+
     gl.clear(WEBGL.COLOR_BUFFER_BIT | WEBGL.DEPTH_BUFFER_BIT);
     for (ShaderProgram prg in programs.values) {
       prg.draw(perspar, lightpar, getCamera(), _pMatrix);
