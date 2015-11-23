@@ -218,7 +218,6 @@ class ShaderProgramInputs {
 }
 
 class ShaderProgram implements Drawable {
-  ChronosGL chronosGL;
   ShaderObject shaderObjectV;
   ShaderObject shaderObjectF;
   ShaderProgramInputs inputs = new ShaderProgramInputs();
@@ -238,10 +237,10 @@ class ShaderProgram implements Drawable {
   Matrix4 mvMatrix = new Matrix4();
   List<Node> followCameraObjects = new List<Node>();
   List<Node> objects = new List<Node>();
+  WEBGL.AngleInstancedArrays _extInstancedArrays = null;
 
-  ShaderProgram(
-      this.chronosGL, this.shaderObjectV, this.shaderObjectF, this.name) {
-    gl = chronosGL.getRenderingContext();
+  ShaderProgram(this.gl, this.shaderObjectV, this.shaderObjectF, this.name) {
+    _extInstancedArrays = gl.getExtension("ANGLE_instanced_arrays");
     ShaderUtils su = new ShaderUtils(gl);
     program = su.getProgram(shaderObjectV.shader, shaderObjectF.shader);
     for (String v in shaderObjectV.attributeVars.keys) {
@@ -304,15 +303,10 @@ class ShaderProgram implements Drawable {
   void MaybeSetAttribute(String a, WEBGL.Buffer buffer,
       [bool normalized = false, int stride = 0, int offset = 0]) {
     if (!_attributeLocations.containsKey(a)) return;
-    int index = _attributeLocations[a];
+    final int index = _attributeLocations[a];
     gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
     gl.vertexAttribPointer(index, _VarsDb[a].GetSize(),
         _VarsDb[a].GetScalarType(), normalized, stride, offset);
-    // Hack for instances - can this be moved to where we enable the attribute?
-    if (a.startsWith("ia")) {
-      WEBGL.AngleInstancedArrays ext = gl.getExtension("ANGLE_instanced_arrays");
-      ext.vertexAttribDivisorAngle(index, 1);
-    }
   }
 
   void SetElementArray(WEBGL.Buffer b) {
@@ -322,25 +316,32 @@ class ShaderProgram implements Drawable {
   void Draw(
       int numInstances, int numItems, bool drawPoints, bool useArrayBuffer) {
     if (numInstances > 0) {
-      WEBGL.AngleInstancedArrays ext = gl.getExtension("ANGLE_instanced_arrays");
       if (drawPoints) {
-        ext.drawArraysInstancedAngle(WEBGL.POINTS, 0, numItems, numInstances);
+        _extInstancedArrays.drawArraysInstancedAngle(WEBGL.POINTS, 0, numItems, numInstances);
       } else if (useArrayBuffer) {
-        ext.drawElementsInstancedAngle(
+        _extInstancedArrays.drawElementsInstancedAngle(
             WEBGL.TRIANGLES,
             numItems,
-            ChronosGL.useElementIndexUint ? WEBGL.UNSIGNED_INT : WEBGL.UNSIGNED_SHORT,
+            ChronosGL.useElementIndexUint
+                ? WEBGL.UNSIGNED_INT
+                : WEBGL.UNSIGNED_SHORT,
             0,
             numInstances);
       } else {
-        ext.drawArraysInstancedAngle(WEBGL.TRIANGLES, 0, numItems, numInstances);
+        _extInstancedArrays.drawArraysInstancedAngle(
+            WEBGL.TRIANGLES, 0, numItems, numInstances);
       }
     } else {
       if (drawPoints) {
         gl.drawArrays(WEBGL.POINTS, 0, numItems);
       } else if (useArrayBuffer) {
-        gl.drawElements(WEBGL.TRIANGLES, numItems,
-            ChronosGL.useElementIndexUint ? WEBGL.UNSIGNED_INT : WEBGL.UNSIGNED_SHORT, 0);
+        gl.drawElements(
+            WEBGL.TRIANGLES,
+            numItems,
+            ChronosGL.useElementIndexUint
+                ? WEBGL.UNSIGNED_INT
+                : WEBGL.UNSIGNED_SHORT,
+            0);
       } else {
         gl.drawArrays(WEBGL.TRIANGLES, 0, numItems);
       }
@@ -364,11 +365,11 @@ class ShaderProgram implements Drawable {
         gl.uniformMatrix4fv(l, false, val.array);
         break;
       case "vec3":
-        assert (val.array.length == 3);
+        assert(val.array.length == 3);
         gl.uniform3fv(l, val.array);
         break;
       case "vec2":
-        assert (val.array.length == 2);
+        assert(val.array.length == 2);
         gl.uniform2fv(l, val.array);
         break;
       case "sampler2D":
@@ -414,28 +415,27 @@ class ShaderProgram implements Drawable {
     }
   }
 
-  void draw(Matrix4 pMatrix, [Matrix4 overrideMvMatrix]) {
+  void draw(PerspectiveParams dynpar, LightParams lightpar, Camera camera,
+      Matrix4 pMatrix,
+      [Matrix4 overrideMvMatrix]) {
     if (!hasEnabledObjects()) return;
 
     if (debug) print("name: $name");
-
     gl.useProgram(program);
     for (String a in _attributeLocations.keys) {
-      gl.enableVertexAttribArray(_attributeLocations[a]);
-      // see whether we can move the instancing stuff here as well
+      final index = _attributeLocations[a];
+      gl.enableVertexAttribArray(index);
+      if (a.startsWith("ia")) {
+        _extInstancedArrays.vertexAttribDivisorAngle(index, 1);
+      }
     }
 
-    Camera camera = chronosGL.getCamera();
     camera.getMVMatrix(mvMatrix, false);
-
-    inputs.SetUniformVal(uCameraNear, chronosGL.near);
-    inputs.SetUniformVal(uCameraFar, chronosGL.far);
-    inputs.SetUniformVal(
-        uCanvasSize,
-        new Vector2(
-            chronosGL._canvas.clientWidth, chronosGL._canvas.clientHeight));
+    inputs.SetUniformVal(uCameraNear, dynpar.near);
+    inputs.SetUniformVal(uCameraFar, dynpar.far);
+    inputs.SetUniformVal(uCanvasSize, new Vector2(dynpar.width, dynpar.height));
     inputs.SetUniformVal(uPerspectiveMatrix, pMatrix);
-    inputs.SetUniformVal(uPointLightLocation, chronosGL.pointLightLocation);
+    inputs.SetUniformVal(uPointLightLocation, lightpar.pointLightLocation);
 
     // TODO: make the WHEN gets WHAT updated more rigorous
     // Only do a subset here
@@ -461,7 +461,6 @@ class ShaderProgram implements Drawable {
     }
 
     camera.getMVMatrix(mvMatrix, true);
-
     inputs.SetUniformVal(uViewMatrix, mvMatrix);
     MaybeSetUniform(uViewMatrix);
 
@@ -472,12 +471,10 @@ class ShaderProgram implements Drawable {
     for (Node node in objects) {
       if (node.enabled) node.draw(this, mvMatrix);
     }
-
     for (String canonical in _attributeLocations.keys) {
       int index = _attributeLocations[canonical];
       if (canonical.startsWith("ia")) {
-        WEBGL.AngleInstancedArrays ext = gl.getExtension("ANGLE_instanced_arrays");
-        ext.vertexAttribDivisorAngle(index, 0);
+        _extInstancedArrays.vertexAttribDivisorAngle(index, 0);
       }
       gl.disableVertexAttribArray(index);
     }

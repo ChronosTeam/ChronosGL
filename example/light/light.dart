@@ -33,7 +33,7 @@ void main() {
   ShaderProgram fixedShaderPrg =
       chronosGL.createProgram(createSolidColorShader());
 
-  chronosGL.pointLightLocation.set(11, 11, 1);
+  chronosGL.lightpar.pointLightLocation.set(11, 11, 1);
   Material icoMat = new Material()..SetUniform(uColor, new Vector(1, 1, 0));
   Mesh ico = chronosGL.shapes.createIcosahedron().createMesh(icoMat)
     ..setPos(11, 11, 1);

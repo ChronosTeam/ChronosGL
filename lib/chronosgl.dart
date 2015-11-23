@@ -44,16 +44,82 @@ void LogInfo(String s) {
   HTML.window.console.log(s);
 }
 
+void LogDebugx(String s) {
+  HTML.window.console.debug(s);
+}
+
+void LogError(String s) {
+  HTML.window.console.error(s);
+}
+
+void LogWarn(String s) {
+  HTML.window.console.warn(s);
+}
+
+
+class PerspectiveParams {
+  int width;
+  int height;
+  int fov = 50;
+  double near = 0.1;
+  double far = 1000.0;
+}
+
+class LightParams {
+  Vector pointLightLocation = new Vector();
+}
+
 abstract class Animatable {
   bool active = true;
   void animate(double elapsed);
 }
 
 abstract class Drawable extends Animatable {
-  void draw(Matrix4 pMatrix);
+  void draw(PerspectiveParams dynpar, LightParams lightpar, Camera camera, Matrix4 pMatrix);
 }
 
 typedef void AnimateCallback(double elapsed, double time);
+
+class RenderingPhase {
+  WEBGL.RenderingContext _gl;
+  final ChronosFramebuffer _framebuffer;
+  Map<String, ShaderProgram> _programs = new Map<String, ShaderProgram>();
+  Matrix4 _pMatrix;
+  bool clearBuffer = true;
+
+  RenderingPhase(this._gl, this._framebuffer);
+  
+  void UpdatePerspective(final PerspectiveParams dynpar) {
+    _pMatrix.setPerspective(
+        dynpar.fov, dynpar.width / dynpar.height, dynpar.near, dynpar.far);
+  }
+
+  void draw(PerspectiveParams dynpar, LightParams lightpar, Camera camera) {
+    _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, _framebuffer.framebuffer);
+
+    _gl.viewport(0, 0, _framebuffer.width, _framebuffer.height);
+
+    if (clearBuffer) {
+      _gl.clear(WEBGL.COLOR_BUFFER_BIT | WEBGL.DEPTH_BUFFER_BIT);
+    }
+
+    for (ShaderProgram prg in _programs.values) {
+      prg.draw(dynpar, lightpar, camera, _pMatrix);
+    }
+  }
+
+  ShaderProgram createProgram(List<ShaderObject> so) {
+    ShaderProgram pn = new ShaderProgram(_gl, so[0], so[1], so[0].name);
+    _programs[so[0].name] = pn;
+    return pn;
+  }
+
+  void animate(num timeNow, double elapsed) {
+    for (ShaderProgram prg in _programs.values) {
+      prg.animate(elapsed);
+    }
+  }
+}
 
 class ChronosGL {
   static WEBGL.RenderingContext globalGL;
@@ -71,6 +137,12 @@ class ChronosGL {
   //double _aspect; // this might be useful in shaders sometimes
   Camera _camera;
   Utils _utils;
+  PerspectiveParams perspar = new PerspectiveParams();
+  LightParams lightpar = new LightParams();
+  int _lastFov_ = 49;
+  int _lastWidth = 0;
+  int _lastHeight = 0;
+
   ChronosFramebuffer fxFramebuffer;
   Mesh fxWall;
   ShaderProgram fxProgram; // shortcut
@@ -79,16 +151,12 @@ class ChronosGL {
 
   Shapes shapes = new Shapes();
 
-  num near = 0.1;
-  num far = 1000;
-
-  Vector pointLightLocation = new Vector();
-
+ 
   ChronosGL(dynamic canvasOrID,
       {bool useFramebuffer: false,
       List<ShaderObject> fxShader,
-      this.near: 0.1,
-      this.far: 1000.0,
+      near: 0.1,
+      far: 1000.0,
       bool useElementIndexUint: false}) {
     if (canvasOrID is HTML.CanvasElement) {
       _canvas = canvasOrID;
@@ -96,13 +164,17 @@ class ChronosGL {
       _canvas = HTML.document.querySelector(canvasOrID);
     }
 
+    perspar.near = near;
+    perspar.far = far;
     // fix a bug in current chrome v.27
     _canvas.onDragStart.listen((HTML.MouseEvent event) {
       event.preventDefault();
     });
 
-    _canvas.width = _canvas.clientWidth;
-    _canvas.height = _canvas.clientHeight;
+    perspar.width = _canvas.clientWidth;
+    perspar.height = _canvas.clientHeight;
+    _canvas.width =  perspar.width; 
+    _canvas.height =   perspar.height;
     //_aspect = _canvas.clientWidth / _canvas.clientHeight;
     gl = _canvas.getContext("experimental-webgl");
     if (gl == null) {
@@ -136,7 +208,7 @@ class ChronosGL {
       if (fxShader == null) {
         fxShader = createTexturedShader();
       }
-      fxProgram = new ShaderProgram(this, fxShader[0], fxShader[1], "fx");
+      fxProgram = new ShaderProgram(gl, fxShader[0], fxShader[1], "fx");
 
       fxProgram.add(fxWall);
     }
@@ -161,7 +233,7 @@ class ChronosGL {
   }
 
   ShaderProgram createProgram(List<ShaderObject> so, [bool register = true]) {
-    ShaderProgram pn = new ShaderProgram(this, so[0], so[1], so[0].name);
+    ShaderProgram pn = new ShaderProgram(gl, so[0], so[1], so[0].name);
     if (register) this.programs[so[0].name] = pn;
     return pn;
   }
@@ -189,35 +261,44 @@ class ChronosGL {
     }
   }
 
-  int _lastWidth = 0;
-  int _lastHeight = 0;
+  bool _PerspectiveHasChanged() {
+    return _lastWidth != perspar.width ||
+        _lastHeight != perspar.height ||
+        _lastFov_ != perspar.fov;
+  }
+
+  void _SetupNewPerspective() {
+    perspar.width = _canvas.clientWidth;
+    perspar.height = _canvas.clientHeight;
+    _canvas.width = _canvas.clientWidth;
+    _canvas.height = _canvas.clientHeight;
+    gl.viewport(0, 0, _canvas.clientWidth, _canvas.clientHeight);
+    _pMatrix.setPerspective(
+        perspar.fov, perspar.width / perspar.height, perspar.near, perspar.far);
+    _lastWidth = _canvas.clientWidth;
+    _lastHeight = _canvas.clientHeight;
+    _lastFov_ = perspar.fov;
+    //print("setting viewport ${canvas.clientWidth} x ${canvas.clientHeight}");
+  }
 
   void draw() {
     if (fxFramebuffer != null) {
       gl.bindFramebuffer(WEBGL.FRAMEBUFFER, fxFramebuffer.framebuffer);
     }
 
-    if (_lastWidth != _canvas.clientWidth ||
-        _lastHeight != _canvas.clientHeight) {
-      //print("setting viewport ${canvas.clientWidth} x ${canvas.clientHeight}");
-      _canvas.width = _canvas.clientWidth;
-      _canvas.height = _canvas.clientHeight;
-      gl.viewport(0, 0, _canvas.clientWidth, _canvas.clientHeight);
-      _pMatrix.setPerspective(
-          50, _canvas.clientWidth / _canvas.clientHeight, near, far);
-      _lastWidth = _canvas.clientWidth;
-      _lastHeight = _canvas.clientHeight;
+    if (_PerspectiveHasChanged()) {
+      _SetupNewPerspective();
     }
+    
     gl.clear(WEBGL.COLOR_BUFFER_BIT | WEBGL.DEPTH_BUFFER_BIT);
-
     for (ShaderProgram prg in programs.values) {
-      prg.draw(_pMatrix);
+      prg.draw(perspar, lightpar, getCamera(), _pMatrix);
     }
 
     if (fxFramebuffer != null && fxFramebuffer.ready()) {
       gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
       gl.clear(WEBGL.COLOR_BUFFER_BIT | WEBGL.DEPTH_BUFFER_BIT);
-      fxProgram.draw(fxMatrix, fxMatrix);
+      fxProgram.draw(perspar, lightpar, getCamera(), fxMatrix, fxMatrix);
     }
   }
 
