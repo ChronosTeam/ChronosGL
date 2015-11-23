@@ -49,10 +49,8 @@ class Node extends Spatial {
   void draw2(ShaderProgram program) {}
 
   void draw(ShaderProgram program, Matrix4 parentMVMatrix) {
-
     // copy the mvMatrix, so we don't change the original
     mvMatrix.setElements(parentMVMatrix);
-
     // funky stuff going on below, I don't know why it is needed, but otherwise ship rotation is wrong
     // found this code by trial and error
     tempMatrix.setElements(transform);
@@ -61,9 +59,7 @@ class Node extends Spatial {
       tempMatrix.copyPositionFrom(transform);
     }
     mvMatrix.multiplyWith(tempMatrix);
-
     draw2(program);
-
     for (Node node in children) {
       node.draw(program, mvMatrix);
     }

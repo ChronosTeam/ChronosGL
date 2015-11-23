@@ -100,8 +100,7 @@ class Mesh extends Node {
       print('-----');
     }
 
-    material.RenderingInit(gl);
-
+    material.RenderingInit(gl);    
     bindBuffers(program);
     bindUniforms(program);
     if (!program.AllUniformsInitialized()) {

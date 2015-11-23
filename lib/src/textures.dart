@@ -6,6 +6,9 @@ GetGlExtensionDepth(WEBGL.RenderingContext gl) {
     ext = gl.getExtension(prefix + "WEBGL_depth_texture");
     if (ext != null) break;
   }
+  if (ext == null) {
+    LogWarn("ExtensionDepth NOT SUPPORTED");
+  }
   return ext;
 }
 
@@ -14,6 +17,9 @@ GetGlExtensionAnisotropic(WEBGL.RenderingContext gl) {
   for (String prefix in ["", "MOZ_", "WEBKIT_"]) {
     ext = gl.getExtension(prefix + "EXT_texture_filter_anisotropic");
     if (ext != null) break;
+  }
+  if (ext == null) {  
+   LogWarn("ExtensionAnisotropic NOT SUPPORTED");
   }
   return ext;
 }
