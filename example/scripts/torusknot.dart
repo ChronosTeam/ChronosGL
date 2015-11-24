@@ -14,7 +14,7 @@ void main() {
   TextureWrapper blockTex = new TextureWrapper.Image("gradient.jpg");
 
   ShaderProgram perlinNoise =
-      chronosGL.createProgram(createPerlinNoiseColorShader(false), true);
+      chronosGL.createProgram(createPerlinNoiseColorShader(false));
 
   Material mat = new Material()
     ..SetUniform(uTextureSampler, blockTex)
@@ -26,9 +26,10 @@ void main() {
   Mesh m2 = chronosGL.shapes.createTorusKnot().createMesh(matDummy)
     ..setPos(50, 0, 0);
   perlinNoise.add(m2);
-
-  TextureWrapper tw = chronosGL.getUtils().createParticleTexture();
-  chronosGL.getUtils().addParticles(2000, tw);
+  
+  Utils utils = new Utils(chronosGL);
+  TextureWrapper tw = utils.createParticleTexture();
+  utils.addParticles(2000, tw);
   TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });

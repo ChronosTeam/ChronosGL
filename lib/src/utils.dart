@@ -25,7 +25,7 @@ class Utils {
   }
 */
   
-  HTML.CanvasElement createCanvas(
+  static HTML.CanvasElement createCanvas(
       HTML.CanvasElement canvas, callback(HTML.CanvasRenderingContext2D ctx),
       [int size = 512]) {
     if (canvas == null) canvas =
@@ -35,7 +35,7 @@ class Utils {
     return canvas;
   }
 
-  HTML.CanvasElement createGradientImage2(
+  static HTML.CanvasElement createGradientImage2(
       double time, HTML.CanvasElement canvas) {
     int d = 512;
     return createCanvas(canvas, (HTML.CanvasRenderingContext2D ctx) {
@@ -85,7 +85,7 @@ class Utils {
   }
 
   // TODO: think about deprecating this
-  Mesh createQuad(Material mat, int size) {
+  static Mesh createQuad(Material mat, int size) {
     List<double> verts = [
       -1.0 * size,
       -1.0 * size,
@@ -212,7 +212,7 @@ class Utils {
     }
     MeshData md = new MeshData(vertices: vertices);
 
-    ShaderProgram pssp = chronosGL.programs['point_sprites'];
+    ShaderProgram pssp = chronosGL.getProgramByName('point_sprites');
     if (pssp == null) pssp =
         chronosGL.createProgram(createPointSpritesShader());
     Material mat = new Material()

@@ -15,8 +15,8 @@ void main() {
   chronosGL.addAnimatable('tkc', tkc);
 
   ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
-
-  canvas2d = chronosGL.getUtils().createGradientImage2(0.0, canvas2d);
+ 
+  canvas2d = Utils.createGradientImage2(0.0, canvas2d);
   TextureWrapper generatedTexture = new TextureWrapper.Canvas("gen", canvas2d);
 
   Material mat = new Material()
@@ -28,7 +28,7 @@ void main() {
 
   programBasic.add(m);
   chronosGL.addAnimateCallback('changeTexture', (double elapsed, double time) {
-    canvas2d = chronosGL.getUtils().createGradientImage2(time / 1000, canvas2d);
+    canvas2d = Utils.createGradientImage2(time / 1000, canvas2d);
     chronosGL.gl.bindTexture(TEXTURE_2D, generatedTexture.GetTexture());
     chronosGL.gl
         .texImage2DCanvas(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, canvas2d);
@@ -44,9 +44,9 @@ void main() {
   }
 
   //chronosGL.programPointSprites.add( new PointSprites( 2000, textureCache.get( "textures/particle.bmp")));
-
-  TextureWrapper tw = chronosGL.getUtils().createParticleTexture();
-  chronosGL.getUtils().addParticles(2000, tw);
+  Utils utils = new Utils(chronosGL);
+  TextureWrapper tw = utils.createParticleTexture();
+  utils.addParticles(2000, tw);
   TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });

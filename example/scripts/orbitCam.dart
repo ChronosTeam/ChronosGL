@@ -34,9 +34,9 @@ void main() {
   head.add(nose);
 
   prg.add(head);
-
-  TextureWrapper tw = chronosGL.getUtils().createParticleTexture();
-   chronosGL.getUtils().addParticles(2000, tw);
+  Utils utils = new Utils(chronosGL);
+  TextureWrapper tw = utils.createParticleTexture();
+   utils.addParticles(2000, tw);
    TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
      chronosGL.run();
    });

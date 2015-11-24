@@ -86,13 +86,14 @@ void UpdatePerspective(final PerspectiveParams dynpar, Matrix4 mat) {
 }
 
 class RenderingPhase {
-  WEBGL.RenderingContext _gl;
+  final WEBGL.RenderingContext _gl;
   final ChronosFramebuffer _framebuffer;
   Map<String, ShaderProgram> _programs = new Map<String, ShaderProgram>();
-  Matrix4 _pMatrix;
+  Matrix4 _pMatrix = new Matrix4();
   bool clearBuffer = true;
+  final bool _usePerspectiveMatrix;
 
-  RenderingPhase(this._gl, this._framebuffer);
+  RenderingPhase(this._gl, this._framebuffer, this._usePerspectiveMatrix);
 
   void draw(PerspectiveParams perspar, LightParams lightpar, Camera camera) {
     if (_framebuffer == null) {
@@ -100,9 +101,10 @@ class RenderingPhase {
     } else {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, _framebuffer.framebuffer);
     }
-    _gl.viewport(0, 0, _framebuffer.width, _framebuffer.height);
-    UpdatePerspective(perspar, _pMatrix);
-
+    _gl.viewport(0, 0, perspar.width, perspar.height);
+    if (_usePerspectiveMatrix) {
+      UpdatePerspective(perspar, _pMatrix);
+    }
     if (clearBuffer) {
       _gl.clear(WEBGL.COLOR_BUFFER_BIT | WEBGL.DEPTH_BUFFER_BIT);
     }
@@ -118,10 +120,14 @@ class RenderingPhase {
     return pn;
   }
 
-  void animate(num timeNow, double elapsed) {
+  void animate(double elapsed) {
     for (ShaderProgram prg in _programs.values) {
       prg.animate(elapsed);
     }
+  }
+
+  ShaderProgram getProgramByName(String name) {
+    return _programs[name];
   }
 }
 
@@ -132,34 +138,30 @@ class ChronosGL {
 
   WEBGL.RenderingContext gl;
 
-  Map<String, ShaderProgram> programs = new Map<String, ShaderProgram>();
+  //Map<String, ShaderProgram> programs = new Map<String, ShaderProgram>();
   Map<String, Animatable> animatables = new Map<String, Animatable>();
   Map<String, AnimateCallback> animateCallbacks =
       new Map<String, AnimateCallback>();
 
+  // TODO: move this into a RenderingPhase
   HTML.CanvasElement _canvas;
-  //double _aspect; // this might be useful in shaders sometimes
   Camera _camera;
-  Utils _utils;
+
   PerspectiveParams perspar = new PerspectiveParams();
   LightParams lightpar = new LightParams();
   int _lastFov_ = 49;
   int _lastWidth = 0;
   int _lastHeight = 0;
 
-  ChronosFramebuffer fxFramebuffer;
-  Mesh fxWall;
-  ShaderProgram fxProgram; // shortcut
-  Matrix4 fxMatrix = new Matrix4();
-  Matrix4 _pMatrix = new Matrix4();
-
   Shapes shapes = new Shapes();
+  List<RenderingPhase> _renderPhases = [];
 
   ChronosGL(dynamic canvasOrID,
       {bool useFramebuffer: false,
       List<ShaderObject> fxShader,
       near: 0.1,
       far: 1000.0,
+      bool addDefaultRenderingPhase: true,
       bool useElementIndexUint: false}) {
     if (canvasOrID is HTML.CanvasElement) {
       _canvas = canvasOrID;
@@ -200,45 +202,31 @@ class ChronosGL {
     gl.enable(WEBGL.DEPTH_TEST);
 
     _camera = new Camera();
-    _utils = new Utils(this);
 
-    if (useFramebuffer) {
-      fxFramebuffer = new ChronosFramebuffer(gl, _canvas.width, _canvas.height);
-      Material mat = new Material()
-        ..SetUniform(uTexture2Sampler, fxFramebuffer.depthTexture)
-        ..SetUniform(uTextureSampler, fxFramebuffer.colorTexture);
-      fxWall = _utils.createQuad(mat, 1);
-      if (fxShader == null) {
-        fxShader = createTexturedShader();
-      }
-      fxProgram = new ShaderProgram(gl, fxShader[0], fxShader[1], "fx");
-
-      fxProgram.add(fxWall);
+    if (addDefaultRenderingPhase) {
+      _renderPhases.add(new RenderingPhase(gl, null, true));
     }
-
     setUpEventCapture(_canvas);
+  }
+
+  ShaderProgram getProgramByName(String name) {
+    return _renderPhases.last.getProgramByName(name);
   }
 
   WEBGL.RenderingContext getRenderingContext() {
     return gl;
   }
 
-  Matrix4 getPerspectiveMatrix() {
-    return _pMatrix;
-  }
-
   Camera getCamera() {
     return _camera;
   }
 
-  Utils getUtils() {
-    return _utils;
+  ShaderProgram createProgram(List<ShaderObject> so) {
+    return _renderPhases.last.createProgram(so);
   }
 
-  ShaderProgram createProgram(List<ShaderObject> so, [bool register = true]) {
-    ShaderProgram pn = new ShaderProgram(gl, so[0], so[1], so[0].name);
-    if (register) this.programs[so[0].name] = pn;
-    return pn;
+  void addRenderPhase(RenderingPhase phase) {
+    _renderPhases.add(phase);
   }
 
   void addAnimatable(String name, Animatable a) {
@@ -256,11 +244,9 @@ class ChronosGL {
     for (Function f in animateCallbacks.values) {
       f(elapsed, timeNow);
     }
-    for (ShaderProgram prg in programs.values) {
-      prg.animate(elapsed);
-    }
-    if (fxProgram != null) {
-      fxProgram.animate(elapsed);
+
+    for (RenderingPhase r in _renderPhases) {
+      r.animate(elapsed);
     }
   }
 
@@ -283,25 +269,12 @@ class ChronosGL {
   }
 
   void draw() {
-    if (fxFramebuffer != null) {
-      gl.bindFramebuffer(WEBGL.FRAMEBUFFER, fxFramebuffer.framebuffer);
-    }
-
     if (_PerspectiveHasChanged()) {
       _SetupNewPerspective();
     }
-    gl.viewport(0, 0, perspar.width, perspar.height);
-    UpdatePerspective(perspar, _pMatrix);
 
-    gl.clear(WEBGL.COLOR_BUFFER_BIT | WEBGL.DEPTH_BUFFER_BIT);
-    for (ShaderProgram prg in programs.values) {
-      prg.draw(perspar, lightpar, getCamera(), _pMatrix);
-    }
-
-    if (fxFramebuffer != null && fxFramebuffer.ready()) {
-      gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
-      gl.clear(WEBGL.COLOR_BUFFER_BIT | WEBGL.DEPTH_BUFFER_BIT);
-      fxProgram.draw(perspar, lightpar, getCamera(), fxMatrix, fxMatrix);
+    for (RenderingPhase r in _renderPhases) {
+      r.draw(perspar, lightpar, getCamera());
     }
   }
 

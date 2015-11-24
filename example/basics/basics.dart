@@ -50,9 +50,9 @@ void main() {
       .createTorusKnot(radius: 1.0, tube: 0.4)
       .createMesh(matGradient)..setPos(5, 0, 5);
   programBasic.add(torus);
-  
-  TextureWrapper tw = chronosGL.getUtils().createParticleTexture();
-  chronosGL.getUtils().addParticles(2000, tw);
+  Utils utils = new Utils(chronosGL);
+  TextureWrapper tw = utils.createParticleTexture();
+  utils.addParticles(2000, tw);
 
   TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();

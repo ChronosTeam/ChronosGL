@@ -190,11 +190,9 @@ void main(void)
 
 List<ShaderObject> createSphericalGyroidShader() {
   return [
-    new ShaderObject("SphericalGyroidV")
+    new ShaderObject("SphericalGyroid")
       ..AddAttributeVar(aVertexPosition)
-      ..AddUniformVar(uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix)
-      ..SetBodyWithMain([StdVertexBody]),
+      ..SetBodyWithMain([NullVertexBody]),
     new ShaderObject("SphericalGyroidF")
       ..AddUniformVar(uCanvasSize)
       ..AddUniformVar(uTime)
@@ -203,10 +201,11 @@ List<ShaderObject> createSphericalGyroidShader() {
 }
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
-      useFramebuffer: true,
-      fxShader: createSphericalGyroidShader(),
-      near: 0.1,
-      far: 2520.0);
-  chronosGL.run();
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
+  ShaderProgram program = chronosGL.createProgram(createSphericalGyroidShader());
+  Material mat = new Material();
+  program.add(Utils.createQuad(mat, 1));
+  TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+    chronosGL.run();
+  });
 }

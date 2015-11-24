@@ -74,12 +74,13 @@ void main() {
     //orbit.setPosFromSpherical(15.0, time*0.001, time*0.0005);
     orbit.azimuth += 0.001;
   });
-  TextureWrapper tw = chronosGL.getUtils().createParticleTexture();
+  Utils utils = new Utils(chronosGL);
+  TextureWrapper tw = utils.createParticleTexture();
   ShaderProgram pssp = chronosGL.createProgram(createFireWorksShader());
 
   pssp.add(getRocket(chronosGL, tw));
 
-  chronosGL.getUtils().addParticles(2000, tw);
+  utils.addParticles(2000, tw);
   TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });
