@@ -1,4 +1,5 @@
 import 'package:chronosgl/chronosgl.dart';
+import 'dart:html' as HTML;
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
@@ -14,7 +15,7 @@ void main() {
 
   RenderingPhase phase1 = new RenderingPhase(chronosGL.gl, fb, true);
   ShaderProgram prg1 = phase1.createProgram(createPlane2GreyShader());
-  chronosGL.addRenderPhase(phase1);
+
 
   RenderingPhase phase2 = new RenderingPhase(chronosGL.gl, null, false);
   ShaderProgram prg2 = phase2.createProgram(createSobelShader());
@@ -22,8 +23,31 @@ void main() {
     ..SetUniform(uTexture2Sampler, fb.depthTexture)
     ..SetUniform(uTextureSampler, fb.colorTexture);
   prg2.add(Utils.createQuad(mat, 1));
-  chronosGL.addRenderPhase(phase2);
+  
 
+  RenderingPhase phase1only = new RenderingPhase(chronosGL.gl, null, true);
+  phase1only.AddShaderProgram(prg1);
+  
+  
+  
+  void ActivateSobel(bool activate) {
+    chronosGL.ClearAllRenderPhases();
+    if (activate) {
+      chronosGL.addRenderPhase(phase1);
+      chronosGL.addRenderPhase(phase2);
+    } else {
+      chronosGL.addRenderPhase(phase1only);
+    }
+  }
+  
+  ActivateSobel(true);
+  
+  HTML.InputElement myselect =
+      HTML.document.querySelector('#activate') as HTML.InputElement;
+  myselect.onChange.listen((HTML.Event e) {
+    ActivateSobel(myselect.checked);
+  });
+  
   loadObj("../ct_logo.obj").then((MeshData md) {
     Material mat = new Material();
     Mesh mesh = md.createMesh(mat)
@@ -35,7 +59,7 @@ void main() {
     //n.matrix.scale(0.02);
 
     prg1.add(mesh);
-
+    
     TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
       chronosGL.run();
     });

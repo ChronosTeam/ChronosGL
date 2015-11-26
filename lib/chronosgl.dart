@@ -114,9 +114,13 @@ class RenderingPhase {
     }
   }
 
+  void AddShaderProgram(ShaderProgram s) {
+    _programs[s.name] = s;
+  }
+  
   ShaderProgram createProgram(List<ShaderObject> so) {
     ShaderProgram pn = new ShaderProgram(_gl, so[0], so[1], so[0].name);
-    _programs[so[0].name] = pn;
+    AddShaderProgram(pn);
     return pn;
   }
 
@@ -229,6 +233,10 @@ class ChronosGL {
     _renderPhases.add(phase);
   }
 
+  void ClearAllRenderPhases() {
+    _renderPhases.clear();
+  }
+  
   void addAnimatable(String name, Animatable a) {
     animatables[name] = a;
   }
