@@ -37,11 +37,12 @@ void main() {
   Material icoMat = new Material()..SetUniform(uColor, new Vector(1, 1, 0));
   Mesh ico = chronosGL.shapes.createIcosahedron().createMesh(icoMat)
     ..setPos(11, 11, 1);
-
   fixedShaderPrg.add(ico);
-  Utils utils = new Utils(chronosGL);
-  TextureWrapper tw = utils.createParticleTexture();
-  utils.addParticles(2000, tw);
+
+  ShaderProgram programSprites =
+      chronosGL.createProgram(createPointSpritesShader());
+  programSprites.add(Utils.MakeParticles(2000));
+
   TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });

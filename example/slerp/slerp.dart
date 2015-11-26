@@ -31,9 +31,11 @@ void main() {
     });
 
     prg.add(n);
-    Utils utils = new Utils(chronosGL);
-    TextureWrapper tw = utils.createParticleTexture();
-    utils.addParticles(2000, tw);
+
+    ShaderProgram programSprites =
+        chronosGL.createProgram(createPointSpritesShader());
+    programSprites.add(Utils.MakeParticles(2000));
+
     TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
       chronosGL.run();
     });

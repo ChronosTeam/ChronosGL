@@ -129,10 +129,6 @@ class RenderingPhase {
       prg.animate(elapsed);
     }
   }
-
-  ShaderProgram getProgramByName(String name) {
-    return _programs[name];
-  }
 }
 
 class ChronosGL {
@@ -211,10 +207,6 @@ class ChronosGL {
       _renderPhases.add(new RenderingPhase(gl, null, true));
     }
     setUpEventCapture(_canvas);
-  }
-
-  ShaderProgram getProgramByName(String name) {
-    return _renderPhases.last.getProgramByName(name);
   }
 
   WEBGL.RenderingContext getRenderingContext() {

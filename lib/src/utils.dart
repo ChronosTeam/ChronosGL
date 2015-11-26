@@ -1,12 +1,6 @@
 part of chronosgl;
 
 class Utils {
-  ChronosGL chronosGL;
-  WEBGL.RenderingContext gl;
-
-  Utils(this.chronosGL) {
-    gl = chronosGL.getRenderingContext();
-  }
 /*
   Texture createCheckerboardTexture() {
     var pixels = new Uint8List.fromList(
@@ -57,11 +51,11 @@ class Utils {
     });
   }
 
-  TextureWrapper createParticleTexture() {
-    return new TextureWrapper.Canvas("Utils::Particles", createParticleCanvas());
+  static TextureWrapper createParticleTexture([String name= "Utils::Particles"]) {
+    return new TextureWrapper.Canvas(name, createParticleCanvas());
   }
 
-  HTML.CanvasElement createParticleCanvas() {
+  static HTML.CanvasElement createParticleCanvas() {
     int d = 64;
     return createCanvas(null, (HTML.CanvasRenderingContext2D ctx) {
       int x = d ~/ 2, y = d ~/ 2;
@@ -110,11 +104,10 @@ class Utils {
         vertexIndices: vertexIndices), mat);
   }
 
-  void addSkycube(TextureWrapper cubeTexture) {
-    ShaderProgram cm = chronosGL.createProgram(createCubeMapShader());
+  static Mesh MakeSkycube(TextureWrapper cubeTexture) {
     Material mat  = new Material()..SetUniform(uTextureCubeSampler, cubeTexture);
-    Mesh m = createCubeInternal().multiplyVertices(512).createMesh(mat);
-    cm.addFollowCameraObject(m);
+    return createCubeInternal().multiplyVertices(512).createMesh(mat);
+   
   }
 
   /*
@@ -198,12 +191,14 @@ class Utils {
    */
 
   
-  void addParticles(int numPoints, TextureWrapper tw, [int dimension = 100]) {
-    addPointSprites(numPoints, tw, dimension);
+  static Mesh MakeParticles(int numPoints, [int dimension = 100]) {
+    return MakePointSprites(numPoints, createParticleTexture(), dimension);
   }
   
 
-  void addPointSprites(int numPoints, TextureWrapper texture, [int dimension = 500]) {
+  static int id = 1;
+  
+  static Mesh MakePointSprites(int numPoints, TextureWrapper texture, [int dimension = 500]) {
     // TODO: make this asynchronous (async/await?)
     Math.Random rand = new Math.Random();
     Float32List vertices = new Float32List(numPoints * 3);
@@ -212,21 +207,18 @@ class Utils {
     }
     MeshData md = new MeshData(vertices: vertices);
 
-    ShaderProgram pssp = chronosGL.getProgramByName('point_sprites');
-    if (pssp == null) pssp =
-        chronosGL.createProgram(createPointSpritesShader());
     Material mat = new Material()
       ..SetUniform(uTextureSampler, texture)
       ..SetUniform(uPointSize, 1000)
       ..blend = true
       ..depthWrite = false
       ..blend_dFactor = WEBGL.ONE_MINUS_SRC_COLOR;
-    Mesh m = new Mesh(md, mat, drawPoints: true)
-      ..name = 'point_sprites_mesh_' + pssp.objects.length.toString();
-    pssp.add(m);
+    id++;
+    return new Mesh(md, mat, drawPoints: true)
+      ..name = 'point_sprites_mesh_' + id.toString();
   }
 
-  Future<Object> loadFile(String url, [bool binary = false]) {
+  static Future<Object> loadFile(String url, [bool binary = false]) {
     Completer c = new Completer();
     HTML.HttpRequest hr = new HTML.HttpRequest();
     hr.open("GET", url);
@@ -238,11 +230,11 @@ class Utils {
     return c.future;
   }
 
-  Future<Object> loadBinaryFile(String url) {
+  static Future<Object> loadBinaryFile(String url) {
     return loadFile(url, true);
   }
 
-  Future<Object> loadJsonFile(String url) {
+  static Future<Object> loadJsonFile(String url) {
     Completer c = new Completer();
     HTML.HttpRequest hr = new HTML.HttpRequest();
     hr.open("GET", url);
@@ -253,7 +245,7 @@ class Utils {
     return c.future;
   }
 
-  String getQueryVariable(String name) {
+  static String getQueryVariable(String name) {
     String query = HTML.window.location.search.substring(1);
     List<String> vars = query.split("&");
     for (int i = 0; i < vars.length; i++) {

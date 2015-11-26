@@ -15,7 +15,7 @@ void main() {
   chronosGL.addAnimatable('tkc', tkc);
 
   ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
- 
+
   canvas2d = Utils.createGradientImage2(0.0, canvas2d);
   TextureWrapper generatedTexture = new TextureWrapper.Canvas("gen", canvas2d);
 
@@ -43,10 +43,10 @@ void main() {
     //chronosGL.programs['point_sprites'].add(new PointSprites.fromVertex(p1, textureCache.get("textures/particle.bmp")));
   }
 
-  //chronosGL.programPointSprites.add( new PointSprites( 2000, textureCache.get( "textures/particle.bmp")));
-  Utils utils = new Utils(chronosGL);
-  TextureWrapper tw = utils.createParticleTexture();
-  utils.addParticles(2000, tw);
+  ShaderProgram programSprites =
+      chronosGL.createProgram(createPointSpritesShader());
+  programSprites.add(Utils.MakeParticles(2000));
+
   TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });

@@ -45,7 +45,7 @@ List<ShaderObject> createFireWorksShader() {
 
 Math.Random rand = new Math.Random();
 
-Mesh getRocket(ChronosGL chronosGL, TextureWrapper tw) {
+Mesh getRocket(TextureWrapper tw) {
   int numPoints = 200;
 
   Float32List vertices = new Float32List(numPoints * 3);
@@ -74,13 +74,12 @@ void main() {
     //orbit.setPosFromSpherical(15.0, time*0.001, time*0.0005);
     orbit.azimuth += 0.001;
   });
-  Utils utils = new Utils(chronosGL);
-  TextureWrapper tw = utils.createParticleTexture();
-  ShaderProgram pssp = chronosGL.createProgram(createFireWorksShader());
+  ShaderProgram programSprites = chronosGL.createProgram(createPointSpritesShader());
+  programSprites.add(Utils.MakeParticles(2000));
 
-  pssp.add(getRocket(chronosGL, tw));
-
-  utils.addParticles(2000, tw);
+  ShaderProgram pssp = chronosGL.createProgram(createFireWorksShader());  
+  pssp.add(getRocket(Utils.createParticleTexture("fireworks")));
+  
   TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });
