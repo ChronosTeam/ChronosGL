@@ -1,6 +1,6 @@
 import 'dart:html' as html;
 import 'dart:math' as Math;
-import 'dart:web_gl';
+import 'dart:web_gl' as WEBGL;
 import 'package:chronosgl/chronosgl.dart';
 
 html.CanvasElement canvas2d;
@@ -17,7 +17,7 @@ void main() {
   ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
 
   canvas2d = Utils.createGradientImage2(0.0, canvas2d);
-  TextureWrapper generatedTexture = new TextureWrapper.Canvas("gen", canvas2d);
+  Texture generatedTexture = new Texture.Canvas("gen", canvas2d);
 
   Material mat = new Material()
     ..SetUniform(uTextureSampler, generatedTexture)
@@ -29,9 +29,9 @@ void main() {
   programBasic.add(m);
   chronosGL.addAnimateCallback('changeTexture', (double elapsed, double time) {
     canvas2d = Utils.createGradientImage2(time / 1000, canvas2d);
-    chronosGL.gl.bindTexture(TEXTURE_2D, generatedTexture.GetTexture());
+    chronosGL.gl.bindTexture(WEBGL.TEXTURE_2D, generatedTexture.GetTexture());
     chronosGL.gl
-        .texImage2DCanvas(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, canvas2d);
+        .texImage2DCanvas(WEBGL.TEXTURE_2D, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, canvas2d);
   });
 
   int p = 2;
@@ -47,7 +47,7 @@ void main() {
       chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
-  TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });
 }

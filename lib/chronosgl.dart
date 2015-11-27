@@ -117,7 +117,7 @@ class RenderingPhase {
   void AddShaderProgram(ShaderProgram s) {
     _programs[s.name] = s;
   }
-  
+
   ShaderProgram createProgram(List<ShaderObject> so) {
     ShaderProgram pn = new ShaderProgram(_gl, so[0], so[1], so[0].name);
     AddShaderProgram(pn);
@@ -228,7 +228,7 @@ class ChronosGL {
   void ClearAllRenderPhases() {
     _renderPhases.clear();
   }
-  
+
   void addAnimatable(String name, Animatable a) {
     animatables[name] = a;
   }
@@ -250,9 +250,15 @@ class ChronosGL {
     }
   }
 
+  // Move the perspective stuff to the RenderPhases.
+  // The resizing should happen there as well based on
+  // some canvas element to watch.
+  // Think about how to resize postprocessing buffers.
   bool _PerspectiveHasChanged() {
     return _lastWidth != perspar.width ||
         _lastHeight != perspar.height ||
+        _lastWidth != _canvas.clientWidth ||
+        _lastHeight != _canvas.clientHeight ||
         _lastFov_ != perspar.fov;
   }
 
@@ -265,7 +271,8 @@ class ChronosGL {
     _lastWidth = _canvas.clientWidth;
     _lastHeight = _canvas.clientHeight;
     _lastFov_ = perspar.fov;
-    //print("setting viewport ${canvas.clientWidth} x ${canvas.clientHeight}");
+    LogInfo(
+        "New perspective: ${perspar.width} ${perspar.height} ${perspar.fov}");
   }
 
   void draw() {

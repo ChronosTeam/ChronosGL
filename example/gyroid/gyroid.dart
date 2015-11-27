@@ -205,7 +205,7 @@ void main() {
   ShaderProgram program = chronosGL.createProgram(createSphericalGyroidShader());
   Material mat = new Material();
   program.add(Utils.createQuad(mat, 1));
-  TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });
 }

@@ -51,8 +51,8 @@ class Utils {
     });
   }
 
-  static TextureWrapper createParticleTexture([String name= "Utils::Particles"]) {
-    return new TextureWrapper.Canvas(name, createParticleCanvas());
+  static Texture createParticleTexture([String name= "Utils::Particles"]) {
+    return new Texture.Canvas(name, createParticleCanvas());
   }
 
   static HTML.CanvasElement createParticleCanvas() {
@@ -104,7 +104,7 @@ class Utils {
         vertexIndices: vertexIndices), mat);
   }
 
-  static Mesh MakeSkycube(TextureWrapper cubeTexture) {
+  static Mesh MakeSkycube(Texture cubeTexture) {
     Material mat  = new Material()..SetUniform(uTextureCubeSampler, cubeTexture);
     return createCubeInternal().multiplyVertices(512).createMesh(mat);
    
@@ -198,7 +198,7 @@ class Utils {
 
   static int id = 1;
   
-  static Mesh MakePointSprites(int numPoints, TextureWrapper texture, [int dimension = 500]) {
+  static Mesh MakePointSprites(int numPoints, Texture texture, [int dimension = 500]) {
     // TODO: make this asynchronous (async/await?)
     Math.Random rand = new Math.Random();
     Float32List vertices = new Float32List(numPoints * 3);

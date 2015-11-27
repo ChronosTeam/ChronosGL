@@ -77,7 +77,7 @@ void main() {
     }
   }
 
-  TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
      chronosGL.run();
    });
 }

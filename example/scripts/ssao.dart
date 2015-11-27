@@ -54,7 +54,7 @@ void main() {
 
     prg1.add(mesh);
 
-    TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+    Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
       chronosGL.run();
     });
   });

@@ -7,8 +7,8 @@ class ChronosFramebuffer {
 
   WEBGL.Framebuffer framebuffer;
   WEBGL.Renderbuffer renderbuffer;
-  TextureWrapper colorTexture;
-  TextureWrapper depthTexture;
+  Texture colorTexture;
+  Texture depthTexture;
   var depthTextureExt;
 
   ChronosFramebuffer(this.gl, this.width, this.height) {
@@ -21,9 +21,9 @@ class ChronosFramebuffer {
     framebuffer = gl.createFramebuffer();
 
     colorTexture =
-        new TextureWrapper.Null("frame::color", width, height, false);
+        new Texture.Null("frame::color", width, height, false);
     colorTexture.Install(gl);
-    depthTexture = new TextureWrapper.Null("frame::depth", width, height, true);
+    depthTexture = new Texture.Null("frame::depth", width, height, true);
     depthTexture.Install(gl);
 
     gl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);

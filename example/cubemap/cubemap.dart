@@ -2,8 +2,8 @@ import 'package:chronosgl/chronosgl.dart';
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-  TextureWrapper cubeTex =
-      new TextureWrapper.ImageCube("stars", "skybox_", ".png")..clamp = true;
+  Texture cubeTex =
+      new Texture.ImageCube("stars", "skybox_", ".png");
 
   chronosGL.installOrbitCamera(15.0);
   
@@ -20,7 +20,7 @@ void main() {
       chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
-  TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });
 }

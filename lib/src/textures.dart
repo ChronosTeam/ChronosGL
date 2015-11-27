@@ -18,8 +18,8 @@ GetGlExtensionAnisotropic(WEBGL.RenderingContext gl) {
     ext = gl.getExtension(prefix + "EXT_texture_filter_anisotropic");
     if (ext != null) break;
   }
-  if (ext == null) {  
-   LogWarn("ExtensionAnisotropic NOT SUPPORTED");
+  if (ext == null) {
+    LogWarn("ExtensionAnisotropic NOT SUPPORTED");
   }
   return ext;
 }
@@ -43,11 +43,56 @@ int MaxAnisotropicFilterLevel(WEBGL.RenderingContext gl) {
       WEBGL.ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
 }
 
-// Consider using subclasses
-class TextureWrapper {
-  static Map<String, TextureWrapper> _cache = new Map<String, TextureWrapper>();
+class TextureProperties {
+  bool mipmap = false;
+  bool clamp = false;
+  bool flipY = true;
+  int anisotropicFilterLevel = kNoAnisotropicFilterLevel;
+  int minFilter = WEBGL.LINEAR;
+  int magFilter = WEBGL.LINEAR;
 
-  static TextureWrapper Lookup(String url) {
+  void SetFilterNearest() {
+    minFilter = WEBGL.NEAREST;
+    magFilter = WEBGL.NEAREST;
+  }
+
+  // Very good but also a bit slow
+  void SetMipmapLinear() {
+    minFilter = WEBGL.LINEAR_MIPMAP_LINEAR;
+    magFilter = WEBGL.LINEAR;  // is this the best?
+  }
+
+  // This assumes a texture is already bound
+  void Install(WEBGL.RenderingContext gl, int type) {
+    if (flipY) {
+      gl.pixelStorei(WEBGL.UNPACK_FLIP_Y_WEBGL, 1);
+    }
+
+    if (anisotropicFilterLevel != kNoAnisotropicFilterLevel) {
+      gl.texParameterf(
+          type,
+          WEBGL.ExtTextureFilterAnisotropic.TEXTURE_MAX_ANISOTROPY_EXT,
+          anisotropicFilterLevel);
+    }
+    gl.texParameteri(type, WEBGL.TEXTURE_MAG_FILTER, magFilter);
+    gl.texParameteri(type, WEBGL.TEXTURE_MIN_FILTER, minFilter);
+
+    if (clamp) {
+      // this fixes glitches on skybox seams
+      gl.texParameteri(type, WEBGL.TEXTURE_WRAP_S, WEBGL.CLAMP_TO_EDGE);
+      gl.texParameteri(type, WEBGL.TEXTURE_WRAP_T, WEBGL.CLAMP_TO_EDGE);
+    }
+    if (mipmap) {
+      gl.generateMipmap(type);
+    }
+  }
+}
+
+// Consider using subclasses
+class Texture {
+  static Map<String, Texture> _cache = new Map<String, Texture>();
+
+  static Texture Lookup(String url) {
     assert(_cache.containsKey(url));
     return _cache[url];
   }
@@ -61,7 +106,7 @@ class TextureWrapper {
     return Future.wait(futures).then((List list) {
       LogInfo("All images have loaded");
       for (String key in _cache.keys) {
-        TextureWrapper tw = _cache[key];
+        Texture tw = _cache[key];
         if (tw._texture != null) continue;
         if (tw._type != WEBGL.TEXTURE_2D &&
             tw._type != WEBGL.TEXTURE_CUBE_MAP) continue;
@@ -74,70 +119,65 @@ class TextureWrapper {
   int _type;
   WEBGL.Texture _texture = null;
   Future<dynamic> _future = null;
+  TextureProperties properties = new TextureProperties();
 
   // Exactly one of the next three must be non-null
   HTML.ImageElement _image = null;
   HTML.CanvasElement _canvas = null;
-  List<TextureWrapper> _cubeChildren = null;
+  List<Texture> _cubeChildren = null;
   int _nullWidth;
   int _nullHeight;
   bool _isNullDepth = false;
 
   // TODO: consolidate
-  bool mipmap = false;
-  bool clamp = false;
-  bool flipY = true;
-  int anisotropicFilterLevel = kNoAnisotropicFilterLevel;
-  int minFilter = WEBGL.LINEAR; // LINEAR_MIPMAP_LINEAR
-  int magFilter = WEBGL.LINEAR;
 
   WEBGL.Texture GetTexture() {
     return _texture;
   }
 
-  TextureWrapper.Canvas(this._url, this._canvas,
+  Texture.Canvas(this._url, this._canvas,
       [this._type = WEBGL.TEXTURE_2D]) {
     assert(!_cache.containsKey(_url));
     _cache[_url] = this;
   }
 
-  TextureWrapper.SolidColor(String url, String fillStyle,
+  Texture.SolidColor(String url, String fillStyle,
       [type = WEBGL.TEXTURE_2D])
       : this.Canvas(url, MakeSolidColorCanvas(fillStyle), type);
 
-  TextureWrapper.Image(this._url, [this._type = WEBGL.TEXTURE_2D]) {
+  Texture.Image(this._url, [this._type = WEBGL.TEXTURE_2D]) {
     _image = new HTML.ImageElement();
     _future = _image.onLoad.first;
     _image.src = _url;
     _cache[_url] = this;
   }
 
-  TextureWrapper.Null(
+  Texture.Null(
       this._url, this._nullWidth, this._nullHeight, this._isNullDepth,
       [this._type = WEBGL.TEXTURE_2D]) {
-    flipY = false;
-    clamp = true;
-    mipmap = false;
-    minFilter = WEBGL.NEAREST;
-    magFilter = WEBGL.NEAREST;
+    properties.flipY = false;
+    properties.clamp = true;
+    properties.mipmap = false;
+    properties.SetFilterNearest();
   }
 
-  TextureWrapper.ImageCube(this._url, String prefix, String suffix) {
+  Texture.ImageCube(this._url, String prefix, String suffix) {
     _type = WEBGL.TEXTURE_CUBE_MAP;
     _cubeChildren = [
-      new TextureWrapper.Image(
+      new Texture.Image(
           prefix + "nx" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_X),
-      new TextureWrapper.Image(
+      new Texture.Image(
           prefix + "px" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_X),
-      new TextureWrapper.Image(
+      new Texture.Image(
           prefix + "ny" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Y),
-      new TextureWrapper.Image(
+      new Texture.Image(
           prefix + "py" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Y),
-      new TextureWrapper.Image(
+      new Texture.Image(
           prefix + "nz" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Z),
-      new TextureWrapper.Image(
+      new Texture.Image(
           prefix + "pz" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Z),
     ];
+    properties.clamp = true;
     _cache[_url] = this;
   }
 
@@ -157,24 +197,6 @@ class TextureWrapper {
     assert(_texture == null);
     _texture = gl.createTexture();
     gl.bindTexture(_type, _texture);
-    if (flipY) {
-      gl.pixelStorei(WEBGL.UNPACK_FLIP_Y_WEBGL, 1);
-    }
-
-    if (anisotropicFilterLevel != kNoAnisotropicFilterLevel) {
-      gl.texParameterf(
-          _type,
-          WEBGL.ExtTextureFilterAnisotropic.TEXTURE_MAX_ANISOTROPY_EXT,
-          anisotropicFilterLevel);
-    }
-    gl.texParameteri(_type, WEBGL.TEXTURE_MAG_FILTER, magFilter);
-    gl.texParameteri(_type, WEBGL.TEXTURE_MIN_FILTER, minFilter);
-
-    if (clamp) {
-      // this fixes glitches on skybox seams
-      gl.texParameteri(_type, WEBGL.TEXTURE_WRAP_S, WEBGL.CLAMP_TO_EDGE);
-      gl.texParameteri(_type, WEBGL.TEXTURE_WRAP_T, WEBGL.CLAMP_TO_EDGE);
-    }
 
     if (_canvas != null) {
       gl.texImage2DCanvas(
@@ -184,7 +206,7 @@ class TextureWrapper {
           _type, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _image);
     } else if (_cubeChildren != null) {
       assert(_type == WEBGL.TEXTURE_CUBE_MAP);
-      for (TextureWrapper child in _cubeChildren) {
+      for (Texture child in _cubeChildren) {
         child.InstallCubeChild(gl);
       }
     } else {
@@ -205,15 +227,11 @@ class TextureWrapper {
             _nullHeight, 0, WEBGL.RGB, WEBGL.UNSIGNED_BYTE, null);
       }
     }
-
-    if (mipmap) {
-      gl.generateMipmap(WEBGL.TEXTURE_2D);
-    }
-
+    properties.Install(gl, _type);
     gl.bindTexture(WEBGL.TEXTURE_2D, null);
   }
 
   String toString() {
-    return "${_image.src} - texture: ${_texture}, clamp: $clamp,  type: $_type";
+    return "${_image.src} - texture: ${_texture}, type: $_type";
   }
 }

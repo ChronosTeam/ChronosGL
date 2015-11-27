@@ -43,7 +43,7 @@ void main() {
       mesh.setPos(-5 + i * 7, 4, 0);
       prg.add(mesh);
     }
-    TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+    Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
       chronosGL.run();
     });
   });

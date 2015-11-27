@@ -315,9 +315,12 @@ class ShaderProgram implements Drawable {
 
   void Draw(
       int numInstances, int numItems, bool drawPoints, bool useArrayBuffer) {
+    if (debug) print(
+        "[${name}] draw points: ${drawPoints} instances${numInstances}");
     if (numInstances > 0) {
       if (drawPoints) {
-        _extInstancedArrays.drawArraysInstancedAngle(WEBGL.POINTS, 0, numItems, numInstances);
+        _extInstancedArrays.drawArraysInstancedAngle(
+            WEBGL.POINTS, 0, numItems, numInstances);
       } else if (useArrayBuffer) {
         _extInstancedArrays.drawElementsInstancedAngle(
             WEBGL.TRIANGLES,
@@ -420,16 +423,18 @@ class ShaderProgram implements Drawable {
       [Matrix4 overrideMvMatrix]) {
     if (!hasEnabledObjects()) return;
 
-    if (debug) print("name: $name");
+    if (debug) print("[${name} setting attributes");
     gl.useProgram(program);
     for (String a in _attributeLocations.keys) {
+      if (debug) print("[${name}] $a");
       final index = _attributeLocations[a];
       gl.enableVertexAttribArray(index);
       if (a.startsWith("ia")) {
         _extInstancedArrays.vertexAttribDivisorAngle(index, 1);
       }
     }
-
+    
+    if (debug) print("[${name} setting unuiforms");
     camera.getMVMatrix(mvMatrix, false);
     inputs.SetUniformVal(uCameraNear, dynpar.near);
     inputs.SetUniformVal(uCameraFar, dynpar.far);
@@ -456,6 +461,7 @@ class ShaderProgram implements Drawable {
     //print( "mvM: ${mvMatrix}");
 
     // like skybox
+    if (debug) print("[${name} draw followCameraObjects ${followCameraObjects.length}");
     for (Node node in followCameraObjects) {
       if (node.enabled) node.draw(this, mvMatrix);
     }
@@ -467,10 +473,13 @@ class ShaderProgram implements Drawable {
     if (overrideMvMatrix != null) {
       mvMatrix.setElements(overrideMvMatrix);
     }
-
+    
+    if (debug) print("[${name} draw objects ${objects.length}");
     for (Node node in objects) {
       if (node.enabled) node.draw(this, mvMatrix);
     }
+    
+    if (debug) print("[${name} unsetting attributes");
     for (String canonical in _attributeLocations.keys) {
       int index = _attributeLocations[canonical];
       if (canonical.startsWith("ia")) {

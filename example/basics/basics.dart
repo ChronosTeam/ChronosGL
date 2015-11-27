@@ -12,9 +12,9 @@ void main() {
   chronosGL.addAnimatable('OrbitCam', orbit);
 
   //TextureWrapper red = new TextureWrapper.SolidColor("red", "rgba(255,0,0,1)");
-  TextureWrapper gradient = new TextureWrapper.Image("../gradient.jpg");
-  TextureWrapper trans = new TextureWrapper.Image("../transparent.png");
-  TextureWrapper wood = new TextureWrapper.Image("../wood.jpg");
+  Texture gradient = new Texture.Image("../gradient.jpg");
+  Texture trans = new Texture.Image("../transparent.png");
+  Texture wood = new Texture.Image("../wood.jpg");
   
   //ShaderProgram perlinNoise = chronosGL.createProgram(createPerlinNoiseColorShader(), true);
 
@@ -53,7 +53,7 @@ void main() {
   ShaderProgram programSprites = chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
-  TextureWrapper.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });
 }
