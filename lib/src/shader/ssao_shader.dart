@@ -14,7 +14,7 @@ String _SSAOShaderImpl = """
     //uniform float lumInfluence;
     const float lumInfluence = 0.4;
 
-    varying vec2 vUv;
+    //varying vec2 vUv;
     
     #define DL 2.399963229728653
     #define EULER 2.718281828459045
@@ -58,14 +58,14 @@ String _SSAOShaderImpl = """
     
 /*
     float doFog() {
-      float zdepth = unpackDepth( texture2D( tDepth, ${vTextureCoordinates} ) );
+      float zdepth = unpackDepth( texture2D(${uTexture2Sampler}, ${vTextureCoordinates} ) );
       float depth = -cameraFar * cameraNear / ( zdepth * cameraFarMinusNear - cameraFar );
       return smoothstep( fogNear, fogFar, depth );
     }
 */  
 
     float readDepth( const in vec2 coord ) {
-      return cameraCoef / ( cameraFarPlusNear - unpackDepth( texture2D( tDepth, coord ) ) * cameraFarMinusNear );
+      return cameraCoef / ( cameraFarPlusNear - unpackDepth( texture2D(${uTexture2Sampler}, coord ) ) * cameraFarMinusNear );
     }
     
     float compareDepths( const in float depth1, const in float depth2, inout int far ) {
@@ -128,7 +128,8 @@ String _SSAOShaderImpl = """
       }
 */
 
-      vec3 color = texture2D( tDiffuse, ${vTextureCoordinates} ).rgb;
+      // Diffuse
+      vec3 color = texture2D(${uTextureSampler}, ${vTextureCoordinates} ).rgb;
       vec3 lumcoeff = vec3( 0.299, 0.587, 0.114 );
       float lum = dot( color.rgb, lumcoeff );
       vec3 luminance = vec3( lum );
@@ -161,8 +162,8 @@ List<ShaderObject> createSSAOShader() {
       ..AddUniformVar(uCanvasSize)
       ..AddUniformVar(uCameraNear)
       ..AddUniformVar(uCameraFar)
-      ..AddUniformVar(uTextureSampler, "tDiffuse")
-      ..AddUniformVar(uTexture2Sampler, "tDepth")
+      ..AddUniformVar(uTextureSampler)
+      ..AddUniformVar(uTexture2Sampler)
       ..SetBody([_SSAOShaderImpl])
   ];
 }
