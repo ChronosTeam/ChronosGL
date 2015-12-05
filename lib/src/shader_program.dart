@@ -164,7 +164,7 @@ class ShaderObject {
   String _CreateShader(bool addWrapperForMain, List<String> body) {
     assert(shader == null);
     List<String> out = [];
-    out.add("precision mediump float;");
+    out.add("precision highp float;");
     out.add("");
     for (String v in attributeVars.keys) {
       ShaderVarDesc d = _VarsDb[v];
