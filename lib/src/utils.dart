@@ -52,7 +52,7 @@ class Utils {
   }
 
   static Texture createParticleTexture([String name= "Utils::Particles"]) {
-    return new Texture.Canvas(name, createParticleCanvas());
+    return new CanvasTexture(name, createParticleCanvas());
   }
 
   static HTML.CanvasElement createParticleCanvas() {

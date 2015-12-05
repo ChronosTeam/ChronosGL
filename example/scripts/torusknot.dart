@@ -11,7 +11,7 @@ void main() {
   chronosGL.addAnimatable('orbitCam', orbit);
   ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
 
-  Texture blockTex = new Texture.Image("gradient.jpg");
+  Texture blockTex = new ImageTexture("gradient.jpg");
 
   ShaderProgram perlinNoise =
       chronosGL.createProgram(createPerlinNoiseColorShader(false));

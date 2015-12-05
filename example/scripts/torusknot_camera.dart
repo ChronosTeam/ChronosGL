@@ -17,7 +17,7 @@ void main() {
   ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
 
   canvas2d = Utils.createGradientImage2(0.0, canvas2d);
-  Texture generatedTexture = new Texture.Canvas("gen", canvas2d);
+  Texture generatedTexture = new CanvasTexture("gen", canvas2d);
 
   Material mat = new Material()
     ..SetUniform(uTextureSampler, generatedTexture)
