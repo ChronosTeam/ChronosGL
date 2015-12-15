@@ -87,14 +87,18 @@ void UpdatePerspective(final PerspectiveParams dynpar, Matrix4 mat) {
 
 class RenderingPhase {
   final WEBGL.RenderingContext _gl;
-  final ChronosFramebuffer _framebuffer;
-  Map<String, ShaderProgram> _programs = new Map<String, ShaderProgram>();
+  ChronosFramebuffer _framebuffer;
+  List<ShaderProgram> _programs = [];
   Matrix4 _pMatrix = new Matrix4();
   bool clearBuffer = true;
   final bool _usePerspectiveMatrix;
 
   RenderingPhase(this._gl, this._framebuffer, this._usePerspectiveMatrix);
 
+  void SetFramebuffer(ChronosFramebuffer fb) {
+   _framebuffer = fb;
+  }
+  
   void draw(PerspectiveParams perspar, LightParams lightpar, Camera camera) {
     if (_framebuffer == null) {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
@@ -109,13 +113,13 @@ class RenderingPhase {
       _gl.clear(WEBGL.COLOR_BUFFER_BIT | WEBGL.DEPTH_BUFFER_BIT);
     }
 
-    for (ShaderProgram prg in _programs.values) {
+    for (ShaderProgram prg in _programs) {
       prg.draw(perspar, lightpar, camera, _pMatrix);
     }
   }
 
   void AddShaderProgram(ShaderProgram s) {
-    _programs[s.name] = s;
+    _programs.add(s);
   }
 
   ShaderProgram createProgram(List<ShaderObject> so) {
@@ -125,7 +129,7 @@ class RenderingPhase {
   }
 
   void animate(double elapsed) {
-    for (ShaderProgram prg in _programs.values) {
+    for (ShaderProgram prg in _programs) {
       prg.animate(elapsed);
     }
   }
