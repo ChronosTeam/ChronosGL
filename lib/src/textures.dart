@@ -95,23 +95,18 @@ class Texture {
 
   TextureProperties properties = new TextureProperties();
 
-  static Map<String, Texture> _cache = new Map<String, Texture>();
+  static List<Texture> _cache = [];
 
-  static Texture Lookup(String url) {
-    assert(_cache.containsKey(url));
-    return _cache[url];
-  }
 
   static Future<dynamic> loadAndInstallAllTextures(WEBGL.RenderingContext gl) {
     List<Future<HTML.Event>> futures = [];
-    for (String key in _cache.keys) {
-      Future<dynamic> f = _cache[key].GetFuture();
+    for (Texture tw in _cache) {
+      Future<dynamic> f = tw.GetFuture();
       if (f != null) futures.add(f);
     }
     return Future.wait(futures).then((List list) {
       LogInfo("All images have loaded");
-      for (String key in _cache.keys) {
-        Texture tw = _cache[key];
+      for (Texture tw in _cache) {
         if (tw._texture != null) continue;
         tw.Install(gl);
       }
@@ -119,8 +114,7 @@ class Texture {
   }
 
   Texture(this._url) {
-    assert(!_cache.containsKey(_url));
-    _cache[_url] = this;
+    _cache.add(this);
   }
 
   WEBGL.Texture GetTexture() {
@@ -232,6 +226,16 @@ class TypedTexture extends Texture {
     properties.SetFilterNearest();
   }
 
+  void UpdateContent(WEBGL.RenderingContext gl, int w, int h, var data) {
+    _data = data;
+    _width = w;
+    _height = h;
+    gl.bindTexture(WEBGL.TEXTURE_2D, _texture);
+    gl.texImage2DTyped(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
+        _formatType, _dataType, _data);
+    gl.bindTexture(WEBGL.TEXTURE_2D, null);
+  }
+
   void Install(WEBGL.RenderingContext gl) {
     _texture = gl.createTexture();
     gl.bindTexture(WEBGL.TEXTURE_2D, _texture);
@@ -241,6 +245,10 @@ class TypedTexture extends Texture {
     int err = gl.getError();
     assert(err == WEBGL.NO_ERROR);
     gl.bindTexture(WEBGL.TEXTURE_2D, null);
+  }
+
+  dynamic GetData() {
+    return _data;
   }
 }
 
@@ -264,7 +272,7 @@ class CubeTexture extends Texture {
     ];
     properties.clamp = true;
   }
-  
+
   void Install(WEBGL.RenderingContext gl) {
     _texture = gl.createTexture();
     gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, _texture);
