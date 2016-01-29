@@ -51,6 +51,9 @@ class ChronosFramebuffer {
     //gl.bindTexture(WEBGL.TEXTURE_2D, null);
     int err = gl.checkFramebufferStatus(WEBGL.FRAMEBUFFER);
     assert(err == WEBGL.FRAMEBUFFER_COMPLETE);
+    if (err != WEBGL.FRAMEBUFFER_COMPLETE) {
+      throw "Error Incomplete Framebuffer: ${err}";
+    }
     gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
   }
 
@@ -61,5 +64,16 @@ class ChronosFramebuffer {
       print("FRAMEBUFFER_INCOMPLETE");
     }
     return result;
+  }
+  
+  // e.g. into Float32List
+  void ExtractData(var buf, int x, int y, int w, int h) {
+    gl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
+    int implFormat =
+        gl.getParameter(WEBGL.RenderingContext.IMPLEMENTATION_COLOR_READ_FORMAT);
+    int implType =
+        gl.getParameter(WEBGL.RenderingContext.IMPLEMENTATION_COLOR_READ_TYPE);
+    gl.readPixels(x, y, w, h, implFormat, implType, buf);
+    gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
   }
 }
