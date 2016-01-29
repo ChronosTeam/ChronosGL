@@ -10,6 +10,18 @@ class Vector2 {
   }
 }
 
+class Vector4 {
+  Float32List array;
+
+  Vector4(num r, num g, num b, num a) {
+    array = new Float32List(4);
+    array[0] = r.toDouble();
+    array[1] = g.toDouble();
+    array[2] = b.toDouble();
+    array[3] = a.toDouble();
+  }
+}
+
 class Vector {
   Float32List array;
 
