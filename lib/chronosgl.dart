@@ -165,6 +165,7 @@ class ChronosGL {
       List<ShaderObject> fxShader,
       near: 0.1,
       far: 1000.0,
+      bool preserveDrawingBuffer: false,
       bool addDefaultRenderingPhase: true,
       bool useElementIndexUint: false}) {
     if (canvasOrID is HTML.CanvasElement) {
@@ -185,7 +186,7 @@ class ChronosGL {
     _canvas.width = perspar.width;
     _canvas.height = perspar.height;
     //_aspect = _canvas.clientWidth / _canvas.clientHeight;
-    gl = _canvas.getContext("experimental-webgl");
+    gl = _canvas.getContext("experimental-webgl", {"preserveDrawingBuffer": preserveDrawingBuffer});
     if (gl == null) {
       throw new Exception(
           'calling canvas.getContext("experimental-webgl") failed, make sure you run on a computer that supports WebGL, test here: http://get.webgl.org/');
@@ -208,7 +209,7 @@ class ChronosGL {
     _camera = new Camera();
 
     if (addDefaultRenderingPhase) {
-      _renderPhases.add(new RenderingPhase(gl, null, true));
+      addRenderPhase(new RenderingPhase(gl, null, true));
     }
     setUpEventCapture(_canvas);
   }
