@@ -103,13 +103,7 @@ class Mesh extends Node {
     material.RenderingInit(gl);    
     bindBuffers(program);
     bindUniforms(program);
-    if (!program.AllUniformsInitialized()) {
-      LogInfo("program ${program.name}");
-      LogInfo("want: ${program._uniformLocations}");
-      LogInfo("have: ${program._uniformInitialized}");
-      assert(false);
-    }
-
+   
     program.Draw(numInstances, numItems, drawPoints, _indexBuffer != null);
 
     material.RenderingExit(gl);
