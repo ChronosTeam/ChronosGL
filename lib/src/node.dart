@@ -46,9 +46,9 @@ class Node extends Spatial {
   }
 
   // this should be overridden by subclasses
-  void draw2(ShaderProgram program) {}
+  void draw2(ShaderProgram program, ShaderProgramInputs inputs) {}
 
-  void draw(ShaderProgram program, Matrix4 parentMVMatrix) {
+  void draw(ShaderProgram program, ShaderProgramInputs inputs, Matrix4 parentMVMatrix) {
     // copy the mvMatrix, so we don't change the original
     mvMatrix.setElements(parentMVMatrix);
     // funky stuff going on below, I don't know why it is needed, but otherwise ship rotation is wrong
@@ -59,9 +59,9 @@ class Node extends Spatial {
       tempMatrix.copyPositionFrom(transform);
     }
     mvMatrix.multiplyWith(tempMatrix);
-    draw2(program);
+    draw2(program, inputs);
     for (Node node in children) {
-      node.draw(program, mvMatrix);
+      node.draw(program, inputs, mvMatrix);
     }
   }
 }

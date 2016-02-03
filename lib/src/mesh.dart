@@ -27,7 +27,7 @@ WEBGL.Buffer CreateAndInitializeArrayElementBufferUint16(
 class Mesh extends Node {
   WEBGL.RenderingContext gl;
   bool debug = false;
- 
+
   bool drawPoints;
 
   Map<String, WEBGL.Buffer> _buffers = {};
@@ -39,12 +39,12 @@ class Mesh extends Node {
   void AddBuffer(String canonical, Float32List data) {
     _buffers[canonical] = CreateAndInitializeArrayBufferFloat32(gl, data);
   }
-  
+
   void ChangeBuffer(String canonical, Float32List data) {
     gl.bindBuffer(WEBGL.ARRAY_BUFFER, _buffers[canonical]);
     gl.bufferDataTyped(WEBGL.ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
   }
-  
+
   Mesh(MeshData meshData, this.material, {this.drawPoints: false}) {
     if (!meshData.isOptimized) meshData.optimize();
     gl = ChronosGL.globalGL;
@@ -90,7 +90,7 @@ class Mesh extends Node {
   }
 
   // this gets called by Node.draw()
-  void draw2(ShaderProgram program) {
+  void draw2(ShaderProgram program, ShaderProgramInputs inputs) {
     if (debug) {
       print("Mesh: $name");
       //print(program.shaderObject.textureSamplerUniform);
@@ -100,10 +100,12 @@ class Mesh extends Node {
       print('-----');
     }
 
-    material.RenderingInit(gl);    
+    material.RenderingInit(gl);
     bindBuffers(program);
-    bindUniforms(program);
-   
+    program.MaybeSetUniformsBulk(material._inputs);
+    inputs.SetUniformVal(uTransformationMatrix, transform);
+    inputs.SetUniformVal(uModelViewMatrix, mvMatrix);
+    program.MaybeSetUniformsBulk(inputs);
     program.Draw(numInstances, numItems, drawPoints, _indexBuffer != null);
 
     material.RenderingExit(gl);
@@ -113,18 +115,10 @@ class Mesh extends Node {
     for (String canonical in _buffers.keys) {
       program.MaybeSetAttribute(canonical, _buffers[canonical]);
     }
-    
+
     // should this really be here - interaction with indexer
     if (_indexBuffer != null) {
       program.SetElementArray(_indexBuffer);
     }
-  }
-
-  // This code is still a bit awkward.
-  void bindUniforms(ShaderProgram program) {
-    ShaderProgramInputs inp = material._inputs;
-    inp.SetUniformVal(uTransformationMatrix, transform);
-    inp.SetUniformVal(uModelViewMatrix, mvMatrix);
-    program.MaybeSetUniformsBulk(inp);
   }
 }

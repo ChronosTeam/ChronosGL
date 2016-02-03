@@ -532,18 +532,7 @@ class ShaderProgram implements Drawable {
     if (lightpar != null) {
       inputs.SetUniformVal(uPointLightLocation, lightpar.pointLightLocation);
     }
-    // TODO: make the WHEN gets WHAT updated more rigorous
-    // Only do a subset here
-    for (String u in [
-      uPerspectiveMatrix,
-      uTime,
-      uPointLightLocation,
-      uCameraFar,
-      uCameraNear,
-      uCanvasSize
-    ]) {
-      MaybeSetUniform(u);
-    }
+  
     //print( "error: ${gl.getError()}" );
 
     //print( "pM: ${pMatrix} ${pMatrixUniform}" );
@@ -558,14 +547,13 @@ class ShaderProgram implements Drawable {
     for (Node node in followCameraObjects) {
       // Note, we pass "this" so that "node" can call this.Draw()
       // TODO: clean this up
-      if (node.enabled) node.draw(this, mvMatrix);
+      if (node.enabled) node.draw(this, inputs, mvMatrix);
     }
 
     if (camera != null) {
       camera.getMVMatrix(mvMatrix, true);
       inputs.SetUniformVal(uViewMatrix, mvMatrix);
     }
-    MaybeSetUniform(uViewMatrix);
 
     if (overrideMvMatrix != null) {
       mvMatrix.setElements(overrideMvMatrix);
@@ -573,7 +561,7 @@ class ShaderProgram implements Drawable {
 
     if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {
-      if (node.enabled) node.draw(this, mvMatrix);
+      if (node.enabled) node.draw(this, inputs, mvMatrix);
     }
     _program.End(debug);
   }
