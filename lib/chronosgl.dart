@@ -96,9 +96,9 @@ class RenderingPhase {
   RenderingPhase(this._gl, this._framebuffer, this._usePerspectiveMatrix);
 
   void SetFramebuffer(ChronosFramebuffer fb) {
-   _framebuffer = fb;
+    _framebuffer = fb;
   }
-  
+
   void draw(PerspectiveParams perspar, LightParams lightpar, Camera camera) {
     if (_framebuffer == null) {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
@@ -186,7 +186,16 @@ class ChronosGL {
     _canvas.width = perspar.width;
     _canvas.height = perspar.height;
     //_aspect = _canvas.clientWidth / _canvas.clientHeight;
-    gl = _canvas.getContext("experimental-webgl", {"preserveDrawingBuffer": preserveDrawingBuffer});
+    Map attributes = {
+      "alpha": false,
+      "depth": true,
+      "stencil": true,
+      "antialias": false,
+      "premultipliedAlpha": true,
+      "preserveDrawingBuffer": preserveDrawingBuffer,
+    };
+
+    gl = _canvas.getContext("webgl", attributes);
     if (gl == null) {
       throw new Exception(
           'calling canvas.getContext("experimental-webgl") failed, make sure you run on a computer that supports WebGL, test here: http://get.webgl.org/');
