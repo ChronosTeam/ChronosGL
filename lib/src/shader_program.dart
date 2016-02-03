@@ -235,18 +235,19 @@ class CoreProgram {
   String name;
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
+  WEBGL.RenderingContext _gl;
   WEBGL.Program _program;
   Map<String, int> _attributeLocations = {};
   Map<String, WEBGL.UniformLocation> _uniformLocations = {};
   Set<String> _uniformInitialized = new Set<String>();
   WEBGL.AngleInstancedArrays _extInstancedArrays;
 
-  CoreProgram(gl, this._shaderObjectV, this._shaderObjectF, this.name) {
-    _extInstancedArrays = gl.getExtension("ANGLE_instanced_arrays");
-    ShaderUtils su = new ShaderUtils(gl);
+  CoreProgram(this._gl, this._shaderObjectV, this._shaderObjectF, this.name) {
+    _extInstancedArrays = _gl.getExtension("ANGLE_instanced_arrays");
+    ShaderUtils su = new ShaderUtils(_gl);
     _program = su.getProgram(_shaderObjectV.shader, _shaderObjectF.shader);
     for (String v in _shaderObjectV.attributeVars.keys) {
-      _attributeLocations[v] = gl.getAttribLocation(_program, v);
+      _attributeLocations[v] = _gl.getAttribLocation(_program, v);
       //HTML.window.console.log("$v ${_attributeLocations[v]} ");
       if (_attributeLocations[v] < 0) {
         LogError("cannot get location for  attribute $v");
@@ -255,13 +256,13 @@ class CoreProgram {
     }
 
     for (String v in _shaderObjectV.uniformVars.keys) {
-      _uniformLocations[v] = gl.getUniformLocation(_program, v);
+      _uniformLocations[v] = _gl.getUniformLocation(_program, v);
     }
 
     for (String v in _shaderObjectF.uniformVars.keys) {
       // This can happen! Example both shaders use uTime.
       // assert(!uniformLocations.containsKey(v));
-      _uniformLocations[v] = gl.getUniformLocation(_program, v);
+      _uniformLocations[v] = _gl.getUniformLocation(_program, v);
     }
   }
 
@@ -269,23 +270,23 @@ class CoreProgram {
     return _attributeLocations.containsKey(canonical);
   }
 
-  void SetAttribute(gl, String canonical, WEBGL.Buffer buffer, normalized,
+  void SetAttribute(String canonical, WEBGL.Buffer buffer, normalized,
       int stride, int offset) {
     final int index = _attributeLocations[canonical];
-    gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
-    gl.vertexAttribPointer(index, _VarsDb[canonical].GetSize(),
+    _gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
+    _gl.vertexAttribPointer(index, _VarsDb[canonical].GetSize(),
         _VarsDb[canonical].GetScalarType(), normalized, stride, offset);
   }
 
-  void SetElementArray(gl, WEBGL.Buffer b) {
-    gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, b);
+  void SetElementArray(WEBGL.Buffer b) {
+    _gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, b);
   }
 
   bool HasUniform(String canonical) {
     return _uniformLocations.containsKey(canonical);
   }
 
-  void SetUniform(gl, String canonical, var val) {
+  void SetUniform(String canonical, var val) {
     _uniformInitialized.add(canonical);
 
     // Note, we could make this smarter and skip
@@ -296,22 +297,22 @@ class CoreProgram {
     WEBGL.UniformLocation l = _uniformLocations[canonical];
     switch (desc.type) {
       case "float":
-        gl.uniform1f(l, val);
+        _gl.uniform1f(l, val);
         break;
       case "mat4":
-        gl.uniformMatrix4fv(l, false, val.array);
+        _gl.uniformMatrix4fv(l, false, val.array);
         break;
       case "vec4":
         assert(val.array.length == 4);
-        gl.uniform4fv(l, val.array);
+        _gl.uniform4fv(l, val.array);
         break;
       case "vec3":
         assert(val.array.length == 3);
-        gl.uniform3fv(l, val.array);
+        _gl.uniform3fv(l, val.array);
         break;
       case "vec2":
         assert(val.array.length == 2);
-        gl.uniform2fv(l, val.array);
+        _gl.uniform2fv(l, val.array);
         break;
       case "sampler2D":
         int n;
@@ -331,17 +332,17 @@ class CoreProgram {
           default:
             throw "unknown texture ";
         }
-        gl.activeTexture(WEBGL.TEXTURE0 + n);
-        gl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
-        gl.uniform1i(l, n);
+        _gl.activeTexture(WEBGL.TEXTURE0 + n);
+        _gl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
+        _gl.uniform1i(l, n);
         break;
       case "samplerCube":
         assert(canonical == uTextureCubeSampler);
         int n = (_uniformLocations.containsKey(uTextureSampler) ? 1 : 0) +
             (_uniformLocations.containsKey(uTexture2Sampler) ? 1 : 0);
-        gl.activeTexture(WEBGL.TEXTURE0 + n);
-        gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, val.GetTexture());
-        gl.uniform1i(l, n);
+        _gl.activeTexture(WEBGL.TEXTURE0 + n);
+        _gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, val.GetTexture());
+        _gl.uniform1i(l, n);
         break;
       default:
         print("Error: unknow uniform type: ${desc.type}");
@@ -349,32 +350,40 @@ class CoreProgram {
     }
   }
 
-  bool _AllUniformsInitialized() {
+  bool AllUniformsInitialized() {
     //LogInfo("program ${program.name}");
     //     LogInfo("want: ${program.uniformLocations}");
     //     LogInfo("have: ${program._uniformInitialized}");
     return _uniformInitialized.length == _uniformLocations.length;
   }
+ 
+    List<String> UniformsUninitialized() {
+      List<String> out = [];
+      for (String u in _uniformLocations.keys) {
+        if (!_uniformInitialized.contains(u)) out.add(u); 
+      }
+      return out;
+    }
 
-  void Begin(gl, bool debug) {
+  void Begin(bool debug) {
     if (debug) print("[${name} setting attributes");
-    gl.useProgram(_program);
+    _gl.useProgram(_program);
     for (String a in _attributeLocations.keys) {
       if (debug) print("[${name}] $a");
       final index = _attributeLocations[a];
-      gl.enableVertexAttribArray(index);
+      _gl.enableVertexAttribArray(index);
       if (a.startsWith("ia")) {
         _extInstancedArrays.vertexAttribDivisorAngle(index, 1);
       }
     }
   }
 
-  void Draw(gl, bool debug, int numInstances, int numItems, bool drawPoints,
+  void Draw(bool debug, int numInstances, int numItems, bool drawPoints,
       bool useArrayBuffer) {
     if (debug) print(
         "[${name}] draw points: ${drawPoints} instances${numInstances}");
-    if (!_AllUniformsInitialized()) {
-      assert(false);
+    if (!AllUniformsInitialized()) {
+      throw "uninitialized uniforms: ${UniformsUninitialized()}";
     }
     if (numInstances > 0) {
       if (drawPoints) {
@@ -395,9 +404,9 @@ class CoreProgram {
       }
     } else {
       if (drawPoints) {
-        gl.drawArrays(WEBGL.POINTS, 0, numItems);
+        _gl.drawArrays(WEBGL.POINTS, 0, numItems);
       } else if (useArrayBuffer) {
-        gl.drawElements(
+        _gl.drawElements(
             WEBGL.TRIANGLES,
             numItems,
             ChronosGL.useElementIndexUint
@@ -405,20 +414,20 @@ class CoreProgram {
                 : WEBGL.UNSIGNED_SHORT,
             0);
       } else {
-        gl.drawArrays(WEBGL.TRIANGLES, 0, numItems);
+        _gl.drawArrays(WEBGL.TRIANGLES, 0, numItems);
       }
     }
-    if (debug) print(gl.getProgramInfoLog(_program));
+    if (debug) print(_gl.getProgramInfoLog(_program));
   }
 
-  void End(gl, bool debug) {
+  void End(bool debug) {
     if (debug) print("[${name} unsetting attributes");
     for (String canonical in _attributeLocations.keys) {
       int index = _attributeLocations[canonical];
       if (canonical.startsWith("ia")) {
         _extInstancedArrays.vertexAttribDivisorAngle(index, 0);
       }
-      gl.disableVertexAttribArray(index);
+      _gl.disableVertexAttribArray(index);
     }
   }
 }
@@ -480,16 +489,16 @@ class ShaderProgram implements Drawable {
   void MaybeSetAttribute(String canonical, WEBGL.Buffer buffer,
       [bool normalized = false, int stride = 0, int offset = 0]) {
     if (!_program.HasAttribute(canonical)) return;
-    _program.SetAttribute(_gl, canonical, buffer, normalized, stride, offset);
+    _program.SetAttribute(canonical, buffer, normalized, stride, offset);
   }
 
   void SetElementArray(WEBGL.Buffer b) {
-    _program.SetElementArray(_gl, b);
+    _program.SetElementArray(b);
   }
 
   void MaybeSetUniform(String canonical) {
     if (_program.HasUniform(canonical)) {
-      _program.SetUniform(_gl, canonical, inputs.GetUniformVal(canonical));
+      _program.SetUniform(canonical, inputs.GetUniformVal(canonical));
     }
   }
 
@@ -497,7 +506,7 @@ class ShaderProgram implements Drawable {
     for (String canonical in inputs.GetCanonicals()) {
       var val = inputs.GetUniformVal(canonical);
       if (_program.HasUniform(canonical)) {
-        _program.SetUniform(_gl, canonical, val);
+        _program.SetUniform(canonical, val);
       }
     }
   }
@@ -505,7 +514,7 @@ class ShaderProgram implements Drawable {
   void Draw(
       int numInstances, int numItems, bool drawPoints, bool useArrayBuffer) {
     _program.Draw(
-        _gl, debug, numInstances, numItems, drawPoints, useArrayBuffer);
+        debug, numInstances, numItems, drawPoints, useArrayBuffer);
   }
 
   void draw(PerspectiveParams dynpar, LightParams lightpar, Camera camera,
@@ -513,7 +522,7 @@ class ShaderProgram implements Drawable {
       [Matrix4 overrideMvMatrix]) {
     if (!hasEnabledObjects()) return;
 
-    _program.Begin(_gl, debug);
+    _program.Begin(debug);
 
     if (debug) print("[setting ununiforms");
     inputs.SetUniformVal(uCameraNear, dynpar.near);
@@ -566,6 +575,6 @@ class ShaderProgram implements Drawable {
     for (Node node in objects) {
       if (node.enabled) node.draw(this, mvMatrix);
     }
-    _program.End(_gl, debug);
+    _program.End(debug);
   }
 }
