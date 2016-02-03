@@ -57,13 +57,18 @@ const String vVertexPosition = "vVertexPosition";
 const String uTransformationMatrix = "uTransformationMatrix";
 const String uModelViewMatrix = "uModelViewMatrix";
 const String uViewMatrix = "uViewMatrix";
+const String uNormalMatrix = "uNormalMatrix";
+
 const String uPerspectiveMatrix = "uPerpectiveMatrix";
 const String uTextureSampler = "uTextureSampler";
 const String uTextureCubeSampler = "uTextureCubeSampler";
 const String uTexture2Sampler = "uTexture2Sampler";
+const String uTexture3Sampler = "uTexture3Sampler";
+const String uTexture4Sampler = "uTexture4Sampler";
 const String uPointLightLocation = "uPointLightLocation";
 const String uTime = "uTime";
 const String uColor = "uColor";
+const String uColorAlpha = "uColorAlpha";
 const String uCameraNear = "uCameraNear";
 const String uCameraFar = "uCameraFar";
 const String uCanvasSize = "uCanvasSize";
@@ -93,9 +98,12 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uTransformationMatrix: new ShaderVarDesc("mat4", ""),
   uModelViewMatrix: new ShaderVarDesc("mat4", ""),
   uViewMatrix: new ShaderVarDesc("mat4", ""),
+  uNormalMatrix: new ShaderVarDesc("mat3", ""),
   uPerspectiveMatrix: new ShaderVarDesc("mat4", ""),
   uTextureSampler: new ShaderVarDesc("sampler2D", ""),
   uTexture2Sampler: new ShaderVarDesc("sampler2D", ""),
+  uTexture3Sampler: new ShaderVarDesc("sampler2D", ""),
+  uTexture4Sampler: new ShaderVarDesc("sampler2D", ""),
   uTextureCubeSampler: new ShaderVarDesc("samplerCube", ""),
   uPointLightLocation: new ShaderVarDesc("vec3", ""),
   uTime: new ShaderVarDesc("float", "time since program start in sec"),
@@ -106,6 +114,7 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uPointSize: new ShaderVarDesc("float", ""),
   uCanvasSize: new ShaderVarDesc("vec2", ""),
   uColor: new ShaderVarDesc("vec3", ""),
+  uColorAlpha: new ShaderVarDesc("vec4", ""),
 };
 
 void IntroduceNewShaderVar(String name, ShaderVarDesc desc) {
@@ -114,7 +123,7 @@ void IntroduceNewShaderVar(String name, ShaderVarDesc desc) {
 }
 
 // ShaderObject describes a shader (either fragment or vertex) and its
-// interface to the world.
+// interface to the world on a syntactical (uncompiled) level.
 class ShaderObject {
   String name;
   String shader = null;
@@ -217,106 +226,156 @@ class ShaderProgramInputs {
   }
 }
 
-class ShaderProgram implements Drawable {
-  ShaderObject shaderObjectV;
-  ShaderObject shaderObjectF;
-  ShaderProgramInputs inputs = new ShaderProgramInputs();
-
+// Represent a GPU shader program
+// The protocol is roughly this:
+// Begin()
+// (SetUniform()* SetAttribute()* Draw())+
+// End()
+class CoreProgram {
   String name;
-  WEBGL.RenderingContext gl;
-  WEBGL.Program program;
-
+  ShaderObject _shaderObjectV;
+  ShaderObject _shaderObjectF;
+  WEBGL.Program _program;
   Map<String, int> _attributeLocations = {};
   Map<String, WEBGL.UniformLocation> _uniformLocations = {};
-  // Should this be done per processed Mesh?
   Set<String> _uniformInitialized = new Set<String>();
+  WEBGL.AngleInstancedArrays _extInstancedArrays;
 
-  bool debug = false;
-  bool active;
-
-  Matrix4 mvMatrix = new Matrix4();
-  List<Node> followCameraObjects = new List<Node>();
-  List<Node> objects = new List<Node>();
-  WEBGL.AngleInstancedArrays _extInstancedArrays = null;
-
-  ShaderProgram(this.gl, this.shaderObjectV, this.shaderObjectF, this.name) {
+  CoreProgram(gl, this._shaderObjectV, this._shaderObjectF, this.name) {
     _extInstancedArrays = gl.getExtension("ANGLE_instanced_arrays");
     ShaderUtils su = new ShaderUtils(gl);
-    program = su.getProgram(shaderObjectV.shader, shaderObjectF.shader);
-    for (String v in shaderObjectV.attributeVars.keys) {
-      _attributeLocations[v] = gl.getAttribLocation(program, v);
+    _program = su.getProgram(_shaderObjectV.shader, _shaderObjectF.shader);
+    for (String v in _shaderObjectV.attributeVars.keys) {
+      _attributeLocations[v] = gl.getAttribLocation(_program, v);
       //HTML.window.console.log("$v ${_attributeLocations[v]} ");
-      assert(_attributeLocations[v] >= 0);
+      if (_attributeLocations[v] < 0) {
+        LogError("cannot get location for  attribute $v");
+        assert(false);
+      }
     }
 
-    for (String v in shaderObjectV.uniformVars.keys) {
-      _uniformLocations[v] = getUniformLocation(v);
+    for (String v in _shaderObjectV.uniformVars.keys) {
+      _uniformLocations[v] = gl.getUniformLocation(_program, v);
     }
 
-    for (String v in shaderObjectF.uniformVars.keys) {
+    for (String v in _shaderObjectF.uniformVars.keys) {
       // This can happen! Example both shaders use uTime.
       // assert(!uniformLocations.containsKey(v));
-      _uniformLocations[v] = getUniformLocation(v);
-    }
-    inputs.SetUniformVal(uTime, 0.0);
-  }
-
-  bool AllUniformsInitialized() {
-    return _uniformInitialized.length == _uniformLocations.length;
-  }
-
-  int getAttributeLocation(String name) {
-    return gl.getAttribLocation(program, name);
-  }
-
-  WEBGL.UniformLocation getUniformLocation(String name) {
-    return gl.getUniformLocation(program, name);
-  }
-
-  Node add(Node obj) {
-    objects.add(obj);
-    return obj;
-  }
-
-  bool remove(Node obj) {
-    return objects.remove(obj);
-  }
-
-  Node addFollowCameraObject(Node obj) {
-    followCameraObjects.add(obj);
-    return obj;
-  }
-
-  void animate(double elapsed) {
-    inputs.SetUniformVal(uTime, inputs.GetUniformVal(uTime) + elapsed / 1000);
-    for (Node node in objects) {
-      if (node.enabled) node.animate(elapsed);
+      _uniformLocations[v] = gl.getUniformLocation(_program, v);
     }
   }
 
-  bool hasEnabledObjects() {
-    if (objects.any((Node n) => n.enabled)) return true;
-    if (followCameraObjects.any((Node n) => n.enabled)) return true;
-    return false;
+  bool HasAttribute(String canonical) {
+    return _attributeLocations.containsKey(canonical);
   }
 
-  void MaybeSetAttribute(String a, WEBGL.Buffer buffer,
-      [bool normalized = false, int stride = 0, int offset = 0]) {
-    if (!_attributeLocations.containsKey(a)) return;
-    final int index = _attributeLocations[a];
+  void SetAttribute(gl, String canonical, WEBGL.Buffer buffer, normalized,
+      int stride, int offset) {
+    final int index = _attributeLocations[canonical];
     gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
-    gl.vertexAttribPointer(index, _VarsDb[a].GetSize(),
-        _VarsDb[a].GetScalarType(), normalized, stride, offset);
+    gl.vertexAttribPointer(index, _VarsDb[canonical].GetSize(),
+        _VarsDb[canonical].GetScalarType(), normalized, stride, offset);
   }
 
-  void SetElementArray(WEBGL.Buffer b) {
+  void SetElementArray(gl, WEBGL.Buffer b) {
     gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, b);
   }
 
-  void Draw(
-      int numInstances, int numItems, bool drawPoints, bool useArrayBuffer) {
+  bool HasUniform(String canonical) {
+    return _uniformLocations.containsKey(canonical);
+  }
+
+  void SetUniform(gl, String canonical, var val) {
+    _uniformInitialized.add(canonical);
+
+    // Note, we could make this smarter and skip
+    // overwriting values with the same values;
+    assert(_VarsDb.containsKey(canonical));
+    ShaderVarDesc desc = _VarsDb[canonical];
+    assert(_uniformLocations.containsKey(canonical));
+    WEBGL.UniformLocation l = _uniformLocations[canonical];
+    switch (desc.type) {
+      case "float":
+        gl.uniform1f(l, val);
+        break;
+      case "mat4":
+        gl.uniformMatrix4fv(l, false, val.array);
+        break;
+      case "vec4":
+        assert(val.array.length == 4);
+        gl.uniform4fv(l, val.array);
+        break;
+      case "vec3":
+        assert(val.array.length == 3);
+        gl.uniform3fv(l, val.array);
+        break;
+      case "vec2":
+        assert(val.array.length == 2);
+        gl.uniform2fv(l, val.array);
+        break;
+      case "sampler2D":
+        int n;
+        switch (canonical) {
+          case uTextureSampler:
+            n = 0;
+            break;
+          case uTexture2Sampler:
+            n = 1;
+            break;
+          case uTexture3Sampler:
+            n = 2;
+            break;
+          case uTexture4Sampler:
+            n = 3;
+            break;
+          default:
+            throw "unknown texture ";
+        }
+        gl.activeTexture(WEBGL.TEXTURE0 + n);
+        gl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
+        gl.uniform1i(l, n);
+        break;
+      case "samplerCube":
+        assert(canonical == uTextureCubeSampler);
+        int n = (_uniformLocations.containsKey(uTextureSampler) ? 1 : 0) +
+            (_uniformLocations.containsKey(uTexture2Sampler) ? 1 : 0);
+        gl.activeTexture(WEBGL.TEXTURE0 + n);
+        gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, val.GetTexture());
+        gl.uniform1i(l, n);
+        break;
+      default:
+        print("Error: unknow uniform type: ${desc.type}");
+        assert(false);
+    }
+  }
+
+  bool _AllUniformsInitialized() {
+    //LogInfo("program ${program.name}");
+    //     LogInfo("want: ${program.uniformLocations}");
+    //     LogInfo("have: ${program._uniformInitialized}");
+    return _uniformInitialized.length == _uniformLocations.length;
+  }
+
+  void Begin(gl, bool debug) {
+    if (debug) print("[${name} setting attributes");
+    gl.useProgram(_program);
+    for (String a in _attributeLocations.keys) {
+      if (debug) print("[${name}] $a");
+      final index = _attributeLocations[a];
+      gl.enableVertexAttribArray(index);
+      if (a.startsWith("ia")) {
+        _extInstancedArrays.vertexAttribDivisorAngle(index, 1);
+      }
+    }
+  }
+
+  void Draw(gl, bool debug, int numInstances, int numItems, bool drawPoints,
+      bool useArrayBuffer) {
     if (debug) print(
         "[${name}] draw points: ${drawPoints} instances${numInstances}");
+    if (!_AllUniformsInitialized()) {
+      assert(false);
+    }
     if (numInstances > 0) {
       if (drawPoints) {
         _extInstancedArrays.drawArraysInstancedAngle(
@@ -349,73 +408,104 @@ class ShaderProgram implements Drawable {
         gl.drawArrays(WEBGL.TRIANGLES, 0, numItems);
       }
     }
-    if (debug) print(gl.getProgramInfoLog(program));
+    if (debug) print(gl.getProgramInfoLog(_program));
   }
 
-  void SetUniform(String canonical, var val) {
-    // Note, we could make this smarter and skip
-    // overwriting values with the same values;
-    assert(_VarsDb.containsKey(canonical));
-    ShaderVarDesc desc = _VarsDb[canonical];
-    assert(_uniformLocations.containsKey(canonical));
-    WEBGL.UniformLocation l = _uniformLocations[canonical];
-    _uniformInitialized.add(canonical);
-    switch (desc.type) {
-      case "float":
-        gl.uniform1f(l, val);
-        break;
-      case "mat4":
-        gl.uniformMatrix4fv(l, false, val.array);
-        break;
-      case "vec3":
-        assert(val.array.length == 3);
-        gl.uniform3fv(l, val.array);
-        break;
-      case "vec2":
-        assert(val.array.length == 2);
-        gl.uniform2fv(l, val.array);
-        break;
-      case "sampler2D":
-        if (canonical == uTextureSampler) {
-          int n = 0;
-          gl.activeTexture(WEBGL.TEXTURE0 + n);
-          gl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
-          gl.uniform1i(l, n);
-        } else if (canonical == uTexture2Sampler) {
-          int n = _uniformLocations.containsKey(uTextureSampler) ? 1 : 0;
-          gl.activeTexture(WEBGL.TEXTURE0 + n);
-          gl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
-          gl.uniform1i(l, n);
-        } else {
-          assert(false);
-        }
-        break;
-      case "samplerCube":
-        assert(canonical == uTextureCubeSampler);
-        int n = (_uniformLocations.containsKey(uTextureSampler) ? 1 : 0) +
-            (_uniformLocations.containsKey(uTexture2Sampler) ? 1 : 0);
-        gl.activeTexture(WEBGL.TEXTURE0 + n);
-        gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, val.GetTexture());
-        gl.uniform1i(l, n);
-        break;
-      default:
-        assert(false);
+  void End(gl, bool debug) {
+    if (debug) print("[${name} unsetting attributes");
+    for (String canonical in _attributeLocations.keys) {
+      int index = _attributeLocations[canonical];
+      if (canonical.startsWith("ia")) {
+        _extInstancedArrays.vertexAttribDivisorAngle(index, 0);
+      }
+      gl.disableVertexAttribArray(index);
+    }
+  }
+}
+
+// ShaderProgram represents multiple invocations of the same
+// CoreProgram.
+class ShaderProgram implements Drawable {
+  ShaderProgramInputs inputs = new ShaderProgramInputs();
+
+  WEBGL.RenderingContext _gl;
+  CoreProgram _program;
+  // Should this be done per processed Mesh?
+
+  bool debug = false;
+  bool active;
+
+  Matrix4 mvMatrix = new Matrix4();
+  List<Node> followCameraObjects = new List<Node>();
+  List<Node> objects = new List<Node>();
+
+  ShaderProgram(this._gl, shaderObjectV, shaderObjectF, name) {
+    _program = new CoreProgram(_gl, shaderObjectV, shaderObjectF, name);
+    inputs.SetUniformVal(uTime, 0.0);
+  }
+
+  ShaderProgram.Clone(this._gl, ShaderProgram other) {
+    assert(other != null);
+    _program = other._program;
+    inputs.SetUniformVal(uTime, 0.0);
+  }
+
+  Node add(Node obj) {
+    objects.add(obj);
+    return obj;
+  }
+
+  bool remove(Node obj) {
+    return objects.remove(obj);
+  }
+
+  Node addFollowCameraObject(Node obj) {
+    followCameraObjects.add(obj);
+    return obj;
+  }
+
+  void animate(double elapsed) {
+    inputs.SetUniformVal(uTime, inputs.GetUniformVal(uTime) + elapsed / 1000);
+    for (Node node in objects) {
+      if (node.enabled) node.animate(elapsed);
     }
   }
 
+  bool hasEnabledObjects() {
+    if (objects.any((Node n) => n.enabled)) return true;
+    if (followCameraObjects.any((Node n) => n.enabled)) return true;
+    return false;
+  }
+
+  void MaybeSetAttribute(String canonical, WEBGL.Buffer buffer,
+      [bool normalized = false, int stride = 0, int offset = 0]) {
+    if (!_program.HasAttribute(canonical)) return;
+    _program.SetAttribute(_gl, canonical, buffer, normalized, stride, offset);
+  }
+
+  void SetElementArray(WEBGL.Buffer b) {
+    _program.SetElementArray(_gl, b);
+  }
+
   void MaybeSetUniform(String canonical) {
-    if (_uniformLocations.containsKey(canonical)) {
-      SetUniform(canonical, inputs.GetUniformVal(canonical));
+    if (_program.HasUniform(canonical)) {
+      _program.SetUniform(_gl, canonical, inputs.GetUniformVal(canonical));
     }
   }
 
   void MaybeSetUniformsBulk(ShaderProgramInputs inputs) {
     for (String canonical in inputs.GetCanonicals()) {
       var val = inputs.GetUniformVal(canonical);
-      if (_uniformLocations.containsKey(canonical)) {
-        SetUniform(canonical, val);
+      if (_program.HasUniform(canonical)) {
+        _program.SetUniform(_gl, canonical, val);
       }
     }
+  }
+
+  void Draw(
+      int numInstances, int numItems, bool drawPoints, bool useArrayBuffer) {
+    _program.Draw(
+        _gl, debug, numInstances, numItems, drawPoints, useArrayBuffer);
   }
 
   void draw(PerspectiveParams dynpar, LightParams lightpar, Camera camera,
@@ -423,25 +513,16 @@ class ShaderProgram implements Drawable {
       [Matrix4 overrideMvMatrix]) {
     if (!hasEnabledObjects()) return;
 
-    if (debug) print("[${name} setting attributes");
-    gl.useProgram(program);
-    for (String a in _attributeLocations.keys) {
-      if (debug) print("[${name}] $a");
-      final index = _attributeLocations[a];
-      gl.enableVertexAttribArray(index);
-      if (a.startsWith("ia")) {
-        _extInstancedArrays.vertexAttribDivisorAngle(index, 1);
-      }
-    }
-    
-    if (debug) print("[${name} setting unuiforms");
-    camera.getMVMatrix(mvMatrix, false);
+    _program.Begin(_gl, debug);
+
+    if (debug) print("[setting ununiforms");
     inputs.SetUniformVal(uCameraNear, dynpar.near);
     inputs.SetUniformVal(uCameraFar, dynpar.far);
     inputs.SetUniformVal(uCanvasSize, new Vector2(dynpar.width, dynpar.height));
     inputs.SetUniformVal(uPerspectiveMatrix, pMatrix);
-    inputs.SetUniformVal(uPointLightLocation, lightpar.pointLightLocation);
-
+    if (lightpar != null) {
+      inputs.SetUniformVal(uPointLightLocation, lightpar.pointLightLocation);
+    }
     // TODO: make the WHEN gets WHAT updated more rigorous
     // Only do a subset here
     for (String u in [
@@ -461,31 +542,30 @@ class ShaderProgram implements Drawable {
     //print( "mvM: ${mvMatrix}");
 
     // like skybox
-    if (debug) print("[${name} draw followCameraObjects ${followCameraObjects.length}");
+    if (debug) print("[draw followCameraObjects ${followCameraObjects.length}");
+    if (camera != null) {
+      camera.getMVMatrix(mvMatrix, false);
+    }
     for (Node node in followCameraObjects) {
+      // Note, we pass "this" so that "node" can call this.Draw()
+      // TODO: clean this up
       if (node.enabled) node.draw(this, mvMatrix);
     }
 
-    camera.getMVMatrix(mvMatrix, true);
-    inputs.SetUniformVal(uViewMatrix, mvMatrix);
+    if (camera != null) {
+      camera.getMVMatrix(mvMatrix, true);
+      inputs.SetUniformVal(uViewMatrix, mvMatrix);
+    }
     MaybeSetUniform(uViewMatrix);
 
     if (overrideMvMatrix != null) {
       mvMatrix.setElements(overrideMvMatrix);
     }
-    
-    if (debug) print("[${name} draw objects ${objects.length}");
+
+    if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {
       if (node.enabled) node.draw(this, mvMatrix);
     }
-    
-    if (debug) print("[${name} unsetting attributes");
-    for (String canonical in _attributeLocations.keys) {
-      int index = _attributeLocations[canonical];
-      if (canonical.startsWith("ia")) {
-        _extInstancedArrays.vertexAttribDivisorAngle(index, 0);
-      }
-      gl.disableVertexAttribArray(index);
-    }
+    _program.End(_gl, debug);
   }
 }
