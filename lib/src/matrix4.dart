@@ -5,26 +5,82 @@ part of chronosmath;
  *  0, 0, 1, 0,
  *  x, y, z, 0]
  */
+class Matrix3 {
+  Float32List array = new Float32List(3 * 3);
+
+  Matrix3.fromM4(Matrix4 m) {
+    array[0] = m.array[0];
+    array[1] = m.array[1];
+    array[2] = m.array[2];
+    //
+    array[3] = m.array[4];
+    array[4] = m.array[5];
+    array[5] = m.array[6];
+    //
+    array[6] = m.array[8];
+    array[7] = m.array[9];
+    array[8] = m.array[10];
+  }
+
+  void invert() {
+    Float32List m = array;
+    double a11 = m[8] * m[5] - m[5] * m[7];
+    double a21 = -m[8] * m[1] + m[2] * m[7];
+    double a31 = m[5] * m[1] - m[2] * m[4];
+    double a12 = -m[8] * m[3] + m[5] * m[6];
+    double a22 = m[8] * m[0] - m[2] * m[6];
+    double a32 = -m[5] * m[0] + m[2] * m[3];
+    double a13 = m[7] * m[3] - m[4] * m[6];
+    double a23 = -m[7] * m[0] + m[1] * m[6];
+    double a33 = m[4] * m[0] - m[1] * m[3];
+
+    double det = m[0] * a11 + m[1] * a12 + m[2] * a13;
+    if (det == 0) {
+      throw "zero determinant ${m}";
+    }
+    double idet = 1.0 / det;
+    m[0] = idet * a11;
+    m[1] = idet * a21;
+    m[2] = idet * a31;
+    //
+    m[3] = idet * a12;
+    m[4] = idet * a22;
+    m[5] = idet * a32;
+    //
+    m[6] = idet * a13;
+    m[7] = idet * a23;
+    m[8] = idet * a33;
+  }
+
+  void transpose() {
+    Float32List m = array;
+    double t;
+
+    t = m[1];
+    m[1] = m[3];
+    m[3] = t;
+
+    t = m[2];
+    m[2] = m[6];
+    m[6] = t;
+
+    t = m[5];
+    m[5] = m[7];
+    m[7] = t;
+  }
+}
 
 class Matrix4 {
-  Float32List array = new Float32List(16);
+  Float32List array = new Float32List(4 * 4);
 
   Matrix4() {
     identity();
   }
 
-  static int RIGHTX = 0,
-      RIGHTY = 4,
-      RIGHTZ = 8;
-  static int UPX = 1,
-      UPY = 5,
-      UPZ = 9;
-  static int BACKX = 2,
-      BACKY = 6,
-      BACKZ = 10;
-  static int POSX = 12,
-      POSY = 13,
-      POSZ = 14;
+  static int RIGHTX = 0, RIGHTY = 4, RIGHTZ = 8;
+  static int UPX = 1, UPY = 5, UPZ = 9;
+  static int BACKX = 2, BACKY = 6, BACKZ = 10;
+  static int POSX = 12, POSY = 13, POSZ = 14;
 
   double operator [](int index) {
     return array[index];
@@ -47,10 +103,9 @@ class Matrix4 {
     return this;
   }
 
-  void frustum(double left, double right, double bottom, double top, double near, double far) {
-    double rl = (right - left),
-        tb = (top - bottom),
-        fn = (far - near);
+  void frustum(double left, double right, double bottom, double top,
+      double near, double far) {
+    double rl = (right - left), tb = (top - bottom), fn = (far - near);
     clear();
     array[0] = (near * 2) / rl;
     array[5] = (near * 2) / tb;
@@ -68,7 +123,6 @@ class Matrix4 {
   }
 
   bool invert() {
-
     // Cache the matrix values (makes for huge speed increases!)
     double a00 = array[0],
         a01 = array[1],
@@ -98,7 +152,8 @@ class Matrix4 {
         b09 = a21 * a32 - a22 * a31,
         b10 = a21 * a33 - a23 * a31,
         b11 = a22 * a33 - a23 * a32,
-        d = (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06),
+        d =
+        (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06),
         invDet;
 
     // Calculate the determinant
@@ -294,22 +349,10 @@ class Matrix4 {
 
   multiplyWith(Matrix4 other) {
 // Cache the matrix values (makes for huge speed increases!)
-    double a00 = array[0],
-        a01 = array[1],
-        a02 = array[2],
-        a03 = array[3];
-    double a10 = array[4],
-        a11 = array[5],
-        a12 = array[6],
-        a13 = array[7];
-    double a20 = array[8],
-        a21 = array[9],
-        a22 = array[10],
-        a23 = array[11];
-    double a30 = array[12],
-        a31 = array[13],
-        a32 = array[14],
-        a33 = array[15];
+    double a00 = array[0], a01 = array[1], a02 = array[2], a03 = array[3];
+    double a10 = array[4], a11 = array[5], a12 = array[6], a13 = array[7];
+    double a20 = array[8], a21 = array[9], a22 = array[10], a23 = array[11];
+    double a30 = array[12], a31 = array[13], a32 = array[14], a33 = array[15];
 
     // Cache only the current line of the second matrix
     double b0 = other.array[0],
@@ -351,10 +394,7 @@ class Matrix4 {
 
   // dest = Vector4
   void multiplyVec4(List<double> vec4) {
-    var x = vec4[0],
-        y = vec4[1],
-        z = vec4[2],
-        w = vec4[3];
+    var x = vec4[0], y = vec4[1], z = vec4[2], w = vec4[3];
 
     vec4[0] = array[0] * x + array[4] * y + array[8] * z + array[12] * w;
     vec4[1] = array[1] * x + array[5] * y + array[9] * z + array[13] * w;
@@ -480,9 +520,7 @@ class Matrix4 {
   }
 
   void transposeRotation() {
-    double a01 = array[1],
-        a02 = array[2],
-        a12 = array[6];
+    double a01 = array[1], a02 = array[2], a12 = array[6];
 
     array[1] = array[4];
     array[2] = array[8];
