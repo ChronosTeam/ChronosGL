@@ -49,7 +49,7 @@ void main() {
   // Sky Sphere
   ShaderProgram skyprg = chronosGL
       .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
-  MeshData md = chronosGL.shapes.createIcosahedron(3).multiplyVertices(100);
+  MeshData md = chronosGL.shapes.createIcosahedron(3)..multiplyVertices(100);
   Mesh m = md.createMesh(mat);
   skyprg.add(m);
 

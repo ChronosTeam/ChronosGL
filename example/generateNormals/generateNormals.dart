@@ -34,7 +34,9 @@ void main() {
     for (var i = 0; i < mymd.length; i++) {
       MeshData md = mymd[i];
       // because some vertices were reused for different faces, so we need to deduplicate the indices
-      md.deDeuplicateIndices().generateNormalsAssumingTriangleMode();
+      md
+        ..deDeuplicateIndices()
+        ..generateNormalsAssumingTriangleMode();
       Mesh mesh = md.createMesh(mat);
       if (md == ctLogo) {
         mesh.rotX(3.14 / 2);

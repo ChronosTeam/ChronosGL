@@ -102,9 +102,13 @@ class Mesh extends Node {
 
     material.RenderingInit(gl);
     bindBuffers(program);
+    Matrix3 normMatrix = new Matrix3.fromM4(mvMatrix);
+    normMatrix.invert();
+    normMatrix.transpose();
     program.MaybeSetUniformsBulk(material._inputs);
     inputs.SetUniformVal(uTransformationMatrix, transform);
     inputs.SetUniformVal(uModelViewMatrix, mvMatrix);
+    inputs.SetUniformVal(uNormalMatrix, normMatrix);
     program.MaybeSetUniformsBulk(inputs);
     program.Draw(numInstances, numItems, drawPoints, _indexBuffer != null);
 

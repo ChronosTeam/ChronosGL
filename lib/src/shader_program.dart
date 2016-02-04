@@ -302,6 +302,9 @@ class CoreProgram {
       case "mat4":
         _gl.uniformMatrix4fv(l, false, val.array);
         break;
+      case "mat3":
+        _gl.uniformMatrix3fv(l, false, val.array);
+        break;
       case "vec4":
         assert(val.array.length == 4);
         _gl.uniform4fv(l, val.array);
@@ -356,14 +359,14 @@ class CoreProgram {
     //     LogInfo("have: ${program._uniformInitialized}");
     return _uniformInitialized.length == _uniformLocations.length;
   }
- 
-    List<String> UniformsUninitialized() {
-      List<String> out = [];
-      for (String u in _uniformLocations.keys) {
-        if (!_uniformInitialized.contains(u)) out.add(u); 
-      }
-      return out;
+
+  List<String> UniformsUninitialized() {
+    List<String> out = [];
+    for (String u in _uniformLocations.keys) {
+      if (!_uniformInitialized.contains(u)) out.add(u);
     }
+    return out;
+  }
 
   void Begin(bool debug) {
     if (debug) print("[${name} setting attributes");
@@ -513,8 +516,7 @@ class ShaderProgram implements Drawable {
 
   void Draw(
       int numInstances, int numItems, bool drawPoints, bool useArrayBuffer) {
-    _program.Draw(
-        debug, numInstances, numItems, drawPoints, useArrayBuffer);
+    _program.Draw(debug, numInstances, numItems, drawPoints, useArrayBuffer);
   }
 
   void draw(PerspectiveParams dynpar, LightParams lightpar, Camera camera,
@@ -532,7 +534,7 @@ class ShaderProgram implements Drawable {
     if (lightpar != null) {
       inputs.SetUniformVal(uPointLightLocation, lightpar.pointLightLocation);
     }
-  
+
     //print( "error: ${gl.getError()}" );
 
     //print( "pM: ${pMatrix} ${pMatrixUniform}" );

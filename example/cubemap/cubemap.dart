@@ -12,8 +12,8 @@ void main() {
   programCM.addFollowCameraObject(sky);
   
   Material mat = new Material()..SetUniform(uTextureCubeSampler, cubeTex);
-  Mesh m = chronosGL.shapes.createCube().multiplyVertices(2).createMesh(mat);
-  programCM.add(m);
+  MeshData md = chronosGL.shapes.createCube()..multiplyVertices(2);
+  programCM.add(new Mesh(md, mat));
 
   
   ShaderProgram programSprites =

@@ -74,9 +74,9 @@ class MeshData {
   Vector tempb = new Vector();
   Vector tempc = new Vector();
   Vector tempd = new Vector();
-  MeshData generateNormalsAssumingTriangleMode() {
+  void generateNormalsAssumingTriangleMode() {
     if( normals == null || normals.length != vertices.length) {
-      normals = new List<double>(vertices.length);
+      normals = new Float32List(vertices.length);
     }
     for (int i = 0; i < vertexIndices.length; i+=3) {
       setVector( tempa, i+0);
@@ -90,14 +90,13 @@ class MeshData {
         normals[t+2] = tempd.array[2];
       }
     }
-    return this;
   }
   
   // use this so normals have room and don't need to share a vertex
   // for example a cube can have 3 different normals for the same vertex
   // so we need 3 different places where we store the same vertex so we have room for 3 different normals
   // TODO: add UV Map and the other stuff
-  MeshData deDeuplicateIndices() { 
+  void deDeuplicateIndices() { 
     List<double> newVertices = new List<double>(vertexIndices.length*3);
     int pos=0;
     for (int i = 0; i < vertexIndices.length; i++) {
@@ -110,13 +109,11 @@ class MeshData {
       vertexIndices[i]=i;
     }
     vertices = newVertices;
-    return this;
   }
 
-  MeshData multiplyVertices(num m) {
+  void multiplyVertices(num m) {
     for (int i = 0; i < vertices.length; i++) {
       vertices[i] *= m;
     }
-    return this;
   }
 }

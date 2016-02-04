@@ -106,7 +106,8 @@ class Utils {
 
   static Mesh MakeSkycube(Texture cubeTexture) {
     Material mat  = new Material()..SetUniform(uTextureCubeSampler, cubeTexture);
-    return createCubeInternal().multiplyVertices(512).createMesh(mat);
+    MeshData md = createCubeInternal()..multiplyVertices(512);
+    return new Mesh(md, mat);
    
   }
 
