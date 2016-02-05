@@ -35,7 +35,7 @@ void main() {
 
   chronosGL.lightpar.pointLightLocation.set(11, 11, 1);
   Material icoMat = new Material()..SetUniform(uColor, new Vector(1, 1, 0));
-  Mesh ico = new Mesh(Shapes.createIcosahedron(), icoMat)
+  Mesh ico = new Mesh(Shapes.Icosahedron(), icoMat)
     ..setPos(11, 11, 1);
   fixedShaderPrg.add(ico);
 

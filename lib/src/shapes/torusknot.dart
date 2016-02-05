@@ -3,7 +3,14 @@ part of chronosgl;
 Vector p1 = new Vector();
 Vector p2 = new Vector();
 
-MeshData createTorusKnotInternal({double radius: 20.0, double tube: 4.0, int segmentsR: 128, int segmentsT: 16, int p: 2, int q: 3, double heightScale: 1.0}) {
+MeshData createTorusKnotInternal(
+    {double radius: 20.0,
+    double tube: 4.0,
+    int segmentsR: 128,
+    int segmentsT: 16,
+    int p: 2,
+    int q: 3,
+    double heightScale: 1.0}) {
   List<double> vertices = new List<double>();
   List<double> uvs = new List<double>();
   List<double> normals = new List<double>();
@@ -38,7 +45,11 @@ MeshData createTorusKnotInternal({double radius: 20.0, double tube: 4.0, int seg
       cx = tube * Math.cos(v); // TODO: Hack: Negating it so it faces outside.
       cy = tube * Math.sin(v);
 
-      vertices.addAll([p1.x + cx * n.x + cy * bitan.x, p1.y + cx * n.y + cy * bitan.y, p1.z + cx * n.z + cy * bitan.z]);
+      vertices.addAll([
+        p1.x + cx * n.x + cy * bitan.x,
+        p1.y + cx * n.y + cy * bitan.y,
+        p1.z + cx * n.z + cy * bitan.z
+      ]);
 
       grid[i][j] = (vertices.length ~/ 3) - 1;
     }
@@ -80,10 +91,14 @@ MeshData createTorusKnotInternal({double radius: 20.0, double tube: 4.0, int seg
     }
   }
 
-  return new MeshData(vertices: vertices, textureCoords: uvs, vertexIndices: indices);
+  return new MeshData()
+    ..vertices = vertices
+    ..textureCoords = uvs
+    ..vertexIndices = indices;
 }
 
-Vector getTorusKnotPos(double u, int in_q, int in_p, double radius, double heightScale, Vector vec) {
+Vector getTorusKnotPos(double u, int in_q, int in_p, double radius,
+    double heightScale, Vector vec) {
   double cu = Math.cos(u);
   double su = Math.sin(u);
   double quOverP = in_q / in_p * u;

@@ -18,7 +18,7 @@ class Utils {
     return texture;
   }
 */
-  
+
   static HTML.CanvasElement createCanvas(
       HTML.CanvasElement canvas, callback(HTML.CanvasRenderingContext2D ctx),
       [int size = 512]) {
@@ -51,7 +51,7 @@ class Utils {
     });
   }
 
-  static Texture createParticleTexture([String name= "Utils::Particles"]) {
+  static Texture createParticleTexture([String name = "Utils::Particles"]) {
     return new CanvasTexture(name, createParticleCanvas());
   }
 
@@ -98,17 +98,16 @@ class Utils {
     List<double> textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
 
     List<int> vertexIndices = [0, 1, 2, 0, 2, 3];
-    return new Mesh(new MeshData(
-        vertices: verts,
-        textureCoords: textureCoords,
-        vertexIndices: vertexIndices), mat);
+    return new Mesh(new MeshData()
+      ..vertices = verts
+      ..textureCoords = textureCoords
+      ..vertexIndices = vertexIndices, mat);
   }
 
   static Mesh MakeSkycube(Texture cubeTexture) {
-    Material mat  = new Material()..SetUniform(uTextureCubeSampler, cubeTexture);
+    Material mat = new Material()..SetUniform(uTextureCubeSampler, cubeTexture);
     MeshData md = createCubeInternal()..multiplyVertices(512);
     return new Mesh(md, mat);
-   
   }
 
   /*
@@ -191,22 +190,21 @@ class Utils {
   } 
    */
 
-  
   static Mesh MakeParticles(int numPoints, [int dimension = 100]) {
     return MakePointSprites(numPoints, createParticleTexture(), dimension);
   }
-  
 
   static int id = 1;
-  
-  static Mesh MakePointSprites(int numPoints, Texture texture, [int dimension = 500]) {
+
+  static Mesh MakePointSprites(int numPoints, Texture texture,
+      [int dimension = 500]) {
     // TODO: make this asynchronous (async/await?)
     Math.Random rand = new Math.Random();
     Float32List vertices = new Float32List(numPoints * 3);
     for (var i = 0; i < vertices.length; i++) {
       vertices[i] = (rand.nextDouble() - 0.5) * dimension;
     }
-    MeshData md = new MeshData(vertices: vertices);
+    MeshData md = new MeshData()..vertices = vertices;
 
     Material mat = new Material()
       ..SetUniform(uTextureSampler, texture)

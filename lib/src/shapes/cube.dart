@@ -1,6 +1,13 @@
 part of chronosgl;
 
-MeshData createCubeInternal({double x: 1.0, double y: 1.0, double z: 1.0, double uMin: 0.0, double uMax: 1.0, double vMin: 0.0, double vMax: 1.0}) {
+MeshData createCubeInternal(
+    {double x: 1.0,
+    double y: 1.0,
+    double z: 1.0,
+    double uMin: 0.0,
+    double uMax: 1.0,
+    double vMin: 0.0,
+    double vMax: 1.0}) {
   List<double> vertices = [
     // Front face
     -x,
@@ -272,5 +279,9 @@ MeshData createCubeInternal({double x: 1.0, double y: 1.0, double z: 1.0, double
     23 // Left face
   ];
 
-  return new MeshData(vertices: vertices, normals: normals, textureCoords: uvs, vertexIndices: vertIndices);
+  return new MeshData()
+    ..vertices = vertices
+    ..normals = normals
+    ..textureCoords = uvs
+    ..vertexIndices = vertIndices;
 }

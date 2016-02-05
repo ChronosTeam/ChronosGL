@@ -54,7 +54,9 @@ Mesh getRocket(Texture tw) {
     normals[i] = rand.nextDouble() - 0.5;
   }
 
-  MeshData md = new MeshData(vertices: vertices, normals: normals);
+  MeshData md = new MeshData()
+    ..vertices = vertices
+    ..normals = normals;
   Material mat = new Material()
     ..SetUniform(uTextureSampler, tw)
     ..SetUniform(uColor, new Vector(1.0, 0.0, 0.0))
@@ -74,12 +76,13 @@ void main() {
     //orbit.setPosFromSpherical(15.0, time*0.001, time*0.0005);
     orbit.azimuth += 0.001;
   });
-  ShaderProgram programSprites = chronosGL.createProgram(createPointSpritesShader());
+  ShaderProgram programSprites =
+      chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
-  ShaderProgram pssp = chronosGL.createProgram(createFireWorksShader());  
+  ShaderProgram pssp = chronosGL.createProgram(createFireWorksShader());
   pssp.add(getRocket(Utils.createParticleTexture("fireworks")));
-  
+
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });

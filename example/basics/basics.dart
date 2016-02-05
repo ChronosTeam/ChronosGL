@@ -23,7 +23,7 @@ void main() {
     ..SetUniform(uColor, new Vector(1, 0, 0));
   ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
 
-  Mesh ico = new Mesh(Shapes.createIcosahedron(3), matWood)..setPos(0, 0, 0);
+  Mesh ico = new Mesh(Shapes.Icosahedron(3), matWood)..setPos(0, 0, 0);
   programBasic.add(ico);
 
   Material matGradient = new Material()..SetUniform(uTextureSampler, gradient);

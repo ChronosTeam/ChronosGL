@@ -58,6 +58,8 @@ MeshData createCylinderInternal(
     vertIndices.addAll([p - 1, 3, p - 2]);
   }
 
-  return new MeshData(
-      vertices: vertices, textureCoords: uvs, vertexIndices: vertIndices);
+  return new MeshData()
+    ..vertices = vertices
+    ..textureCoords = uvs
+    ..vertexIndices = vertIndices;
 }

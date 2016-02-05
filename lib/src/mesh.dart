@@ -48,21 +48,20 @@ class Mesh extends Node {
   Mesh(MeshData meshData, this.material, {this.drawPoints: false}) {
     if (!meshData.isOptimized) meshData.optimize();
     gl = ChronosGL.globalGL;
-    assert(meshData.vertices != null);
+    print ("@@@@@@@@@ ${meshData.vertices}");
+    assert(meshData.vertices.length != 0);
     AddBuffer(aVertexPosition, meshData.vertices);
-    if (meshData.colors != null) {
+    
+    if (meshData.colors.length != 0) {
       AddBuffer(aColors, meshData.colors);
     }
-    if (meshData.textureCoords != null) {
+    if (meshData.textureCoords != 0) {
       AddBuffer(aTextureCoordinates, meshData.textureCoords);
     }
-    if (meshData.normals != null) {
+    if (meshData.normals.length != 0) {
       AddBuffer(aNormal, meshData.normals);
-      _buffers[aNormal] =
-          CreateAndInitializeArrayBufferFloat32(gl, meshData.normals);
     }
-
-    if (meshData.binormals != null) {
+    if (meshData.binormals.length != 0) {
       AddBuffer(aBinormal, meshData.binormals);
     }
 
@@ -102,7 +101,6 @@ class Mesh extends Node {
 
     material.RenderingInit(gl);
     bindBuffers(program);
-    print ("@@@@@@@@@ ${mvMatrix.array}");
     Matrix3 normMatrix = new Matrix3.fromM4(mvMatrix);
     normMatrix.invert();
     normMatrix.transpose();

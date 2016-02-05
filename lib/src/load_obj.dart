@@ -16,8 +16,8 @@ Future<MeshData> loadObj(String url) {
 }
 
 MeshData doLoadObj(String text) {
-  MeshData endResult = new MeshData.empty();
-  MeshData rawData = new MeshData.empty();
+  MeshData endResult = new MeshData();
+  MeshData rawData = new MeshData();
 
   Map<String, int> facemap = new Map<String, int>();
   int index = 0;

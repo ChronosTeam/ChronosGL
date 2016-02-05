@@ -12,7 +12,7 @@ void main() {
     orbit.azimuth += 0.001;
   });
 
-  MeshData sphere = Shapes.createIcosahedron();
+  MeshData sphere = Shapes.Icosahedron();
   Material headMat = new Material()
     ..SetUniform(uColor, new Vector(0.94, 0.72, 0.63));
   Mesh head = new Mesh(sphere, headMat);
