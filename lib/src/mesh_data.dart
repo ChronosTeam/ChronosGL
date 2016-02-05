@@ -37,11 +37,6 @@ class MeshData {
     isOptimized = true;
   }
 
-  Mesh createMesh(Material m) {
-    optimize();
-    return new Mesh(this, m);
-  }
-  
   void generateEmptyNormals() {
     if( normals == null || normals.length != vertices.length) {
       normals = new List<double>.generate(vertices.length, (idx) => 0.0);
@@ -50,6 +45,7 @@ class MeshData {
   }
   
   Vector temp = new Vector();
+  
   bool normalFromPoints(Vector a, Vector b, Vector c, Vector normal) {
 
     temp.set(b).subtract(a);
@@ -74,9 +70,10 @@ class MeshData {
   Vector tempb = new Vector();
   Vector tempc = new Vector();
   Vector tempd = new Vector();
+  
   void generateNormalsAssumingTriangleMode() {
     if( normals == null || normals.length != vertices.length) {
-      normals = new Float32List(vertices.length);
+      normals = new List<double>(vertices.length);
     }
     for (int i = 0; i < vertexIndices.length; i+=3) {
       setVector( tempa, i+0);

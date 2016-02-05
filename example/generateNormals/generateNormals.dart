@@ -15,14 +15,14 @@ void main() {
 
   loadObj("../ct_logo.obj").then((MeshData ctLogo) {
     mymd.add(ctLogo);
-    mymd.add(chronosGL.shapes.createCylinder(1.0, 2.0, 16));
-    mymd.add(chronosGL.shapes.createCube());
+    mymd.add(Shapes.Cylinder(1.0, 1.0, 2.0, 16));
+    mymd.add(Shapes.Cube());
     Material mat = new Material();
     for (var i = 0; i < mymd.length; i++) {
       MeshData md = mymd[i];
       // the logo is missing normals so we generate them here, but wait, why are the colors all wrong ?
       md.generateNormalsAssumingTriangleMode();
-      Mesh mesh = md.createMesh(mat);
+      Mesh mesh = new Mesh(md, mat);
       if (md == ctLogo) {
         mesh.rotX(3.14 / 2);
         mesh.rotZ(3.14);
@@ -37,7 +37,7 @@ void main() {
       md
         ..deDeuplicateIndices()
         ..generateNormalsAssumingTriangleMode();
-      Mesh mesh = md.createMesh(mat);
+      Mesh mesh = new Mesh(md, mat);
       if (md == ctLogo) {
         mesh.rotX(3.14 / 2);
         mesh.rotZ(3.14);

@@ -42,7 +42,7 @@ void main() {
   chronosGL.addAnimatable('orbitCam', orbit);
 
   Material mat = new Material();
-  Mesh m = chronosGL.shapes.createTorusKnot(radius: 12.0).createMesh(mat);
+  Mesh m = new Mesh(Shapes.TorusKnot(radius: 12.0), mat);
 
   int count = 1000;
   Float32List translations = new Float32List(count * 3);

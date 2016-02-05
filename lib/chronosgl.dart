@@ -157,7 +157,6 @@ class ChronosGL {
   int _lastWidth = 0;
   int _lastHeight = 0;
 
-  Shapes shapes = new Shapes();
   List<RenderingPhase> _renderPhases = [];
 
   ChronosGL(dynamic canvasOrID,

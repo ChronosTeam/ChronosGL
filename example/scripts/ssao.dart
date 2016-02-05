@@ -44,7 +44,7 @@ void main() {
   loadObj("ct_logo.obj").then((MeshData md) {
     Material mat = new Material()
       ..SetUniform(uColor, new Vector(0.9, 0.9, 0.9));
-    Mesh mesh = md.createMesh(mat)
+    Mesh mesh = new Mesh(md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
     Node n = new Node(mesh)

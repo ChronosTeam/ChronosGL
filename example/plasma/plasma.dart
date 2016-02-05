@@ -18,11 +18,11 @@ void main() {
   chronosGL.addAnimatable('orbitCam', orbit);
 
   Material mat = new Material();
-  MeshData md = chronosGL.shapes.createCube();
+  MeshData md = Shapes.Cube();
   for (int i = 0; i < md.vertices.length; i++) {
     md.vertices[i] = md.vertices[i] * 10;
   }
-  Mesh m = md.createMesh(mat);
+  Mesh m = new Mesh(md, mat);
   m.setPos(0, 0, 0);
   m.lookUp(1.0);
   m.lookLeft(0.7);

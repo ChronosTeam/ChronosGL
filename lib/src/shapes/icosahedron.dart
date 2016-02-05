@@ -1,7 +1,7 @@
 part of chronosgl;
 
-class Icosahedron extends MeshData {
-  Icosahedron([int subdivisions = 4]) : super.empty() {
+class IcosahedronMeshData extends MeshData {
+  IcosahedronMeshData([int subdivisions = 4]) : super.empty() {
     MeshData tempMeshData = new MeshData.empty();
 
     // create 12 vertices of a Icosahedron

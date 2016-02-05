@@ -24,7 +24,7 @@ void main() {
     ..SetUniform(uColor, new Vector())
     ..blend = true
     ..depthTest = false;
-  Mesh m = chronosGL.shapes.createTorusKnot().createMesh(mat);
+  Mesh m = new Mesh(Shapes.TorusKnot(), mat);
 
   programBasic.add(m);
   chronosGL.addAnimateCallback('changeTexture', (double elapsed, double time) {

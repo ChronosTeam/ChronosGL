@@ -19,11 +19,11 @@ void main() {
   Material mat = new Material()
     ..SetUniform(uTextureSampler, blockTex)
     ..SetUniform(uColor, new Vector());
-  Mesh m1 = chronosGL.shapes.createTorusKnot().createMesh(mat)
+  Mesh m1 = new Mesh(Shapes.TorusKnot(), mat)
     ..setPos(-50, 0, 0);
   programBasic.add(m1);
   Material matDummy = new Material();
-  Mesh m2 = chronosGL.shapes.createTorusKnot().createMesh(matDummy)
+  Mesh m2 = new Mesh(Shapes.TorusKnot(), matDummy)
     ..setPos(50, 0, 0);
   perlinNoise.add(m2);
 

@@ -49,8 +49,8 @@ void main() {
   // Sky Sphere
   ShaderProgram skyprg = chronosGL
       .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
-  MeshData md = chronosGL.shapes.createIcosahedron(3)..multiplyVertices(100);
-  Mesh m = md.createMesh(mat);
+  MeshData md = Shapes.createIcosahedron(3)..multiplyVertices(100);
+  Mesh m = new Mesh(md, mat);
   skyprg.add(m);
 
   ShaderProgram prg = chronosGL.createProgram(createSkyScraperShader());
@@ -58,7 +58,7 @@ void main() {
   for (int x = -10; x < 10; x += 4) {
     for (int z = -10; z < 10; z += 4) {
       // 0.01 and 0.99 is to remove some artifacts on the edges
-      MeshData md = chronosGL.shapes.createCube(
+      MeshData md = Shapes.Cube(
           x: 1.0,
           y: 2.0,
           z: 1.0,
@@ -71,7 +71,7 @@ void main() {
       md.textureCoords[20] = 0.01;
       md.textureCoords[22] = 0.01;
       md.textureCoords[23] = 0.01;
-      Mesh m = md.createMesh(mat)
+      Mesh m = new Mesh(md, mat)
       ..setPos(x, 0, z);
       prg.add(m);
     }

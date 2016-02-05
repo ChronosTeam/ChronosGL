@@ -9,7 +9,7 @@ void main() {
   Material mat = new Material();
 
   loadObj("../ct_logo.obj").then((MeshData md) {
-    Mesh mesh = md.createMesh(mat)
+    Mesh mesh = new Mesh(md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
     Node n = new Node(mesh);

@@ -15,42 +15,40 @@ void main() {
   Texture gradient = new ImageTexture("../gradient.jpg");
   Texture trans = new ImageTexture("../transparent.png");
   Texture wood = new ImageTexture("../wood.jpg");
-  
+
   //ShaderProgram perlinNoise = chronosGL.createProgram(createPerlinNoiseColorShader(), true);
 
   Material matWood = new Material()
     ..SetUniform(uTextureSampler, wood)
     ..SetUniform(uColor, new Vector(1, 0, 0));
   ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
-  
-  Mesh ico = chronosGL.shapes.createIcosahedron(3).createMesh(matWood)
-    ..setPos(0, 0, 0);
+
+  Mesh ico = new Mesh(Shapes.createIcosahedron(3), matWood)..setPos(0, 0, 0);
   programBasic.add(ico);
 
-  Material matGradient = new Material()
-    ..SetUniform(uTextureSampler, gradient);
+  Material matGradient = new Material()..SetUniform(uTextureSampler, gradient);
 
-  Mesh cube = chronosGL.shapes.createCube().createMesh(matGradient)
-    ..setPos(-5, 0, -5);
+  Mesh cube = new Mesh(Shapes.Cube(), matGradient)..setPos(-5, 0, -5);
   programBasic.add(cube);
 
   Material matTrans = new Material()
     ..SetUniform(uTextureSampler, trans)
     ..blend = true;
-  Mesh cyl = chronosGL.shapes.createCylinder(3.0, 2.0, 32).createMesh(matTrans)
+  Mesh cyl = new Mesh(Shapes.Cylinder(3.0, 6.0, 2.0, 32), matTrans)
     ..setPos(5, 0, -5);
   programBasic.add(cyl);
 
-  Mesh quad = chronosGL.shapes.createQuad(2).createMesh(matTrans)
+  Mesh quad = new Mesh(Shapes.Quad(2), matTrans)
     //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
     ..setPos(-5, 0, 5);
   programBasic.add(quad);
 
-  Mesh torus = chronosGL.shapes
-      .createTorusKnot(radius: 1.0, tube: 0.4)
-      .createMesh(matGradient)..setPos(5, 0, 5);
+  Mesh torus =
+      new Mesh(Shapes.TorusKnot(radius: 1.0, tube: 0.4), matGradient)
+        ..setPos(5, 0, 5);
   programBasic.add(torus);
-  ShaderProgram programSprites = chronosGL.createProgram(createPointSpritesShader());
+  ShaderProgram programSprites =
+      chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {

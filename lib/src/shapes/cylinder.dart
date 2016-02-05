@@ -3,7 +3,8 @@ part of chronosgl;
 // single color cylinder
 // uv mapping is weird to help with debugging
 
-MeshData createCylinderInternal(double radius, double height, int radialSubdivisions) {
+MeshData createCylinderInternal(
+    double radiusTop, double radiusBot, double height, int radialSubdivisions) {
   double halfHeight = height / 2;
 
   List<double> vertices = new List<double>();
@@ -20,12 +21,14 @@ MeshData createCylinderInternal(double radius, double height, int radialSubdivis
   for (int i = 0; i < radialSubdivisions; i++) {
     double u = i / radialSubdivisions;
 
-    double xpos = radius * Math.sin(u * Math.PI * 2);
-    double zpos = radius * Math.cos(u * Math.PI * 2);
+    double xposTop = radiusTop * Math.sin(u * Math.PI * 2);
+    double zposTop = radiusTop * Math.cos(u * Math.PI * 2);
+    double xposBot = radiusBot * Math.sin(u * Math.PI * 2);
+    double zposBot = radiusBot * Math.cos(u * Math.PI * 2);
 
-    vertices.addAll([xpos, halfHeight, zpos]);
+    vertices.addAll([xposTop, halfHeight, zposTop]);
     uvs.addAll([u, u]);
-    vertices.addAll([xpos, -halfHeight, zpos]);
+    vertices.addAll([xposBot, -halfHeight, zposBot]);
     uvs.addAll([1.0, u]);
 
     if (i > 0) {
@@ -55,5 +58,6 @@ MeshData createCylinderInternal(double radius, double height, int radialSubdivis
     vertIndices.addAll([p - 1, 3, p - 2]);
   }
 
-  return new MeshData(vertices: vertices, textureCoords: uvs, vertexIndices: vertIndices);
+  return new MeshData(
+      vertices: vertices, textureCoords: uvs, vertexIndices: vertIndices);
 }

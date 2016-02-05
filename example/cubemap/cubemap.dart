@@ -12,7 +12,7 @@ void main() {
   programCM.addFollowCameraObject(sky);
   
   Material mat = new Material()..SetUniform(uTextureCubeSampler, cubeTex);
-  MeshData md = chronosGL.shapes.createCube()..multiplyVertices(2);
+  MeshData md = Shapes.Cube()..multiplyVertices(2);
   programCM.add(new Mesh(md, mat));
 
   

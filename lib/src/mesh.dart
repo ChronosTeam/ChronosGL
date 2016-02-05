@@ -102,6 +102,7 @@ class Mesh extends Node {
 
     material.RenderingInit(gl);
     bindBuffers(program);
+    print ("@@@@@@@@@ ${mvMatrix.array}");
     Matrix3 normMatrix = new Matrix3.fromM4(mvMatrix);
     normMatrix.invert();
     normMatrix.transpose();

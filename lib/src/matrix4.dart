@@ -24,7 +24,8 @@ class Matrix3 {
 
   void invert() {
     Float32List m = array;
-    double a11 = m[8] * m[5] - m[5] * m[7];
+    // matric of minors
+    double a11 = m[8] * m[4] - m[5] * m[7];
     double a21 = -m[8] * m[1] + m[2] * m[7];
     double a31 = m[5] * m[1] - m[2] * m[4];
     double a12 = -m[8] * m[3] + m[5] * m[6];
