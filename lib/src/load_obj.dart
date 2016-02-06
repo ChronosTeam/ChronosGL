@@ -16,7 +16,7 @@ Future<MeshData> loadObj(String url) {
 }
 
 MeshData doLoadObj(String text) {
-  MeshData endResult = new MeshData();
+  MeshData endResult = new MeshData()..vertexIndices=[];
   MeshData rawData = new MeshData();
 
   Map<String, int> facemap = new Map<String, int>();

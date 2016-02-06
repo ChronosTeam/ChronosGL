@@ -2,7 +2,7 @@ part of chronosgl;
 
 class IcosahedronMeshData extends MeshData {
   IcosahedronMeshData([int subdivisions = 4]) : super() {
-    MeshData tempMeshData = new MeshData();
+    MeshData tempMeshData = new MeshData()..vertexIndices=[];
 
     // create 12 vertices of a Icosahedron
 
@@ -58,7 +58,7 @@ class IcosahedronMeshData extends MeshData {
     // subdivide faces to refine the triangles
 
     for (int i = 0; i < subdivisions; i++) {
-      MeshData tempMeshData2 = new MeshData();
+      MeshData tempMeshData2 = new MeshData()..vertexIndices=[];
 
       for (int i = 0, l = tempMeshData.vertexIndices.length ~/ 3; i < l; i++) {
 
@@ -83,7 +83,7 @@ class IcosahedronMeshData extends MeshData {
     vertexIndices = tempMeshData.vertexIndices;
     textureCoords = tempMeshData.textureCoords;
 
-    tempMeshData = new MeshData();
+    tempMeshData = new MeshData()..vertexIndices=[];
 
     // we need to point vertexIndices to unique vertex and textureCoord combinations... if only OpenGL supported the obj file format natively...
     for (int i = 0, l = vertexIndices.length; i < l; i++) {

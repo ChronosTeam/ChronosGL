@@ -48,7 +48,6 @@ class Mesh extends Node {
   Mesh(MeshData meshData, this.material, {this.drawPoints: false}) {
     if (!meshData.isOptimized) meshData.optimize();
     gl = ChronosGL.globalGL;
-    print ("@@@@@@@@@ ${meshData.vertices}");
     assert(meshData.vertices.length != 0);
     AddBuffer(aVertexPosition, meshData.vertices);
     

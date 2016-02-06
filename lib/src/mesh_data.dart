@@ -1,12 +1,14 @@
 part of chronosgl;
 
 class MeshData {
+  String name = "";
   List<double> vertices = [];
   List<double> colors = [];
   List<double> normals = [];
   List<double> binormals = [];
   List<double> textureCoords = [];
-  List<int> vertexIndices = [];
+  // if null vertexindices are not used
+  List<int> vertexIndices = null;
   bool isOptimized = false;
 
   MeshData();
@@ -25,7 +27,7 @@ class MeshData {
     if (!(binormals is Float32List)) binormals =
         new Float32List.fromList(binormals);
 
-    if (!(vertexIndices is TypedData)) {
+    if (vertexIndices != null && !(vertexIndices is TypedData)) {
       vertexIndices = ChronosGL.useElementIndexUint
           ? new Uint32List.fromList(vertexIndices)
           : new Uint16List.fromList(vertexIndices);
