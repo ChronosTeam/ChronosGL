@@ -48,22 +48,27 @@ Math.Random rand = new Math.Random();
 Mesh getRocket(Texture tw) {
   int numPoints = 200;
 
-  Float32List vertices = new Float32List(numPoints * 3);
-  Float32List normals = new Float32List(numPoints * 3);
-  for (var i = 0; i < normals.length; i++) {
-    normals[i] = rand.nextDouble() - 0.5;
+  List<Vector> vertices = [];
+  List<Vector> normals = [];
+  for (var i = 0; i < numPoints; i++) {
+    vertices.add(new Vector());
+    normals.add(new Vector(rand.nextDouble() - 0.5, rand.nextDouble() - 0.5,
+        rand.nextDouble() - 0.5));
   }
 
   MeshData md = new MeshData()
-    ..vertices = vertices
-    ..normals = normals;
+    ..EnableAttribute(aNormal)
+    ..AddFaces1(numPoints)
+    ..AddVertices(vertices)
+    ..AddAttributesVector(aNormal, normals);
+
   Material mat = new Material()
     ..SetUniform(uTextureSampler, tw)
     ..SetUniform(uColor, new Vector(1.0, 0.0, 0.0))
     ..blend = true
     ..depthWrite = false
     ..blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;
-  return new Mesh(md, mat, drawPoints: true);
+  return new Mesh(md, mat);
 }
 
 void main() {

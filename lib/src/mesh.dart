@@ -28,13 +28,12 @@ class Mesh extends Node {
   WEBGL.RenderingContext gl;
   bool debug = false;
 
-  bool drawPoints;
-
   Map<String, WEBGL.Buffer> _buffers = {};
   WEBGL.Buffer _indexBuffer = null;
   int numItems;
   int numInstances = 0;
   Material material;
+  MeshData _meshData;
 
   void AddBuffer(String canonical, Float32List data) {
     _buffers[canonical] = CreateAndInitializeArrayBufferFloat32(gl, data);
@@ -45,36 +44,30 @@ class Mesh extends Node {
     gl.bufferDataTyped(WEBGL.ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
   }
 
-  Mesh(MeshData meshData, this.material, {this.drawPoints: false}) {
-    if (!meshData.isOptimized) meshData.optimize();
+  Mesh(this._meshData, this.material) {
+    //if (!meshData.isOptimized) meshData.optimize();
+    _meshData.SanityCheck();
     gl = ChronosGL.globalGL;
-    assert(meshData.vertices.length != 0);
-    AddBuffer(aVertexPosition, meshData.vertices);
-    
-    if (meshData.colors.length != 0) {
-      AddBuffer(aColors, meshData.colors);
-    }
-    if (meshData.textureCoords != 0) {
-      AddBuffer(aTextureCoordinates, meshData.textureCoords);
-    }
-    if (meshData.normals.length != 0) {
-      AddBuffer(aNormal, meshData.normals);
-    }
-    if (meshData.binormals.length != 0) {
-      AddBuffer(aBinormal, meshData.binormals);
+    AddBuffer(
+        aVertexPosition, new Float32List.fromList(_meshData.GetVertexData()));
+
+    for (String canonical in _meshData.GetAttributes()) {
+      AddBuffer(canonical,
+          new Float32List.fromList(_meshData.GetAttributeData(canonical)));
     }
 
-    if (meshData.vertexIndices != null) {
-      numItems = meshData.vertexIndices.length;
+    List<int> indices = _meshData.GetVertexIndices();
+    if (indices != null) {
+      numItems = indices.length;
       if (ChronosGL.useElementIndexUint) {
         _indexBuffer = CreateAndInitializeArrayElementBufferUint32(
-            gl, meshData.vertexIndices);
+            gl, new Uint32List.fromList(indices));
       } else {
         _indexBuffer = CreateAndInitializeArrayElementBufferUint16(
-            gl, meshData.vertexIndices);
+            gl, new Uint16List.fromList(indices));
       }
     } else {
-      numItems = meshData.vertices.length ~/ 3;
+      numItems = _meshData.GetVertexData().length ~/ 3;
     }
   }
 
@@ -90,10 +83,8 @@ class Mesh extends Node {
   // this gets called by Node.draw()
   void draw2(ShaderProgram program, ShaderProgramInputs inputs) {
     if (debug) {
-      print("Mesh: $name");
+      print("Mesh: $name items ${numItems}");
       //print(program.shaderObject.textureSamplerUniform);
-      print(drawPoints);
-      print(numItems);
       print(mvMatrix.array);
       print('-----');
     }
@@ -108,7 +99,8 @@ class Mesh extends Node {
     inputs.SetUniformVal(uModelViewMatrix, mvMatrix);
     inputs.SetUniformVal(uNormalMatrix, normMatrix);
     program.MaybeSetUniformsBulk(inputs);
-    program.Draw(numInstances, numItems, drawPoints, _indexBuffer != null);
+    program.Draw(
+        numInstances, numItems, _meshData.IsPoints(), _indexBuffer != null);
 
     material.RenderingExit(gl);
   }

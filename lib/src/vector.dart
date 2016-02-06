@@ -2,7 +2,10 @@ part of chronosmath;
 
 class Vector2 {
   Float32List array;
-
+  
+  double get x => array[0];
+  double get y => array[1];
+   
   Vector2(num x, num y) {
     array = new Float32List(2);
     array[0] = x.toDouble();

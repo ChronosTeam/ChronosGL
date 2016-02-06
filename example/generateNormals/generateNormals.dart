@@ -18,6 +18,7 @@ void main() {
     mymd.add(Shapes.Cylinder(1.0, 1.0, 2.0, 16));
     mymd.add(Shapes.Cube());
     Material mat = new Material();
+    // No deduping 
     for (var i = 0; i < mymd.length; i++) {
       MeshData md = mymd[i];
       // the logo is missing normals so we generate them here, but wait, why are the colors all wrong ?
@@ -31,11 +32,12 @@ void main() {
       prg.add(mesh);
     }
 
+    // with deduping (sorry -this is currently not necessary because we de-dup most things implicitly)
     for (var i = 0; i < mymd.length; i++) {
       MeshData md = mymd[i];
       // because some vertices were reused for different faces, so we need to deduplicate the indices
       md
-        ..deDeuplicateIndices()
+        //..deDeuplicateIndices()
         ..generateNormalsAssumingTriangleMode();
       Mesh mesh = new Mesh(md, mat);
       if (md == ctLogo) {

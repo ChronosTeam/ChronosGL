@@ -14,8 +14,7 @@ void main() {
   //FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
   //chronosGL.addAnimatable('flyingCamera', fc);
 
-  MeshData cubeMeshData = Shapes.Cube();
-  cubeMeshData.multiplyVertices(2);
+  MeshData cubeMeshData = Shapes.Cube(x:2.0, y:2.0, z:2.0);
 
   Material cubeMat = new Material();
   Mesh cubeMesh = new Mesh(cubeMeshData, cubeMat)

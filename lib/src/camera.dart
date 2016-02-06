@@ -247,6 +247,7 @@ class FPSCamera extends Animatable {
   }
 }
 
+
 // this class lets a Camera fly through a TorusKnot like through a tunnel
 class TorusKnotCamera extends Animatable {
   Camera camera;
@@ -274,3 +275,4 @@ class TorusKnotCamera extends Animatable {
     camera.lookAt(p2);
   }
 }
+ 

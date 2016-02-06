@@ -18,7 +18,7 @@ void main() {
   Material mat = new Material()
     ..SetUniform(uTexture2Sampler, fb.depthTexture)
     ..SetUniform(uTextureSampler, fb.colorTexture);
-  prg2.add(Utils.createQuad(mat, 1));
+  prg2.add(new Mesh(Shapes.Quad(1), mat));
 
   RenderingPhase phase1only = new RenderingPhase(chronosGL.gl, null, true);
   phase1only.AddShaderProgram(prg1);

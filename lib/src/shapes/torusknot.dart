@@ -11,10 +11,11 @@ MeshData createTorusKnotInternal(
     int p: 2,
     int q: 3,
     double heightScale: 1.0}) {
-  List<double> vertices = new List<double>();
-  List<double> uvs = new List<double>();
-  List<double> normals = new List<double>();
-  List<int> indices = new List<int>();
+  MeshData md = new MeshData();
+  md.name = "torusknot";
+  md.EnableAttribute(aTextureCoordinates);
+
+  List<Vector> vertices = [];
 
   Vector tang = new Vector();
   Vector n = new Vector();
@@ -45,13 +46,10 @@ MeshData createTorusKnotInternal(
       cx = tube * Math.cos(v); // TODO: Hack: Negating it so it faces outside.
       cy = tube * Math.sin(v);
 
-      vertices.addAll([
-        p1.x + cx * n.x + cy * bitan.x,
-        p1.y + cx * n.y + cy * bitan.y,
-        p1.z + cx * n.z + cy * bitan.z
-      ]);
+      vertices.add(new Vector(p1.x + cx * n.x + cy * bitan.x,
+          p1.y + cx * n.y + cy * bitan.y, p1.z + cx * n.z + cy * bitan.z));
 
-      grid[i][j] = (vertices.length ~/ 3) - 1;
+      grid[i][j] = vertices.length - 1;
     }
   }
 
@@ -64,23 +62,25 @@ MeshData createTorusKnotInternal(
       int c = grid[ip][jp];
       int d = grid[i][jp];
 
-      List<double> uva = [i / segmentsR, j / segmentsT];
-      List<double> uvb = [(i + 1) / segmentsR, j / segmentsT];
-      List<double> uvc = [(i + 1) / segmentsR, (j + 1) / segmentsT];
-      List<double> uvd = [i / segmentsR, (j + 1) / segmentsT];
+      Vector2 uva = new Vector2(i / segmentsR, j / segmentsT);
+      Vector2 uvb = new Vector2((i + 1) / segmentsR, j / segmentsT);
+      Vector2 uvc = new Vector2((i + 1) / segmentsR, (j + 1) / segmentsT);
+      Vector2 uvd = new Vector2(i / segmentsR, (j + 1) / segmentsT);
 
       //uva[0] = 0; uva[1] = 0;
       //uvb[0] = 1; uvb[1] = 0;
       //uvc[0] = 1; uvc[1] = 1;
       //uvd[0] = 0; uvd[1] = 1;
+      /*
       uva[0] = 0.0;
       uvb[0] = 1.0;
       uvc[0] = 1.0;
       uvd[0] = 0.0;
-
-      indices.addAll([a, b, c]);
-      //obj.i.push( d, c, b );
-      indices.addAll([a, c, d]);
+*/
+      md.AddFaces4(1);
+      md.AddVertices([vertices[a], vertices[b], vertices[c], vertices[d]]);
+      md.AddAttributesVector2(aTextureCoordinates, [uva, uvb, uvc, uvd]);
+      /*
       uvs.addAll(uva);
       uvs.addAll(uvb);
       uvs.addAll(uvc);
@@ -88,13 +88,11 @@ MeshData createTorusKnotInternal(
       uvs.addAll(uvd);
       uvs.addAll(uvc);
       uvs.addAll(uvb);
+       */
     }
   }
 
-  return new MeshData()
-    ..vertices = vertices
-    ..textureCoords = uvs
-    ..vertexIndices = indices;
+  return md;
 }
 
 Vector getTorusKnotPos(double u, int in_q, int in_p, double radius,

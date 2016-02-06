@@ -78,35 +78,9 @@ class Utils {
     }, d);
   }
 
-  // TODO: think about deprecating this
-  static Mesh createQuad(Material mat, int size) {
-    List<double> verts = [
-      -1.0 * size,
-      -1.0 * size,
-      0.0,
-      1.0 * size,
-      -1.0 * size,
-      0.0,
-      1.0 * size,
-      1.0 * size,
-      0.0,
-      -1.0 * size,
-      1.0 * size,
-      0.0
-    ];
-
-    List<double> textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
-
-    List<int> vertexIndices = [0, 1, 2, 0, 2, 3];
-    return new Mesh(new MeshData()
-      ..vertices = verts
-      ..textureCoords = textureCoords
-      ..vertexIndices = vertexIndices, mat);
-  }
-
   static Mesh MakeSkycube(Texture cubeTexture) {
     Material mat = new Material()..SetUniform(uTextureCubeSampler, cubeTexture);
-    MeshData md = createCubeInternal()..multiplyVertices(512);
+    MeshData md = Shapes.Cube(x:512.0, y:512.0, z:512.0);
     return new Mesh(md, mat);
   }
 
@@ -200,11 +174,16 @@ class Utils {
       [int dimension = 500]) {
     // TODO: make this asynchronous (async/await?)
     Math.Random rand = new Math.Random();
-    Float32List vertices = new Float32List(numPoints * 3);
-    for (var i = 0; i < vertices.length; i++) {
-      vertices[i] = (rand.nextDouble() - 0.5) * dimension;
+    List<Vector> vertices = [];
+    for (var i = 0; i < numPoints; i++) {
+      vertices.add(new Vector(
+          (rand.nextDouble() - 0.5) * dimension,
+          (rand.nextDouble() - 0.5) * dimension,
+          (rand.nextDouble() - 0.5) * dimension));
     }
-    MeshData md = new MeshData()..vertices = vertices;
+    MeshData md = new MeshData();
+    md.AddFaces1(numPoints);
+    md.AddVertices(vertices);
 
     Material mat = new Material()
       ..SetUniform(uTextureSampler, texture)
@@ -213,8 +192,7 @@ class Utils {
       ..depthWrite = false
       ..blend_dFactor = WEBGL.ONE_MINUS_SRC_COLOR;
     id++;
-    return new Mesh(md, mat, drawPoints: true)
-      ..name = 'point_sprites_mesh_' + id.toString();
+    return new Mesh(md, mat)..name = 'point_sprites_mesh_' + id.toString();
   }
 
   static Future<Object> loadFile(String url, [bool binary = false]) {

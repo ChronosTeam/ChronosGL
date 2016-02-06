@@ -43,6 +43,7 @@ const String aVertexPosition = "aVertexPosition";
 const String aTextureCoordinates = "aTextureCoordinates";
 const String aNormal = "aNormal";
 const String aBinormal = "aBinormal";
+const String aCenter = "aCenter";
 
 // Instancer
 const String iaRotatation = "iaRotation";
@@ -53,6 +54,7 @@ const String vTextureCoordinates = "vTextureCoordinates";
 const String vLightWeighting = "vLightWeighting";
 const String vNormal = "vNormal";
 const String vVertexPosition = "vVertexPosition";
+const String vCenter = "vCenter";
 
 const String uTransformationMatrix = "uTransformationMatrix";
 const String uModelViewMatrix = "uModelViewMatrix";
@@ -84,6 +86,8 @@ Map<String, ShaderVarDesc> _VarsDb = {
   aTextureCoordinates: new ShaderVarDesc("vec2", "texture uvs"),
   aNormal: new ShaderVarDesc("vec3", "vertex normals"),
   aBinormal: new ShaderVarDesc("vec3", "vertex binormals"),
+  aCenter: new ShaderVarDesc("vec4", "for wireframe"),
+  
   iaRotatation: new ShaderVarDesc("vec4", ""),
   iaTranslation: new ShaderVarDesc("vec3", ""),
 
@@ -93,7 +97,8 @@ Map<String, ShaderVarDesc> _VarsDb = {
   vLightWeighting: new ShaderVarDesc("vec3", ""),
   vNormal: new ShaderVarDesc("vec3", ""),
   vVertexPosition: new ShaderVarDesc("vec3", "vertex coordinates"),
-
+  vCenter: new ShaderVarDesc("vec4", "for wireframe"),
+  
   // uniform vars
   uTransformationMatrix: new ShaderVarDesc("mat4", ""),
   uModelViewMatrix: new ShaderVarDesc("mat4", ""),
@@ -386,7 +391,7 @@ class CoreProgram {
     if (debug) print(
         "[${name}] draw points: ${drawPoints} instances${numInstances}");
     if (!AllUniformsInitialized()) {
-      throw "uninitialized uniforms: ${UniformsUninitialized()}";
+      throw "${name}: uninitialized uniforms: ${UniformsUninitialized()}";
     }
     if (numInstances > 0) {
       if (drawPoints) {

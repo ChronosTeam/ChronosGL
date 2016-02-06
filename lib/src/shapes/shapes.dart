@@ -2,7 +2,7 @@ part of chronosgl;
 
 class Shapes {
   static MeshData Icosahedron([int subdivisions = 4]) {
-    return new IcosahedronMeshData(subdivisions);
+    return createIcosahedronInternal(subdivisions);
   }
 
   static MeshData Cube(
@@ -42,25 +42,26 @@ class Shapes {
   }
 
   static MeshData Quad(int size) {
-    List<double> verts = [
-      -1.0 * size,
-      -1.0 * size,
-      0.0,
-      1.0 * size,
-      -1.0 * size,
-      0.0,
-      1.0 * size,
-      1.0 * size,
-      0.0,
-      -1.0 * size,
-      1.0 * size,
-      0.0
+    MeshData md = new MeshData();
+    md.EnableAttribute(aTextureCoordinates);
+
+    List<Vector> vertices = [
+      new Vector(-1.0 * size, -1.0 * size, 0.0),
+      new Vector(1.0 * size, -1.0 * size, 0.0),
+      new Vector(1.0 * size, 1.0 * size, 0.0),
+      new Vector(-1.0 * size, 1.0 * size, 0.0)
     ];
-    List<double> textureCoords = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0];
-    List<int> vertexIndices = [0, 1, 2, 0, 2, 3];
-    return new MeshData()
-      ..vertices = verts
-      ..textureCoords = textureCoords
-      ..vertexIndices = vertexIndices;
+
+    List<Vector2> uvs = [
+      new Vector2(0.0, 0.0),
+      new Vector2(1.0, 0.0),
+      new Vector2(1.0, 1.0),
+      new Vector2(0.0, 1.0)
+    ];
+
+    md.AddFace4(0, 1, 2, 3);
+    md.AddVertices(vertices);
+    md.AddAttributesVector2(aTextureCoordinates, uvs);
+    return md;
   }
 }

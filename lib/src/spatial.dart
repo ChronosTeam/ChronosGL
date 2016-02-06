@@ -54,7 +54,13 @@ class Spatial {
     transform[Matrix4.POSY] = y;
     transform[Matrix4.POSZ] = z;
   }
-
+  /*
+  void scale(num x, num y, num z) {
+    transform[0] *= x;  
+    transform[5] *= x;  
+    transform[10] *= x;  
+  }*/
+  
   void addPos(num x, num y, num z) {
     translate(x, y, z); // alias
   }

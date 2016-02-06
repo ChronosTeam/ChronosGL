@@ -17,36 +17,49 @@ void main() {
   Texture wood = new ImageTexture("../wood.jpg");
 
   //ShaderProgram perlinNoise = chronosGL.createProgram(createPerlinNoiseColorShader(), true);
-
-  Material matWood = new Material()
-    ..SetUniform(uTextureSampler, wood)
-    ..SetUniform(uColor, new Vector(1, 0, 0));
   ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
 
-  Mesh ico = new Mesh(Shapes.Icosahedron(3), matWood)..setPos(0, 0, 0);
-  programBasic.add(ico);
+  final Material matWood = new Material()
+    ..SetUniform(uTextureSampler, wood)
+    ..SetUniform(uColor, new Vector(1, 0, 0));
 
-  Material matGradient = new Material()..SetUniform(uTextureSampler, gradient);
+  final Material matGradient = new Material()
+    ..SetUniform(uColor, new Vector(1, 0, 0))
+    ..SetUniform(uTextureSampler, gradient);
 
-  Mesh cube = new Mesh(Shapes.Cube(), matGradient)..setPos(-5, 0, -5);
-  programBasic.add(cube);
-
-  Material matTrans = new Material()
+  final Material matTrans = new Material()
     ..SetUniform(uTextureSampler, trans)
     ..blend = true;
-  Mesh cyl = new Mesh(Shapes.Cylinder(3.0, 6.0, 2.0, 32), matTrans)
-    ..setPos(5, 0, -5);
-  programBasic.add(cyl);
 
-  Mesh quad = new Mesh(Shapes.Quad(2), matTrans)
-    //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
-    ..setPos(-5, 0, 5);
-  programBasic.add(quad);
+  {
+    Mesh ico = new Mesh(Shapes.Icosahedron(3), matWood)..setPos(0, 0, 0);
+    programBasic.add(ico);
+  }
+  {
+    Mesh cube = new Mesh(Shapes.Cube(), matGradient)
+      ..setPos(-5, 0, -5)
+      ..name = "cube";
+    programBasic.add(cube);
+  }
 
-  Mesh torus =
-      new Mesh(Shapes.TorusKnot(radius: 1.0, tube: 0.4), matGradient)
-        ..setPos(5, 0, 5);
-  programBasic.add(torus);
+  {
+    Mesh cyl = new Mesh(Shapes.Cylinder(3.0, 6.0, 2.0, 32), matTrans)
+      ..setPos(5, 0, -5);
+    programBasic.add(cyl);
+  }
+  {
+    Mesh quad = new Mesh(Shapes.Quad(2), matTrans)
+      //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
+      ..setPos(-5, 0, 5)
+      ..name = "quad";
+    programBasic.add(quad);
+  }
+  {
+    Mesh torus = new Mesh(Shapes.TorusKnot(radius: 1.0, tube: 0.4), matGradient)
+      ..setPos(5, 0, 5);
+    programBasic.add(torus);
+  }
+
   ShaderProgram programSprites =
       chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));

@@ -12,7 +12,7 @@ void main() {
   programCM.addFollowCameraObject(sky);
   
   Material mat = new Material()..SetUniform(uTextureCubeSampler, cubeTex);
-  MeshData md = Shapes.Cube()..multiplyVertices(2);
+  MeshData md = Shapes.Cube(x:2.0, y:2.0, z:2.0);
   programCM.add(new Mesh(md, mat));
 
   

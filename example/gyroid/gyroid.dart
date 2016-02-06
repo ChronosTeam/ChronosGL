@@ -204,7 +204,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
   ShaderProgram program = chronosGL.createProgram(createSphericalGyroidShader());
   Material mat = new Material();
-  program.add(Utils.createQuad(mat, 1));
+  program.add(new Mesh(Shapes.Quad(1), mat));
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });

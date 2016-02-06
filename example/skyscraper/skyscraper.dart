@@ -49,7 +49,8 @@ void main() {
   // Sky Sphere
   ShaderProgram skyprg = chronosGL
       .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
-  MeshData md = Shapes.Icosahedron(3)..multiplyVertices(100);
+  MeshData md = Shapes.Icosahedron(3);
+  //..multiplyVertices(100);
   Mesh m = new Mesh(md, mat);
   skyprg.add(m);
 
@@ -66,11 +67,9 @@ void main() {
           uMax: 0.99,
           vMin: 0.01,
           vMax: 0.99);
-      md.textureCoords[17] =
-          0.01; // remove top face uv coords so the top of the SkySraper has no windows
-      md.textureCoords[20] = 0.01;
-      md.textureCoords[22] = 0.01;
-      md.textureCoords[23] = 0.01;
+      Vector2 q = new Vector2(0.01, 0.01);
+      md.setFace4UV(2, q, q, q, q);
+      md.setFace4UV(3, q, q, q, q);
       Mesh m = new Mesh(md, mat)
       ..setPos(x, 0, z);
       prg.add(m);

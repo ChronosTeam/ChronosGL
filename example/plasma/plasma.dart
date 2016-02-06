@@ -18,14 +18,12 @@ void main() {
   chronosGL.addAnimatable('orbitCam', orbit);
 
   Material mat = new Material();
-  MeshData md = Shapes.Cube();
-  for (int i = 0; i < md.vertices.length; i++) {
-    md.vertices[i] = md.vertices[i] * 10;
-  }
-  Mesh m = new Mesh(md, mat);
-  m.setPos(0, 0, 0);
-  m.lookUp(1.0);
-  m.lookLeft(0.7);
+  MeshData md = Shapes.Cube(x:10.0, y:10.0, z:10.0);
+
+  Mesh m = new Mesh(md, mat)
+    ..setPos(0, 0, 0)
+    ..lookUp(1.0)
+    ..lookLeft(0.7);
 
   m.setAnimateCallback((Node node, double time) {
     m.rollLeft(time * 0.0001);
@@ -49,7 +47,8 @@ void main() {
     pointer = myselect.selectedIndex;
     prgs[(pointer)].add(m);
   });
-  ShaderProgram programSprites = chronosGL.createProgram(createPointSpritesShader());
+  ShaderProgram programSprites =
+      chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
