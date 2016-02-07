@@ -70,6 +70,7 @@ const String uTexture4Sampler = "uTexture4Sampler";
 const String uPointLightLocation = "uPointLightLocation";
 const String uTime = "uTime";
 const String uColor = "uColor";
+const String uColor2 = "uColor2";
 const String uColorAlpha = "uColorAlpha";
 const String uCameraNear = "uCameraNear";
 const String uCameraFar = "uCameraFar";
@@ -119,6 +120,7 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uPointSize: new ShaderVarDesc("float", ""),
   uCanvasSize: new ShaderVarDesc("vec2", ""),
   uColor: new ShaderVarDesc("vec3", ""),
+  uColor2: new ShaderVarDesc("vec3", ""),
   uColorAlpha: new ShaderVarDesc("vec4", ""),
 };
 

@@ -14,20 +14,17 @@ void main() {
   });
   chronosGL.addAnimatable('OrbitCam', orbit);
 
-  Texture gradient = new ImageTexture("../gradient.jpg");
-
   ShaderProgram program = chronosGL.createProgram(createWireframeShader());
-  final Material matGradient = new Material()
-    ..SetUniform(uColor, new Vector(1, 0, 0))
-    ..SetUniform(uTextureSampler, gradient);
-
+  final Material matWireframe = new Material()
+    ..SetUniform(uColor, new Vector(1, 1, 0))
+    ..SetUniform(uColor2, new Vector(0, 0, 0));
   {
-    Mesh ico = new Mesh(Shapes.Icosahedron(2)..generateWireframeCenters(), matGradient)..setPos(0, 0, 0);
+    Mesh ico = new Mesh(Shapes.Icosahedron(2)..generateWireframeCenters(), matWireframe)..setPos(0, 0, 0);
     program.add(ico);
   }
   
   {
-    Mesh cube = new Mesh(Shapes.Cube()..generateWireframeCenters(), matGradient)
+    Mesh cube = new Mesh(Shapes.Cube()..generateWireframeCenters(), matWireframe)
       ..setPos(-5, 0, -5)
       ..name = "cube";
     program.add(cube);
@@ -36,14 +33,14 @@ void main() {
   {
     Mesh cyl = new Mesh(
         Shapes.Cylinder(3.0, 3.0, 2.0, 16)..generateWireframeCenters(),
-        matGradient)..setPos(5, 0, -5);
+        matWireframe)..setPos(5, 0, -5);
     program.add(cyl);
   }
   
    
   {
     Mesh quad =
-        new Mesh(Shapes.Quad(2)..generateWireframeCenters(), matGradient)
+        new Mesh(Shapes.Quad(2)..generateWireframeCenters(), matWireframe)
           ..setPos(-5, 0, 5)
           ..name = "quad";
     program.add(quad);
@@ -52,7 +49,7 @@ void main() {
   {
     Mesh torus = new Mesh(
         Shapes.TorusKnot(radius: 1.0, tube: 0.4)..generateWireframeCenters(),
-        matGradient)..setPos(5, 0, 5);
+        matWireframe)..setPos(5, 0, 5);
     program.add(torus);
   }
 

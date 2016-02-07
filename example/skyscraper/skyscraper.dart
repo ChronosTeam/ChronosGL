@@ -51,7 +51,7 @@ void main() {
       .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
   MeshData md = Shapes.Icosahedron(3);
   //..multiplyVertices(100);
-  Mesh m = new Mesh(md, mat);
+  Mesh m = new Mesh(md, mat)..transform.setScale(100.0);
   skyprg.add(m);
 
   ShaderProgram prg = chronosGL.createProgram(createSkyScraperShader());
