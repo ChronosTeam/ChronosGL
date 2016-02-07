@@ -377,8 +377,8 @@ class CoreProgram {
     if (debug) print("[${name} setting attributes");
     _gl.useProgram(_program);
     for (String a in _attributeLocations.keys) {
-      if (debug) print("[${name}] $a");
       final index = _attributeLocations[a];
+      if (debug) print("[${name}] $a $index");
       _gl.enableVertexAttribArray(index);
       if (a.startsWith("ia")) {
         _extInstancedArrays.vertexAttribDivisorAngle(index, 1);

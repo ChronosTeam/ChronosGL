@@ -36,15 +36,17 @@ class Mesh extends Node {
   MeshData _meshData;
 
   void AddBuffer(String canonical, Float32List data) {
+    if (debug) print ("AddBuffer ${canonical} ${data.length}");
     _buffers[canonical] = CreateAndInitializeArrayBufferFloat32(gl, data);
   }
 
   void ChangeBuffer(String canonical, Float32List data) {
+    if (debug) print ("ChangeBuffer ${canonical} ${data.length}");
     gl.bindBuffer(WEBGL.ARRAY_BUFFER, _buffers[canonical]);
     gl.bufferDataTyped(WEBGL.ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
   }
 
-  Mesh(this._meshData, this.material) {
+  Mesh(this._meshData, this.material, {this.debug: false}) {
     //if (!meshData.isOptimized) meshData.optimize();
     _meshData.SanityCheck();
     gl = ChronosGL.globalGL;
@@ -83,10 +85,10 @@ class Mesh extends Node {
   // this gets called by Node.draw()
   void draw2(ShaderProgram program, ShaderProgramInputs inputs) {
     if (debug) {
-      print("Mesh: $name items ${numItems}");
+      print("draw2: $name items ${numItems}");
       //print(program.shaderObject.textureSamplerUniform);
-      print(mvMatrix.array);
-      print('-----');
+      //print(mvMatrix.array);
+      //print('-----');
     }
 
     material.RenderingInit(gl);

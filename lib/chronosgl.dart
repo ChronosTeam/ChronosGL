@@ -39,6 +39,7 @@ part "src/shader/debug_shader.dart";
 part "src/shader/perlin_noise_func.dart";
 part "src/shader/perlin_noise_shader.dart";
 part "src/shader/plasma_shader.dart";
+part "src/shader/wireframe_shader.dart";
 
 void LogInfo(String s) {
   HTML.window.console.log(s);

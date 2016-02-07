@@ -42,22 +42,33 @@ class MeshData {
     if (IsPoints()) {
       assert(_faces3.length == 0 && _faces4.length == 0);
     }
+
+    int maxIndexFace1 = 0;
+    for (Face1 f in _faces1) {
+      if(f.a > maxIndexFace1) maxIndexFace1 = f.a;
+    }
+    
+    int maxIndexFace3 = 0;
+    for (Face3 f in _faces3) {
+      if(f.a > maxIndexFace3) maxIndexFace3 = f.a;
+      if(f.b > maxIndexFace3) maxIndexFace3 = f.b;
+      if(f.c > maxIndexFace3) maxIndexFace3 = f.c;
+    }
+    
+    int maxIndexFace4 = 0;
+    for (Face4 f in _faces4) {
+      if(f.a > maxIndexFace4) maxIndexFace4 = f.a;
+      if(f.b > maxIndexFace4) maxIndexFace4 = f.b;
+      if(f.c > maxIndexFace4) maxIndexFace4 = f.c;
+      if(f.d > maxIndexFace4) maxIndexFace4 = f.d;
+    }
+    
     final int n = _vertices.length ~/ 3;
     assert(n > 0);
-    for (Face1 f in _faces1) {
-      assert(f.a <= n);
-    }
-    for (Face3 f in _faces3) {
-      assert(f.a < n);
-      assert(f.b < n);
-      assert(f.c < n);
-    }
-    for (Face4 f in _faces4) {
-      assert(f.a < n);
-      assert(f.b < n);
-      assert(f.c < n);
-      assert(f.d < n);
-    }
+    assert (maxIndexFace1 < n);
+    assert (maxIndexFace3 < n);
+    assert (maxIndexFace4 < n);
+    
     for (String canonical in _attributes.keys) {
       int x = _attributes[canonical].length;
       //print ("@@@@@ ${canonical} $n $x");
@@ -91,6 +102,7 @@ class MeshData {
       out.add(f4.a);
       out.add(f4.b);
       out.add(f4.c);
+      //
       out.add(f4.a);
       out.add(f4.c);
       out.add(f4.d);
@@ -151,37 +163,6 @@ class MeshData {
     }
   }
 
-  // if null vertexindices are not used
-  /*
-    List<int> vertexIndices = null;
-    bool isOptimized = false;
-  
-   
-  
-   
-    void optimize() {
-      if (!(vertices is Float32List)) vertices =
-          new Float32List.fromList(vertices);
-  
-      if (!(colors is Float32List)) colors = new Float32List.fromList(colors);
-  
-      if (!(textureCoords is Float32List)) textureCoords =
-          new Float32List.fromList(textureCoords);
-  
-      if (!(normals is Float32List)) normals = new Float32List.fromList(normals);
-  
-      if (!(binormals is Float32List)) binormals =
-          new Float32List.fromList(binormals);
-  
-      if (vertexIndices != null && !(vertexIndices is TypedData)) {
-        vertexIndices = ChronosGL.useElementIndexUint
-            ? new Uint32List.fromList(vertexIndices)
-            : new Uint16List.fromList(vertexIndices);
-      }
-      isOptimized = true;
-       
-    }
-  */
   /*
     void generateEmptyNormals() {
       if (normals.length != vertices.length) {
@@ -206,6 +187,44 @@ class MeshData {
     return true;
   }
 
+  // add support for Face4
+  void generateWireframeCenters() {
+    if (!_attributes.containsKey(aCenter)) EnableAttribute(aCenter);
+    List<double> centers = GetAttributeData(aCenter);
+    while (centers.length < _vertices.length * 4 ~/ 3) {
+      centers.add(0.0);
+    }
+    void setCenter(Vector4 n, int i) {
+      centers[4 * i + 0] = n.x;
+      centers[4 * i + 1] = n.y;
+      centers[4 * i + 2] = n.z;
+      centers[4 * i + 3] = n.w;
+    }
+
+    Vector4 a3 = new Vector4(1, 0, 0, 0);
+    Vector4 b3 = new Vector4(0, 1, 0, 0);
+    Vector4 c3 = new Vector4(0, 0, 1, 0);
+
+    for (Face3 f in _faces3) {
+      setCenter(a3, f.a);
+      setCenter(b3, f.b);
+      setCenter(c3, f.c);
+    }
+
+    Vector4 a4 = new Vector4(1, 0, 0, 1);
+    Vector4 b4 = new Vector4(1, 1, 0, 1);
+    Vector4 c4 = new Vector4(0, 1, 0, 1);
+    Vector4 d4 = new Vector4(0, 0, 0, 1);
+
+    for (Face4 f in _faces4) {
+      setCenter(a4, f.a);
+      setCenter(b4, f.b);
+      setCenter(c4, f.c);
+      setCenter(d4, f.d);
+    }
+  }
+
+  // add support for Face4
   void generateNormalsAssumingTriangleMode() {
     if (!_attributes.containsKey(aNormal)) EnableAttribute(aNormal);
     Vector tempa = new Vector();
@@ -257,7 +276,8 @@ class MeshData {
     // for example a cube can have 3 different normals for the same vertex
     // so we need 3 different places where we store the same vertex so we have room for 3 different normals
     // TODO: add UV Map and the other stuff
-    void deDeuplicateIndices() {
+    // add support for Face4
+    void deDuplicateIndices() {
       Float32List newVertices = new Float32List(vertexIndices.length * 3);
       int pos = 0;
       for (int i = 0; i < vertexIndices.length; i++) {

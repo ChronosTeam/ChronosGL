@@ -24,6 +24,15 @@ GetGlExtensionAnisotropic(WEBGL.RenderingContext gl) {
   return ext;
 }
 
+GetGlExtensionStandardDerivatives(WEBGL.RenderingContext gl) {
+  var ext = gl.getExtension("OES_standard_derivatives");
+  if (ext == null) {
+    LogWarn("ExtensionStandardDerivative NOT SUPPORTED");
+  }
+  return ext;
+}
+
+
 HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {
   HTML.CanvasElement canvas = new HTML.CanvasElement(width: 2, height: 2);
   HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
