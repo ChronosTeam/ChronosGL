@@ -7,7 +7,7 @@ MeshData createCylinderInternal(
     double radiusTop, double radiusBot, double height, int radialSubdivisions) {
   MeshData md = new MeshData();
   md.name = "cylinder";
-  md. EnableAttribute(aTextureCoordinates);
+  md.EnableAttribute(aTextureCoordinates);
   double halfHeight = height / 2;
 
   List<Vector> vertices = [];
@@ -62,5 +62,47 @@ MeshData createCylinderInternal(
 
   md.AddVertices(vertices);
   md.AddAttributesVector2(aTextureCoordinates, uvs);
+  return md;
+}
+
+MeshData createCylinderInternalWireframeFriendly(
+    double radTop, double radBot, double height, int radialSubdivisions) {
+  final double halfHeight = height / 2;
+  List<Vector> top = [];
+  List<Vector> bot = [];
+  for (int i = 0; i < radialSubdivisions; i++) {
+    double u = i / radialSubdivisions;
+    top.add(new Vector(radTop * Math.sin(u * Math.PI * 2), halfHeight,
+        radTop * Math.cos(u * Math.PI * 2)));
+    bot.add(new Vector(radBot * Math.sin(u * Math.PI * 2), -halfHeight,
+        radBot * Math.cos(u * Math.PI * 2)));
+  }
+  top.add(top[0]);
+  bot.add(bot[0]);
+
+  Vector2 zero = new Vector2(0, 0);
+  MeshData md = new MeshData();
+  md.name = "cylinder-wireframe-friendly";
+  md.EnableAttribute(aTextureCoordinates);
+  final Vector centerTop = new Vector(0.0, halfHeight, 0.0);
+  final Vector centerBot = new Vector(0.0, -halfHeight, 0.0);
+  md.AddFaces3(2 * radialSubdivisions);
+  for (int i = 0; i < radialSubdivisions; i++) {
+    double u = i / radialSubdivisions;
+    md.AddVertices([centerTop, top[i], top[i + 1]]);
+    // TODO: fix these
+    md.AddAttributesVector2(aTextureCoordinates, [zero, zero, zero]);
+    md.AddVertices([centerBot, bot[i + 1], bot[i]]);
+    // TODO: fix these
+    md.AddAttributesVector2(aTextureCoordinates, [zero, zero, zero]);
+  }
+
+  md.AddFaces4(radialSubdivisions);
+  for (int i = 0; i < radialSubdivisions; i++) {
+    double u = i / radialSubdivisions;
+    md.AddVertices([top[i+1], top[i], bot[i], bot[i+1]]);
+    // TODO: fix these
+    md.AddAttributesVector2(aTextureCoordinates, [zero, zero, zero, zero]);
+  }
   return md;
 }

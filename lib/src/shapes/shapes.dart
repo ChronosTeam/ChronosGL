@@ -22,7 +22,13 @@ class Shapes {
     return createCylinderInternal(
         radiusTop, radiusBot, height, radialSubdivisions);
   }
-
+  
+  static MeshData CylinderWireframeFriendly(double radiusTop, double radiusBot, double height,
+       int radialSubdivisions) {
+     return createCylinderInternalWireframeFriendly(
+         radiusTop, radiusBot, height, radialSubdivisions);
+   }
+  
   static MeshData TorusKnot(
       {double radius: 20.0,
       double tube: 4.0,

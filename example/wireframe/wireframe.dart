@@ -1,11 +1,14 @@
 import 'package:chronosgl/chronosgl.dart';
 
+import 'dart:web_gl' as WEBGL;
 import 'dart:html';
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas', useFramebuffer: false);
   var ext = GetGlExtensionStandardDerivatives(chronosGL.gl);
   if (ext == null) window.alert("OES_standard_derivatives not supported");
+ 
+  chronosGL.gl.enable(WEBGL.CULL_FACE);
 
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 25.0, 10.0);
@@ -32,7 +35,7 @@ void main() {
 
   {
     Mesh cyl = new Mesh(
-        Shapes.Cylinder(3.0, 3.0, 2.0, 16)..generateWireframeCenters(),
+        Shapes.CylinderWireframeFriendly(3.0, 4.0, 2.0, 16)..generateWireframeCenters(),
         matWireframe)..setPos(5, 0, -5);
     program.add(cyl);
   }

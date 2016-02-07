@@ -67,6 +67,14 @@ final List<Vector> _icoVertices = [
   new Vector(-t, 0, 1).normalize()
 ];
 
+// This produces the mash for an icosahedron when subdivisions == 0
+// For every increase in subdivisions the number of faces is quadrupled:
+//  #subdivisions  #faces  #vertices:
+//   0             20           12
+//   1             80           72  
+//   2            320          312  
+//   3           1280         1272
+//   4           5120         5112
 MeshData createIcosahedronInternal([int subdivisions = 4]) {
   List<Face3> faces = [];
   List<Vector> vertices = [];

@@ -224,7 +224,7 @@ class MeshData {
     }
   }
 
-  // add support for Face4
+  // TODO: add support for Face4
   void generateNormalsAssumingTriangleMode() {
     if (!_attributes.containsKey(aNormal)) EnableAttribute(aNormal);
     Vector tempa = new Vector();

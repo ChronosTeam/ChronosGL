@@ -44,10 +44,10 @@ MeshData createCubeInternal(
     new Vector(x, y, -z),
 
     // Bottom face
-    new Vector(x, -y, -z),
-    new Vector(-x, -y, -z),
-    new Vector(-x, -y, z),
     new Vector(x, -y, z),
+    new Vector(-x, -y, z),
+    new Vector(-x, -y, -z),
+    new Vector(x, -y, -z),
 
     // Right face
     new Vector(x, -y, -z),
