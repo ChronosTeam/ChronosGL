@@ -304,9 +304,9 @@ class ChronosGL {
   }
 
   double _lastTime = 0.0;
-  void run([double timeNow]) {
+  void run([var timeNow]) {
     if (timeNow == null) timeNow = 0.0;
-    if (_lastTime == 0) _lastTime = timeNow;
+    if (_lastTime == 0.0) _lastTime = timeNow;
     double elapsed = timeNow - _lastTime;
     _lastTime = timeNow;
     if (elapsed.isNaN) {
