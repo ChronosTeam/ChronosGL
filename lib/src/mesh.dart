@@ -1,26 +1,29 @@
 part of chronosgl;
 
-WEBGL.Buffer CreateAndInitializeArrayBufferFloat32(
+void ChangeArrayBuffer(
+    WEBGL.RenderingContext gl, WEBGL.Buffer buffer, Float32List data) {
+  gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
+  gl.bufferDataTyped(WEBGL.ARRAY_BUFFER, data, WEBGL.STATIC_DRAW);
+}
+
+WEBGL.Buffer CreateAndInitializeArrayBuffer(
     WEBGL.RenderingContext gl, Float32List data) {
   WEBGL.Buffer b = gl.createBuffer();
-  gl.bindBuffer(WEBGL.ARRAY_BUFFER, b);
-  gl.bufferDataTyped(WEBGL.ARRAY_BUFFER, data, WEBGL.STATIC_DRAW);
+  ChangeArrayBuffer(gl, b, data);
   return b;
 }
 
-WEBGL.Buffer CreateAndInitializeArrayElementBufferUint32(
-    WEBGL.RenderingContext gl, Uint32List data) {
-  WEBGL.Buffer b = gl.createBuffer();
-  gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, b);
+void ChangeElementArrayBuffer(
+    WEBGL.RenderingContext gl, WEBGL.Buffer buffer, TypedData data) {
+  gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, buffer);
   gl.bufferDataTyped(WEBGL.ELEMENT_ARRAY_BUFFER, data, WEBGL.STATIC_DRAW);
-  return b;
 }
 
-WEBGL.Buffer CreateAndInitializeArrayElementBufferUint16(
-    WEBGL.RenderingContext gl, Uint16List data) {
+WEBGL.Buffer CreateAndInitializeElementArrayBuffer(
+    WEBGL.RenderingContext gl, TypedData data) {
+  assert((data is Uint16List) || (data is Uint32List));
   WEBGL.Buffer b = gl.createBuffer();
-  gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, b);
-  gl.bufferDataTyped(WEBGL.ELEMENT_ARRAY_BUFFER, data, WEBGL.STATIC_DRAW);
+  ChangeElementArrayBuffer(gl, b, data);
   return b;
 }
 
@@ -36,14 +39,13 @@ class Mesh extends Node {
   MeshData _meshData;
 
   void AddBuffer(String canonical, Float32List data) {
-    if (debug) print ("AddBuffer ${canonical} ${data.length}");
-    _buffers[canonical] = CreateAndInitializeArrayBufferFloat32(gl, data);
+    if (debug) print("AddBuffer ${canonical} ${data.length}");
+    _buffers[canonical] = CreateAndInitializeArrayBuffer(gl, data);
   }
 
-  void ChangeBuffer(String canonical, Float32List data) {
-    if (debug) print ("ChangeBuffer ${canonical} ${data.length}");
-    gl.bindBuffer(WEBGL.ARRAY_BUFFER, _buffers[canonical]);
-    gl.bufferDataTyped(WEBGL.ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
+  void ChangeBufferCanonical(String canonical, Float32List data) {
+    if (debug) print("ChangeBuffer ${canonical} ${data.length}");
+    ChangeArrayBuffer(gl, _buffers[canonical], data);
   }
 
   Mesh(this._meshData, this.material, {this.debug: false}) {
@@ -62,11 +64,35 @@ class Mesh extends Node {
     if (indices != null) {
       numItems = indices.length;
       if (ChronosGL.useElementIndexUint) {
-        _indexBuffer = CreateAndInitializeArrayElementBufferUint32(
+        _indexBuffer = CreateAndInitializeElementArrayBuffer(
             gl, new Uint32List.fromList(indices));
       } else {
-        _indexBuffer = CreateAndInitializeArrayElementBufferUint16(
+        _indexBuffer = CreateAndInitializeElementArrayBuffer(
             gl, new Uint16List.fromList(indices));
+      }
+    } else {
+      numItems = _meshData.GetVertexData().length ~/ 3;
+    }
+  }
+
+  void UpdateMeshData(MeshData md) {
+    _meshData = md;
+    ChangeBufferCanonical(
+        aVertexPosition, new Float32List.fromList(_meshData.GetVertexData()));
+
+    for (String canonical in _meshData.GetAttributes()) {
+      ChangeBufferCanonical(canonical,
+          new Float32List.fromList(_meshData.GetAttributeData(canonical)));
+    }
+    List<int> indices = _meshData.GetVertexIndices();
+    if (indices != null) {
+      numItems = indices.length;
+      if (ChronosGL.useElementIndexUint) {
+        ChangeElementArrayBuffer(
+            gl, _indexBuffer, new Uint32List.fromList(indices));
+      } else {
+        ChangeElementArrayBuffer(
+            gl, _indexBuffer, new Uint16List.fromList(indices));
       }
     } else {
       numItems = _meshData.GetVertexData().length ~/ 3;
