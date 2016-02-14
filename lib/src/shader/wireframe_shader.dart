@@ -31,17 +31,16 @@ float edgeFactorFace4(vec2 center) {
 }
 
 void main() {
-    vec3 color;
+    vec4 color;
     if (${vCenter}.w == 0.0) {
-        color = mix(${uColor}, ${uColor2}, 
+        color = mix(${uColorAlpha}, ${uColorAlpha2}, 
                         edgeFactorFace3(${vCenter}.xyz));
     } else {
-        color = mix(${uColor}, ${uColor2},    
+        color = mix(${uColorAlpha}, ${uColorAlpha2},    
                     min(edgeFactorFace4(${vCenter}.xy), 
                         edgeFactorFace4(1.0 - ${vCenter}.xy)));
     }
-    gl_FragColor.rgb = color;
-    gl_FragColor.a = 1.0;
+    gl_FragColor = color;
 }
 """;
 
@@ -56,8 +55,8 @@ List<ShaderObject> createWireframeShader() {
       ..SetBodyWithMain([StdVertexBody, "${vCenter} = ${aCenter};"]),
     new ShaderObject("WireframeF")
       ..AddVaryingVar(vCenter)
-      ..AddUniformVar(uColor)
-      ..AddUniformVar(uColor2)
+      ..AddUniformVar(uColorAlpha)
+      ..AddUniformVar(uColorAlpha2)
       ..SetBody([_WireframeF])
   ];
 }

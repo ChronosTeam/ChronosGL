@@ -19,8 +19,9 @@ void main() {
 
   ShaderProgram program = chronosGL.createProgram(createWireframeShader());
   final Material matWireframe = new Material()
-    ..SetUniform(uColor, new Vector(1, 1, 0))
-    ..SetUniform(uColor2, new Vector(0, 0, 0));
+    ..SetUniform(uColorAlpha, new Vector4(1, 1, 0, 1.0))
+    ..SetUniform(uColorAlpha2, new Vector4(0, 0, 0, 0.5))
+    ..blend = true;
   {
     Mesh ico = new Mesh(Shapes.Icosahedron(2)..generateWireframeCenters(), matWireframe)..setPos(0, 0, 0);
     program.add(ico);
