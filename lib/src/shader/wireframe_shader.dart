@@ -1,4 +1,4 @@
-part of chronosgl;
+part of chronosshader;
 
 //  GL_OES_standard_derivatives 
 //  dFdx()

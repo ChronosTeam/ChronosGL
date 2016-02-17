@@ -1,4 +1,4 @@
-part of chronosgl;
+part of chronosshader;
 
 // http://www.bidouille.org/prog/plasma
 // see also: https://www.shadertoy.com/view/XdX3Wn

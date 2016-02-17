@@ -1,4 +1,4 @@
-part of chronosgl;
+part of chronosshader;
 
 List<ShaderObject> createDemoShader() {
   return createFixedVertexColorShader();

@@ -6,8 +6,12 @@ import 'dart:math' as Math;
 import 'dart:typed_data';
 import 'dart:async';
 import 'dart:convert';
+
 import 'chronosmath.dart';
 export 'chronosmath.dart';
+
+import 'chronosshader.dart';
+export 'chronosshader.dart';
 
 part "src/node.dart";
 part "src/textures.dart";
@@ -28,18 +32,7 @@ part "src/pickray.dart";
 part "src/input.dart";
 part "src/load_obj.dart";
 part "src/framebuffer.dart";
-part "src/shader/basic_shader.dart";
-part "src/shader/blur_shader.dart";
 
-part "src/shader/plane_shader.dart";
-part "src/shader/ssao_shader.dart";
-part "src/shader/sobel_shader.dart";
-part "src/shader/debug_shader.dart";
-
-part "src/shader/perlin_noise_func.dart";
-part "src/shader/perlin_noise_shader.dart";
-part "src/shader/plasma_shader.dart";
-part "src/shader/wireframe_shader.dart";
 
 void LogInfo(String s) {
   HTML.window.console.log(s);

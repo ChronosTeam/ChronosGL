@@ -1,4 +1,4 @@
-part of chronosgl;
+part of chronosshader;
 
 ShaderObject generateShader(ShaderObject shaderObject) {
   String vs = """

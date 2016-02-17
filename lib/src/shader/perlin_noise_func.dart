@@ -1,4 +1,4 @@
-part of chronosgl;
+part of chronosshader;
 
 // https://github.com/ashima/webgl-noise
 

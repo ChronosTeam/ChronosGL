@@ -1,4 +1,4 @@
-part of chronosgl;
+part of chronosshader;
 
 // NOT USED: uFadeFactor hookup not yet implemented
 /* 

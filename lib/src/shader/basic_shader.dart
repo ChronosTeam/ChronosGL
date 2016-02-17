@@ -1,4 +1,4 @@
-part of chronosgl;
+part of chronosshader;
 
 const String StdVertexBody =
     "gl_Position = ${uPerspectiveMatrix} * ${uModelViewMatrix} * vec4(${aVertexPosition}, 1.0);";

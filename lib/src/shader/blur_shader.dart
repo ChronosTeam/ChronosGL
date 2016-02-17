@@ -1,4 +1,4 @@
-part of chronosgl;
+part of chronosshader;
 
 // addapted from http://www.geeks3d.com/20100909/shader-library-gaussian-blur-post-processing-filter-in-glsl/
 List<ShaderObject> createBlurShader() {
