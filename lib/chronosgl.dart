@@ -20,6 +20,7 @@ part "src/shader_program.dart";
 part "src/spatial.dart";
 part "src/camera.dart";
 part "src/utils.dart";
+part "src/lighting.dart";
 part "src/material.dart";
 part "src/mesh.dart";
 part "src/mesh_data.dart";
@@ -58,17 +59,13 @@ class PerspectiveParams {
   double far = 1000.0;
 }
 
-class LightParams {
-  Vector pointLightLocation = new Vector();
-}
-
 abstract class Animatable {
   bool active = true;
   void animate(double elapsed);
 }
 
 abstract class Drawable extends Animatable {
-  void draw(PerspectiveParams dynpar, LightParams lightpar, Camera camera,
+  void draw(PerspectiveParams dynpar, List<Light> lights, Camera camera,
       Matrix4 pMatrix);
 }
 
@@ -93,7 +90,7 @@ class RenderingPhase {
     _framebuffer = fb;
   }
 
-  void draw(PerspectiveParams perspar, LightParams lightpar, Camera camera) {
+  void draw(PerspectiveParams perspar, List<Light> lights, Camera camera) {
     if (_framebuffer == null) {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
     } else {
@@ -108,7 +105,7 @@ class RenderingPhase {
     }
 
     for (ShaderProgram prg in _programs) {
-      prg.draw(perspar, lightpar, camera, _pMatrix);
+      prg.draw(perspar, lights, camera, _pMatrix);
     }
   }
 
@@ -146,7 +143,7 @@ class ChronosGL {
   Camera _camera;
 
   PerspectiveParams perspar = new PerspectiveParams();
-  LightParams lightpar = new LightParams();
+  List<Light> lights = [];
   int _lastFov_ = 49;
   int _lastWidth = 0;
   int _lastHeight = 0;
@@ -288,7 +285,7 @@ class ChronosGL {
     }
 
     for (RenderingPhase r in _renderPhases) {
-      r.draw(perspar, lightpar, getCamera());
+      r.draw(perspar, lights, getCamera());
     }
   }
 

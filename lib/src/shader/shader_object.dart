@@ -66,7 +66,6 @@ const String uTextureCubeSampler = "uTextureCubeSampler";
 const String uTexture2Sampler = "uTexture2Sampler";
 const String uTexture3Sampler = "uTexture3Sampler";
 const String uTexture4Sampler = "uTexture4Sampler";
-const String uPointLightLocation = "uPointLightLocation";
 const String uTime = "uTime";
 const String uColor = "uColor";
 const String uColorAlpha2 = "uColorAlpha2";
@@ -77,7 +76,16 @@ const String uCanvasSize = "uCanvasSize";
 const String uPointSize = "uPointSize";
 const String uFogNear = "uFogNear";
 const String uFogFar = "uFogFar";
+const String uEyePosition = "uEyePosition";
 
+const String uMaterial = "uMaterial";
+const String uLightSourceInfo = "uLightSourceInfo";
+const String uLightSourceInfo0 = uLightSourceInfo + "0";
+const String uLightSourceInfo1 = uLightSourceInfo + "1";
+const String uLightSourceInfo2 = uLightSourceInfo + "2";
+const String uLightSourceInfo3 = uLightSourceInfo + "3";
+
+  
 Map<String, ShaderVarDesc> _VarsDb = {
   // attribute vars
   // This should also contain an alpha channel
@@ -110,7 +118,6 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uTexture3Sampler: new ShaderVarDesc("sampler2D", ""),
   uTexture4Sampler: new ShaderVarDesc("sampler2D", ""),
   uTextureCubeSampler: new ShaderVarDesc("samplerCube", ""),
-  uPointLightLocation: new ShaderVarDesc("vec3", ""),
   uTime: new ShaderVarDesc("float", "time since program start in sec"),
   uCameraNear: new ShaderVarDesc("float", ""),
   uCameraFar: new ShaderVarDesc("float", ""),
@@ -121,6 +128,12 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uColor: new ShaderVarDesc("vec3", ""),
   uColorAlpha: new ShaderVarDesc("vec4", ""),
   uColorAlpha2: new ShaderVarDesc("vec4", ""),
+  uEyePosition: new ShaderVarDesc("vec3", ""),
+  uMaterial: new ShaderVarDesc("mat4", ""),
+  uLightSourceInfo0: new ShaderVarDesc("mat4", ""),
+  uLightSourceInfo1: new ShaderVarDesc("mat4", ""),
+  uLightSourceInfo2: new ShaderVarDesc("mat4", ""),
+  uLightSourceInfo3: new ShaderVarDesc("mat4", ""),
 };
 
 void IntroduceNewShaderVar(String canonical, ShaderVarDesc desc) {
@@ -134,6 +147,8 @@ ShaderVarDesc RetrieveShaderVarDesc(String canonical) {
 
 // ShaderObject describes a shader (either fragment or vertex) and its
 // interface to the world on a syntactical (uncompiled) level.
+// Protocol:
+// SetBody(WithMain) must be called last;
 class ShaderObject {
   String name;
   String shader = null;

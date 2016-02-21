@@ -249,7 +249,9 @@ class ShaderProgram implements Drawable {
   bool debug = false;
   bool active;
 
-  Matrix4 mvMatrix = new Matrix4();
+  Matrix4 modelviewMatrix = new Matrix4();
+  Matrix4 viewMatrix = new Matrix4();
+  Matrix4 normalMatrix = new Matrix4();
   List<Node> followCameraObjects = new List<Node>();
   List<Node> objects = new List<Node>();
 
@@ -321,7 +323,7 @@ class ShaderProgram implements Drawable {
     _program.Draw(debug, numInstances, numItems, drawPoints, useArrayBuffer);
   }
 
-  void draw(PerspectiveParams dynpar, LightParams lightpar, Camera camera,
+  void draw(PerspectiveParams dynpar, List<Light> lights, Camera camera,
       Matrix4 pMatrix,
       [Matrix4 overrideMvMatrix]) {
     if (!hasEnabledObjects()) return;
@@ -333,8 +335,16 @@ class ShaderProgram implements Drawable {
     inputs.SetUniformVal(uCameraFar, dynpar.far);
     inputs.SetUniformVal(uCanvasSize, new Vector2(dynpar.width, dynpar.height));
     inputs.SetUniformVal(uPerspectiveMatrix, pMatrix);
-    if (lightpar != null) {
-      inputs.SetUniformVal(uPointLightLocation, lightpar.pointLightLocation);
+    if (camera != null) {
+      camera.getMVMatrix(viewMatrix, true);
+      inputs.SetUniformVal(uViewMatrix, viewMatrix);
+      camera.getMVMatrix(modelviewMatrix, false);
+    
+    }
+    for (int i=0; i < lights.length; ++i) {
+      Light l = lights[i];
+      String canonical = uLightSourceInfo + "$i";
+      inputs.SetUniformVal(canonical, l.PackInfo(viewMatrix));
     }
 
     //print( "error: ${gl.getError()}" );
@@ -345,27 +355,20 @@ class ShaderProgram implements Drawable {
 
     // like skybox
     if (debug) print("[draw followCameraObjects ${followCameraObjects.length}");
-    if (camera != null) {
-      camera.getMVMatrix(mvMatrix, false);
-    }
+  
     for (Node node in followCameraObjects) {
       // Note, we pass "this" so that "node" can call this.Draw()
       // TODO: clean this up
-      if (node.enabled) node.draw(this, inputs, mvMatrix);
-    }
-
-    if (camera != null) {
-      camera.getMVMatrix(mvMatrix, true);
-      inputs.SetUniformVal(uViewMatrix, mvMatrix);
+      if (node.enabled) node.draw(this, inputs, modelviewMatrix);
     }
 
     if (overrideMvMatrix != null) {
-      mvMatrix.setElements(overrideMvMatrix);
+      modelviewMatrix.setElements(overrideMvMatrix);
     }
 
     if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {
-      if (node.enabled) node.draw(this, inputs, mvMatrix);
+      if (node.enabled) node.draw(this, inputs, viewMatrix);
     }
     _program.End(debug);
   }

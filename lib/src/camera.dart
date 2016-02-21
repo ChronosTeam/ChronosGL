@@ -1,7 +1,9 @@
 part of chronosgl;
 
 class Camera extends Spatial {
-  // Get the model view matrix. The view matrix is the inverse of the camera’s transformation matrix in world-space.
+  // Get the model view matrix.  This overwrites the content of mvMatrix.
+  // The view matrix is the inverse of the camera’s transformation matrix 
+  // in world-space.
   void getMVMatrix(Matrix4 mvMatrix, bool translate) {
     transform.toRotationMat(
         mvMatrix); // why does this seem to be already inverted/transposed ?

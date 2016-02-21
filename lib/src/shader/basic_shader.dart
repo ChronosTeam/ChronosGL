@@ -64,12 +64,12 @@ List<ShaderObject> createLightShader() {
       ..AddUniformVar(uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix)
       ..AddUniformVar(uViewMatrix)
-      ..AddUniformVar(uPointLightLocation)
+      ..AddUniformVar(uLightSourceInfo0)
       ..SetBodyWithMain([
         StdVertexBody,
         "${vNormal} = (${uModelViewMatrix} * vec4(${aNormal}, 0.0)).xyz;",
         // Point Light Location
-        "vec3 pll = (uViewMatrix * vec4(${uPointLightLocation}, 0.0)).xyz;",
+        "vec3 pll = ${uLightSourceInfo0}[0].xyz;",
         // Light Dir
         "vec3 ld = normalize(pll - ${aVertexPosition}.xyz);",
         // Ambient Color

@@ -32,12 +32,19 @@ void main() {
   ShaderProgram fixedShaderPrg =
       chronosGL.createProgram(createSolidColorShader());
 
-  chronosGL.lightpar.pointLightLocation.set(11, 11, 1);
+  Vector posLight1 =  new Vector(11, 11, 1);
+  Vector posLight2 =  new Vector(-11, 11, 1);
+  chronosGL.lights.add (new Light.Point(posLight1));
+  chronosGL.lights.add (new Light.Point(posLight2));
   Material icoMat = new Material()..SetUniform(uColor, new Vector(1, 1, 0));
-  Mesh ico = new Mesh(Shapes.Icosahedron(), icoMat)
-    ..setPos(11, 11, 1);
-  fixedShaderPrg.add(ico);
-
+  Mesh ico1 = new Mesh(Shapes.Icosahedron(), icoMat)
+    ..setPosFromVec(posLight1);
+  fixedShaderPrg.add(ico1);
+  /*
+  Mesh ico2 = new Mesh(Shapes.Icosahedron(), icoMat)
+     ..setPosFromVec(posLight2);
+   fixedShaderPrg.add(ico2);
+*/
   ShaderProgram programSprites =
       chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
