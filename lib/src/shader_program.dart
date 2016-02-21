@@ -324,8 +324,7 @@ class ShaderProgram implements Drawable {
   }
 
   void draw(PerspectiveParams dynpar, List<Light> lights, Camera camera,
-      Matrix4 pMatrix,
-      [Matrix4 overrideMvMatrix]) {
+      Matrix4 pMatrix) {
     if (!hasEnabledObjects()) return;
 
     _program.Begin(debug);
@@ -360,10 +359,6 @@ class ShaderProgram implements Drawable {
       // Note, we pass "this" so that "node" can call this.Draw()
       // TODO: clean this up
       if (node.enabled) node.draw(this, inputs, modelviewMatrix);
-    }
-
-    if (overrideMvMatrix != null) {
-      modelviewMatrix.setElements(overrideMvMatrix);
     }
 
     if (debug) print("[draw objects ${objects.length}");
