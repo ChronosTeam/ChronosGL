@@ -1,21 +1,17 @@
 part of chronosgl;
 
 class Camera extends Spatial {
-  // Get the model view matrix.  This overwrites the content of mvMatrix.
-  // The view matrix is the inverse of the camera’s transformation matrix 
+  // Get the model view matrix.  This overwrites the content of parameter m.
+  // The view matrix is the inverse of the camera’s transformation matrix
   // in world-space.
-  void getMVMatrix(Matrix4 mvMatrix, bool translate) {
-    transform.toRotationMat(
-        mvMatrix); // why does this seem to be already inverted/transposed ?
-    if (translate) {
-      // The eye position is negated which is equivalent to the inverse of the translation matrix: T(v)^-1 == T(-v)
-      // T = translation matrix, v = eye position.
-      mvMatrix.translateLocal(
-          -transform[12],
-          -transform[13],
-          -transform[
-              14]); // short cut for rotationMatrixInverted * translationMatrixInverted, see http://3dgep.com/understanding-the-view-matrix/#Look_At_Camera
-    }
+  void getViewMatrix(Matrix4 m) {
+    // why does this seem to be already inverted/transposed ?
+    transform.toRotationMat(m);
+    // The eye position is negated which is equivalent to the inverse of the translation matrix: T(v)^-1 == T(-v)
+    // T = translation matrix, v = eye position.
+    // short cut for rotationMatrixInverted * translationMatrixInverted,
+    // see http://3dgep.com/understanding-the-view-matrix/#Look_At_Camera
+    m.translateLocal(-transform[12], -transform[13], -transform[14]);
   }
 }
 
@@ -240,15 +236,14 @@ class FPSCamera extends Animatable {
 
     if (cpk[Key.SPACE] != null) {}
 
-    if (movementY != 0) camera.transform
-        .rotate(movementY * 0.006, camera.getRight());
+    if (movementY != 0)
+      camera.transform.rotate(movementY * 0.006, camera.getRight());
     if (movementX != 0) camera.transform.rotate(movementX * 0.006, up);
 
     movementX = 0;
     movementY = 0;
   }
 }
-
 
 // this class lets a Camera fly through a TorusKnot like through a tunnel
 class TorusKnotCamera extends Animatable {
@@ -277,4 +272,3 @@ class TorusKnotCamera extends Animatable {
     camera.lookAt(p2);
   }
 }
- 

@@ -66,25 +66,27 @@ List<ShaderObject> createLightShader() {
       ..AddUniformVar(uViewMatrix)
       ..AddUniformVar(uLightSourceInfo0)
       ..SetBodyWithMain([
-        StdVertexBody,
+        "vec4 pos = ${uModelViewMatrix} * vec4(${aVertexPosition}, 1.0);"
+        "gl_Position = ${uPerspectiveMatrix} * pos;",
         "${vNormal} = (${uModelViewMatrix} * vec4(${aNormal}, 0.0)).xyz;",
         // Point Light Location
         "vec3 pll = ${uLightSourceInfo0}[0].xyz;",
-        // Light Dir
-        "vec3 ld = normalize(pll - ${aVertexPosition}.xyz);",
+        "vec3 ld = normalize(pll - pos.xyz);",
         // Ambient Color
         "vec3 ac = vec3(0.0,0.0,0.0);",
         // Directional Color
         "vec3 dc = vec3(1.0,1.0,1.0);",
         // Directional Light Weighting
-        "float dlw = max(dot(${vNormal}, normalize(ld)), 0.0);",
+        "float dlw = max(dot(${vNormal}, ld), 0.0);",
         "${vLightWeighting} = ac + dc * dlw;",
       ]),
     new ShaderObject("LightF")
-      ..AddVaryingVar(vNormal, vNormal)
-      ..AddVaryingVar(vLightWeighting, vLightWeighting)
+      ..AddVaryingVar(vNormal)
+      ..AddVaryingVar(vLightWeighting)
       // ..SetBody(["gl_FragColor = vec4( ${vNormal} * ${vLightWeighting}, 1.0 );"])
-      ..SetBodyWithMain(["gl_FragColor = vec4( ${vLightWeighting}, 1.0 );"])
+      ..SetBodyWithMain([
+        "gl_FragColor = vec4( ${vLightWeighting}, 1.0 );"
+        ])
   ];
 }
 

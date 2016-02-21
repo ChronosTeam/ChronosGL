@@ -14,33 +14,40 @@ void main() {
   //FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
   //chronosGL.addAnimatable('flyingCamera', fc);
 
-  MeshData cubeMeshData = Shapes.Cube(x:2.0, y:2.0, z:2.0);
+  MeshData cubeMeshData = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
 
   Material cubeMat = new Material();
-  Mesh cubeMesh = new Mesh(cubeMeshData, cubeMat)
-    ..setPos(0.0, 0.0, 0.0)
-    ..lookUp(1.0)
-    ..lookLeft(0.7);
+  List<Mesh> meshes = [];
+  for (int i = 0; i < 8; i++) {
+    double x = i & 1 == 0 ? -10.0 : 10.0;
+    double y = i & 2 == 0 ? -10.0 : 10.0;
+    double z = i & 4 == 0 ? -10.0 : 10.0;
+    meshes.add(new Mesh(cubeMeshData, cubeMat)
+      ..setPos(x, y, z)
+      ..lookUp(1.0)
+      ..lookLeft(0.7));
+  }
 
-  cubeMesh.setAnimateCallback((Node node, double time) {
-    cubeMesh.rollLeft(time * 0.0001);
-    cubeMesh.lookLeft(time * 0.0001);
-  });
+  for (Mesh m in meshes) {
+    m.setAnimateCallback((Node node, double time) {
+      m.rollLeft(time * 0.0001);
+      m.lookLeft(time * 0.0001);
+    });
+  }
 
   ShaderProgram lightShaderPrg = chronosGL.createProgram(createLightShader());
-  lightShaderPrg.add(cubeMesh);
+  for (Mesh m in meshes) lightShaderPrg.add(m);
   ShaderProgram fixedShaderPrg =
       chronosGL.createProgram(createSolidColorShader());
 
-  Vector posLight1 =  new Vector(11, 11, 1);
-  Vector posLight2 =  new Vector(-11, 11, 1);
-  chronosGL.lights.add (new Light.Point(posLight1));
-  chronosGL.lights.add (new Light.Point(posLight2));
+  Vector posLight1 = new Vector(0, 0, 0);
+  chronosGL.lights.add(new Light.Point(posLight1));
   Material icoMat = new Material()..SetUniform(uColor, new Vector(1, 1, 0));
-  Mesh ico1 = new Mesh(Shapes.Icosahedron(), icoMat)
-    ..setPosFromVec(posLight1);
+  Mesh ico1 = new Mesh(Shapes.Icosahedron(), icoMat)..setPosFromVec(posLight1);
   fixedShaderPrg.add(ico1);
   /*
+   Vector posLight2 =  new Vector(-11, 11, 1);
+     chronosGL.lights.add (new Light.Point(posLight2));
   Mesh ico2 = new Mesh(Shapes.Icosahedron(), icoMat)
      ..setPosFromVec(posLight2);
    fixedShaderPrg.add(ico2);

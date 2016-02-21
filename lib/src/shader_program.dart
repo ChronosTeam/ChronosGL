@@ -249,6 +249,7 @@ class ShaderProgram implements Drawable {
   bool debug = false;
   bool active;
 
+  // these are the identity by default
   Matrix4 modelviewMatrix = new Matrix4();
   Matrix4 viewMatrix = new Matrix4();
   Matrix4 normalMatrix = new Matrix4();
@@ -335,10 +336,9 @@ class ShaderProgram implements Drawable {
     inputs.SetUniformVal(uCanvasSize, new Vector2(dynpar.width, dynpar.height));
     inputs.SetUniformVal(uPerspectiveMatrix, pMatrix);
     if (camera != null) {
-      camera.getMVMatrix(viewMatrix, true);
+      camera.getViewMatrix(viewMatrix);
+      modelviewMatrix.setElements(viewMatrix);
       inputs.SetUniformVal(uViewMatrix, viewMatrix);
-      camera.getMVMatrix(modelviewMatrix, false);
-    
     }
     for (int i=0; i < lights.length; ++i) {
       Light l = lights[i];
@@ -355,15 +355,14 @@ class ShaderProgram implements Drawable {
     // like skybox
     if (debug) print("[draw followCameraObjects ${followCameraObjects.length}");
   
+    // This is broken but without an example it is hard fix
     for (Node node in followCameraObjects) {
-      // Note, we pass "this" so that "node" can call this.Draw()
-      // TODO: clean this up
       if (node.enabled) node.draw(this, inputs, modelviewMatrix);
     }
 
     if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {
-      if (node.enabled) node.draw(this, inputs, viewMatrix);
+      if (node.enabled) node.draw(this, inputs, modelviewMatrix);
     }
     _program.End(debug);
   }

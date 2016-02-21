@@ -3,8 +3,11 @@ part of chronosgl;
 class Spatial {
 
   // position and rotation
-  // the idea to use a matrix4 for this might be problematic, as the values degenerate over time. Might be better to use Quaternions anyways
-  // regular lookAt calls could "repair" the matrix ( or an optimized variant of lookAt).
+  // the idea to use a matrix4 for this might be problematic, 
+  // as the values degenerate over time. 
+  // Might be better to use Quaternions anyways
+  // regular lookAt calls could "repair" the matrix 
+  // ( or an optimized variant of lookAt).
   Matrix4 transform = new Matrix4();
 
   // temp variables to avoid creating new objects:

@@ -16,7 +16,7 @@ class Light {
   }
 
   Matrix4 PackInfo(Matrix4 viewMatrix) {
-    List<double> p = [_pos.x, _pos.y, _pos.z, 0.0];
+    List<double> p = [_pos.x, _pos.y, _pos.z, 1.0];
     viewMatrix.multiplyVec4(p);
     Matrix4 m = new Matrix4();
     m[0] = p[0];
