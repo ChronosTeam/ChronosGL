@@ -58,34 +58,35 @@ List<ShaderObject> createLightShader() {
   return [
     new ShaderObject("Light")
       ..AddAttributeVar(aVertexPosition)
+      
       ..AddAttributeVar(aNormal)
+      ..AddVaryingVar(vVertexPosition)
       ..AddVaryingVar(vNormal)
-      ..AddVaryingVar(vLightWeighting)
       ..AddUniformVar(uPerspectiveMatrix)
       ..AddUniformVar(uModelViewMatrix)
       ..AddUniformVar(uViewMatrix)
-      ..AddUniformVar(uLightSourceInfo0)
       ..SetBodyWithMain([
         "vec4 pos = ${uModelViewMatrix} * vec4(${aVertexPosition}, 1.0);"
         "gl_Position = ${uPerspectiveMatrix} * pos;",
+        "${vVertexPosition} = pos.xyz;",
         "${vNormal} = (${uModelViewMatrix} * vec4(${aNormal}, 0.0)).xyz;",
-        // Point Light Location
-        "vec3 pll = ${uLightSourceInfo0}[0].xyz;",
-        "vec3 ld = normalize(pll - pos.xyz);",
-        // Ambient Color
-        "vec3 ac = vec3(0.0,0.0,0.0);",
-        // Directional Color
-        "vec3 dc = vec3(1.0,1.0,1.0);",
-        // Directional Light Weighting
-        "float dlw = max(dot(${vNormal}, ld), 0.0);",
-        "${vLightWeighting} = ac + dc * dlw;",
       ]),
     new ShaderObject("LightF")
       ..AddVaryingVar(vNormal)
-      ..AddVaryingVar(vLightWeighting)
-      // ..SetBody(["gl_FragColor = vec4( ${vNormal} * ${vLightWeighting}, 1.0 );"])
+      ..AddVaryingVar(vVertexPosition)
+      ..AddUniformVar(uLightSourceInfo0)
       ..SetBodyWithMain([
-        "gl_FragColor = vec4( ${vLightWeighting}, 1.0 );"
+        // diffuse
+        "vec3 pll = ${uLightSourceInfo0}[0].xyz;",
+        "vec3 lightDir = normalize(pll - ${vVertexPosition});",
+        "float w = max(dot(${vNormal}, lightDir), 0.0);",
+        // specular
+        "float glossiness = 10.0;",
+        "vec3 viewDir = normalize(-vVertexPosition);",
+        "vec3 angleW = normalize(viewDir + lightDir);",
+        "float specComp = max(0., dot(${vNormal}, angleW));",
+        "float s = pow(specComp, max(1., glossiness));",
+        "gl_FragColor = vec4(w + s, s, s, 1.0 );"
         ])
   ];
 }

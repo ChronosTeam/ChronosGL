@@ -13,8 +13,12 @@ void main() {
   chronosGL.addAnimatable('OrbitCam', orbit);
   //FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
   //chronosGL.addAnimatable('flyingCamera', fc);
+  Vector posLight1 = new Vector(0, 0, 0);
+  chronosGL.lights.add(new Light.Point(posLight1));
 
   MeshData cubeMeshData = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
+  MeshData sphereMeshData = Shapes.Icosahedron()
+    ..generateNormalsAssumingTriangleMode();
 
   Material cubeMat = new Material();
   List<Mesh> meshes = [];
@@ -22,7 +26,7 @@ void main() {
     double x = i & 1 == 0 ? -10.0 : 10.0;
     double y = i & 2 == 0 ? -10.0 : 10.0;
     double z = i & 4 == 0 ? -10.0 : 10.0;
-    meshes.add(new Mesh(cubeMeshData, cubeMat)
+    meshes.add(new Mesh(i % 2 == 0 ? cubeMeshData : sphereMeshData, cubeMat)
       ..setPos(x, y, z)
       ..lookUp(1.0)
       ..lookLeft(0.7));
@@ -40,8 +44,6 @@ void main() {
   ShaderProgram fixedShaderPrg =
       chronosGL.createProgram(createSolidColorShader());
 
-  Vector posLight1 = new Vector(0, 0, 0);
-  chronosGL.lights.add(new Light.Point(posLight1));
   Material icoMat = new Material()..SetUniform(uColor, new Vector(1, 1, 0));
   Mesh ico1 = new Mesh(Shapes.Icosahedron(), icoMat)..setPosFromVec(posLight1);
   fixedShaderPrg.add(ico1);
@@ -52,10 +54,12 @@ void main() {
      ..setPosFromVec(posLight2);
    fixedShaderPrg.add(ico2);
 */
+  /*
   ShaderProgram programSprites =
       chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
-
+*/
+  
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });
