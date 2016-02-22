@@ -33,8 +33,8 @@ float unpack(vec4 color) {
 }
 
 // For typeLightPoint
-float computeShadowCube(vec3 positionW, vec3 lightPosition, samplerCube shadowSampler, vec2 depthValues, ShadowInfo info) {
-		vec3 directionToLight = positionW - lightPosition;
+float computeShadowCube(vec3 position, vec3 lightPosition, samplerCube shadowSampler, vec2 depthValues, ShadowInfo info) {
+		vec3 directionToLight = position - lightPosition;
 		float depth = length(directionToLight);
 		depth = (depth - depthValues.x) / (depthValues.y - depthValues.x);
 		depth = clamp(depth, 0., 1.0);
@@ -49,8 +49,8 @@ float computeShadowCube(vec3 positionW, vec3 lightPosition, samplerCube shadowSa
 }
 
 // For typeLightPoint
-float computeShadowWithPCFCube(vec3 positionW, vec3 lightPosition, samplerCube shadowSampler, vec2 depthValues, ShadowInfo info) {
-		vec3 directionToLight = positionW - lightPosition;
+float computeShadowithPCFCube(vec3 position, vec3 lightPosition, samplerCube shadowSampler, vec2 depthValues, ShadowInfo info) {
+		vec3 directionToLight = position - lightPosition;
 		float depth = length(directionToLight);
 
 		depth = (depth - depthValues.x) / (depthValues.y - depthValues.x);
@@ -93,7 +93,7 @@ float computeShadow(vec4 vPositionFromLight, sampler2D shadowSampler, ShadowInfo
 }
 
 // For typeLightSpot
-float computeShadowWithPCF(vec4 vPositionFromLight, sampler2D shadowSampler, ShadowInfo info) {
+float computeShadowithPCF(vec4 vPositionFromLight, sampler2D shadowSampler, ShadowInfo info) {
 		vec3 depth = vPositionFromLight.xyz / vPositionFromLight.w;
   	depth = 0.5 * depth + vec3(0.5);
 		vec2 uv = depth.xy;
@@ -135,7 +135,7 @@ float ChebychevInequality(vec2 moments, float compare, float bias) {
     return clamp(max(p, p_max), 0.0, 1.0);
 }
 
-float computeShadowWithVSM(vec4 vPositionFromLight, sampler2D shadowSampler, float bias, float darkness) {
+float computeShadowithVSM(vec4 vPositionFromLight, sampler2D shadowSampler, float bias, float darkness) {
     vec3 depth = vPositionFromLight.xyz / vPositionFromLight.w;
     depth = 0.5 * depth + vec3(0.5);
     vec2 uv = depth.xy;
@@ -186,27 +186,35 @@ struct LightIntensity {
 };
 
 struct LightSourceInfo {
-    vec3 posW;      // for spot and point
-    vec3 dirW;      // for spot and dir light
+    vec3 pos;      // for spot and point
+    vec3 dir;      // for spot and dir light
     vec3 diffuseColor;
     vec3 groundColor;   // for hemispehere light
     // specular
     vec3 specularColor;
-    float glossiness;
+    float glossiness;   // Oddball: this comes from the material
     float range;        // for spot and point
     float spotCutoff;   // for spot
     float spotFocus;    // for spot
 };
 
+// This needs to stay in sync woth Light::PackInfo
 LightSourceInfo UnpackLightSourceInfo(mat4 m) {
   LightSourceInfo info;
+  info.pos = m[0].xyz;
+  info.dir = m[1].xyz;
+  info.diffuseColor = m[2].xyz;
+  info.specularColor = m[3].xyz;
+  info.range = m[0].a;
+  info.spotCutoff = m[1].a; 
+  info.spotFocus = m[3].a;    
   return info;
 }
 
-float computeSpecular(LightSourceInfo info, GlobalConsts gc, vec3 lightVectorW) {
+float computeSpecular(LightSourceInfo info, GlobalConsts gc, vec3 lightDir) {
 #ifdef SPECULARTERM
-    vec3 angleW = normalize(gc.viewDirection + lightVectorW);
-    float specComp = max(0., dot(gc.Normal, angleW));
+    vec3 half = normalize(gc.viewDirection + lightDir);
+    float specComp = max(0., dot(gc.Normal, half));
     return pow(specComp, max(1., gc.glossiness));
 #else
     return 0.0;
@@ -214,50 +222,49 @@ float computeSpecular(LightSourceInfo info, GlobalConsts gc, vec3 lightVectorW) 
 }
 
 LightIntensity computeDirectionalLighting(LightSourceInfo info, GlobalConsts gc) {
-	vec3 lightVectorW = normalize(-info.dirW);
-	float ndl = max(0., dot(gc.normalW, lightVectorW));
+	vec3 lightDir = normalize(-info.dir);
+	float ndl = max(0., dot(gc.normal, lightDir));
   return LightIntensity(ndl,
-	                      computeSpecular(info, gc, lightVectorW),
+	                      computeSpecular(info, gc, lightDir),
                         1.0);
 }
 
 LightIntensity computePointLighting(LightSourceInfo info, GlobalConsts gc) {
-  vec3 direction = info.posW - gc.posW;
+  vec3 lampDir = info.pos - gc.pos;
   // the further away the light the weaker - complete cutoff at range
-  float attenuation = max(0., 1.0 - length(direction) / info.range);
-  vec3 lightVectorW = normalize(direction);
-  float ndl = max(0., dot(gc.normalW, lightVectorW));
+  float attenuation = max(0., 1.0 - length(lampDir) / info.range);
+  vec3 lightDir = normalize(lampDir);
+  float ndl = max(0., dot(gc.normal, lightDir));
   return LightIntensity(ndl,
-                       computeSpecular(info, gc, lightVectorW),
+                       computeSpecular(info, gc, lightDir),
                        attenuation);
 
 }
 
 LightIntensity computeSpotLighting(LightSourceInfo info, GlobalConsts gc) {
-    vec3 direction = info.posW - gc.posW;
-	  vec3 lightVectorW = normalize(direction);
+    vec3 lampDir = info.pos - gc.pos;
     // if the angle to light source and the direction of the light source
     // is too large - ignore the light. 
-    float cosAngle = max(0., dot(-info.dirW, lightVectorW));
+    float cosAngle = max(0., dot(-info.dir, lampDir));
 	  if (cosAngle < info.spotCutoff) {
         return LightIntensity(0.0, 0.0, 0.0);
     }
  
     // intensity is smaller if the the angle is large and the source is distant.
     cosAngle = max(0., pow(cosAngle, info.spotFocus));
-	  float attenuation = max(0., 1.0 - length(direction) / info.range) * cosAngle;
+	  float attenuation = max(0., 1.0 - length(lampDir) / info.range) * cosAngle;
 
-	  float ndl = max(0., dot(gc.normalW, -info.dirW));
+	  float ndl = max(0., dot(gc.normal, -info.dir));
     return LightIntensity(ndl,
-                         computeSpecular(info, gc, info.dirW),
+                         computeSpecular(info, gc, info.dir),
                          attenuation);
 }
 
 LightIntensity computeHemisphericLighting(LightSourceInfo info, GlobalConsts gc) {
 	  // make this a value between 0 and 1
-    float ndl = dot(gc.normalW, info.posW) * 0.5 + 0.5;
+    float ndl = dot(gc.normal, info.dir) * 0.5 + 0.5;
     return LightIntensity(ndl,
-                         computeSpecular(info, gc, info.posW),
+                         computeSpecular(info, gc, info.pos),
                          1.0);
 
 }
@@ -302,9 +309,9 @@ Material UnpackMaterial(mat4 m) {
 }
 
 struct GlobalConsts {
-   vec3 viewDirectionW;  // used for all lights
-   vec3 normalW;         // used for all lights
-   vec3 posW;            // used for all but hemi lights
+   vec3 viewDirection;  // used for all lights
+   vec3 normal;         // used for all lights
+   vec3 pos;            // used for all but hemi lights
    float glossiness;     // used for all lights
 };
 
@@ -342,9 +349,9 @@ vec4 ComputeColor(ColorVars c) {
 
 GlobalConsts InitGlobalVars(Material mat, vec3 pos, vec3 normal, vec3 eyePos) {
     GlobalConsts c;
-    c.viewDirectionW = normalize(eyePos - pos);
-    c.normalW = normalize(normal);
-    c.posW = pos;
+    c.viewDirection = normalize(eyePos - pos);
+    c.normal = normalize(normal);
+    c.pos = pos;
     c.glossiness = mat.glossiness;
     return c;
 }

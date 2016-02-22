@@ -1,9 +1,9 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
-import 'dart:html';
+import 'dart:html' as HTML;
 
 void main() {
-  StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
+  StatsFps fps = new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
   
   chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
@@ -21,7 +21,10 @@ void main() {
   //FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
   //chronosGL.addAnimatable('flyingCamera', fc);
   Vector posLight1 = new Vector(0, 0, 0);
-  chronosGL.lights.add(new Light.Point(posLight1));
+  Vector colBlue = new Vector(0,0,1);
+  Vector colWhite = new Vector(1,1,1);
+  Vector colRed = new Vector(1,0,0);
+  chronosGL.lights.add(new Light.Point(posLight1, colRed, colWhite, 20.0));
 
   MeshData cubeMeshData = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
   MeshData sphereMeshData = Shapes.Icosahedron()
