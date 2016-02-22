@@ -1,4 +1,6 @@
 import 'package:chronosgl/chronosgl.dart';
+import 'package:chronosgl/chronosutil.dart';
+import 'dart:html';
 import 'dart:typed_data';
 
 List<ShaderObject> createInstancedShader() {
@@ -33,7 +35,13 @@ List<ShaderObject> createInstancedShader() {
 }
 
 void main() {
+  StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
+  
+  chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
+     fps.UpdateFrameCount(time);
+   });
+  
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 265.0);
   chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {

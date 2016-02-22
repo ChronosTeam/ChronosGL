@@ -1,15 +1,21 @@
 import 'package:chronosgl/chronosgl.dart';
+import 'package:chronosgl/chronosutil.dart';
 
 import 'dart:web_gl' as WEBGL;
 import 'dart:html';
 
 void main() {
+  StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas', useFramebuffer: false);
   var ext = GetGlExtensionStandardDerivatives(chronosGL.gl);
   if (ext == null) window.alert("OES_standard_derivatives not supported");
  
   chronosGL.gl.enable(WEBGL.CULL_FACE);
-
+  
+  chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
+    fps.UpdateFrameCount(time);
+  });
+  
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 25.0, 10.0);
   chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {

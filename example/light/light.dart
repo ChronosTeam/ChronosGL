@@ -1,8 +1,15 @@
 import 'package:chronosgl/chronosgl.dart';
+import 'package:chronosgl/chronosutil.dart';
+import 'dart:html';
 
 void main() {
+  StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-
+  
+  chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
+     fps.UpdateFrameCount(time);
+   });
+  
   Camera camera = chronosGL.getCamera();
   camera.setPos(0.0, 0.0, 56.0);
 
