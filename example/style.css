@@ -20,8 +20,8 @@ html, body {
 #stats {
 	z-index: 10; 
 	position: absolute; 
-	left: 10px; 
-	top: 10px;
+	right: 5%; 
+	top: 5%;
 	color: "yellow";
 	background: "white";
 }

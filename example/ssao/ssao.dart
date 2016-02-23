@@ -1,8 +1,14 @@
 import 'package:chronosgl/chronosgl.dart';
+import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
 
 void main() {
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas', near: 0.1, far: 2520.0);
+  chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
+    fps.UpdateFrameCount(time);
+  });
   ChronosFramebuffer fb = new ChronosFramebuffer(
       chronosGL.gl, chronosGL.perspar.width, chronosGL.perspar.height);
 
@@ -41,7 +47,7 @@ void main() {
     ActivateSSAO(myselect.checked);
   });
 
-  loadObj("ct_logo.obj").then((MeshData md) {
+  loadObj("../ct_logo.obj").then((MeshData md) {
     Material mat = new Material()
       ..SetUniform(uColor, new Vector(0.9, 0.9, 0.9));
     Mesh mesh = new Mesh(md, mat)
