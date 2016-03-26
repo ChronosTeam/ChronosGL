@@ -3,7 +3,7 @@ part of chronosgl;
 void ChangeArrayBuffer(
     WEBGL.RenderingContext gl, WEBGL.Buffer buffer, Float32List data) {
   gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
-  gl.bufferDataTyped(WEBGL.ARRAY_BUFFER, data, WEBGL.STATIC_DRAW);
+  gl.bufferData(WEBGL.ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
 }
 
 WEBGL.Buffer CreateAndInitializeArrayBuffer(
@@ -16,7 +16,7 @@ WEBGL.Buffer CreateAndInitializeArrayBuffer(
 void ChangeElementArrayBuffer(
     WEBGL.RenderingContext gl, WEBGL.Buffer buffer, TypedData data) {
   gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, buffer);
-  gl.bufferDataTyped(WEBGL.ELEMENT_ARRAY_BUFFER, data, WEBGL.STATIC_DRAW);
+  gl.bufferData(WEBGL.ELEMENT_ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
 }
 
 WEBGL.Buffer CreateAndInitializeElementArrayBuffer(
@@ -48,16 +48,18 @@ class Mesh extends Node {
     ChangeArrayBuffer(gl, _buffers[canonical], data);
   }
 
+  bool IsPoints() {
+    return _meshData.IsPoints();
+  }
+
   Mesh(this._meshData, this.material, {this.debug: false}) {
     //if (!meshData.isOptimized) meshData.optimize();
     _meshData.SanityCheck();
     gl = ChronosGL.globalGL;
-    AddBuffer(
-        aVertexPosition, new Float32List.fromList(_meshData.GetVertexData()));
+    AddBuffer(aVertexPosition, _meshData.GetVertexData());
 
     for (String canonical in _meshData.GetAttributes()) {
-      AddBuffer(canonical,
-          new Float32List.fromList(_meshData.GetAttributeData(canonical)));
+      AddBuffer(canonical, _meshData.GetAttributeData(canonical));
     }
 
     List<int> indices = _meshData.GetVertexIndices();
@@ -77,12 +79,10 @@ class Mesh extends Node {
 
   void UpdateMeshData(MeshData md) {
     _meshData = md;
-    ChangeBufferCanonical(
-        aVertexPosition, new Float32List.fromList(_meshData.GetVertexData()));
+    ChangeBufferCanonical(aVertexPosition, _meshData.GetVertexData());
 
     for (String canonical in _meshData.GetAttributes()) {
-      ChangeBufferCanonical(canonical,
-          new Float32List.fromList(_meshData.GetAttributeData(canonical)));
+      ChangeBufferCanonical(canonical, _meshData.GetAttributeData(canonical));
     }
     List<int> indices = _meshData.GetVertexIndices();
     if (indices != null) {
@@ -117,6 +117,7 @@ class Mesh extends Node {
       //print('-----');
     }
 
+    if (numItems == 0) return;
     material.RenderingInit(gl);
     bindBuffers(program);
     Matrix3 normMatrix = new Matrix3.fromM4(mvMatrix);

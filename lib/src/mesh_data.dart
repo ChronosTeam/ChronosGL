@@ -30,6 +30,7 @@ class MeshData {
   List<Face3> _faces3 = [];
   List<Face4> _faces4 = [];
   List<double> _vertices = [];
+  List<int> _faces = [];
   Map<String, List<double>> _attributes = {};
 
   MeshData();
@@ -45,30 +46,30 @@ class MeshData {
 
     int maxIndexFace1 = 0;
     for (Face1 f in _faces1) {
-      if(f.a > maxIndexFace1) maxIndexFace1 = f.a;
+      if (f.a > maxIndexFace1) maxIndexFace1 = f.a;
     }
-    
+
     int maxIndexFace3 = 0;
     for (Face3 f in _faces3) {
-      if(f.a > maxIndexFace3) maxIndexFace3 = f.a;
-      if(f.b > maxIndexFace3) maxIndexFace3 = f.b;
-      if(f.c > maxIndexFace3) maxIndexFace3 = f.c;
+      if (f.a > maxIndexFace3) maxIndexFace3 = f.a;
+      if (f.b > maxIndexFace3) maxIndexFace3 = f.b;
+      if (f.c > maxIndexFace3) maxIndexFace3 = f.c;
     }
-    
+
     int maxIndexFace4 = 0;
     for (Face4 f in _faces4) {
-      if(f.a > maxIndexFace4) maxIndexFace4 = f.a;
-      if(f.b > maxIndexFace4) maxIndexFace4 = f.b;
-      if(f.c > maxIndexFace4) maxIndexFace4 = f.c;
-      if(f.d > maxIndexFace4) maxIndexFace4 = f.d;
+      if (f.a > maxIndexFace4) maxIndexFace4 = f.a;
+      if (f.b > maxIndexFace4) maxIndexFace4 = f.b;
+      if (f.c > maxIndexFace4) maxIndexFace4 = f.c;
+      if (f.d > maxIndexFace4) maxIndexFace4 = f.d;
     }
-    
+
     final int n = _vertices.length ~/ 3;
     assert(n > 0);
-    assert (maxIndexFace1 < n);
-    assert (maxIndexFace3 < n);
-    assert (maxIndexFace4 < n);
-    
+    assert(maxIndexFace1 < n);
+    assert(maxIndexFace3 < n);
+    assert(maxIndexFace4 < n);
+
     for (String canonical in _attributes.keys) {
       int x = _attributes[canonical].length;
       //print ("@@@@@ ${canonical} $n $x");
@@ -82,32 +83,44 @@ class MeshData {
     return _attributes.keys;
   }
 
+  // Note, this is meant to be called only once at the when everything
+  // is dones
   List<double> GetAttributeData(String canonical) {
-    return _attributes[canonical];
+    List<double> a = _attributes[canonical];
+    if (a is TypedData) return a;
+    return new Float32List.fromList(a);
   }
 
-  List<double> GetVertexData() {
-    return _vertices;
+  Float32List GetVertexData() {
+    if (_vertices is TypedData) return _vertices;
+    return new Float32List.fromList(_vertices);
   }
 
   List<int> GetVertexIndices() {
     if (IsPoints()) return null;
-    List<int> out = [];
-    for (Face3 f3 in _faces3) {
-      out.add(f3.a);
-      out.add(f3.b);
-      out.add(f3.c);
+    if (_faces.isEmpty) {
+      _faces = new Uint32List(_faces3.length * 3 + _faces4.length * 6);
+      List<int> out = [];
+      int i = 0;
+      for (Face3 f3 in _faces3) {
+        _faces[i + 0] = f3.a;
+        _faces[i + 1] = f3.b;
+        _faces[i + 2] = f3.c;
+        i += 3;
+      }
+      for (Face4 f4 in _faces4) {
+        _faces[i + 0] = f4.a;
+        _faces[i + 1] = f4.b;
+        _faces[i + 2] = f4.c;
+        //
+        _faces[i + 3] = f4.a;
+        _faces[i + 4] = f4.c;
+        _faces[i + 5] = f4.d;
+        i += 6;
+      }
+      assert(i == _faces.length);
     }
-    for (Face4 f4 in _faces4) {
-      out.add(f4.a);
-      out.add(f4.b);
-      out.add(f4.c);
-      //
-      out.add(f4.a);
-      out.add(f4.c);
-      out.add(f4.d);
-    }
-    return out;
+    return _faces;
   }
 
   void EnableAttribute(String canonical) {
@@ -145,10 +158,35 @@ class MeshData {
     }
   }
 
+  // Extract the triplets from vertex
   void AddVertices(List<Vector> lst) {
     for (Vector v in lst) {
       _vertices.addAll(v.array);
     }
+  }
+
+  void SetFacesRaw(List<int> lst, int end) {
+    assert(_faces.length == 0);
+    final int n = end & 0xffffff;
+    Uint32List f = new Uint32List(n);
+    for (int i = 0; i < end; i++) f[i] = lst[i];
+    _faces = f;
+  }
+
+  void SetVerticesRaw(List<double> lst, int end) {
+    assert(_vertices.length == 0);
+    final int n = end & 0xffffff;
+    Float32List f = new Float32List(n);
+    for (int i = 0; i < end; i++) f[i] = lst[i];
+    _vertices = f;
+  }
+
+  void SetAttributesRaw(String canonical, List<double> lst, int end) {
+    assert(_attributes[canonical].length == 0);
+    final int n = end & 0xffffff;
+    Float32List f = new Float32List(n);
+    for (int i = 0; i < end; i++) f[i] = lst[i];
+    _attributes[canonical] = f;
   }
 
   void AddAttributesVector(String canonical, List<Vector> lst) {
@@ -177,6 +215,7 @@ class MeshData {
     normal.set(c).subtract(a);
 
     normal.cross(temp);
+
     double len = normal.length();
     if (len == 0) {
       return false;
@@ -190,7 +229,7 @@ class MeshData {
   // add support for Face4
   void generateWireframeCenters() {
     if (!_attributes.containsKey(aCenter)) EnableAttribute(aCenter);
-    List<double> centers = GetAttributeData(aCenter);
+    List<double> centers = _attributes[aCenter];
     while (centers.length < _vertices.length * 4 ~/ 3) {
       centers.add(0.0);
     }
@@ -236,7 +275,7 @@ class MeshData {
       v.set(_vertices[i * 3 + 0], _vertices[i * 3 + 1], _vertices[i * 3 + 2]);
     }
 
-    List<double> normals = GetAttributeData(aNormal);
+    List<double> normals = _attributes[aNormal];
     while (normals.length < _vertices.length) {
       normals.add(0.0);
     }
@@ -261,7 +300,7 @@ class MeshData {
   void setFace4UV(int n, Vector2 a, Vector2 b, Vector2 c, Vector2 d) {
     assert(_attributes.containsKey(aTextureCoordinates));
     Face4 f = _faces4[n];
-    List<double> uvs = GetAttributeData(aTextureCoordinates);
+    List<double> uvs = _attributes[aTextureCoordinates];
     uvs[2 * f.a + 0] = a.x;
     uvs[2 * f.a + 1] = a.y;
     uvs[2 * f.b + 0] = b.x;
@@ -293,4 +332,7 @@ class MeshData {
     }
   
      */
+  String toString() {
+    return "F ${_faces.length} ${_vertices.length}";
+  }
 }
