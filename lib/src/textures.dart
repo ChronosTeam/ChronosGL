@@ -32,7 +32,6 @@ GetGlExtensionStandardDerivatives(WEBGL.RenderingContext gl) {
   return ext;
 }
 
-
 HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {
   HTML.CanvasElement canvas = new HTML.CanvasElement(width: 2, height: 2);
   HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
@@ -106,7 +105,6 @@ class Texture {
 
   static List<Texture> _cache = [];
 
-
   static Future<dynamic> loadAndInstallAllTextures(WEBGL.RenderingContext gl) {
     List<Future<HTML.Event>> futures = [];
     for (Texture tw in _cache) {
@@ -165,7 +163,7 @@ class CanvasTexture extends Texture {
     if (_textureType != WEBGL.TEXTURE_2D) return;
     _texture = gl.createTexture();
     gl.bindTexture(_textureType, _texture);
-    gl.texImage2DCanvas(
+    gl.texImage2D(
         _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _canvas);
     properties.Install(gl, _textureType);
     int err = gl.getError();
@@ -173,8 +171,15 @@ class CanvasTexture extends Texture {
     gl.bindTexture(_textureType, null);
   }
 
+  void UpdateFromCanvas(WEBGL.RenderingContext gl) {
+    gl.bindTexture(_textureType, _texture);
+    gl.texImage2D(
+        _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _canvas);
+    gl.bindTexture(_textureType, null);
+  }
+
   void InstallAsCubeChild(WEBGL.RenderingContext gl) {
-    gl.texImage2DCanvas(
+    gl.texImage2D(
         _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _canvas);
   }
 }
@@ -196,7 +201,7 @@ class ImageTexture extends Texture {
     if (_textureType != WEBGL.TEXTURE_2D) return;
     _texture = gl.createTexture();
     gl.bindTexture(_textureType, _texture);
-    gl.texImage2DImage(
+    gl.texImage2D(
         _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _image);
     properties.Install(gl, _textureType);
     int err = gl.getError();
@@ -205,7 +210,7 @@ class ImageTexture extends Texture {
   }
 
   void InstallAsCubeChild(WEBGL.RenderingContext gl) {
-    gl.texImage2DImage(
+    gl.texImage2D(
         _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _image);
   }
 

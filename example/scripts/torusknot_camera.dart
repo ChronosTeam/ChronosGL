@@ -31,7 +31,7 @@ void main() {
     canvas2d = Utils.createGradientImage2(time / 1000, canvas2d);
     chronosGL.gl.bindTexture(WEBGL.TEXTURE_2D, generatedTexture.GetTexture());
     chronosGL.gl
-        .texImage2DCanvas(WEBGL.TEXTURE_2D, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, canvas2d);
+        .texImage2D(WEBGL.TEXTURE_2D, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, canvas2d);
   });
 
   int p = 2;
