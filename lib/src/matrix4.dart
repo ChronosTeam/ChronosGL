@@ -106,15 +106,29 @@ class Matrix4 {
 
   void frustum(double left, double right, double bottom, double top,
       double near, double far) {
-    double rl = (right - left), tb = (top - bottom), fn = (far - near);
-    clear();
+    double rl = (right - left);
+    double tb = (top - bottom);
+    double fn = (far - near);
+    //
     array[0] = (near * 2) / rl;
+    array[1] = 0.0; 
+    array[2] = 0.0;
+    array[3] = 0.0;
+    //
+    array[4] = 0.0;
     array[5] = (near * 2) / tb;
+    array[6] = 0.0;
+    array[7] = 0.0;
+    //
     array[8] = (right + left) / rl;
     array[9] = (top + bottom) / tb;
     array[10] = -(far + near) / fn;
-    array[11] = -1.0;
-    array[14] = -(far * near * 2) / fn;
+    array[11] = -1.0;    
+    //
+    array[12] = 0.0;
+    array[13] = 0.0;
+    array[14] = -2.0 * far * near / fn;
+    array[15] = 0.0;
   }
 
   void setPerspective(int fovy, double aspect, double near, double far) {

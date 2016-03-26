@@ -11,6 +11,11 @@ class Vector2 {
     array[0] = x.toDouble();
     array[1] = y.toDouble();
   }
+  
+  double dist(Vector2 to) {
+     double x = to.array[0] - array[0], y = to.array[1] - array[1];
+     return Math.sqrt(x * x + y * y);
+   }
 }
 
 class Vector4 {
