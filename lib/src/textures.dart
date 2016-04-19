@@ -287,6 +287,11 @@ class CubeTexture extends Texture {
     properties.clamp = true;
   }
 
+  CubeTexture.fromTextures(String url, List<Texture> texs) : super(url) {
+    _cubeChildren = texs;
+    properties.clamp = true;
+  }
+
   void Install(WEBGL.RenderingContext gl) {
     _texture = gl.createTexture();
     gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, _texture);
