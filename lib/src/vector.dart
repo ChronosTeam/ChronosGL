@@ -11,11 +11,11 @@ class Vector2 {
     array[0] = x.toDouble();
     array[1] = y.toDouble();
   }
-  
+
   double dist(Vector2 to) {
-     double x = to.array[0] - array[0], y = to.array[1] - array[1];
-     return Math.sqrt(x * x + y * y);
-   }
+    double x = to.array[0] - array[0], y = to.array[1] - array[1];
+    return Math.sqrt(x * x + y * y);
+  }
 }
 
 class Vector4 {
@@ -32,6 +32,16 @@ class Vector4 {
   double get y => array[1];
   double get z => array[2];
   double get w => array[3];
+
+  set x(double v) => array[0] = v;
+  set y(double v) => array[1] = v;
+  set z(double v) => array[2] = v;
+  set w(double v) => array[3] = v;
+  
+  // pretend this is a plane
+  double distanceTo(Vector v) {
+    return array[3] + array[0] * v.x + array[1] * v.y + array[2] * v.z;
+  }
 }
 
 class Vector {
