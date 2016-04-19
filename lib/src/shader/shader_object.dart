@@ -47,6 +47,7 @@ const String aCenter = "aCenter";
 // Instancer
 const String iaRotatation = "iaRotation";
 const String iaTranslation = "iaTranslation";
+const String iaScale = "iaScale";
 
 const String vColors = "vColors";
 const String vTextureCoordinates = "vTextureCoordinates";
@@ -98,7 +99,8 @@ Map<String, ShaderVarDesc> _VarsDb = {
   
   iaRotatation: new ShaderVarDesc("vec4", ""),
   iaTranslation: new ShaderVarDesc("vec3", ""),
-
+  iaScale: new ShaderVarDesc("vec3", ""),
+  
   // Varying
   vColors: new ShaderVarDesc("vec3", "per vertex color"),
   vTextureCoordinates: new ShaderVarDesc("vec2", ""),
