@@ -44,19 +44,19 @@ class MeshData {
       assert(_faces3.length == 0 && _faces4.length == 0);
     }
 
-    int maxIndexFace1 = 0;
+    int maxIndexFace1 = -1;
     for (Face1 f in _faces1) {
       if (f.a > maxIndexFace1) maxIndexFace1 = f.a;
     }
 
-    int maxIndexFace3 = 0;
+    int maxIndexFace3 = -1;
     for (Face3 f in _faces3) {
       if (f.a > maxIndexFace3) maxIndexFace3 = f.a;
       if (f.b > maxIndexFace3) maxIndexFace3 = f.b;
       if (f.c > maxIndexFace3) maxIndexFace3 = f.c;
     }
 
-    int maxIndexFace4 = 0;
+    int maxIndexFace4 = -1;
     for (Face4 f in _faces4) {
       if (f.a > maxIndexFace4) maxIndexFace4 = f.a;
       if (f.b > maxIndexFace4) maxIndexFace4 = f.b;
@@ -65,7 +65,7 @@ class MeshData {
     }
 
     final int n = _vertices.length ~/ 3;
-    assert(n > 0);
+    assert(n >= 0);
     assert(maxIndexFace1 < n);
     assert(maxIndexFace3 < n);
     assert(maxIndexFace4 < n);
