@@ -1,7 +1,5 @@
 part of chronosgl;
 
-
-
 // For use with uniforms
 class ShaderProgramInputs {
   Map _uniforms = {};
@@ -76,8 +74,8 @@ class CoreProgram {
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "Unknown canonical ${canonical}";
     if (!desc.IsScalarTypeFloat()) throw "type ${canonical} is not float";
-    _gl.vertexAttribPointer(index, desc.GetSize(),
-        WEBGL.FLOAT, normalized, stride, offset);
+    _gl.vertexAttribPointer(
+        index, desc.GetSize(), WEBGL.FLOAT, normalized, stride, offset);
   }
 
   void SetElementArray(WEBGL.Buffer b) {
@@ -185,11 +183,13 @@ class CoreProgram {
 
   void Draw(bool debug, int numInstances, int numItems, bool drawPoints,
       bool useArrayBuffer) {
-    if (debug) print(
-        "[${name}] draw points: ${drawPoints} instances${numInstances}");
+
+    if (debug)
+      print("[${name}] draw points: ${drawPoints} instances${numInstances}");
     if (!AllUniformsInitialized()) {
       throw "${name}: uninitialized uniforms: ${UniformsUninitialized()}";
     }
+    
     if (numInstances > 0) {
       if (drawPoints) {
         _extInstancedArrays.drawArraysInstancedAngle(
@@ -289,10 +289,10 @@ class ShaderProgram implements Drawable {
   }
 
   bool hasEnabledObjects() {
-    if (objects.any((Node n) => n.enabled)) return true;
-    if (followCameraObjects.any((Node n) => n.enabled)) return true;
-    return false;
-  }
+      if (objects.any((Node n) => n.enabled)) return true;
+      if (followCameraObjects.any((Node n) => n.enabled)) return true;
+      return false;
+    }
 
   void MaybeSetAttribute(String canonical, WEBGL.Buffer buffer,
       [bool normalized = false, int stride = 0, int offset = 0]) {
@@ -327,7 +327,7 @@ class ShaderProgram implements Drawable {
   void draw(PerspectiveParams dynpar, List<Light> lights, Camera camera,
       Matrix4 pMatrix) {
     if (!hasEnabledObjects()) return;
-
+    
     _program.Begin(debug);
 
     if (debug) print("[setting ununiforms");
@@ -340,7 +340,7 @@ class ShaderProgram implements Drawable {
       modelviewMatrix.setElements(viewMatrix);
       inputs.SetUniformVal(uViewMatrix, viewMatrix);
     }
-    for (int i=0; i < lights.length; ++i) {
+    for (int i = 0; i < lights.length; ++i) {
       Light l = lights[i];
       String canonical = uLightSourceInfo + "$i";
       inputs.SetUniformVal(canonical, l.PackInfo(viewMatrix));
@@ -354,7 +354,7 @@ class ShaderProgram implements Drawable {
 
     // like skybox
     if (debug) print("[draw followCameraObjects ${followCameraObjects.length}");
-  
+
     // This is broken but without an example it is hard fix
     for (Node node in followCameraObjects) {
       if (node.enabled) node.draw(this, inputs, modelviewMatrix);

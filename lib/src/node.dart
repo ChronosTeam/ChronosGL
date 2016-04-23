@@ -14,16 +14,6 @@ class Node extends Spatial {
     if (child != null) children.add(child);
   }
 
-  void clear() {
-    enabled = false;
-    for (Node node in children) {
-      node.clear();
-    }
-    clearData();
-  }
-
-  void clearData() {}
-
   Spatial add(Node child) {
     children.add(child);
     return child;
@@ -45,7 +35,8 @@ class Node extends Spatial {
   // this should be overridden by subclasses
   void draw2(ShaderProgram program, ShaderProgramInputs inputs) {}
 
-  void draw(ShaderProgram program, ShaderProgramInputs inputs, Matrix4 parentMVMatrix) {
+  void draw(ShaderProgram program, ShaderProgramInputs inputs,
+      Matrix4 parentMVMatrix) {
     // copy the mvMatrix, so we don't change the original
     mvMatrix.setElements(parentMVMatrix);
     mvMatrix.multiplyWith(transform);
