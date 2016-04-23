@@ -88,9 +88,9 @@ class Quaternion {
     }
 
     double angle = Math.acos(dot);
-    Vector axis = _tempLookAt.cross(Vector.BACK);
+    _tempLookAt.cross(Vector.BACK);
     //rotAxis.normalize();
-    return setAxisAngle(axis, angle);
+    return setAxisAngle(_tempLookAt, angle);
   }
 
   Float32List m = new Float32List(9);

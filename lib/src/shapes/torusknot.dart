@@ -36,8 +36,8 @@ MeshData createTorusKnotInternal(
     n.y = p2.y + p1.y;
     n.z = p2.z + p1.z;
 
-    bitan.cross2(tang, n).normalize();
-    n.cross2(bitan, tang).normalize();
+    bitan..cross2(tang, n)..normalize();
+    n..cross2(bitan, tang)..normalize();
 
     for (int j = 0; j < segmentsT; ++j) {
       double v = j / segmentsT * 2 * Math.PI;

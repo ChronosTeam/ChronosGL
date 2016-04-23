@@ -51,20 +51,20 @@ final List<Face3> _icoFaces = [
 final double t = (1 + Math.sqrt(5)) / 2;
 
 final List<Vector> _icoVertices = [
-  new Vector(-1, t, 0).normalize(),
-  new Vector(1, t, 0).normalize(),
-  new Vector(-1, -t, 0).normalize(),
-  new Vector(1, -t, 0).normalize(),
+  new Vector(-1, t, 0)..normalize(),
+  new Vector(1, t, 0)..normalize(),
+  new Vector(-1, -t, 0)..normalize(),
+  new Vector(1, -t, 0)..normalize(),
   //
-  new Vector(0, -1, t).normalize(),
-  new Vector(0, 1, t).normalize(),
-  new Vector(0, -1, -t).normalize(),
-  new Vector(0, 1, -t).normalize(),
+  new Vector(0, -1, t)..normalize(),
+  new Vector(0, 1, t)..normalize(),
+  new Vector(0, -1, -t)..normalize(),
+  new Vector(0, 1, -t)..normalize(),
   //
-  new Vector(t, 0, -1).normalize(),
-  new Vector(t, 0, 1).normalize(),
-  new Vector(-t, 0, -1).normalize(),
-  new Vector(-t, 0, 1).normalize()
+  new Vector(t, 0, -1)..normalize(),
+  new Vector(t, 0, 1)..normalize(),
+  new Vector(-t, 0, -1)..normalize(),
+  new Vector(-t, 0, 1)..normalize()
 ];
 
 // This produces the mash for an icosahedron when subdivisions == 0
@@ -90,9 +90,12 @@ MeshData createIcosahedronInternal([int subdivisions = 4]) {
     List<Face3> tmp = [];
     for (Face3 f in faces) {
       // Note: a,b,c are unit vectors
-      Vector a = vertices[f.a].copy().add(vertices[f.b]).scale(0.5).normalize();
-      Vector b = vertices[f.b].copy().add(vertices[f.c]).scale(0.5).normalize();
-      Vector c = vertices[f.c].copy().add(vertices[f.a]).scale(0.5).normalize();
+      Vector a = vertices[f.a].copy();
+      a..add(vertices[f.b])..scale(0.5)..normalize();
+      Vector b = vertices[f.b].copy();
+      b..add(vertices[f.c])..scale(0.5)..normalize();
+      Vector c = vertices[f.c].copy();
+      c..add(vertices[f.a])..scale(0.5)..normalize();
       final int ia = vertices.length;
       vertices.add(a);
       final int ib = vertices.length;

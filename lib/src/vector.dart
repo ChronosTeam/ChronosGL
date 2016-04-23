@@ -108,49 +108,43 @@ class Vector {
     return new Vector.fromList(this.array);
   }
 
-  Vector add(Vector v) {
+  void add(Vector v) {
     array[0] += v[0];
     array[1] += v[1];
     array[2] += v[2];
-    return this;
   }
 
-  Vector subtract(Vector v) {
+  void subtract(Vector v) {
     array[0] -= v[0];
     array[1] -= v[1];
     array[2] -= v[2];
-    return this;
   }
 
-  Vector scale(num val) {
+  void scale(num val) {
     array[0] *= val;
     array[1] *= val;
     array[2] *= val;
-    return this;
   }
 
-  Vector addScaledVector(Vector v, num val) {
+  void addScaledVector(Vector v, num val) {
     array[0] += v[0] * val;
     array[1] += v[1] * val;
     array[2] += v[2] * val;
-    return this;
   }
 
-  Vector negate() {
+  void negate() {
     array[0] = -array[0];
     array[1] = -array[1];
     array[2] = -array[2];
-    return this;
   }
   
-  Vector copyFrom(Vector v) {
+  void copyFrom(Vector v) {
      array[0] = v.array[0];
      array[1] = v.array[1];
      array[2] = v.array[2];
-     return this;
    }
   
-  Vector normalize() {
+  void normalize() {
     double x = array[0], y = array[1], z = array[2];
     double len = Math.sqrt(x * x + y * y + z * z);
 
@@ -168,11 +162,10 @@ class Vector {
       array[1] = y * len;
       array[2] = z * len;
     }
-    return this;
   }
 
   // I think the from and to is swapped, but it's the same in glmatrix...
-  Vector direction(Vector from, Vector to) {
+  void direction(Vector from, Vector to) {
     double x = from[0] - to[0],
         y = from[1] - to[1],
         z = from[2] - to[2],
@@ -188,17 +181,16 @@ class Vector {
       array[1] = y * len;
       array[2] = z * len;
     }
-    return this;
   }
 
   // The cross product results in a vector perpendicular to the two input vectors
   // The result's magnitude is equal to the magnitudes of the two inputs multiplied together and then multiplied by the sine of the angle between the inputs.
   // Or in other words the result's magnitude is equal to the area of the parallelogram that the two input vectors span.
-  Vector cross(Vector vec2) {
-    return cross2(this, vec2);
+  void cross(Vector vec2) {
+    cross2(this, vec2);
   }
 
-  Vector cross2(Vector vec1, Vector vec2) {
+  void cross2(Vector vec1, Vector vec2) {
     double x = vec1[0],
         y = vec1[1],
         z = vec1[2],
@@ -209,7 +201,6 @@ class Vector {
     array[0] = y * z2 - z * y2;
     array[1] = z * x2 - x * z2;
     array[2] = x * y2 - y * x2;
-    return this;
   }
 
   // The dot product is a float value equal to the magnitudes of the two vectors multiplied together and then multiplied by the cosine of the angle between them.
@@ -218,11 +209,10 @@ class Vector {
     return array[0] * vec2[0] + array[1] * vec2[1] + array[2] * vec2[2];
   }
 
-  Vector lerp(Vector v, double lerp) {
+  void lerp(Vector v, double lerp) {
     array[0] += lerp * (v[0] - array[0]);
     array[1] += lerp * (v[1] - array[1]);
     array[2] += lerp * (v[2] - array[2]);
-    return this;
   }
 
   double dist(Vector to) {
