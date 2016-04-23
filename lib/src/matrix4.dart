@@ -1,5 +1,93 @@
 part of chronosmath;
 
+class Matrix3 {
+  Float32List array = new Float32List(3 * 3);
+
+  Matrix3 fromM4(Matrix4 m) {
+    array[0] = m.array[0];
+    array[1] = m.array[1];
+    array[2] = m.array[2];
+    //
+    array[3] = m.array[4];
+    array[4] = m.array[5];
+    array[5] = m.array[6];
+    //
+    array[6] = m.array[8];
+    array[7] = m.array[9];
+    array[8] = m.array[10];
+    return this;
+  }
+
+  void invert() {
+    Float32List m = array;
+    // matric of minors
+    double a11 = m[8] * m[4] - m[5] * m[7];
+    double a21 = -m[8] * m[1] + m[2] * m[7];
+    double a31 = m[5] * m[1] - m[2] * m[4];
+    double a12 = -m[8] * m[3] + m[5] * m[6];
+    double a22 = m[8] * m[0] - m[2] * m[6];
+    double a32 = -m[5] * m[0] + m[2] * m[3];
+    double a13 = m[7] * m[3] - m[4] * m[6];
+    double a23 = -m[7] * m[0] + m[1] * m[6];
+    double a33 = m[4] * m[0] - m[1] * m[3];
+
+    double det = m[0] * a11 + m[1] * a12 + m[2] * a13;
+    if (det == 0) {
+      throw "zero determinant ${m}";
+    }
+    double idet = 1.0 / det;
+    m[0] = idet * a11;
+    m[1] = idet * a21;
+    m[2] = idet * a31;
+    //
+    m[3] = idet * a12;
+    m[4] = idet * a22;
+    m[5] = idet * a32;
+    //
+    m[6] = idet * a13;
+    m[7] = idet * a23;
+    m[8] = idet * a33;
+  }
+
+  void transpose() {
+    Float32List m = array;
+    double t;
+
+    t = m[1];
+    m[1] = m[3];
+    m[3] = t;
+
+    t = m[2];
+    m[2] = m[6];
+    m[6] = t;
+
+    t = m[5];
+    m[5] = m[7];
+    m[7] = t;
+  }
+  
+  void multiply(Matrix3 m) {
+    var m00 = array[0], m01 = array[3], m02 = array[6],
+        m10 = array[1], m11 = array[4], m12 = array[7],
+        m20 = array[2], m21 = array[5], m22 = array[8];
+      var n00 = m.array[0], n01 = m.array[3], n02 = m.array[6],
+        n10 = m.array[1], n11 = m.array[4], n12 = m.array[7],
+        n20 = m.array[2], n21 = m.array[5], n22 = m.array[8];
+
+      array[0] = m00 * n00 + m01 * n10 + m02 * n20;
+      array[3] = m00 * n01 + m01 * n11 + m02 * n21;
+      array[6] = m00 * n02 + m01 * n12 + m02 * n22;
+
+      array[1] = m10 * n00 + m11 * n10 + m12 * n20;
+      array[4] = m10 * n01 + m11 * n11 + m12 * n21;
+      array[7] = m10 * n02 + m11 * n12 + m12 * n22;
+
+      array[2] = m20 * n00 + m21 * n10 + m22 * n20;
+      array[5] = m20 * n01 + m21 * n11 + m22 * n21;
+      array[8] = m20 * n02 + m21 * n12 + m22 * n22;
+  }
+}
+
 /* [1, 0, 0, 0,
  *  0, 1, 0, 0,
  *  0, 0, 1, 0,
@@ -398,6 +486,46 @@ class Matrix4 {
     array[12] = from[12] * factor;
     array[13] = from[13] * factor;
     array[14] = from[14] * factor;
+  }
+
+  void copyPositionToVec3(Vector target, [num factor = 1]) {
+    target.array[0] = array[12] * factor;
+    target.array[1] = array[13] * factor;
+    target.array[2] = array[14] * factor;
+  }
+
+  void copyPositionFromVec3(Vector from, [num factor = 1]) {
+    array[12] = from[0] * factor;
+    array[13] = from[1] * factor;
+    array[14] = from[2] * factor;
+  }
+
+  void copyRotationFromM3(Matrix3 from) {
+    array[0] = from.array[0];
+    array[1] = from.array[1];
+    array[2] = from.array[2];
+    
+    array[4] = from.array[3];
+    array[5] = from.array[4];
+    array[6] = from.array[5];
+
+    array[8] = from.array[6];
+    array[9] = from.array[7];
+    array[10] = from.array[8];
+  }
+
+  void copyRotationFrom(Matrix4 from) {
+    array[0] = from.array[0];
+    array[1] = from.array[1];
+    array[2] = from.array[2];
+    
+    array[4] = from.array[4];
+    array[5] = from.array[5];
+    array[6] = from.array[6];
+
+    array[8] = from.array[8];
+    array[9] = from.array[9];
+    array[10] = from.array[10];
   }
 
   Vector newBack = new Vector();

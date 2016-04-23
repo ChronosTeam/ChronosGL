@@ -226,6 +226,15 @@ class Vector {
     return true;
   }
 
+  Vector multiplyMat3(Matrix3 m) {
+    var x = array[0], y = array[1], z = array[2];
+
+    array[0] = m.array[0] * x + m.array[3] * y + m.array[6] * z;
+    array[1] = m.array[1] * x + m.array[4] * y + m.array[7] * z;
+    array[2] = m.array[2] * x + m.array[5] * y + m.array[8] * z;
+    return this;
+  }
+
   String toString() {
     return array.toString();
   }
