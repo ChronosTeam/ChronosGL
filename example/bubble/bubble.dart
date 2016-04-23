@@ -1,4 +1,6 @@
 import 'package:chronosgl/chronosgl.dart';
+import 'package:chronosgl/chronosutil.dart';
+import 'dart:html';
 
 // https://cycling74.com/forums/topic/shader-help-recreating-gl_sphere_map/
 // https://www.opengl.org/wiki/Mathematics_of_glTexGen
@@ -32,8 +34,13 @@ List<ShaderObject> sphereShader() {
 }
 
 void main() {
+  StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-
+  
+  chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
+    fps.UpdateFrameCount(time);
+  });
+  
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 5.0, 10.0);
   // Note, moving the camera does not have an effect
