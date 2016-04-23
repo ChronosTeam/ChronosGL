@@ -163,14 +163,8 @@ class Quaternion {
   }
 
   Quaternion slerp(Quaternion a, Quaternion b, double t) {
-    double ax = a[0],
-        ay = a[1],
-        az = a[2],
-        aw = a[3];
-    double bx = b[0],
-        by = b[1],
-        bz = b[2],
-        bw = b[3];
+    double ax = a[0], ay = a[1], az = a[2], aw = a[3];
+    double bx = b[0], by = b[1], bz = b[2], bw = b[3];
     double omega, cosom, sinom, scale0, scale1;
 
     // calc cosine
@@ -207,5 +201,21 @@ class Quaternion {
 
   Quaternion copy() {
     return new Quaternion.fromList(this.array);
+  }
+
+  void mul(Quaternion other) {
+    double tw = array[3];
+    double tz = array[2];
+    double ty = array[1];
+    double tx = array[0];
+    double ow = other.array[3];
+    double oz = other.array[2];
+    double oy = other.array[1];
+    double ox = other.array[0];
+
+    array[0] = tw * ox + tx * ow + ty * oz - tz * oy;
+    array[1] = tw * oy + ty * ow + tz * ox - tx * oz;
+    array[2] = tw * oz + tz * ow + tx * oy - ty * ox;
+    array[3] = tw * ow - tx * ox - ty * oy - tz * oz;
   }
 }
