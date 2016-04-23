@@ -142,7 +142,14 @@ class Vector {
     array[2] = -array[2];
     return this;
   }
-
+  
+  Vector copyFrom(Vector v) {
+     array[0] = v.array[0];
+     array[1] = v.array[1];
+     array[2] = v.array[2];
+     return this;
+   }
+  
   Vector normalize() {
     double x = array[0], y = array[1], z = array[2];
     double len = Math.sqrt(x * x + y * y + z * z);
