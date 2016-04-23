@@ -34,7 +34,6 @@ part "src/input.dart";
 part "src/load_obj.dart";
 part "src/framebuffer.dart";
 
-
 void LogInfo(String s) {
   HTML.window.console.log(s);
 }
@@ -54,9 +53,69 @@ void LogWarn(String s) {
 class PerspectiveParams {
   int width;
   int height;
-  int fov = 50;
+  int fov = 50; // horizobtal fov in deg  divided by 2
   double near = 0.1;
   double far = 1000.0;
+
+  List<Vector4> _cullPlanes = [
+    new Vector4(0, 0, 0, 0),
+    new Vector4(0, 0, 0, 0),
+    new Vector4(0, 0, 0, 0),
+    new Vector4(0, 0, 0, 0)
+  ];
+
+  double aspecRatioInv() {
+    return height / width;
+  }
+
+  // Distance to projection plane
+  double focalLength() {
+    return 1.0 / Math.tan(fov * Math.PI / 360.0);
+  }
+
+  double vfov() {
+    return Math.atan(aspecRatioInv() / focalLength());
+  }
+
+  void UpdatePerspective(Matrix4 mat) {
+    mat.setPerspective(fov, width / height, near, far);
+    double e = focalLength();
+    double a = aspecRatioInv();
+    double ee1 = Math.sqrt(e * e + 1);
+    double eeaa = Math.sqrt(e * e + a * a);
+    // Left
+    Vector4 c0 = _cullPlanes[0];
+    c0.x = e / ee1;
+    c0.y = 0.0;
+    c0.z = -1.0 / ee1;
+    c0.w = 0.0;
+    // Right
+    Vector4 c1 = _cullPlanes[1];
+    c1.x = -e / ee1;
+    c1.y = 0.0;
+    c1.z = -1.0 / ee1;
+    c1.w = 0.0;
+    // Bottom
+    Vector4 c2 = _cullPlanes[2];
+    c2.x = 0.0;
+    c2.y = e / eeaa;
+    c2.z = -a / eeaa;
+    c2.w = 0.0;
+    // Top
+    Vector4 c3 = _cullPlanes[3];
+    c3.x = 0.0;
+    c3.y = -e / eeaa;
+    c3.z = -a / eeaa;
+    c3.w = 0.0;
+  }
+
+  bool IntersectSphere(Vector center, double radius) {
+    for (Vector4 plane in _cullPlanes) {
+      double d = plane.distanceTo(center);
+      if (d < -radius) return false;
+    }
+    return true;
+  }
 }
 
 abstract class Animatable {
@@ -71,17 +130,13 @@ abstract class Drawable extends Animatable {
 
 typedef void AnimateCallback(double elapsed, double time);
 
-void UpdatePerspective(final PerspectiveParams dynpar, Matrix4 mat) {
-  mat.setPerspective(
-      dynpar.fov, dynpar.width / dynpar.height, dynpar.near, dynpar.far);
-}
-
 class RenderingPhase {
   final WEBGL.RenderingContext _gl;
   ChronosFramebuffer _framebuffer;
   List<ShaderProgram> _programs = [];
   Matrix4 _pMatrix = new Matrix4();
-  bool clearBuffer = true;
+  bool clearColorBuffer = true;
+  bool clearDepthBuffer = true;
   final bool _usePerspectiveMatrix;
 
   RenderingPhase(this._gl, this._framebuffer, this._usePerspectiveMatrix);
@@ -98,10 +153,13 @@ class RenderingPhase {
     }
     _gl.viewport(0, 0, perspar.width, perspar.height);
     if (_usePerspectiveMatrix) {
-      UpdatePerspective(perspar, _pMatrix);
+      perspar.UpdatePerspective(_pMatrix);
     }
-    if (clearBuffer) {
-      _gl.clear(WEBGL.COLOR_BUFFER_BIT | WEBGL.DEPTH_BUFFER_BIT);
+    if (clearColorBuffer || clearDepthBuffer) {
+      int mode = 0;
+      if (clearColorBuffer) mode |= WEBGL.COLOR_BUFFER_BIT;
+      if (clearDepthBuffer) mode |= WEBGL.DEPTH_BUFFER_BIT;
+      _gl.clear(mode);
     }
 
     for (ShaderProgram prg in _programs) {
@@ -241,7 +299,7 @@ class ChronosGL {
     animateCallbacks[name] = f;
   }
 
-  void animate(num timeNow, double elapsed) {
+  void animate(double timeNow, double elapsed) {
     for (Animatable a in animatables.values) {
       if (a.active) a.animate(elapsed);
     }
@@ -296,6 +354,7 @@ class ChronosGL {
   double _lastTime = 0.0;
   void run([var timeNow]) {
     if (timeNow == null) timeNow = 0.0;
+    timeNow = 0.0 + timeNow; // make sure we have a double
     if (_lastTime == 0.0) _lastTime = timeNow;
     double elapsed = timeNow - _lastTime;
     _lastTime = timeNow;
