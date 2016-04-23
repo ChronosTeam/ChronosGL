@@ -297,6 +297,25 @@ class MeshData {
     }
   }
 
+  void generateRadialNormals(Vector center) {
+    if (!_attributes.containsKey(aNormal)) EnableAttribute(aNormal);
+    Vector norm = new Vector();
+
+    List<double> normals = _attributes[aNormal];
+    while (normals.length < _vertices.length) {
+      normals.add(0.0);
+    }
+
+    for (int i = 0; i < _vertices.length; i += 3) {
+      norm.set(_vertices[i + 0], _vertices[i + 1], _vertices[i + 2]);
+      norm.subtract(center);
+      norm.normalize();
+      normals[i + 0] = norm.x;
+      normals[i + 1] = norm.y;
+      normals[i + 2] = norm.z;
+    }
+  }
+
   void setFace4UV(int n, Vector2 a, Vector2 b, Vector2 c, Vector2 d) {
     assert(_attributes.containsKey(aTextureCoordinates));
     Face4 f = _faces4[n];
@@ -310,6 +329,7 @@ class MeshData {
     uvs[2 * f.d + 0] = d.x;
     uvs[2 * f.d + 1] = d.y;
   }
+
   /*
     // use this so normals have room and don't need to share a vertex
     // for example a cube can have 3 different normals for the same vertex
