@@ -118,12 +118,12 @@ MeshData createIcosahedronInternal([int subdivisions = 4]) {
   // create final vertices and uvs of a Icosahedron
   for (Face3 f in faces) {
     md.AddFaces3(1);
-    Vector v1 = vertices[f.a];
-    assert (v1.length() <1.01 && v1.length() >0.99);
-    Vector v2 = vertices[f.b];
-    assert (v2.length() <1.01 && v2.length() >0.99);
-    Vector v3 = vertices[f.c];
-    assert (v3.length() <1.01 && v3.length() >0.99);
+    VM.Vector3 v1 = vertices[f.a];
+    assert (v1.length <1.01 && v1.length >0.99);
+    VM.Vector3 v2 = vertices[f.b];
+    assert (v2.length <1.01 && v2.length >0.99);
+    VM.Vector3 v3 = vertices[f.c];
+    assert (v3.length <1.01 && v3.length >0.99);
     md.AddVertices([v1, v2, v3]);
     //print ("@ ${v1.subtract(v2).length()}");
     //print ("@ ${v2.subtract(v3).length()}");

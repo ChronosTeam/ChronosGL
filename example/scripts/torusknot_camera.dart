@@ -2,10 +2,10 @@ import 'dart:html' as html;
 import 'dart:math' as Math;
 import 'dart:web_gl' as WEBGL;
 import 'package:chronosgl/chronosgl.dart';
- import 'package:vector_math/vector_math.dart' as VM;
+import 'package:vector_math/vector_math.dart' as VM;
 
 html.CanvasElement canvas2d;
-Vector p1 = new Vector();
+VM.Vector3 p1 = new VM.Vector3.zero();
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
@@ -31,8 +31,8 @@ void main() {
   chronosGL.addAnimateCallback('changeTexture', (double elapsed, double time) {
     canvas2d = Utils.createGradientImage2(time / 1000, canvas2d);
     chronosGL.gl.bindTexture(WEBGL.TEXTURE_2D, generatedTexture.GetTexture());
-    chronosGL.gl
-        .texImage2D(WEBGL.TEXTURE_2D, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, canvas2d);
+    chronosGL.gl.texImage2D(WEBGL.TEXTURE_2D, 0, WEBGL.RGBA, WEBGL.RGBA,
+        WEBGL.UNSIGNED_BYTE, canvas2d);
   });
 
   int p = 2;

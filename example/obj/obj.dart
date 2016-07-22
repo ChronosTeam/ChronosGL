@@ -2,6 +2,8 @@ import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
 
+import 'package:vector_math/vector_math.dart' as VM;
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -23,7 +25,7 @@ void main() {
     //mesh.rotY(3.14);
     Node n = new Node(mesh);
     //n.invert = true;
-    n.lookAt(new Vector(100, 0, 0));
+    n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
     //n.matrix.scale(0.02);
     prg.add(n);
     chronosGL.run();

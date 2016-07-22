@@ -88,7 +88,6 @@ MeshData createCylinderInternalWireframeFriendly(
   final VM.Vector3 centerBot = new VM.Vector3(0.0, -halfHeight, 0.0);
   md.AddFaces3(2 * radialSubdivisions);
   for (int i = 0; i < radialSubdivisions; i++) {
-    double u = i / radialSubdivisions;
     md.AddVertices([centerTop, top[i], top[i + 1]]);
     // TODO: fix these
     md.AddAttributesVector2(aTextureCoordinates, [zero, zero, zero]);

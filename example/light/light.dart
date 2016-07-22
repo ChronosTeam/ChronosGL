@@ -57,7 +57,7 @@ void main() {
       chronosGL.createProgram(createSolidColorShader());
 
   Material icoMat = new Material()..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
-  Mesh ico1 = new Mesh(Shapes.Icosahedron(), icoMat)..setPosFromVec3(posLight1);
+  Mesh ico1 = new Mesh(Shapes.Icosahedron(), icoMat)..setPosFromVec(posLight1);
   fixedShaderPrg.add(ico1);
   /*
    Vector posLight2 =  new Vector(-11, 11, 1);

@@ -20,7 +20,7 @@ class OrbitCamera extends Animatable {
   double radius;
   double azimuth;
   double polar;
-  Vector lookAt = new Vector();
+  VM.Vector3 lookAt = new VM.Vector3.zero();
   num mouseWheelFactor = -0.01;
 
   double ma = 0.0; // mouse azimuth
@@ -69,7 +69,7 @@ class OrbitCamera extends Animatable {
   }
 
   void setLookAt(dynamic x, [double y, double z]) {
-    if (x is Vector) {
+    if (x is VM.Vector3) {
       lookAt[0] = x[0];
       lookAt[1] = x[1];
       lookAt[2] = x[2];
@@ -108,7 +108,7 @@ class OrbitCamera extends Animatable {
 
 class FlyingCamera extends Animatable {
   Camera camera;
-  Vector momentum = new Vector();
+  VM.Vector3 momentum_ = new VM.Vector3.zero();
 
   FlyingCamera(this.camera);
 
@@ -128,59 +128,59 @@ class FlyingCamera extends Animatable {
     }
 
     if (cpk[Key.SPACE] != null) {
-      momentum.scale(0.92);
+      momentum_.scale(0.92);
     }
 
     if (mouseY != 0) camera.lookUp(mouseY * 0.00006);
     if (mouseX != 0) camera.lookLeft(-mouseX * 0.00003);
 
-    camera.translateFromVec(momentum);
+    camera.translateFromVec(momentum_);
   }
 
   void moveForward(double amount) {
-    Vector back = camera.getBack();
-    back.negate();
-    momentum.lerp(back, amount);
+    VM.Vector3 t = camera.getBack();
+    t.negate();
+    momentum_.lerp(t, amount);
   }
 
   void moveBackward(double amount) {
-    Vector back = camera.getBack();
-    momentum.lerp(back, amount);
+    VM.Vector3 t = camera.getBack();
+    VM.mix(momentum_, t, amount, momentum_);
   }
 
   void moveUp(num amount) {
-    Vector up = camera.getUp();
-    momentum.lerp(up, amount);
+    VM.Vector3 t = camera.getUp();
+    VM.mix(momentum_, t, amount, momentum_);
   }
 
   void moveDown(num amount) {
-    Vector up = camera.getUp();
-    up.negate();
-    momentum.lerp(up, amount);
+    VM.Vector3 t = camera.getUp();
+    t.negate();
+    VM.mix(momentum_, t, amount, momentum_);
   }
 
   void moveLeft(num amount) {
-    Vector right = camera.getRight();
-    right.negate();
-    momentum.lerp(right, amount);
+    VM.Vector3 t = camera.getRight();
+    t.negate();
+    VM.mix(momentum_, t, amount, momentum_);
   }
 
   void moveRight(num amount) {
-    Vector right = camera.getRight();
-    momentum.lerp(right, amount);
+    VM.Vector3 t = camera.getRight();
+    VM.mix(momentum_, t, amount, momentum_);
   }
 }
 
 class FPSCamera extends Animatable {
   Camera camera;
-  Vector momentum = new Vector();
-  Vector movement = new Vector();
-  Vector tmp = new Vector();
+  VM.Vector3 momentum = new VM.Vector3.zero();
+  VM.Vector3 movement = new VM.Vector3.zero();
+  VM.Vector3 tmp = new VM.Vector3.zero();
 
-  Vector traceStart = new Vector();
-  Vector traceEnd = new Vector();
+  VM.Vector3 traceStart = new VM.Vector3.zero();
+  VM.Vector3 traceEnd = new VM.Vector3.zero();
 
-  Vector up = new Vector(0.0, 0.0, 1.0);
+  VM.Vector3 up = new VM.Vector3(0.0, 0.0, 1.0);
 
   int movementX = 0;
   int movementY = 0;
@@ -203,13 +203,13 @@ class FPSCamera extends Animatable {
     Map<int, bool> cpk = currentlyPressedKeys;
     //Map<String, bool> cpmb = currentlyPressedMouseButtons;
 
-    movement.scale(0);
+    movement.scale(0.0);
 
     if (cpk[Key.W] != null) {
-      movement.subtract(camera.getBack());
+      movement.sub(camera.getBack());
     }
     if (cpk[Key.A] != null) {
-      movement.subtract(camera.getRight());
+      movement.sub(camera.getRight());
     }
     if (cpk[Key.S] != null) {
       movement.add(camera.getBack());
@@ -221,7 +221,7 @@ class FPSCamera extends Animatable {
     movement.z = 0.0;
     movement.normalize();
     momentum.add(movement);
-    tmp.set(momentum);
+    tmp.setFrom(momentum);
     tmp.scale(0.02);
 
     traceStart.set(camera.getPos());
@@ -251,22 +251,22 @@ class TorusKnotCamera extends Animatable {
 
   TorusKnotCamera(this.camera);
 
-  Vector p1 = new Vector();
-  Vector p2 = new Vector();
+  VM.Vector3 p1 = new VM.Vector3.zero();
+  VM.Vector3 p2 = new VM.Vector3.zero();
 
   int p = 2;
   int q = 3;
   double radius = 20.0;
 
   double time = 0.0;
-  Vector up = new Vector();
+  VM.Vector3 up = new VM.Vector3.zero();
 
   void animate(double elapsed) {
     time += elapsed;
     getTorusKnotPos(time / 1500, q, p, radius, 1.0, p1);
     getTorusKnotPos((time / 1500) + 0.1, q, p, radius, 1.0, p2);
     up
-      ..set(p2)
+      ..setFrom(p2)
       ..normalize();
     camera.setPosFromVec(p1);
     camera.lookAt(p2);

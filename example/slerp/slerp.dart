@@ -1,5 +1,6 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:math' as Math;
+import 'package:vector_math/vector_math.dart' as VM;
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
@@ -16,10 +17,10 @@ void main() {
       ..rotZ(3.14);
     Node n = new Node(mesh);
     //n.invert = true;
-    n.lookAt(new Vector(100.0, 0.0, -100.0));
+    n.lookAt(new VM.Vector3(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);
 
-    Vector axis = new Vector(0.0, 0.0, 1.0);
+    VM.Vector3 axis = new VM.Vector3(0.0, 0.0, 1.0);
     Quaternion start = new Quaternion().fromRotationMatrix4(n.transform);
     Quaternion end =
         new Quaternion().setAxisAngle(axis, 3.14);
@@ -35,11 +36,11 @@ void main() {
         time = 0.0;
         double angle;
         if (rng.nextBool()) {
-          axis..set(rng.nextDouble(), rng.nextDouble(), rng.nextDouble());
+          axis..setValues(rng.nextDouble(), rng.nextDouble(), rng.nextDouble());
           axis.normalize();
           angle = 2  * Math.PI * rng.nextDouble();
         } else {
-          axis.set(0.0, 0.0, 0.0);
+          axis.setValues(0.0, 0.0, 0.0);
           angle = 0.0;
         }
         start.fromRotationMatrix4(node.transform);

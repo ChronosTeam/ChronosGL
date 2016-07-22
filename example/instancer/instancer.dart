@@ -64,7 +64,7 @@ void main() {
     for (int y = -5; y < 5; y++) {
       for (int z = -5; z < 5; z++) {
         spatial.setPos(x * 40, y * 40, z * 30);
-        translations.setAll(pos * 3, spatial.getPos().array);
+        translations.setAll(pos * 3, spatial.getPos().storage);
         q.fromRotationMatrix4(spatial.transform);
         rotations.setAll(pos * 3, q.array);
         pos++;

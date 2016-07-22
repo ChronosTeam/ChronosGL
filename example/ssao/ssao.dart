@@ -56,7 +56,7 @@ void main() {
       ..rotZ(3.14);
     Node n = new Node(mesh)
       //n.invert = true;
-      ..lookAt(new Vector(100.0, 0.0, -100.0));
+      ..lookAt(new VM.Vector3(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);
 
     prg1.add(mesh);

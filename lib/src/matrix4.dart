@@ -197,7 +197,7 @@ class Matrix4 {
     return true;
   }
 
-  void rotate(double angle, Vector axis) {
+  void rotate(double angle, VM.Vector3 axis) {
     double x = axis[0],
         y = axis[1],
         z = axis[2],
@@ -455,19 +455,22 @@ class Matrix4 {
     array[14] = from[14] * factor;
   }
 
-  Vector newBack = new Vector();
-  Vector newUp = new Vector();
-  Vector newRight = new Vector();
+  VM.Vector3 newBack = new VM.Vector3.zero();
+  VM.Vector3 newUp = new VM.Vector3.zero();
+  VM.Vector3 newRight = new VM.Vector3.zero();
 
-  void lookAt_alt(Vector eye, Vector target, [Vector up]) {
-    if (up == null) up = new Vector(0.0, 1.0, 0.0);
+  void lookAt_alt(VM.Vector3 eye, VM.Vector3 target, [VM.Vector3 up]) {
+    if (up == null) up = new VM.Vector3(0.0, 1.0, 0.0);
 
     // vec3.direction goes from argument2 to argument1 and normalizes
     // as we want a back vector, we want from target to this spatial position
-    newBack.direction(eye, target);
-    newRight.cross2(up, newBack);
+    newBack..setFrom(eye)..sub(target)..normalize();
+    // newBack.direction(eye, target);
+    up.crossInto(newBack, newRight);
+    //newRight.cross2(up, newBack);
     newRight.normalize();
-    newUp.cross2(newBack, newRight);
+    newBack.crossInto(newRight, newUp);
+    //newUp.cross2(newBack, newRight);
 
     array[0] = newRight[0];
     array[1] = newUp[0];
@@ -502,10 +505,10 @@ class Matrix4 {
     array[10] *= z;
   }
 
-  Vector getScale(Vector store) {
-    var tx = store.set(array[0], array[4], array[8]).length();
-    var ty = store.set(array[1], array[5], array[9]).length();
-    var tz = store.set(array[2], array[6], array[10]).length();
+  VM.Vector3 getScale(VM.Vector3 store) {
+    double tx = store..setValues(array[0], array[4], array[8])..length;
+    double ty = store..setValues(array[1], array[5], array[9])..length;
+    double tz = store..setValues(array[2], array[6], array[10])..length;
     store.x = tx;
     store.y = ty;
     store.z = tz;

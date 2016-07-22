@@ -1,7 +1,8 @@
 part of chronosgl;
 
-Vector p1 = new VM.Vector3.zero();
-Vector p2 = new VM.Vector3.zero();
+
+VM.Vector3 p1 = new VM.Vector3.zero();
+VM.Vector3 p2 = new VM.Vector3.zero();
 
 MeshData createTorusKnotInternal(
     {double radius: 20.0,
@@ -95,8 +96,8 @@ MeshData createTorusKnotInternal(
   return md;
 }
 
-Vector getTorusKnotPos(double u, int in_q, int in_p, double radius,
-    double heightScale, Vector vec) {
+VM.Vector3 getTorusKnotPos(double u, int in_q, int in_p, double radius,
+    double heightScale, VM.Vector3 vec) {
   double cu = Math.cos(u);
   double su = Math.sin(u);
   double quOverP = in_q / in_p * u;

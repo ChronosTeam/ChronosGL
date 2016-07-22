@@ -1,5 +1,9 @@
 part of chronosmath;
 
+final VM.Vector3 RIGHT = new VM.Vector3(1.0, 0.0, 0.0);
+final VM.Vector3 UP = new VM.Vector3(0.0, 1.0, 0.0);
+final VM.Vector3 BACK = new VM.Vector3(0.0, 0.0, 1.0);
+
 class Quaternion {
   Float32List array;
 
@@ -63,7 +67,7 @@ class Quaternion {
     return this;
   }
 
-  Quaternion setAxisAngle(Vector axis, double rad) {
+  Quaternion setAxisAngle(VM.Vector3 axis, double rad) {
     rad = rad * 0.5;
     double s = Math.sin(rad);
     array[0] = s * axis[0];
@@ -73,12 +77,12 @@ class Quaternion {
     return this;
   }
 
-  Vector _tempLookAt = new Vector();
+  VM.Vector3 _tempLookAt = new VM.Vector3.zero();
   // untested
-  Quaternion lookAt(Vector direction) {
-    _tempLookAt.set(direction).normalize();
+  Quaternion lookAt(VM.Vector3 direction) {
+    _tempLookAt..setFrom(direction)..normalize();
 
-    double dot = _tempLookAt.dot(Vector.BACK);
+    double dot = _tempLookAt.dot(BACK);
 
     if ((dot + 1.0).abs() < 0.000001) {
       return set(0.0, 1.0, 0.0, Math.PI);
@@ -88,7 +92,7 @@ class Quaternion {
     }
 
     double angle = Math.acos(dot);
-    _tempLookAt.cross(Vector.BACK);
+    _tempLookAt.cross(BACK);
     //rotAxis.normalize();
     return setAxisAngle(_tempLookAt, angle);
   }

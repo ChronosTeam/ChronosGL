@@ -1,5 +1,6 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
+import 'package:vector_math/vector_math.dart' as VM;
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
@@ -54,7 +55,7 @@ void main() {
       ..rotZ(3.14);
     Node n = new Node(mesh);
     //n.invert = true;
-    n.lookAt(new Vector(100.0, 0.0, -100.0));
+    n.lookAt(new VM.Vector3(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);
 
     prg1.add(mesh);

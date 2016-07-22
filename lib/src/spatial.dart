@@ -12,12 +12,12 @@ class Spatial {
 
   // temp variables to avoid creating new objects:
   // CHANGES TO THE VALUES WILL NOT IMPACT THE MATRIX AND MIGHT BE SHARED WITH OTHER USERS
-  Vector _pos = new Vector();
-  Vector _back = new Vector();
-  Vector _up = new Vector();
-  Vector _right = new Vector();
+  VM.Vector3 _pos = new VM.Vector3.zero();
+  VM.Vector3 _back = new VM.Vector3.zero();
+  VM.Vector3 _up = new VM.Vector3.zero();
+  VM.Vector3 _right = new VM.Vector3.zero();
 
-  Vector getPos() {
+  VM.Vector3 getPos() {
     _pos[0] = this.transform[Matrix4.POSX];
     _pos[1] = this.transform[Matrix4.POSY];
     _pos[2] = this.transform[Matrix4.POSZ];
@@ -26,7 +26,7 @@ class Spatial {
 
   // get the values from column 2. They represent the trail direction of this matrx
   // return ReadOnly vec3
-  Vector getBack() {
+  VM.Vector3 getBack() {
     _back[0] = transform[Matrix4.BACKX];
     _back[1] = transform[Matrix4.BACKY];
     _back[2] = transform[Matrix4.BACKZ];
@@ -35,7 +35,7 @@ class Spatial {
 
   // get the values from column 1. They represent the up vector of this matrx
   // return ReadOnly vec3
-  Vector getUp() {
+  VM.Vector3 getUp() {
     _up[0] = transform[Matrix4.UPX];
     _up[1] = transform[Matrix4.UPY];
     _up[2] = transform[Matrix4.UPZ];
@@ -44,7 +44,7 @@ class Spatial {
 
   // get the values from column 0. They represent the right vector of this matrx
   // return ReadOnly vec3
-  Vector getRight() {
+  VM.Vector3 getRight() {
     _right[0] = transform[Matrix4.RIGHTX];
     _right[1] = transform[Matrix4.RIGHTY];
     _right[2] = transform[Matrix4.RIGHTZ];
@@ -68,17 +68,11 @@ class Spatial {
     translate(x, y, z); // alias
   }
 
-  void addPosFromVec(Vector vector) {
+  void addPosFromVec(VM.Vector3 vector) {
     translateFromVec(vector); // alias
   }
 
-  void setPosFromVec(Vector vector) {
-    transform[Matrix4.POSX] = vector[0];
-    transform[Matrix4.POSY] = vector[1];
-    transform[Matrix4.POSZ] = vector[2];
-  }
-
-  void setPosFromVec3(VM.Vector3 vector) {
+  void setPosFromVec(VM.Vector3 vector) {
     transform[Matrix4.POSX] = vector[0];
     transform[Matrix4.POSY] = vector[1];
     transform[Matrix4.POSZ] = vector[2];
@@ -95,7 +89,7 @@ class Spatial {
     transform[Matrix4.POSZ] += z * factor;
   }
 
-  void translateFromVec(Vector vector, [double factor = 1.0]) {
+  void translateFromVec(VM.Vector3 vector, [double factor = 1.0]) {
     transform[Matrix4.POSX] += vector[0] * factor;
     transform[Matrix4.POSY] += vector[1] * factor;
     transform[Matrix4.POSZ] += vector[2] * factor;
@@ -163,7 +157,7 @@ class Spatial {
     transform.rotate(amount, getUp());
   }
 
-  void lookAt(Vector target, [Vector up]) {
+  void lookAt(VM.Vector3 target, [VM.Vector3 up]) {
     transform.lookAt_alt(getPos(), target, up);
   }
 }

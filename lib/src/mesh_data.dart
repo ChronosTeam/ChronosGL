@@ -304,7 +304,7 @@ class MeshData {
       normals.add(0.0);
     }
 
-    void setNormal(VM.Vector n, int i) {
+    void setNormal(VM.Vector3 n, int i) {
       normals[3 * i + 0] = n.x;
       normals[3 * i + 1] = n.y;
       normals[3 * i + 2] = n.z;
@@ -321,7 +321,7 @@ class MeshData {
     }
   }
 
-  void generateRadialNormals(VM.Vector center) {
+  void generateRadialNormals(VM.Vector3 center) {
     if (!_attributes.containsKey(aNormal)) EnableAttribute(aNormal);
     VM.Vector3 norm = new VM.Vector3.zero();
 
