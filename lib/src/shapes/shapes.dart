@@ -58,11 +58,11 @@ class Shapes {
       new Vector(-1.0 * size, 1.0 * size, 0.0)
     ];
 
-    List<Vector2> uvs = [
-      new Vector2(0.0, 0.0),
-      new Vector2(1.0, 0.0),
-      new Vector2(1.0, 1.0),
-      new Vector2(0.0, 1.0)
+    List<VM.Vector2> uvs = [
+      new VM.Vector2(0.0, 0.0),
+      new VM.Vector2(1.0, 0.0),
+      new VM.Vector2(1.0, 1.0),
+      new VM.Vector2(0.0, 1.0)
     ];
 
     md.AddFace4(0, 1, 2, 3);

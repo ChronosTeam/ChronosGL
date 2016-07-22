@@ -1,5 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 
+import 'package:vector_math/vector_math.dart' as VM;
+
 List<ShaderObject> createSkyScraperShader() {
   return [
     new ShaderObject("SkyScraperV")
@@ -67,7 +69,7 @@ void main() {
           uMax: 0.99,
           vMin: 0.01,
           vMax: 0.99);
-      Vector2 q = new Vector2(0.01, 0.01);
+      VM.Vector2 q = new VM.Vector2(0.01, 0.01);
       md.setFace4UV(2, q, q, q, q);
       md.setFace4UV(3, q, q, q, q);
       Mesh m = new Mesh(md, mat)

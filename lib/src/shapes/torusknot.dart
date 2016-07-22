@@ -62,10 +62,10 @@ MeshData createTorusKnotInternal(
       int c = grid[ip][jp];
       int d = grid[i][jp];
 
-      Vector2 uva = new Vector2(i / segmentsR, j / segmentsT);
-      Vector2 uvb = new Vector2((i + 1) / segmentsR, j / segmentsT);
-      Vector2 uvc = new Vector2((i + 1) / segmentsR, (j + 1) / segmentsT);
-      Vector2 uvd = new Vector2(i / segmentsR, (j + 1) / segmentsT);
+      VM.Vector2 uva = new VM.Vector2(i / segmentsR, j / segmentsT);
+      VM.Vector2 uvb = new VM.Vector2((i + 1) / segmentsR, j / segmentsT);
+      VM.Vector2 uvc = new VM.Vector2((i + 1) / segmentsR, (j + 1) / segmentsT);
+      VM.Vector2 uvd = new VM.Vector2(i / segmentsR, (j + 1) / segmentsT);
 
       //uva[0] = 0; uva[1] = 0;
       //uvb[0] = 1; uvb[1] = 0;

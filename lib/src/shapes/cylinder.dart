@@ -11,14 +11,14 @@ MeshData createCylinderInternal(
   double halfHeight = height / 2;
 
   List<Vector> vertices = [];
-  List<Vector2> uvs = [];
+  List<VM.Vector2> uvs = [];
 
   // top center
   vertices.add(new Vector(0.0, halfHeight, 0.0));
-  uvs.add(new Vector2(0.0, 0.0));
+  uvs.add(new VM.Vector2(0.0, 0.0));
   // bottom center
   vertices.add(new Vector(0.0, -halfHeight, 0.0));
-  uvs.add(new Vector2(1.0, 1.0));
+  uvs.add(new VM.Vector2(1.0, 1.0));
 
   for (int i = 0; i < radialSubdivisions; i++) {
     double u = i / radialSubdivisions;
@@ -29,9 +29,9 @@ MeshData createCylinderInternal(
     double zposBot = radiusBot * Math.cos(u * Math.PI * 2);
 
     vertices.add(new Vector(xposTop, halfHeight, zposTop));
-    uvs.add(new Vector2(u, u));
+    uvs.add(new VM.Vector2(u, u));
     vertices.add(new Vector(xposBot, -halfHeight, zposBot));
-    uvs.add(new Vector2(1.0, u));
+    uvs.add(new VM.Vector2(1.0, u));
 
     if (i > 0) {
       int p = (i * 2) + 2; // add offset for "top center" and "bottom center"
@@ -80,7 +80,7 @@ MeshData createCylinderInternalWireframeFriendly(
   top.add(top[0]);
   bot.add(bot[0]);
 
-  Vector2 zero = new Vector2(0, 0);
+  VM.Vector2 zero = new VM.Vector2(0.0, 0.0);
   MeshData md = new MeshData();
   md.name = "cylinder-wireframe-friendly";
   md.EnableAttribute(aTextureCoordinates);

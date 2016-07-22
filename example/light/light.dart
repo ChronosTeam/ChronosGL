@@ -21,7 +21,7 @@ void main() {
   //FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
   //chronosGL.addAnimatable('flyingCamera', fc);
   Vector posLight1 = new Vector(0, 0, 0);
-  Vector colBlue = new Vector(0,0,1);
+  //Vector colBlue = new Vector(0,0,1);
   Vector colWhite = new Vector(1,1,1);
   Vector colRed = new Vector(1,0,0);
   chronosGL.lights.add(new Light.Point(posLight1, colRed, colWhite, 20.0));

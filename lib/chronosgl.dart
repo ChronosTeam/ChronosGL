@@ -3,9 +3,12 @@ library chronosgl;
 import 'dart:html' as HTML;
 import 'dart:web_gl' as WEBGL;
 import 'dart:math' as Math;
+
 import 'dart:typed_data';
 import 'dart:async';
 import 'dart:convert';
+
+import 'package:vector_math/vector_math.dart' as VM;
 
 import 'chronosmath.dart';
 export 'chronosmath.dart';
@@ -57,11 +60,11 @@ class PerspectiveParams {
   double near = 0.1;
   double far = 1000.0;
 
-  List<Vector4> _cullPlanes = [
-    new Vector4(0, 0, 0, 0),
-    new Vector4(0, 0, 0, 0),
-    new Vector4(0, 0, 0, 0),
-    new Vector4(0, 0, 0, 0)
+  List<VM.Plane> _cullPlanes = [
+    new VM.Plane.components(0.0, 0.0, 0.0, 0.0),
+    new VM.Plane.components(0.0, 0.0, 0.0, 0.0),
+    new VM.Plane.components(0.0, 0.0, 0.0, 0.0),
+    new VM.Plane.components(0.0, 0.0, 0.0, 0.0)
   ];
 
   double aspecRatioInv() {
@@ -84,34 +87,34 @@ class PerspectiveParams {
     double ee1 = Math.sqrt(e * e + 1);
     double eeaa = Math.sqrt(e * e + a * a);
     // Left
-    Vector4 c0 = _cullPlanes[0];
-    c0.x = e / ee1;
-    c0.y = 0.0;
-    c0.z = -1.0 / ee1;
-    c0.w = 0.0;
+    VM.Plane c0 = _cullPlanes[0];
+    c0.normal[0] = e / ee1;
+    c0.normal[1] = 0.0;
+    c0.normal[2] = -1.0 / ee1;
+    c0.constant = 0.0;
     // Right
-    Vector4 c1 = _cullPlanes[1];
-    c1.x = -e / ee1;
-    c1.y = 0.0;
-    c1.z = -1.0 / ee1;
-    c1.w = 0.0;
+    VM.Plane c1 = _cullPlanes[1];
+    c1.normal[0] = -e / ee1;
+    c1.normal[1] = 0.0;
+    c1.normal[2] = -1.0 / ee1;
+    c1.constant = 0.0;
     // Bottom
-    Vector4 c2 = _cullPlanes[2];
-    c2.x = 0.0;
-    c2.y = e / eeaa;
-    c2.z = -a / eeaa;
-    c2.w = 0.0;
+    VM.Plane c2 = _cullPlanes[2];
+    c2.normal[0] = 0.0;
+    c2.normal[1] = e / eeaa;
+    c2.normal[2] = -a / eeaa;
+    c2.constant = 0.0;
     // Top
-    Vector4 c3 = _cullPlanes[3];
-    c3.x = 0.0;
-    c3.y = -e / eeaa;
-    c3.z = -a / eeaa;
-    c3.w = 0.0;
+    VM.Plane c3 = _cullPlanes[3];
+    c3.normal[0] = 0.0;
+    c3.normal[1] = -e / eeaa;
+    c3.normal[2] = -a / eeaa;
+    c3.constant = 0.0;
   }
 
-  bool IntersectSphere(Vector center, double radius) {
-    for (Vector4 plane in _cullPlanes) {
-      double d = plane.distanceTo(center);
+  bool IntersectSphere(VM.Vector3 center, double radius) {
+    for (VM.Plane plane in _cullPlanes) {
+      double d = plane.distanceToVector3(center);
       if (d < -radius) return false;
     }
     return true;
@@ -333,8 +336,8 @@ class ChronosGL {
     _lastWidth = _canvas.clientWidth;
     _lastHeight = _canvas.clientHeight;
     _lastFov_ = perspar.fov;
-    LogInfo(
-        "New perspective: ${perspar.width} ${perspar.height} ${perspar.fov}");
+    //LogInfo(
+    //    "New perspective: ${perspar.width} ${perspar.height} ${perspar.fov}");
   }
 
   void draw() {

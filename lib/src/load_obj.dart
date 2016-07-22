@@ -33,7 +33,7 @@ MeshData doLoadObj(String text) {
 
   List<Vector> vertices = [];
   List<Vector> normals = [];
-  List<Vector2> uvs = [];
+  List<VM.Vector2> uvs = [];
 
   for (String line2 in lines) {
     String line = line2.replaceAll("[ \t]+", " ").replaceFirst('\s\s*\$', "");
@@ -48,7 +48,7 @@ MeshData doLoadObj(String text) {
       vertices.add(new Vector(double.parse(array[1]), double.parse(array[2]),
           double.parse(array[3])));
     } else if (array[0] == "vt") {
-      uvs.add(new Vector2(double.parse(array[1]), double.parse(array[2])));
+      uvs.add(new VM.Vector2(double.parse(array[1]), double.parse(array[2])));
     } else if (array[0] == "vn") {
       normals.add(new Vector(double.parse(array[1]), double.parse(array[2]),
           double.parse(array[3])));
@@ -61,7 +61,7 @@ MeshData doLoadObj(String text) {
 
       List<Vector> faceVertices = [];
       List<Vector> faceNormal = [];
-      List<Vector2> faceUvs = [];
+      List<VM.Vector2> faceUvs = [];
       for (int i = 1; i < 4; ++i) {
         // add a new entry to the map and arrays
         List<String> f = array[i].split("/");
@@ -88,7 +88,7 @@ MeshData doLoadObj(String text) {
         if (tex < uvs.length) {
           faceUvs.add(uvs[tex]);
         } else {
-          faceUvs.add(new Vector2(0.0, 0.0));
+          faceUvs.add(new VM.Vector2(0.0, 0.0));
         }
         if (nor < normals.length) {
           faceNormal.add(normals[nor]);

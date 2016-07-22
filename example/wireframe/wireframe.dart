@@ -1,6 +1,8 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 
+import 'package:vector_math/vector_math.dart' as VM;
+
 import 'dart:web_gl' as WEBGL;
 import 'dart:html';
 
@@ -25,8 +27,8 @@ void main() {
 
   ShaderProgram program = chronosGL.createProgram(createWireframeShader());
   final Material matWireframe = new Material()
-    ..SetUniform(uColorAlpha, new Vector4(1, 1, 0, 1.0))
-    ..SetUniform(uColorAlpha2, new Vector4(0, 0, 0, 0.5))
+    ..SetUniform(uColorAlpha, new VM.Vector4(1.0, 1.0, 0.0, 1.0))
+    ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5))
     ..blend = true;
   {
     Mesh ico = new Mesh(Shapes.Icosahedron(2)..generateWireframeCenters(), matWireframe)..setPos(0, 0, 0);

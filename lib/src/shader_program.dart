@@ -1,6 +1,5 @@
 part of chronosgl;
 
-
 const int DRAW_MODE_POINTS = WEBGL.POINTS;
 const int DRAW_MODE_LINES = WEBGL.LINES;
 const int DRAW_MODE_TRIANGLES = WEBGL.TRIANGLES;
@@ -111,16 +110,16 @@ class CoreProgram {
         _gl.uniformMatrix3fv(l, false, val.array);
         break;
       case "vec4":
-        assert(val.array.length == 4);
-        _gl.uniform4fv(l, val.array);
+        assert(val.storage.length == 4);
+        _gl.uniform4fv(l, val.storage);
         break;
       case "vec3":
         assert(val.array.length == 3);
         _gl.uniform3fv(l, val.array);
         break;
       case "vec2":
-        assert(val.array.length == 2);
-        _gl.uniform2fv(l, val.array);
+        assert(val.storage.length == 2);
+        _gl.uniform2fv(l, val.storage);
         break;
       case "sampler2D":
         int n;
@@ -188,15 +187,13 @@ class CoreProgram {
 
   void Draw(bool debug, int numInstances, int numItems, int drawMode,
       bool useArrayBuffer) {
-    
     if (debug)
       print("[${name}] draw points: ${drawMode} instances${numInstances}");
     if (!AllUniformsInitialized()) {
       throw "${name}: uninitialized uniforms: ${UniformsUninitialized()}";
     }
-    
-   
-    
+
+
     if (numInstances > 0) {
       if (useArrayBuffer) {
         _extInstancedArrays.drawElementsInstancedAngle(
@@ -246,6 +243,7 @@ class ShaderProgram implements Drawable {
 
   WEBGL.RenderingContext _gl;
   CoreProgram _program;
+
   // Should this be done per processed Mesh?
 
   bool debug = false;
@@ -291,10 +289,10 @@ class ShaderProgram implements Drawable {
   }
 
   bool hasEnabledObjects() {
-      if (objects.any((Node n) => n.enabled)) return true;
-      if (followCameraObjects.any((Node n) => n.enabled)) return true;
-      return false;
-    }
+    if (objects.any((Node n) => n.enabled)) return true;
+    if (followCameraObjects.any((Node n) => n.enabled)) return true;
+    return false;
+  }
 
   void MaybeSetAttribute(String canonical, WEBGL.Buffer buffer,
       [bool normalized = false, int stride = 0, int offset = 0]) {
@@ -321,21 +319,21 @@ class ShaderProgram implements Drawable {
     }
   }
 
-  void Draw(
-      int numInstances, int numItems, int drawMode, bool useArrayBuffer) {
+  void Draw(int numInstances, int numItems, int drawMode, bool useArrayBuffer) {
     _program.Draw(debug, numInstances, numItems, drawMode, useArrayBuffer);
   }
 
   void draw(PerspectiveParams dynpar, List<Light> lights, Camera camera,
       Matrix4 pMatrix) {
     if (!hasEnabledObjects()) return;
-    
+
     _program.Begin(debug);
 
     if (debug) print("[setting ununiforms");
     inputs.SetUniformVal(uCameraNear, dynpar.near);
     inputs.SetUniformVal(uCameraFar, dynpar.far);
-    inputs.SetUniformVal(uCanvasSize, new Vector2(dynpar.width, dynpar.height));
+    inputs.SetUniformVal(
+        uCanvasSize, new VM.Vector2(dynpar.width.toDouble(), dynpar.height.toDouble()));
     inputs.SetUniformVal(uPerspectiveMatrix, pMatrix);
     if (camera != null) {
       camera.getViewMatrix(viewMatrix);

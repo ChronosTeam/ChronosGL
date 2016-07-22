@@ -1,48 +1,30 @@
 part of chronosmath;
-
-class Vector2 {
-  Float32List array;
-
-  double get x => array[0];
-  double get y => array[1];
-
-  Vector2(num x, num y) {
-    array = new Float32List(2);
-    array[0] = x.toDouble();
-    array[1] = y.toDouble();
-  }
-
-  double dist(Vector2 to) {
-    double x = to.array[0] - array[0], y = to.array[1] - array[1];
-    return Math.sqrt(x * x + y * y);
-  }
-}
-
-class Vector4 {
-  Float32List array;
-
-  Vector4(num r, num g, num b, num a) {
-    array = new Float32List(4);
-    array[0] = r.toDouble();
-    array[1] = g.toDouble();
-    array[2] = b.toDouble();
-    array[3] = a.toDouble();
-  }
-  double get x => array[0];
-  double get y => array[1];
-  double get z => array[2];
-  double get w => array[3];
-
-  set x(double v) => array[0] = v;
-  set y(double v) => array[1] = v;
-  set z(double v) => array[2] = v;
-  set w(double v) => array[3] = v;
-  
-  // pretend this is a plane
-  double distanceTo(Vector v) {
-    return array[3] + array[0] * v.x + array[1] * v.y + array[2] * v.z;
-  }
-}
+//
+//class Vector4 {
+//  Float32List array;
+//
+//  Vector4(num r, num g, num b, num a) {
+//    array = new Float32List(4);
+//    array[0] = r.toDouble();
+//    array[1] = g.toDouble();
+//    array[2] = b.toDouble();
+//    array[3] = a.toDouble();
+//  }
+//  double get x => array[0];
+//  double get y => array[1];
+//  double get z => array[2];
+//  double get w => array[3];
+//
+//  set x(double v) => array[0] = v;
+//  set y(double v) => array[1] = v;
+//  set z(double v) => array[2] = v;
+//  set w(double v) => array[3] = v;
+//
+//  // pretend this is a plane
+//  double distanceTo(Vector v) {
+//    return array[3] + array[0] * v.x + array[1] * v.y + array[2] * v.z;
+//  }
+//}
 
 class Vector {
   Float32List array;

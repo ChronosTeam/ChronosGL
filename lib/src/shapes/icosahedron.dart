@@ -128,9 +128,9 @@ MeshData createIcosahedronInternal([int subdivisions = 4]) {
     //print ("@ ${v1.subtract(v2).length()}");
     //print ("@ ${v2.subtract(v3).length()}");
     //print ("@ ${v3.subtract(v1).length()}");
-    Vector2 t1 = new Vector2(getU2(v1.z, v1.x), getV2(v1.y));
-    Vector2 t2 = new Vector2(getU2(v2.z, v2.x), getV2(v2.y));
-    Vector2 t3 = new Vector2(getU2(v3.z, v3.x), getV2(v3.y));
+    VM.Vector2 t1 = new VM.Vector2(getU2(v1.z, v1.x), getV2(v1.y));
+    VM.Vector2 t2 = new VM.Vector2(getU2(v2.z, v2.x), getV2(v2.y));
+    VM.Vector2 t3 = new VM.Vector2(getU2(v3.z, v3.x), getV2(v3.y));
     md.AddAttributesVector2(aTextureCoordinates, [t1, t2, t3]);
   }
   //print("@@@@ ${md.name} ${md._vertices.length} ${md._faces3.length}");

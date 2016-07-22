@@ -219,9 +219,9 @@ class MeshData {
     }
   }
 
-  void AddAttributesVector2(String canonical, List<Vector2> lst) {
-    for (Vector2 v in lst) {
-      _attributes[canonical].addAll(v.array);
+  void AddAttributesVector2(String canonical, List<VM.Vector2> lst) {
+    for (VM.Vector2 v in lst) {
+      _attributes[canonical].addAll(v.storage);
     }
   }
 
@@ -257,16 +257,16 @@ class MeshData {
     while (centers.length < _vertices.length * 4 ~/ 3) {
       centers.add(0.0);
     }
-    void setCenter(Vector4 n, int i) {
+    void setCenter(VM.Vector4 n, int i) {
       centers[4 * i + 0] = n.x;
       centers[4 * i + 1] = n.y;
       centers[4 * i + 2] = n.z;
       centers[4 * i + 3] = n.w;
     }
 
-    Vector4 a3 = new Vector4(1, 0, 0, 0);
-    Vector4 b3 = new Vector4(0, 1, 0, 0);
-    Vector4 c3 = new Vector4(0, 0, 1, 0);
+    VM.Vector4 a3 = new VM.Vector4(1.0, 0.0, 0.0, 0.0);
+    VM.Vector4 b3 = new VM.Vector4(0.0, 1.0, 0.0, 0.0);
+    VM.Vector4 c3 = new VM.Vector4(0.0, 0.0, 1.0, 0.0);
 
     for (Face3 f in _faces3) {
       setCenter(a3, f.a);
@@ -274,10 +274,10 @@ class MeshData {
       setCenter(c3, f.c);
     }
 
-    Vector4 a4 = new Vector4(1, 0, 0, 1);
-    Vector4 b4 = new Vector4(1, 1, 0, 1);
-    Vector4 c4 = new Vector4(0, 1, 0, 1);
-    Vector4 d4 = new Vector4(0, 0, 0, 1);
+    VM.Vector4 a4 = new VM.Vector4(1.0, 0.0, 0.0, 1.0);
+    VM.Vector4 b4 = new VM.Vector4(1.0, 1.0, 0.0, 1.0);
+    VM.Vector4 c4 = new VM.Vector4(0.0, 1.0, 0.0, 1.0);
+    VM.Vector4 d4 = new VM.Vector4(0.0, 0.0, 0.0, 1.0);
 
     for (Face4 f in _faces4) {
       setCenter(a4, f.a);
@@ -340,7 +340,7 @@ class MeshData {
     }
   }
 
-  void setFace4UV(int n, Vector2 a, Vector2 b, Vector2 c, Vector2 d) {
+  void setFace4UV(int n, VM.Vector2 a, VM.Vector2 b, VM.Vector2 c, VM.Vector2 d) {
     assert(_attributes.containsKey(aTextureCoordinates));
     Face4 f = _faces4[n];
     List<double> uvs = _attributes[aTextureCoordinates];

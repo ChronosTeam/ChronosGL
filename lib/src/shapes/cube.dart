@@ -62,42 +62,42 @@ MeshData createCubeInternal(
     new Vector(-x, y, -z)
   ];
 
-  List<Vector2> uvs = [
+  List<VM.Vector2> uvs = [
     // Front face
-    new Vector2(uMin, vMin),
-    new Vector2(uMax, vMin),
-    new Vector2(uMax, vMax),
-    new Vector2(uMin, vMax),
+    new VM.Vector2(uMin, vMin),
+    new VM.Vector2(uMax, vMin),
+    new VM.Vector2(uMax, vMax),
+    new VM.Vector2(uMin, vMax),
 
     // Back face
-    new Vector2(uMax, vMin),
-    new Vector2(uMax, vMax),
-    new Vector2(uMin, vMax),
-    new Vector2(uMin, vMin),
+    new VM.Vector2(uMax, vMin),
+    new VM.Vector2(uMax, vMax),
+    new VM.Vector2(uMin, vMax),
+    new VM.Vector2(uMin, vMin),
 
     // Top face
-    new Vector2(uMin, vMax),
-    new Vector2(uMin, vMin),
-    new Vector2(uMax, vMin),
-    new Vector2(uMax, vMax),
+    new VM.Vector2(uMin, vMax),
+    new VM.Vector2(uMin, vMin),
+    new VM.Vector2(uMax, vMin),
+    new VM.Vector2(uMax, vMax),
 
     // Bottom face
-    new Vector2(uMax, vMax),
-    new Vector2(uMin, vMax),
-    new Vector2(uMin, vMin),
-    new Vector2(uMax, vMin),
+    new VM.Vector2(uMax, vMax),
+    new VM.Vector2(uMin, vMax),
+    new VM.Vector2(uMin, vMin),
+    new VM.Vector2(uMax, vMin),
 
     // Right face
-    new Vector2(uMax, vMin),
-    new Vector2(uMax, vMax),
-    new Vector2(uMin, vMax),
-    new Vector2(uMin, vMin),
+    new VM.Vector2(uMax, vMin),
+    new VM.Vector2(uMax, vMax),
+    new VM.Vector2(uMin, vMax),
+    new VM.Vector2(uMin, vMin),
 
     // Left face
-    new Vector2(uMin, vMin),
-    new Vector2(uMax, vMin),
-    new Vector2(uMax, vMax),
-    new Vector2(uMin, vMax)
+    new VM.Vector2(uMin, vMin),
+    new VM.Vector2(uMax, vMin),
+    new VM.Vector2(uMax, vMax),
+    new VM.Vector2(uMin, vMax)
   ];
 
   /*
