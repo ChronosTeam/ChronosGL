@@ -2,6 +2,8 @@ import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html';
 
+import 'package:vector_math/vector_math.dart' as VM;
+
 void main() {
   StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
@@ -28,10 +30,10 @@ void main() {
 
   final Material matWood = new Material()
     ..SetUniform(uTextureSampler, wood)
-    ..SetUniform(uColor, new Vector(1, 0, 0));
+    ..SetUniform(uColor, new VM.Vector3(1.0, 0.9, 0.0));
 
   final Material matGradient = new Material()
-    ..SetUniform(uColor, new Vector(1, 0, 0))
+    ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0))
     ..SetUniform(uTextureSampler, gradient);
 
   final Material matTrans = new Material()

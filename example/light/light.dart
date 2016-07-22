@@ -1,15 +1,17 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
+import 'package:vector_math/vector_math.dart' as VM;
 
 void main() {
-  StatsFps fps = new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-  
+
   chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
-     fps.UpdateFrameCount(time);
-   });
-  
+    fps.UpdateFrameCount(time);
+  });
+
   Camera camera = chronosGL.getCamera();
   camera.setPos(0.0, 0.0, 56.0);
 
@@ -20,10 +22,10 @@ void main() {
   chronosGL.addAnimatable('OrbitCam', orbit);
   //FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
   //chronosGL.addAnimatable('flyingCamera', fc);
-  Vector posLight1 = new Vector(0, 0, 0);
+  VM.Vector3 posLight1 = new VM.Vector3(0.0, 0.0, 0.0);
   //Vector colBlue = new Vector(0,0,1);
-  Vector colWhite = new Vector(1,1,1);
-  Vector colRed = new Vector(1,0,0);
+  VM.Vector3 colWhite = new VM.Vector3(1.0, 1.0, 1.0);
+  VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
   chronosGL.lights.add(new Light.Point(posLight1, colRed, colWhite, 20.0));
 
   MeshData cubeMeshData = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
@@ -54,8 +56,8 @@ void main() {
   ShaderProgram fixedShaderPrg =
       chronosGL.createProgram(createSolidColorShader());
 
-  Material icoMat = new Material()..SetUniform(uColor, new Vector(1, 1, 0));
-  Mesh ico1 = new Mesh(Shapes.Icosahedron(), icoMat)..setPosFromVec(posLight1);
+  Material icoMat = new Material()..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
+  Mesh ico1 = new Mesh(Shapes.Icosahedron(), icoMat)..setPosFromVec3(posLight1);
   fixedShaderPrg.add(ico1);
   /*
    Vector posLight2 =  new Vector(-11, 11, 1);
@@ -69,7 +71,7 @@ void main() {
       chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 */
-  
+
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     chronosGL.run();
   });

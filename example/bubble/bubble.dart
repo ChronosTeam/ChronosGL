@@ -2,6 +2,8 @@ import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html';
 
+import 'package:vector_math/vector_math.dart' as VM;
+
 // https://cycling74.com/forums/topic/shader-help-recreating-gl_sphere_map/
 // https://www.opengl.org/wiki/Mathematics_of_glTexGen
 
@@ -55,7 +57,7 @@ void main() {
   Material mat = new Material()..SetUniform(uTextureSampler, bubble);
   MeshData md = Shapes.Icosahedron(3);
   //md.generateNormalsAssumingTriangleMode();
-  md.generateRadialNormals(new Vector(0.0, 0.0, 0.0));
+  md.generateRadialNormals(new VM.Vector3(0.0, 0.0, 0.0));
   Mesh m = new Mesh(md, mat)..setPos(0.0, 0, 0);
 
   shaderSpheres.add(m);

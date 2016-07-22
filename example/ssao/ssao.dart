@@ -1,6 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
+import 'package:vector_math/vector_math.dart' as VM;
 
 void main() {
   StatsFps fps =
@@ -49,7 +50,7 @@ void main() {
 
   loadObj("../ct_logo.obj").then((MeshData md) {
     Material mat = new Material()
-      ..SetUniform(uColor, new Vector(0.9, 0.9, 0.9));
+      ..SetUniform(uColor, new VM.Vector3(0.9, 0.9, 0.9));
     Mesh mesh = new Mesh(md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);

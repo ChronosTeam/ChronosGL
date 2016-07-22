@@ -51,11 +51,11 @@ class Shapes {
     MeshData md = new MeshData();
     md.EnableAttribute(aTextureCoordinates);
 
-    List<Vector> vertices = [
-      new Vector(-1.0 * size, -1.0 * size, 0.0),
-      new Vector(1.0 * size, -1.0 * size, 0.0),
-      new Vector(1.0 * size, 1.0 * size, 0.0),
-      new Vector(-1.0 * size, 1.0 * size, 0.0)
+    List<VM.Vector3> vertices = [
+      new VM.Vector3(-1.0 * size, -1.0 * size, 0.0),
+      new VM.Vector3(1.0 * size, -1.0 * size, 0.0),
+      new VM.Vector3(1.0 * size, 1.0 * size, 0.0),
+      new VM.Vector3(-1.0 * size, 1.0 * size, 0.0)
     ];
 
     List<VM.Vector2> uvs = [

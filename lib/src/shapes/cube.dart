@@ -1,18 +1,18 @@
 part of chronosgl;
 
-List<Vector> _CubeNormals = [
+List<VM.Vector3> _CubeNormals = [
   // Front face
-  new Vector(0.0, 0.0, 1.0),
+  new VM.Vector3(0.0, 0.0, 1.0),
   // Back face
-  new Vector(0.0, 0.0, -1.0),
+  new VM.Vector3(0.0, 0.0, -1.0),
   // Top face
-  new Vector(0.0, 1.0, 0.0),
+  new VM.Vector3(0.0, 1.0, 0.0),
   // Bottom face
-  new Vector(0.0, -1.0, 0.0),
+  new VM.Vector3(0.0, -1.0, 0.0),
 // Right face
-  new Vector(1.0, 0.0, 0.0),
+  new VM.Vector3(1.0, 0.0, 0.0),
   // Left face
-  new Vector(-1.0, 0.0, 0.0)
+  new VM.Vector3(-1.0, 0.0, 0.0)
 ];
 
 MeshData createCubeInternal(
@@ -24,42 +24,42 @@ MeshData createCubeInternal(
     double vMin: 0.0,
     double vMax: 1.0}) {
   
-  List<Vector> vertices = [
+  List<VM.Vector3> vertices = [
     // Front face
-    new Vector(-x, -y, z),
-    new Vector(x, -y, z),
-    new Vector(x, y, z),
-    new Vector(-x, y, z),
+    new VM.Vector3(-x, -y, z),
+    new VM.Vector3(x, -y, z),
+    new VM.Vector3(x, y, z),
+    new VM.Vector3(-x, y, z),
 
     // Back face
-    new Vector(-x, -y, -z),
-    new Vector(-x, y, -z),
-    new Vector(x, y, -z),
-    new Vector(x, -y, -z),
+    new VM.Vector3(-x, -y, -z),
+    new VM.Vector3(-x, y, -z),
+    new VM.Vector3(x, y, -z),
+    new VM.Vector3(x, -y, -z),
 
     // Top face
-    new Vector(-x, y, -z),
-    new Vector(-x, y, z),
-    new Vector(x, y, z),
-    new Vector(x, y, -z),
+    new VM.Vector3(-x, y, -z),
+    new VM.Vector3(-x, y, z),
+    new VM.Vector3(x, y, z),
+    new VM.Vector3(x, y, -z),
 
     // Bottom face
-    new Vector(x, -y, z),
-    new Vector(-x, -y, z),
-    new Vector(-x, -y, -z),
-    new Vector(x, -y, -z),
+    new VM.Vector3(x, -y, z),
+    new VM.Vector3(-x, -y, z),
+    new VM.Vector3(-x, -y, -z),
+    new VM.Vector3(x, -y, -z),
 
     // Right face
-    new Vector(x, -y, -z),
-    new Vector(x, y, -z),
-    new Vector(x, y, z),
-    new Vector(x, -y, z),
+    new VM.Vector3(x, -y, -z),
+    new VM.Vector3(x, y, -z),
+    new VM.Vector3(x, y, z),
+    new VM.Vector3(x, -y, z),
 
     // Left face
-    new Vector(-x, -y, -z),
-    new Vector(-x, -y, z),
-    new Vector(-x, y, z),
-    new Vector(-x, y, -z)
+    new VM.Vector3(-x, -y, -z),
+    new VM.Vector3(-x, -y, z),
+    new VM.Vector3(-x, y, z),
+    new VM.Vector3(-x, y, -z)
   ];
 
   List<VM.Vector2> uvs = [
@@ -156,8 +156,8 @@ MeshData createCubeInternal(
   md.AddVertices(vertices);
   md.AddAttributesVector2(aTextureCoordinates, uvs);
   for (int i = 0; i < _CubeNormals.length; i++) {
-    Vector n = _CubeNormals[i];
-    md.AddAttributesVector(aNormal, [n, n, n, n]);
+    VM.Vector3 n = _CubeNormals[i];
+    md.AddAttributesVector3(aNormal, [n, n, n, n]);
   }
 
   return md;

@@ -1,7 +1,7 @@
 part of chronosgl;
 
-Vector p1 = new Vector();
-Vector p2 = new Vector();
+Vector p1 = new VM.Vector3.zero();
+Vector p2 = new VM.Vector3.zero();
 
 MeshData createTorusKnotInternal(
     {double radius: 20.0,
@@ -15,11 +15,11 @@ MeshData createTorusKnotInternal(
   md.name = "torusknot";
   md.EnableAttribute(aTextureCoordinates);
 
-  List<Vector> vertices = [];
+  List<VM.Vector3> vertices = [];
 
-  Vector tang = new Vector();
-  Vector n = new Vector();
-  Vector bitan = new Vector();
+  VM.Vector3 tang = new VM.Vector3.zero();
+  VM.Vector3 n = new VM.Vector3.zero();
+  VM.Vector3 bitan = new VM.Vector3.zero();
   List<List<int>> grid = new List<List<int>>(segmentsR);
 
   for (int i = 0; i < segmentsR; ++i) {
@@ -36,8 +36,8 @@ MeshData createTorusKnotInternal(
     n.y = p2.y + p1.y;
     n.z = p2.z + p1.z;
 
-    bitan..cross2(tang, n)..normalize();
-    n..cross2(bitan, tang)..normalize();
+    bitan = tang.cross(n)..normalize();
+    n = bitan.cross(tang)..normalize();
 
     for (int j = 0; j < segmentsT; ++j) {
       double v = j / segmentsT * 2 * Math.PI;
@@ -46,7 +46,7 @@ MeshData createTorusKnotInternal(
       cx = tube * Math.cos(v); // TODO: Hack: Negating it so it faces outside.
       cy = tube * Math.sin(v);
 
-      vertices.add(new Vector(p1.x + cx * n.x + cy * bitan.x,
+      vertices.add(new VM.Vector3(p1.x + cx * n.x + cy * bitan.x,
           p1.y + cx * n.y + cy * bitan.y, p1.z + cx * n.z + cy * bitan.z));
 
       grid[i][j] = vertices.length - 1;

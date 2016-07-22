@@ -114,8 +114,8 @@ class CoreProgram {
         _gl.uniform4fv(l, val.storage);
         break;
       case "vec3":
-        assert(val.array.length == 3);
-        _gl.uniform3fv(l, val.array);
+        assert(val.storage.length == 3);
+        _gl.uniform3fv(l, val.storage);
         break;
       case "vec2":
         assert(val.storage.length == 2);

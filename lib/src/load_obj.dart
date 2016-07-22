@@ -31,8 +31,8 @@ MeshData doLoadObj(String text) {
 
   List<String> lines = text.split("\n");
 
-  List<Vector> vertices = [];
-  List<Vector> normals = [];
+  List<VM.Vector3> vertices = [];
+  List<VM.Vector3> normals = [];
   List<VM.Vector2> uvs = [];
 
   for (String line2 in lines) {
@@ -45,12 +45,12 @@ MeshData doLoadObj(String text) {
     if (array[0] == "g") {
       groups[array[1]] = vertices.length;
     } else if (array[0] == "v") {
-      vertices.add(new Vector(double.parse(array[1]), double.parse(array[2]),
+      vertices.add(new VM.Vector3(double.parse(array[1]), double.parse(array[2]),
           double.parse(array[3])));
     } else if (array[0] == "vt") {
       uvs.add(new VM.Vector2(double.parse(array[1]), double.parse(array[2])));
     } else if (array[0] == "vn") {
-      normals.add(new Vector(double.parse(array[1]), double.parse(array[2]),
+      normals.add(new VM.Vector3(double.parse(array[1]), double.parse(array[2]),
           double.parse(array[3])));
     } else if (array[0] == "f") {
       // face
@@ -59,8 +59,8 @@ MeshData doLoadObj(String text) {
         continue;
       }
 
-      List<Vector> faceVertices = [];
-      List<Vector> faceNormal = [];
+      List<VM.Vector3> faceVertices = [];
+      List<VM.Vector3> faceNormal = [];
       List<VM.Vector2> faceUvs = [];
       for (int i = 1; i < 4; ++i) {
         // add a new entry to the map and arrays
@@ -82,23 +82,23 @@ MeshData doLoadObj(String text) {
         if (vtx < vertices.length) {
           faceVertices.add(vertices[vtx]);
         } else {
-          faceVertices.add(new Vector());
+          faceVertices.add(new VM.Vector3.zero());
         }
 
         if (tex < uvs.length) {
           faceUvs.add(uvs[tex]);
         } else {
-          faceUvs.add(new VM.Vector2(0.0, 0.0));
+          faceUvs.add(new VM.Vector2.zero());
         }
         if (nor < normals.length) {
           faceNormal.add(normals[nor]);
         } else {
-          faceNormal.add(new Vector());
+          faceNormal.add(new VM.Vector3.zero());
         }
       }
       md.AddFaces3(1);
       md.AddVertices(faceVertices);
-      md.AddAttributesVector(aNormal, faceNormal);
+      md.AddAttributesVector3(aNormal, faceNormal);
       md.AddAttributesVector2(aTextureCoordinates, faceUvs);
     }
   }

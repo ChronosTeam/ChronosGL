@@ -2,6 +2,8 @@ import 'package:chronosgl/chronosgl.dart';
 import 'dart:typed_data';
 import 'dart:math' as Math;
 
+import 'package:vector_math/vector_math.dart' as VM;
+
 List<ShaderObject> createFireWorksShader() {
   return [
     new ShaderObject("FireWorksV")
@@ -48,11 +50,11 @@ Math.Random rand = new Math.Random();
 Mesh getRocket(Texture tw) {
   int numPoints = 200;
 
-  List<Vector> vertices = [];
-  List<Vector> normals = [];
+  List<VM.Vector3> vertices = [];
+  List<VM.Vector3> normals = [];
   for (var i = 0; i < numPoints; i++) {
-    vertices.add(new Vector());
-    normals.add(new Vector(rand.nextDouble() - 0.5, rand.nextDouble() - 0.5,
+    vertices.add(new VM.Vector3(0.0, 0.0, 0.0));
+    normals.add(new VM.Vector3(rand.nextDouble() - 0.5, rand.nextDouble() - 0.5,
         rand.nextDouble() - 0.5));
   }
 
@@ -60,11 +62,11 @@ Mesh getRocket(Texture tw) {
     ..EnableAttribute(aNormal)
     ..AddFaces1(numPoints)
     ..AddVertices(vertices)
-    ..AddAttributesVector(aNormal, normals);
+    ..AddAttributesVector3(aNormal, normals);
 
   Material mat = new Material()
     ..SetUniform(uTextureSampler, tw)
-    ..SetUniform(uColor, new Vector(1.0, 0.0, 0.0))
+    ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0))
     ..blend = true
     ..depthWrite = false
     ..blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;

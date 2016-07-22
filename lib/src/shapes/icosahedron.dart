@@ -50,21 +50,21 @@ final List<Face3> _icoFaces = [
 
 final double t = (1 + Math.sqrt(5)) / 2;
 
-final List<Vector> _icoVertices = [
-  new Vector(-1, t, 0)..normalize(),
-  new Vector(1, t, 0)..normalize(),
-  new Vector(-1, -t, 0)..normalize(),
-  new Vector(1, -t, 0)..normalize(),
+final List<VM.Vector3> _icoVertices = [
+  new VM.Vector3(-1.0, t, 0.0)..normalize(),
+  new VM.Vector3(1.0, t, 0.0)..normalize(),
+  new VM.Vector3(-1.0, -t, 0.0)..normalize(),
+  new VM.Vector3(1.0, -t, 0.0)..normalize(),
   //
-  new Vector(0, -1, t)..normalize(),
-  new Vector(0, 1, t)..normalize(),
-  new Vector(0, -1, -t)..normalize(),
-  new Vector(0, 1, -t)..normalize(),
+  new VM.Vector3(0.0, -1.0, t)..normalize(),
+  new VM.Vector3(0.0, 1.0, t)..normalize(),
+  new VM.Vector3(0.0, -1.0, -t)..normalize(),
+  new VM.Vector3(0.0, 1.0, -t)..normalize(),
   //
-  new Vector(t, 0, -1)..normalize(),
-  new Vector(t, 0, 1)..normalize(),
-  new Vector(-t, 0, -1)..normalize(),
-  new Vector(-t, 0, 1)..normalize()
+  new VM.Vector3(t, 0.0, -1.0)..normalize(),
+  new VM.Vector3(t, 0.0, 1.0)..normalize(),
+  new VM.Vector3(-t, 0.0, -1.0)..normalize(),
+  new VM.Vector3(-t, 0.0, 1.0)..normalize()
 ];
 
 // This produces the mash for an icosahedron when subdivisions == 0
@@ -77,7 +77,7 @@ final List<Vector> _icoVertices = [
 //   4           5120         5112
 MeshData createIcosahedronInternal([int subdivisions = 4]) {
   List<Face3> faces = [];
-  List<Vector> vertices = [];
+  List<VM.Vector3> vertices = [];
 
   // start with 12 vertices and 20 faces of a Icosahedron
   faces.addAll(_icoFaces);
@@ -90,11 +90,11 @@ MeshData createIcosahedronInternal([int subdivisions = 4]) {
     List<Face3> tmp = [];
     for (Face3 f in faces) {
       // Note: a,b,c are unit vectors
-      Vector a = vertices[f.a].copy();
+      VM.Vector3 a = new VM.Vector3.copy(vertices[f.a]);
       a..add(vertices[f.b])..scale(0.5)..normalize();
-      Vector b = vertices[f.b].copy();
+      VM.Vector3 b = new VM.Vector3.copy(vertices[f.b]);
       b..add(vertices[f.c])..scale(0.5)..normalize();
-      Vector c = vertices[f.c].copy();
+      VM.Vector3 c = new VM.Vector3.copy(vertices[f.c]);
       c..add(vertices[f.a])..scale(0.5)..normalize();
       final int ia = vertices.length;
       vertices.add(a);

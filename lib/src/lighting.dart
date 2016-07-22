@@ -8,11 +8,11 @@ int typeLightDir = 5;
 
 class Light {
   int _type;
-  Vector _pos = new Vector();
-  Vector _dir = new Vector();
-  Vector _colDiffuse = new Vector();
-  Vector _colSpecular = new Vector();
-  Vector _colGround = new Vector(); // for Hemisperical
+  VM.Vector3 _pos = new VM.Vector3.zero();
+  VM.Vector3 _dir = new VM.Vector3.zero();
+  VM.Vector3 _colDiffuse = new VM.Vector3.zero();
+  VM.Vector3 _colSpecular = new VM.Vector3.zero();
+  VM.Vector3 _colGround = new VM.Vector3.zero(); // for Hemisperical
   double _range = 0.0; // for spot and point
   double _spotCutoff = 0.0; // for spot
   double _spotFocus = 0.0; // for spot

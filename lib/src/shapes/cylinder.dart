@@ -10,14 +10,14 @@ MeshData createCylinderInternal(
   md.EnableAttribute(aTextureCoordinates);
   double halfHeight = height / 2;
 
-  List<Vector> vertices = [];
+  List<VM.Vector3> vertices = [];
   List<VM.Vector2> uvs = [];
 
   // top center
-  vertices.add(new Vector(0.0, halfHeight, 0.0));
+  vertices.add(new VM.Vector3(0.0, halfHeight, 0.0));
   uvs.add(new VM.Vector2(0.0, 0.0));
   // bottom center
-  vertices.add(new Vector(0.0, -halfHeight, 0.0));
+  vertices.add(new VM.Vector3(0.0, -halfHeight, 0.0));
   uvs.add(new VM.Vector2(1.0, 1.0));
 
   for (int i = 0; i < radialSubdivisions; i++) {
@@ -28,9 +28,9 @@ MeshData createCylinderInternal(
     double xposBot = radiusBot * Math.sin(u * Math.PI * 2);
     double zposBot = radiusBot * Math.cos(u * Math.PI * 2);
 
-    vertices.add(new Vector(xposTop, halfHeight, zposTop));
+    vertices.add(new VM.Vector3(xposTop, halfHeight, zposTop));
     uvs.add(new VM.Vector2(u, u));
-    vertices.add(new Vector(xposBot, -halfHeight, zposBot));
+    vertices.add(new VM.Vector3(xposBot, -halfHeight, zposBot));
     uvs.add(new VM.Vector2(1.0, u));
 
     if (i > 0) {
@@ -68,13 +68,13 @@ MeshData createCylinderInternal(
 MeshData createCylinderInternalWireframeFriendly(
     double radTop, double radBot, double height, int radialSubdivisions) {
   final double halfHeight = height / 2;
-  List<Vector> top = [];
-  List<Vector> bot = [];
+  List<VM.Vector3> top = [];
+  List<VM.Vector3> bot = [];
   for (int i = 0; i < radialSubdivisions; i++) {
     double u = i / radialSubdivisions;
-    top.add(new Vector(radTop * Math.sin(u * Math.PI * 2), halfHeight,
+    top.add(new VM.Vector3(radTop * Math.sin(u * Math.PI * 2), halfHeight,
         radTop * Math.cos(u * Math.PI * 2)));
-    bot.add(new Vector(radBot * Math.sin(u * Math.PI * 2), -halfHeight,
+    bot.add(new VM.Vector3(radBot * Math.sin(u * Math.PI * 2), -halfHeight,
         radBot * Math.cos(u * Math.PI * 2)));
   }
   top.add(top[0]);
@@ -84,8 +84,8 @@ MeshData createCylinderInternalWireframeFriendly(
   MeshData md = new MeshData();
   md.name = "cylinder-wireframe-friendly";
   md.EnableAttribute(aTextureCoordinates);
-  final Vector centerTop = new Vector(0.0, halfHeight, 0.0);
-  final Vector centerBot = new Vector(0.0, -halfHeight, 0.0);
+  final VM.Vector3 centerTop = new VM.Vector3(0.0, halfHeight, 0.0);
+  final VM.Vector3 centerBot = new VM.Vector3(0.0, -halfHeight, 0.0);
   md.AddFaces3(2 * radialSubdivisions);
   for (int i = 0; i < radialSubdivisions; i++) {
     double u = i / radialSubdivisions;

@@ -78,6 +78,12 @@ class Spatial {
     transform[Matrix4.POSZ] = vector[2];
   }
 
+  void setPosFromVec3(VM.Vector3 vector) {
+    transform[Matrix4.POSX] = vector[0];
+    transform[Matrix4.POSY] = vector[1];
+    transform[Matrix4.POSZ] = vector[2];
+  }
+
   void setPosFromSpherical(double radius, double azimuth, double polar) {
     double rcp = radius * Math.cos(polar);
     setPos(rcp * Math.cos(azimuth), radius * Math.sin(polar), rcp * Math.sin(azimuth));

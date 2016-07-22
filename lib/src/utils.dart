@@ -174,9 +174,9 @@ class Utils {
       [int dimension = 500]) {
     // TODO: make this asynchronous (async/await?)
     Math.Random rand = new Math.Random();
-    List<Vector> vertices = [];
+    List<VM.Vector3> vertices = [];
     for (var i = 0; i < numPoints; i++) {
-      vertices.add(new Vector(
+      vertices.add(new VM.Vector3(
           (rand.nextDouble() - 0.5) * dimension,
           (rand.nextDouble() - 0.5) * dimension,
           (rand.nextDouble() - 0.5) * dimension));

@@ -183,9 +183,9 @@ class MeshData {
   }
 
   // Extract the triplets from vertex
-  void AddVertices(List<Vector> lst) {
-    for (Vector v in lst) {
-      _vertices.addAll(v.array);
+  void AddVertices(List<VM.Vector3> lst) {
+    for (VM.Vector3 v in lst) {
+      _vertices.addAll(v.storage);
     }
   }
 
@@ -213,9 +213,9 @@ class MeshData {
     _attributes[canonical] = f;
   }
 
-  void AddAttributesVector(String canonical, List<Vector> lst) {
-    for (Vector v in lst) {
-      _attributes[canonical].addAll(v.array);
+  void AddAttributesVector3(String canonical, List<VM.Vector3> lst) {
+    for (VM.Vector3 v in lst) {
+      _attributes[canonical].addAll(v.storage);
     }
   }
 
@@ -232,15 +232,15 @@ class MeshData {
       }
     }*/
 
-  Vector temp = new Vector();
+  VM.Vector3 temp = new VM.Vector3.zero();
 
-  bool normalFromPoints(Vector a, Vector b, Vector c, Vector normal) {
-    temp.set(b).subtract(a);
-    normal.set(c).subtract(a);
+  bool normalFromPoints(VM.Vector3 a, VM.Vector3 b, VM.Vector3 c, VM.Vector3 normal) {
+    temp..setFrom(b)..sub(a);
+    normal..setFrom(c)..sub(a);
 
-    normal.cross(temp);
+    normal.crossInto(temp, normal);
 
-    double len = normal.length();
+    double len = normal.length;
     if (len == 0) {
       return false;
     }
@@ -290,13 +290,13 @@ class MeshData {
   // TODO: add support for Face4
   void generateNormalsAssumingTriangleMode() {
     if (!_attributes.containsKey(aNormal)) EnableAttribute(aNormal);
-    Vector tempa = new Vector();
-    Vector tempb = new Vector();
-    Vector tempc = new Vector();
-    Vector norm = new Vector();
+    VM.Vector3 tempa = new VM.Vector3.zero();
+    VM.Vector3 tempb = new VM.Vector3.zero();
+    VM.Vector3 tempc = new VM.Vector3.zero();
+    VM.Vector3 norm = new VM.Vector3.zero();
 
-    void setVector(Vector v, int i) {
-      v.set(_vertices[i * 3 + 0], _vertices[i * 3 + 1], _vertices[i * 3 + 2]);
+    void setVector(VM.Vector3 v, int i) {
+      v.setValues(_vertices[i * 3 + 0], _vertices[i * 3 + 1], _vertices[i * 3 + 2]);
     }
 
     List<double> normals = _attributes[aNormal];
@@ -304,7 +304,7 @@ class MeshData {
       normals.add(0.0);
     }
 
-    void setNormal(Vector n, int i) {
+    void setNormal(VM.Vector n, int i) {
       normals[3 * i + 0] = n.x;
       normals[3 * i + 1] = n.y;
       normals[3 * i + 2] = n.z;
@@ -321,9 +321,9 @@ class MeshData {
     }
   }
 
-  void generateRadialNormals(Vector center) {
+  void generateRadialNormals(VM.Vector center) {
     if (!_attributes.containsKey(aNormal)) EnableAttribute(aNormal);
-    Vector norm = new Vector();
+    VM.Vector3 norm = new VM.Vector3.zero();
 
     List<double> normals = _attributes[aNormal];
     while (normals.length < _vertices.length) {
@@ -331,8 +331,8 @@ class MeshData {
     }
 
     for (int i = 0; i < _vertices.length; i += 3) {
-      norm.set(_vertices[i + 0], _vertices[i + 1], _vertices[i + 2]);
-      norm.subtract(center);
+      norm.setValues(_vertices[i + 0], _vertices[i + 1], _vertices[i + 2]);
+      norm.sub(center);
       norm.normalize();
       normals[i + 0] = norm.x;
       normals[i + 1] = norm.y;

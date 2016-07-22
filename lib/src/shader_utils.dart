@@ -18,8 +18,8 @@ class Uniform {
     gl.uniform3f(uniformLocation, x, y, z);
   }
 
-  void setValue3fv(Vector v) {
-    gl.uniform3fv(uniformLocation, v.array);
+  void setValue3fv(VM.Vector3 v) {
+    gl.uniform3fv(uniformLocation, v.storage);
   }
 }
 

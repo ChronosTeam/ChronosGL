@@ -2,6 +2,7 @@ import 'dart:html' as html;
 import 'dart:math' as Math;
 import 'dart:web_gl' as WEBGL;
 import 'package:chronosgl/chronosgl.dart';
+ import 'package:vector_math/vector_math.dart' as VM;
 
 html.CanvasElement canvas2d;
 Vector p1 = new Vector();
@@ -21,7 +22,7 @@ void main() {
 
   Material mat = new Material()
     ..SetUniform(uTextureSampler, generatedTexture)
-    ..SetUniform(uColor, new Vector())
+    ..SetUniform(uColor, new VM.Vector3.zero())
     ..blend = true
     ..depthTest = false;
   Mesh m = new Mesh(Shapes.TorusKnot(), mat);
