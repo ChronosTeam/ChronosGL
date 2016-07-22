@@ -48,8 +48,8 @@ class Mesh extends Node {
     ChangeArrayBuffer(gl, _buffers[canonical], data);
   }
 
-  bool IsPoints() {
-    return _meshData.IsPoints();
+  int Drawmode() {
+    return _meshData.DrawMode();
   }
 
   Mesh(this._meshData, this.material, {this.debug: false}) {
@@ -129,7 +129,7 @@ class Mesh extends Node {
     inputs.SetUniformVal(uNormalMatrix, normMatrix);
     program.MaybeSetUniformsBulk(inputs);
     program.Draw(
-        numInstances, numItems, _meshData.IsPoints(), _indexBuffer != null);
+        numInstances, numItems, _meshData.DrawMode(), _indexBuffer != null);
 
     material.RenderingExit(gl);
   }

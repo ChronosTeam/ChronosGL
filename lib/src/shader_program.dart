@@ -1,5 +1,10 @@
 part of chronosgl;
 
+
+const int DRAW_MODE_POINTS = WEBGL.POINTS;
+const int DRAW_MODE_LINES = WEBGL.LINES;
+const int DRAW_MODE_TRIANGLES = WEBGL.TRIANGLES;
+
 // For use with uniforms
 class ShaderProgramInputs {
   Map _uniforms = {};
@@ -181,22 +186,21 @@ class CoreProgram {
     }
   }
 
-  void Draw(bool debug, int numInstances, int numItems, bool drawPoints,
+  void Draw(bool debug, int numInstances, int numItems, int drawMode,
       bool useArrayBuffer) {
-
+    
     if (debug)
-      print("[${name}] draw points: ${drawPoints} instances${numInstances}");
+      print("[${name}] draw points: ${drawMode} instances${numInstances}");
     if (!AllUniformsInitialized()) {
       throw "${name}: uninitialized uniforms: ${UniformsUninitialized()}";
     }
     
+   
+    
     if (numInstances > 0) {
-      if (drawPoints) {
-        _extInstancedArrays.drawArraysInstancedAngle(
-            WEBGL.POINTS, 0, numItems, numInstances);
-      } else if (useArrayBuffer) {
+      if (useArrayBuffer) {
         _extInstancedArrays.drawElementsInstancedAngle(
-            WEBGL.TRIANGLES,
+            drawMode,
             numItems,
             ChronosGL.useElementIndexUint
                 ? WEBGL.UNSIGNED_INT
@@ -205,21 +209,19 @@ class CoreProgram {
             numInstances);
       } else {
         _extInstancedArrays.drawArraysInstancedAngle(
-            WEBGL.TRIANGLES, 0, numItems, numInstances);
+            drawMode, 0, numItems, numInstances);
       }
     } else {
-      if (drawPoints) {
-        _gl.drawArrays(WEBGL.POINTS, 0, numItems);
-      } else if (useArrayBuffer) {
+      if (useArrayBuffer) {
         _gl.drawElements(
-            WEBGL.TRIANGLES,
+            drawMode,
             numItems,
             ChronosGL.useElementIndexUint
                 ? WEBGL.UNSIGNED_INT
                 : WEBGL.UNSIGNED_SHORT,
             0);
       } else {
-        _gl.drawArrays(WEBGL.TRIANGLES, 0, numItems);
+        _gl.drawArrays(drawMode, 0, numItems);
       }
     }
     if (debug) print(_gl.getProgramInfoLog(_program));
@@ -320,8 +322,8 @@ class ShaderProgram implements Drawable {
   }
 
   void Draw(
-      int numInstances, int numItems, bool drawPoints, bool useArrayBuffer) {
-    _program.Draw(debug, numInstances, numItems, drawPoints, useArrayBuffer);
+      int numInstances, int numItems, int drawMode, bool useArrayBuffer) {
+    _program.Draw(debug, numInstances, numItems, drawMode, useArrayBuffer);
   }
 
   void draw(PerspectiveParams dynpar, List<Light> lights, Camera camera,

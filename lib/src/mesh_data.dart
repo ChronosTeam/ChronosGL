@@ -5,6 +5,11 @@ class Face1 {
   Face1(this.a);
 }
 
+class Face2 {
+  int a, b;
+  Face2(this.a, this.b);
+}
+
 class Face3 {
   int a, b, c;
   Face3(this.a, this.b, this.c);
@@ -26,7 +31,8 @@ class Face4 {
 //   a List<double>
 class MeshData {
   String name = "";
-  List<Face1> _faces1 = [];
+  List<Face1> _points1 = [];
+  List<Face2> _lines2 = [];
   List<Face3> _faces3 = [];
   List<Face4> _faces4 = [];
   List<double> _vertices = [];
@@ -35,17 +41,30 @@ class MeshData {
 
   MeshData();
 
-  bool IsPoints() {
-    return _faces1.length > 0;
+  int DrawMode() {
+    if (_points1.length > 0) {
+      return DRAW_MODE_POINTS;
+    } else if (_lines2.length > 0) {
+      return DRAW_MODE_LINES;
+    } else {
+      return DRAW_MODE_TRIANGLES;
+    }
   }
 
+  bool UsesArrayBuffer() {
+    return _points1.length == 0;  
+  }
+  
   void SanityCheck() {
-    if (IsPoints()) {
-      assert(_faces3.length == 0 && _faces4.length == 0);
+    if (_points1.length > 0) {
+      assert(_lines2.length == 0 && _faces3.length == 0 && _faces4.length == 0);
+    } else if (_lines2.length > 0) {
+      assert(
+          _points1.length == 0 && _faces3.length == 0 && _faces4.length == 0);
     }
 
     int maxIndexFace1 = -1;
-    for (Face1 f in _faces1) {
+    for (Face1 f in _points1) {
       if (f.a > maxIndexFace1) maxIndexFace1 = f.a;
     }
 
@@ -97,11 +116,16 @@ class MeshData {
   }
 
   List<int> GetVertexIndices() {
-    if (IsPoints()) return null;
+    if (_points1.length > 0) return null;
     if (_faces.isEmpty) {
-      _faces = new Uint32List(_faces3.length * 3 + _faces4.length * 6);
-      List<int> out = [];
+      _faces = new Uint32List(
+          _lines2.length * 2 + _faces3.length * 3 + _faces4.length * 6);
       int i = 0;
+      for (Face2 l2 in _lines2) {
+           _faces[i + 0] = l2.a;
+           _faces[i + 1] = l2.b;
+           i += 2;
+         }
       for (Face3 f3 in _faces3) {
         _faces[i + 0] = f3.a;
         _faces[i + 1] = f3.b;
@@ -132,7 +156,7 @@ class MeshData {
   void AddFaces1(int n) {
     int v = _vertices.length ~/ 3;
     for (int i = 0; i < n; i++, v++) {
-      _faces1.add(new Face1(v));
+      _points1.add(new Face1(v));
     }
   }
 
