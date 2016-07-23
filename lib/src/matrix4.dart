@@ -111,7 +111,7 @@ class Matrix4 {
     double fn = (far - near);
     //
     array[0] = (near * 2) / rl;
-    array[1] = 0.0; 
+    array[1] = 0.0;
     array[2] = 0.0;
     array[3] = 0.0;
     //
@@ -123,7 +123,7 @@ class Matrix4 {
     array[8] = (right + left) / rl;
     array[9] = (top + bottom) / tb;
     array[10] = -(far + near) / fn;
-    array[11] = -1.0;    
+    array[11] = -1.0;
     //
     array[12] = 0.0;
     array[13] = 0.0;
@@ -464,7 +464,10 @@ class Matrix4 {
 
     // vec3.direction goes from argument2 to argument1 and normalizes
     // as we want a back vector, we want from target to this spatial position
-    newBack..setFrom(eye)..sub(target)..normalize();
+    newBack
+      ..setFrom(eye)
+      ..sub(target)
+      ..normalize();
     // newBack.direction(eye, target);
     up.crossInto(newBack, newRight);
     //newRight.cross2(up, newBack);
@@ -506,12 +509,13 @@ class Matrix4 {
   }
 
   VM.Vector3 getScale(VM.Vector3 store) {
-    double tx = store..setValues(array[0], array[4], array[8])..length;
-    double ty = store..setValues(array[1], array[5], array[9])..length;
-    double tz = store..setValues(array[2], array[6], array[10])..length;
-    store.x = tx;
-    store.y = ty;
-    store.z = tz;
+    store.setValues(array[0], array[4], array[8]);
+    double tx = store.length;
+    store.setValues(array[1], array[5], array[9]);
+    double ty = store.length;
+    store.setValues(array[2], array[6], array[10]);
+    double tz = store.length;
+    store.setValues(tx, ty, tz);
     return store;
   }
 

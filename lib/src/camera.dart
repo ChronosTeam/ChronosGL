@@ -140,7 +140,7 @@ class FlyingCamera extends Animatable {
   void moveForward(double amount) {
     VM.Vector3 t = camera.getBack();
     t.negate();
-    momentum_.lerp(t, amount);
+    VM.mix(momentum_, t, amount, momentum_);
   }
 
   void moveBackward(double amount) {

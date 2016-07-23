@@ -2,6 +2,7 @@ import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html';
 import 'dart:typed_data';
+import 'package:vector_math/vector_math.dart' as VM;
 
 List<ShaderObject> createInstancedShader() {
   return [
@@ -37,11 +38,11 @@ List<ShaderObject> createInstancedShader() {
 void main() {
   StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-  
+
   chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
-     fps.UpdateFrameCount(time);
-   });
-  
+    fps.UpdateFrameCount(time);
+  });
+
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 265.0);
   chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
@@ -57,16 +58,16 @@ void main() {
   Float32List rotations = new Float32List(count * 4);
 
   Spatial spatial = new Spatial();
-  Quaternion q = new Quaternion();
-
+  VM.Matrix3 qm = new VM.Matrix3.zero();
   int pos = 0;
   for (int x = -5; x < 5; x++) {
     for (int y = -5; y < 5; y++) {
       for (int z = -5; z < 5; z++) {
         spatial.setPos(x * 40, y * 40, z * 30);
         translations.setAll(pos * 3, spatial.getPos().storage);
-        q.fromRotationMatrix4(spatial.transform);
-        rotations.setAll(pos * 3, q.array);
+        qm.copyFromArray(new Matrix3.fromM4(spatial.transform).array);
+        VM.Quaternion q = new VM.Quaternion.fromRotation(qm);
+        rotations.setAll(pos * 3, q.storage);
         pos++;
       }
     }

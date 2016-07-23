@@ -6,4 +6,4 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 //part "src/vector.dart";
 part "src/matrix4.dart";
-part "src/quaternion.dart";
+// part "src/quaternion.dart";

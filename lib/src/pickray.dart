@@ -83,7 +83,7 @@ int checkLineBox(VM.Vector3 B1, VM.Vector3 B2, VM.Vector3 L1, VM.Vector3 L2, VM.
   }
 
   if (currentSide > 0) {
-    Hit.set(currentHit);
+    Hit.setFrom(currentHit);
   }
   return currentSide;
 }
