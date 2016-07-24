@@ -4,14 +4,18 @@ class Camera extends Spatial {
   // Get the model view matrix.  This overwrites the content of parameter m.
   // The view matrix is the inverse of the camera’s transformation matrix
   // in world-space.
-  void getViewMatrix(Matrix4 m) {
+  void getViewMatrix(VM.Matrix4 m) {
     // why does this seem to be already inverted/transposed ?
-    transform.toRotationMat(m);
+    m.setFrom(transform);
+    m[12] = 0.0;
+    m[13] = 0.0;
+    m[14] = 0.0;
+    m[15] = 1.0;
     // The eye position is negated which is equivalent to the inverse of the translation matrix: T(v)^-1 == T(-v)
     // T = translation matrix, v = eye position.
     // short cut for rotationMatrixInverted * translationMatrixInverted,
     // see http://3dgep.com/understanding-the-view-matrix/#Look_At_Camera
-    m.translateLocal(-transform[12], -transform[13], -transform[14]);
+    m.translate(-transform[12], -transform[13], -transform[14]);
   }
 }
 
@@ -140,34 +144,34 @@ class FlyingCamera extends Animatable {
   void moveForward(double amount) {
     VM.Vector3 t = camera.getBack();
     t.negate();
-    VM.mix(momentum_, t, amount, momentum_);
+    VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
   void moveBackward(double amount) {
     VM.Vector3 t = camera.getBack();
-    VM.mix(momentum_, t, amount, momentum_);
+    VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
   void moveUp(num amount) {
     VM.Vector3 t = camera.getUp();
-    VM.mix(momentum_, t, amount, momentum_);
+    VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
   void moveDown(num amount) {
     VM.Vector3 t = camera.getUp();
     t.negate();
-    VM.mix(momentum_, t, amount, momentum_);
+    VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
   void moveLeft(num amount) {
     VM.Vector3 t = camera.getRight();
     t.negate();
-    VM.mix(momentum_, t, amount, momentum_);
+    VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
   void moveRight(num amount) {
     VM.Vector3 t = camera.getRight();
-    VM.mix(momentum_, t, amount, momentum_);
+    VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 }
 
@@ -224,8 +228,8 @@ class FPSCamera extends Animatable {
     tmp.setFrom(momentum);
     tmp.scale(0.02);
 
-    traceStart.set(camera.getPos());
-    traceEnd.set(camera.getPos());
+    traceStart.setFrom(camera.getPos());
+    traceEnd.setFrom(camera.getPos());
     traceEnd.add(tmp);
 
     //Output output = level.trace( traceStart, traceEnd, 10.0);
@@ -237,8 +241,8 @@ class FPSCamera extends Animatable {
     if (cpk[Key.SPACE] != null) {}
 
     if (movementY != 0)
-      camera.transform.rotate(movementY * 0.006, camera.getRight());
-    if (movementX != 0) camera.transform.rotate(movementX * 0.006, up);
+      camera.transform.rotate(camera.getRight(), movementY * 0.006);
+    if (movementX != 0) camera.transform.rotate(up, movementX * 0.006);
 
     movementX = 0;
     movementY = 0;

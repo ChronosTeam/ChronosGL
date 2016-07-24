@@ -21,7 +21,7 @@ void main() {
   MeshData md = Shapes.Cube(x:10.0, y:10.0, z:10.0);
 
   Mesh m = new Mesh(md, mat)
-    ..setPos(0, 0, 0)
+    ..setPos(0.0, 0.0, 0.0)
     ..lookUp(1.0)
     ..lookLeft(0.7);
 

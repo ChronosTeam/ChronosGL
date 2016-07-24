@@ -120,9 +120,7 @@ class Mesh extends Node {
     if (numItems == 0) return;
     material.RenderingInit(gl);
     bindBuffers(program);
-    Matrix3 normMatrix = new Matrix3.fromM4(mvMatrix);
-    normMatrix.invert();
-    normMatrix.transpose();
+    VM.Matrix3 normMatrix = mvMatrix.getNormalMatrix();
     program.MaybeSetUniformsBulk(material._inputs);
     inputs.SetUniformVal(uTransformationMatrix, transform);
     inputs.SetUniformVal(uModelViewMatrix, mvMatrix);

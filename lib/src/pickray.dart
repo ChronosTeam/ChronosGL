@@ -5,7 +5,8 @@ part of chronosgl;
 // all args are Vec3, Hit will be filled by this algo
 // returns the side where we hit the cube
 
-VM.Vector3 currentHit = new VM.Vector3();
+// TODO(rhulha): is this code still necessary or can it be replaced with vector_math, e.g, VM.Ray?
+VM.Vector3 currentHit = new VM.Vector3.zero();
 double currentDist = 0.0;
 int currentSide = 0;
 
@@ -93,10 +94,10 @@ bool getIntersection(double fDst1, double fDst2, VM.Vector3 P1, VM.Vector3 P2, V
   if ((fDst1 * fDst2) >= 0) return false;
   if (fDst1 == fDst2) return false;
 
-  temp.seFrom(P2);
+  temp.setFrom(P2);
   temp.sub(P1);
   temp.scale((-fDst1 / (fDst2 - fDst1)));
-  Hit.set(temp);
+  Hit.setFrom(temp);
   Hit.add(P1);
   return true;
 }

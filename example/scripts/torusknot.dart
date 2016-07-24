@@ -20,10 +20,10 @@ void main() {
   Material mat = new Material()
     ..SetUniform(uTextureSampler, blockTex)
     ..SetUniform(uColor, new VM.Vector3.zero());
-  Mesh m1 = new Mesh(Shapes.TorusKnot(), mat)..setPos(-50, 0, 0);
+  Mesh m1 = new Mesh(Shapes.TorusKnot(), mat)..setPos(-50.0, 0.0, 0.0);
   programBasic.add(m1);
   Material matDummy = new Material();
-  Mesh m2 = new Mesh(Shapes.TorusKnot(), matDummy)..setPos(50, 0, 0);
+  Mesh m2 = new Mesh(Shapes.TorusKnot(), matDummy)..setPos(50.0, 0.0, 0.0);
   perlinNoise.add(m2);
 
   ShaderProgram programSprites =

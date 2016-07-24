@@ -8,7 +8,7 @@ class Node extends Spatial {
   // children inheret the parent matrix for its rotation and position
   List<Node> children = new List<Node>();
 
-  Matrix4 mvMatrix = new Matrix4();
+  VM.Matrix4 mvMatrix = new VM.Matrix4.identity();
 
   Node([Node child]) {
     if (child != null) children.add(child);
@@ -36,10 +36,10 @@ class Node extends Spatial {
   void draw2(ShaderProgram program, ShaderProgramInputs inputs) {}
 
   void draw(ShaderProgram program, ShaderProgramInputs inputs,
-      Matrix4 parentMVMatrix) {
+      VM.Matrix4 parentMVMatrix) {
     // copy the mvMatrix, so we don't change the original
-    mvMatrix.setElements(parentMVMatrix);
-    mvMatrix.multiplyWith(transform);
+    mvMatrix.setFrom(parentMVMatrix);
+    mvMatrix.multiply(transform);
     draw2(program, inputs);
     for (Node node in children) {
       node.draw(program, inputs, mvMatrix);

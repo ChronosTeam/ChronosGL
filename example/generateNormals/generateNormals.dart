@@ -28,7 +28,7 @@ void main() {
         mesh.rotX(3.14 / 2);
         mesh.rotZ(3.14);
       }
-      mesh.setPos(-5 + i * 7, -4, 0);
+      mesh.setPos(-5.0 + i * 7, -4.0, 0.0);
       prg.add(mesh);
     }
 
@@ -44,7 +44,7 @@ void main() {
         mesh.rotX(3.14 / 2);
         mesh.rotZ(3.14);
       }
-      mesh.setPos(-5 + i * 7, 4, 0);
+      mesh.setPos(-5.0 + i * 7, 4.0, 0.0);
       prg.add(mesh);
     }
     Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {

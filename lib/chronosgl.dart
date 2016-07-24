@@ -10,8 +10,8 @@ import 'dart:convert';
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-import 'chronosmath.dart';
-export 'chronosmath.dart';
+//import 'chronosmath.dart';
+//export 'chronosmath.dart';
 
 import 'chronosshader.dart';
 export 'chronosshader.dart';
@@ -80,8 +80,8 @@ class PerspectiveParams {
     return Math.atan(aspecRatioInv() / focalLength());
   }
 
-  void UpdatePerspective(Matrix4 mat) {
-    mat.setPerspective(fov, width / height, near, far);
+  void UpdatePerspective(VM.Matrix4 mat) {
+    VM.setPerspectiveMatrix(mat, fov * Math.PI / 180.0, width / height, near, far);
     double e = focalLength();
     double a = aspecRatioInv();
     double ee1 = Math.sqrt(e * e + 1);
@@ -128,7 +128,7 @@ abstract class Animatable {
 
 abstract class Drawable extends Animatable {
   void draw(PerspectiveParams dynpar, List<Light> lights, Camera camera,
-      Matrix4 pMatrix);
+      VM.Matrix4 pMatrix);
 }
 
 typedef void AnimateCallback(double elapsed, double time);
@@ -137,7 +137,7 @@ class RenderingPhase {
   final WEBGL.RenderingContext _gl;
   ChronosFramebuffer _framebuffer;
   List<ShaderProgram> _programs = [];
-  Matrix4 _pMatrix = new Matrix4();
+  VM.Matrix4 _pMatrix = new VM.Matrix4.identity();
   bool clearColorBuffer = true;
   bool clearDepthBuffer = true;
   final bool _usePerspectiveMatrix;

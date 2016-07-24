@@ -104,10 +104,10 @@ class CoreProgram {
         _gl.uniform1f(l, val);
         break;
       case "mat4":
-        _gl.uniformMatrix4fv(l, false, val.array);
+        _gl.uniformMatrix4fv(l, false, val.storage);
         break;
       case "mat3":
-        _gl.uniformMatrix3fv(l, false, val.array);
+        _gl.uniformMatrix3fv(l, false, val.storage);
         break;
       case "vec4":
         assert(val.storage.length == 4);
@@ -250,9 +250,9 @@ class ShaderProgram implements Drawable {
   bool active;
 
   // these are the identity by default
-  Matrix4 modelviewMatrix = new Matrix4();
-  Matrix4 viewMatrix = new Matrix4();
-  Matrix4 normalMatrix = new Matrix4();
+  VM.Matrix4 modelviewMatrix = new VM.Matrix4.identity();
+  VM.Matrix4 viewMatrix = new VM.Matrix4.identity();
+  VM.Matrix4 normalMatrix = new VM.Matrix4.identity();
   List<Node> followCameraObjects = new List<Node>();
   List<Node> objects = new List<Node>();
 
@@ -324,7 +324,7 @@ class ShaderProgram implements Drawable {
   }
 
   void draw(PerspectiveParams dynpar, List<Light> lights, Camera camera,
-      Matrix4 pMatrix) {
+      VM.Matrix4 pMatrix) {
     if (!hasEnabledObjects()) return;
 
     _program.Begin(debug);
@@ -337,7 +337,7 @@ class ShaderProgram implements Drawable {
     inputs.SetUniformVal(uPerspectiveMatrix, pMatrix);
     if (camera != null) {
       camera.getViewMatrix(viewMatrix);
-      modelviewMatrix.setElements(viewMatrix);
+      modelviewMatrix.setFrom(viewMatrix);
       inputs.SetUniformVal(uViewMatrix, viewMatrix);
     }
     for (int i = 0; i < lights.length; ++i) {

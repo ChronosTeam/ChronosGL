@@ -63,6 +63,8 @@ MeshData createTorusKnotInternal(
       int c = grid[ip][jp];
       int d = grid[i][jp];
 
+      // TODO(rhulha): I change the texture compuation because the original
+      //               did not seem correct but it got worse that way
       VM.Vector2 uva = new VM.Vector2(i / segmentsR, j / segmentsT);
       VM.Vector2 uvb = new VM.Vector2((i + 1) / segmentsR, j / segmentsT);
       VM.Vector2 uvc = new VM.Vector2((i + 1) / segmentsR, (j + 1) / segmentsT);

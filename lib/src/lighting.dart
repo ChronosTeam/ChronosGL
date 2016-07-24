@@ -36,25 +36,26 @@ class Light {
   }
 
   // This needs to stay in sync with UnpackLightSourceInfo
-  Matrix4 PackInfo(Matrix4 viewMatrix) {
-    Matrix4 m = new Matrix4();
-    List<double> p;
+  VM.Matrix4 PackInfo(VM.Matrix4 viewMatrix) {
+    VM.Matrix4 m = new VM.Matrix4.zero();
+    VM.Vector4 p = new VM.Vector4.zero();
     // do pos or ground
     if (_type == typeLightHemi) {
       m[0] = _colGround.x;
       m[1] = _colGround.y;
       m[2] = _colGround.z;
     } else {
-      p = [_pos.x, _pos.y, _pos.z, 1.0];
-      viewMatrix.multiplyVec4(p);
+
+      p.setValues(_pos.x, _pos.y, _pos.z, 1.0);
+      viewMatrix.transform(p);
 
       m[0] = p[0];
       m[1] = p[1];
       m[2] = p[2];
     }
     // do dir
-    p = [_dir.x, _dir.y, _dir.z, 1.0];
-    viewMatrix.multiplyVec4(p);
+    p.setValues(_dir.x, _dir.y, _dir.z, 1.0);
+    viewMatrix.transform(p);
     m[4] = p[0];
     m[5] = p[1];
     m[6] = p[2];

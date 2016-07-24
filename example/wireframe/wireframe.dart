@@ -31,13 +31,13 @@ void main() {
     ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5))
     ..blend = true;
   {
-    Mesh ico = new Mesh(Shapes.Icosahedron(2)..generateWireframeCenters(), matWireframe)..setPos(0, 0, 0);
+    Mesh ico = new Mesh(Shapes.Icosahedron(2)..generateWireframeCenters(), matWireframe)..setPos(0.0, 0.0, 0.0);
     program.add(ico);
   }
   
   {
     Mesh cube = new Mesh(Shapes.Cube()..generateWireframeCenters(), matWireframe)
-      ..setPos(-5, 0, -5)
+      ..setPos(-5.0, 0.0, -5.0)
       ..name = "cube";
     program.add(cube);
   }
@@ -45,7 +45,7 @@ void main() {
   {
     Mesh cyl = new Mesh(
         Shapes.CylinderWireframeFriendly(3.0, 4.0, 2.0, 16)..generateWireframeCenters(),
-        matWireframe)..setPos(5, 0, -5);
+        matWireframe)..setPos(5.0, 0.0, -5.0);
     program.add(cyl);
   }
   
@@ -53,7 +53,7 @@ void main() {
   {
     Mesh quad =
         new Mesh(Shapes.Quad(2)..generateWireframeCenters(), matWireframe)
-          ..setPos(-5, 0, 5)
+          ..setPos(-5.0, 0.0, 5.0)
           ..name = "quad";
     program.add(quad);
   }
@@ -61,7 +61,7 @@ void main() {
   {
     Mesh torus = new Mesh(
         Shapes.TorusKnot(radius: 1.0, tube: 0.4)..generateWireframeCenters(),
-        matWireframe)..setPos(5, 0, 5);
+        matWireframe)..setPos(5.0, 0.0, 5.0);
     program.add(torus);
   }
 

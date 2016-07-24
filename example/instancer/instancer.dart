@@ -58,15 +58,13 @@ void main() {
   Float32List rotations = new Float32List(count * 4);
 
   Spatial spatial = new Spatial();
-  VM.Matrix3 qm = new VM.Matrix3.zero();
   int pos = 0;
   for (int x = -5; x < 5; x++) {
     for (int y = -5; y < 5; y++) {
       for (int z = -5; z < 5; z++) {
-        spatial.setPos(x * 40, y * 40, z * 30);
+        spatial.setPos(x * 40.0, y * 40.0, z * 30.0);
         translations.setAll(pos * 3, spatial.getPos().storage);
-        qm.copyFromArray(new Matrix3.fromM4(spatial.transform).array);
-        VM.Quaternion q = new VM.Quaternion.fromRotation(qm);
+        VM.Quaternion q = new VM.Quaternion.fromRotation(spatial.transform.getRotation());
         rotations.setAll(pos * 3, q.storage);
         pos++;
       }

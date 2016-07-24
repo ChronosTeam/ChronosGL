@@ -54,9 +54,7 @@ void main() {
 
     VM.Vector3 axis = new VM.Vector3(0.0, 0.0, 1.0);
     VM.Quaternion start = new VM.Quaternion.identity();
-    VM.Matrix3 qm = new VM.Matrix3.zero();
-    qm.copyFromArray(new Matrix3.fromM4(n.transform).array);
-    start.setFromRotation(qm);
+    start.setFromRotation(n.transform.getRotation());
     VM.Quaternion end = new VM.Quaternion.identity();
     end.setAxisAngle(axis, 3.14);
     double time = 0.0;
@@ -65,24 +63,7 @@ void main() {
       if (time < 1.0) {
         VM.Quaternion work = slerp(start, end, time += 0.2 * elapsedMs / 1000);
         VM.Matrix3 rm = work.asRotationMatrix();
-        var t = node.transform;
-        var s = rm.storage;
-        t[0] = s[0];
-        t[1] = s[1];
-        t[2] = s[2];
-        t[3] = 0.0;
-        t[4] = s[3];
-        t[5] = s[4];
-        t[6] = s[5];
-        t[7] = 0.0;
-        t[8] = s[6];
-        t[9] = s[7];
-        t[10] = s[8];
-        t[11] = 0.0;
-        t[12] = 0.0;
-        t[13] = 0.0;
-        t[14] = 0.0;
-        t[15] = 1.0;
+        node.transform.setRotation(rm);
         return;
       } else {
         print("new rotation");
@@ -93,12 +74,12 @@ void main() {
           axis.normalize();
           angle = 2 * Math.PI * rng.nextDouble();
         } else {
-          axis.setValues(0.0, 0.0, 0.0);
+          // TODO(rhulha): the original value was all zerow which caused the animation to stop.
+          axis.setValues(1.0, 0.0, 0.0);
           angle = 0.0;
         }
         print("new rotation axis: " + axis.toString());
-        qm.copyFromArray(new Matrix3.fromM4(node.transform).array);
-        start.setFromRotation(qm);
+        start.setFromRotation(node.transform.getRotation());
         end.setAxisAngle(axis, angle);
       }
     });
