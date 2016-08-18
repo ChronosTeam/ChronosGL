@@ -33,16 +33,17 @@ class Node extends Spatial {
   }
 
   // this should be overridden by subclasses
-  void draw2(ShaderProgram program, ShaderProgramInputs inputs) {}
+  // E.g. Mesh overloads this to do the actuall drawing via program
+  void draw2(ShaderProgram program, ShaderProgramInputs inputs, List<DrawStats> stats) {}
 
   void draw(ShaderProgram program, ShaderProgramInputs inputs,
-      VM.Matrix4 parentMVMatrix) {
+      VM.Matrix4 parentMVMatrix, List<DrawStats> stats) {
     // copy the mvMatrix, so we don't change the original
     mvMatrix.setFrom(parentMVMatrix);
     mvMatrix.multiply(transform);
-    draw2(program, inputs);
+    draw2(program, inputs, stats);
     for (Node node in children) {
-      node.draw(program, inputs, mvMatrix);
+      node.draw(program, inputs, mvMatrix, stats);
     }
   }
 }

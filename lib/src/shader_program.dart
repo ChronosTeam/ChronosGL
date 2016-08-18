@@ -4,6 +4,21 @@ const int DRAW_MODE_POINTS = WEBGL.POINTS;
 const int DRAW_MODE_LINES = WEBGL.LINES;
 const int DRAW_MODE_TRIANGLES = WEBGL.TRIANGLES;
 
+class DrawStats {
+   String name;
+   int numInstances;
+   int numItems;
+   int drawMode;
+   bool useArrayBuffer;
+
+  DrawStats(this.name,  this.numInstances, this.numItems, this.drawMode, this.useArrayBuffer);
+
+   String toString() {
+     return "[${name}] ${numInstances} ${numItems} ${drawMode} ${useArrayBuffer}";
+   }
+
+}
+
 // For use with uniforms
 class ShaderProgramInputs {
   Map _uniforms = {};
@@ -187,6 +202,7 @@ class CoreProgram {
 
   void Draw(bool debug, int numInstances, int numItems, int drawMode,
       bool useArrayBuffer) {
+
     if (debug)
       print("[${name}] draw points: ${drawMode} instances${numInstances}");
     if (!AllUniformsInitialized()) {
@@ -256,6 +272,8 @@ class ShaderProgram implements Drawable {
   List<Node> followCameraObjects = new List<Node>();
   List<Node> objects = new List<Node>();
 
+    String get name => _program.name;
+
   ShaderProgram(this._gl, shaderObjectV, shaderObjectF, name) {
     _program = new CoreProgram(_gl, shaderObjectV, shaderObjectF, name);
     inputs.SetUniformVal(uTime, 0.0);
@@ -274,6 +292,10 @@ class ShaderProgram implements Drawable {
 
   bool remove(Node obj) {
     return objects.remove(obj);
+  }
+
+  void removeAll() {
+      return objects.clear();
   }
 
   Node addFollowCameraObject(Node obj) {
@@ -319,12 +341,15 @@ class ShaderProgram implements Drawable {
     }
   }
 
-  void Draw(int numInstances, int numItems, int drawMode, bool useArrayBuffer) {
+  void Draw(int numInstances, int numItems, int drawMode, bool useArrayBuffer, List<DrawStats> stats) {
+    if (stats != null) {
+      stats.add(new DrawStats(_program.name, numInstances, numItems ,drawMode, useArrayBuffer));
+    }
     _program.Draw(debug, numInstances, numItems, drawMode, useArrayBuffer);
   }
 
   void draw(PerspectiveParams dynpar, List<Light> lights, Camera camera,
-      VM.Matrix4 pMatrix) {
+      VM.Matrix4 pMatrix, List<DrawStats> stats) {
     if (!hasEnabledObjects()) return;
 
     _program.Begin(debug);
@@ -357,12 +382,12 @@ class ShaderProgram implements Drawable {
 
     // This is broken but without an example it is hard fix
     for (Node node in followCameraObjects) {
-      if (node.enabled) node.draw(this, inputs, modelviewMatrix);
+      if (node.enabled) node.draw(this, inputs, modelviewMatrix, stats);
     }
 
     if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {
-      if (node.enabled) node.draw(this, inputs, modelviewMatrix);
+      if (node.enabled) node.draw(this, inputs, modelviewMatrix, stats);
     }
     _program.End(debug);
   }

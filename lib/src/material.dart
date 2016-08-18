@@ -1,6 +1,7 @@
 part of chronosgl;
 
 class Material {
+  String name = "";
   bool depthTest = true;
   bool depthWrite = true;
   bool blend = false;
@@ -9,15 +10,15 @@ class Material {
   int blendEquation = WEBGL.FUNC_ADD;
 
   ShaderProgramInputs _inputs = new ShaderProgramInputs();
-  
+
   void SetUniform(String canonical, val) {
     _inputs.SetUniformVal(canonical, val);
   }
-  
+
   bool HasUniform(String canonical) {
     return _inputs.HasUniform(canonical);
   }
-  
+
   void RenderingInit(WEBGL.RenderingContext gl) {
     if (blend) {
       gl.enable(WEBGL.BLEND);

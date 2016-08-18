@@ -10,9 +10,6 @@ import 'dart:convert';
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-//import 'chronosmath.dart';
-//export 'chronosmath.dart';
-
 import 'chronosshader.dart';
 export 'chronosshader.dart';
 
@@ -141,6 +138,7 @@ class RenderingPhase {
   bool clearColorBuffer = true;
   bool clearDepthBuffer = true;
   final bool _usePerspectiveMatrix;
+  List<DrawStats> stats = null;
 
   RenderingPhase(this._gl, this._framebuffer, this._usePerspectiveMatrix);
 
@@ -166,7 +164,7 @@ class RenderingPhase {
     }
 
     for (ShaderProgram prg in _programs) {
-      prg.draw(perspar, lights, camera, _pMatrix);
+      prg.draw(perspar, lights, camera, _pMatrix, stats);
     }
   }
 
@@ -194,10 +192,11 @@ class ChronosGL {
 
   WEBGL.RenderingContext gl;
 
-  //Map<String, ShaderProgram> programs = new Map<String, ShaderProgram>();
+ //Map<String, ShaderProgram> programs = new Map<String, ShaderProgram>();
   Map<String, Animatable> animatables = new Map<String, Animatable>();
   Map<String, AnimateCallback> animateCallbacks =
       new Map<String, AnimateCallback>();
+
 
   // TODO: move this into a RenderingPhase
   HTML.CanvasElement _canvas;
@@ -294,6 +293,10 @@ class ChronosGL {
     _renderPhases.clear();
   }
 
+  RenderingPhase GetLastRenderPhase() {
+      return _renderPhases.last;
+  }
+
   void addAnimatable(String name, Animatable a) {
     animatables[name] = a;
   }
@@ -314,7 +317,6 @@ class ChronosGL {
       r.animate(elapsed);
     }
   }
-
   // Move the perspective stuff to the RenderPhases.
   // The resizing should happen there as well based on
   // some canvas element to watch.
@@ -365,8 +367,7 @@ class ChronosGL {
       print("isNaN(elapsed)");
       elapsed = 0.0;
     }
-    //if( elapsed > 24) print( "high elapsed: $elapsed");
-    //myPlayerShip.animate(elapsed);
+
     animate(timeNow, elapsed);
     draw();
     HTML.window.requestAnimationFrame(run);
@@ -375,6 +376,7 @@ class ChronosGL {
   void setLineWidth(int w) {
     gl.lineWidth(w);
   }
+
 
   void installOrbitCamera(num distance) {
     OrbitCamera orbit = new OrbitCamera(_camera, distance.toDouble());

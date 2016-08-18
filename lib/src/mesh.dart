@@ -109,7 +109,7 @@ class Mesh extends Node {
   }
 
   // this gets called by Node.draw()
-  void draw2(ShaderProgram program, ShaderProgramInputs inputs) {
+  void draw2(ShaderProgram program, ShaderProgramInputs inputs, List<DrawStats> stats) {
     if (debug) {
       print("draw2: $name items ${numItems}");
       //print(program.shaderObject.textureSamplerUniform);
@@ -120,14 +120,15 @@ class Mesh extends Node {
     if (numItems == 0) return;
     material.RenderingInit(gl);
     bindBuffers(program);
-    VM.Matrix3 normMatrix = mvMatrix.getNormalMatrix();
+    VM.Matrix3 normMatrix;
+    normMatrix = mvMatrix.getNormalMatrix();
     program.MaybeSetUniformsBulk(material._inputs);
     inputs.SetUniformVal(uTransformationMatrix, transform);
     inputs.SetUniformVal(uModelViewMatrix, mvMatrix);
     inputs.SetUniformVal(uNormalMatrix, normMatrix);
     program.MaybeSetUniformsBulk(inputs);
     program.Draw(
-        numInstances, numItems, _meshData.DrawMode(), _indexBuffer != null);
+        numInstances, numItems, _meshData.DrawMode(), _indexBuffer != null, stats);
 
     material.RenderingExit(gl);
   }
