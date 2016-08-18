@@ -125,7 +125,7 @@ abstract class Animatable {
 
 abstract class Drawable extends Animatable {
   void draw(PerspectiveParams dynpar, List<Light> lights, Camera camera,
-      VM.Matrix4 pMatrix);
+      VM.Matrix4 pMatrix, List<DrawStats> stats);
 }
 
 typedef void AnimateCallback(double elapsed, double time);
