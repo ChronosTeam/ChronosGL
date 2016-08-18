@@ -1,4 +1,4 @@
-import 'dart:html' as html;
+import 'dart:html' as HTML;
 import 'package:chronosgl/chronosgl.dart';
 
 void main() {
@@ -12,37 +12,28 @@ void main() {
 
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 65.0);
-  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
-    orbit.azimuth += 0.001;
-  });
-  chronosGL.addAnimatable('orbitCam', orbit);
 
   Material mat = new Material();
-  MeshData md = Shapes.Cube(x:10.0, y:10.0, z:10.0);
+  MeshData md = Shapes.Cube(x: 10.0, y: 10.0, z: 10.0);
 
   Mesh m = new Mesh(md, mat)
     ..setPos(0.0, 0.0, 0.0)
     ..lookUp(1.0)
     ..lookLeft(0.7);
 
-  m.setAnimateCallback((Node node, double time) {
-    m.rollLeft(time * 0.0001);
-    m.lookLeft(time * 0.0001);
-  });
-
   prgs[0].add(m);
 
   int pointer = 0;
 
-  html.document.addEventListener('keypress', (event) {
+  HTML.document.addEventListener('keypress', (event) {
     prgs[pointer % 3].remove(m);
     prgs[(pointer + 1) % 3].add(m);
     pointer = (pointer + 1) % 3;
   });
 
-  html.SelectElement myselect =
-      html.document.querySelector('#myselect') as html.SelectElement;
-  myselect.onChange.listen((html.Event e) {
+  HTML.SelectElement myselect =
+      HTML.document.querySelector('#myselect') as HTML.SelectElement;
+  myselect.onChange.listen((HTML.Event e) {
     prgs[pointer].remove(m);
     pointer = myselect.selectedIndex;
     prgs[(pointer)].add(m);
@@ -51,7 +42,25 @@ void main() {
       chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
+  double _lastTimeMs = 0.0;
+
+  void animate(timeMs) {
+    double elapsed = timeMs - _lastTimeMs;
+    _lastTimeMs = timeMs;
+    orbit.azimuth += 0.001;
+    orbit.animate(elapsed);
+
+    m.rollLeft(timeMs * 0.000001);
+    m.lookLeft(timeMs * 0.000001);
+    for (ShaderProgram p in prgs) {
+      p.inputs.SetUniformVal(uTime, timeMs / 1000.0);
+    }
+
+    chronosGL.draw();
+    HTML.window.animationFrame.then(animate);
+  }
+
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-    chronosGL.run();
+    animate(0.0);
   });
 }

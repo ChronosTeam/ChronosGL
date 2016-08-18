@@ -1,6 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 
 import 'package:vector_math/vector_math.dart' as VM;
+import 'dart:html' as HTML;
 
 List<ShaderObject> createSkyScraperShader() {
   return [
@@ -19,7 +20,8 @@ List<ShaderObject> createSkyScraperShader() {
     new ShaderObject("SkyScraperF")
       ..AddVaryingVar(vVertexPosition)
       ..AddVaryingVar(vTextureCoordinates)
-      ..SetBodyWithMain(["""
+      ..SetBodyWithMain([
+        """
       // the step finds the windows
       // multiplying the tex coord with 11 gives it a black column on the right side but with artifacts
       // multiplying the tex coord with 10.9 gives it a black column on the right side WITHOUT the artifacts on the right side
@@ -28,24 +30,19 @@ List<ShaderObject> createSkyScraperShader() {
       float s3 = step( s1+s2, 1.1);
 
       gl_FragColor = vec4( 1.-s3, 1.-s3, 1.-s3, 1. );
-          
-      //gl_FragColor = vec4( mod(vVertexPosition.x*10.0,2.0) , 
-      //                       mod(vVertexPosition.y*20.0,2.0), 
+
+      //gl_FragColor = vec4( mod(vVertexPosition.x*10.0,2.0) ,
+      //                       mod(vVertexPosition.y*20.0,2.0),
       //                       mod(vVertexPosition.z*10.0,2.0), 1. );
 """
       ])
   ];
 }
 
-
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 25.0);
-  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
-    orbit.azimuth += 0.001;
-  });
-  chronosGL.addAnimatable('orbitCam', orbit);
 
   Material mat = new Material();
   // Sky Sphere
@@ -72,13 +69,22 @@ void main() {
       VM.Vector2 q = new VM.Vector2(0.01, 0.01);
       md.setFace4UV(2, q, q, q, q);
       md.setFace4UV(3, q, q, q, q);
-      Mesh m = new Mesh(md, mat)
-      ..setPos(x.toDouble(), 0.0, z.toDouble());
+      Mesh m = new Mesh(md, mat)..setPos(x.toDouble(), 0.0, z.toDouble());
       prg.add(m);
     }
   }
 
+  double _lastTimeMs = 0.0;
+  void animate(timeMs) {
+    double elapsed = timeMs - _lastTimeMs;
+    _lastTimeMs = timeMs;
+    orbit.azimuth += 0.001;
+    orbit.animate(elapsed);
+    chronosGL.draw();
+    HTML.window.animationFrame.then(animate);
+  }
+
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-     chronosGL.run();
-   });
+    animate(0.0);
+  });
 }

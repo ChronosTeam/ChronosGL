@@ -19,19 +19,6 @@ class Node extends Spatial {
     return child;
   }
 
-  var animateCallback;
-  // elapsed is in milliseconds (usually around 129.000 )
-  // TODO: make this a list: addAnimateCallback
-  void setAnimateCallback(cb(Node node, double elapsed)) {
-    animateCallback = cb;
-  }
-
-  void animate(double elapsed) {
-    if (animateCallback != null) {
-      animateCallback(this, elapsed);
-    }
-  }
-
   // this should be overridden by subclasses
   // E.g. Mesh overloads this to do the actuall drawing via program
   void draw2(ShaderProgram program, ShaderProgramInputs inputs, List<DrawStats> stats) {}

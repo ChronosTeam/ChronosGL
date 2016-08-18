@@ -8,18 +8,11 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
-  chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
-    fps.UpdateFrameCount(time);
-  });
-
   Camera camera = chronosGL.getCamera();
   camera.setPos(0.0, 0.0, 56.0);
 
   OrbitCamera orbit = new OrbitCamera(camera, 25.0, 10.0);
-  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
-    orbit.azimuth += 0.001;
-  });
-  chronosGL.addAnimatable('OrbitCam', orbit);
+
   //FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
   //chronosGL.addAnimatable('flyingCamera', fc);
   VM.Vector3 posLight1 = new VM.Vector3(0.0, 0.0, 0.0);
@@ -44,13 +37,6 @@ void main() {
       ..lookLeft(0.7));
   }
 
-  for (Mesh m in meshes) {
-    m.setAnimateCallback((Node node, double time) {
-      m.rollLeft(time * 0.0001);
-      m.lookLeft(time * 0.0001);
-    });
-  }
-
   ShaderProgram lightShaderPrg = chronosGL.createProgram(createLightShader());
   for (Mesh m in meshes) lightShaderPrg.add(m);
   ShaderProgram fixedShaderPrg =
@@ -72,7 +58,24 @@ void main() {
   programSprites.add(Utils.MakeParticles(2000));
 */
 
+  double _lastTimeMs = 0.0;
+  void animate(timeMs) {
+    double elapsed = timeMs - _lastTimeMs;
+    _lastTimeMs = timeMs;
+    orbit.azimuth += 0.001;
+    orbit.animate(elapsed);
+    fps.UpdateFrameCount(timeMs);
+
+    for (Mesh m in meshes) {
+      m.rollLeft(timeMs * 0.000003);
+      m.lookLeft(timeMs * 0.000003);
+    };
+
+    chronosGL.draw();
+    HTML.window.animationFrame.then(animate);
+  }
+
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-    chronosGL.run();
+    animate(0.0);
   });
 }

@@ -38,18 +38,10 @@ List<ShaderObject> sphereShader() {
 void main() {
   StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-  
-  chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
-    fps.UpdateFrameCount(time);
-  });
-  
+
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 5.0, 10.0);
   // Note, moving the camera does not have an effect
-  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
-    orbit.azimuth += 0.01;
-  });
-  chronosGL.addAnimatable('OrbitCam', orbit);
 
   Texture bubble = new ImageTexture("sphere.png");
 
@@ -62,7 +54,18 @@ void main() {
 
   shaderSpheres.add(m);
 
+  double _lastTimeMs = 0.0;
+   void animate(timeMs) {
+     double elapsed = timeMs - _lastTimeMs;
+     _lastTimeMs = timeMs;
+     orbit.azimuth += 0.001;
+     orbit.animate(elapsed);
+     fps.UpdateFrameCount(timeMs);
+     chronosGL.draw();
+     window.animationFrame.then(animate);
+   }
+
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-    chronosGL.run();
+    animate(0.0);
   });
 }

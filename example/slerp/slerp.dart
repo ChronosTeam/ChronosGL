@@ -1,6 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:math' as Math;
 import 'package:vector_math/vector_math.dart' as VM;
+import 'dart:html' as HTML;
 
 VM.Quaternion slerp(VM.Quaternion a, VM.Quaternion b, double t) {
   double ax = a[0], ay = a[1], az = a[2], aw = a[3];
@@ -39,7 +40,7 @@ void main() {
   ShaderProgram prg = chronosGL.createProgram(createDemoShader());
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 15.0, -45.0, 0.3);
-  chronosGL.addAnimatable('orbitCam', orbit);
+
   Material mat = new Material();
   Math.Random rng = new Math.Random();
 
@@ -47,19 +48,19 @@ void main() {
     Mesh mesh = new Mesh(md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
-    Node n = new Node(mesh);
+    Node node = new Node(mesh);
     //n.invert = true;
-    n.lookAt(new VM.Vector3(100.0, 0.0, -100.0));
+    node.lookAt(new VM.Vector3(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);
 
     VM.Vector3 axis = new VM.Vector3(0.0, 0.0, 1.0);
     VM.Quaternion start = new VM.Quaternion.identity();
-    start.setFromRotation(n.transform.getRotation());
+    start.setFromRotation(node.transform.getRotation());
     VM.Quaternion end = new VM.Quaternion.identity();
     end.setAxisAngle(axis, 3.14);
     double time = 0.0;
 
-    n.setAnimateCallback((Node node, double elapsedMs) {
+    void animateNode(double elapsedMs) {
       if (time < 1.0) {
         VM.Quaternion work = slerp(start, end, time += 0.2 * elapsedMs / 1000);
         VM.Matrix3 rm = work.asRotationMatrix();
@@ -82,16 +83,27 @@ void main() {
         start.setFromRotation(node.transform.getRotation());
         end.setAxisAngle(axis, angle);
       }
-    });
+    }
 
-    prg.add(n);
+    prg.add(node);
 
     ShaderProgram programSprites =
         chronosGL.createProgram(createPointSpritesShader());
     programSprites.add(Utils.MakeParticles(2000));
 
+    double _lastTimeMs = 0.0;
+    void animate(timeMs) {
+      double elapsed = timeMs - _lastTimeMs;
+      _lastTimeMs = timeMs;
+      orbit.azimuth += 0.001;
+      orbit.animate(elapsed);
+      animateNode(elapsed);
+      chronosGL.draw();
+      HTML.window.animationFrame.then(animate);
+    }
+
     Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-      chronosGL.run();
+      animate(0.0);
     });
   });
 }

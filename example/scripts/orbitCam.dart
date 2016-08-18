@@ -1,6 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 
 import 'package:vector_math/vector_math.dart' as VM;
+import 'dart:html' as HTML;
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
@@ -8,11 +9,6 @@ void main() {
   Camera camera = chronosGL.getCamera();
 
   OrbitCamera orbit = new OrbitCamera(camera, 15.0);
-  chronosGL.addAnimatable('orbitCam', orbit);
-  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
-    //orbit.setPosFromSpherical(15.0, time*0.001, time*0.0005);
-    orbit.azimuth += 0.001;
-  });
 
   MeshData sphere = Shapes.Icosahedron();
   Material headMat = new Material()
@@ -44,7 +40,17 @@ void main() {
       chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
+  double _lastTimeMs = 0.0;
+  void animate(timeMs) {
+    double elapsed = timeMs - _lastTimeMs;
+    _lastTimeMs = timeMs;
+    orbit.azimuth += 0.001;
+    orbit.animate(elapsed);
+    chronosGL.draw();
+    HTML.window.animationFrame.then(animate);
+  }
+
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-    chronosGL.run();
+    animate(0.0);
   });
 }

@@ -39,16 +39,8 @@ void main() {
   StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
-  chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
-    fps.UpdateFrameCount(time);
-  });
-
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 265.0);
-  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
-    orbit.azimuth += 0.001;
-  });
-  chronosGL.addAnimatable('orbitCam', orbit);
 
   Material mat = new Material();
   Mesh m = new Mesh(Shapes.TorusKnot(radius: 12.0), mat);
@@ -64,7 +56,8 @@ void main() {
       for (int z = -5; z < 5; z++) {
         spatial.setPos(x * 40.0, y * 40.0, z * 30.0);
         translations.setAll(pos * 3, spatial.getPos().storage);
-        VM.Quaternion q = new VM.Quaternion.fromRotation(spatial.transform.getRotation());
+        VM.Quaternion q =
+            new VM.Quaternion.fromRotation(spatial.transform.getRotation());
         rotations.setAll(pos * 3, q.storage);
         pos++;
       }
@@ -82,7 +75,18 @@ void main() {
       chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
+  double _lastTimeMs = 0.0;
+  void animate(timeMs) {
+    double elapsed = timeMs - _lastTimeMs;
+    _lastTimeMs = timeMs;
+    orbit.azimuth += 0.001;
+    orbit.animate(elapsed);
+    fps.UpdateFrameCount(timeMs);
+    chronosGL.draw();
+    window.animationFrame.then(animate);
+  }
+
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-    chronosGL.run();
+    animate(0.0);
   });
 }

@@ -1,24 +1,17 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
-import 'dart:html';
+import 'dart:html' as HTML;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
 void main() {
-  StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
       useFramebuffer: false, fxShader: createBlurShader2());
-  
-  chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
-    fps.UpdateFrameCount(time);
-  });
-  
+
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 25.0, 10.0);
-  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
-    orbit.azimuth += 0.001;
-  });
-  chronosGL.addAnimatable('OrbitCam', orbit);
 
   //TextureWrapper red = new TextureWrapper.SolidColor("red", "rgba(255,0,0,1)");
   Texture gradient = new ImageTexture("../gradient.jpg");
@@ -73,7 +66,18 @@ void main() {
       chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
+  double _lastTimeMs = 0.0;
+  void animate(timeMs) {
+    double elapsed = timeMs - _lastTimeMs;
+    _lastTimeMs = timeMs;
+    orbit.azimuth += 0.001;
+    orbit.animate(elapsed);
+    fps.UpdateFrameCount(timeMs);
+    chronosGL.draw();
+    HTML.window.animationFrame.then(animate);
+  }
+
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-    chronosGL.run();
+    animate(0.0);
   });
 }

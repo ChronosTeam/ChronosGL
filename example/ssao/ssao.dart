@@ -7,15 +7,12 @@ void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas', near: 0.1, far: 2520.0);
-  chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
-    fps.UpdateFrameCount(time);
-  });
+
   ChronosFramebuffer fb = new ChronosFramebuffer(
       chronosGL.gl, chronosGL.perspar.width, chronosGL.perspar.height);
 
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 15.0, -45.0, 0.3);
-  chronosGL.addAnimatable('orbitCam', orbit);
 
   RenderingPhase phase1 = new RenderingPhase(chronosGL.gl, fb, true);
   ShaderProgram prg1 = phase1.createProgram(createSolidColorShader());
@@ -61,8 +58,17 @@ void main() {
 
     prg1.add(mesh);
 
+    double _lastTimeMs = 0.0;
+    void animate(timeMs) {
+      double elapsed = timeMs - _lastTimeMs;
+      _lastTimeMs = timeMs;
+      orbit.animate(elapsed);
+      fps.UpdateFrameCount(timeMs);
+      chronosGL.draw();
+      HTML.window.animationFrame.then(animate);
+    }
     Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-      chronosGL.run();
+      animate(0.0);
     });
   });
 }

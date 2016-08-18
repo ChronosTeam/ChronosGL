@@ -177,12 +177,6 @@ class RenderingPhase {
     AddShaderProgram(pn);
     return pn;
   }
-
-  void animate(double elapsed) {
-    for (ShaderProgram prg in _programs) {
-      prg.animate(elapsed);
-    }
-  }
 }
 
 class ChronosGL {
@@ -191,12 +185,6 @@ class ChronosGL {
   var elementIndexUintExt;
 
   WEBGL.RenderingContext gl;
-
- //Map<String, ShaderProgram> programs = new Map<String, ShaderProgram>();
-  Map<String, Animatable> animatables = new Map<String, Animatable>();
-  Map<String, AnimateCallback> animateCallbacks =
-      new Map<String, AnimateCallback>();
-
 
   // TODO: move this into a RenderingPhase
   HTML.CanvasElement _canvas;
@@ -297,26 +285,6 @@ class ChronosGL {
       return _renderPhases.last;
   }
 
-  void addAnimatable(String name, Animatable a) {
-    animatables[name] = a;
-  }
-
-  void addAnimateCallback(String name, Function f) {
-    animateCallbacks[name] = f;
-  }
-
-  void animate(double timeNow, double elapsed) {
-    for (Animatable a in animatables.values) {
-      if (a.active) a.animate(elapsed);
-    }
-    for (Function f in animateCallbacks.values) {
-      f(elapsed, timeNow);
-    }
-
-    for (RenderingPhase r in _renderPhases) {
-      r.animate(elapsed);
-    }
-  }
   // Move the perspective stuff to the RenderPhases.
   // The resizing should happen there as well based on
   // some canvas element to watch.
@@ -356,34 +324,8 @@ class ChronosGL {
     return _canvas;
   }
 
-  double _lastTime = 0.0;
-  void run([var timeNow]) {
-    if (timeNow == null) timeNow = 0.0;
-    timeNow = 0.0 + timeNow; // make sure we have a double
-    if (_lastTime == 0.0) _lastTime = timeNow;
-    double elapsed = timeNow - _lastTime;
-    _lastTime = timeNow;
-    if (elapsed.isNaN) {
-      print("isNaN(elapsed)");
-      elapsed = 0.0;
-    }
-
-    animate(timeNow, elapsed);
-    draw();
-    HTML.window.requestAnimationFrame(run);
-  }
-
   void setLineWidth(int w) {
     gl.lineWidth(w);
   }
 
-
-  void installOrbitCamera(num distance) {
-    OrbitCamera orbit = new OrbitCamera(_camera, distance.toDouble());
-    addAnimatable('orbitCam', orbit);
-    addAnimateCallback('rotateCamera', (double elapsed, double time) {
-      //orbit.setPosFromSpherical(15.0, time*0.001, time*0.0005);
-      orbit.azimuth += 0.001;
-    });
-  }
 }

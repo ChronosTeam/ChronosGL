@@ -13,17 +13,10 @@ void main() {
   if (ext == null) window.alert("OES_standard_derivatives not supported");
  
   chronosGL.gl.enable(WEBGL.CULL_FACE);
-  
-  chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
-    fps.UpdateFrameCount(time);
-  });
-  
+
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 25.0, 10.0);
-  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
-    orbit.azimuth += 0.001;
-  });
-  chronosGL.addAnimatable('OrbitCam', orbit);
+
 
   ShaderProgram program = chronosGL.createProgram(createWireframeShader());
   final Material matWireframe = new Material()
@@ -65,7 +58,18 @@ void main() {
     program.add(torus);
   }
 
+  double _lastTimeMs = 0.0;
+   void animate(timeMs) {
+     double elapsed = timeMs - _lastTimeMs;
+     _lastTimeMs = timeMs;
+     orbit.azimuth += 0.001;
+     orbit.animate(elapsed);
+     fps.UpdateFrameCount(timeMs);
+     chronosGL.draw();
+     window.animationFrame.then(animate);
+   }
+
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-    chronosGL.run();
+    animate(0.0);
   });
 }

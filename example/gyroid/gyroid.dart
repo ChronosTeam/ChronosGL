@@ -1,4 +1,5 @@
 import 'package:chronosgl/chronosgl.dart';
+import 'dart:html';
 
 // Simple Gyroid Isosurface (spherical crop)
 //
@@ -202,10 +203,23 @@ List<ShaderObject> createSphericalGyroidShader() {
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-  ShaderProgram program = chronosGL.createProgram(createSphericalGyroidShader());
+  ShaderProgram program =
+      chronosGL.createProgram(createSphericalGyroidShader());
   Material mat = new Material();
   program.add(new Mesh(Shapes.Quad(1), mat));
+
+  double _lastTimeMs = 0.0;
+  void animate(timeMs) {
+    double elapsed = timeMs - _lastTimeMs;
+    _lastTimeMs = timeMs;
+
+    program.inputs.SetUniformVal(
+        uTime, program.inputs.GetUniformVal(uTime) + elapsed / 1000);
+    chronosGL.draw();
+    window.animationFrame.then(animate);
+  }
+
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-    chronosGL.run();
+    animate(0.0);
   });
 }

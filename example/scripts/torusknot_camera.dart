@@ -1,10 +1,10 @@
-import 'dart:html' as html;
+import 'dart:html' as HTML;
 import 'dart:math' as Math;
 import 'dart:web_gl' as WEBGL;
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
-html.CanvasElement canvas2d;
+HTML.CanvasElement canvas2d;
 VM.Vector3 p1 = new VM.Vector3.zero();
 
 void main() {
@@ -13,7 +13,6 @@ void main() {
   Camera camera = chronosGL.getCamera();
 
   TorusKnotCamera tkc = new TorusKnotCamera(camera);
-  chronosGL.addAnimatable('tkc', tkc);
 
   ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
 
@@ -28,12 +27,6 @@ void main() {
   Mesh m = new Mesh(Shapes.TorusKnot(), mat);
 
   programBasic.add(m);
-  chronosGL.addAnimateCallback('changeTexture', (double elapsed, double time) {
-    canvas2d = Utils.createGradientImage2(time / 1000, canvas2d);
-    chronosGL.gl.bindTexture(WEBGL.TEXTURE_2D, generatedTexture.GetTexture());
-    chronosGL.gl.texImage2D(WEBGL.TEXTURE_2D, 0, WEBGL.RGBA, WEBGL.RGBA,
-        WEBGL.UNSIGNED_BYTE, canvas2d);
-  });
 
   int p = 2;
   int q = 3;
@@ -47,8 +40,24 @@ void main() {
   ShaderProgram programSprites =
       chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
+  double _lastTimeMs = 0.0;
+
+  void animate(timeMs) {
+    double elapsed = timeMs - _lastTimeMs;
+    _lastTimeMs = timeMs;
+
+    tkc.animate(elapsed);
+
+    canvas2d = Utils.createGradientImage2(timeMs / 1000, canvas2d);
+    chronosGL.gl.bindTexture(WEBGL.TEXTURE_2D, generatedTexture.GetTexture());
+    chronosGL.gl.texImage2D(WEBGL.TEXTURE_2D, 0, WEBGL.RGBA, WEBGL.RGBA,
+        WEBGL.UNSIGNED_BYTE, canvas2d);
+
+    chronosGL.draw();
+    HTML.window.animationFrame.then(animate);
+  }
 
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-    chronosGL.run();
+    animate(0.0);
   });
 }

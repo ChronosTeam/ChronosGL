@@ -5,18 +5,18 @@ const int DRAW_MODE_LINES = WEBGL.LINES;
 const int DRAW_MODE_TRIANGLES = WEBGL.TRIANGLES;
 
 class DrawStats {
-   String name;
-   int numInstances;
-   int numItems;
-   int drawMode;
-   bool useArrayBuffer;
+  String name;
+  int numInstances;
+  int numItems;
+  int drawMode;
+  bool useArrayBuffer;
 
-  DrawStats(this.name,  this.numInstances, this.numItems, this.drawMode, this.useArrayBuffer);
+  DrawStats(this.name, this.numInstances, this.numItems, this.drawMode,
+      this.useArrayBuffer);
 
-   String toString() {
-     return "[${name}] ${numInstances} ${numItems} ${drawMode} ${useArrayBuffer}";
-   }
-
+  String toString() {
+    return "[${name}] ${numInstances} ${numItems} ${drawMode} ${useArrayBuffer}";
+  }
 }
 
 // For use with uniforms
@@ -202,13 +202,11 @@ class CoreProgram {
 
   void Draw(bool debug, int numInstances, int numItems, int drawMode,
       bool useArrayBuffer) {
-
     if (debug)
       print("[${name}] draw points: ${drawMode} instances${numInstances}");
     if (!AllUniformsInitialized()) {
       throw "${name}: uninitialized uniforms: ${UniformsUninitialized()}";
     }
-
 
     if (numInstances > 0) {
       if (useArrayBuffer) {
@@ -272,7 +270,7 @@ class ShaderProgram implements Drawable {
   List<Node> followCameraObjects = new List<Node>();
   List<Node> objects = new List<Node>();
 
-    String get name => _program.name;
+  String get name => _program.name;
 
   ShaderProgram(this._gl, shaderObjectV, shaderObjectF, name) {
     _program = new CoreProgram(_gl, shaderObjectV, shaderObjectF, name);
@@ -295,19 +293,12 @@ class ShaderProgram implements Drawable {
   }
 
   void removeAll() {
-      return objects.clear();
+    return objects.clear();
   }
 
   Node addFollowCameraObject(Node obj) {
     followCameraObjects.add(obj);
     return obj;
-  }
-
-  void animate(double elapsed) {
-    inputs.SetUniformVal(uTime, inputs.GetUniformVal(uTime) + elapsed / 1000);
-    for (Node node in objects) {
-      if (node.enabled) node.animate(elapsed);
-    }
   }
 
   bool hasEnabledObjects() {
@@ -341,9 +332,11 @@ class ShaderProgram implements Drawable {
     }
   }
 
-  void Draw(int numInstances, int numItems, int drawMode, bool useArrayBuffer, List<DrawStats> stats) {
+  void Draw(int numInstances, int numItems, int drawMode, bool useArrayBuffer,
+      List<DrawStats> stats) {
     if (stats != null) {
-      stats.add(new DrawStats(_program.name, numInstances, numItems ,drawMode, useArrayBuffer));
+      stats.add(new DrawStats(
+          _program.name, numInstances, numItems, drawMode, useArrayBuffer));
     }
     _program.Draw(debug, numInstances, numItems, drawMode, useArrayBuffer);
   }
@@ -357,8 +350,8 @@ class ShaderProgram implements Drawable {
     if (debug) print("[setting ununiforms");
     inputs.SetUniformVal(uCameraNear, dynpar.near);
     inputs.SetUniformVal(uCameraFar, dynpar.far);
-    inputs.SetUniformVal(
-        uCanvasSize, new VM.Vector2(dynpar.width.toDouble(), dynpar.height.toDouble()));
+    inputs.SetUniformVal(uCanvasSize,
+        new VM.Vector2(dynpar.width.toDouble(), dynpar.height.toDouble()));
     inputs.SetUniformVal(uPerspectiveMatrix, pMatrix);
     if (camera != null) {
       camera.getViewMatrix(viewMatrix);

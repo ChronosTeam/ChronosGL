@@ -1,4 +1,5 @@
 import 'package:chronosgl/chronosgl.dart';
+import 'dart:html';
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
@@ -9,7 +10,6 @@ void main() {
   ShaderProgram prg = chronosGL.createProgram(createNormal2ColorShader());
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 25.0, -45.0, 0.3);
-  chronosGL.addAnimatable('orbitCam', orbit);
 
   List<MeshData> mymd = new List<MeshData>();
 
@@ -18,7 +18,7 @@ void main() {
     mymd.add(Shapes.Cylinder(1.0, 1.0, 2.0, 16));
     mymd.add(Shapes.Cube());
     Material mat = new Material();
-    // No deduping 
+    // No deduping
     for (var i = 0; i < mymd.length; i++) {
       MeshData md = mymd[i];
       // the logo is missing normals so we generate them here, but wait, why are the colors all wrong ?
@@ -47,8 +47,19 @@ void main() {
       mesh.setPos(-5.0 + i * 7, 4.0, 0.0);
       prg.add(mesh);
     }
+
+    double _lastTimeMs = 0.0;
+    void animate(timeMs) {
+      double elapsed = timeMs - _lastTimeMs;
+      _lastTimeMs = timeMs;
+      orbit.azimuth += 0.001;
+      orbit.animate(elapsed);
+      chronosGL.draw();
+      window.animationFrame.then(animate);
+    }
+
     Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-      chronosGL.run();
+      animate(0.0);
     });
   });
 }

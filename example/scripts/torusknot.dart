@@ -1,15 +1,12 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
+import 'dart:html' as HTML;
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
   Camera camera = chronosGL.getCamera();
   OrbitCamera orbit = new OrbitCamera(camera, 165.0);
-  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
-    orbit.azimuth += 0.001;
-  });
-  chronosGL.addAnimatable('orbitCam', orbit);
   ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
 
   Texture blockTex = new ImageTexture("gradient.jpg");
@@ -30,7 +27,18 @@ void main() {
       chronosGL.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
+  double _lastTimeMs = 0.0;
+  void animate(timeMs) {
+    double elapsed = timeMs - _lastTimeMs;
+    _lastTimeMs = timeMs;
+    orbit.azimuth += 0.001;
+    orbit.animate(elapsed);
+    perlinNoise.inputs.SetUniformVal(uTime, timeMs / 1000.0);
+    chronosGL.draw();
+    HTML.window.animationFrame.then(animate);
+  }
+
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-    chronosGL.run();
+    animate(0.0);
   });
 }
