@@ -38,11 +38,13 @@ class ShaderVarDesc {
 // Used both as enum and as string. The latter allows for a limited form
 // of syntax checking inside shader programs.
 const String aColors = "aColors";
+const String aColorAlpha = "aColorAlpha";
 const String aVertexPosition = "aVertexPosition";
 const String aTextureCoordinates = "aTextureCoordinates";
 const String aNormal = "aNormal";
 const String aBinormal = "aBinormal";
 const String aCenter = "aCenter";
+const String aPointSize = "aPointSize";
 
 // Instancer
 const String iaRotatation = "iaRotation";
@@ -91,11 +93,13 @@ Map<String, ShaderVarDesc> _VarsDb = {
   // attribute vars
   // This should also contain an alpha channel
   aColors: new ShaderVarDesc("vec3", "per vertex color"),
+  aColorAlpha: new ShaderVarDesc("vec4", "per vertex color"),
   aVertexPosition: new ShaderVarDesc("vec3", "vertex coordinates"),
   aTextureCoordinates: new ShaderVarDesc("vec2", "texture uvs"),
   aNormal: new ShaderVarDesc("vec3", "vertex normals"),
   aBinormal: new ShaderVarDesc("vec3", "vertex binormals"),
   aCenter: new ShaderVarDesc("vec4", "for wireframe"),
+  aPointSize: new ShaderVarDesc("float", ""),
   
   iaRotatation: new ShaderVarDesc("vec4", ""),
   iaTranslation: new ShaderVarDesc("vec3", ""),
