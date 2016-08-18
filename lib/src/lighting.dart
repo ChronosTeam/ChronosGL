@@ -17,16 +17,21 @@ class Light {
   double _spotCutoff = 0.0; // for spot
   double _spotFocus = 0.0; // for spot
 
+  // Light eminating from a point in all directions.
+  // Light gets "weaker" with increased distance.
   Light.Point(this._pos, this._colDiffuse, this._colSpecular, this._range) {
     _type = typeLightPoint;
   }
 
-  Light.Spot(this._pos, this._dir, this._colDiffuse, this._colSpecular) {
+  // Light cone eminating from a point.
+  // As the cone widens light gets "weaker"
+  Light.Spot(this._pos, this._dir, this._colDiffuse, this._colSpecular,
+      this._spotCutoff, this._spotFocus) {
     _type = typeLightSpot;
   }
 
-  Light.Directional(this._dir, this._colDiffuse, this._colSpecular,
-      this._spotCutoff, this._spotFocus) {
+  // Coming from one direction at infinite distance - e.g. the sun
+  Light.Directional(this._dir, this._colDiffuse, this._colSpecular) {
     _type = typeLightDir;
   }
 
@@ -36,6 +41,7 @@ class Light {
   }
 
   // This needs to stay in sync with UnpackLightSourceInfo
+  // in the shader
   VM.Matrix4 PackInfo(VM.Matrix4 viewMatrix) {
     VM.Matrix4 m = new VM.Matrix4.zero();
     VM.Vector4 p = new VM.Vector4.zero();
@@ -45,7 +51,7 @@ class Light {
       m[1] = _colGround.y;
       m[2] = _colGround.z;
     } else {
-
+      // do position
       p.setValues(_pos.x, _pos.y, _pos.z, 1.0);
       viewMatrix.transform(p);
 

@@ -26,7 +26,7 @@ void main() {
   //Vector colBlue = new Vector(0,0,1);
   VM.Vector3 colWhite = new VM.Vector3(1.0, 1.0, 1.0);
   VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
-  chronosGL.lights.add(new Light.Point(posLight1, colRed, colWhite, 20.0));
+  chronosGL.lights.add(new Light.Directional(posLight1, colRed, colWhite));
 
   MeshData cubeMeshData = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
   MeshData sphereMeshData = Shapes.Icosahedron()
