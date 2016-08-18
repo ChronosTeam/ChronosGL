@@ -153,6 +153,10 @@ class MeshData {
     _attributes[canonical] = [];
   }
 
+  bool HasAttribute(String canonical) {
+    return _attributes.containsKey(canonical);
+  }
+
   void AddFaces1(int n) {
     int v = _vertices.length ~/ 3;
     for (int i = 0; i < n; i++, v++) {
@@ -213,6 +217,10 @@ class MeshData {
     _attributes[canonical] = f;
   }
 
+  void AddAttributesDouble(String canonical, List<double> lst) {
+    _attributes[canonical].addAll(lst);
+  }
+
   void AddAttributesVector3(String canonical, List<VM.Vector3> lst) {
     for (VM.Vector3 v in lst) {
       _attributes[canonical].addAll(v.storage);
@@ -225,6 +233,11 @@ class MeshData {
     }
   }
 
+  void AddAttributesVector4(String canonical, List<VM.Vector4> lst) {
+    for (VM.Vector4 v in lst) {
+      _attributes[canonical].addAll(v.storage);
+    }
+  }
   /*
     void generateEmptyNormals() {
       if (normals.length != vertices.length) {
