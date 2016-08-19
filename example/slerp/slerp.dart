@@ -37,9 +37,9 @@ VM.Quaternion slerp(VM.Quaternion a, VM.Quaternion b, double t) {
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-  ShaderProgram prg = chronosGL.createProgram(createDemoShader());
-  Camera camera = chronosGL.getCamera();
-  OrbitCamera orbit = new OrbitCamera(camera, 15.0, -45.0, 0.3);
+  OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
+  RenderingPhase phase = chronosGL.createPhase(orbit);
+  ShaderProgram prg = phase.createProgram(createDemoShader());
 
   Material mat = new Material();
   Math.Random rng = new Math.Random();
@@ -88,7 +88,7 @@ void main() {
     prg.add(node);
 
     ShaderProgram programSprites =
-        chronosGL.createProgram(createPointSpritesShader());
+        phase.createProgram(createPointSpritesShader());
     programSprites.add(Utils.MakeParticles(2000));
 
     double _lastTimeMs = 0.0;

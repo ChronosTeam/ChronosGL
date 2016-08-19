@@ -10,11 +10,10 @@ VM.Vector3 p1 = new VM.Vector3.zero();
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
-  Camera camera = chronosGL.getCamera();
+  TorusKnotCamera tkc = new TorusKnotCamera();
+  RenderingPhase phase = chronosGL.createPhase(tkc);
 
-  TorusKnotCamera tkc = new TorusKnotCamera(camera);
-
-  ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
+  ShaderProgram programBasic = phase.createProgram(createTexturedShader());
 
   canvas2d = Utils.createGradientImage2(0.0, canvas2d);
   Texture generatedTexture = new CanvasTexture("gen", canvas2d);
@@ -37,8 +36,7 @@ void main() {
     //chronosGL.programs['point_sprites'].add(new PointSprites.fromVertex(p1, textureCache.get("textures/particle.bmp")));
   }
 
-  ShaderProgram programSprites =
-      chronosGL.createProgram(createPointSpritesShader());
+  ShaderProgram programSprites = phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
   double _lastTimeMs = 0.0;
 

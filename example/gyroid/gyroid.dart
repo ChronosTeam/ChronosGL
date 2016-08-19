@@ -203,8 +203,9 @@ List<ShaderObject> createSphericalGyroidShader() {
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-  ShaderProgram program =
-      chronosGL.createProgram(createSphericalGyroidShader());
+  RenderingPhase phase = chronosGL.createPhase(new Camera());
+
+  ShaderProgram program = phase.createProgram(createSphericalGyroidShader());
   Material mat = new Material();
   program.add(new Mesh(Shapes.Quad(1), mat));
 

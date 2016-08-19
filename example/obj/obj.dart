@@ -9,9 +9,9 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
-  ShaderProgram prg = chronosGL.createProgram(createDemoShader());
-  Camera camera = chronosGL.getCamera();
-  OrbitCamera orbit = new OrbitCamera(camera, 25.0);
+  OrbitCamera orbit = new OrbitCamera(25.0);
+  RenderingPhase phase = chronosGL.createPhase(orbit);
+  ShaderProgram prg = phase.createProgram(createDemoShader());
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {

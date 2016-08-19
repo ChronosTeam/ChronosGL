@@ -76,14 +76,14 @@ Mesh getRocket(Texture tw) {
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
-  Camera camera = chronosGL.getCamera();
-  OrbitCamera orbit = new OrbitCamera(camera, 15.0);
+  OrbitCamera orbit = new OrbitCamera(15.0);
+  RenderingPhase phase = chronosGL.createPhase(orbit);
 
   ShaderProgram programSprites =
-      chronosGL.createProgram(createPointSpritesShader());
+      phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
-  ShaderProgram pssp = chronosGL.createProgram(createFireWorksShader());
+  ShaderProgram pssp = phase.createProgram(createFireWorksShader());
   pssp.add(getRocket(Utils.createParticleTexture("fireworks")));
 
   double _lastTimeMs = 0.0;

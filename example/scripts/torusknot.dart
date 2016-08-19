@@ -5,14 +5,14 @@ import 'dart:html' as HTML;
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
-  Camera camera = chronosGL.getCamera();
-  OrbitCamera orbit = new OrbitCamera(camera, 165.0);
-  ShaderProgram programBasic = chronosGL.createProgram(createTexturedShader());
+  OrbitCamera orbit = new OrbitCamera(165.0);
+  RenderingPhase phase = chronosGL.createPhase(orbit);
+  ShaderProgram programBasic = phase.createProgram(createTexturedShader());
 
   Texture blockTex = new ImageTexture("gradient.jpg");
 
   ShaderProgram perlinNoise =
-      chronosGL.createProgram(createPerlinNoiseColorShader(false));
+      phase.createProgram(createPerlinNoiseColorShader(false));
 
   Material mat = new Material()
     ..SetUniform(uTextureSampler, blockTex)
@@ -24,7 +24,7 @@ void main() {
   perlinNoise.add(m2);
 
   ShaderProgram programSprites =
-      chronosGL.createProgram(createPointSpritesShader());
+      phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
   double _lastTimeMs = 0.0;

@@ -7,9 +7,10 @@ void main() {
       fxShader: createSobelShader(),
       near: 0.1,
       far: 2520.0);
-  ShaderProgram prg = chronosGL.createProgram(createNormal2ColorShader());
-  Camera camera = chronosGL.getCamera();
-  OrbitCamera orbit = new OrbitCamera(camera, 25.0, -45.0, 0.3);
+
+  OrbitCamera orbit = new OrbitCamera(25.0, -45.0, 0.3);
+  RenderingPhase phase = chronosGL.createPhase(orbit);
+  ShaderProgram prg = phase.createProgram(createNormal2ColorShader());
 
   List<MeshData> mymd = new List<MeshData>();
 

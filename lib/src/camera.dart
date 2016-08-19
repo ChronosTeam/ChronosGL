@@ -19,40 +19,39 @@ class Camera extends Spatial {
   }
 }
 
-class OrbitCamera extends Animatable {
-  Camera camera;
-  double radius;
+class OrbitCamera extends Camera {
+  double _radius;
   double azimuth;
-  double polar;
-  VM.Vector3 lookAt = new VM.Vector3.zero();
+  double _polar;
+  final VM.Vector3 _lookAtPos = new VM.Vector3.zero();
   num mouseWheelFactor = -0.01;
 
-  double ma = 0.0; // mouse azimuth
-  double mp = 0.0; // mouse polar
+  double _ma = 0.0; // mouse azimuth
+  double _mp = 0.0; // mouse polar
 
-  Map<int, bool> cpk = currentlyPressedKeys;
-  Map<String, bool> cpmb = currentlyPressedMouseButtons;
+  Map<int, bool> _cpk = currentlyPressedKeys;
+  Map<String, bool> _cpmb = currentlyPressedMouseButtons;
 
-  OrbitCamera(this.camera, this.radius,
+  OrbitCamera(this._radius,
       [this.azimuth = 0.0,
-      this.polar = 0.0,
+      this._polar = 0.0,
       HTML.Element eventElement = null]) {
     if (eventElement == null) eventElement = HTML.document.body;
     eventElement.onMouseWheel.listen((HTML.WheelEvent e) {
       try {
         double d = e.deltaY * mouseWheelFactor;
-        if (radius - d > 0) radius -= d;
+        if (_radius - d > 0) _radius -= d;
       } catch (e) {
         print(e);
       }
     });
     eventElement.onMouseMove.listen((HTML.MouseEvent e) {
       e.preventDefault();
-      if (cpmb['left'] != null) {
+      if (_cpmb['left'] != null) {
         //azimuth += e.movement.x*0.01;
         //polar += e.movement.y*0.01;
         azimuth += (mouseX - mouseDownX) * 0.01;
-        polar += (mouseDownY - mouseY) * 0.01;
+        _polar += (mouseDownY - mouseY) * 0.01;
         mouseDownX = mouseX;
         mouseDownY = mouseY;
       }
@@ -66,55 +65,42 @@ class OrbitCamera extends Animatable {
       //polar += e.movement.y*0.01;
       HTML.Point p = e.touches[0].client;
       azimuth += (p.x - mouseDownX) * 0.01;
-      polar += (mouseDownY - p.y) * 0.01;
+      _polar += (mouseDownY - p.y) * 0.01;
       mouseDownX = p.x;
       mouseDownY = p.y;
     });
   }
 
-  void setLookAt(dynamic x, [double y, double z]) {
-    if (x is VM.Vector3) {
-      lookAt[0] = x[0];
-      lookAt[1] = x[1];
-      lookAt[2] = x[2];
-    } else {
-      lookAt[0] = x;
-      lookAt[1] = y;
-      lookAt[2] = z;
-    }
-  }
-
-  void _setPosFromSpherical(double radius, double azimuth, double polar) {
-    camera.setPosFromSpherical(radius, azimuth, polar);
-    camera.addPosFromVec(lookAt);
-    camera.lookAt(lookAt);
+  void setLookAt(VM.Vector3 v) {
+    _lookAtPos.setFrom(v);
   }
 
   void animate(double elapsed) {
-    if (cpk[Key.LEFT] != null) {
+    if (_cpk[Key.LEFT] != null) {
       azimuth += (0.03);
-    } else if (cpk[Key.RIGHT] != null) {
+    } else if (_cpk[Key.RIGHT] != null) {
       azimuth -= (0.03);
     }
-    if (cpk[Key.UP] != null) {
-      polar += (0.03);
-    } else if (cpk[Key.DOWN] != null) {
-      polar -= (0.03);
+    if (_cpk[Key.UP] != null) {
+      _polar += (0.03);
+    } else if (_cpk[Key.DOWN] != null) {
+      _polar -= (0.03);
     }
-    if (cpk[Key.SPACE] != null) {
+    if (_cpk[Key.SPACE] != null) {
       azimuth = 0.0;
-      polar = 0.0;
+      _polar = 0.0;
     }
-    polar = polar.clamp(-Math.PI / 2 + 0.1, Math.PI / 2 - 0.1);
-    _setPosFromSpherical(radius, azimuth, polar);
+    _polar = _polar.clamp(-Math.PI / 2 + 0.1, Math.PI / 2 - 0.1);
+    setPosFromSpherical(_radius, azimuth, _polar);
+    addPosFromVec(_lookAtPos);
+    lookAt(_lookAtPos);
   }
 }
 
-class FlyingCamera extends Animatable {
-  Camera camera;
+class FlyingCamera extends Camera {
   VM.Vector3 momentum_ = new VM.Vector3.zero();
 
-  FlyingCamera(this.camera);
+  FlyingCamera();
 
   void animate(double elapsed) {
     Map<int, bool> cpk = currentlyPressedKeys;
@@ -138,44 +124,44 @@ class FlyingCamera extends Animatable {
     if (mouseY != 0) camera.lookUp(mouseY * 0.00006);
     if (mouseX != 0) camera.lookLeft(-mouseX * 0.00003);
 
-    camera.translateFromVec(momentum_);
+    translateFromVec(momentum_);
   }
 
   void moveForward(double amount) {
-    VM.Vector3 t = camera.getBack();
+    VM.Vector3 t = getBack();
     t.negate();
     VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
   void moveBackward(double amount) {
-    VM.Vector3 t = camera.getBack();
+    VM.Vector3 t = getBack();
     VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
   void moveUp(num amount) {
-    VM.Vector3 t = camera.getUp();
+    VM.Vector3 t = getUp();
     VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
   void moveDown(num amount) {
-    VM.Vector3 t = camera.getUp();
+    VM.Vector3 t = getUp();
     t.negate();
     VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
   void moveLeft(num amount) {
-    VM.Vector3 t = camera.getRight();
+    VM.Vector3 t = getRight();
     t.negate();
     VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
   void moveRight(num amount) {
-    VM.Vector3 t = camera.getRight();
+    VM.Vector3 t = getRight();
     VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 }
 
-class FPSCamera extends Animatable {
+class FPSCamera extends Drawable {
   Camera camera;
   VM.Vector3 momentum = new VM.Vector3.zero();
   VM.Vector3 movement = new VM.Vector3.zero();
@@ -250,10 +236,8 @@ class FPSCamera extends Animatable {
 }
 
 // this class lets a Camera fly through a TorusKnot like through a tunnel
-class TorusKnotCamera extends Animatable {
-  Camera camera;
-
-  TorusKnotCamera(this.camera);
+class TorusKnotCamera extends Camera {
+  TorusKnotCamera();
 
   VM.Vector3 p1 = new VM.Vector3.zero();
   VM.Vector3 p2 = new VM.Vector3.zero();
@@ -272,7 +256,7 @@ class TorusKnotCamera extends Animatable {
     up
       ..setFrom(p2)
       ..normalize();
-    camera.setPosFromVec(p1);
-    camera.lookAt(p2);
+    setPosFromVec(p1);
+    lookAt(p2);
   }
 }

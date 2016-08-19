@@ -13,14 +13,14 @@ class Spatial {
   // Might be better to use Quaternions anyways
   // regular lookAt calls could "repair" the matrix 
   // ( or an optimized variant of lookAt).
-  VM.Matrix4 transform = new VM.Matrix4.identity();
+  final VM.Matrix4 transform = new VM.Matrix4.identity();
 
   // temp variables to avoid creating new objects:
   // CHANGES TO THE VALUES WILL NOT IMPACT THE MATRIX AND MIGHT BE SHARED WITH OTHER USERS
-  VM.Vector3 _pos = new VM.Vector3.zero();
-  VM.Vector3 _back = new VM.Vector3.zero();
-  VM.Vector3 _up = new VM.Vector3.zero();
-  VM.Vector3 _right = new VM.Vector3.zero();
+  final VM.Vector3 _pos = new VM.Vector3.zero();
+  final VM.Vector3 _back = new VM.Vector3.zero();
+  final VM.Vector3 _up = new VM.Vector3.zero();
+  final VM.Vector3 _right = new VM.Vector3.zero();
 
   VM.Vector3 getPos() {
     _pos[0] = this.transform[POSX];

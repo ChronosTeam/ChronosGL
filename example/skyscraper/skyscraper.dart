@@ -41,19 +41,19 @@ List<ShaderObject> createSkyScraperShader() {
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-  Camera camera = chronosGL.getCamera();
-  OrbitCamera orbit = new OrbitCamera(camera, 25.0);
+  OrbitCamera orbit = new OrbitCamera(25.0);
+  RenderingPhase phase = chronosGL.createPhase(orbit);
 
   Material mat = new Material();
   // Sky Sphere
-  ShaderProgram skyprg = chronosGL
+  ShaderProgram skyprg = phase
       .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
   MeshData md = Shapes.Icosahedron(3);
   //..multiplyVertices(100);
   Mesh m = new Mesh(md, mat)..transform.scale(100.0);
   skyprg.add(m);
 
-  ShaderProgram prg = chronosGL.createProgram(createSkyScraperShader());
+  ShaderProgram prg = phase.createProgram(createSkyScraperShader());
 
   for (int x = -10; x < 10; x += 4) {
     for (int z = -10; z < 10; z += 4) {

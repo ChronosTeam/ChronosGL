@@ -5,10 +5,10 @@ import 'dart:html' as HTML;
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-  ShaderProgram prg = chronosGL.createProgram(createSolidColorShader());
-  Camera camera = chronosGL.getCamera();
 
-  OrbitCamera orbit = new OrbitCamera(camera, 15.0);
+  OrbitCamera orbit = new OrbitCamera(15.0);
+  RenderingPhase phase = chronosGL.createPhase(orbit);
+  ShaderProgram prg = phase.createProgram(createSolidColorShader());
 
   MeshData sphere = Shapes.Icosahedron();
   Material headMat = new Material()
@@ -37,7 +37,7 @@ void main() {
   prg.add(head);
 
   ShaderProgram programSprites =
-      chronosGL.createProgram(createPointSpritesShader());
+      phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
   double _lastTimeMs = 0.0;

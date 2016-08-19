@@ -39,13 +39,13 @@ void main() {
   StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
-  Camera camera = chronosGL.getCamera();
-  OrbitCamera orbit = new OrbitCamera(camera, 5.0, 10.0);
+  OrbitCamera orbit = new OrbitCamera(5.0, 10.0);
+  RenderingPhase phase = chronosGL.createPhase(orbit);
   // Note, moving the camera does not have an effect
 
   Texture bubble = new ImageTexture("sphere.png");
 
-  ShaderProgram shaderSpheres = chronosGL.createProgram(sphereShader());
+  ShaderProgram shaderSpheres = phase.createProgram(sphereShader());
   Material mat = new Material()..SetUniform(uTextureSampler, bubble);
   MeshData md = Shapes.Icosahedron(3);
   //md.generateNormalsAssumingTriangleMode();
@@ -55,15 +55,15 @@ void main() {
   shaderSpheres.add(m);
 
   double _lastTimeMs = 0.0;
-   void animate(timeMs) {
-     double elapsed = timeMs - _lastTimeMs;
-     _lastTimeMs = timeMs;
-     orbit.azimuth += 0.001;
-     orbit.animate(elapsed);
-     fps.UpdateFrameCount(timeMs);
-     chronosGL.draw();
-     window.animationFrame.then(animate);
-   }
+  void animate(timeMs) {
+    double elapsed = timeMs - _lastTimeMs;
+    _lastTimeMs = timeMs;
+    orbit.azimuth += 0.001;
+    orbit.animate(elapsed);
+    fps.UpdateFrameCount(timeMs);
+    chronosGL.draw();
+    window.animationFrame.then(animate);
+  }
 
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     animate(0.0);

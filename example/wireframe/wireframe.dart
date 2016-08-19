@@ -14,11 +14,9 @@ void main() {
  
   chronosGL.gl.enable(WEBGL.CULL_FACE);
 
-  Camera camera = chronosGL.getCamera();
-  OrbitCamera orbit = new OrbitCamera(camera, 25.0, 10.0);
-
-
-  ShaderProgram program = chronosGL.createProgram(createWireframeShader());
+  OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
+  RenderingPhase phase = chronosGL.createPhase(orbit);
+  ShaderProgram program = phase.createProgram(createWireframeShader());
   final Material matWireframe = new Material()
     ..SetUniform(uColorAlpha, new VM.Vector4(1.0, 1.0, 0.0, 1.0))
     ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5))

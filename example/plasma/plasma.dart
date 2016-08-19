@@ -5,13 +5,12 @@ void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
       useFramebuffer: false, fxShader: createPlasmaShader3());
 
+  OrbitCamera orbit = new OrbitCamera(65.0);
+  RenderingPhase phase = chronosGL.createPhase(orbit);
   List<ShaderProgram> prgs = new List<ShaderProgram>();
-  prgs.add(chronosGL.createProgram(createPlasmaShader()));
-  prgs.add(chronosGL.createProgram(createPlasmaShader2()));
-  prgs.add(chronosGL.createProgram(createPlasmaShader3()));
-
-  Camera camera = chronosGL.getCamera();
-  OrbitCamera orbit = new OrbitCamera(camera, 65.0);
+  prgs.add(phase.createProgram(createPlasmaShader()));
+  prgs.add(phase.createProgram(createPlasmaShader2()));
+  prgs.add(phase.createProgram(createPlasmaShader3()));
 
   Material mat = new Material();
   MeshData md = Shapes.Cube(x: 10.0, y: 10.0, z: 10.0);
@@ -39,7 +38,7 @@ void main() {
     prgs[(pointer)].add(m);
   });
   ShaderProgram programSprites =
-      chronosGL.createProgram(createPointSpritesShader());
+      phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
   double _lastTimeMs = 0.0;
@@ -53,7 +52,7 @@ void main() {
     m.rollLeft(timeMs * 0.000001);
     m.lookLeft(timeMs * 0.000001);
     for (ShaderProgram p in prgs) {
-      p.inputs.SetUniformVal(uTime, timeMs / 1000.0);
+      p.inputs.SetUniformVal(uTime, timeMs / 500.0);
     }
 
     chronosGL.draw();

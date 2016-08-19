@@ -8,10 +8,10 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
-  Camera camera = chronosGL.getCamera();
-  camera.setPos(0.0, 0.0, 56.0);
 
-  OrbitCamera orbit = new OrbitCamera(camera, 25.0, 10.0);
+  OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
+  orbit.setPos(0.0, 0.0, 56.0);
+  RenderingPhase phase = chronosGL.createPhase(orbit);
 
   //FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
   //chronosGL.addAnimatable('flyingCamera', fc);
@@ -37,10 +37,10 @@ void main() {
       ..lookLeft(0.7));
   }
 
-  ShaderProgram lightShaderPrg = chronosGL.createProgram(createLightShader());
+  ShaderProgram lightShaderPrg = phase.createProgram(createLightShader());
   for (Mesh m in meshes) lightShaderPrg.add(m);
   ShaderProgram fixedShaderPrg =
-      chronosGL.createProgram(createSolidColorShader());
+      phase.createProgram(createSolidColorShader());
 
   Material icoMat = new Material()..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
   Mesh ico1 = new Mesh(Shapes.Icosahedron(), icoMat)..setPosFromVec(posLight1);

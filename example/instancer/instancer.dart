@@ -39,8 +39,8 @@ void main() {
   StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
-  Camera camera = chronosGL.getCamera();
-  OrbitCamera orbit = new OrbitCamera(camera, 265.0);
+  OrbitCamera orbit = new OrbitCamera(265.0);
+  RenderingPhase phase = chronosGL.createPhase(orbit);
 
   Material mat = new Material();
   Mesh m = new Mesh(Shapes.TorusKnot(radius: 12.0), mat);
@@ -68,11 +68,11 @@ void main() {
   m.AddBuffer(iaTranslation, translations);
   m.numInstances = 1000;
 
-  ShaderProgram prg = chronosGL.createProgram(createInstancedShader());
+  ShaderProgram prg = phase.createProgram(createInstancedShader());
   prg.add(m);
 
   ShaderProgram programSprites =
-      chronosGL.createProgram(createPointSpritesShader());
+      phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
   double _lastTimeMs = 0.0;
