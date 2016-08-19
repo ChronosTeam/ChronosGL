@@ -51,9 +51,14 @@ void LogWarn(String s) {
 }
 
 class Perspective {
-  int width;
-  int height;
+  int width = 0;
+  int height = 0;
   int fov = 50; // horizobtal fov in deg  divided by 2
+
+  int _lastFov_ = 49;
+  int _lastWidth = 0;
+  int _lastHeight = 0;
+
   double near = 0.1;
   double far = 1000.0;
 
@@ -77,8 +82,30 @@ class Perspective {
     return Math.atan(aspecRatioInv() / focalLength());
   }
 
+  bool _PerspectiveHasChanged(HTML.CanvasElement canvas) {
+    return _lastWidth != width ||
+        _lastHeight != height ||
+        _lastWidth != canvas.clientWidth ||
+        _lastHeight != canvas.clientHeight ||
+        _lastFov_ != fov;
+  }
+
+  void _SetupNewPerspective(HTML.CanvasElement canvas) {
+    width = canvas.clientWidth;
+    height = canvas.clientHeight;
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+
+    _lastWidth = canvas.clientWidth;
+    _lastHeight = canvas.clientHeight;
+    _lastFov_ = fov;
+    //LogInfo(
+    //    "New perspective: ${perspar.width} ${perspar.height} ${perspar.fov}");
+  }
+
   void UpdatePerspective(VM.Matrix4 mat) {
-    VM.setPerspectiveMatrix(mat, fov * Math.PI / 180.0, width / height, near, far);
+    VM.setPerspectiveMatrix(
+        mat, fov * Math.PI / 180.0, width / height, near, far);
     double e = focalLength();
     double a = aspecRatioInv();
     double ee1 = Math.sqrt(e * e + 1);
@@ -118,12 +145,10 @@ class Perspective {
   }
 }
 
-
 abstract class Drawable {
-  void draw(Perspective dynpar, List<Light> lights,
-      Camera camera, VM.Matrix4 pMatrix, List<DrawStats> stats);
+  void draw(Perspective dynpar, List<Light> lights, Camera camera,
+      VM.Matrix4 pMatrix, List<DrawStats> stats);
 }
-
 
 abstract class RenderingStep {
   void draw(Perspective perspar, List<Light> lights, Camera camera);
@@ -140,7 +165,8 @@ class RenderingPhase {
   List<DrawStats> stats = null;
   final Camera _camera;
 
-  RenderingPhase(this._gl, this._framebuffer, this._camera, this._usePerspectiveMatrix);
+  RenderingPhase(
+      this._gl, this._framebuffer, this._camera, this._usePerspectiveMatrix);
 
   void SetFramebuffer(ChronosFramebuffer fb) {
     _framebuffer = fb;
@@ -179,7 +205,6 @@ class RenderingPhase {
   }
 }
 
-
 class ChronosGL {
   static WEBGL.RenderingContext globalGL;
   static bool useElementIndexUint = false;
@@ -192,9 +217,6 @@ class ChronosGL {
 
   Perspective perspar = new Perspective();
   List<Light> lights = [];
-  int _lastFov_ = 49;
-  int _lastWidth = 0;
-  int _lastHeight = 0;
 
   List<RenderingPhase> _renderPhases = [];
 
@@ -216,10 +238,8 @@ class ChronosGL {
       event.preventDefault();
     });
 
-    perspar.width = _canvas.clientWidth;
-    perspar.height = _canvas.clientHeight;
-    _canvas.width = perspar.width;
-    _canvas.height = perspar.height;
+    perspar._SetupNewPerspective(_canvas);
+
     //_aspect = _canvas.clientWidth / _canvas.clientHeight;
     Map attributes = {
       "alpha": false,
@@ -257,7 +277,8 @@ class ChronosGL {
     return gl;
   }
 
-  RenderingPhase createPhase(Camera camera, [ChronosFramebuffer fb=null, bool use_perspective=true]) {
+  RenderingPhase createPhase(Camera camera,
+      [ChronosFramebuffer fb = null, bool use_perspective = true]) {
     RenderingPhase phase = new RenderingPhase(gl, fb, camera, use_perspective);
     _renderPhases.add(phase);
     return phase;
@@ -275,30 +296,10 @@ class ChronosGL {
   // The resizing should happen there as well based on
   // some canvas element to watch.
   // Think about how to resize postprocessing buffers.
-  bool _PerspectiveHasChanged() {
-    return _lastWidth != perspar.width ||
-        _lastHeight != perspar.height ||
-        _lastWidth != _canvas.clientWidth ||
-        _lastHeight != _canvas.clientHeight ||
-        _lastFov_ != perspar.fov;
-  }
-
-  void _SetupNewPerspective() {
-    perspar.width = _canvas.clientWidth;
-    perspar.height = _canvas.clientHeight;
-    _canvas.width = _canvas.clientWidth;
-    _canvas.height = _canvas.clientHeight;
-
-    _lastWidth = _canvas.clientWidth;
-    _lastHeight = _canvas.clientHeight;
-    _lastFov_ = perspar.fov;
-    //LogInfo(
-    //    "New perspective: ${perspar.width} ${perspar.height} ${perspar.fov}");
-  }
 
   void draw() {
-    if (_PerspectiveHasChanged()) {
-      _SetupNewPerspective();
+    if (perspar._PerspectiveHasChanged(_canvas)) {
+      perspar._SetupNewPerspective(_canvas);
     }
 
     for (RenderingPhase r in _renderPhases) {
@@ -313,5 +314,4 @@ class ChronosGL {
   void setLineWidth(int w) {
     gl.lineWidth(w);
   }
-
 }

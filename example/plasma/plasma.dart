@@ -48,8 +48,8 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
 
-    m.rollLeft(timeMs * 0.000001);
-    m.lookLeft(timeMs * 0.000001);
+    m.rollLeft(elapsed * 0.0005);
+    m.lookLeft(elapsed * 0.0005);
     for (ShaderProgram p in prgs) {
       p.inputs.SetUniformVal(uTime, timeMs / 1000.0);
     }
