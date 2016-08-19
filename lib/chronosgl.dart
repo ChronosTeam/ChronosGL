@@ -50,7 +50,7 @@ void LogWarn(String s) {
   HTML.window.console.warn(s);
 }
 
-class PerspectiveParams {
+class Perspective {
   int width;
   int height;
   int fov = 50; // horizobtal fov in deg  divided by 2
@@ -120,13 +120,13 @@ class PerspectiveParams {
 
 
 abstract class Drawable {
-  void draw(PerspectiveParams dynpar, List<Light> lights,
+  void draw(Perspective dynpar, List<Light> lights,
       Camera camera, VM.Matrix4 pMatrix, List<DrawStats> stats);
 }
 
 
 abstract class RenderingStep {
-  void draw(PerspectiveParams perspar, List<Light> lights, Camera camera);
+  void draw(Perspective perspar, List<Light> lights, Camera camera);
 }
 
 class RenderingPhase {
@@ -146,7 +146,7 @@ class RenderingPhase {
     _framebuffer = fb;
   }
 
-  void draw(PerspectiveParams perspar, List<Light> lights) {
+  void draw(Perspective perspar, List<Light> lights) {
     if (_framebuffer == null) {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
     } else {
@@ -189,9 +189,8 @@ class ChronosGL {
 
   // TODO: move this into a RenderingPhase
   HTML.CanvasElement _canvas;
-  Camera _camera;
 
-  PerspectiveParams perspar = new PerspectiveParams();
+  Perspective perspar = new Perspective();
   List<Light> lights = [];
   int _lastFov_ = 49;
   int _lastWidth = 0;
@@ -200,9 +199,7 @@ class ChronosGL {
   List<RenderingPhase> _renderPhases = [];
 
   ChronosGL(dynamic canvasOrID,
-      {bool useFramebuffer: false,
-      List<ShaderObject> fxShader,
-      near: 0.1,
+      {near: 0.1,
       far: 1000.0,
       bool preserveDrawingBuffer: false,
       bool useElementIndexUint: false}) {
@@ -252,8 +249,6 @@ class ChronosGL {
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(WEBGL.DEPTH_TEST);
-
-    _camera = new Camera();
 
     setUpEventCapture(_canvas);
   }

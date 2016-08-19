@@ -341,7 +341,7 @@ class ShaderProgram implements Drawable {
     _program.Draw(debug, numInstances, numItems, drawMode, useArrayBuffer);
   }
 
-  void draw(PerspectiveParams dynpar, List<Light> lights, Camera camera,
+  void draw(Perspective dynpar, List<Light> lights, Camera camera,
       VM.Matrix4 pMatrix, List<DrawStats> stats) {
     if (!hasEnabledObjects()) return;
 

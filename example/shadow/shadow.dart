@@ -1,6 +1,6 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
-import 'dart:html';
+import 'dart:html' as HTML;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -44,31 +44,22 @@ List<ShaderObject> createShadowShader() {
 }
 
 void main() {
-  StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
-      useFramebuffer: false, fxShader: createBlurShader2());
+  StatsFps fps = new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
-  chronosGL.addAnimateCallback('fps', (double elapsed, double time) {
-    fps.UpdateFrameCount(time);
-  });
-
-  Camera camera = chronosGL.getCamera();
-  OrbitCamera orbit = new OrbitCamera(camera, 25.0, 10.0);
-  chronosGL.addAnimateCallback('rotateCamera', (double elapsed, double time) {
-    orbit.azimuth += 0.001;
-  });
-  chronosGL.addAnimatable('OrbitCam', orbit);
+  OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
 
 
   VM.Vector3 posLight1 = new VM.Vector3(0.0, 0.0, 0.0);
   VM.Vector3 colWhite = new VM.Vector3(1.0, 1.0, 1.0);
   VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
   chronosGL.lights.add(new Light.Point(posLight1, colRed, colWhite, 20.0));
+  RenderingPhase phase = chronosGL.createPhase(orbit);
 
 
   Texture solid = new CanvasTexture.SolidColor("red-solid", "red");
   //ShaderProgram program = chronosGL.createProgram(createTexturedShader());
-  ShaderProgram program = chronosGL.createProgram(createShadowShader());
+  ShaderProgram program = phase.createProgram(createShadowShader());
   VM.Matrix4 projection = VM.makeOrthographicMatrix(-12.0, 12.0, -12.0, 12.0, -12.0, 12.0);
 
   VM.Matrix4 model = new VM.Matrix4.identity();
@@ -115,10 +106,20 @@ void main() {
   }
 
   ShaderProgram programSprites =
-      chronosGL.createProgram(createPointSpritesShader());
+      phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
+   double _lastTimeMs = 0.0;
+  void animate(timeMs) {
+    double elapsed = timeMs - _lastTimeMs;
+    _lastTimeMs = timeMs;
+    orbit.azimuth += 0.001;
+    orbit.animate(elapsed);
+    fps.UpdateFrameCount(timeMs);
+    chronosGL.draw();
+    HTML.window.animationFrame.then(animate);
+  }
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
-    chronosGL.run();
+     animate(0.0);
   });
 }

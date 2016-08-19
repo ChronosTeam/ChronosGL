@@ -2,8 +2,7 @@ import 'dart:html' as HTML;
 import 'package:chronosgl/chronosgl.dart';
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
-      useFramebuffer: false, fxShader: createPlasmaShader3());
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
   OrbitCamera orbit = new OrbitCamera(65.0);
   RenderingPhase phase = chronosGL.createPhase(orbit);
@@ -52,7 +51,7 @@ void main() {
     m.rollLeft(timeMs * 0.000001);
     m.lookLeft(timeMs * 0.000001);
     for (ShaderProgram p in prgs) {
-      p.inputs.SetUniformVal(uTime, timeMs / 500.0);
+      p.inputs.SetUniformVal(uTime, timeMs / 1000.0);
     }
 
     chronosGL.draw();

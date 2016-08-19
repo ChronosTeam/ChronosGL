@@ -3,8 +3,6 @@ import 'dart:html';
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
-      useFramebuffer: false,
-      fxShader: createSobelShader(),
       near: 0.1,
       far: 2520.0);
 

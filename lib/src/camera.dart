@@ -226,7 +226,7 @@ class FPSCamera extends Camera {
     if (cpk[Key.SPACE] != null) {}
 
     if (movementY != 0)
-      camera.transform.rotate(getRight(), movementY * 0.006);
+      transform.rotate(getRight(), movementY * 0.006);
     if (movementX != 0) transform.rotate(up, movementX * 0.006);
 
     movementX = 0;

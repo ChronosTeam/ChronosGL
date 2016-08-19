@@ -8,7 +8,7 @@ import 'dart:html';
 
 void main() {
   StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas', useFramebuffer: false);
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
   var ext = GetGlExtensionStandardDerivatives(chronosGL.gl);
   if (ext == null) window.alert("OES_standard_derivatives not supported");
  

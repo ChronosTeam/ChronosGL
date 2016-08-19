@@ -7,8 +7,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
-      useFramebuffer: false, fxShader: createBlurShader2());
+  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   RenderingPhase phase = chronosGL.createPhase(orbit);
