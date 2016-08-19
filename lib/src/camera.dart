@@ -121,8 +121,8 @@ class FlyingCamera extends Camera {
       momentum_.scale(0.92);
     }
 
-    if (mouseY != 0) camera.lookUp(mouseY * 0.00006);
-    if (mouseX != 0) camera.lookLeft(-mouseX * 0.00003);
+    if (mouseY != 0) lookUp(mouseY * 0.00006);
+    if (mouseX != 0) lookLeft(-mouseX * 0.00003);
 
     translateFromVec(momentum_);
   }
@@ -161,8 +161,7 @@ class FlyingCamera extends Camera {
   }
 }
 
-class FPSCamera extends Drawable {
-  Camera camera;
+class FPSCamera extends Camera {
   VM.Vector3 momentum = new VM.Vector3.zero();
   VM.Vector3 movement = new VM.Vector3.zero();
   VM.Vector3 tmp = new VM.Vector3.zero();
@@ -175,7 +174,7 @@ class FPSCamera extends Drawable {
   int movementX = 0;
   int movementY = 0;
 
-  FPSCamera(this.camera, [HTML.Element eventElement = null]) {
+  FPSCamera([HTML.Element eventElement = null]) {
     if (eventElement == null) eventElement = HTML.document.body;
     eventElement.onMouseDown.listen((HTML.MouseEvent e) {
       e.preventDefault();
@@ -196,16 +195,16 @@ class FPSCamera extends Drawable {
     movement.scale(0.0);
 
     if (cpk[Key.W] != null) {
-      movement.sub(camera.getBack());
+      movement.sub(getBack());
     }
     if (cpk[Key.A] != null) {
-      movement.sub(camera.getRight());
+      movement.sub(getRight());
     }
     if (cpk[Key.S] != null) {
-      movement.add(camera.getBack());
+      movement.add(getBack());
     }
     if (cpk[Key.D] != null) {
-      movement.add(camera.getRight());
+      movement.add(getRight());
     }
 
     movement.z = 0.0;
@@ -214,21 +213,21 @@ class FPSCamera extends Drawable {
     tmp.setFrom(momentum);
     tmp.scale(0.02);
 
-    traceStart.setFrom(camera.getPos());
-    traceEnd.setFrom(camera.getPos());
+    traceStart.setFrom(getPos());
+    traceEnd.setFrom(getPos());
     traceEnd.add(tmp);
 
     //Output output = level.trace( traceStart, traceEnd, 10.0);
     //if( output.fraction == 1.0 || output.startSolid || output.allSolid )
 
-    camera.translateFromVec(tmp);
+    translateFromVec(tmp);
     momentum.scale(0.85);
 
     if (cpk[Key.SPACE] != null) {}
 
     if (movementY != 0)
-      camera.transform.rotate(camera.getRight(), movementY * 0.006);
-    if (movementX != 0) camera.transform.rotate(up, movementX * 0.006);
+      camera.transform.rotate(getRight(), movementY * 0.006);
+    if (movementX != 0) transform.rotate(up, movementX * 0.006);
 
     movementX = 0;
     movementY = 0;

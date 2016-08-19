@@ -121,7 +121,7 @@ class PerspectiveParams {
 
 abstract class Drawable {
   void draw(PerspectiveParams dynpar, List<Light> lights,
-      VM.Matrix4 pMatrix, List<DrawStats> stats);
+      Camera camera, VM.Matrix4 pMatrix, List<DrawStats> stats);
 }
 
 
