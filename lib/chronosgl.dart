@@ -62,6 +62,8 @@ class Perspective {
   double near = 0.1;
   double far = 1000.0;
 
+  final VM.Matrix4 _mat = new VM.Matrix4.zero();
+
   List<VM.Plane> _cullPlanes = [
     new VM.Plane.components(0.0, 0.0, 0.0, 0.0),
     new VM.Plane.components(0.0, 0.0, 0.0, 0.0),
@@ -101,11 +103,13 @@ class Perspective {
     _lastFov_ = fov;
     //LogInfo(
     //    "New perspective: ${perspar.width} ${perspar.height} ${perspar.fov}");
+    _UpdatePerspective();
   }
 
-  void UpdatePerspective(VM.Matrix4 mat) {
+  void _UpdatePerspective() {
     VM.setPerspectiveMatrix(
-        mat, fov * Math.PI / 180.0, width / height, near, far);
+        _mat, fov * Math.PI / 180.0, width / height, near, far);
+    //m.setFrom(_mat);
     double e = focalLength();
     double a = aspecRatioInv();
     double ee1 = Math.sqrt(e * e + 1);
@@ -136,6 +140,10 @@ class Perspective {
     c3.constant = 0.0;
   }
 
+  VM.Matrix4 GetPerspectiveMatrix() {
+    return _mat;
+  }
+
   bool IntersectSphere(VM.Vector3 center, double radius) {
     for (VM.Plane plane in _cullPlanes) {
       double d = plane.distanceToVector3(center);
@@ -147,7 +155,7 @@ class Perspective {
 
 abstract class Drawable {
   void draw(Perspective dynpar, List<Light> lights, Camera camera,
-      VM.Matrix4 pMatrix, List<DrawStats> stats);
+      List<DrawStats> stats);
 }
 
 abstract class RenderingStep {
@@ -158,15 +166,13 @@ class RenderingPhase {
   final WEBGL.RenderingContext _gl;
   ChronosFramebuffer _framebuffer;
   final List<ShaderProgram> _programs = [];
-  final VM.Matrix4 _pMatrix = new VM.Matrix4.identity();
+  //final VM.Matrix4 _pMatrix = new VM.Matrix4.identity();
   bool clearColorBuffer = true;
   bool clearDepthBuffer = true;
-  final bool _usePerspectiveMatrix;
   List<DrawStats> stats = null;
   final Camera _camera;
 
-  RenderingPhase(
-      this._gl, this._framebuffer, this._camera, this._usePerspectiveMatrix);
+  RenderingPhase(this._gl, this._framebuffer, this._camera);
 
   void SetFramebuffer(ChronosFramebuffer fb) {
     _framebuffer = fb;
@@ -179,9 +185,7 @@ class RenderingPhase {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, _framebuffer.framebuffer);
     }
     _gl.viewport(0, 0, perspar.width, perspar.height);
-    if (_usePerspectiveMatrix) {
-      perspar.UpdatePerspective(_pMatrix);
-    }
+
     if (clearColorBuffer || clearDepthBuffer) {
       int mode = 0;
       if (clearColorBuffer) mode |= WEBGL.COLOR_BUFFER_BIT;
@@ -190,7 +194,7 @@ class RenderingPhase {
     }
 
     for (ShaderProgram prg in _programs) {
-      prg.draw(perspar, lights, _camera, _pMatrix, stats);
+      prg.draw(perspar, lights, _camera, stats);
     }
   }
 
@@ -277,9 +281,8 @@ class ChronosGL {
     return gl;
   }
 
-  RenderingPhase createPhase(Camera camera,
-      [ChronosFramebuffer fb = null, bool use_perspective = true]) {
-    RenderingPhase phase = new RenderingPhase(gl, fb, camera, use_perspective);
+  RenderingPhase createPhase(Camera camera, [ChronosFramebuffer fb = null]) {
+    RenderingPhase phase = new RenderingPhase(gl, fb, camera);
     _renderPhases.add(phase);
     return phase;
   }

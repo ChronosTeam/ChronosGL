@@ -10,18 +10,18 @@ void main() {
 
   ChronosFramebuffer fb = new ChronosFramebuffer(
       chronosGL.gl, chronosGL.perspar.width, chronosGL.perspar.height);
-  RenderingPhase phase1 = chronosGL.createPhase(orbit, fb, true);
+  RenderingPhase phase1 = chronosGL.createPhase(orbit, fb);
 
   ShaderProgram prg1 = phase1.createProgram(createPlane2GreyShader());
 
-  RenderingPhase phase2 = chronosGL.createPhase(orbit, null, false);
+  RenderingPhase phase2 = chronosGL.createPhase(orbit, null);
   ShaderProgram prg2 = phase2.createProgram(createSobelShader());
   Material mat = new Material()
     ..SetUniform(uTexture2Sampler, fb.depthTexture)
     ..SetUniform(uTextureSampler, fb.colorTexture);
   prg2.add(new Mesh(Shapes.Quad(1), mat));
 
-  RenderingPhase phase1only = chronosGL.createPhase(orbit, null, true);
+  RenderingPhase phase1only = chronosGL.createPhase(orbit, null);
   phase1only.AddShaderProgram(prg1);
 
   void ActivateSobel(bool activate) {

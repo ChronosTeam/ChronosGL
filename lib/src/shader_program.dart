@@ -342,7 +342,7 @@ class ShaderProgram implements Drawable {
   }
 
   void draw(Perspective dynpar, List<Light> lights, Camera camera,
-      VM.Matrix4 pMatrix, List<DrawStats> stats) {
+      List<DrawStats> stats) {
     if (!hasEnabledObjects()) return;
 
     _program.Begin(debug);
@@ -352,7 +352,7 @@ class ShaderProgram implements Drawable {
     inputs.SetUniformVal(uCameraFar, dynpar.far);
     inputs.SetUniformVal(uCanvasSize,
         new VM.Vector2(dynpar.width.toDouble(), dynpar.height.toDouble()));
-    inputs.SetUniformVal(uPerspectiveMatrix, pMatrix);
+    inputs.SetUniformVal(uPerspectiveMatrix, dynpar.GetPerspectiveMatrix());
     if (camera != null) {
       camera.getViewMatrix(viewMatrix);
       modelviewMatrix.setFrom(viewMatrix);
