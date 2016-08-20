@@ -7,7 +7,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(165.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
   ShaderProgram programBasic = phase.createProgram(createTexturedShader());
 
   Texture blockTex = new ImageTexture("gradient.jpg");

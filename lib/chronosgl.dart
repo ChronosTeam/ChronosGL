@@ -181,7 +181,8 @@ class RenderingPhase {
   final Camera _camera;
   final Perspective _perspective;
 
-  RenderingPhase(this._gl, this._framebuffer, this._camera, this._perspective);
+  RenderingPhase(this._gl, this._camera, this._perspective,
+      [this._framebuffer = null]);
 
   void SetFramebuffer(ChronosFramebuffer fb) {
     _framebuffer = fb;
@@ -231,17 +232,8 @@ class ChronosGL {
   //Perspective perspar = new Perspective();
   List<Light> lights = [];
 
-  List<RenderingPhase> _renderPhases = [];
-
   ChronosGL(this._canvas,
-      {bool preserveDrawingBuffer: false,
-      bool useElementIndexUint: false}) {
-
-    // fix a bug in current chrome v.27
-    _canvas.onDragStart.listen((HTML.MouseEvent event) {
-      event.preventDefault();
-    });
-
+      {bool preserveDrawingBuffer: false, bool useElementIndexUint: false}) {
     //_aspect = _canvas.clientWidth / _canvas.clientHeight;
     Map attributes = {
       "alpha": false,
@@ -271,6 +263,12 @@ class ChronosGL {
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(WEBGL.DEPTH_TEST);
+    // fix a bug in current chrome v.27
+
+    // Event setup
+    _canvas.onDragStart.listen((HTML.MouseEvent event) {
+      event.preventDefault();
+    });
 
     setUpEventCapture(_canvas);
   }
@@ -278,21 +276,6 @@ class ChronosGL {
   WEBGL.RenderingContext getRenderingContext() {
     return gl;
   }
-
-  RenderingPhase createPhase(Camera camera, Perspective perspective, [ChronosFramebuffer fb = null]) {
-    RenderingPhase phase = new RenderingPhase(gl, fb, camera, perspective);
-    _renderPhases.add(phase);
-    return phase;
-  }
-
-  void addRenderPhase(RenderingPhase phase) {
-    _renderPhases.add(phase);
-  }
-
-  void ClearAllRenderPhases() {
-    _renderPhases.clear();
-  }
-
 
   HTML.CanvasElement getCanvas() {
     return _canvas;

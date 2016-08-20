@@ -10,7 +10,7 @@ void main() {
   Texture cubeTex = new CubeTexture("stars", "skybox_", ".png");
 
   OrbitCamera orbit = new OrbitCamera(15.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
   ShaderProgram programCM = phase.createProgram(createCubeMapShader());
   Mesh sky = Utils.MakeSkycube(cubeTex);
   programCM.addFollowCameraObject(sky);

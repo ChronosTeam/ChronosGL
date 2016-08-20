@@ -8,7 +8,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(15.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
   ShaderProgram prg = phase.createProgram(createSolidColorShader());
 
   MeshData sphere = Shapes.Icosahedron();

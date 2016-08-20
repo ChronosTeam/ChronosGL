@@ -206,7 +206,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   Perspective perspective = new Perspective();
 
-  RenderingPhase phase = chronosGL.createPhase(new Camera(), perspective);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, new Camera(), perspective);
 
   ShaderProgram program = phase.createProgram(createSphericalGyroidShader());
   Material mat = new Material();

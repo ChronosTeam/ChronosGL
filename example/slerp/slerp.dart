@@ -41,7 +41,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
-  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
   ShaderProgram prg = phase.createProgram(createDemoShader());
 
   Material mat = new Material();

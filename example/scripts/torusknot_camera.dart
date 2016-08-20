@@ -12,7 +12,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   Perspective perspective = new Perspective();
   TorusKnotCamera tkc = new TorusKnotCamera();
-  RenderingPhase phase = chronosGL.createPhase(tkc, perspective);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, tkc, perspective);
 
   ShaderProgram programBasic = phase.createProgram(createTexturedShader());
 

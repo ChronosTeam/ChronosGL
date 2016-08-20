@@ -13,7 +13,7 @@ void main() {
   Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
 
-  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
   ShaderProgram basic = phase.createProgram(createTexturedShader());
 
   //TextureWrapper red = new TextureWrapper.SolidColor("red", "rgba(255,0,0,1)");

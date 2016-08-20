@@ -43,7 +43,7 @@ void main() {
   Perspective perspective = new Perspective();
 
   OrbitCamera orbit = new OrbitCamera(265.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
 
   Material mat = new Material();
   Mesh m = new Mesh(Shapes.TorusKnot(radius: 12.0), mat);

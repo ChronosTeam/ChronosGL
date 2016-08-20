@@ -18,7 +18,7 @@ void main() {
 
   Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
   ShaderProgram program = phase.createProgram(createWireframeShader());
   final Material matWireframe = new Material()
     ..SetUniform(uColorAlpha, new VM.Vector4(1.0, 1.0, 0.0, 1.0))

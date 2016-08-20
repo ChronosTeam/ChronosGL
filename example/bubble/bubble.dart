@@ -41,7 +41,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(5.0, 10.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
   // Note, moving the camera does not have an effect
 
   Texture bubble = new ImageTexture("sphere.png");

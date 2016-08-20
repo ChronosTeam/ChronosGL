@@ -12,7 +12,7 @@ void main() {
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   orbit.setPos(0.0, 0.0, 56.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
 
   //FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
   //chronosGL.addAnimatable('flyingCamera', fc);
