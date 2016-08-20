@@ -1,24 +1,25 @@
-import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
 
+import 'package:chronosgl/chronosgl.dart';
+import 'package:chronosgl/chronosutil.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
 
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit);
-  ShaderProgram basic = phase.createProgram(createTexturedShader());
 
+  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
+  ShaderProgram basic = phase.createProgram(createTexturedShader());
 
   //TextureWrapper red = new TextureWrapper.SolidColor("red", "rgba(255,0,0,1)");
   Texture gradient = new ImageTexture("../gradient.jpg");
   Texture trans = new ImageTexture("../transparent.png");
   Texture wood = new ImageTexture("../wood.jpg");
-
 
   final Material matWood = new Material()
     ..SetUniform(uTextureSampler, wood)
@@ -61,8 +62,7 @@ void main() {
     basic.add(torus);
   }
 
-  ShaderProgram sprites =
-      phase.createProgram(createPointSpritesShader());
+  ShaderProgram sprites = phase.createProgram(createPointSpritesShader());
   sprites.add(Utils.MakeParticles(2000));
 
   double _lastTimeMs = 0.0;
@@ -72,7 +72,8 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    chronosGL.draw();
+    perspective.Adjust(canvas);
+    phase.draw([]);
     HTML.window.animationFrame.then(animate);
   }
 

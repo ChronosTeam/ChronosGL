@@ -1,6 +1,6 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:math' as Math;
-import 'dart:html';
+import 'dart:html' as HTML;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -74,10 +74,11 @@ Mesh getRocket(Texture tw) {
 }
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(15.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit);
+  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
 
   ShaderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
@@ -94,8 +95,9 @@ void main() {
     orbit.animate(elapsed);
     pssp.inputs.SetUniformVal(
         uTime, pssp.inputs.GetUniformVal(uTime) + elapsed / 1000);
-    chronosGL.draw();
-    window.animationFrame.then(animate);
+    perspective.Adjust(canvas);
+    phase.draw([]);
+    HTML.window.animationFrame.then(animate);
   }
 
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {

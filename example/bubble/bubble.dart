@@ -1,6 +1,6 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
-import 'dart:html';
+import 'dart:html' as HTML;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -36,11 +36,12 @@ List<ShaderObject> sphereShader() {
 }
 
 void main() {
-  StatsFps fps = new StatsFps(document.getElementById("stats"), "blue", "gray");
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-
+  StatsFps fps = new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(5.0, 10.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit);
+  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
   // Note, moving the camera does not have an effect
 
   Texture bubble = new ImageTexture("sphere.png");
@@ -61,8 +62,9 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    chronosGL.draw();
-    window.animationFrame.then(animate);
+    perspective.Adjust(canvas);
+    phase.draw([]);
+    HTML.window.animationFrame.then(animate);
   }
 
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {

@@ -8,10 +8,11 @@ HTML.CanvasElement canvas2d;
 VM.Vector3 p1 = new VM.Vector3.zero();
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  Perspective perspective = new Perspective();
   TorusKnotCamera tkc = new TorusKnotCamera();
-  RenderingPhase phase = chronosGL.createPhase(tkc);
+  RenderingPhase phase = chronosGL.createPhase(tkc, perspective);
 
   ShaderProgram programBasic = phase.createProgram(createTexturedShader());
 
@@ -36,7 +37,8 @@ void main() {
     //chronosGL.programs['point_sprites'].add(new PointSprites.fromVertex(p1, textureCache.get("textures/particle.bmp")));
   }
 
-  ShaderProgram programSprites = phase.createProgram(createPointSpritesShader());
+  ShaderProgram programSprites =
+      phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
   double _lastTimeMs = 0.0;
 
@@ -51,7 +53,8 @@ void main() {
     chronosGL.gl.texImage2D(WEBGL.TEXTURE_2D, 0, WEBGL.RGBA, WEBGL.RGBA,
         WEBGL.UNSIGNED_BYTE, canvas2d);
 
-    chronosGL.draw();
+    perspective.Adjust(canvas);
+    phase.draw([]);
     HTML.window.animationFrame.then(animate);
   }
 

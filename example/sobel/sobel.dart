@@ -1,45 +1,38 @@
-import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
+
+import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
-      near: 0.1, far: 2520.0);
-
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  Perspective perspective = new Perspective(0.1, 2520.0);
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
 
+
+  perspective.Adjust(canvas);
   ChronosFramebuffer fb = new ChronosFramebuffer(
-      chronosGL.gl, chronosGL.perspar.width, chronosGL.perspar.height);
-  RenderingPhase phase1 = chronosGL.createPhase(orbit, fb);
+      chronosGL.gl, perspective.width, perspective.height);
+  RenderingPhase phase1 = chronosGL.createPhase(orbit, perspective, fb);
 
   ShaderProgram prg1 = phase1.createProgram(createPlane2GreyShader());
 
-  RenderingPhase phase2 = chronosGL.createPhase(orbit, null);
+  RenderingPhase phase2 = chronosGL.createPhase(orbit, perspective, null);
   ShaderProgram prg2 = phase2.createProgram(createSobelShader());
   Material mat = new Material()
     ..SetUniform(uTexture2Sampler, fb.depthTexture)
     ..SetUniform(uTextureSampler, fb.colorTexture);
   prg2.add(new Mesh(Shapes.Quad(1), mat));
 
-  RenderingPhase phase1only = chronosGL.createPhase(orbit, null);
+  RenderingPhase phase1only = chronosGL.createPhase(orbit, perspective, null);
   phase1only.AddShaderProgram(prg1);
 
-  void ActivateSobel(bool activate) {
-    chronosGL.ClearAllRenderPhases();
-    if (activate) {
-      chronosGL.addRenderPhase(phase1);
-      chronosGL.addRenderPhase(phase2);
-    } else {
-      chronosGL.addRenderPhase(phase1only);
-    }
-  }
-
-  ActivateSobel(true);
+  bool useSobel = true;
 
   HTML.InputElement myselect =
       HTML.document.querySelector('#activate') as HTML.InputElement;
   myselect.onChange.listen((HTML.Event e) {
-    ActivateSobel(myselect.checked);
+    useSobel = myselect.checked;
   });
 
   loadObj("../ct_logo.obj").then((MeshData md) {
@@ -60,7 +53,13 @@ void main() {
       _lastTimeMs = timeMs;
       orbit.azimuth += 0.001;
       orbit.animate(elapsed);
-      chronosGL.draw();
+      //perspective.Adjust(canvas);
+      if (useSobel) {
+        phase1.draw([]);
+        phase2.draw([]);
+      } else {
+        phase1only.draw([]);
+      }
       HTML.window.animationFrame.then(animate);
     }
 

@@ -1,13 +1,12 @@
 import 'package:chronosgl/chronosgl.dart';
-import 'dart:html';
+import 'dart:html' as HTML;
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas',
-      near: 0.1,
-      far: 2520.0);
-
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  Perspective perspective = new Perspective(0.1, 2520.0);
   OrbitCamera orbit = new OrbitCamera(25.0, -45.0, 0.3);
-  RenderingPhase phase = chronosGL.createPhase(orbit);
+  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
   ShaderProgram prg = phase.createProgram(createNormal2ColorShader());
 
   List<MeshData> mymd = new List<MeshData>();
@@ -53,8 +52,9 @@ void main() {
       _lastTimeMs = timeMs;
       orbit.azimuth += 0.001;
       orbit.animate(elapsed);
-      chronosGL.draw();
-      window.animationFrame.then(animate);
+      perspective.Adjust(canvas);
+      phase.draw([]);
+      HTML.window.animationFrame.then(animate);
     }
 
     Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {

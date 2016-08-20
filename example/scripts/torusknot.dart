@@ -3,10 +3,11 @@ import 'package:vector_math/vector_math.dart' as VM;
 import 'dart:html' as HTML;
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(165.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit);
+  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
   ShaderProgram programBasic = phase.createProgram(createTexturedShader());
 
   Texture blockTex = new ImageTexture("gradient.jpg");
@@ -34,7 +35,8 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     perlinNoise.inputs.SetUniformVal(uTime, timeMs / 1000.0);
-    chronosGL.draw();
+    perspective.Adjust(canvas);
+    phase.draw([]);
     HTML.window.animationFrame.then(animate);
   }
 

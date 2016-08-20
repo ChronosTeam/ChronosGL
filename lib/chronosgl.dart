@@ -62,6 +62,8 @@ class Perspective {
   double near = 0.1;
   double far = 1000.0;
 
+  Perspective([this.near = 0.1, this.far = 1000.0]);
+
   final VM.Matrix4 _mat = new VM.Matrix4.zero();
 
   List<VM.Plane> _cullPlanes = [
@@ -104,6 +106,12 @@ class Perspective {
     //LogInfo(
     //    "New perspective: ${perspar.width} ${perspar.height} ${perspar.fov}");
     _UpdatePerspective();
+  }
+
+  void Adjust(HTML.CanvasElement canvas) {
+    if (_PerspectiveHasChanged(canvas)) {
+      _SetupNewPerspective(canvas);
+    }
   }
 
   void _UpdatePerspective() {
@@ -171,20 +179,21 @@ class RenderingPhase {
   bool clearDepthBuffer = true;
   List<DrawStats> stats = null;
   final Camera _camera;
+  final Perspective _perspective;
 
-  RenderingPhase(this._gl, this._framebuffer, this._camera);
+  RenderingPhase(this._gl, this._framebuffer, this._camera, this._perspective);
 
   void SetFramebuffer(ChronosFramebuffer fb) {
     _framebuffer = fb;
   }
 
-  void draw(Perspective perspar, List<Light> lights) {
+  void draw(List<Light> lights) {
     if (_framebuffer == null) {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
     } else {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, _framebuffer.framebuffer);
     }
-    _gl.viewport(0, 0, perspar.width, perspar.height);
+    _gl.viewport(0, 0, _perspective.width, _perspective.height);
 
     if (clearColorBuffer || clearDepthBuffer) {
       int mode = 0;
@@ -194,7 +203,7 @@ class RenderingPhase {
     }
 
     for (ShaderProgram prg in _programs) {
-      prg.draw(perspar, lights, _camera, stats);
+      prg.draw(_perspective, lights, _camera, stats);
     }
   }
 
@@ -219,30 +228,19 @@ class ChronosGL {
   // TODO: move this into a RenderingPhase
   HTML.CanvasElement _canvas;
 
-  Perspective perspar = new Perspective();
+  //Perspective perspar = new Perspective();
   List<Light> lights = [];
 
   List<RenderingPhase> _renderPhases = [];
 
-  ChronosGL(dynamic canvasOrID,
-      {near: 0.1,
-      far: 1000.0,
-      bool preserveDrawingBuffer: false,
+  ChronosGL(this._canvas,
+      {bool preserveDrawingBuffer: false,
       bool useElementIndexUint: false}) {
-    if (canvasOrID is HTML.CanvasElement) {
-      _canvas = canvasOrID;
-    } else {
-      _canvas = HTML.document.querySelector(canvasOrID);
-    }
 
-    perspar.near = near;
-    perspar.far = far;
     // fix a bug in current chrome v.27
     _canvas.onDragStart.listen((HTML.MouseEvent event) {
       event.preventDefault();
     });
-
-    perspar._SetupNewPerspective(_canvas);
 
     //_aspect = _canvas.clientWidth / _canvas.clientHeight;
     Map attributes = {
@@ -281,8 +279,8 @@ class ChronosGL {
     return gl;
   }
 
-  RenderingPhase createPhase(Camera camera, [ChronosFramebuffer fb = null]) {
-    RenderingPhase phase = new RenderingPhase(gl, fb, camera);
+  RenderingPhase createPhase(Camera camera, Perspective perspective, [ChronosFramebuffer fb = null]) {
+    RenderingPhase phase = new RenderingPhase(gl, fb, camera, perspective);
     _renderPhases.add(phase);
     return phase;
   }
@@ -295,20 +293,6 @@ class ChronosGL {
     _renderPhases.clear();
   }
 
-  // Move the perspective stuff to the RenderPhases.
-  // The resizing should happen there as well based on
-  // some canvas element to watch.
-  // Think about how to resize postprocessing buffers.
-
-  void draw() {
-    if (perspar._PerspectiveHasChanged(_canvas)) {
-      perspar._SetupNewPerspective(_canvas);
-    }
-
-    for (RenderingPhase r in _renderPhases) {
-      r.draw(perspar, lights);
-    }
-  }
 
   HTML.CanvasElement getCanvas() {
     return _canvas;

@@ -7,10 +7,12 @@ import 'package:vector_math/vector_math.dart' as VM;
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  Perspective perspective = new Perspective();
 
   OrbitCamera orbit = new OrbitCamera(25.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit);
+  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
   ShaderProgram prg = phase.createProgram(createDemoShader());
 
   double _lastTimeMs = 0.0;
@@ -20,7 +22,8 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    chronosGL.draw();
+    perspective.Adjust(canvas);
+    phase.draw([]);
     HTML.window.animationFrame.then(animate);
   }
 

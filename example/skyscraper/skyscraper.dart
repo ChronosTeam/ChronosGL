@@ -1,7 +1,7 @@
-import 'package:chronosgl/chronosgl.dart';
-
-import 'package:vector_math/vector_math.dart' as VM;
 import 'dart:html' as HTML;
+
+import 'package:chronosgl/chronosgl.dart';
+import 'package:vector_math/vector_math.dart' as VM;
 
 List<ShaderObject> createSkyScraperShader() {
   return [
@@ -40,9 +40,11 @@ List<ShaderObject> createSkyScraperShader() {
 }
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(25.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit);
+  Perspective perspective = new Perspective();
+  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
 
   Material mat = new Material();
   // Sky Sphere
@@ -80,7 +82,8 @@ void main() {
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    chronosGL.draw();
+    perspective.Adjust(canvas);
+    phase.draw([]);
     HTML.window.animationFrame.then(animate);
   }
 

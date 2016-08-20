@@ -1,7 +1,8 @@
+import 'dart:html' as HTML;
+
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:math' as Math;
 import 'package:vector_math/vector_math.dart' as VM;
-import 'dart:html' as HTML;
 
 VM.Quaternion slerp(VM.Quaternion a, VM.Quaternion b, double t) {
   double ax = a[0], ay = a[1], az = a[2], aw = a[3];
@@ -36,9 +37,11 @@ VM.Quaternion slerp(VM.Quaternion a, VM.Quaternion b, double t) {
 }
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
-  RenderingPhase phase = chronosGL.createPhase(orbit);
+  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
   ShaderProgram prg = phase.createProgram(createDemoShader());
 
   Material mat = new Material();
@@ -98,7 +101,8 @@ void main() {
       orbit.azimuth += 0.001;
       orbit.animate(elapsed);
       animateNode(elapsed);
-      chronosGL.draw();
+      perspective.Adjust(canvas);
+      phase.draw([]);
       HTML.window.animationFrame.then(animate);
     }
 

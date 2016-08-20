@@ -2,10 +2,12 @@ import 'dart:html' as HTML;
 import 'package:chronosgl/chronosgl.dart';
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  Perspective perspective = new Perspective();
 
   OrbitCamera orbit = new OrbitCamera(65.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit);
+  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
   List<ShaderProgram> prgs = new List<ShaderProgram>();
   prgs.add(phase.createProgram(createPlasmaShader()));
   prgs.add(phase.createProgram(createPlasmaShader2()));
@@ -53,8 +55,8 @@ void main() {
     for (ShaderProgram p in prgs) {
       p.inputs.SetUniformVal(uTime, timeMs / 1000.0);
     }
-
-    chronosGL.draw();
+    perspective.Adjust(canvas);
+    phase.draw([]);
     HTML.window.animationFrame.then(animate);
   }
 

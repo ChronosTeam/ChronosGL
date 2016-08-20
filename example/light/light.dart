@@ -6,12 +6,13 @@ import 'package:vector_math/vector_math.dart' as VM;
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  Perspective perspective = new Perspective();
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   orbit.setPos(0.0, 0.0, 56.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit);
+  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
 
   //FlyingCamera fc = new FlyingCamera(camera); // W,A,S,D keys fly
   //chronosGL.addAnimatable('flyingCamera', fc);
@@ -19,7 +20,7 @@ void main() {
   //Vector colBlue = new Vector(0,0,1);
   VM.Vector3 colWhite = new VM.Vector3(1.0, 1.0, 1.0);
   VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
-  chronosGL.lights.add(new Light.Directional(posLight1, colRed, colWhite));
+  Light dirLight = new Light.Directional(posLight1, colRed, colWhite);
 
   MeshData cubeMeshData = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
   MeshData sphereMeshData = Shapes.Icosahedron()
@@ -39,10 +40,10 @@ void main() {
 
   ShaderProgram lightShaderPrg = phase.createProgram(createLightShader());
   for (Mesh m in meshes) lightShaderPrg.add(m);
-  ShaderProgram fixedShaderPrg =
-      phase.createProgram(createSolidColorShader());
+  ShaderProgram fixedShaderPrg = phase.createProgram(createSolidColorShader());
 
-  Material icoMat = new Material()..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
+  Material icoMat = new Material()
+    ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
   Mesh ico1 = new Mesh(Shapes.Icosahedron(), icoMat)..setPosFromVec(posLight1);
   fixedShaderPrg.add(ico1);
   /*
@@ -69,9 +70,10 @@ void main() {
     for (Mesh m in meshes) {
       m.rollLeft(timeMs * 0.000003);
       m.lookLeft(timeMs * 0.000003);
-    };
+    }
 
-    chronosGL.draw();
+    perspective.Adjust(canvas);
+    phase.draw([dirLight]);
     HTML.window.animationFrame.then(animate);
   }
 

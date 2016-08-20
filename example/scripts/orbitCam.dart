@@ -4,10 +4,11 @@ import 'package:vector_math/vector_math.dart' as VM;
 import 'dart:html' as HTML;
 
 void main() {
-  ChronosGL chronosGL = new ChronosGL('#webgl-canvas');
-
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(15.0);
-  RenderingPhase phase = chronosGL.createPhase(orbit);
+  RenderingPhase phase = chronosGL.createPhase(orbit, perspective);
   ShaderProgram prg = phase.createProgram(createSolidColorShader());
 
   MeshData sphere = Shapes.Icosahedron();
@@ -46,7 +47,8 @@ void main() {
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    chronosGL.draw();
+    perspective.Adjust(canvas);
+    phase.draw([]);
     HTML.window.animationFrame.then(animate);
   }
 
