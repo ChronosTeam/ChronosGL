@@ -4,7 +4,7 @@ part of chronosgl;
 // uv mapping is weird to help with debugging
 
 MeshData createCylinderInternal(
-    double radiusTop, double radiusBot, double height, int radialSubdivisions) {
+    double radTop, double radBot, double height, int radialSubdivisions) {
   MeshData md = new MeshData();
   md.name = "cylinder";
   md.EnableAttribute(aTextureCoordinates);
@@ -23,41 +23,32 @@ MeshData createCylinderInternal(
   for (int i = 0; i < radialSubdivisions; i++) {
     double u = i / radialSubdivisions;
 
-    double xposTop = radiusTop * Math.sin(u * Math.PI * 2);
-    double zposTop = radiusTop * Math.cos(u * Math.PI * 2);
-    double xposBot = radiusBot * Math.sin(u * Math.PI * 2);
-    double zposBot = radiusBot * Math.cos(u * Math.PI * 2);
+    double x = Math.sin(u * Math.PI * 2);
+    double z = Math.cos(u * Math.PI * 2);
 
-    vertices.add(new VM.Vector3(xposTop, halfHeight, zposTop));
-    uvs.add(new VM.Vector2(u, u));
-    vertices.add(new VM.Vector3(xposBot, -halfHeight, zposBot));
-    uvs.add(new VM.Vector2(1.0, u));
-
-    if (i > 0) {
-      int p = (i * 2) + 2; // add offset for "top center" and "bottom center"
-      // triangle in top circle
-      md.AddFace3(0, p - 2, p);
-      // triangle in bottom circle
-      md.AddFace3(1, p - 1, p + 1);
-      // triangle from two verts top to one vert bottom
-      md.AddFace3(p - 2, p, p + 1);
-      // triangle from two verts bottom to one vert top
-      md.AddFace3(p - 1, p + 1, p - 2);
-    }
+    vertices.add(new VM.Vector3(x * radTop, halfHeight, z * radTop));
+    uvs.add(new VM.Vector2(u, 1.0));
+    vertices.add(new VM.Vector3(x * radBot, -halfHeight, z * radBot));
+    uvs.add(new VM.Vector2(u, 0.0));
   }
+  assert (vertices.length == 2 + 2 * radialSubdivisions);
 
-  // close the last gap
-  if (true) {
-    var i = radialSubdivisions;
-    var p = (i * 2) + 2;
+  // triangles for top and bottom
+  for (int i = 0; i < radialSubdivisions; i++) {
+    final int t = (i * 2) + 2; // top node
+    final int b = t + 1;  // bot node
+    int j = i + 1;
+    if (j == radialSubdivisions) j = 0;
+    final int tnext = (j * 2) + 2;
+    final int bnext = tnext + 1;
     // triangle in top circle
-    md.AddFace3(0, p - 2, 2);
+    md.AddFace3(0, t, tnext);
     // triangle in bottom circle
-    md.AddFace3(1, p - 1, 3);
+    md.AddFace3(1, b, bnext);
     // triangle from two verts top to one vert bottom
-    md.AddFace3(p - 2, 2, 3);
+    md.AddFace3(tnext, t, b);
     // triangle from two verts bottom to one vert top
-    md.AddFace3(p - 1, 3, p - 2);
+    md.AddFace3(b, bnext, tnext);
   }
 
   md.AddVertices(vertices);
@@ -67,25 +58,32 @@ MeshData createCylinderInternal(
 
 MeshData createCylinderInternalWireframeFriendly(
     double radTop, double radBot, double height, int radialSubdivisions) {
+  // Compute points on edges
   final double halfHeight = height / 2;
   List<VM.Vector3> top = [];
   List<VM.Vector3> bot = [];
   for (int i = 0; i < radialSubdivisions; i++) {
-    double u = i / radialSubdivisions;
-    top.add(new VM.Vector3(radTop * Math.sin(u * Math.PI * 2), halfHeight,
-        radTop * Math.cos(u * Math.PI * 2)));
-    bot.add(new VM.Vector3(radBot * Math.sin(u * Math.PI * 2), -halfHeight,
-        radBot * Math.cos(u * Math.PI * 2)));
+    double u = i / radialSubdivisions * Math.PI * 2.0;
+    double x = Math.sin(u);
+    double z = Math.cos(u);
+    top.add(new VM.Vector3(radTop * x, halfHeight, radTop * z));
+    bot.add(new VM.Vector3(radBot * x, -halfHeight, radBot * z));
   }
+  // repeat thre first point so we can safely index with +1
   top.add(top[0]);
   bot.add(bot[0]);
+  assert(top.length == radialSubdivisions + 1);
+  assert(bot.length == radialSubdivisions + 1);
 
-  VM.Vector2 zero = new VM.Vector2(0.0, 0.0);
+  final VM.Vector2 zero = new VM.Vector2(0.0, 0.0);
+  final VM.Vector3 centerTop = new VM.Vector3(0.0, halfHeight, 0.0);
+  final VM.Vector3 centerBot = new VM.Vector3(0.0, -halfHeight, 0.0);
+
   MeshData md = new MeshData();
   md.name = "cylinder-wireframe-friendly";
   md.EnableAttribute(aTextureCoordinates);
-  final VM.Vector3 centerTop = new VM.Vector3(0.0, halfHeight, 0.0);
-  final VM.Vector3 centerBot = new VM.Vector3(0.0, -halfHeight, 0.0);
+
+  // top and bottom are Face3
   md.AddFaces3(2 * radialSubdivisions);
   for (int i = 0; i < radialSubdivisions; i++) {
     md.AddVertices([centerTop, top[i], top[i + 1]]);
@@ -98,7 +96,7 @@ MeshData createCylinderInternalWireframeFriendly(
 
   md.AddFaces4(radialSubdivisions);
   for (int i = 0; i < radialSubdivisions; i++) {
-    md.AddVertices([top[i+1], top[i], bot[i], bot[i+1]]);
+    md.AddVertices([top[i + 1], top[i], bot[i], bot[i + 1]]);
     // TODO: fix these
     md.AddAttributesVector2(aTextureCoordinates, [zero, zero, zero, zero]);
   }
