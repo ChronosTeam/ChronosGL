@@ -97,9 +97,9 @@ const String Blur2FragShader = """
 List<ShaderObject> createBlurShader2() {
   return [
     new ShaderObject("Blur2V")
-      ..AddAttributeVar(aVertexPosition, aVertexPosition)
-      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..AddAttributeVar(aVertexPosition)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain([StdVertexBody]),
     new ShaderObject("Blur2F")
       ..AddUniformVar(uCameraFar, "cameraFar")

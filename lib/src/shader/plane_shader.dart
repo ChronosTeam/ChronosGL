@@ -41,7 +41,7 @@ vec3 HSV2RGB( vec3 hsv )
 }
 
 void main(void) {
-  gl_Position = ${uPerspectiveMatrix} * ${uModelViewMatrix} * vec4(${aVertexPosition}, 1.0);
+  gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
   float d=dot( ${aVertexPosition}, ${aNormal});
   vec3 hsv = vec3(d,1,1);
   ${vColors}=HSV2RGB(hsv);
