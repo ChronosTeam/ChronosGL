@@ -105,7 +105,7 @@ class Perspective {
     _lastFov_ = fov;
     //LogInfo(
     //    "New perspective: ${perspar.width} ${perspar.height} ${perspar.fov}");
-    _UpdatePerspective();
+    UpdatePerspective();
   }
 
   void Adjust(HTML.CanvasElement canvas) {
@@ -114,7 +114,7 @@ class Perspective {
     }
   }
 
-  void _UpdatePerspective() {
+  void UpdatePerspective() {
     VM.setPerspectiveMatrix(
         _mat, fov * Math.PI / 180.0, width / height, near, far);
     //m.setFrom(_mat);
@@ -177,6 +177,8 @@ class RenderingPhase {
   //final VM.Matrix4 _pMatrix = new VM.Matrix4.identity();
   bool clearColorBuffer = true;
   bool clearDepthBuffer = true;
+  int viewPortX = 0;
+  int viewPortY = 0;
   List<DrawStats> stats = null;
   final Camera _camera;
   final Perspective _perspective;
@@ -194,7 +196,7 @@ class RenderingPhase {
     } else {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, _framebuffer.framebuffer);
     }
-    _gl.viewport(0, 0, _perspective.width, _perspective.height);
+    _gl.viewport(viewPortX, viewPortY, _perspective.width, _perspective.height);
 
     if (clearColorBuffer || clearDepthBuffer) {
       int mode = 0;
