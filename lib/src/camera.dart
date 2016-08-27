@@ -17,6 +17,10 @@ class Camera extends Spatial {
     // see http://3dgep.com/understanding-the-view-matrix/#Look_At_Camera
     m.translate(-transform[12], -transform[13], -transform[14]);
   }
+
+  VM.Vector3 getEyePosition() {
+    return new VM.Vector3(transform[12], transform[13], transform[14]);
+  }
 }
 
 class OrbitCamera extends Camera {
@@ -25,9 +29,6 @@ class OrbitCamera extends Camera {
   double _polar;
   final VM.Vector3 _lookAtPos = new VM.Vector3.zero();
   num mouseWheelFactor = -0.01;
-
-  double _ma = 0.0; // mouse azimuth
-  double _mp = 0.0; // mouse polar
 
   Map<int, bool> _cpk = currentlyPressedKeys;
   Map<String, bool> _cpmb = currentlyPressedMouseButtons;

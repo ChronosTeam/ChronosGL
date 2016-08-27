@@ -6,8 +6,8 @@ List<ShaderObject> createPlane2GreyShader() {
       ..AddAttributeVar(aVertexPosition)
       ..AddAttributeVar(aNormal)
       ..AddVaryingVar(vColors)
-      ..AddUniformVar(uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain([
         "float d = sin(dot( ${aVertexPosition}, ${aNormal})) / 2.0 + 0.5;",
         "${vColors} = vec3(d,d,d);",
@@ -53,8 +53,8 @@ List<ShaderObject> createPlane2ColorShader() {
     new ShaderObject("Plane2ColorV")
       ..AddAttributeVar(aVertexPosition)
       ..AddAttributeVar(aNormal)
-      ..AddUniformVar(uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..AddVaryingVar(vColors)
       ..SetBody([_VertexShaderPlane2ColorV]),
     new ShaderObject("Plane2ColorF")

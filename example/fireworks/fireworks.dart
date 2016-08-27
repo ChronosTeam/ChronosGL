@@ -9,8 +9,8 @@ List<ShaderObject> createFireWorksShader() {
     new ShaderObject("FireWorksV")
       ..AddAttributeVar(aVertexPosition)
       ..AddAttributeVar(aNormal)
-      ..AddUniformVar(uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..AddUniformVar(uTime, uTime)
       ..SetBodyWithMain([
         """
@@ -22,7 +22,7 @@ List<ShaderObject> createFireWorksShader() {
        vp.y = 3.0;
        vp += normalize(${aNormal})*(t-3.0);
       }
-      gl_Position = ${uPerspectiveMatrix} * ${uModelViewMatrix} * vec4(vp, 1.0);
+      gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(vp, 1.0);
       gl_PointSize = 100.0/gl_Position.z;
 """
       ]),

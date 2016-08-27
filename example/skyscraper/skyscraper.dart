@@ -10,8 +10,8 @@ List<ShaderObject> createSkyScraperShader() {
       ..AddAttributeVar(aTextureCoordinates)
       ..AddVaryingVar(vVertexPosition)
       ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain([
         StdVertexBody,
         "${vVertexPosition} = ${aVertexPosition};",

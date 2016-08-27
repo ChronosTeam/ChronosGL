@@ -7,8 +7,8 @@ List<ShaderObject> createBlurShader() {
       ..AddAttributeVar(aVertexPosition, aVertexPosition)
       ..AddAttributeVar(aTextureCoordinates, aTextureCoordinates)
       ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
-      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain(
           [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("BlurF")

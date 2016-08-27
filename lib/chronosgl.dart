@@ -152,6 +152,10 @@ class Perspective {
     return _mat;
   }
 
+  void getPerspectiveMatrix(VM.Matrix4 m) {
+    m.setFrom(_mat);
+  }
+
   bool IntersectSphere(VM.Vector3 center, double radius) {
     for (VM.Plane plane in _cullPlanes) {
       double d = plane.distanceToVector3(center);

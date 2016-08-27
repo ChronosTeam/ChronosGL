@@ -62,8 +62,8 @@ List<ShaderObject> createPerlinNoiseColorShader(bool blackVariant) {
     new ShaderObject(name + "V")
       ..AddAttributeVar(aVertexPosition)
       ..AddVaryingVar(vNormal)
-      ..AddUniformVar(uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..AddUniformVar(uTime)
       ..SetBody([
         perlinNoisefunctions,
@@ -74,7 +74,7 @@ void main() {
         //vNormal = ${aVertexPosition} + f * normal;
         //vNormal = f*normal;
         ${vNormal} = normal;
-        gl_Position = ${uPerspectiveMatrix} * ${uModelViewMatrix} * vec4(${aVertexPosition}, 1.0);
+        gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
 }
       """
       ]),

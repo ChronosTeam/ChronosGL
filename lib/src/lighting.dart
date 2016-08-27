@@ -42,9 +42,8 @@ class Light {
 
   // This needs to stay in sync with UnpackLightSourceInfo
   // in the shader
-  VM.Matrix4 PackInfo(VM.Matrix4 viewMatrix) {
+  VM.Matrix4 PackInfo() {
     VM.Matrix4 m = new VM.Matrix4.zero();
-    VM.Vector4 p = new VM.Vector4.zero();
     // do pos or ground
     if (_type == typeLightHemi) {
       m[0] = _colGround.x;
@@ -52,19 +51,14 @@ class Light {
       m[2] = _colGround.z;
     } else {
       // do position
-      p.setValues(_pos.x, _pos.y, _pos.z, 1.0);
-      viewMatrix.transform(p);
-
-      m[0] = p[0];
-      m[1] = p[1];
-      m[2] = p[2];
+      m[0] = _pos.x;
+      m[1] = _pos.y;
+      m[2] = _pos.z;
     }
     // do dir
-    p.setValues(_dir.x, _dir.y, _dir.z, 1.0);
-    viewMatrix.transform(p);
-    m[4] = p[0];
-    m[5] = p[1];
-    m[6] = p[2];
+    m[4] = _dir.x;
+    m[5] = _dir.y;
+    m[6] = _dir.z;
     //
     m[8] = _colDiffuse.x;
     m[9] = _colDiffuse.y;
@@ -74,8 +68,10 @@ class Light {
     m[13] = _colSpecular.y;
     m[14] = _colSpecular.z;
     //
-    m[3] = _range;
-    m[7] = _spotCutoff;
+    //
+    m[3] = _type + 0.0;
+    m[7] = _range;
+    m[11] = _spotCutoff;
     m[15] = _spotFocus;
     return m;
   }

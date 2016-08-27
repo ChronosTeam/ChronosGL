@@ -124,7 +124,8 @@ class Mesh extends Node {
     normMatrix = mvMatrix.getNormalMatrix();
     program.MaybeSetUniformsBulk(material._inputs);
     inputs.SetUniformVal(uTransformationMatrix, transform);
-    inputs.SetUniformVal(uModelViewMatrix, mvMatrix);
+    //inputs.SetUniformVal(uModelViewMatrix, mvMatrix);
+    inputs.SetUniformVal(uModelMatrix, mvMatrix);
     inputs.SetUniformVal(uNormalMatrix, normMatrix);
     program.MaybeSetUniformsBulk(inputs);
     program.Draw(

@@ -50,8 +50,8 @@ List<ShaderObject> createWireframeShader() {
       ..AddAttributeVar(aVertexPosition)
       ..AddAttributeVar(aCenter)
       ..AddVaryingVar(vCenter)
-      ..AddUniformVar(uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain([StdVertexBody, "${vCenter} = ${aCenter};"]),
     new ShaderObject("WireframeF")
       ..AddVaryingVar(vCenter)

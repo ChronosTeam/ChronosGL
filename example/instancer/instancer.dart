@@ -11,8 +11,8 @@ List<ShaderObject> createInstancedShader() {
       ..AddAttributeVar(iaRotatation)
       ..AddAttributeVar(iaTranslation)
       ..AddVaryingVar(vColors)
-      ..AddUniformVar(uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..SetBody([
         """
         vec3 rotate_vertex_position(vec3 pos, vec4 rot) { 
@@ -22,7 +22,7 @@ List<ShaderObject> createInstancedShader() {
         void main(void) {
           vec3 P = rotate_vertex_position(${aVertexPosition}, ${iaRotatation}) + 
                     ${iaTranslation};
-          gl_Position = ${uPerspectiveMatrix} * ${uModelViewMatrix} * vec4(P, 1);
+          gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(P, 1);
           ${vColors} = vec3( sin(${aVertexPosition}.x)/2.0+0.5, 
                        cos(${aVertexPosition}.y)/2.0+0.5, 
                        sin(${aVertexPosition}.z)/2.0+0.5);

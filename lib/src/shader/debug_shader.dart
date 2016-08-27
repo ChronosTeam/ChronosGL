@@ -7,9 +7,9 @@ List<ShaderObject> createDemoShader() {
 List<ShaderObject> createFixedVertexColorShader() {
   return [
     new ShaderObject("FixedVertexColorV")
-      ..AddAttributeVar(aVertexPosition, aVertexPosition)
-      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..AddAttributeVar(aVertexPosition)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..AddVaryingVar(vColors, vColors)
       ..SetBodyWithMain([
         StdVertexBody,
@@ -28,11 +28,11 @@ List<ShaderObject> createFixedVertexColorShader() {
 List<ShaderObject> createDebugTexCoordsShader() {
   return [
     new ShaderObject("DebugTexCoordsV")
-      ..AddAttributeVar(aVertexPosition, aVertexPosition)
-      ..AddAttributeVar(aTextureCoordinates, aTextureCoordinates)
-      ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
-      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVar(aTextureCoordinates)
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain(
           [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("DebugTexCoordsF")
@@ -45,11 +45,11 @@ List<ShaderObject> createDebugTexCoordsShader() {
 List<ShaderObject> createDepthShader() {
   return [
     new ShaderObject("DepthV")
-      ..AddAttributeVar(aVertexPosition, aVertexPosition)
-      ..AddAttributeVar(aTextureCoordinates, aTextureCoordinates)
-      ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
-      ..AddUniformVar(uPerspectiveMatrix, uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix, uModelViewMatrix)
+      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVar(aTextureCoordinates)
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain(
           [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("DepthsF")

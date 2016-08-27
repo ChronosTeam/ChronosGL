@@ -59,11 +59,13 @@ const String vVertexPosition = "vVertexPosition";
 const String vCenter = "vCenter";
 
 const String uTransformationMatrix = "uTransformationMatrix";
-const String uModelViewMatrix = "uModelViewMatrix";
-const String uViewMatrix = "uViewMatrix";
+//const String uModelViewMatrix = "uModelViewMatrix";
+//const String uViewMatrix = "uViewMatrix";
 const String uNormalMatrix = "uNormalMatrix";
 
-const String uPerspectiveMatrix = "uPerpectiveMatrix";
+const String uPerspectiveViewMatrix = "uPerspectiveViewMatrix";
+const String uModelMatrix = "uModelMatrix";
+//const String uPerspectiveMatrix = "uPerspectiveMatrix";
 const String uTextureSampler = "uTextureSampler";
 const String uTextureCubeSampler = "uTextureCubeSampler";
 const String uTexture2Sampler = "uTexture2Sampler";
@@ -115,10 +117,12 @@ Map<String, ShaderVarDesc> _VarsDb = {
   
   // uniform vars
   uTransformationMatrix: new ShaderVarDesc("mat4", ""),
-  uModelViewMatrix: new ShaderVarDesc("mat4", ""),
-  uViewMatrix: new ShaderVarDesc("mat4", ""),
+  //uModelViewMatrix: new ShaderVarDesc("mat4", ""),
+  uModelMatrix: new ShaderVarDesc("mat4", ""),
+  //uViewMatrix: new ShaderVarDesc("mat4", ""),
   uNormalMatrix: new ShaderVarDesc("mat3", ""),
-  uPerspectiveMatrix: new ShaderVarDesc("mat4", ""),
+  //uPerspectiveMatrix: new ShaderVarDesc("mat4", ""),
+  uPerspectiveViewMatrix: new ShaderVarDesc("mat4", ""),
   uTextureSampler: new ShaderVarDesc("sampler2D", ""),
   uTexture2Sampler: new ShaderVarDesc("sampler2D", ""),
   uTexture3Sampler: new ShaderVarDesc("sampler2D", ""),

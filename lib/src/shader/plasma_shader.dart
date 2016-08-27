@@ -10,8 +10,8 @@ List<ShaderObject> createPlasmaShader() {
   return [
     new ShaderObject("PlasmaV")
       ..AddAttributeVar(aVertexPosition)
-      ..AddUniformVar(uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..AddAttributeVar(aTextureCoordinates)
       ..AddVaryingVar(vTextureCoordinates)
       ..SetBodyWithMain(
@@ -47,8 +47,8 @@ List<ShaderObject> createPlasmaShader2() {
   return [
     new ShaderObject("Plasma2V")
       ..AddAttributeVar(aVertexPosition)
-      ..AddUniformVar(uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..AddAttributeVar(aTextureCoordinates)
       ..AddVaryingVar(vTextureCoordinates)
       ..SetBodyWithMain(
@@ -73,8 +73,8 @@ List<ShaderObject> createPlasmaShader3() {
   return [
     new ShaderObject("Plasma3V")
       ..AddAttributeVar(aVertexPosition)
-      ..AddUniformVar(uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..AddAttributeVar(aTextureCoordinates)
       ..AddVaryingVar(vTextureCoordinates)
       ..SetBodyWithMain(

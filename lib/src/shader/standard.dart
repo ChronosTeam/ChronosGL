@@ -403,8 +403,8 @@ List<ShaderObject> createStandardShader(
     bool useSpecularTerm, List<LightConfig> configs) {
   ShaderObject v = new ShaderObject("StandardV")
     ..AddAttributeVar(aVertexPosition)
-    ..AddUniformVar(uPerspectiveMatrix)
-    ..AddUniformVar(uModelViewMatrix)
+    ..AddUniformVar(uPerspectiveViewMatrix)
+    ..AddUniformVar(uModelMatrix)
     ..AddAttributeVar(aTextureCoordinates)
     ..AddVaryingVar(vTextureCoordinates)
     ..SetBodyWithMain(

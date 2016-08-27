@@ -264,9 +264,9 @@ class ShaderProgram implements Drawable {
   bool active;
 
   // these are the identity by default
-  VM.Matrix4 modelviewMatrix = new VM.Matrix4.identity();
-  VM.Matrix4 viewMatrix = new VM.Matrix4.identity();
-  VM.Matrix4 normalMatrix = new VM.Matrix4.identity();
+  VM.Matrix4 _perspectiveViewMatrix = new VM.Matrix4.identity();
+  VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
+  VM.Matrix4 _viewMatrix = new VM.Matrix4.identity();
   List<Node> followCameraObjects = new List<Node>();
   List<Node> objects = new List<Node>();
 
@@ -352,16 +352,17 @@ class ShaderProgram implements Drawable {
     inputs.SetUniformVal(uCameraFar, dynpar.far);
     inputs.SetUniformVal(uCanvasSize,
         new VM.Vector2(dynpar.width.toDouble(), dynpar.height.toDouble()));
-    inputs.SetUniformVal(uPerspectiveMatrix, dynpar.GetPerspectiveMatrix());
     if (camera != null) {
-      camera.getViewMatrix(viewMatrix);
-      modelviewMatrix.setFrom(viewMatrix);
-      inputs.SetUniformVal(uViewMatrix, viewMatrix);
+      camera.getViewMatrix(_viewMatrix);
+      dynpar.getPerspectiveMatrix(_perspectiveViewMatrix);
+      _perspectiveViewMatrix.multiply(_viewMatrix);
+      inputs.SetUniformVal(uPerspectiveViewMatrix, _perspectiveViewMatrix);
+      inputs.SetUniformVal(uEyePosition, camera.getEyePosition());
     }
     for (int i = 0; i < lights.length; ++i) {
       Light l = lights[i];
       String canonical = uLightSourceInfo + "$i";
-      inputs.SetUniformVal(canonical, l.PackInfo(viewMatrix));
+      inputs.SetUniformVal(canonical, l.PackInfo());
     }
 
     //print( "error: ${gl.getError()}" );
@@ -373,14 +374,16 @@ class ShaderProgram implements Drawable {
     // like skybox
     if (debug) print("[draw followCameraObjects ${followCameraObjects.length}");
 
+    // FIXME TEST
+    _modelMatrix.setIdentity();
     // This is broken but without an example it is hard fix
     for (Node node in followCameraObjects) {
-      if (node.enabled) node.draw(this, inputs, modelviewMatrix, stats);
+      if (node.enabled) node.draw(this, inputs, _modelMatrix, stats);
     }
 
     if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {
-      if (node.enabled) node.draw(this, inputs, modelviewMatrix, stats);
+      if (node.enabled) node.draw(this, inputs, _modelMatrix, stats);
     }
     _program.End(debug);
   }

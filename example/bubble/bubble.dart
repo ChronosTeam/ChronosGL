@@ -8,7 +8,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 // https://www.opengl.org/wiki/Mathematics_of_glTexGen
 
 String _SphereV = """
-  vec3 u = normalize(vec3(${uModelViewMatrix} * vec4(${aVertexPosition}, 1.0)));
+  vec3 u = normalize(vec3(${uModelMatrix} * vec4(${aVertexPosition}, 1.0)));
   vec3 n = normalize(${uNormalMatrix} * ${aNormal} );
   vec3 r = reflect( u, n );
   r.z += 1.0;
@@ -21,8 +21,8 @@ List<ShaderObject> sphereShader() {
     new ShaderObject("sphereV")
       ..AddAttributeVar(aVertexPosition)
       ..AddAttributeVar(aNormal)
-      ..AddUniformVar(uPerspectiveMatrix)
-      ..AddUniformVar(uModelViewMatrix)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
       ..AddUniformVar(uNormalMatrix)
       ..AddVaryingVar(vTextureCoordinates)
       ..SetBodyWithMain([StdVertexBody, _SphereV]),
