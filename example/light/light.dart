@@ -24,7 +24,7 @@ void main() {
   List<Light> lights = [];
 
   lights.add(new Light.Directional(dirLight, colRed, colBlue));
-  lights.add(new Light.Point(posLight, colRed, colBlue, 50.0));
+  lights.add(new Light.Point(posLight, colRed, colBlue, 70.0));
   lights.add(new Light.Spot(posLight, posLight, colRed, colBlue, 50.0, 0.95, 2.0));
 
   MeshData cubeMeshData = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);

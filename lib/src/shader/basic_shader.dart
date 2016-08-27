@@ -53,6 +53,96 @@ List<ShaderObject> createColorShader() {
   ];
 }
 
+
+final String _lightHelpers = """
+struct LightIntensity {
+    float diffuse;
+    float specular;
+    float attenuation;
+};
+
+struct LightSourceInfo {
+    vec3 pos;      // for spot and point
+    vec3 dir;      // for spot and dir light
+    vec3 diffuseColor;
+    vec3 specularColor;
+    float type;
+    float range;        // for spot and point
+    float spotCutoff;   // for spot
+    float spotFocus;    // for spot
+    float glossiness;   // Oddball: this comes from the material
+};
+
+// This needs to stay in sync woth Light::PackInfo
+LightSourceInfo UnpackLightSourceInfo(mat4 m, float glossiness) {
+  LightSourceInfo info;
+  info.pos = m[0].xyz;
+  info.dir = normalize(m[1].xyz);
+  info.diffuseColor = m[2].xyz;
+  info.specularColor = m[3].xyz;
+  info.type = m[0].a;
+  info.range = m[1].a;
+  info.spotCutoff = m[2].a;
+  info.spotFocus = m[3].a;
+  info.glossiness = glossiness;
+  return info;
+}
+
+float GetDiffuse(vec3 lightDir, vec3 normal) {
+  return max(dot(normal, lightDir), 0.0);
+}
+
+float GetSpecular(vec3 lightDir, vec3 viewDir, vec3 normal, float glossiness) {
+  vec3 angleW = normalize(viewDir + lightDir);
+  float specComp = max(0., dot(normal, angleW));
+  return pow(specComp, max(1.0, glossiness));
+}
+
+void GetDiffuseAndSpecularFactors(LightSourceInfo info,
+                                  vec3 vertexPos,
+                                  vec3 vertexNormal,
+                                  vec3 eyePos,
+                                  out float diffuseFactor,
+                                  out float specularFactor) {
+    if (info.type == 5.0) {
+        // ================= directional light
+        diffuseFactor = GetDiffuse(info.dir, vertexNormal);
+        specularFactor = GetSpecular(info.dir, normalize(eyePos - vertexPos),
+                                     vertexNormal, info.glossiness);
+    } else if (info.type == 3.0) {
+        // ================= point light
+        vec3 lightDir = info.pos - vertexPos;
+        float attenuation = max(0.0, 1.0 - length(lightDir) / info.range);
+        vec3 lightDirNorm = normalize(lightDir);
+        vec3 viewDirNorm = normalize(eyePos - vertexPos);
+        diffuseFactor = attenuation * GetDiffuse(lightDirNorm, vertexNormal);
+        specularFactor = attenuation * GetSpecular(lightDirNorm, viewDirNorm,
+                                                   vertexNormal, info.glossiness);
+    } else if (info.type == 2.0) {
+        // ================= spot light
+        vec3 spotDir = normalize(info.pos - vertexPos);
+        vec3 lightDirNorm = normalize(info.dir);
+        float cosAngle = max(0., dot(lightDirNorm, spotDir));
+	      if (cosAngle < info.spotCutoff) {
+            diffuseFactor = 0.0;
+            specularFactor = 0.0;
+        } else {
+            cosAngle = max(0.0, pow(cosAngle, info.spotFocus));
+	          float attenuation = max(0.0, 1.0 - length(spotDir) / info.range) * cosAngle;
+	          vec3 viewDirNorm = normalize(eyePos - vertexPos);
+            diffuseFactor = attenuation * GetDiffuse(lightDirNorm, vertexNormal);
+            specularFactor = attenuation * GetSpecular(lightDirNorm, viewDirNorm,
+                                                       vertexNormal, info.glossiness);
+        }
+    } else {
+        diffuseFactor = 0.0;
+        specularFactor = 0.0;
+    }
+}
+""";
+
+
+
 //  Gouraud shading - most action happens in vertext shader - cheaper
 
 // Phong shader - most action happens in fragment shader - expensive
@@ -83,68 +173,20 @@ List<ShaderObject> createLightShaderBlinnPhong() {
       ..AddVaryingVar(vVertexPosition)
       ..AddUniformVar(uLightSourceInfo0)
       ..AddUniformVar(uEyePosition)
-      ..SetBody([
+      ..SetBody([_lightHelpers,
         """
-
-      float GetDiffuse(vec3 lightDir, vec3 normal) {
-        return max(dot(normal, lightDir), 0.0);
-      }
-
-      float GetSpecular(vec3 lightDir, vec3 viewDir, vec3 normal, float glossiness) {
-          vec3 angleW = normalize(viewDir + lightDir);
-          float specComp = max(0., dot(normal, angleW));
-          return pow(specComp, max(1.0, glossiness));
-      }
-
       void main() {
-        // diffuse
-        float type = ${uLightSourceInfo0}[0].a;
-        vec3 diffuseColor = ${uLightSourceInfo0}[2].xyz;
-        vec3 specularColor = ${uLightSourceInfo0}[3].xyz;
-        float glossiness = 10.0;
-
+        LightSourceInfo info =  UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
         float diffuseFactor = 0.0;
         float specularFactor = 0.0;
-        if (type == 5.0) {
-          // ================= directional light
-          vec3 lightDir = normalize(${uLightSourceInfo0}[1].xyz);
-          diffuseFactor = GetDiffuse(lightDir, ${vNormal});
-          specularFactor = GetSpecular(lightDir,
-                normalize(${uEyePosition} - vVertexPosition),
-                ${vNormal}, glossiness);
-        } else if (type == 3.0) {
-          // ================= point light
-          vec3 lightLoc = ${uLightSourceInfo0}[0].xyz;
-          vec3 lightDir = lightLoc - ${vVertexPosition};
-          float range =  ${uLightSourceInfo0}[1].a;
-          float attenuation = max(0.0, 1.0 - length(lightDir) / range);
+        GetDiffuseAndSpecularFactors(info,
+                                     ${vVertexPosition},
+                                     ${vNormal},
+                                     ${uEyePosition},
+                                     diffuseFactor, specularFactor);
 
-          diffuseFactor = attenuation * GetDiffuse(normalize(lightDir), ${vNormal});
-          specularFactor = attenuation * GetSpecular(
-               lightDir, normalize(${uEyePosition} - vVertexPosition),
-               ${vNormal}, glossiness);
-        } else if (type == 2.0) {
-          // ================= spot light
-          vec3 lightLoc = ${uLightSourceInfo0}[0].xyz;
-          vec3 lampDir = normalize(lightLoc - ${vVertexPosition});
-          vec3 lightDir = normalize(${uLightSourceInfo0}[1].xyz);
-          float spotCutoff = ${uLightSourceInfo0}[2].a;
-          float cosAngle = max(0., dot(lightDir, lampDir));
-	        if (cosAngle < spotCutoff) {
-            diffuseFactor = 0.0;
-            specularFactor = 0.0;
-          } else {
-            float spotFocus = ${uLightSourceInfo0}[3].a;
-            float range =  ${uLightSourceInfo0}[1].a;
-            cosAngle = max(0.0, pow(cosAngle, spotFocus));
-	          float attenuation = max(0.0, 1.0 - length(lampDir) / range) * cosAngle;
-            diffuseFactor = attenuation * GetDiffuse(lightDir, ${vNormal});
-            specularFactor = attenuation * GetSpecular(lightDir,
-                normalize(${uEyePosition} - vVertexPosition), ${vNormal}, glossiness);
-          }
-        }
-
-         gl_FragColor = vec4(diffuseFactor * diffuseColor + specularFactor * specularColor, 1.0 );
+         gl_FragColor = vec4(diffuseFactor * info.diffuseColor +
+                             specularFactor * info.specularColor, 1.0 );
       }
       """
       ])
