@@ -66,7 +66,7 @@ class StatsFps extends Stats {
     _frames++;
     if ((now - _lastSample) < SAMPLE_RATE_MS) return;
     double fps = _frames * 1000.0 / SAMPLE_RATE_MS;
-    print("${fps}");
+    //print("${fps}");
     _frames = 0;
     _lastSample = now;
     _text.text = fps.toStringAsFixed(2) + " fps";

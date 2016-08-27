@@ -25,7 +25,7 @@ class Light {
 
   // Light cone eminating from a point.
   // As the cone widens light gets "weaker"
-  Light.Spot(this._pos, this._dir, this._colDiffuse, this._colSpecular,
+  Light.Spot(this._pos, this._dir, this._colDiffuse, this._colSpecular, this._range,
       this._spotCutoff, this._spotFocus) {
     _type = typeLightSpot;
   }

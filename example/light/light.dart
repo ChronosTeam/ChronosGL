@@ -25,8 +25,7 @@ void main() {
 
   lights.add(new Light.Directional(dirLight, colRed, colBlue));
   lights.add(new Light.Point(posLight, colRed, colBlue, 50.0));
-  lights.add(new Light.Directional(dirLight.normalized(), colRed, colBlue));
-  //lights.add(new Light.Spot(posLight1, colRed, colBlue, 12.0));
+  lights.add(new Light.Spot(posLight, posLight, colRed, colBlue, 50.0, 0.95, 2.0));
 
   MeshData cubeMeshData = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
   MeshData sphereMeshData = Shapes.Icosahedron()
@@ -94,7 +93,6 @@ void main() {
     }
 
     perspective.Adjust(canvas);
-    print("light: ${myselect.selectedIndex}");
     phase.draw([lights[myselect.selectedIndex]]);
 
     HTML.window.animationFrame.then(animate);

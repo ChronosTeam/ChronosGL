@@ -86,14 +86,14 @@ List<ShaderObject> createLightShaderBlinnPhong() {
       ..SetBody([
         """
 
-      void Light(vec3 lightDir, vec3 viewDir, vec3 normal, float glossiness,
-                   out float diffuse, out float specular) {
-          diffuse = max(dot(normal, lightDir), 0.0);
+      float GetDiffuse(vec3 lightDir, vec3 normal) {
+        return max(dot(normal, lightDir), 0.0);
+      }
 
+      float GetSpecular(vec3 lightDir, vec3 viewDir, vec3 normal, float glossiness) {
           vec3 angleW = normalize(viewDir + lightDir);
           float specComp = max(0., dot(normal, angleW));
-          specular = pow(specComp, max(1., glossiness));
-
+          return pow(specComp, max(1.0, glossiness));
       }
 
       void main() {
@@ -106,26 +106,43 @@ List<ShaderObject> createLightShaderBlinnPhong() {
         float diffuseFactor = 0.0;
         float specularFactor = 0.0;
         if (type == 5.0) {
-          // directional light
-          vec3 lightDir = ${uLightSourceInfo0}[1].xyz;
-
-          Light(normalize(lightDir),
-                normalize(${uEyePosition}-vVertexPosition),
-                normalize(${vNormal}),
-                glossiness,
-                diffuseFactor, specularFactor);
+          // ================= directional light
+          vec3 lightDir = normalize(${uLightSourceInfo0}[1].xyz);
+          diffuseFactor = GetDiffuse(lightDir, ${vNormal});
+          specularFactor = GetSpecular(lightDir,
+                normalize(${uEyePosition} - vVertexPosition),
+                ${vNormal}, glossiness);
         } else if (type == 3.0) {
-          // point light
+          // ================= point light
           vec3 lightLoc = ${uLightSourceInfo0}[0].xyz;
           vec3 lightDir = lightLoc - ${vVertexPosition};
           float range =  ${uLightSourceInfo0}[1].a;
-          float attenuation = max(0., 1.0 - length(lightDir) / range);
-          Light(normalize(lightDir),
-                normalize(${uEyePosition}-vVertexPosition), ${vNormal}, glossiness,
-                diffuseFactor, specularFactor);
-          diffuseFactor *= attenuation;
-          specularFactor *= attenuation;
-         }
+          float attenuation = max(0.0, 1.0 - length(lightDir) / range);
+
+          diffuseFactor = attenuation * GetDiffuse(normalize(lightDir), ${vNormal});
+          specularFactor = attenuation * GetSpecular(
+               lightDir, normalize(${uEyePosition} - vVertexPosition),
+               ${vNormal}, glossiness);
+        } else if (type == 2.0) {
+          // ================= spot light
+          vec3 lightLoc = ${uLightSourceInfo0}[0].xyz;
+          vec3 lampDir = normalize(lightLoc - ${vVertexPosition});
+          vec3 lightDir = normalize(${uLightSourceInfo0}[1].xyz);
+          float spotCutoff = ${uLightSourceInfo0}[2].a;
+          float cosAngle = max(0., dot(lightDir, lampDir));
+	        if (cosAngle < spotCutoff) {
+            diffuseFactor = 0.0;
+            specularFactor = 0.0;
+          } else {
+            float spotFocus = ${uLightSourceInfo0}[3].a;
+            float range =  ${uLightSourceInfo0}[1].a;
+            cosAngle = max(0.0, pow(cosAngle, spotFocus));
+	          float attenuation = max(0.0, 1.0 - length(lampDir) / range) * cosAngle;
+            diffuseFactor = attenuation * GetDiffuse(lightDir, ${vNormal});
+            specularFactor = attenuation * GetSpecular(lightDir,
+                normalize(${uEyePosition} - vVertexPosition), ${vNormal}, glossiness);
+          }
+        }
 
          gl_FragColor = vec4(diffuseFactor * diffuseColor + specularFactor * specularColor, 1.0 );
       }
