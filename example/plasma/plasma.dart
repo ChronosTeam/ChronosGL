@@ -4,10 +4,10 @@ import 'package:chronosgl/chronosgl.dart';
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  Perspective perspective = new Perspective();
-
   OrbitCamera orbit = new OrbitCamera(65.0);
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
+  Perspective perspective = new Perspective(orbit);
+
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
   List<ShaderProgram> prgs = new List<ShaderProgram>();
   prgs.add(phase.createProgram(createPlasmaShader()));
   prgs.add(phase.createProgram(createPlasmaShader2()));
@@ -44,7 +44,7 @@ void main() {
 
   double _lastTimeMs = 0.0;
 
-  void animate(timeMs) {
+  void animate(double timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;

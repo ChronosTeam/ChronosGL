@@ -76,9 +76,9 @@ Mesh getRocket(Texture tw) {
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(15.0);
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
+  Perspective perspective = new Perspective(orbit);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
 
   ShaderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
@@ -88,7 +88,7 @@ void main() {
   pssp.add(getRocket(Utils.createParticleTexture("fireworks")));
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
+  void animate(double timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;

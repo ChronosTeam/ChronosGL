@@ -43,8 +43,8 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(25.0);
-  Perspective perspective = new Perspective();
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
+  Perspective perspective = new Perspective(orbit);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
 
   Material mat = new Material();
   // Sky Sphere
@@ -77,7 +77,7 @@ void main() {
   }
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
+  void animate(double timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;

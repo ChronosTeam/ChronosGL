@@ -75,4 +75,6 @@ class Light {
     m[15] = _spotFocus;
     return m;
   }
+
+  //Camera getShadowCamera() {}
 }

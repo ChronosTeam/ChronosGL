@@ -40,10 +40,9 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  Perspective perspective = new Perspective();
-
   OrbitCamera orbit = new OrbitCamera(265.0);
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
+  Perspective perspective = new Perspective(orbit);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
 
   Material mat = new Material();
   Mesh m = new Mesh(Shapes.TorusKnot(radius: 12.0), mat);
@@ -79,7 +78,7 @@ void main() {
   programSprites.add(Utils.MakeParticles(2000));
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
+  void animate(double timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;

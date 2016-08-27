@@ -10,9 +10,9 @@ VM.Vector3 p1 = new VM.Vector3.zero();
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  Perspective perspective = new Perspective();
   TorusKnotCamera tkc = new TorusKnotCamera();
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, tkc, perspective);
+  Perspective perspective = new Perspective(tkc);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
 
   ShaderProgram programBasic = phase.createProgram(createTexturedShader());
 

@@ -204,9 +204,9 @@ List<ShaderObject> createSphericalGyroidShader() {
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  Perspective perspective = new Perspective();
+  Perspective perspective = new Perspective(new Camera());
 
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, new Camera(), perspective);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
 
   ShaderProgram program = phase.createProgram(createSphericalGyroidShader());
   Material mat = new Material();

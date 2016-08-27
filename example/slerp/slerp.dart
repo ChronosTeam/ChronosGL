@@ -39,9 +39,9 @@ VM.Quaternion slerp(VM.Quaternion a, VM.Quaternion b, double t) {
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
+  Perspective perspective = new Perspective(orbit);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
   ShaderProgram prg = phase.createProgram(createDemoShader());
 
   Material mat = new Material();

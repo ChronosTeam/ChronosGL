@@ -6,25 +6,27 @@ import 'package:vector_math/vector_math.dart' as VM;
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  Perspective perspective = new Perspective(0.1, 2520.0);
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
-
+  Perspective perspective = new Perspective(orbit, 0.1, 2520.0);
 
   perspective.Adjust(canvas);
   ChronosFramebuffer fb = new ChronosFramebuffer(
       chronosGL.gl, perspective.width, perspective.height);
-  RenderingPhase phase1 = new RenderingPhase(chronosGL.gl, orbit, perspective, fb);
+  RenderingPhase phase1 =
+      new RenderingPhase(chronosGL.gl, perspective, fb);
 
   ShaderProgram prg1 = phase1.createProgram(createPlane2GreyShader());
 
-  RenderingPhase phase2 = new RenderingPhase(chronosGL.gl, orbit, perspective, null);
+  RenderingPhase phase2 =
+      new RenderingPhase(chronosGL.gl, perspective, null);
   ShaderProgram prg2 = phase2.createProgram(createSobelShader());
   Material mat = new Material()
     ..SetUniform(uTexture2Sampler, fb.depthTexture)
     ..SetUniform(uTextureSampler, fb.colorTexture);
   prg2.add(new Mesh(Shapes.Quad(1), mat));
 
-  RenderingPhase phase1only = new RenderingPhase(chronosGL.gl, orbit, perspective, null);
+  RenderingPhase phase1only =
+      new RenderingPhase(chronosGL.gl, perspective, null);
   phase1only.AddShaderProgram(prg1);
 
   bool useSobel = true;
@@ -48,7 +50,7 @@ void main() {
     prg1.add(mesh);
 
     double _lastTimeMs = 0.0;
-    void animate(timeMs) {
+    void animate(double timeMs) {
       double elapsed = timeMs - _lastTimeMs;
       _lastTimeMs = timeMs;
       orbit.azimuth += 0.001;

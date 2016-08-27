@@ -8,12 +8,17 @@
   <body>
     <div id="stats"></div>
     <div style="position:absolute; color: white">
-       <select id="myselect">
-        <option>Directional</option>
-        <option>Point</option>
-        <option>Spot</option>
-       </select>
+        <select id="light">
+            <option>Directional</option>
+            <option>Point</option>
+            <option>Spot</option>
+        </select>
+        <select id="phase">
+            <option>Blinn/Phong</option>
+            <option>Gourad</option>
+        </select>
     </div>
+
     <canvas id="webgl-canvas"></canvas>
     <script type="application/dart" src="light.dart"></script>
     <script src="packages/browser/dart.js"></script>

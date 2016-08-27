@@ -144,14 +144,48 @@ void GetDiffuseAndSpecularFactors(LightSourceInfo info,
 
 
 //  Gouraud shading - most action happens in vertext shader - cheaper
+List<ShaderObject> createLightShaderGourad() {
+  return [
+    new ShaderObject("LightGouradV")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVar(aNormal)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
+      ..AddUniformVar(uNormalMatrix)
+      ..AddUniformVar(uLightSourceInfo0)
+      ..AddUniformVar(uEyePosition)
+      ..AddVaryingVar(vColors)
+      ..SetBody([_lightHelpers,
+        """
+        void main() {
+        vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
+        gl_Position = ${uPerspectiveViewMatrix} * pos;
+        vec3 normal = ${uNormalMatrix} * ${aNormal};
 
+        LightSourceInfo info =  UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
+        float diffuseFactor = 0.0;
+        float specularFactor = 0.0;
+        GetDiffuseAndSpecularFactors(info, pos.xyz, normal,
+                                     ${uEyePosition},
+                                     diffuseFactor, specularFactor);
+
+         ${vColors} = diffuseFactor * info.diffuseColor +
+                      specularFactor * info.specularColor;
+        }
+        """
+      ]),
+    new ShaderObject("LightGrouradV")
+      ..AddVaryingVar(vColors)
+      ..SetBodyWithMain(["gl_FragColor = vec4(${vColors}, 1.0 );"])
+  ];
+}
 // Phong shader - most action happens in fragment shader - expensive
 // Light Matrix m organization:
 // m[0].xyz light direction
 //
 List<ShaderObject> createLightShaderBlinnPhong() {
   return [
-    new ShaderObject("Light")
+    new ShaderObject("LightBlinnPhongV")
       ..AddAttributeVar(aVertexPosition)
       ..AddAttributeVar(aNormal)
       ..AddVaryingVar(vVertexPosition)
@@ -164,11 +198,10 @@ List<ShaderObject> createLightShaderBlinnPhong() {
         vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
         gl_Position = ${uPerspectiveViewMatrix} * pos;
         ${vVertexPosition} = pos.xyz;
-        ${vNormal} = (${uModelMatrix} * vec4(${aNormal}, 0.0)).xyz;
-        // ${vNormal} = ${uNormalMatrix} * ${aNormal};
+        ${vNormal} = ${uNormalMatrix} * ${aNormal};
         """
       ]),
-    new ShaderObject("LightF")
+    new ShaderObject("LightBlinnPhongF")
       ..AddVaryingVar(vNormal)
       ..AddVaryingVar(vVertexPosition)
       ..AddUniformVar(uLightSourceInfo0)

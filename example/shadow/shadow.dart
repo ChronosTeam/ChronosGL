@@ -57,11 +57,11 @@ void main() {
   //Light light = new Light.Directional(posLight1, colRed, colWhite);
   //VM.Matrix4 projection = VM.makeOrthographicMatrix(-12.0, 12.0, -12.0, 12.0, -12.0, 12.0);
 
-  Perspective perspective = new Perspective();
+  Perspective perspective = new Perspective(orbit);
   RenderingPhase phaseShadow =
-      new RenderingPhase(chronosGL.gl, orbit, perspective);
+      new RenderingPhase(chronosGL.gl, perspective);
   RenderingPhase phaseMain =
-      new RenderingPhase(chronosGL.gl, orbit, perspective);
+      new RenderingPhase(chronosGL.gl, perspective);
   phaseMain.clearColorBuffer = false;
   Texture solid = new CanvasTexture.SolidColor("red-solid", "red");
   //ShaderProgram program = chronosGL.createProgram(createTexturedShader());
@@ -134,6 +134,7 @@ void main() {
   perspective.width ~/= 2.0;
   perspective.UpdatePerspective();
   double _lastTimeMs = 0.0;
+
   void animate(double timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;

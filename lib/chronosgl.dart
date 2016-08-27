@@ -50,9 +50,17 @@ void LogWarn(String s) {
   HTML.window.console.warn(s);
 }
 
-class Perspective {
+abstract class ShaderUniformProvider {
+  void UpdateUniforms(ShaderProgramInputs input);
+}
+
+abstract class Projection extends ShaderUniformProvider {
   int width = 0;
   int height = 0;
+}
+
+class Perspective extends Projection {
+  final Camera _camera;
   int fov = 50; // horizobtal fov in deg  divided by 2
 
   int _lastFov_ = 49;
@@ -62,8 +70,9 @@ class Perspective {
   double near = 0.1;
   double far = 1000.0;
 
-  Perspective([this.near = 0.1, this.far = 1000.0]);
-
+  Perspective(this._camera, [this.near = 0.1, this.far = 1000.0]);
+  final VM.Matrix4 _perspectiveViewMatrix = new VM.Matrix4.identity();
+  final VM.Matrix4 _viewMatrix = new VM.Matrix4.identity();
   final VM.Matrix4 _mat = new VM.Matrix4.zero();
 
   List<VM.Plane> _cullPlanes = [
@@ -117,6 +126,7 @@ class Perspective {
   void UpdatePerspective() {
     VM.setPerspectiveMatrix(
         _mat, fov * Math.PI / 180.0, width / height, near, far);
+    /*
     //m.setFrom(_mat);
     double e = focalLength();
     double a = aspecRatioInv();
@@ -146,6 +156,7 @@ class Perspective {
     c3.normal[1] = -e / eeaa;
     c3.normal[2] = -a / eeaa;
     c3.constant = 0.0;
+    */
   }
 
   VM.Matrix4 GetPerspectiveMatrix() {
@@ -163,15 +174,23 @@ class Perspective {
     }
     return true;
   }
+
+  void UpdateUniforms(ShaderProgramInputs inputs) {
+    inputs.SetUniformVal(uCameraNear, near);
+    inputs.SetUniformVal(uCameraFar, far);
+    inputs.SetUniformVal(
+        uCanvasSize, new VM.Vector2(width.toDouble(), height.toDouble()));
+    inputs.SetUniformVal(uEyePosition, _camera.getEyePosition());
+    _camera.getViewMatrix(_viewMatrix);
+    getPerspectiveMatrix(_perspectiveViewMatrix);
+    _perspectiveViewMatrix.multiply(_viewMatrix);
+    inputs.SetUniformVal(uPerspectiveViewMatrix, _perspectiveViewMatrix);
+  }
 }
 
 abstract class Drawable {
-  void draw(Perspective dynpar, List<Light> lights, Camera camera,
-      List<DrawStats> stats);
-}
-
-abstract class RenderingStep {
-  void draw(Perspective perspar, List<Light> lights, Camera camera);
+  void draw(
+      ShaderUniformProvider dynpar, List<Light> lights, List<DrawStats> stats);
 }
 
 class RenderingPhase {
@@ -184,11 +203,9 @@ class RenderingPhase {
   int viewPortX = 0;
   int viewPortY = 0;
   List<DrawStats> stats = null;
-  final Camera _camera;
-  final Perspective _perspective;
+  final Projection _perspective;
 
-  RenderingPhase(this._gl, this._camera, this._perspective,
-      [this._framebuffer = null]);
+  RenderingPhase(this._gl, this._perspective, [this._framebuffer = null]);
 
   void SetFramebuffer(ChronosFramebuffer fb) {
     _framebuffer = fb;
@@ -210,7 +227,7 @@ class RenderingPhase {
     }
 
     for (ShaderProgram prg in _programs) {
-      prg.draw(_perspective, lights, _camera, stats);
+      prg.draw(_perspective, lights, stats);
     }
   }
 

@@ -10,24 +10,25 @@ void main() {
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  Perspective perspective = new Perspective(0.1, 2520.0);
+  OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
+  Perspective perspective = new Perspective(orbit, 0.1, 2520.0);
   perspective.Adjust(canvas);
   ChronosFramebuffer fb = new ChronosFramebuffer(
       chronosGL.gl, perspective.width, perspective.height);
 
-  OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
-  RenderingPhase phase1 = new RenderingPhase(chronosGL.gl, orbit, perspective, fb);
+  RenderingPhase phase1 = new RenderingPhase(chronosGL.gl, perspective, fb);
 
   ShaderProgram prg1 = phase1.createProgram(createSolidColorShader());
 
-  RenderingPhase phase2 = new RenderingPhase(chronosGL.gl, orbit, perspective, null);
+  RenderingPhase phase2 = new RenderingPhase(chronosGL.gl, perspective, null);
   ShaderProgram prg2 = phase2.createProgram(createSSAOShader());
   Material mat = new Material()
     ..SetUniform(uTexture2Sampler, fb.depthTexture)
     ..SetUniform(uTextureSampler, fb.colorTexture);
   prg2.add(new Mesh(Shapes.Quad(1), mat));
 
-  RenderingPhase phase1only = new RenderingPhase(chronosGL.gl, orbit, perspective, null);
+  RenderingPhase phase1only =
+      new RenderingPhase(chronosGL.gl, perspective, null);
   phase1only.AddShaderProgram(prg1);
 
   bool useSSAO = true;

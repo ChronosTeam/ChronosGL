@@ -264,10 +264,7 @@ class ShaderProgram implements Drawable {
   bool active;
 
   // these are the identity by default
-  VM.Matrix4 _perspectiveViewMatrix = new VM.Matrix4.identity();
   VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
-  VM.Matrix4 _viewMatrix = new VM.Matrix4.identity();
-  List<Node> followCameraObjects = new List<Node>();
   List<Node> objects = new List<Node>();
 
   String get name => _program.name;
@@ -296,14 +293,8 @@ class ShaderProgram implements Drawable {
     return objects.clear();
   }
 
-  Node addFollowCameraObject(Node obj) {
-    followCameraObjects.add(obj);
-    return obj;
-  }
-
   bool hasEnabledObjects() {
     if (objects.any((Node n) => n.enabled)) return true;
-    if (followCameraObjects.any((Node n) => n.enabled)) return true;
     return false;
   }
 
@@ -341,46 +332,21 @@ class ShaderProgram implements Drawable {
     _program.Draw(debug, numInstances, numItems, drawMode, useArrayBuffer);
   }
 
-  void draw(Perspective dynpar, List<Light> lights, Camera camera,
+  void draw(ShaderUniformProvider perspective, List<Light> lights,
       List<DrawStats> stats) {
     if (!hasEnabledObjects()) return;
 
     _program.Begin(debug);
-
+    perspective.UpdateUniforms(inputs);
     if (debug) print("[setting ununiforms");
-    inputs.SetUniformVal(uCameraNear, dynpar.near);
-    inputs.SetUniformVal(uCameraFar, dynpar.far);
-    inputs.SetUniformVal(uCanvasSize,
-        new VM.Vector2(dynpar.width.toDouble(), dynpar.height.toDouble()));
-    if (camera != null) {
-      camera.getViewMatrix(_viewMatrix);
-      dynpar.getPerspectiveMatrix(_perspectiveViewMatrix);
-      _perspectiveViewMatrix.multiply(_viewMatrix);
-      inputs.SetUniformVal(uPerspectiveViewMatrix, _perspectiveViewMatrix);
-      inputs.SetUniformVal(uEyePosition, camera.getEyePosition());
-    }
+
     for (int i = 0; i < lights.length; ++i) {
       Light l = lights[i];
       String canonical = uLightSourceInfo + "$i";
       inputs.SetUniformVal(canonical, l.PackInfo());
     }
 
-    //print( "error: ${gl.getError()}" );
-
-    //print( "pM: ${pMatrix} ${pMatrixUniform}" );
-
-    //print( "mvM: ${mvMatrix}");
-
-    // like skybox
-    if (debug) print("[draw followCameraObjects ${followCameraObjects.length}");
-
-    // FIXME TEST
     _modelMatrix.setIdentity();
-    // This is broken but without an example it is hard fix
-    for (Node node in followCameraObjects) {
-      if (node.enabled) node.draw(this, inputs, _modelMatrix, stats);
-    }
-
     if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {
       if (node.enabled) node.draw(this, inputs, _modelMatrix, stats);

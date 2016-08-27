@@ -39,9 +39,9 @@ void main() {
   StatsFps fps = new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  Perspective perspective = new Perspective();
   OrbitCamera orbit = new OrbitCamera(5.0, 10.0);
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, orbit, perspective);
+  Perspective perspective = new Perspective(orbit);
+  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
   // Note, moving the camera does not have an effect
 
   Texture bubble = new ImageTexture("sphere.png");
