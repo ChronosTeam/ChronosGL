@@ -21,6 +21,8 @@ class Camera extends Spatial {
   VM.Vector3 getEyePosition() {
     return new VM.Vector3(transform[12], transform[13], transform[14]);
   }
+
+  Camera(String name) : super(name);
 }
 
 class OrbitCamera extends Camera {
@@ -34,9 +36,8 @@ class OrbitCamera extends Camera {
   Map<String, bool> _cpmb = currentlyPressedMouseButtons;
 
   OrbitCamera(this._radius,
-      [this.azimuth = 0.0,
-      this._polar = 0.0,
-      HTML.Element eventElement = null]) {
+      [this.azimuth = 0.0, this._polar = 0.0, HTML.Element eventElement = null])
+      : super("camera:orbit") {
     if (eventElement == null) eventElement = HTML.document.body;
     eventElement.onMouseWheel.listen((HTML.WheelEvent e) {
       try {
@@ -101,7 +102,7 @@ class OrbitCamera extends Camera {
 class FlyingCamera extends Camera {
   VM.Vector3 momentum_ = new VM.Vector3.zero();
 
-  FlyingCamera();
+  FlyingCamera(): super("camera:flying");
 
   void animate(double elapsed) {
     Map<int, bool> cpk = currentlyPressedKeys;
@@ -175,7 +176,7 @@ class FPSCamera extends Camera {
   int movementX = 0;
   int movementY = 0;
 
-  FPSCamera([HTML.Element eventElement = null]) {
+  FPSCamera([HTML.Element eventElement = null]) : super("camera:fps") {
     if (eventElement == null) eventElement = HTML.document.body;
     eventElement.onMouseDown.listen((HTML.MouseEvent e) {
       e.preventDefault();
@@ -226,8 +227,7 @@ class FPSCamera extends Camera {
 
     if (cpk[Key.SPACE] != null) {}
 
-    if (movementY != 0)
-      transform.rotate(getRight(), movementY * 0.006);
+    if (movementY != 0) transform.rotate(getRight(), movementY * 0.006);
     if (movementX != 0) transform.rotate(up, movementX * 0.006);
 
     movementX = 0;
@@ -237,7 +237,7 @@ class FPSCamera extends Camera {
 
 // this class lets a Camera fly through a TorusKnot like through a tunnel
 class TorusKnotCamera extends Camera {
-  TorusKnotCamera();
+  TorusKnotCamera() : super("camera:torusknot");
 
   VM.Vector3 p1 = new VM.Vector3.zero();
   VM.Vector3 p2 = new VM.Vector3.zero();

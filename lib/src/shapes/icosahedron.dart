@@ -112,8 +112,7 @@ MeshData createIcosahedronInternal([int subdivisions = 4]) {
     faces = tmp;
   }
   
-  MeshData md = new MeshData();
-  md.name = "icosahedron ${subdivisions}";
+  MeshData md = new MeshData("icosahedron-${subdivisions}");
   md.EnableAttribute(aTextureCoordinates);
   // create final vertices and uvs of a Icosahedron
   for (Face3 f in faces) {

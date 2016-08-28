@@ -59,9 +59,9 @@ void main() {
 
   Perspective perspective = new Perspective(orbit);
   RenderingPhase phaseShadow =
-      new RenderingPhase(chronosGL.gl, perspective);
+      new RenderingPhase("shadow", chronosGL.gl, perspective);
   RenderingPhase phaseMain =
-      new RenderingPhase(chronosGL.gl, perspective);
+      new RenderingPhase("main", chronosGL.gl, perspective);
   phaseMain.clearColorBuffer = false;
   Texture solid = new CanvasTexture.SolidColor("red-solid", "red");
   //ShaderProgram program = chronosGL.createProgram(createTexturedShader());
@@ -70,35 +70,35 @@ void main() {
 
   VM.Matrix4 model = new VM.Matrix4.identity();
 
-  final Material mat1 = new Material()
+  final Material mat1 = new Material("mat1")
     ..SetUniform(uTextureSampler, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
 
-  final Material mat2 = new Material()
+  final Material mat2 = new Material("mat2")
     ..SetUniform(uTextureSampler, solid)
     ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0));
 
-  final Material mat3 = new Material()
+  final Material mat3 = new Material("mat3")
     ..SetUniform(uTextureSampler, solid)
     ..SetUniform(uColor, new VM.Vector3(0.8, 0.8, 0.8));
 
   {
     Mesh ico = new Mesh(
-        Shapes.Icosahedron(3)..generateNormalsAssumingTriangleMode(), mat1)
-      ..setPos(0.0, 0.0, 0.0);
+        "sphere",
+        Shapes.Icosahedron(3)..generateNormalsAssumingTriangleMode(),
+        mat1)..setPos(0.0, 0.0, 0.0);
     program.add(ico);
     basic.add(ico);
   }
   {
-    Mesh cube = new Mesh(Shapes.Cube(), mat2)
-      ..setPos(-5.0, 0.0, -5.0)
-      ..name = "cube";
+    Mesh cube = new Mesh("cube", Shapes.Cube(), mat2)..setPos(-5.0, 0.0, -5.0);
     program.add(cube);
     basic.add(cube);
   }
 
   {
     Mesh cyl = new Mesh(
+        "cylinder",
         Shapes.Cylinder(3.0, 6.0, 2.0, 32)
           ..generateNormalsAssumingTriangleMode(),
         mat2)..setPos(5.0, 0.0, -5.0);
@@ -116,18 +116,18 @@ void main() {
 */
   {
     // plane
-    Mesh cube = new Mesh(Shapes.Cube(x: 20.0, y: 0.1, z: 20.0), mat3)
-      ..setPos(0.0, -10.0, 0.0)
-      ..name = "cube";
+    Mesh cube = new Mesh("cube", Shapes.Cube(x: 20.0, y: 0.1, z: 20.0), mat3)
+      ..setPos(0.0, -10.0, 0.0);
     program.add(cube);
     basic.add(cube);
   }
 
   // Create sphere representing the light source
-  ShaderProgram fixedShaderPrg = phaseMain.createProgram(createSolidColorShader());
-  Material icoMat = new Material()
+  ShaderProgram fixedShaderPrg =
+      phaseMain.createProgram(createSolidColorShader());
+  Material icoMat = new Material("sphere")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
-  Mesh ico1 = new Mesh(Shapes.Icosahedron(), icoMat)..setPosFromVec(posLight1);
+  Mesh ico1 = new Mesh("spehere", Shapes.Icosahedron(), icoMat)..setPosFromVec(posLight1);
 
   fixedShaderPrg.add(ico1);
   perspective.Adjust(canvas);

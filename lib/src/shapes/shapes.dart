@@ -48,7 +48,7 @@ class Shapes {
   }
 
   static MeshData Quad(int size) {
-    MeshData md = new MeshData();
+    MeshData md = new MeshData("quad");
     md.EnableAttribute(aTextureCoordinates);
 
     List<VM.Vector3> vertices = [

@@ -42,16 +42,16 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(265.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
 
-  Material mat = new Material();
-  Mesh m = new Mesh(Shapes.TorusKnot(radius: 12.0), mat);
+  Material mat = new Material("mat");
+  Mesh m = new Mesh("torus", Shapes.TorusKnot(radius: 12.0), mat);
 
   int count = 1000;
   Float32List translations = new Float32List(count * 3);
   Float32List rotations = new Float32List(count * 4);
 
-  Spatial spatial = new Spatial();
+  Spatial spatial = new Spatial("dummy");
   int pos = 0;
   for (int x = -5; x < 5; x++) {
     for (int y = -5; y < 5; y++) {

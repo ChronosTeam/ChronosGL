@@ -58,19 +58,19 @@ Mesh getRocket(Texture tw) {
         rand.nextDouble() - 0.5));
   }
 
-  MeshData md = new MeshData()
+  MeshData md = new MeshData("firefwork-particles")
     ..EnableAttribute(aNormal)
     ..AddFaces1(numPoints)
     ..AddVertices(vertices)
     ..AddAttributesVector3(aNormal, normals);
 
-  Material mat = new Material()
+  Material mat = new Material("mat")
     ..SetUniform(uTextureSampler, tw)
     ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0))
     ..blend = true
     ..depthWrite = false
     ..blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;
-  return new Mesh(md, mat);
+  return new Mesh(md.name, md, mat);
 }
 
 void main() {
@@ -78,7 +78,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
 
   ShaderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
@@ -93,8 +93,7 @@ void main() {
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    pssp.inputs.SetUniformVal(
-        uTime, pssp.inputs.GetUniformVal(uTime) + elapsed / 1000);
+    pssp.SetTime(timeMs / 1000.0);
     perspective.Adjust(canvas);
     phase.draw([]);
     HTML.window.animationFrame.then(animate);

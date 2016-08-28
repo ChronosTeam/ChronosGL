@@ -16,19 +16,19 @@ void main() {
   ChronosFramebuffer fb = new ChronosFramebuffer(
       chronosGL.gl, perspective.width, perspective.height);
 
-  RenderingPhase phase1 = new RenderingPhase(chronosGL.gl, perspective, fb);
+  RenderingPhase phase1 = new RenderingPhase("phase1", chronosGL.gl, perspective, fb);
 
   ShaderProgram prg1 = phase1.createProgram(createSolidColorShader());
 
-  RenderingPhase phase2 = new RenderingPhase(chronosGL.gl, perspective, null);
+  RenderingPhase phase2 = new RenderingPhase("phase2", chronosGL.gl, perspective, null);
   ShaderProgram prg2 = phase2.createProgram(createSSAOShader());
-  Material mat = new Material()
+  Material mat = new Material("ssao")
     ..SetUniform(uTexture2Sampler, fb.depthTexture)
     ..SetUniform(uTextureSampler, fb.colorTexture);
-  prg2.add(new Mesh(Shapes.Quad(1), mat));
+  prg2.add(new Mesh("quad", Shapes.Quad(1), mat));
 
   RenderingPhase phase1only =
-      new RenderingPhase(chronosGL.gl, perspective, null);
+      new RenderingPhase("phase1only", chronosGL.gl, perspective, null);
   phase1only.AddShaderProgram(prg1);
 
   bool useSSAO = true;
@@ -39,12 +39,12 @@ void main() {
   });
 
   loadObj("../ct_logo.obj").then((MeshData md) {
-    Material mat = new Material()
+    Material mat = new Material("mat")
       ..SetUniform(uColor, new VM.Vector3(0.9, 0.9, 0.9));
-    Mesh mesh = new Mesh(md, mat)
+    Mesh mesh = new Mesh(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
-    Node n = new Node(mesh)
+    Node n = new Node("wrapper", mesh)
       //n.invert = true;
       ..lookAt(new VM.Vector3(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);
@@ -52,7 +52,7 @@ void main() {
     prg1.add(mesh);
 
     double _lastTimeMs = 0.0;
-    void animate(timeMs) {
+    void animate(double timeMs) {
       double elapsed = timeMs - _lastTimeMs;
       _lastTimeMs = timeMs;
       orbit.animate(elapsed);

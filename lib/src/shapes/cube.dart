@@ -147,8 +147,7 @@ MeshData createCubeInternal(
   ];
    */
 
-  MeshData md = new MeshData();
-  md.name = "cube";
+  MeshData md = new MeshData("cube");
   md.EnableAttribute(aNormal);
   md.EnableAttribute(aTextureCoordinates);
 

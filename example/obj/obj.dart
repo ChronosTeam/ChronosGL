@@ -12,7 +12,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
   ShaderProgram prg = phase.createProgram(createDemoShader());
 
   double _lastTimeMs = 0.0;
@@ -28,10 +28,10 @@ void main() {
   }
 
   loadObj("../ct_logo.obj").then((MeshData md) {
-    Material mat = new Material();
-    Mesh mesh = new Mesh(md, mat)..rotX(3.14 / 2);
+    Material mat = new Material("mat");
+    Mesh mesh = new Mesh(md.name, md, mat)..rotX(3.14 / 2);
     //mesh.rotY(3.14);
-    Node n = new Node(mesh);
+    Node n = new Node("wrapper", mesh);
     //n.invert = true;
     n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
     //n.matrix.scale(0.02);

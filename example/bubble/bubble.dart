@@ -41,22 +41,22 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(5.0, 10.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
   // Note, moving the camera does not have an effect
 
   Texture bubble = new ImageTexture("sphere.png");
 
   ShaderProgram shaderSpheres = phase.createProgram(sphereShader());
-  Material mat = new Material()..SetUniform(uTextureSampler, bubble);
+  Material mat = new Material("sphere")..SetUniform(uTextureSampler, bubble);
   MeshData md = Shapes.Icosahedron(3);
   //md.generateNormalsAssumingTriangleMode();
   md.generateRadialNormals(new VM.Vector3(0.0, 0.0, 0.0));
-  Mesh m = new Mesh(md, mat)..setPos(0.0, 0.0, 0.0);
+  Mesh m = new Mesh("sphere", md, mat)..setPos(0.0, 0.0, 0.0);
 
   shaderSpheres.add(m);
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
+  void animate(double timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;

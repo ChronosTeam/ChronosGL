@@ -50,13 +50,25 @@ void LogWarn(String s) {
   HTML.window.console.warn(s);
 }
 
-abstract class ShaderUniformProvider {
-  void UpdateUniforms(ShaderProgramInputs input);
+abstract class NamedEntity {
+  final String name;
+
+  NamedEntity(this.name);
 }
 
-abstract class Projection extends ShaderUniformProvider {
+abstract class Drawable extends NamedEntity {
+  Drawable(String name) : super(name);
+
+  void draw(Projection dynpar, List<Light> lights, List<DrawStats> stats);
+}
+
+abstract class Projection extends NamedEntity {
   int width = 0;
   int height = 0;
+
+  Projection(String name) : super(name);
+
+  void UpdateUniforms(ShaderProgramInputs inputs);
 }
 
 class Perspective extends Projection {
@@ -70,7 +82,9 @@ class Perspective extends Projection {
   double near = 0.1;
   double far = 1000.0;
 
-  Perspective(this._camera, [this.near = 0.1, this.far = 1000.0]);
+  Perspective(this._camera,
+      [this.near = 0.1, this.far = 1000.0, String name = "perspective"])
+      : super(name);
   final VM.Matrix4 _perspectiveViewMatrix = new VM.Matrix4.identity();
   final VM.Matrix4 _viewMatrix = new VM.Matrix4.identity();
   final VM.Matrix4 _mat = new VM.Matrix4.zero();
@@ -176,24 +190,19 @@ class Perspective extends Projection {
   }
 
   void UpdateUniforms(ShaderProgramInputs inputs) {
-    inputs.SetUniformVal(uCameraNear, near);
-    inputs.SetUniformVal(uCameraFar, far);
+    inputs.SetUniformVal(this, uCameraNear, near);
+    inputs.SetUniformVal(this, uCameraFar, far);
     inputs.SetUniformVal(
-        uCanvasSize, new VM.Vector2(width.toDouble(), height.toDouble()));
-    inputs.SetUniformVal(uEyePosition, _camera.getEyePosition());
+        this, uCanvasSize, new VM.Vector2(width.toDouble(), height.toDouble()));
+    inputs.SetUniformVal(this, uEyePosition, _camera.getEyePosition());
     _camera.getViewMatrix(_viewMatrix);
     getPerspectiveMatrix(_perspectiveViewMatrix);
     _perspectiveViewMatrix.multiply(_viewMatrix);
-    inputs.SetUniformVal(uPerspectiveViewMatrix, _perspectiveViewMatrix);
+    inputs.SetUniformVal(this, uPerspectiveViewMatrix, _perspectiveViewMatrix);
   }
 }
 
-abstract class Drawable {
-  void draw(
-      ShaderUniformProvider dynpar, List<Light> lights, List<DrawStats> stats);
-}
-
-class RenderingPhase {
+class RenderingPhase extends NamedEntity {
   final WEBGL.RenderingContext _gl;
   ChronosFramebuffer _framebuffer;
   final List<ShaderProgram> _programs = [];
@@ -205,7 +214,7 @@ class RenderingPhase {
   List<DrawStats> stats = null;
   final Projection _perspective;
 
-  RenderingPhase(this._gl, this._perspective, [this._framebuffer = null]);
+  RenderingPhase(String name, this._gl, this._perspective, [this._framebuffer = null]) : super(name);
 
   void SetFramebuffer(ChronosFramebuffer fb) {
     _framebuffer = fb;

@@ -10,14 +10,14 @@ void main() {
 
   Texture cubeTex = new CubeTexture("stars", "skybox_", ".png");
 
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
   ShaderProgram programCM = phase.createProgram(createCubeMapShader());
   Mesh sky = Utils.MakeSkycube(cubeTex);
   programCM.add(sky);
 
-  Material mat = new Material()..SetUniform(uTextureCubeSampler, cubeTex);
+  Material mat = new Material("cubemap")..SetUniform(uTextureCubeSampler, cubeTex);
   MeshData md = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
-  programCM.add(new Mesh(md, mat));
+  programCM.add(new Mesh("cube", md, mat));
 
   ShaderProgram programSprites =
       phase.createProgram(createPointSpritesShader());

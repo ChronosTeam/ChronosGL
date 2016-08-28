@@ -29,8 +29,7 @@ class Face4 {
 // * It would also be nice to preserve the incoming structure
 //   of the attribute data rather then flatten everything to
 //   a List<double>
-class MeshData {
-  String name = "";
+class MeshData extends NamedEntity {
   List<Face1> _points1 = [];
   List<Face2> _lines2 = [];
   List<Face3> _faces3 = [];
@@ -39,7 +38,7 @@ class MeshData {
   List<int> _faces = [];
   Map<String, List<double>> _attributes = {};
 
-  MeshData();
+  MeshData(String name) : super("meshdata:" +name);
 
   int DrawMode() {
     if (_points1.length > 0) {
@@ -52,9 +51,9 @@ class MeshData {
   }
 
   bool UsesArrayBuffer() {
-    return _points1.length == 0;  
+    return _points1.length == 0;
   }
-  
+
   void SanityCheck() {
     if (_points1.length > 0) {
       assert(_lines2.length == 0 && _faces3.length == 0 && _faces4.length == 0);
@@ -122,10 +121,10 @@ class MeshData {
           _lines2.length * 2 + _faces3.length * 3 + _faces4.length * 6);
       int i = 0;
       for (Face2 l2 in _lines2) {
-           _faces[i + 0] = l2.a;
-           _faces[i + 1] = l2.b;
-           i += 2;
-         }
+        _faces[i + 0] = l2.a;
+        _faces[i + 1] = l2.b;
+        i += 2;
+      }
       for (Face3 f3 in _faces3) {
         _faces[i + 0] = f3.a;
         _faces[i + 1] = f3.b;
@@ -247,9 +246,14 @@ class MeshData {
 
   VM.Vector3 temp = new VM.Vector3.zero();
 
-  bool normalFromPoints(VM.Vector3 a, VM.Vector3 b, VM.Vector3 c, VM.Vector3 normal) {
-    temp..setFrom(b)..sub(a);
-    normal..setFrom(c)..sub(a);
+  bool normalFromPoints(
+      VM.Vector3 a, VM.Vector3 b, VM.Vector3 c, VM.Vector3 normal) {
+    temp
+      ..setFrom(b)
+      ..sub(a);
+    normal
+      ..setFrom(c)
+      ..sub(a);
 
     normal.crossInto(temp, normal);
 
@@ -309,7 +313,8 @@ class MeshData {
     VM.Vector3 norm = new VM.Vector3.zero();
 
     void setVector(VM.Vector3 v, int i) {
-      v.setValues(_vertices[i * 3 + 0], _vertices[i * 3 + 1], _vertices[i * 3 + 2]);
+      v.setValues(
+          _vertices[i * 3 + 0], _vertices[i * 3 + 1], _vertices[i * 3 + 2]);
     }
 
     List<double> normals = _attributes[aNormal];
@@ -353,7 +358,8 @@ class MeshData {
     }
   }
 
-  void setFace4UV(int n, VM.Vector2 a, VM.Vector2 b, VM.Vector2 c, VM.Vector2 d) {
+  void setFace4UV(
+      int n, VM.Vector2 a, VM.Vector2 b, VM.Vector2 c, VM.Vector2 d) {
     assert(_attributes.containsKey(aTextureCoordinates));
     Face4 f = _faces4[n];
     List<double> uvs = _attributes[aTextureCoordinates];

@@ -52,7 +52,7 @@ class Mesh extends Node {
     return _meshData.DrawMode();
   }
 
-  Mesh(this._meshData, this.material, {this.debug: false}) {
+  Mesh(String name, this._meshData, this.material) : super(name) {
     //if (!meshData.isOptimized) meshData.optimize();
     _meshData.SanityCheck();
     gl = ChronosGL.globalGL;
@@ -123,10 +123,10 @@ class Mesh extends Node {
     VM.Matrix3 normMatrix;
     normMatrix = mvMatrix.getNormalMatrix();
     program.MaybeSetUniformsBulk(material._inputs);
-    inputs.SetUniformVal(uTransformationMatrix, transform);
+    inputs.SetUniformVal(this, uTransformationMatrix, transform);
     //inputs.SetUniformVal(uModelViewMatrix, mvMatrix);
-    inputs.SetUniformVal(uModelMatrix, mvMatrix);
-    inputs.SetUniformVal(uNormalMatrix, normMatrix);
+    inputs.SetUniformVal(this, uModelMatrix, mvMatrix);
+    inputs.SetUniformVal(this, uNormalMatrix, normMatrix);
     program.MaybeSetUniformsBulk(inputs);
     program.Draw(
         numInstances, numItems, _meshData.DrawMode(), _indexBuffer != null, stats);

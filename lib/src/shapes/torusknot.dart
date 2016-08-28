@@ -12,8 +12,7 @@ MeshData createTorusKnotInternal(
     int p: 2,
     int q: 3,
     double heightScale: 1.0}) {
-  MeshData md = new MeshData();
-  md.name = "torusknot";
+  MeshData md = new MeshData("torusknot");
   md.EnableAttribute(aTextureCoordinates);
 
   List<VM.Vector3> vertices = [];

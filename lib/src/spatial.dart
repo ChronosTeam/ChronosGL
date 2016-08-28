@@ -5,8 +5,9 @@ final int UPX = 1, UPY = 5, UPZ = 9;
 final int BACKX = 2, BACKY = 6, BACKZ = 10;
 final int POSX = 12, POSY = 13, POSZ = 14;
 
-class Spatial {
+class Spatial  extends NamedEntity {
 
+  Spatial(String name) : super(name);
   // position and rotation
   // the idea to use a matrix4 for this might be problematic, 
   // as the values degenerate over time. 

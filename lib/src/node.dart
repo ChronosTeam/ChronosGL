@@ -2,7 +2,6 @@ part of chronosgl;
 
 // a Node is a Spatial without Mesh data that can have children
 class Node extends Spatial {
-  String name = '';
   bool enabled = true;
 
   // children inheret the parent matrix for its rotation and position
@@ -10,7 +9,7 @@ class Node extends Spatial {
 
   VM.Matrix4 mvMatrix = new VM.Matrix4.identity();
 
-  Node([Node child]) {
+  Node(String name, [Node child=null]) : super(name) {
     if (child != null) children.add(child);
   }
 

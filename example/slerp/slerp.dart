@@ -41,17 +41,17 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
   ShaderProgram prg = phase.createProgram(createDemoShader());
 
-  Material mat = new Material();
+  Material mat = new Material("mat");
   Math.Random rng = new Math.Random();
 
   loadObj("../ct_logo.obj").then((MeshData md) {
-    Mesh mesh = new Mesh(md, mat)
+    Mesh mesh = new Mesh(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
-    Node node = new Node(mesh);
+    Node node = new Node("wrapper", mesh);
     //n.invert = true;
     node.lookAt(new VM.Vector3(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);

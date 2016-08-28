@@ -24,7 +24,8 @@ List<ShaderObject> createSkyScraperShader() {
         """
       // the step finds the windows
       // multiplying the tex coord with 11 gives it a black column on the right side but with artifacts
-      // multiplying the tex coord with 10.9 gives it a black column on the right side WITHOUT the artifacts on the right side
+      // multiplying the tex coord with 10.9 gives it a black column on the right side WITHOUT the
+      // artifacts on the right side
       float s1 = step(mod(${vTextureCoordinates}.x*11.+1., 2.), 1.);
       float s2 = step(mod(${vTextureCoordinates}.y*21.+1., 2.), 1.);
       float s3 = step( s1+s2, 1.1);
@@ -44,15 +45,15 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(25.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
 
-  Material mat = new Material();
+  Material mat = new Material("mat");
   // Sky Sphere
   ShaderProgram skyprg = phase
       .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
   MeshData md = Shapes.Icosahedron(3);
   //..multiplyVertices(100);
-  Mesh m = new Mesh(md, mat)..transform.scale(100.0);
+  Mesh m = new Mesh(md.name, md, mat)..transform.scale(100.0);
   skyprg.add(m);
 
   ShaderProgram prg = phase.createProgram(createSkyScraperShader());
@@ -71,7 +72,7 @@ void main() {
       VM.Vector2 q = new VM.Vector2(0.01, 0.01);
       md.setFace4UV(2, q, q, q, q);
       md.setFace4UV(3, q, q, q, q);
-      Mesh m = new Mesh(md, mat)..setPos(x.toDouble(), 0.0, z.toDouble());
+      Mesh m = new Mesh(md.name, md, mat)..setPos(x.toDouble(), 0.0, z.toDouble());
       prg.add(m);
     }
   }

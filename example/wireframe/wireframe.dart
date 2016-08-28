@@ -8,7 +8,8 @@ import 'package:vector_math/vector_math.dart' as VM;
 import 'dart:web_gl' as WEBGL;
 
 void main() {
-  StatsFps fps = new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
@@ -17,29 +18,30 @@ void main() {
   if (ext == null) HTML.window.alert("OES_standard_derivatives not supported");
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
   ShaderProgram program = phase.createProgram(createWireframeShader());
-  final Material matWireframe = new Material()
+  final Material matWireframe = new Material("wire")
     ..SetUniform(uColorAlpha, new VM.Vector4(1.0, 1.0, 0.0, 1.0))
     ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5))
     ..blend = true;
   {
     Mesh ico = new Mesh(
-        Shapes.Icosahedron(2)..generateWireframeCenters(), matWireframe)
-      ..setPos(0.0, 0.0, 0.0);
+        "sphere",
+        Shapes.Icosahedron(2)..generateWireframeCenters(),
+        matWireframe)..setPos(0.0, 0.0, 0.0);
     program.add(ico);
   }
 
   {
-    Mesh cube =
-        new Mesh(Shapes.Cube()..generateWireframeCenters(), matWireframe)
-          ..setPos(-5.0, 0.0, -5.0)
-          ..name = "cube";
+    Mesh cube = new Mesh(
+        "cube", Shapes.Cube()..generateWireframeCenters(), matWireframe)
+      ..setPos(-5.0, 0.0, -5.0);
     program.add(cube);
   }
 
   {
     Mesh cyl = new Mesh(
+        "cylinder",
         Shapes.CylinderWireframeFriendly(3.0, 4.0, 2.0, 16)
           ..generateWireframeCenters(),
         matWireframe)..setPos(5.0, 0.0, -5.0);
@@ -47,15 +49,15 @@ void main() {
   }
 
   {
-    Mesh quad =
-        new Mesh(Shapes.Quad(2)..generateWireframeCenters(), matWireframe)
-          ..setPos(-5.0, 0.0, 5.0)
-          ..name = "quad";
+    Mesh quad = new Mesh(
+        "quad", Shapes.Quad(2)..generateWireframeCenters(), matWireframe)
+      ..setPos(-5.0, 0.0, 5.0);
     program.add(quad);
   }
 
   {
     Mesh torus = new Mesh(
+        "torus",
         Shapes.TorusKnot(radius: 1.0, tube: 0.4)..generateWireframeCenters(),
         matWireframe)..setPos(5.0, 0.0, 5.0);
     program.add(torus);

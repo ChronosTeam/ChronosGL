@@ -13,7 +13,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
   ShaderProgram basic = phase.createProgram(createTexturedShader());
 
   //TextureWrapper red = new TextureWrapper.SolidColor("red", "rgba(255,0,0,1)");
@@ -21,43 +21,43 @@ void main() {
   Texture trans = new ImageTexture("../transparent.png");
   Texture wood = new ImageTexture("../wood.jpg");
 
-  final Material matWood = new Material()
+  final Material matWood = new Material("wood")
     ..SetUniform(uTextureSampler, wood)
     ..SetUniform(uColor, new VM.Vector3(1.0, 0.9, 0.0));
 
-  final Material matGradient = new Material()
+  final Material matGradient = new Material("gradient")
     ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0))
     ..SetUniform(uTextureSampler, gradient);
 
-  final Material matTrans = new Material()
+  final Material matTrans = new Material("trans")
     ..SetUniform(uTextureSampler, trans)
     ..blend = true;
 
   {
-    Mesh ico = new Mesh(Shapes.Icosahedron(3), matWood)..setPos(0.0, 0.0, 0.0);
+    Mesh ico = new Mesh("sphere", Shapes.Icosahedron(3), matWood)
+      ..setPos(0.0, 0.0, 0.0);
     basic.add(ico);
   }
   {
-    Mesh cube = new Mesh(Shapes.Cube(), matGradient)
-      ..setPos(-5.0, 0.0, -5.0)
-      ..name = "cube";
+    Mesh cube = new Mesh("cube", Shapes.Cube(), matGradient)
+      ..setPos(-5.0, 0.0, -5.0);
     basic.add(cube);
   }
 
   {
-    Mesh cyl = new Mesh(Shapes.Cylinder(3.0, 6.0, 2.0, 32), matTrans)
-      ..setPos(5.0, 0.0, -5.0);
+    Mesh cyl =
+        new Mesh("cylinder", Shapes.Cylinder(3.0, 6.0, 2.0, 32), matTrans)
+          ..setPos(5.0, 0.0, -5.0);
     basic.add(cyl);
   }
   {
-    Mesh quad = new Mesh(Shapes.Quad(2), matTrans)
+    Mesh quad = new Mesh("quad", Shapes.Quad(2), matTrans)
       //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
-      ..setPos(-5.0, 0.0, 5.0)
-      ..name = "quad";
+      ..setPos(-5.0, 0.0, 5.0);
     basic.add(quad);
   }
   {
-    Mesh torus = new Mesh(Shapes.TorusKnot(radius: 1.0, tube: 0.4), matGradient)
+    Mesh torus = new Mesh("torus", Shapes.TorusKnot(radius: 1.0, tube: 0.4), matGradient)
       ..setPos(5.0, 0.0, 5.0);
     basic.add(torus);
   }

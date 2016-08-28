@@ -16,8 +16,7 @@ Future<MeshData> loadObj(String url) {
 }
 
 MeshData doLoadObj(String text) {
-  MeshData md = new MeshData();
-  md.name = text;
+  MeshData md = new MeshData(text);
   md.EnableAttribute(aTextureCoordinates);
   md.EnableAttribute(aNormal);
 

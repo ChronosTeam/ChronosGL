@@ -22,8 +22,9 @@ class DrawStats {
 // For use with uniforms
 class ShaderProgramInputs {
   Map _uniforms = {};
+  Map _origin = {};
 
-  void SetUniformVal(String canonical, var val) {
+  void SetUniformVal(NamedEntity origin,  String canonical, var val) {
     if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
     _uniforms[canonical] = val;
   }
@@ -252,7 +253,7 @@ class CoreProgram {
 
 // ShaderProgram represents multiple invocations of the same
 // CoreProgram.
-class ShaderProgram implements Drawable {
+class ShaderProgram extends Drawable {
   ShaderProgramInputs inputs = new ShaderProgramInputs();
 
   WEBGL.RenderingContext _gl;
@@ -267,22 +268,16 @@ class ShaderProgram implements Drawable {
   VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
   List<Node> objects = new List<Node>();
 
-  String get name => _program.name;
-
-  ShaderProgram(this._gl, shaderObjectV, shaderObjectF, name) {
+  ShaderProgram(this._gl, shaderObjectV, shaderObjectF, String name) : super(name) {
     _program = new CoreProgram(_gl, shaderObjectV, shaderObjectF, name);
-    inputs.SetUniformVal(uTime, 0.0);
   }
 
-  ShaderProgram.Clone(this._gl, ShaderProgram other) {
-    assert(other != null);
-    _program = other._program;
-    inputs.SetUniformVal(uTime, 0.0);
+  void SetTime(double time) {
+     inputs.SetUniformVal(this, uTime, time);
   }
 
-  Node add(Node obj) {
+  void add(Node obj) {
     objects.add(obj);
-    return obj;
   }
 
   bool remove(Node obj) {
@@ -332,7 +327,7 @@ class ShaderProgram implements Drawable {
     _program.Draw(debug, numInstances, numItems, drawMode, useArrayBuffer);
   }
 
-  void draw(ShaderUniformProvider perspective, List<Light> lights,
+  void draw(Projection perspective, List<Light> lights,
       List<DrawStats> stats) {
     if (!hasEnabledObjects()) return;
 
@@ -343,7 +338,7 @@ class ShaderProgram implements Drawable {
     for (int i = 0; i < lights.length; ++i) {
       Light l = lights[i];
       String canonical = uLightSourceInfo + "$i";
-      inputs.SetUniformVal(canonical, l.PackInfo());
+      inputs.SetUniformVal(this, canonical, l.PackInfo());
     }
 
     _modelMatrix.setIdentity();

@@ -7,16 +7,16 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(65.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
   List<ShaderProgram> prgs = new List<ShaderProgram>();
   prgs.add(phase.createProgram(createPlasmaShader()));
   prgs.add(phase.createProgram(createPlasmaShader2()));
   prgs.add(phase.createProgram(createPlasmaShader3()));
 
-  Material mat = new Material();
+  Material mat = new Material("mat");
   MeshData md = Shapes.Cube(x: 10.0, y: 10.0, z: 10.0);
 
-  Mesh m = new Mesh(md, mat)
+  Mesh m = new Mesh(md.name, md, mat)
     ..setPos(0.0, 0.0, 0.0)
     ..lookUp(1.0)
     ..lookLeft(0.7);
@@ -53,7 +53,7 @@ void main() {
     m.rollLeft(elapsed * 0.0005);
     m.lookLeft(elapsed * 0.0005);
     for (ShaderProgram p in prgs) {
-      p.inputs.SetUniformVal(uTime, timeMs / 1000.0);
+      p.SetTime(timeMs / 1000.0);
     }
     perspective.Adjust(canvas);
     phase.draw([]);

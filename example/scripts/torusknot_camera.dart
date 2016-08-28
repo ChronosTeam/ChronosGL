@@ -12,19 +12,19 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   TorusKnotCamera tkc = new TorusKnotCamera();
   Perspective perspective = new Perspective(tkc);
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
 
   ShaderProgram programBasic = phase.createProgram(createTexturedShader());
 
   canvas2d = Utils.createGradientImage2(0.0, canvas2d);
   Texture generatedTexture = new CanvasTexture("gen", canvas2d);
 
-  Material mat = new Material()
+  Material mat = new Material("torus")
     ..SetUniform(uTextureSampler, generatedTexture)
     ..SetUniform(uColor, new VM.Vector3.zero())
     ..blend = true
     ..depthTest = false;
-  Mesh m = new Mesh(Shapes.TorusKnot(), mat);
+  Mesh m = new Mesh("torus", Shapes.TorusKnot(), mat);
 
   programBasic.add(m);
 
@@ -42,7 +42,7 @@ void main() {
   programSprites.add(Utils.MakeParticles(2000));
   double _lastTimeMs = 0.0;
 
-  void animate(timeMs) {
+  void animate(double timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
 

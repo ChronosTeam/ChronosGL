@@ -13,20 +13,20 @@ void main() {
   ChronosFramebuffer fb = new ChronosFramebuffer(
       chronosGL.gl, perspective.width, perspective.height);
   RenderingPhase phase1 =
-      new RenderingPhase(chronosGL.gl, perspective, fb);
+      new RenderingPhase("phase1", chronosGL.gl, perspective, fb);
 
   ShaderProgram prg1 = phase1.createProgram(createPlane2GreyShader());
 
   RenderingPhase phase2 =
-      new RenderingPhase(chronosGL.gl, perspective, null);
+      new RenderingPhase("phase2", chronosGL.gl, perspective, null);
   ShaderProgram prg2 = phase2.createProgram(createSobelShader());
-  Material mat = new Material()
+  Material mat = new Material("sobel")
     ..SetUniform(uTexture2Sampler, fb.depthTexture)
     ..SetUniform(uTextureSampler, fb.colorTexture);
-  prg2.add(new Mesh(Shapes.Quad(1), mat));
+  prg2.add(new Mesh("quad", Shapes.Quad(1), mat));
 
   RenderingPhase phase1only =
-      new RenderingPhase(chronosGL.gl, perspective, null);
+      new RenderingPhase("phase1only", chronosGL.gl, perspective, null);
   phase1only.AddShaderProgram(prg1);
 
   bool useSobel = true;
@@ -38,11 +38,11 @@ void main() {
   });
 
   loadObj("../ct_logo.obj").then((MeshData md) {
-    Material mat = new Material();
-    Mesh mesh = new Mesh(md, mat)
+    Material mat = new Material("mat");
+    Mesh mesh = new Mesh(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
-    Node n = new Node(mesh);
+    Node n = new Node("wrapper", mesh);
     //n.invert = true;
     n.lookAt(new VM.Vector3(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);

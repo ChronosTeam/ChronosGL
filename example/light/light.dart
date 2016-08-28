@@ -14,13 +14,13 @@ void main() {
   Perspective perspective = new Perspective(orbit);
   perspective.far = 10000.0;
   RenderingPhase phaseBlinnPhong =
-      new RenderingPhase(chronosGL.gl, perspective);
+      new RenderingPhase("blinn-phong", chronosGL.gl, perspective);
   ShaderProgram lightBlinnPhong =
       phaseBlinnPhong.createProgram(createLightShaderBlinnPhong());
   ShaderProgram fixedBlinnPhong =
       phaseBlinnPhong.createProgram(createSolidColorShader());
 
-  RenderingPhase phaseGourad = new RenderingPhase(chronosGL.gl, perspective);
+  RenderingPhase phaseGourad = new RenderingPhase("gourad", chronosGL.gl, perspective);
   ShaderProgram lightGourad =
       phaseGourad.createProgram(createLightShaderGourad());
   ShaderProgram fixedGourad =
@@ -39,13 +39,13 @@ void main() {
   MeshData cubeMeshData = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
   MeshData sphereMeshData = Shapes.Icosahedron()
     ..generateNormalsAssumingTriangleMode();
-  Material cubeMat = new Material();
+  Material cubeMat = new Material("mat");
   List<Mesh> meshes = [];
   for (int i = 0; i < 8; i++) {
     double x = i & 1 == 0 ? -10.0 : 10.0;
     double y = i & 2 == 0 ? -10.0 : 10.0;
     double z = i & 4 == 0 ? -10.0 : 10.0;
-    meshes.add(new Mesh(i % 2 == 0 ? cubeMeshData : sphereMeshData, cubeMat)
+    meshes.add(new Mesh("mesh", i % 2 == 0 ? cubeMeshData : sphereMeshData, cubeMat)
       ..setPos(x, y, z)
       ..lookUp(1.0)
       ..lookLeft(0.7));
@@ -59,7 +59,7 @@ void main() {
   List<Mesh> plane = [];
   for (double x = -40.0; x < 40.0; x += 4.0) {
     for (double y = -40.0; y < 40.0; y += 4.0) {
-      Mesh m = new Mesh(
+      Mesh m = new Mesh("plane-$x-$y",
           Shapes.Cube(x: 4.0, y: 0.1, z: 4.0)
             ..generateNormalsAssumingTriangleMode(),
           cubeMat)..setPos(x + 2.0, -20.0, y + 2.0);
@@ -71,18 +71,16 @@ void main() {
     lightBlinnPhong.add(m);
   }
 
-  Material lightSourceMat = new Material()
+  Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
-  Mesh shapePointLight = new Mesh(Shapes.Icosahedron(), lightSourceMat)
-    ..setPosFromVec(posLight)
-    ..name = "pointlight";
+  Mesh shapePointLight = new Mesh("pointLight", Shapes.Icosahedron(), lightSourceMat)
+    ..setPosFromVec(posLight);
   fixedBlinnPhong.add(shapePointLight);
   fixedGourad.add(shapePointLight);
 
   Mesh shapeDirLight =
-      new Mesh(Shapes.Cylinder(0.4, 0.4, 200.0, 20), lightSourceMat)
-        ..setPosFromVec(dirLight)
-        ..name = "dirlight";
+      new Mesh("dirLight", Shapes.Cylinder(0.4, 0.4, 200.0, 20), lightSourceMat)
+        ..setPosFromVec(dirLight);
   fixedBlinnPhong.add(shapeDirLight);
   fixedGourad.add(shapeDirLight);
 

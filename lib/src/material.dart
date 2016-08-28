@@ -1,7 +1,6 @@
 part of chronosgl;
 
-class Material {
-  String name = "";
+class Material extends NamedEntity {
   bool depthTest = true;
   bool depthWrite = true;
   bool blend = false;
@@ -9,10 +8,12 @@ class Material {
   int blend_dFactor = WEBGL.ONE_MINUS_SRC_ALPHA; // This was ONE;
   int blendEquation = WEBGL.FUNC_ADD;
 
-  ShaderProgramInputs _inputs = new ShaderProgramInputs();
+  final ShaderProgramInputs _inputs = new ShaderProgramInputs();
+
+   Material(String name) : super(name);
 
   void SetUniform(String canonical, val) {
-    _inputs.SetUniformVal(canonical, val);
+    _inputs.SetUniformVal(this, canonical, val);
   }
 
   bool HasUniform(String canonical) {

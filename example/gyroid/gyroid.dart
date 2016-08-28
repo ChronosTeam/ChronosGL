@@ -204,21 +204,20 @@ List<ShaderObject> createSphericalGyroidShader() {
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  Perspective perspective = new Perspective(new Camera());
+  Perspective perspective = new Perspective(new Camera("dummy"));
 
-  RenderingPhase phase = new RenderingPhase(chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
 
   ShaderProgram program = phase.createProgram(createSphericalGyroidShader());
-  Material mat = new Material();
-  program.add(new Mesh(Shapes.Quad(1), mat));
+  Material mat = new Material("mat");
+  program.add(new Mesh("quad", Shapes.Quad(1), mat));
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
+  void animate(double timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
 
-    program.inputs.SetUniformVal(
-        uTime, program.inputs.GetUniformVal(uTime) + elapsed / 1000);
+    program.SetTime(timeMs /  1000.0);
     perspective.Adjust(canvas);
     phase.draw([]);
     HTML.window.animationFrame.then(animate);

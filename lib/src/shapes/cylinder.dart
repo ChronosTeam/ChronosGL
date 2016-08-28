@@ -5,8 +5,7 @@ part of chronosgl;
 
 MeshData createCylinderInternal(
     double radTop, double radBot, double height, int radialSubdivisions) {
-  MeshData md = new MeshData();
-  md.name = "cylinder";
+  MeshData md = new MeshData("cylinder");
   md.EnableAttribute(aTextureCoordinates);
   double halfHeight = height / 2;
 
@@ -79,8 +78,7 @@ MeshData createCylinderInternalWireframeFriendly(
   final VM.Vector3 centerTop = new VM.Vector3(0.0, halfHeight, 0.0);
   final VM.Vector3 centerBot = new VM.Vector3(0.0, -halfHeight, 0.0);
 
-  MeshData md = new MeshData();
-  md.name = "cylinder-wireframe-friendly";
+  MeshData md = new MeshData("cylinder-wireframe-friendly");
   md.EnableAttribute(aTextureCoordinates);
 
   // top and bottom are Face3
