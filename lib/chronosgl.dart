@@ -214,7 +214,9 @@ class RenderingPhase extends NamedEntity {
   List<DrawStats> stats = null;
   final Projection _perspective;
 
-  RenderingPhase(String name, this._gl, this._perspective, [this._framebuffer = null]) : super(name);
+  RenderingPhase(String name, this._gl, this._perspective,
+      [this._framebuffer = null])
+      : super(name);
 
   void SetFramebuffer(ChronosFramebuffer fb) {
     _framebuffer = fb;
@@ -259,10 +261,7 @@ class ChronosGL {
   WEBGL.RenderingContext gl;
 
   // TODO: move this into a RenderingPhase
-  HTML.CanvasElement _canvas;
-
-  //Perspective perspar = new Perspective();
-  List<Light> lights = [];
+  final HTML.CanvasElement _canvas;
 
   ChronosGL(this._canvas,
       {bool preserveDrawingBuffer: false, bool useElementIndexUint: false}) {

@@ -254,9 +254,9 @@ class CoreProgram {
 // ShaderProgram represents multiple invocations of the same
 // CoreProgram.
 class ShaderProgram extends Drawable {
-  ShaderProgramInputs inputs = new ShaderProgramInputs();
+  final ShaderProgramInputs inputs = new ShaderProgramInputs();
 
-  WEBGL.RenderingContext _gl;
+  final WEBGL.RenderingContext _gl;
   CoreProgram _program;
 
   // Should this be done per processed Mesh?
@@ -265,8 +265,8 @@ class ShaderProgram extends Drawable {
   bool active;
 
   // these are the identity by default
-  VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
-  List<Node> objects = new List<Node>();
+  final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
+  final List<Node> objects = new List<Node>();
 
   ShaderProgram(this._gl, shaderObjectV, shaderObjectF, String name) : super(name) {
     _program = new CoreProgram(_gl, shaderObjectV, shaderObjectF, name);

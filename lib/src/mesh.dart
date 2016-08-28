@@ -30,8 +30,8 @@ WEBGL.Buffer CreateAndInitializeElementArrayBuffer(
 class Mesh extends Node {
   WEBGL.RenderingContext gl;
   bool debug = false;
-
-  Map<String, WEBGL.Buffer> _buffers = {};
+  final VM.Matrix3 _normMatrix = new VM.Matrix3.zero();
+  final Map<String, WEBGL.Buffer> _buffers = {};
   WEBGL.Buffer _indexBuffer = null;
   int numItems;
   int numInstances = 0;
@@ -55,6 +55,9 @@ class Mesh extends Node {
   Mesh(String name, this._meshData, this.material) : super(name) {
     //if (!meshData.isOptimized) meshData.optimize();
     _meshData.SanityCheck();
+    // TODO FIX THIS hack
+    // The MeshData should be registered with gl in the MeshData abstraction
+    // not the Mesh abstraction.
     gl = ChronosGL.globalGL;
     AddBuffer(aVertexPosition, _meshData.GetVertexData());
 
@@ -109,7 +112,8 @@ class Mesh extends Node {
   }
 
   // this gets called by Node.draw()
-  void draw2(ShaderProgram program, ShaderProgramInputs inputs, List<DrawStats> stats) {
+  void draw2(ShaderProgram program, ShaderProgramInputs inputs,
+      List<DrawStats> stats) {
     if (debug) {
       print("draw2: $name items ${numItems}");
       //print(program.shaderObject.textureSamplerUniform);
@@ -120,16 +124,15 @@ class Mesh extends Node {
     if (numItems == 0) return;
     material.RenderingInit(gl);
     bindBuffers(program);
-    VM.Matrix3 normMatrix;
-    normMatrix = mvMatrix.getNormalMatrix();
-    program.MaybeSetUniformsBulk(material._inputs);
+
+    _normMatrix.copyNormalMatrix(_mvMatrix);
     inputs.SetUniformVal(this, uTransformationMatrix, transform);
-    //inputs.SetUniformVal(uModelViewMatrix, mvMatrix);
-    inputs.SetUniformVal(this, uModelMatrix, mvMatrix);
-    inputs.SetUniformVal(this, uNormalMatrix, normMatrix);
+    inputs.SetUniformVal(this, uModelMatrix, _mvMatrix);
+    inputs.SetUniformVal(this, uNormalMatrix, _normMatrix);
     program.MaybeSetUniformsBulk(inputs);
-    program.Draw(
-        numInstances, numItems, _meshData.DrawMode(), _indexBuffer != null, stats);
+    program.MaybeSetUniformsBulk(material._inputs);
+    program.Draw(numInstances, numItems, _meshData.DrawMode(),
+        _indexBuffer != null, stats);
 
     material.RenderingExit(gl);
   }

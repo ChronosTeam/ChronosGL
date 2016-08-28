@@ -5,17 +5,16 @@ class Node extends Spatial {
   bool enabled = true;
 
   // children inheret the parent matrix for its rotation and position
-  List<Node> children = new List<Node>();
+  final List<Node> _children = new List<Node>();
 
-  VM.Matrix4 mvMatrix = new VM.Matrix4.identity();
+  final VM.Matrix4 _mvMatrix = new VM.Matrix4.identity();
 
   Node(String name, [Node child=null]) : super(name) {
-    if (child != null) children.add(child);
+    if (child != null) _children.add(child);
   }
 
-  Spatial add(Node child) {
-    children.add(child);
-    return child;
+  void add(Node child) {
+    _children.add(child);
   }
 
   // this should be overridden by subclasses
@@ -25,11 +24,11 @@ class Node extends Spatial {
   void draw(ShaderProgram program, ShaderProgramInputs inputs,
       VM.Matrix4 parentMVMatrix, List<DrawStats> stats) {
     // copy the mvMatrix, so we don't change the original
-    mvMatrix.setFrom(parentMVMatrix);
-    mvMatrix.multiply(transform);
+    _mvMatrix.setFrom(parentMVMatrix);
+    _mvMatrix.multiply(transform);
     draw2(program, inputs, stats);
-    for (Node node in children) {
-      node.draw(program, inputs, mvMatrix, stats);
+    for (Node node in _children) {
+      node.draw(program, inputs, _mvMatrix, stats);
     }
   }
 }
