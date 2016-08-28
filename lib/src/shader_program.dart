@@ -27,6 +27,7 @@ class ShaderProgramInputs {
   void SetUniformVal(NamedEntity origin,  String canonical, var val) {
     if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
     _uniforms[canonical] = val;
+    _origin[canonical] = origin;
   }
 
   GetUniformVal(String canonical) {

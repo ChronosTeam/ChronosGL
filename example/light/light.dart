@@ -11,8 +11,7 @@ void main() {
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   orbit.setPos(0.0, 0.0, 56.0);
-  Perspective perspective = new Perspective(orbit);
-  perspective.far = 10000.0;
+  Perspective perspective = new Perspective(orbit, 0.1, 10000.0);
   RenderingPhase phaseBlinnPhong =
       new RenderingPhase("blinn-phong", chronosGL.gl, perspective);
   ShaderProgram lightBlinnPhong =
