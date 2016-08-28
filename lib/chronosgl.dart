@@ -57,12 +57,18 @@ abstract class NamedEntity {
   NamedEntity(this.name);
 }
 
+abstract class ShaderInputProvider extends NamedEntity {
+  ShaderInputProvider(String name) : super(name);
+
+  void UpdateUniforms(ShaderProgramInputs inputs);
+}
+
 abstract class Drawable extends NamedEntity {
   Drawable(String name) : super(name);
 
-  void draw(Projection dynpar, List<Light> lights, List<DrawStats> stats);
+  void draw(Projection dynpar, List<ShaderInputProvider> lights,
+      List<DrawStats> stats);
 }
-
 
 class RenderingPhase extends NamedEntity {
   final WEBGL.RenderingContext _gl;

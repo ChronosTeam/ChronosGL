@@ -1,6 +1,6 @@
 part of chronosgl;
 
-abstract class Projection extends NamedEntity {
+abstract class Projection extends ShaderInputProvider {
   int _width;
   int _height;
 
@@ -85,7 +85,7 @@ class Orthographic extends Projection {
 
 class Perspective extends Projection {
   final Camera _camera;
-  int _fov = 50; // horizontal fov in deg  divided by 2
+  double _fov = 50.0; // horizontal fov in deg  divided by 2
 
   double _near = 0.1;
   double _far = 1000.0;

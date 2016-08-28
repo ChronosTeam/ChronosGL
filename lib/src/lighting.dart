@@ -1,12 +1,15 @@
 part of chronosgl;
 
-int typeLightNone = 1;
-int typeLightSpot = 2;
-int typeLightPoint = 3;
-int typeLightHemi = 4;
-int typeLightDir = 5;
+const int typeLightNone = 1;
+const int typeLightSpot = 2;
+const int typeLightPoint = 3;
+const int typeLightHemi = 4;
+const int typeLightDir = 5;
 
-class Light {
+const int LIGHT0 = 0;
+
+class Light extends ShaderInputProvider {
+  int no;
   int _type;
   VM.Vector3 _pos = new VM.Vector3.zero();
   VM.Vector3 _dir = new VM.Vector3.zero();
@@ -19,24 +22,29 @@ class Light {
 
   // Light eminating from a point in all directions.
   // Light gets "weaker" with increased distance.
-  Light.Point(this._pos, this._colDiffuse, this._colSpecular, this._range) {
+  Light.Point(
+      this.no, this._pos, this._colDiffuse, this._colSpecular, this._range)
+      : super("point") {
     _type = typeLightPoint;
   }
 
   // Light cone eminating from a point.
   // As the cone widens light gets "weaker"
-  Light.Spot(this._pos, this._dir, this._colDiffuse, this._colSpecular, this._range,
-      this._spotCutoff, this._spotFocus) {
+  Light.Spot(this.no, this._pos, this._dir, this._colDiffuse, this._colSpecular,
+      this._range, this._spotCutoff, this._spotFocus)
+      : super("spot") {
     _type = typeLightSpot;
   }
 
   // Coming from one direction at infinite distance - e.g. the sun
-  Light.Directional(this._dir, this._colDiffuse, this._colSpecular) {
+  Light.Directional(this.no, this._dir, this._colDiffuse, this._colSpecular)
+      : super("directional") {
     _type = typeLightDir;
   }
 
   Light.Hemispherical(
-      this._dir, this._colDiffuse, this._colGround, this._colSpecular) {
+      this.no, this._dir, this._colDiffuse, this._colGround, this._colSpecular)
+      : super("hemispherical") {
     _type = typeLightHemi;
   }
 
@@ -76,5 +84,12 @@ class Light {
     return m;
   }
 
-  //Camera getShadowCamera() {}
+  void UpdateUniforms(ShaderProgramInputs inputs) {
+    inputs.SetUniformVal(this, uLightSourceInfo + "${no}", PackInfo());
+  }
+
+  Projection getShadowProjection() {
+    assert(_type == typeLightDir);
+    return new ShadowMapProjection(_dir);
+  }
 }

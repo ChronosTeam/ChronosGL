@@ -53,23 +53,23 @@ void main() {
   VM.Vector3 colWhite = new VM.Vector3(0.0, 0.0, 1.0);
   VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
 
-  Light light = new Light.Point(posLight1, colRed, colWhite, 20.0);
+  Light light = new Light.Directional(posLight1, colRed, colWhite);
   //Light light = new Light.Directional(posLight1, colRed, colWhite);
-  //VM.Matrix4 projection = VM.makeOrthographicMatrix(-12.0, 12.0, -12.0, 12.0, -12.0, 12.0);
+
+  //Projection shadowProjection = light.getShadowProjection();
+  Projection shadowProjection = new Orthographic(orbit);
+  //Projection shadowProjection = new Perspective(orbit);
+  RenderingPhase phaseShadow =
+      new RenderingPhase("shadow", chronosGL.gl, shadowProjection);
+  ShaderProgram shadowMap = phaseShadow.createProgram(createShadowShader());
 
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phaseShadow =
-      new RenderingPhase("shadow", chronosGL.gl, perspective);
   RenderingPhase phaseMain =
       new RenderingPhase("main", chronosGL.gl, perspective);
   phaseMain.clearColorBuffer = false;
-  Texture solid = new CanvasTexture.SolidColor("red-solid", "red");
-  //ShaderProgram program = chronosGL.createProgram(createTexturedShader());
-  ShaderProgram program = phaseShadow.createProgram(createShadowShader());
   ShaderProgram basic = phaseMain.createProgram(createLightShaderBlinnPhong());
 
-  VM.Matrix4 model = new VM.Matrix4.identity();
-
+  Texture solid = new CanvasTexture.SolidColor("red-solid", "red");
   final Material mat1 = new Material("mat1")
     ..SetUniform(uTextureSampler, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
@@ -87,12 +87,12 @@ void main() {
         "sphere",
         Shapes.Icosahedron(3)..generateNormalsAssumingTriangleMode(),
         mat1)..setPos(0.0, 0.0, 0.0);
-    program.add(ico);
+    shadowMap.add(ico);
     basic.add(ico);
   }
   {
     Mesh cube = new Mesh("cube", Shapes.Cube(), mat2)..setPos(-5.0, 0.0, -5.0);
-    program.add(cube);
+    shadowMap.add(cube);
     basic.add(cube);
   }
 
@@ -102,7 +102,7 @@ void main() {
         Shapes.Cylinder(3.0, 6.0, 2.0, 32)
           ..generateNormalsAssumingTriangleMode(),
         mat2)..setPos(5.0, 0.0, -5.0);
-    program.add(cyl);
+    shadowMap.add(cyl);
     basic.add(cyl);
   }
 
@@ -118,7 +118,7 @@ void main() {
     // plane
     Mesh cube = new Mesh("cube", Shapes.Cube(x: 20.0, y: 0.1, z: 20.0), mat3)
       ..setPos(0.0, -10.0, 0.0);
-    program.add(cube);
+    shadowMap.add(cube);
     basic.add(cube);
   }
 
@@ -130,9 +130,8 @@ void main() {
   Mesh ico1 = new Mesh("spehere", Shapes.Icosahedron(), icoMat)..setPosFromVec(posLight1);
 
   fixedShaderPrg.add(ico1);
-  perspective.Adjust(canvas);
-  perspective.width ~/= 2.0;
-  perspective.UpdatePerspective();
+  perspective.Adjust(canvas, 0.5);
+  shadowProjection.Adjust(canvas, 0.5);
   double _lastTimeMs = 0.0;
 
   void animate(double timeMs) {

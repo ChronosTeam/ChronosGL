@@ -19,7 +19,8 @@ void main() {
   ShaderProgram fixedBlinnPhong =
       phaseBlinnPhong.createProgram(createSolidColorShader());
 
-  RenderingPhase phaseGourad = new RenderingPhase("gourad", chronosGL.gl, perspective);
+  RenderingPhase phaseGourad =
+      new RenderingPhase("gourad", chronosGL.gl, perspective);
   ShaderProgram lightGourad =
       phaseGourad.createProgram(createLightShaderGourad());
   ShaderProgram fixedGourad =
@@ -29,11 +30,11 @@ void main() {
   VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
   VM.Vector3 posLight = new VM.Vector3(10.0, 20.0, 0.0);
   VM.Vector3 dirLight = new VM.Vector3(0.0, 50.0, 0.0);
-  List<Light> lights = [];
-  lights.add(new Light.Directional(dirLight, colRed, colBlue));
-  lights.add(new Light.Point(posLight, colRed, colBlue, 70.0));
-  lights.add(
-      new Light.Spot(posLight, posLight, colRed, colBlue, 50.0, 0.95, 2.0));
+  List<Light> lights = [
+    new Light.Directional(LIGHT0, dirLight, colRed, colBlue),
+    new Light.Point(LIGHT0, posLight, colRed, colBlue, 70.0),
+    new Light.Spot(LIGHT0, posLight, posLight, colRed, colBlue, 50.0, 0.95, 2.0)
+  ];
 
   MeshData cubeMeshData = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
   MeshData sphereMeshData = Shapes.Icosahedron()
@@ -44,10 +45,11 @@ void main() {
     double x = i & 1 == 0 ? -10.0 : 10.0;
     double y = i & 2 == 0 ? -10.0 : 10.0;
     double z = i & 4 == 0 ? -10.0 : 10.0;
-    meshes.add(new Mesh("mesh", i % 2 == 0 ? cubeMeshData : sphereMeshData, cubeMat)
-      ..setPos(x, y, z)
-      ..lookUp(1.0)
-      ..lookLeft(0.7));
+    meshes.add(
+        new Mesh("mesh", i % 2 == 0 ? cubeMeshData : sphereMeshData, cubeMat)
+          ..setPos(x, y, z)
+          ..lookUp(1.0)
+          ..lookLeft(0.7));
   }
 
   for (Mesh m in meshes) {
@@ -58,7 +60,8 @@ void main() {
   List<Mesh> plane = [];
   for (double x = -40.0; x < 40.0; x += 4.0) {
     for (double y = -40.0; y < 40.0; y += 4.0) {
-      Mesh m = new Mesh("plane-$x-$y",
+      Mesh m = new Mesh(
+          "plane-$x-$y",
           Shapes.Cube(x: 4.0, y: 0.1, z: 4.0)
             ..generateNormalsAssumingTriangleMode(),
           cubeMat)..setPos(x + 2.0, -20.0, y + 2.0);
@@ -72,8 +75,9 @@ void main() {
 
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
-  Mesh shapePointLight = new Mesh("pointLight", Shapes.Icosahedron(), lightSourceMat)
-    ..setPosFromVec(posLight);
+  Mesh shapePointLight =
+      new Mesh("pointLight", Shapes.Icosahedron(), lightSourceMat)
+        ..setPosFromVec(posLight);
   fixedBlinnPhong.add(shapePointLight);
   fixedGourad.add(shapePointLight);
 
@@ -94,7 +98,8 @@ void main() {
   selectPhase.selectedIndex = 0;
 
   double _lastTimeMs = 0.0;
-  void animate(double timeMs) {
+  void animate(timeMs) {
+    timeMs += 0.0;   // bug workaround - force double
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
