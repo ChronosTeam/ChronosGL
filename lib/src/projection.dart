@@ -58,26 +58,29 @@ class ShadowMapProjection extends Projection {
 class Orthographic extends Projection {
   final Camera _camera;
   final VM.Matrix4 _proj = new VM.Matrix4.zero();
-  final VM.Matrix4 _view = new VM.Matrix4.zero();
-  final VM.Vector3 _vec = new VM.Vector3.zero();
-  final VM.Vector3 _zero = new VM.Vector3.zero();
-  final VM.Vector3 _up = new VM.Vector3(0.0, 1.0, 0.0);
-  final VM.Vector3 _dir = new VM.Vector3.zero();
-  final VM.Vector3 _pos = new VM.Vector3(0.0, 0.0, 100.0);
+  final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
+  final VM.Matrix4 _projViewMatrix = new VM.Matrix4.identity();
+  double _l;
+  double _r;
+  double _d;
+  double _f;
+  double _b;
 
-  Orthographic(this._camera) : super("othrogrpahic") {}
+  Orthographic(this._camera, this._l, this._r, this._d, this._f, this._b)
+      : super("othrogrpahic") {}
 
   void UpdateUniforms(ShaderProgramInputs inputs) {
-    final double dim = 0.1;
-    VM.setOrthographicMatrix(_proj, -dim, dim, -dim, dim, dim, -dim);
-    VM.setPerspectiveMatrix(_proj, 0.25 * Math.PI / 180.0, 1.0, -dim, dim);
-    //_camera.getViewMatrix(_view);
-    VM.setViewMatrix(_view, _pos, _dir, _up);
-    _proj.multiply(_view);
-    inputs.SetUniformVal(this, uPerspectiveViewMatrix, _proj);
+    _camera.getViewMatrix(_viewMatrix);
+    _projViewMatrix.setFrom(_proj);
+    _projViewMatrix.multiply(_viewMatrix);
+    inputs.SetUniformVal(this, uPerspectiveViewMatrix, _projViewMatrix);
   }
 
-  void Update() {}
+  void Update() {
+    double w = _r - _l;
+    double h = height * w / width;
+    VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + h, _f, _b);
+  }
 }
 
 class Perspective extends Projection {

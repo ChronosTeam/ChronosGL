@@ -49,8 +49,8 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
-
-  Projection orthographic = new Orthographic(orbit);
+  double d= 20.0;
+  Projection orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
   RenderingPhase phaseOrthograhic =
       new RenderingPhase("shadow", chronosGL.gl, orthographic);
   ShaderProgram prgOrthographic =
@@ -112,7 +112,7 @@ void main() {
   double _lastTimeMs = 0.0;
 
   void animate(timeMs) {
-    timeMs += 0.0;   // force double
+    timeMs += 0.0; // force double
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     //orbit.azimuth += 0.001;
