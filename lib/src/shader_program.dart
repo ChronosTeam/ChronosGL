@@ -20,11 +20,13 @@ class DrawStats {
 }
 
 // For use with uniforms
-class ShaderProgramInputs {
-  Map _uniforms = {};
-  Map _origin = {};
+class ShaderProgramInputs extends NamedEntity {
+  Map<String, dynamic> _uniforms = {};
+  Map<String, NamedEntity> _origin = {};
 
-  void SetUniformVal(NamedEntity origin,  String canonical, var val) {
+  ShaderProgramInputs(String name) : super(name);
+
+  void SetUniformVal(NamedEntity origin, String canonical, var val) {
     if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
     _uniforms[canonical] = val;
     _origin[canonical] = origin;
@@ -41,6 +43,13 @@ class ShaderProgramInputs {
 
   Iterable<String> GetCanonicals() {
     return _uniforms.keys;
+  }
+
+  void MergeInputs(ShaderProgramInputs other) {
+    other._uniforms.forEach((String k, v) {
+      _uniforms[k] = v;
+      _origin[k] = other._origin[k];
+    });
   }
 }
 
@@ -255,7 +264,7 @@ class CoreProgram {
 // ShaderProgram represents multiple invocations of the same
 // CoreProgram.
 class ShaderProgram extends Drawable {
-  final ShaderProgramInputs inputs = new ShaderProgramInputs();
+  final ShaderProgramInputs inputs = new ShaderProgramInputs("accumulator");
 
   final WEBGL.RenderingContext _gl;
   CoreProgram _program;
@@ -269,12 +278,13 @@ class ShaderProgram extends Drawable {
   final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
   final List<Node> objects = new List<Node>();
 
-  ShaderProgram(this._gl, shaderObjectV, shaderObjectF, String name) : super(name) {
+  ShaderProgram(this._gl, shaderObjectV, shaderObjectF, String name)
+      : super(name) {
     _program = new CoreProgram(_gl, shaderObjectV, shaderObjectF, name);
   }
 
   void SetTime(double time) {
-     inputs.SetUniformVal(this, uTime, time);
+    inputs.SetUniformVal(this, uTime, time);
   }
 
   void add(Node obj) {
@@ -328,8 +338,7 @@ class ShaderProgram extends Drawable {
     _program.Draw(debug, numInstances, numItems, drawMode, useArrayBuffer);
   }
 
-  void draw(Projection perspective, List<Light> lights,
-      List<DrawStats> stats) {
+  void draw(Projection perspective, List<Light> lights, List<DrawStats> stats) {
     if (!hasEnabledObjects()) return;
 
     _program.Begin(debug);

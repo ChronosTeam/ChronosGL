@@ -1,6 +1,6 @@
 part of chronosgl;
 
-class Material extends NamedEntity {
+class Material extends ShaderInputProvider {
   bool depthTest = true;
   bool depthWrite = true;
   bool blend = false;
@@ -8,7 +8,7 @@ class Material extends NamedEntity {
   int blend_dFactor = WEBGL.ONE_MINUS_SRC_ALPHA; // This was ONE;
   int blendEquation = WEBGL.FUNC_ADD;
 
-  final ShaderProgramInputs _inputs = new ShaderProgramInputs();
+  final ShaderProgramInputs _inputs = new ShaderProgramInputs("xxx");
 
    Material(String name) : super(name);
 
@@ -45,5 +45,9 @@ class Material extends NamedEntity {
     if (!depthWrite) {
       gl.depthMask(true);
     }
+  }
+
+  void UpdateUniforms(ShaderProgramInputs inputs) {
+    inputs.MergeInputs(_inputs);
   }
 }
