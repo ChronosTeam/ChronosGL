@@ -73,7 +73,7 @@ class Orthographic extends Projection {
     _camera.getViewMatrix(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
     _projViewMatrix.multiply(_viewMatrix);
-    inputs.SetUniformVal(this, uPerspectiveViewMatrix, _projViewMatrix);
+    inputs.SetUniformWithOrigin(this, uPerspectiveViewMatrix, _projViewMatrix);
   }
 
   void Update() {
@@ -108,14 +108,14 @@ class Perspective extends Projection {
   }
 
   void UpdateUniforms(ShaderProgramInputs inputs) {
-    inputs.SetUniformVal(this, uCameraNear, _near);
-    inputs.SetUniformVal(this, uCameraFar, _far);
-    inputs.SetUniformVal(
+    inputs.SetUniformWithOrigin(this, uCameraNear, _near);
+    inputs.SetUniformWithOrigin(this, uCameraFar, _far);
+    inputs.SetUniformWithOrigin(
         this, uCanvasSize, new VM.Vector2(width.toDouble(), height.toDouble()));
-    inputs.SetUniformVal(this, uEyePosition, _camera.getEyePosition());
+    inputs.SetUniformWithOrigin(this, uEyePosition, _camera.getEyePosition());
     _camera.getViewMatrix(_viewMatrix);
     _perspectiveViewMatrix.setFrom(_mat);
     _perspectiveViewMatrix.multiply(_viewMatrix);
-    inputs.SetUniformVal(this, uPerspectiveViewMatrix, _perspectiveViewMatrix);
+    inputs.SetUniformWithOrigin(this, uPerspectiveViewMatrix, _perspectiveViewMatrix);
   }
 }

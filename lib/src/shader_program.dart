@@ -19,39 +19,7 @@ class DrawStats {
   }
 }
 
-// For use with uniforms
-class ShaderProgramInputs extends NamedEntity {
-  Map<String, dynamic> _uniforms = {};
-  Map<String, NamedEntity> _origin = {};
 
-  ShaderProgramInputs(String name) : super(name);
-
-  void SetUniformVal(NamedEntity origin, String canonical, var val) {
-    if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
-    _uniforms[canonical] = val;
-    _origin[canonical] = origin;
-  }
-
-  GetUniformVal(String canonical) {
-    if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
-    return _uniforms[canonical];
-  }
-
-  bool HasUniform(String canonical) {
-    return _uniforms.containsKey(canonical);
-  }
-
-  Iterable<String> GetCanonicals() {
-    return _uniforms.keys;
-  }
-
-  void MergeInputs(ShaderProgramInputs other) {
-    other._uniforms.forEach((String k, v) {
-      _uniforms[k] = v;
-      _origin[k] = other._origin[k];
-    });
-  }
-}
 
 // Represent a GPU shader program
 // The protocol is roughly this:
@@ -263,9 +231,8 @@ class CoreProgram {
 
 // ShaderProgram represents multiple invocations of the same
 // CoreProgram.
-class ShaderProgram extends Drawable {
-  final ShaderProgramInputs inputs = new ShaderProgramInputs("accumulator");
-
+// At alls contains its inputs
+class ShaderProgram extends ShaderProgramInputs {
   final WEBGL.RenderingContext _gl;
   CoreProgram _program;
 
@@ -284,7 +251,7 @@ class ShaderProgram extends Drawable {
   }
 
   void SetTime(double time) {
-    inputs.SetUniformVal(this, uTime, time);
+    SetUniform(uTime, time);
   }
 
   void add(Node obj) {
@@ -314,23 +281,17 @@ class ShaderProgram extends Drawable {
     _program.SetElementArray(b);
   }
 
-  void MaybeSetUniform(String canonical) {
-    if (_program.HasUniform(canonical)) {
-      _program.SetUniform(canonical, inputs.GetUniformVal(canonical));
-    }
-  }
 
-  void MaybeSetUniformsBulk(ShaderProgramInputs inputs) {
-    for (String canonical in inputs.GetCanonicals()) {
-      var val = inputs.GetUniformVal(canonical);
+  void Draw(int numInstances, int numItems, int drawMode, bool useArrayBuffer,
+      List<DrawStats> stats) {
+
+    for (String canonical in GetCanonicals()) {
+      var val = GetUniformVal(canonical);
       if (_program.HasUniform(canonical)) {
         _program.SetUniform(canonical, val);
       }
     }
-  }
 
-  void Draw(int numInstances, int numItems, int drawMode, bool useArrayBuffer,
-      List<DrawStats> stats) {
     if (stats != null) {
       stats.add(new DrawStats(
           _program.name, numInstances, numItems, drawMode, useArrayBuffer));
@@ -338,23 +299,25 @@ class ShaderProgram extends Drawable {
     _program.Draw(debug, numInstances, numItems, drawMode, useArrayBuffer);
   }
 
-  void draw(Projection perspective, List<Light> lights, List<DrawStats> stats) {
+  // This is a weird flow control:
+  // * When draw() is called,
+  // * we recursively draw items in objects passing "this" as a parameter
+  // * the objects then call the Draw method above
+  void draw(Projection perspective, List<ShaderInputProvider> lights, List<DrawStats> stats) {
     if (!hasEnabledObjects()) return;
 
     _program.Begin(debug);
-    perspective.UpdateUniforms(inputs);
+    perspective.UpdateUniforms(this);
     if (debug) print("[setting ununiforms");
 
-    for (int i = 0; i < lights.length; ++i) {
-      Light l = lights[i];
-      String canonical = uLightSourceInfo + "$i";
-      inputs.SetUniformVal(this, canonical, l.PackInfo());
+    for (ShaderInputProvider p in lights) {
+      p.UpdateUniforms(this);
     }
 
     _modelMatrix.setIdentity();
     if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {
-      if (node.enabled) node.draw(this, inputs, _modelMatrix, stats);
+      if (node.enabled) node.draw(this, _modelMatrix, stats);
     }
     _program.End(debug);
   }

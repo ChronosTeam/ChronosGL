@@ -85,11 +85,13 @@ class Light extends ShaderInputProvider {
   }
 
   void UpdateUniforms(ShaderProgramInputs inputs) {
-    inputs.SetUniformVal(this, uLightSourceInfo + "${no}", PackInfo());
+    inputs.SetUniformWithOrigin(this, uLightSourceInfo + "${no}", PackInfo());
   }
 
+  /*
   Projection getShadowProjection() {
     assert(_type == typeLightDir);
     return new ShadowMapProjection(_dir);
   }
+  */
 }
