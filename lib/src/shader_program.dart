@@ -303,17 +303,8 @@ class ShaderProgram extends ShaderProgramInputs {
   // * When draw() is called,
   // * we recursively draw items in objects passing "this" as a parameter
   // * the objects then call the Draw method above
-  void draw(Projection perspective, List<ShaderInputProvider> lights, List<DrawStats> stats) {
-    if (!hasEnabledObjects()) return;
-
+  void draw(List<DrawStats> stats) {
     _program.Begin(debug);
-    perspective.UpdateUniforms(this);
-    if (debug) print("[setting ununiforms");
-
-    for (ShaderInputProvider p in lights) {
-      p.UpdateUniforms(this);
-    }
-
     _modelMatrix.setIdentity();
     if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {

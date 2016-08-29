@@ -63,7 +63,6 @@ abstract class ShaderInputProvider extends NamedEntity {
   void UpdateUniforms(ShaderProgramInputs inputs);
 }
 
-
 class RenderingPhase extends NamedEntity {
   final WEBGL.RenderingContext _gl;
   ChronosFramebuffer _framebuffer;
@@ -84,7 +83,7 @@ class RenderingPhase extends NamedEntity {
     _framebuffer = fb;
   }
 
-  void draw(List<Light> lights) {
+  void draw(List<ShaderInputProvider> lights) {
     if (_framebuffer == null) {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
     } else {
@@ -100,7 +99,12 @@ class RenderingPhase extends NamedEntity {
     }
 
     for (ShaderProgram prg in _programs) {
-      prg.draw(_perspective, lights, stats);
+      if (!prg.hasEnabledObjects()) continue;
+      _perspective.UpdateUniforms(prg);
+      for (ShaderInputProvider p in lights) {
+        p.UpdateUniforms(prg);
+      }
+      prg.draw(stats);
     }
   }
 
