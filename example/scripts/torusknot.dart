@@ -30,12 +30,13 @@ void main() {
   programSprites.add(Utils.MakeParticles(2000));
 
   double _lastTimeMs = 0.0;
-  void animate(double timeMs) {
+  void animate(timeMs) {
+    timeMs = timeMs + 0.0;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    perlinNoise.SetTime(timeMs / 1000.0);
+    perlinNoise.SetUniform(uTime, timeMs / 1000.0);
     perspective.Adjust(canvas);
     phase.draw([]);
     HTML.window.animationFrame.then(animate);

@@ -212,12 +212,9 @@ void main() {
   Material mat = new Material("mat");
   program.add(new Mesh("quad", Shapes.Quad(1), mat));
 
-  double _lastTimeMs = 0.0;
-  void animate(double timeMs) {
-    double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
-
-    program.SetTime(timeMs /  1000.0);
+  void animate(timeMs) {
+    timeMs = 0.0 + timeMs;
+    program.SetUniform(uTime, timeMs / 1000.0);
     perspective.Adjust(canvas);
     phase.draw([]);
     HTML.window.animationFrame.then(animate);

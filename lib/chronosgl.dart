@@ -57,12 +57,6 @@ abstract class NamedEntity {
   NamedEntity(this.name);
 }
 
-abstract class ShaderInputProvider extends NamedEntity {
-  ShaderInputProvider(String name) : super(name);
-
-  void UpdateUniforms(ShaderProgramInputs inputs);
-}
-
 class RenderingPhase extends NamedEntity {
   final WEBGL.RenderingContext _gl;
   ChronosFramebuffer _framebuffer;

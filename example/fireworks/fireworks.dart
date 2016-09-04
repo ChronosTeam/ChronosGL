@@ -88,12 +88,13 @@ void main() {
   pssp.add(getRocket(Utils.createParticleTexture("fireworks")));
 
   double _lastTimeMs = 0.0;
-  void animate(double timeMs) {
+  void animate(timeMs) {
+    timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    pssp.SetTime(timeMs / 1000.0);
+    pssp.SetUniform(uTime, timeMs / 1000.0);
     perspective.Adjust(canvas);
     phase.draw([]);
     HTML.window.animationFrame.then(animate);

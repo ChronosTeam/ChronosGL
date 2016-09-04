@@ -250,10 +250,6 @@ class ShaderProgram extends ShaderProgramInputs {
     _program = new CoreProgram(_gl, shaderObjectV, shaderObjectF, name);
   }
 
-  void SetTime(double time) {
-    SetUniform(uTime, time);
-  }
-
   void add(Node obj) {
     objects.add(obj);
   }

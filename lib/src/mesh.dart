@@ -112,7 +112,7 @@ class Mesh extends Node {
   }
 
   // this gets called by Node.draw()
-  void draw2(ShaderProgram program, ist<DrawStats> stats) {
+  void draw2(ShaderProgram program, List<DrawStats> stats) {
     if (debug) {
       print("draw2: $name items ${numItems}");
       //print(program.shaderObject.textureSamplerUniform);

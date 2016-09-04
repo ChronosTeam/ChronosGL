@@ -57,8 +57,9 @@ void main() {
     basic.add(quad);
   }
   {
-    Mesh torus = new Mesh("torus", Shapes.TorusKnot(radius: 1.0, tube: 0.4), matGradient)
-      ..setPos(5.0, 0.0, 5.0);
+    Mesh torus =
+        new Mesh("torus", Shapes.TorusKnot(radius: 1.0, tube: 0.4), matGradient)
+          ..setPos(5.0, 0.0, 5.0);
     basic.add(torus);
   }
 
@@ -67,6 +68,7 @@ void main() {
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
+    timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;

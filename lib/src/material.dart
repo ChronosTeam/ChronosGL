@@ -1,7 +1,16 @@
 part of chronosgl;
 
+// An object which will update the state of ShaderProgramInputs
+abstract class ShaderInputProvider extends NamedEntity {
+  ShaderInputProvider(String name) : super(name);
+
+  void UpdateUniforms(ShaderProgramInputs inputs);
+}
+
 // For use with uniforms
-class ShaderProgramInputs extends ShaderInputProvider {
+class ShaderProgramInputs extends NamedEntity {
+  // TODO: this should contain all the state, including blending, depth writing
+  // and detect incompatible settings
   Map<String, dynamic> _uniforms = {};
   Map<String, NamedEntity> _origin = {};
 
@@ -36,22 +45,22 @@ class ShaderProgramInputs extends ShaderInputProvider {
       _origin[k] = other._origin[k];
     });
   }
-
-  void UpdateUniforms(ShaderProgramInputs inputs) {
-    inputs.MergeInputs(this);
-  }
 }
 
-class Material extends ShaderProgramInputs {
+// Material is a very light weight class that just bundles up
+// a bunch of ShaderInputs
+class Material extends ShaderInputProvider {
   bool depthTest = true;
   bool depthWrite = true;
   bool blend = false;
   int blend_sFactor = WEBGL.SRC_ALPHA;
   int blend_dFactor = WEBGL.ONE_MINUS_SRC_ALPHA; // This was ONE;
   int blendEquation = WEBGL.FUNC_ADD;
+  Map<String, dynamic> _uniforms = {};
 
-   Material(String name) : super(name);
+  Material(String name) : super(name);
 
+  // TODO: get rid of there and instead introduce some "tri-state" logic
   void RenderingInit(WEBGL.RenderingContext gl) {
     if (blend) {
       gl.enable(WEBGL.BLEND);
@@ -77,5 +86,20 @@ class Material extends ShaderProgramInputs {
     if (!depthWrite) {
       gl.depthMask(true);
     }
+  }
+
+  bool HasUniform(String canonical) {
+    return _uniforms.containsKey(canonical);
+  }
+
+  void SetUniform(String canonical, val, [bool allowOverride = false]) {
+    assert (allowOverride || !_uniforms.containsKey(canonical));
+    _uniforms[canonical] = val;
+  }
+
+  void UpdateUniforms(ShaderProgramInputs inputs) {
+    _uniforms.forEach((String k, v) {
+      inputs.SetUniformWithOrigin(this, k, v);
+    });
   }
 }

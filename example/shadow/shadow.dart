@@ -53,8 +53,8 @@ void main() {
   VM.Vector3 colWhite = new VM.Vector3(0.0, 0.0, 1.0);
   VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
 
-  Light light = new Light.Directional(posLight1, colRed, colWhite);
   //Light light = new Light.Directional(posLight1, colRed, colWhite);
+  Light light = new Light.Directional(posLight1, colRed, colWhite);
 
   //Projection shadowProjection = light.getShadowProjection();
   Projection shadowProjection = new Orthographic(orbit);

@@ -84,7 +84,7 @@ class Orthographic extends Projection {
 }
 
 class Perspective extends Projection {
-  final Camera _camera;
+  Camera _camera;
   double _fov = 50.0; // horizontal fov in deg  divided by 2
 
   double _near = 0.1;
@@ -105,6 +105,10 @@ class Perspective extends Projection {
   void UpdateFov(double fov) {
     _fov = fov;
     Update();
+  }
+
+  void UpdateCamera(Camera cam) {
+    _camera = cam;
   }
 
   void UpdateUniforms(ShaderProgramInputs inputs) {

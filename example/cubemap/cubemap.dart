@@ -1,6 +1,5 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
-import 'package:chronosgl/chronosutil.dart';
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');

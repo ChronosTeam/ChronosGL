@@ -44,7 +44,8 @@ void main() {
 
   double _lastTimeMs = 0.0;
 
-  void animate(double timeMs) {
+  void animate(timeMs) {
+    timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
@@ -53,7 +54,7 @@ void main() {
     m.rollLeft(elapsed * 0.0005);
     m.lookLeft(elapsed * 0.0005);
     for (ShaderProgram p in prgs) {
-      p.SetTime(timeMs / 1000.0);
+      p.SetUniform(uTime, timeMs / 1000.0);
     }
     perspective.Adjust(canvas);
     phase.draw([]);
