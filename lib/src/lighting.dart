@@ -8,6 +8,9 @@ const int typeLightDir = 5;
 
 const int LIGHT0 = 0;
 
+final VM.Vector3 _up = new VM.Vector3(0.0, 1.0, 0.0);
+final VM.Vector3 _up2 = new VM.Vector3(0.0, 0.0, 1.0);
+
 class Light extends ShaderInputProvider {
   int no;
   int _type;
@@ -15,12 +18,12 @@ class Light extends ShaderInputProvider {
   VM.Vector3 _dir = new VM.Vector3.zero();
   VM.Vector3 _colDiffuse = new VM.Vector3.zero();
   VM.Vector3 _colSpecular = new VM.Vector3.zero();
-  VM.Vector3 _colGround = new VM.Vector3.zero(); // for Hemisperical
+  VM.Vector3 _colGround = new VM.Vector3.zero(); // for Hemispherical
   double _range = 0.0; // for spot and point
   double _spotCutoff = 0.0; // for spot
-  double _spotFocus = 0.0; // for spot
+  double _spotFocus = 0.0;  // for spot
 
-  // Light eminating from a point in all directions.
+  // Light emanating from a point in all directions.
   // Light gets "weaker" with increased distance.
   Light.Point(
       this.no, this._pos, this._colDiffuse, this._colSpecular, this._range)
@@ -28,7 +31,7 @@ class Light extends ShaderInputProvider {
     _type = typeLightPoint;
   }
 
-  // Light cone eminating from a point.
+  // Light cone emanating from a point.
   // As the cone widens light gets "weaker"
   Light.Spot(this.no, this._pos, this._dir, this._colDiffuse, this._colSpecular,
       this._range, this._spotCutoff, this._spotFocus)
@@ -37,6 +40,8 @@ class Light extends ShaderInputProvider {
   }
 
   // Coming from one direction at infinite distance - e.g. the sun
+  // Note, the direction also included POSITIONING information!
+  // It needs to be large enough to be outside of the scene being  illuminated
   Light.Directional(this.no, this._dir, this._colDiffuse, this._colSpecular)
       : super("directional") {
     _type = typeLightDir;
@@ -46,6 +51,14 @@ class Light extends ShaderInputProvider {
       this.no, this._dir, this._colDiffuse, this._colGround, this._colSpecular)
       : super("hemispherical") {
     _type = typeLightHemi;
+  }
+
+  void getViewMatrixForShadow(VM.Matrix4 m) {
+    assert(_type == typeLightDir);
+    VM.Vector3 up = (_dir.x == 0.0 && _dir.z == 0.0) ? _up2 : _up;
+    // Note, here is where we use the fact that direction also includes
+    // position.
+    VM.setViewMatrix(m, _dir, new VM.Vector3.zero(), up);
   }
 
   // This needs to stay in sync with UnpackLightSourceInfo
@@ -87,11 +100,4 @@ class Light extends ShaderInputProvider {
   void UpdateUniforms(ShaderProgramInputs inputs) {
     inputs.SetUniformWithOrigin(this, uLightSourceInfo + "${no}", PackInfo());
   }
-
-  /*
-  Projection getShadowProjection() {
-    assert(_type == typeLightDir);
-    return new ShadowMapProjection(_dir);
-  }
-  */
 }

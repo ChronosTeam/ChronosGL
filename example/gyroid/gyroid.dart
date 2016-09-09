@@ -209,8 +209,7 @@ void main() {
   RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
 
   ShaderProgram program = phase.createProgram(createSphericalGyroidShader());
-  Material mat = new Material("mat");
-  program.add(new Mesh("quad", Shapes.Quad(1), mat));
+  program.add(UnitMesh);
 
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;

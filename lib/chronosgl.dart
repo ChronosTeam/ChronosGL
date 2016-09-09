@@ -57,6 +57,10 @@ abstract class NamedEntity {
   NamedEntity(this.name);
 }
 
+final MeshData UnitQuad = Shapes.Quad(1);
+final Material EmptyMaterial =  new Material("empty-mat");
+final Mesh UnitMesh = new Mesh("unit-mesh",  UnitQuad, EmptyMaterial);
+
 class RenderingPhase extends NamedEntity {
   final WEBGL.RenderingContext _gl;
   ChronosFramebuffer _framebuffer;

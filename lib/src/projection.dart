@@ -29,31 +29,6 @@ abstract class Projection extends ShaderInputProvider {
   void Update();
 }
 
-/*
-class ShadowMapProjection extends Projection {
-  final VM.Matrix4 _proj = new VM.Matrix4.zero();
-  final VM.Matrix4 _view = new VM.Matrix4.zero();
-  final VM.Vector3 _vec = new VM.Vector3.zero();
-  final VM.Vector3 _zero = new VM.Vector3.zero();
-  final VM.Vector3 _up = new VM.Vector3(0.0, 1.0, 0.0);
-  final VM.Vector3 _dir = new VM.Vector3.zero();
-  final VM.Vector3 _pos = new VM.Vector3(0.0, 0.0, 100.0);
-
-  ShadowMapProjection(VM.Vector3 dir) : super("shadow-map") {
-    _dir.setFrom(dir);
-  }
-
-  void UpdateUniforms(ShaderProgramInputs inputs) {
-    final double dim = 5000.0;
-    VM.setOrthographicMatrix(_proj, -dim, dim, -dim, dim, 0, -dim);
-    VM.setViewMatrix(_view, , _dir, _up);
-    _proj.multiply(_view);
-    inputs.SetUniformVal(this, uPerspectiveViewMatrix, _proj);
-  }
-
-  void Update() {}
-}
-*/
 
 class Orthographic extends Projection {
   final Camera _camera;
@@ -66,11 +41,42 @@ class Orthographic extends Projection {
   double _f;
   double _b;
 
+  // d = "down", up is computed dynamically based on height & width
   Orthographic(this._camera, this._l, this._r, this._d, this._f, this._b)
       : super("othrogrpahic") {}
 
   void UpdateUniforms(ShaderProgramInputs inputs) {
     _camera.getViewMatrix(_viewMatrix);
+    _projViewMatrix.setFrom(_proj);
+    _projViewMatrix.multiply(_viewMatrix);
+    inputs.SetUniformWithOrigin(this, uPerspectiveViewMatrix, _projViewMatrix);
+  }
+
+  void Update() {
+    double w = _r - _l;
+    double h = height * w / width;
+    VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + h, _f, _b);
+  }
+}
+
+// very much like a orthographic
+class ShadowProjection extends Projection {
+  final Light _light;
+  final VM.Matrix4 _proj = new VM.Matrix4.zero();
+  final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
+  final VM.Matrix4 _projViewMatrix = new VM.Matrix4.identity();
+  double _l;
+  double _r;
+  double _d;
+  double _f;
+  double _b;
+
+  // d = "down", up is computed dynamically based on height & width
+  ShadowProjection(this._light, this._l, this._r, this._d, this._f, this._b)
+      : super("shadow-projection") {}
+
+  void UpdateUniforms(ShaderProgramInputs inputs) {
+    _light.getViewMatrixForShadow(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
     _projViewMatrix.multiply(_viewMatrix);
     inputs.SetUniformWithOrigin(this, uPerspectiveViewMatrix, _projViewMatrix);

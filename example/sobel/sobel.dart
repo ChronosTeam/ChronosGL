@@ -20,10 +20,11 @@ void main() {
   RenderingPhase phase2 =
       new RenderingPhase("phase2", chronosGL.gl, perspective, null);
   ShaderProgram prg2 = phase2.createProgram(createSobelShader());
-  Material mat = new Material("sobel")
+
+  prg2
     ..SetUniform(uTexture2Sampler, fb.depthTexture)
-    ..SetUniform(uTextureSampler, fb.colorTexture);
-  prg2.add(new Mesh("quad", Shapes.Quad(1), mat));
+    ..SetUniform(uTextureSampler, fb.colorTexture)
+    ..add(UnitMesh);
 
   RenderingPhase phase1only =
       new RenderingPhase("phase1only", chronosGL.gl, perspective, null);

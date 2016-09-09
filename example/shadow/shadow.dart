@@ -42,6 +42,31 @@ List<ShaderObject> createShadowShader() {
   ];
 }
 
+String _CopyImpl = """
+ void main() {
+     vec2 v = ${vTextureCoordinates}.xy;
+     gl_FragColor.r = texture2D (${uTextureSampler}, v).r;
+ }
+ """;
+
+List<ShaderObject> createCopyShader() {
+  return [
+    new ShaderObject("copyV")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVar(aTextureCoordinates)
+      ..AddVaryingVar(vTextureCoordinates)
+      ..SetBodyWithMain(
+          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+    new ShaderObject("copyF")
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uTextureSampler)
+      ..SetBodyWithMain([
+        "vec2 v = ${vTextureCoordinates}.xy;",
+        "gl_FragColor.rgb = texture2D (${uTextureSampler}, v).rgb;"
+      ])
+  ];
+}
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -49,19 +74,33 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
-  VM.Vector3 posLight1 = new VM.Vector3(10.0, 10.0, 0.0);
+  VM.Vector3 posLight1 = new VM.Vector3(0.0, 50.0, 0.0);
   VM.Vector3 colWhite = new VM.Vector3(0.0, 0.0, 1.0);
   VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
 
-  //Light light = new Light.Directional(posLight1, colRed, colWhite);
-  Light light = new Light.Directional(posLight1, colRed, colWhite);
+  Light light = new Light.Directional(0, posLight1, colRed, colWhite);
+  ChronosFramebuffer shadowBuffer =
+      new ChronosFramebuffer(chronosGL.gl, 500, 500);
 
-  //Projection shadowProjection = light.getShadowProjection();
-  Projection shadowProjection = new Orthographic(orbit);
-  //Projection shadowProjection = new Perspective(orbit);
-  RenderingPhase phaseShadow =
-      new RenderingPhase("shadow", chronosGL.gl, shadowProjection);
-  ShaderProgram shadowMap = phaseShadow.createProgram(createShadowShader());
+  //Projection shadowProjection =
+  //   new Orthographic(orbit, -100.0, 100.0, -100.0, 0.0, 100.0);
+
+  Projection shadowProjection =
+      new ShadowProjection(light, -20.0, 20.0, -20.0, 0.0, 100.0);
+
+  RenderingPhase phaseComputeShadow = new RenderingPhase(
+      "compute-shadow", chronosGL.gl, shadowProjection, shadowBuffer);
+  ShaderProgram shadowMap =
+      phaseComputeShadow.createProgram(createShadowShader());
+
+  RenderingPhase phaseDisplayShadow =
+      new RenderingPhase("display-shadow", chronosGL.gl, shadowProjection);
+
+  ShaderProgram copyToScreen =
+      phaseDisplayShadow.createProgram(createCopyShader());
+
+  copyToScreen.SetUniform(uTextureSampler, shadowBuffer.colorTexture);
+  copyToScreen.add(UnitMesh);
 
   Perspective perspective = new Perspective(orbit);
   RenderingPhase phaseMain =
@@ -127,7 +166,8 @@ void main() {
       phaseMain.createProgram(createSolidColorShader());
   Material icoMat = new Material("sphere")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
-  Mesh ico1 = new Mesh("spehere", Shapes.Icosahedron(), icoMat)..setPosFromVec(posLight1);
+  Mesh ico1 = new Mesh("spehere", Shapes.Icosahedron(), icoMat)
+    ..setPosFromVec(posLight1);
 
   fixedShaderPrg.add(ico1);
   perspective.Adjust(canvas, 0.5);
@@ -140,11 +180,15 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    phaseShadow.viewPortX = perspective.width;
-    phaseShadow.draw([]);
+    phaseComputeShadow.draw([light]);
+
+    phaseDisplayShadow.viewPortX = perspective.width;
+    phaseDisplayShadow.draw([]);
+
     phaseMain.draw([light]);
     HTML.window.animationFrame.then(animate);
   }
+
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     animate(0.0);
   });

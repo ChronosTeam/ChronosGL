@@ -16,16 +16,18 @@ void main() {
   ChronosFramebuffer fb = new ChronosFramebuffer(
       chronosGL.gl, perspective.width, perspective.height);
 
-  RenderingPhase phase1 = new RenderingPhase("phase1", chronosGL.gl, perspective, fb);
+  RenderingPhase phase1 =
+      new RenderingPhase("phase1", chronosGL.gl, perspective, fb);
 
   ShaderProgram prg1 = phase1.createProgram(createSolidColorShader());
 
-  RenderingPhase phase2 = new RenderingPhase("phase2", chronosGL.gl, perspective, null);
+  RenderingPhase phase2 =
+      new RenderingPhase("phase2", chronosGL.gl, perspective, null);
   ShaderProgram prg2 = phase2.createProgram(createSSAOShader());
-  Material mat = new Material("ssao")
+  prg2
     ..SetUniform(uTexture2Sampler, fb.depthTexture)
-    ..SetUniform(uTextureSampler, fb.colorTexture);
-  prg2.add(new Mesh("quad", Shapes.Quad(1), mat));
+    ..SetUniform(uTextureSampler, fb.colorTexture)
+    ..add(UnitMesh);
 
   RenderingPhase phase1only =
       new RenderingPhase("phase1only", chronosGL.gl, perspective, null);
@@ -66,6 +68,7 @@ void main() {
       }
       HTML.window.animationFrame.then(animate);
     }
+
     Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
       animate(0.0);
     });
