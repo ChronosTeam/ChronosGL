@@ -13,7 +13,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
   ShaderProgram basic = phase.createProgram(createTexturedShader());
 
   //TextureWrapper red = new TextureWrapper.SolidColor("red", "rgba(255,0,0,1)");
@@ -75,7 +75,8 @@ void main() {
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
     perspective.Adjust(canvas);
-    phase.draw([]);
+    phase.UpdateViewPort(canvas);
+    phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }
 

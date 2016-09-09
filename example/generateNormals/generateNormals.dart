@@ -6,7 +6,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(25.0, -45.0, 0.3);
   Perspective perspective = new Perspective(orbit, 0.1, 2520.0);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
   ShaderProgram prg = phase.createProgram(createNormal2ColorShader());
 
   List<MeshData> mymd = new List<MeshData>();
@@ -47,13 +47,15 @@ void main() {
     }
 
     double _lastTimeMs = 0.0;
-    void animate(double timeMs) {
+    void animate(timeMs) {
+      timeMs = 0.0 + timeMs;
       double elapsed = timeMs - _lastTimeMs;
       _lastTimeMs = timeMs;
       orbit.azimuth += 0.001;
       orbit.animate(elapsed);
       perspective.Adjust(canvas);
-      phase.draw([]);
+      phase.UpdateViewPort(canvas);
+      phase.draw([perspective]);
       HTML.window.animationFrame.then(animate);
     }
 

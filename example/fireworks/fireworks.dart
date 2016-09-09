@@ -78,7 +78,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
 
   ShaderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
@@ -96,7 +96,8 @@ void main() {
     orbit.animate(elapsed);
     pssp.SetUniform(uTime, timeMs / 1000.0);
     perspective.Adjust(canvas);
-    phase.draw([]);
+    phase.UpdateViewPort(canvas);
+    phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }
 

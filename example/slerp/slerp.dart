@@ -41,7 +41,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
   ShaderProgram prg = phase.createProgram(createDemoShader());
 
   Material mat = new Material("mat");
@@ -102,7 +102,8 @@ void main() {
       orbit.animate(elapsed);
       animateNode(elapsed);
       perspective.Adjust(canvas);
-      phase.draw([]);
+      phase.UpdateViewPort(canvas);
+      phase.draw([perspective]);
       HTML.window.animationFrame.then(animate);
     }
 

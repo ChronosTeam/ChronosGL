@@ -12,7 +12,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   TorusKnotCamera tkc = new TorusKnotCamera();
   Perspective perspective = new Perspective(tkc);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
 
   ShaderProgram programBasic = phase.createProgram(createTexturedShader());
 
@@ -54,7 +54,8 @@ void main() {
         WEBGL.UNSIGNED_BYTE, canvas2d);
 
     perspective.Adjust(canvas);
-    phase.draw([]);
+    phase.UpdateViewPort(canvas);
+    phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }
 

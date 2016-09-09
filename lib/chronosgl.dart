@@ -58,8 +58,8 @@ abstract class NamedEntity {
 }
 
 final MeshData UnitQuad = Shapes.Quad(1);
-final Material EmptyMaterial =  new Material("empty-mat");
-final Mesh UnitMesh = new Mesh("unit-mesh",  UnitQuad, EmptyMaterial);
+final Material EmptyMaterial = new Material("empty-mat");
+final Mesh UnitMesh = new Mesh("unit-mesh", UnitQuad, EmptyMaterial);
 
 class RenderingPhase extends NamedEntity {
   final WEBGL.RenderingContext _gl;
@@ -70,24 +70,32 @@ class RenderingPhase extends NamedEntity {
   bool clearDepthBuffer = true;
   int viewPortX = 0;
   int viewPortY = 0;
+  int viewPortW = 0;
+  int viewPortH = 0;
   List<DrawStats> stats = null;
-  final Projection _perspective;
 
-  RenderingPhase(String name, this._gl, this._perspective,
-      [this._framebuffer = null])
+  RenderingPhase(String name, this._gl, [this._framebuffer = null])
       : super(name);
 
   void SetFramebuffer(ChronosFramebuffer fb) {
     _framebuffer = fb;
   }
 
-  void draw(List<ShaderInputProvider> lights) {
+  void UpdateViewPort(HTML.CanvasElement canvas,
+      [double xscale = 1.0, double yscale = 1.0]) {
+    viewPortW = (xscale * canvas.clientWidth).floor();
+    viewPortH = (yscale * canvas.clientHeight).floor();
+  }
+
+  void draw(List<ShaderInputProvider> inputs) {
     if (_framebuffer == null) {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
     } else {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, _framebuffer.framebuffer);
     }
-    _gl.viewport(viewPortX, viewPortY, _perspective.width, _perspective.height);
+    assert(viewPortW > 0 && viewPortH > 0);
+    /print ("@@@@ ${viewPortW}  ${viewPortH} ");
+    _gl.viewport(viewPortX, viewPortY, viewPortW, viewPortH);
 
     if (clearColorBuffer || clearDepthBuffer) {
       int mode = 0;
@@ -98,8 +106,7 @@ class RenderingPhase extends NamedEntity {
 
     for (ShaderProgram prg in _programs) {
       if (!prg.hasEnabledObjects()) continue;
-      _perspective.UpdateUniforms(prg);
-      for (ShaderInputProvider p in lights) {
+      for (ShaderInputProvider p in inputs) {
         p.UpdateUniforms(prg);
       }
       prg.draw(stats);

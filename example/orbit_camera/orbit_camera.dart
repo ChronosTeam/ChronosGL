@@ -8,7 +8,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
   ShaderProgram prg = phase.createProgram(createSolidColorShader());
 
   MeshData sphere = Shapes.Icosahedron();
@@ -48,7 +48,8 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     perspective.Adjust(canvas);
-    phase.draw([]);
+    phase.UpdateViewPort(canvas);
+    phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }
 

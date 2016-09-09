@@ -13,16 +13,18 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
   Perspective perspective = new Perspective(orbit, 0.1, 2520.0);
   perspective.Adjust(canvas);
-  ChronosFramebuffer fb = new ChronosFramebuffer(
-      chronosGL.gl, perspective.width, perspective.height);
+  final width = canvas.clientWidth;
+  final height = canvas.clientHeight;
 
-  RenderingPhase phase1 =
-      new RenderingPhase("phase1", chronosGL.gl, perspective, fb);
+  ChronosFramebuffer fb = new ChronosFramebuffer(chronosGL.gl, width, height);
+
+  RenderingPhase phase1 = new RenderingPhase("phase1", chronosGL.gl, fb);
+  phase1.UpdateViewPort(canvas);
 
   ShaderProgram prg1 = phase1.createProgram(createSolidColorShader());
 
-  RenderingPhase phase2 =
-      new RenderingPhase("phase2", chronosGL.gl, perspective, null);
+  RenderingPhase phase2 = new RenderingPhase("phase2", chronosGL.gl, null);
+  phase2.UpdateViewPort(canvas);
   ShaderProgram prg2 = phase2.createProgram(createSSAOShader());
   prg2
     ..SetUniform(uTexture2Sampler, fb.depthTexture)
@@ -30,7 +32,8 @@ void main() {
     ..add(UnitMesh);
 
   RenderingPhase phase1only =
-      new RenderingPhase("phase1only", chronosGL.gl, perspective, null);
+      new RenderingPhase("phase1only", chronosGL.gl, null);
+  phase1only.UpdateViewPort(canvas);
   phase1only.AddShaderProgram(prg1);
 
   bool useSSAO = true;
@@ -54,17 +57,18 @@ void main() {
     prg1.add(mesh);
 
     double _lastTimeMs = 0.0;
-    void animate(double timeMs) {
+    void animate(timeMs) {
+      timeMs = 0.0 + timeMs;
       double elapsed = timeMs - _lastTimeMs;
       _lastTimeMs = timeMs;
       orbit.animate(elapsed);
       fps.UpdateFrameCount(timeMs);
       //perspective.Adjust(canvas);
       if (useSSAO) {
-        phase1.draw([]);
-        phase2.draw([]);
+        phase1.draw([perspective]);
+        phase2.draw([perspective]);
       } else {
-        phase1only.draw([]);
+        phase1only.draw([perspective]);
       }
       HTML.window.animationFrame.then(animate);
     }

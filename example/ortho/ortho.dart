@@ -49,16 +49,15 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
-  double d= 20.0;
+  double d = 20.0;
   Projection orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
-  RenderingPhase phaseOrthograhic =
-      new RenderingPhase("shadow", chronosGL.gl, orthographic);
+  RenderingPhase phaseOrthograhic = new RenderingPhase("shadow", chronosGL.gl);
   ShaderProgram prgOrthographic =
       phaseOrthograhic.createProgram(createTexturedShader());
 
   Perspective perspective = new Perspective(orbit);
   RenderingPhase phasePerspective =
-      new RenderingPhase("perspective", chronosGL.gl, perspective);
+      new RenderingPhase("perspective", chronosGL.gl);
   phasePerspective.clearColorBuffer = false;
   ShaderProgram prgPerspective =
       phasePerspective.createProgram(createTexturedShader());
@@ -107,8 +106,6 @@ void main() {
     prgPerspective.add(m);
   }
 
-  perspective.Adjust(canvas, 0.5);
-  orthographic.Adjust(canvas, 0.5);
   double _lastTimeMs = 0.0;
 
   void animate(timeMs) {
@@ -118,11 +115,17 @@ void main() {
     //orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    phaseOrthograhic.viewPortX = perspective.width;
-    phaseOrthograhic.draw([]);
-    phasePerspective.draw([]);
+    perspective.Adjust(canvas, 0.5);
+    orthographic.Adjust(canvas, 0.5);
+    phaseOrthograhic.UpdateViewPort(canvas, 0.5);
+    phasePerspective.UpdateViewPort(canvas, 0.5);
+    phaseOrthograhic.viewPortX = phasePerspective.viewPortW;
+
+    phaseOrthograhic.draw([orthographic]);
+    phasePerspective.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }
+
   Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
     animate(0.0);
   });

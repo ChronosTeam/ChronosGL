@@ -13,14 +13,13 @@ void main() {
   orbit.setPos(0.0, 0.0, 56.0);
   Perspective perspective = new Perspective(orbit, 0.1, 10000.0);
   RenderingPhase phaseBlinnPhong =
-      new RenderingPhase("blinn-phong", chronosGL.gl, perspective);
+      new RenderingPhase("blinn-phong", chronosGL.gl);
   ShaderProgram lightBlinnPhong =
       phaseBlinnPhong.createProgram(createLightShaderBlinnPhong());
   ShaderProgram fixedBlinnPhong =
       phaseBlinnPhong.createProgram(createSolidColorShader());
 
-  RenderingPhase phaseGourad =
-      new RenderingPhase("gourad", chronosGL.gl, perspective);
+  RenderingPhase phaseGourad = new RenderingPhase("gourad", chronosGL.gl);
   ShaderProgram lightGourad =
       phaseGourad.createProgram(createLightShaderGourad());
   ShaderProgram fixedGourad =
@@ -99,7 +98,7 @@ void main() {
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
-    timeMs += 0.0;   // bug workaround - force double
+    timeMs += 0.0; // bug workaround - force double
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
@@ -115,7 +114,8 @@ void main() {
     Light light = lights[selectLight.selectedIndex];
     RenderingPhase phase =
         selectPhase.selectedIndex == 0 ? phaseBlinnPhong : phaseGourad;
-    phase.draw([light]);
+    phase.UpdateViewPort(canvas);
+    phase.draw([perspective, light]);
 
     HTML.window.animationFrame.then(animate);
   }

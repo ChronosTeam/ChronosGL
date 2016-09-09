@@ -88,13 +88,13 @@ void main() {
   Projection shadowProjection =
       new ShadowProjection(light, -20.0, 20.0, -20.0, 0.0, 100.0);
 
-  RenderingPhase phaseComputeShadow = new RenderingPhase(
-      "compute-shadow", chronosGL.gl, shadowProjection, shadowBuffer);
+  RenderingPhase phaseComputeShadow =
+      new RenderingPhase("compute-shadow", chronosGL.gl, shadowBuffer);
   ShaderProgram shadowMap =
       phaseComputeShadow.createProgram(createShadowShader());
 
   RenderingPhase phaseDisplayShadow =
-      new RenderingPhase("display-shadow", chronosGL.gl, shadowProjection);
+      new RenderingPhase("display-shadow", chronosGL.gl);
 
   ShaderProgram copyToScreen =
       phaseDisplayShadow.createProgram(createCopyShader());
@@ -103,8 +103,7 @@ void main() {
   copyToScreen.add(UnitMesh);
 
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phaseMain =
-      new RenderingPhase("main", chronosGL.gl, perspective);
+  RenderingPhase phaseMain = new RenderingPhase("main", chronosGL.gl);
   phaseMain.clearColorBuffer = false;
   ShaderProgram basic = phaseMain.createProgram(createLightShaderBlinnPhong());
 
@@ -174,18 +173,22 @@ void main() {
   shadowProjection.Adjust(canvas, 0.5);
   double _lastTimeMs = 0.0;
 
-  void animate(double timeMs) {
+  void animate(timeMs) {
+    timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    phaseComputeShadow.draw([light]);
+    phaseComputeShadow.UpdateViewPort(canvas, 0.5);
+    phaseDisplayShadow.UpdateViewPort(canvas, 0.5);
+    phaseMain.UpdateViewPort(canvas, 0.5);
+    phaseDisplayShadow.viewPortX = phaseMain.viewPortW;
 
-    phaseDisplayShadow.viewPortX = perspective.width;
-    phaseDisplayShadow.draw([]);
+    phaseComputeShadow.draw([shadowProjection, light]);
+    phaseDisplayShadow.draw([shadowProjection]);
+    phaseMain.draw([perspective, light]);
 
-    phaseMain.draw([light]);
     HTML.window.animationFrame.then(animate);
   }
 

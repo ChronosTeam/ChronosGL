@@ -7,7 +7,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(165.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
   ShaderProgram programBasic = phase.createProgram(createTexturedShader());
 
   Texture blockTex = new ImageTexture("../gradient.jpg");
@@ -18,11 +18,13 @@ void main() {
   Material mat = new Material("torus")
     ..SetUniform(uTextureSampler, blockTex)
     ..SetUniform(uColor, new VM.Vector3.zero());
-  Mesh m1 = new Mesh("torus1", Shapes.TorusKnot(), mat)..setPos(-50.0, 0.0, 0.0);
+  Mesh m1 = new Mesh("torus1", Shapes.TorusKnot(), mat)
+    ..setPos(-50.0, 0.0, 0.0);
   programBasic.add(m1);
 
   Material matDummy = new Material("mat");
-  Mesh m2 = new Mesh("torus2", Shapes.TorusKnot(), matDummy)..setPos(50.0, 0.0, 0.0);
+  Mesh m2 = new Mesh("torus2", Shapes.TorusKnot(), matDummy)
+    ..setPos(50.0, 0.0, 0.0);
   perlinNoise.add(m2);
 
   ShaderProgram programSprites =
@@ -38,7 +40,8 @@ void main() {
     orbit.animate(elapsed);
     perlinNoise.SetUniform(uTime, timeMs / 1000.0);
     perspective.Adjust(canvas);
-    phase.draw([]);
+    phase.UpdateViewPort(canvas);
+    phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }
 

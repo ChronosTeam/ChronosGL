@@ -7,7 +7,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(65.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
   List<ShaderProgram> prgs = new List<ShaderProgram>();
   prgs.add(phase.createProgram(createPlasmaShader()));
   prgs.add(phase.createProgram(createPlasmaShader2()));
@@ -57,7 +57,8 @@ void main() {
       p.SetUniform(uTime, timeMs / 1000.0);
     }
     perspective.Adjust(canvas);
-    phase.draw([]);
+    phase.UpdateViewPort(canvas);
+    phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }
 

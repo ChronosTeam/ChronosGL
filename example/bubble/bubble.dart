@@ -41,7 +41,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(5.0, 10.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
   // Note, moving the camera does not have an effect
 
   Texture bubble = new ImageTexture("sphere.png");
@@ -63,7 +63,8 @@ void main() {
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
     perspective.Adjust(canvas);
-    phase.draw([]);
+    phase.UpdateViewPort(canvas);
+    phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }
 

@@ -18,7 +18,7 @@ void main() {
   if (ext == null) HTML.window.alert("OES_standard_derivatives not supported");
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
   ShaderProgram program = phase.createProgram(createWireframeShader());
   final Material matWireframe = new Material("wire")
     ..SetUniform(uColorAlpha, new VM.Vector4(1.0, 1.0, 0.0, 1.0))
@@ -66,14 +66,16 @@ void main() {
   chronosGL.gl.enable(WEBGL.CULL_FACE);
 
   double _lastTimeMs = 0.0;
-  void animate(double timeMs) {
+  void animate(timeMs) {
+    timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
     perspective.Adjust(canvas);
-    phase.draw([]);
+    phase.UpdateViewPort(canvas);
+    phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }
 

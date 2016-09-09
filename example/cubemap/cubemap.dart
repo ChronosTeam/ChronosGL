@@ -9,7 +9,7 @@ void main() {
 
   Texture cubeTex = new CubeTexture("stars", "skybox_", ".png");
 
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl, perspective);
+  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
   ShaderProgram programCM = phase.createProgram(createCubeMapShader());
   Mesh sky = Utils.MakeSkycube(cubeTex);
   programCM.add(sky);
@@ -23,13 +23,15 @@ void main() {
   programSprites.add(Utils.MakeParticles(2000));
 
   double _lastTimeMs = 0.0;
-  void animate(double timeMs) {
+  void animate(timeMs) {
+     timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     perspective.Adjust(canvas);
-    phase.draw([]);
+     phase.UpdateViewPort(canvas);
+    phase.draw([perspective]);
 
     HTML.window.animationFrame.then(animate);
   }
