@@ -27,6 +27,9 @@ void main() {
   phase2.UpdateViewPort(canvas);
   ShaderProgram prg2 = phase2.createProgram(createSSAOShader());
   prg2
+    ..SetUniform(uCameraNear, 0.1)
+    ..SetUniform(uCameraFar, 2529.0)
+    ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetUniform(uTexture2Sampler, fb.depthTexture)
     ..SetUniform(uTextureSampler, fb.colorTexture)
     ..add(UnitMesh);

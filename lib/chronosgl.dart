@@ -83,6 +83,9 @@ class RenderingPhase extends NamedEntity {
 
   void UpdateViewPort(HTML.CanvasElement canvas,
       [double xscale = 1.0, double yscale = 1.0]) {
+    // TODO: FIX THIS
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
     viewPortW = (xscale * canvas.clientWidth).floor();
     viewPortH = (yscale * canvas.clientHeight).floor();
   }
@@ -94,7 +97,6 @@ class RenderingPhase extends NamedEntity {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, _framebuffer.framebuffer);
     }
     assert(viewPortW > 0 && viewPortH > 0);
-    /print ("@@@@ ${viewPortW}  ${viewPortH} ");
     _gl.viewport(viewPortX, viewPortY, viewPortW, viewPortH);
 
     if (clearColorBuffer || clearDepthBuffer) {

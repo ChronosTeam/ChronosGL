@@ -22,8 +22,8 @@ void main() {
   phase2.UpdateViewPort(canvas);
 
   ShaderProgram prg2 = phase2.createProgram(createSobelShader());
-
   prg2
+    ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetUniform(uTexture2Sampler, fb.depthTexture)
     ..SetUniform(uTextureSampler, fb.colorTexture)
     ..add(UnitMesh);

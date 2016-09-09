@@ -3,20 +3,18 @@ part of chronosgl;
 abstract class Projection extends ShaderInputProvider {
   Projection(String name) : super(name);
 
-  void UpdateUniforms(ShaderProgramInputs inputs);
-  void AdjustAspect(w, h);
-
   void Adjust(HTML.CanvasElement canvas,
       [double xscale = 1.0, double yscale = 1.0]) {
-    int w = (canvas.clientWidth * xscale).floor();
-    int h = (canvas.clientHeight * yscale).floor();
-    // TODO: FIX THIS
-    canvas.width = w;
-    canvas.height = h;
-    AdjustAspect(w, h);
+    final int w = (xscale * canvas.clientWidth).floor();
+    final int h = (yscale * canvas.clientHeight).floor();
+    SetAspect(w / h);
   }
 
-  void Update();
+  void SetAspect(double aspect);
+
+  void SetAspectWH(int w, int h) {
+    SetAspect(w / h);
+  }
 }
 
 class Orthographic extends Projection {
@@ -24,12 +22,12 @@ class Orthographic extends Projection {
   final VM.Matrix4 _proj = new VM.Matrix4.zero();
   final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
   final VM.Matrix4 _projViewMatrix = new VM.Matrix4.identity();
-  double _aspect = 1.0;
   double _l;
   double _r;
   double _d;
   double _f;
   double _b;
+  double _aspect = 1.0;
 
   // d = "down", up is computed dynamically based on height & width
   Orthographic(this._camera, this._l, this._r, this._d, this._f, this._b)
@@ -44,17 +42,16 @@ class Orthographic extends Projection {
     inputs.SetUniformWithOrigin(this, uPerspectiveViewMatrix, _projViewMatrix);
   }
 
-  void Update() {
-    double w = _r - _l;
-    double h = w / _aspect;
-    VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + h, _f, _b);
+  void SetAspect(double aspect) {
+    if (aspect == _aspect) return;
+    _aspect = aspect;
+    Update();
   }
 
-  void AdjustAspect(int w, int h) {
-    double a = w / h;
-    if (_aspect == a) return;
-    _aspect = a;
-    Update();
+  void Update() {
+    double width = _r - _l;
+    double height = width / _aspect;
+    VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + height, _f, _b);
   }
 }
 
@@ -64,12 +61,12 @@ class ShadowProjection extends Projection {
   final VM.Matrix4 _proj = new VM.Matrix4.zero();
   final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
   final VM.Matrix4 _projViewMatrix = new VM.Matrix4.identity();
-  double _aspect = 1.0;
   double _l;
   double _r;
   double _d;
   double _f;
   double _b;
+  double _aspect = 1.0;
 
   // d = "down", up is computed dynamically based on height & width
   ShadowProjection(this._light, this._l, this._r, this._d, this._f, this._b)
@@ -84,26 +81,26 @@ class ShadowProjection extends Projection {
     inputs.SetUniformWithOrigin(this, uPerspectiveViewMatrix, _projViewMatrix);
   }
 
-  void AdjustAspect(int w, int h) {
-    double a = w / h;
-    if (_aspect == a) return;
-    _aspect = a;
+  void SetAspect(double aspect) {
+    if (aspect == _aspect) return;
+    _aspect = aspect;
     Update();
   }
 
   void Update() {
-    double w = _r - _l;
-    double h = w / _aspect;
-    VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + h, _f, _b);
+    double width = _r - _l;
+    double height = width / _aspect;
+    VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + height, _f, _b);
   }
 }
 
 class Perspective extends Projection {
   Camera _camera;
   double _fov = 50.0; // horizontal fov in deg  divided by 2
-  double _aspect = 1.0;
+
   double _near = 0.1;
   double _far = 1000.0;
+  double _aspect = 1.0;
   final VM.Matrix4 _perspectiveViewMatrix = new VM.Matrix4.identity();
   final VM.Matrix4 _viewMatrix = new VM.Matrix4.identity();
   final VM.Matrix4 _mat = new VM.Matrix4.zero();
@@ -114,19 +111,19 @@ class Perspective extends Projection {
     Update();
   }
 
-  void AdjustAspect(int w, int h) {
-    double a = w / h;
-    if (_aspect == a) return;
-    _aspect = a;
-    Update();
-  }
-
   void Update() {
+    print ("@@@@@@@update: ${_aspect}");
     VM.setPerspectiveMatrix(_mat, _fov * Math.PI / 180.0, _aspect, _near, _far);
   }
 
+  void SetAspect(double aspect) {
+    if (aspect == _aspect) return;
+    _aspect = aspect;
+    Update();
+  }
+
   void UpdateFov(double fov) {
-    if (_fov == fov) return;
+    if (fov == _fov) return;
     _fov = fov;
     Update();
   }
@@ -135,7 +132,7 @@ class Perspective extends Projection {
     _camera = cam;
   }
 
-  void UpdateUniforms(ShaderProgramInputs inputs) {
+  void UpdateUniforms(ShaderProgramInputs inputs) {;
     inputs.SetUniformWithOrigin(this, uEyePosition, _camera.getEyePosition());
     _camera.getViewMatrix(_viewMatrix);
     _perspectiveViewMatrix.setFrom(_mat);
