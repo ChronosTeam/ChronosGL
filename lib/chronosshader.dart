@@ -2,6 +2,7 @@ library chronosshader;
 
 part 'src/shader/shader_object.dart';
 
+part 'src/shader/simple_shaders.dart';
 part 'src/shader/basic_shader.dart';
 part 'src/shader/blur_shader.dart';
 

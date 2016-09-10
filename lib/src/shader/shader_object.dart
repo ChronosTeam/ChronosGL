@@ -118,7 +118,7 @@ Map<String, ShaderVarDesc> _VarsDb = {
   vLightWeighting: new ShaderVarDesc("vec3", ""),
   vNormal: new ShaderVarDesc("vec3", ""),
   vVertexPosition: new ShaderVarDesc("vec3", "vertex coordinates"),
-  vPositionFromLight0: new ShaderVarDesc("vec3", "delta from light"),
+  vPositionFromLight0: new ShaderVarDesc("vec4", "delta from light"),
   vCenter: new ShaderVarDesc("vec4", "for wireframe"),
 
   // uniform vars

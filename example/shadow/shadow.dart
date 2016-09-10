@@ -5,7 +5,6 @@ import 'dart:html' as HTML;
 import 'package:vector_math/vector_math.dart' as VM;
 
 
-
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -18,6 +17,9 @@ void main() {
   VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
 
   Light light = new Light.Directional(0, posLight1, colRed, colWhite);
+
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
 
   int w = canvas.clientWidth ~/ 2;
   int h = canvas.clientHeight;
@@ -44,7 +46,8 @@ void main() {
       new RenderingPhase("display-shadow", chronosGL.gl);
 
   ShaderProgram copyToScreen =
-      phaseDisplayShadow.createProgram(createCopyShader());
+      phaseDisplayShadow.createProgram(createCopyShaderForShadow());
+  //phaseDisplayShadow.createProgram(createCopyShader());
 
   copyToScreen.SetUniform(uTextureSampler, shadowBuffer.colorTexture);
   copyToScreen.add(UnitMesh);
@@ -52,6 +55,7 @@ void main() {
   RenderingPhase phaseMain = new RenderingPhase("main", chronosGL.gl);
   phaseMain.clearColorBuffer = false;
   ShaderProgram basic = phaseMain.createProgram(createLightShaderBlinnPhongWithShadow());
+
   basic.SetUniform(uShadowSampler0, shadowBuffer.colorTexture);
 
   Texture solid = new CanvasTexture.SolidColor("red-solid", "red");
@@ -107,6 +111,7 @@ void main() {
     basic.add(cube);
   }
 
+
   // Create sphere representing the light source
   ShaderProgram fixedShaderPrg =
       phaseMain.createProgram(createSolidColorShader());
@@ -119,6 +124,10 @@ void main() {
 
   double _lastTimeMs = 0.0;
 
+  phaseDisplayShadow.UpdateViewPort(canvas, 0.5);
+  phaseMain.UpdateViewPort(canvas, 0.5);
+  phaseDisplayShadow.viewPortX = phaseMain.viewPortW;
+
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
@@ -127,12 +136,13 @@ void main() {
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
 
-    phaseDisplayShadow.UpdateViewPort(canvas, 0.5);
-    phaseMain.UpdateViewPort(canvas, 0.5);
-    phaseDisplayShadow.viewPortX = phaseMain.viewPortW;
 
+
+    // Compute the shadow map
     phaseComputeShadow.draw([shadowProjection, light]);
+    // show the shadow map
     phaseDisplayShadow.draw([shadowProjection]);
+    // render scene utilizing shadow map
     phaseMain.draw([perspective, shadowProjection, light]);
 
     HTML.window.animationFrame.then(animate);
