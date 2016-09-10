@@ -38,21 +38,47 @@ List<ShaderObject> createSolidColorShader() {
   ];
 }
 
-List<ShaderObject> createColorShader() {
-  return [
-    new ShaderObject("Color")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
-      ..AddAttributeVar(aColors)
-      ..AddVaryingVar(vColors)
-      ..SetBodyWithMain([StdVertexBody, "${vColors} = ${aColors};"]),
-    new ShaderObject("ColorF")
-      ..AddVaryingVar(vColors)
-      ..SetBodyWithMain(["gl_FragColor = vec4( ${vColors}, 1.0 );"])
-  ];
+
+final String _shadowHelpers = """
+// r,g,b,a  are in the range of [0, 255]
+// float = r / (256^4) + g / (256^3) + b / 256^2 + a / 256^1
+// float is assumed to be in [0, 1]
+// Not that the conversion from bytes to floats introduces a 1/256 factor
+// From http://spidergl.org/example.php?id=6
+
+vec4 packDepth(float depth) {
+	const vec4 bit_shift = vec4(256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0);
+	const vec4 bit_mask  = vec4(0.0, 1.0/256.0, 1.0/256.0, 1.0/256.0);
+	vec4 res = fract(depth * bit_shift);
+	res -= res.xxyz * bit_mask;
+	return res;
 }
 
+float unpackDepth(vec4 rgba_depth) {
+	const vec4 bit_shift = vec4(1.0/(256.0*256.0*256.0), 1.0/(256.0*256.0), 1.0/256.0, 1.0);
+	float depth = dot(rgba_depth, bit_shift);
+	return depth;
+}
+
+float computeShadow(vec4 positionFromLight, sampler2D shadowSampler,
+                    float darkness, float bias) {
+		vec3 depth = positionFromLight.xyz / positionFromLight.w;
+		depth = 0.5 * depth + vec3(0.5);
+		vec2 uv = depth.xy;
+
+		if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
+			// no shadow
+			return 1.0;
+		}
+
+		float shadow = unpackDepth(texture2D(shadowSampler, uv));
+
+		if (depth.z > shadow + bias) {
+			return darkness;
+		}
+		return 1.0;
+}
+""";
 
 final String _lightHelpers = """
 struct LightIntensity {
@@ -141,8 +167,6 @@ void GetDiffuseAndSpecularFactors(LightSourceInfo info,
 }
 """;
 
-
-
 //  Gouraud shading - most action happens in vertext shader - cheaper
 List<ShaderObject> createLightShaderGourad() {
   return [
@@ -155,7 +179,8 @@ List<ShaderObject> createLightShaderGourad() {
       ..AddUniformVar(uLightSourceInfo0)
       ..AddUniformVar(uEyePosition)
       ..AddVaryingVar(vColors)
-      ..SetBody([_lightHelpers,
+      ..SetBody([
+        _lightHelpers,
         """
         void main() {
         vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
@@ -179,6 +204,7 @@ List<ShaderObject> createLightShaderGourad() {
       ..SetBodyWithMain(["gl_FragColor = vec4(${vColors}, 1.0 );"])
   ];
 }
+
 // Phong shader - most action happens in fragment shader - expensive
 // Light Matrix m organization:
 // m[0].xyz light direction
@@ -186,13 +212,13 @@ List<ShaderObject> createLightShaderGourad() {
 List<ShaderObject> createLightShaderBlinnPhong() {
   return [
     new ShaderObject("LightBlinnPhongV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aNormal)
-      ..AddVaryingVar(vVertexPosition)
-      ..AddVaryingVar(vNormal)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
-      ..AddUniformVar(uNormalMatrix)
+      ..AddAttributeVars([aVertexPosition, aNormal])
+      ..AddVaryingVars([vVertexPosition, vNormal])
+      ..AddUniformVars([
+        uPerspectiveViewMatrix,
+        uModelMatrix,
+        uNormalMatrix
+      ])
       ..SetBodyWithMain([
         """
         vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
@@ -202,11 +228,10 @@ List<ShaderObject> createLightShaderBlinnPhong() {
         """
       ]),
     new ShaderObject("LightBlinnPhongF")
-      ..AddVaryingVar(vNormal)
-      ..AddVaryingVar(vVertexPosition)
-      ..AddUniformVar(uLightSourceInfo0)
-      ..AddUniformVar(uEyePosition)
-      ..SetBody([_lightHelpers,
+      ..AddVaryingVars([vVertexPosition, vNormal])
+      ..AddUniformVars([uLightSourceInfo0, uEyePosition])
+      ..SetBody([
+        _lightHelpers,
         """
       void main() {
         LightSourceInfo info =  UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
@@ -226,23 +251,50 @@ List<ShaderObject> createLightShaderBlinnPhong() {
   ];
 }
 
-List<ShaderObject> createNormal2ColorShader() {
+List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
   return [
-    new ShaderObject("Normal2Color")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aNormal)
-      ..AddVaryingVar(vColors)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
+    new ShaderObject("LightBlinnPhongV")
+      ..AddAttributeVars([aVertexPosition, aNormal])
+      ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight0])
+      ..AddUniformVars([
+        uPerspectiveViewMatrix,
+        uLightPerspectiveViewMatrix0,
+        uModelMatrix,
+        uNormalMatrix
+      ])
       ..SetBodyWithMain([
-        StdVertexBody,
-        "vColors = normalize(${aNormal} / 2.0 + vec3(0.5) );"
+        """
+        vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
+        ${vPositionFromLight0} = (${uLightPerspectiveViewMatrix0} * pos).xyz;
+        gl_Position = ${uPerspectiveViewMatrix} * pos;
+        ${vVertexPosition} = pos.xyz;
+        ${vNormal} = ${uNormalMatrix} * ${aNormal};
+        """
       ]),
-    new ShaderObject("Normal2ColorF")
-      ..AddVaryingVar(vColors)
-      ..SetBodyWithMain(["gl_FragColor = vec4( ${vColors}, 1.0 );"])
+    new ShaderObject("LightBlinnPhongF")
+      ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight0])
+      ..AddUniformVars([uLightSourceInfo0, uShadowSampler0, uEyePosition])
+      ..SetBody([
+        _lightHelpers,
+        """
+      void main() {
+        LightSourceInfo info =  UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
+        float diffuseFactor = 0.0;
+        float specularFactor = 0.0;
+        GetDiffuseAndSpecularFactors(info,
+                                     ${vVertexPosition},
+                                     ${vNormal},
+                                     ${uEyePosition},
+                                     diffuseFactor, specularFactor);
+
+         gl_FragColor = vec4(diffuseFactor * info.diffuseColor +
+                             specularFactor * info.specularColor, 1.0 );
+      }
+      """
+      ])
   ];
 }
+
 
 // this shader works well for cube shapes, for other shapes it might be better to use the normals attribute to sample the cube texture
 List<ShaderObject> createCubeMapShader() {
@@ -278,5 +330,47 @@ List<ShaderObject> createPointSpritesShader() {
       ..AddUniformVar(uTextureSampler)
       ..SetBodyWithMain(
           ["gl_FragColor = texture2D( ${uTextureSampler},  gl_PointCoord);"])
+  ];
+}
+
+List<ShaderObject> createShadowShader() {
+  return [
+    new ShaderObject("ShadowV")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddUniformVar(uLightPerspectiveViewMatrix0)
+      ..AddUniformVar(uModelMatrix)
+      ..SetBodyWithMain([
+        "gl_Position = ${uLightPerspectiveViewMatrix0} * ",
+        "    ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);"
+      ]),
+    new ShaderObject("ShadowF")
+      ..SetBody([
+        _shadowHelpers,
+        """
+        void main(void) {
+          // Reference for this: z goes from -1 to +1.
+          float d = gl_FragCoord.z / gl_FragCoord.w * 0.5 + 0.5;
+          gl_FragColor = packDepth(d);
+          }
+          """
+      ])
+  ];
+}
+
+List<ShaderObject> createCopyShader() {
+  return [
+    new ShaderObject("copyV")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVar(aTextureCoordinates)
+      ..AddVaryingVar(vTextureCoordinates)
+      ..SetBodyWithMain(
+          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+    new ShaderObject("copyF")
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uTextureSampler)
+      ..SetBodyWithMain([
+        "vec2 v = ${vTextureCoordinates}.xy;",
+        "gl_FragColor.rgb = texture2D (${uTextureSampler}, v).rgb;"
+      ])
   ];
 }

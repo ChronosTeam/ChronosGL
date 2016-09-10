@@ -4,68 +4,7 @@ import 'dart:html' as HTML;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-// r,g,b,a  are in the range of [0, 255]
-// float = r / (256^4) + g / (256^3) + b / 256^2 + a / 256^1
-// float is assumed to be in [0, 1]
-// Not that the conversion from bytes to floats introduces a 1/256 factor
-// From http://spidergl.org/example.php?id=6
-String packFloatToRGBA = """
-vec4 pack_depth(float depth) {
-	const vec4 bit_shift = vec4(256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0);
-	const vec4 bit_mask  = vec4(0.0, 1.0/256.0, 1.0/256.0, 1.0/256.0);
-	vec4 res = fract(depth * bit_shift);
-	res -= res.xxyz * bit_mask;
-	return res;
-}
-""";
 
-String unpackRGBAToFloat = """
-float unpack_depth(vec4 rgba_depth) {
-	const vec4 bit_shift = vec4(1.0/(256.0*256.0*256.0), 1.0/(256.0*256.0), 1.0/256.0, 1.0);
-	float depth = dot(rgba_depth, bit_shift);
-	return depth;
-}
-""";
-
-List<ShaderObject> createShadowShader() {
-  return [
-    new ShaderObject("ShadowV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
-      ..SetBodyWithMain([StdVertexBody]),
-    new ShaderObject("ShadowF")
-      ..SetBody([
-        packFloatToRGBA,
-        "void main(void) { gl_FragColor = pack_depth(gl_FragCoord.z); }"
-      ])
-  ];
-}
-
-String _CopyImpl = """
- void main() {
-     vec2 v = ${vTextureCoordinates}.xy;
-     gl_FragColor.r = texture2D (${uTextureSampler}, v).r;
- }
- """;
-
-List<ShaderObject> createCopyShader() {
-  return [
-    new ShaderObject("copyV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aTextureCoordinates)
-      ..AddVaryingVar(vTextureCoordinates)
-      ..SetBodyWithMain(
-          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
-    new ShaderObject("copyF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTextureSampler)
-      ..SetBodyWithMain([
-        "vec2 v = ${vTextureCoordinates}.xy;",
-        "gl_FragColor.rgb = texture2D (${uTextureSampler}, v).rgb;"
-      ])
-  ];
-}
 
 void main() {
   StatsFps fps =
@@ -79,17 +18,25 @@ void main() {
   VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
 
   Light light = new Light.Directional(0, posLight1, colRed, colWhite);
-  ChronosFramebuffer shadowBuffer =
-      new ChronosFramebuffer(chronosGL.gl, 500, 500);
+
+  int w = canvas.clientWidth ~/ 2;
+  int h = canvas.clientHeight;
+
+  Perspective perspective = new Perspective(orbit);
+  perspective.Adjust(canvas, 0.5);
+
+  ChronosFramebuffer shadowBuffer = new ChronosFramebuffer(chronosGL.gl, w, h);
 
   //Projection shadowProjection =
   //   new Orthographic(orbit, -100.0, 100.0, -100.0, 0.0, 100.0);
 
-  Projection shadowProjection =
+  ShadowProjection shadowProjection =
       new ShadowProjection(light, -20.0, 20.0, -20.0, 0.0, 100.0);
+  shadowProjection.AdjustAspect(w, h);
 
   RenderingPhase phaseComputeShadow =
       new RenderingPhase("compute-shadow", chronosGL.gl, shadowBuffer);
+  phaseComputeShadow.UpdateViewPort(canvas, 0.5);
   ShaderProgram shadowMap =
       phaseComputeShadow.createProgram(createShadowShader());
 
@@ -102,10 +49,10 @@ void main() {
   copyToScreen.SetUniform(uTextureSampler, shadowBuffer.colorTexture);
   copyToScreen.add(UnitMesh);
 
-  Perspective perspective = new Perspective(orbit);
   RenderingPhase phaseMain = new RenderingPhase("main", chronosGL.gl);
   phaseMain.clearColorBuffer = false;
-  ShaderProgram basic = phaseMain.createProgram(createLightShaderBlinnPhong());
+  ShaderProgram basic = phaseMain.createProgram(createLightShaderBlinnPhongWithShadow());
+  basic.SetUniform(uShadowSampler0, shadowBuffer.colorTexture);
 
   Texture solid = new CanvasTexture.SolidColor("red-solid", "red");
   final Material mat1 = new Material("mat1")
@@ -169,8 +116,7 @@ void main() {
     ..setPosFromVec(posLight1);
 
   fixedShaderPrg.add(ico1);
-  perspective.Adjust(canvas, 0.5);
-  shadowProjection.Adjust(canvas, 0.5);
+
   double _lastTimeMs = 0.0;
 
   void animate(timeMs) {
@@ -180,14 +126,14 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    phaseComputeShadow.UpdateViewPort(canvas, 0.5);
+
     phaseDisplayShadow.UpdateViewPort(canvas, 0.5);
     phaseMain.UpdateViewPort(canvas, 0.5);
     phaseDisplayShadow.viewPortX = phaseMain.viewPortW;
 
     phaseComputeShadow.draw([shadowProjection, light]);
     phaseDisplayShadow.draw([shadowProjection]);
-    phaseMain.draw([perspective, light]);
+    phaseMain.draw([perspective, shadowProjection, light]);
 
     HTML.window.animationFrame.then(animate);
   }

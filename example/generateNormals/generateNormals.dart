@@ -1,6 +1,26 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 
+
+List<ShaderObject> createNormal2ColorShader() {
+  return [
+    new ShaderObject("Normal2Color")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVar(aNormal)
+      ..AddVaryingVar(vColors)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
+      ..SetBodyWithMain([
+        StdVertexBody,
+        "vColors = normalize(${aNormal} / 2.0 + vec3(0.5) );"
+      ]),
+    new ShaderObject("Normal2ColorF")
+      ..AddVaryingVar(vColors)
+      ..SetBodyWithMain(["gl_FragColor = vec4( ${vColors}, 1.0 );"])
+  ];
+}
+
+
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);

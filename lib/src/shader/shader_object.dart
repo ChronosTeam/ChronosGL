@@ -57,6 +57,7 @@ const String vLightWeighting = "vLightWeighting";
 const String vNormal = "vNormal";
 const String vVertexPosition = "vVertexPosition";
 const String vCenter = "vCenter";
+const String vPositionFromLight0 = "vPositionFromLight0";
 
 const String uTransformationMatrix = "uTransformationMatrix";
 //const String uModelViewMatrix = "uModelViewMatrix";
@@ -64,8 +65,13 @@ const String uTransformationMatrix = "uTransformationMatrix";
 const String uNormalMatrix = "uNormalMatrix";
 
 const String uPerspectiveViewMatrix = "uPerspectiveViewMatrix";
+const String uLightPerspectiveViewMatrix = "uLightPerspectiveViewMatrix";
+const String uLightPerspectiveViewMatrix0 = uLightPerspectiveViewMatrix + "0";
+
 const String uModelMatrix = "uModelMatrix";
-//const String uPerspectiveMatrix = "uPerspectiveMatrix";
+
+const String uShadowSampler0 = "uShadowSampler0";
+
 const String uTextureSampler = "uTextureSampler";
 const String uTextureCubeSampler = "uTextureCubeSampler";
 const String uTexture2Sampler = "uTexture2Sampler";
@@ -90,7 +96,6 @@ const String uLightSourceInfo1 = uLightSourceInfo + "1";
 const String uLightSourceInfo2 = uLightSourceInfo + "2";
 const String uLightSourceInfo3 = uLightSourceInfo + "3";
 
-  
 Map<String, ShaderVarDesc> _VarsDb = {
   // attribute vars
   // This should also contain an alpha channel
@@ -102,19 +107,20 @@ Map<String, ShaderVarDesc> _VarsDb = {
   aBinormal: new ShaderVarDesc("vec3", "vertex binormals"),
   aCenter: new ShaderVarDesc("vec4", "for wireframe"),
   aPointSize: new ShaderVarDesc("float", ""),
-  
+
   iaRotatation: new ShaderVarDesc("vec4", ""),
   iaTranslation: new ShaderVarDesc("vec3", ""),
   iaScale: new ShaderVarDesc("vec3", ""),
-  
+
   // Varying
   vColors: new ShaderVarDesc("vec3", "per vertex color"),
   vTextureCoordinates: new ShaderVarDesc("vec2", ""),
   vLightWeighting: new ShaderVarDesc("vec3", ""),
   vNormal: new ShaderVarDesc("vec3", ""),
   vVertexPosition: new ShaderVarDesc("vec3", "vertex coordinates"),
+  vPositionFromLight0: new ShaderVarDesc("vec3", "delta from light"),
   vCenter: new ShaderVarDesc("vec4", "for wireframe"),
-  
+
   // uniform vars
   uTransformationMatrix: new ShaderVarDesc("mat4", ""),
   //uModelViewMatrix: new ShaderVarDesc("mat4", ""),
@@ -123,6 +129,10 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uNormalMatrix: new ShaderVarDesc("mat3", ""),
   //uPerspectiveMatrix: new ShaderVarDesc("mat4", ""),
   uPerspectiveViewMatrix: new ShaderVarDesc("mat4", ""),
+  uLightPerspectiveViewMatrix0: new ShaderVarDesc("mat4", ""),
+
+  uShadowSampler0: new ShaderVarDesc("sampler2D", ""),
+
   uTextureSampler: new ShaderVarDesc("sampler2D", ""),
   uTexture2Sampler: new ShaderVarDesc("sampler2D", ""),
   uTexture3Sampler: new ShaderVarDesc("sampler2D", ""),
@@ -177,6 +187,16 @@ class ShaderObject {
     attributeVars[canonicalName] = actualName;
   }
 
+  void AddAttributeVars(List<String> names) {
+    assert(shader == null);
+
+    for (String n in names) {
+      assert(_VarsDb.containsKey(n));
+      assert(!attributeVars.containsKey(n));
+      attributeVars[n] = n;
+    }
+  }
+
   void AddUniformVar(String canonicalName, [String actualName = null]) {
     assert(shader == null);
     assert(_VarsDb.containsKey(canonicalName));
@@ -185,12 +205,32 @@ class ShaderObject {
     uniformVars[canonicalName] = actualName;
   }
 
+  void AddUniformVars(List<String> names) {
+    assert(shader == null);
+
+    for (String n in names) {
+      assert(_VarsDb.containsKey(n));
+      assert(!uniformVars.containsKey(n));
+      uniformVars[n] = n;
+    }
+  }
+
   void AddVaryingVar(String canonicalName, [String actualName = null]) {
     assert(shader == null);
     assert(_VarsDb.containsKey(canonicalName));
     assert(!varyingVars.containsKey(canonicalName));
     if (actualName == null) actualName = canonicalName;
     varyingVars[canonicalName] = actualName;
+  }
+
+  void AddVaryingVars(List<String> names) {
+    assert(shader == null);
+
+    for (String n in names) {
+      assert(_VarsDb.containsKey(n));
+      assert(!varyingVars.containsKey(n));
+      varyingVars[n] = n;
+    }
   }
 
   void SetBodyWithMain(List<String> body) {

@@ -19,8 +19,6 @@ class DrawStats {
   }
 }
 
-
-
 // Represent a GPU shader program
 // The protocol is roughly this:
 // Begin()
@@ -129,6 +127,9 @@ class CoreProgram {
             break;
           case uTexture4Sampler:
             n = 3;
+            break;
+          case uShadowSampler0:
+            n = 8;
             break;
           default:
             throw "unknown texture ";
@@ -277,10 +278,8 @@ class ShaderProgram extends ShaderProgramInputs {
     _program.SetElementArray(b);
   }
 
-
   void Draw(int numInstances, int numItems, int drawMode, bool useArrayBuffer,
       List<DrawStats> stats) {
-
     for (String canonical in GetCanonicals()) {
       var val = GetUniformVal(canonical);
       if (_program.HasUniform(canonical)) {

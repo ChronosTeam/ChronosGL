@@ -58,45 +58,6 @@ class Orthographic extends Projection {
   }
 }
 
-// very much like a orthographic
-class ShadowProjection extends Projection {
-  final Light _light;
-  final VM.Matrix4 _proj = new VM.Matrix4.zero();
-  final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
-  final VM.Matrix4 _projViewMatrix = new VM.Matrix4.identity();
-  double _aspect = 1.0;
-  double _l;
-  double _r;
-  double _d;
-  double _f;
-  double _b;
-
-  // d = "down", up is computed dynamically based on height & width
-  ShadowProjection(this._light, this._l, this._r, this._d, this._f, this._b)
-      : super("shadow-projection") {
-    Update();
-  }
-
-  void UpdateUniforms(ShaderProgramInputs inputs) {
-    _light.getViewMatrixForShadow(_viewMatrix);
-    _projViewMatrix.setFrom(_proj);
-    _projViewMatrix.multiply(_viewMatrix);
-    inputs.SetUniformWithOrigin(this, uPerspectiveViewMatrix, _projViewMatrix);
-  }
-
-  void AdjustAspect(int w, int h) {
-    double a = w / h;
-    if (_aspect == a) return;
-    _aspect = a;
-    Update();
-  }
-
-  void Update() {
-    double w = _r - _l;
-    double h = w / _aspect;
-    VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + h, _f, _b);
-  }
-}
 
 class Perspective extends Projection {
   Camera _camera;

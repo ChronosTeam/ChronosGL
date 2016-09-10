@@ -21,7 +21,7 @@ class Light extends ShaderInputProvider {
   VM.Vector3 _colGround = new VM.Vector3.zero(); // for Hemispherical
   double _range = 0.0; // for spot and point
   double _spotCutoff = 0.0; // for spot
-  double _spotFocus = 0.0;  // for spot
+  double _spotFocus = 0.0; // for spot
 
   // Light emanating from a point in all directions.
   // Light gets "weaker" with increased distance.
@@ -33,24 +33,30 @@ class Light extends ShaderInputProvider {
 
   // Light cone emanating from a point.
   // As the cone widens light gets "weaker"
-  Light.Spot(this.no, this._pos, this._dir, this._colDiffuse, this._colSpecular,
-      this._range, this._spotCutoff, this._spotFocus)
+  Light.Spot(this.no, VM.Vector3 pos, VM.Vector3 dir, this._colDiffuse,
+      this._colSpecular, this._range, this._spotCutoff, this._spotFocus)
       : super("spot") {
     _type = typeLightSpot;
+    _dir.setFrom(dir); // normalize
+    _pos.setFrom(pos);
   }
 
   // Coming from one direction at infinite distance - e.g. the sun
   // Note, the direction also included POSITIONING information!
   // It needs to be large enough to be outside of the scene being  illuminated
-  Light.Directional(this.no, this._dir, this._colDiffuse, this._colSpecular)
+  Light.Directional(
+      this.no, VM.Vector3 dir, this._colDiffuse, this._colSpecular)
       : super("directional") {
     _type = typeLightDir;
+    _dir.setFrom(dir); // normalize
+    _pos.setFrom(dir);
   }
 
-  Light.Hemispherical(
-      this.no, this._dir, this._colDiffuse, this._colGround, this._colSpecular)
+  Light.Hemispherical(this.no, VM.Vector3 dir, this._colDiffuse,
+      this._colGround, this._colSpecular)
       : super("hemispherical") {
     _type = typeLightHemi;
+    _dir.setFrom(dir); // normalize
   }
 
   void getViewMatrixForShadow(VM.Matrix4 m) {
@@ -99,5 +105,46 @@ class Light extends ShaderInputProvider {
 
   void UpdateUniforms(ShaderProgramInputs inputs) {
     inputs.SetUniformWithOrigin(this, uLightSourceInfo + "${no}", PackInfo());
+  }
+}
+
+// very much like a orthographic
+class ShadowProjection extends ShaderInputProvider {
+  final Light _light;
+  final VM.Matrix4 _proj = new VM.Matrix4.zero();
+  final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
+  final VM.Matrix4 _projViewMatrix = new VM.Matrix4.identity();
+  double _aspect = 1.0;
+  double _l;
+  double _r;
+  double _d;
+  double _f;
+  double _b;
+
+  // d = "down", up is computed dynamically based on height & width
+  ShadowProjection(this._light, this._l, this._r, this._d, this._f, this._b)
+      : super("shadow-projection") {
+    Update();
+  }
+
+  void UpdateUniforms(ShaderProgramInputs inputs) {
+    _light.getViewMatrixForShadow(_viewMatrix);
+    _projViewMatrix.setFrom(_proj);
+    _projViewMatrix.multiply(_viewMatrix);
+    inputs.SetUniformWithOrigin(
+        this, uLightPerspectiveViewMatrix + "${_light.no}", _projViewMatrix);
+  }
+
+  void AdjustAspect(int w, int h) {
+    double a = w / h;
+    if (_aspect == a) return;
+    _aspect = a;
+    Update();
+  }
+
+  void Update() {
+    double w = _r - _l;
+    double h = w / _aspect;
+    VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + h, _f, _b);
   }
 }
