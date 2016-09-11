@@ -9,41 +9,57 @@ const int _maxFps = 90;
 class Stats {
   Element _root;
   Element _text;
+  Element _extra;
   Element _graph;
+
+  Element MakeText(String initial) {
+    Element text = new Element.div();
+    text.style..fontWeight = "bold";
+    text.text = initial;
+    return text;
+  }
+
+  Element MakeGraph(String fg, String bg, int bars, int height) {
+    Element graph = new Element.div();
+    graph.style
+      ..width = "${bars}px"
+      ..height = "${height}px"
+      ..color = fg
+      ..background = fg;
+
+    for (int i = 0; i < bars; i++) {
+      Element e = new Element.span();
+      e.style
+        ..width = "1px"
+        ..height = "${height}px"
+        ..float = "left"
+        ..opacity = "0.9"
+        ..background = bg;
+      graph.append(e);
+    }
+    return graph;
+  }
 
   Stats(Element root, String fg, String bg) {
     if (root == null) throw "no element provided";
     _root = root;
     _root.style
+      ..color = fg
+      ..fontFamily = "Helvetica,Arial,sans-serif"
+      ..fontSize = "9px"
+      ..lineHeight = "15px"
       ..padding = "0 0 3px 3px"
       ..textAlign = "left"
       ..background = bg;
-    _text = new Element.div();
-    _text.style
-      ..fontFamily = "Helvetica,Arial,sans-serif"
-      ..fontSize = "9px"
-      ..fontWeight = "bold"
-      ..lineHeight = "15px"
-      ..color = fg;
-    _text.text = "@@@@@";
-    _root.append(_text);
-    _graph = new Element.div();
-    _graph.style
-      ..width = "${_numBars}px"
-      ..height = "${_graphHeight}px"
-      ..background = fg;
 
+    _text = MakeText("@@@@");
+    _root.append(_text);
+
+    _graph = MakeGraph(fg, bg, _numBars, _graphHeight);
     _root.append(_graph);
-    for (int i = 0; i < _numBars; i++) {
-      Element e = new Element.span();
-      e.style
-        ..width = "1px"
-        ..height = "${_graphHeight}px"
-        ..float = "left"
-        ..opacity = "0.9"
-        ..background = bg;
-      _graph.append(e);
-    }
+
+    _extra = new Element.div();
+    _root.append(_extra);
   }
 
   void AddRawValue(int v) {
@@ -61,8 +77,7 @@ class StatsFps extends Stats {
   int _frames = 0;
   double _lastSample = 0.0;
 
-  void UpdateFrameCount(double now) {
-  
+  void UpdateFrameCount(double now, [String extra = ""]) {
     _frames++;
     if ((now - _lastSample) < SAMPLE_RATE_MS) return;
     double fps = _frames * 1000.0 / SAMPLE_RATE_MS;
@@ -70,10 +85,9 @@ class StatsFps extends Stats {
     _frames = 0;
     _lastSample = now;
     _text.text = fps.toStringAsFixed(2) + " fps";
+    _extra.innerHtml = extra;
     AddRawValue(_graphHeight * fps.ceil() ~/ _maxFps);
   }
-  
-  StatsFps(Element root, String fg, String bg) : super(root, fg, bg) {
-    
-  }
+
+  StatsFps(Element root, String fg, String bg) : super(root, fg, bg) {}
 }

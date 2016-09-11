@@ -72,7 +72,6 @@ class RenderingPhase extends NamedEntity {
   int viewPortY = 0;
   int viewPortW = 0;
   int viewPortH = 0;
-  List<DrawStats> stats = null;
 
   RenderingPhase(String name, this._gl, [this._framebuffer = null])
       : super(name);
@@ -90,7 +89,7 @@ class RenderingPhase extends NamedEntity {
     viewPortH = (yscale * canvas.clientHeight).floor();
   }
 
-  void draw(List<ShaderInputProvider> inputs) {
+  void draw(List<ShaderInputProvider> inputs, [List<DrawStats> stats = null]) {
     if (_framebuffer == null) {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
     } else {

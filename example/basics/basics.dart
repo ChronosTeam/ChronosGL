@@ -73,10 +73,18 @@ void main() {
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
+
     perspective.Adjust(canvas);
     phase.UpdateViewPort(canvas);
-    phase.draw([perspective]);
+    List<DrawStats> stats = [];
+    phase.draw([perspective], stats);
+    List<String> out = [];
+    for (DrawStats d in stats) {
+      out.add(d.toString());
+    }
+
+    fps.UpdateFrameCount(timeMs, out.join("<br>"));
+
     HTML.window.animationFrame.then(animate);
   }
 
