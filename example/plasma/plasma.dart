@@ -42,8 +42,21 @@ void main() {
       phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
-  double _lastTimeMs = 0.0;
+  void resolutionChange(HTML.Event ev) {
+    int w = canvas.clientWidth;
+    int h = canvas.clientHeight;
+    canvas.width = w;
+    canvas.height = h;
+    print("size change $w $h");
+    perspective.AdjustAspect(w, h);
+    phase.viewPortW = w;
+    phase.viewPortH = h;
+  }
 
+  resolutionChange(null);
+  HTML.window.onResize.listen(resolutionChange);
+
+  double _lastTimeMs = 0.0;
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
@@ -56,8 +69,6 @@ void main() {
     for (ShaderProgram p in prgs) {
       p.SetUniform(uTime, timeMs / 1000.0);
     }
-    perspective.Adjust(canvas);
-    phase.UpdateViewPort(canvas);
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }

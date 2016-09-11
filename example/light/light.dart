@@ -96,6 +96,23 @@ void main() {
   assert(selectPhase != null);
   selectPhase.selectedIndex = 0;
 
+  void resolutionChange(HTML.Event ev) {
+    int w = canvas.clientWidth;
+    int h = canvas.clientHeight;
+    canvas.width = w;
+    canvas.height = h;
+    print("size change $w $h");
+    perspective.AdjustAspect(w, h);
+    phaseGourad.viewPortW = w;
+    phaseGourad.viewPortH = h;
+
+    phaseBlinnPhong.viewPortW = w;
+    phaseBlinnPhong.viewPortH = h;
+  }
+
+  resolutionChange(null);
+  HTML.window.onResize.listen(resolutionChange);
+
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
     timeMs += 0.0; // bug workaround - force double
@@ -110,11 +127,9 @@ void main() {
       m.lookLeft(elapsed * 0.0003);
     }
 
-    perspective.Adjust(canvas);
     Light light = lights[selectLight.selectedIndex];
     RenderingPhase phase =
         selectPhase.selectedIndex == 0 ? phaseBlinnPhong : phaseGourad;
-    phase.UpdateViewPort(canvas);
     phase.draw([perspective, light]);
 
     HTML.window.animationFrame.then(animate);

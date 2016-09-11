@@ -40,9 +40,24 @@ void main() {
   ShaderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
-  double _lastTimeMs = 0.0;
 
-  void animate(double timeMs) {
+  void resolutionChange(HTML.Event ev) {
+    int w = canvas.clientWidth;
+    int h = canvas.clientHeight;
+    canvas.width = w;
+    canvas.height = h;
+    print("size change $w $h");
+    perspective.AdjustAspect(w, h);
+    phase.viewPortW = w;
+    phase.viewPortH = h;
+  }
+
+  resolutionChange(null);
+  HTML.window.onResize.listen(resolutionChange);
+
+  double _lastTimeMs = 0.0;
+  void animate(timeMs) {
+    timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
 
@@ -53,8 +68,6 @@ void main() {
     chronosGL.gl.texImage2D(WEBGL.TEXTURE_2D, 0, WEBGL.RGBA, WEBGL.RGBA,
         WEBGL.UNSIGNED_BYTE, canvas2d);
 
-    perspective.Adjust(canvas);
-    phase.UpdateViewPort(canvas);
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }

@@ -1,25 +1,7 @@
 part of chronosgl;
 
-abstract class Projection extends ShaderInputProvider {
-  Projection(String name) : super(name);
 
-  void UpdateUniforms(ShaderProgramInputs inputs);
-  void AdjustAspect(w, h);
-
-  void Adjust(HTML.CanvasElement canvas,
-      [double xscale = 1.0, double yscale = 1.0]) {
-    int w = (canvas.clientWidth * xscale).floor();
-    int h = (canvas.clientHeight * yscale).floor();
-    // TODO: FIX THIS
-    canvas.width = w;
-    canvas.height = h;
-    AdjustAspect(w, h);
-  }
-
-  void Update();
-}
-
-class Orthographic extends Projection {
+class Orthographic extends ShaderInputProvider {
   final Camera _camera;
   final VM.Matrix4 _proj = new VM.Matrix4.zero();
   final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
@@ -59,7 +41,7 @@ class Orthographic extends Projection {
 }
 
 
-class Perspective extends Projection {
+class Perspective extends ShaderInputProvider {
   Camera _camera;
   double _fov = 50.0; // horizontal fov in deg  divided by 2
   double _aspect = 1.0;
@@ -77,6 +59,7 @@ class Perspective extends Projection {
 
   void AdjustAspect(int w, int h) {
     double a = w / h;
+
     if (_aspect == a) return;
     _aspect = a;
     Update();

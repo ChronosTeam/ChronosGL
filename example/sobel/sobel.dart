@@ -11,15 +11,19 @@ void main() {
 
   final width = canvas.clientWidth;
   final height = canvas.clientHeight;
-  perspective.Adjust(canvas);
+  canvas.width = width;
+  canvas.height = height;
+  perspective.AdjustAspect(width, height);
   ChronosFramebuffer fb = new ChronosFramebuffer(chronosGL.gl, width, height);
   RenderingPhase phase1 = new RenderingPhase("phase1", chronosGL.gl, fb);
-  phase1.UpdateViewPort(canvas);
+  phase1.viewPortW = width;
+  phase1.viewPortH = height;
 
   ShaderProgram prg1 = phase1.createProgram(createPlane2GreyShader());
 
   RenderingPhase phase2 = new RenderingPhase("phase2", chronosGL.gl, null);
-  phase2.UpdateViewPort(canvas);
+  phase2.viewPortW = width;
+  phase2.viewPortH = height;
 
   ShaderProgram prg2 = phase2.createProgram(createSobelShader());
   prg2
@@ -30,7 +34,8 @@ void main() {
 
   RenderingPhase phase1only =
       new RenderingPhase("phase1only", chronosGL.gl, null);
-  phase1only.UpdateViewPort(canvas);
+  phase1only.viewPortW = width;
+  phase1only.viewPortH = height;
   phase1only.AddShaderProgram(prg1);
 
   bool useSobel = true;

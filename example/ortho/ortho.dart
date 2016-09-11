@@ -50,7 +50,7 @@ void main() {
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   double d = 20.0;
-  Projection orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
+  Orthographic orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
   RenderingPhase phaseOrthograhic = new RenderingPhase("shadow", chronosGL.gl);
   ShaderProgram prgOrthographic =
       phaseOrthograhic.createProgram(createTexturedShader());
@@ -106,8 +106,26 @@ void main() {
     prgPerspective.add(m);
   }
 
-  double _lastTimeMs = 0.0;
+  void resolutionChange(HTML.Event ev) {
+    int w = canvas.clientWidth;
+    int h = canvas.clientHeight;
+    canvas.width = w;
+    canvas.height = h;
+    print("size change $w $h");
+    w = w ~/ 2;
+    perspective.AdjustAspect(w, h);
+    orthographic.AdjustAspect(w, h);
+    phaseOrthograhic.viewPortW = w;
+    phaseOrthograhic.viewPortH = h;
+    phasePerspective.viewPortW = w;
+    phasePerspective.viewPortH = h;
+    phaseOrthograhic.viewPortX = phasePerspective.viewPortW;
+  }
 
+  resolutionChange(null);
+  HTML.window.onResize.listen(resolutionChange);
+
+  double _lastTimeMs = 0.0;
   void animate(timeMs) {
     timeMs += 0.0; // force double
     double elapsed = timeMs - _lastTimeMs;
@@ -115,12 +133,6 @@ void main() {
     //orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    perspective.Adjust(canvas, 0.5);
-    orthographic.Adjust(canvas, 0.5);
-    phaseOrthograhic.UpdateViewPort(canvas, 0.5);
-    phasePerspective.UpdateViewPort(canvas, 0.5);
-    phaseOrthograhic.viewPortX = phasePerspective.viewPortW;
-
     phaseOrthograhic.draw([orthographic]);
     phasePerspective.draw([perspective]);
     HTML.window.animationFrame.then(animate);

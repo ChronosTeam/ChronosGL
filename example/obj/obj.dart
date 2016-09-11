@@ -15,6 +15,20 @@ void main() {
   RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
   ShaderProgram prg = phase.createProgram(createDemoShader());
 
+  void resolutionChange(HTML.Event ev) {
+    int w = canvas.clientWidth;
+    int h = canvas.clientHeight;
+    canvas.width = w;
+    canvas.height = h;
+    print("size change $w $h");
+    perspective.AdjustAspect(w, h);
+    phase.viewPortW = w;
+    phase.viewPortH = h;
+  }
+
+  resolutionChange(null);
+  HTML.window.onResize.listen(resolutionChange);
+
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
@@ -23,8 +37,6 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    perspective.Adjust(canvas);
-    phase.UpdateViewPort(canvas);
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }

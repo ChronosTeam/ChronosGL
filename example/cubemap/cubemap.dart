@@ -14,7 +14,8 @@ void main() {
   Mesh sky = Utils.MakeSkycube(cubeTex);
   programCM.add(sky);
 
-  Material mat = new Material("cubemap")..SetUniform(uTextureCubeSampler, cubeTex);
+  Material mat = new Material("cubemap")
+    ..SetUniform(uTextureCubeSampler, cubeTex);
   MeshData md = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
   programCM.add(new Mesh("cube", md, mat));
 
@@ -22,15 +23,26 @@ void main() {
       phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
+  void resolutionChange(HTML.Event ev) {
+    int w = canvas.clientWidth;
+    int h = canvas.clientHeight;
+    canvas.width = w;
+    canvas.height = h;
+    print("size change $w $h");
+    perspective.AdjustAspect(w, h);
+    phase.viewPortW = w;
+    phase.viewPortH = h;
+  }
+
+  resolutionChange(null);
+  HTML.window.onResize.listen(resolutionChange);
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
-     timeMs = 0.0 + timeMs;
+    timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    perspective.Adjust(canvas);
-     phase.UpdateViewPort(canvas);
     phase.draw([perspective]);
 
     HTML.window.animationFrame.then(animate);

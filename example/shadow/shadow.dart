@@ -4,7 +4,6 @@ import 'dart:html' as HTML;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -25,7 +24,6 @@ void main() {
   int h = canvas.clientHeight;
 
   Perspective perspective = new Perspective(orbit);
-  perspective.Adjust(canvas, 0.5);
 
   ChronosFramebuffer shadowBuffer = new ChronosFramebuffer(chronosGL.gl, w, h);
 
@@ -38,7 +36,8 @@ void main() {
 
   RenderingPhase phaseComputeShadow =
       new RenderingPhase("compute-shadow", chronosGL.gl, shadowBuffer);
-  phaseComputeShadow.UpdateViewPort(canvas, 0.5);
+  phaseComputeShadow.viewPortW = w;
+  phaseComputeShadow.viewPortH = h;
   ShaderProgram shadowMap =
       phaseComputeShadow.createProgram(createShadowShader());
 
@@ -54,7 +53,8 @@ void main() {
 
   RenderingPhase phaseMain = new RenderingPhase("main", chronosGL.gl);
   phaseMain.clearColorBuffer = false;
-  ShaderProgram basic = phaseMain.createProgram(createLightShaderBlinnPhongWithShadow());
+  ShaderProgram basic =
+      phaseMain.createProgram(createLightShaderBlinnPhongWithShadow());
 
   basic.SetUniform(uShadowSampler0, shadowBuffer.colorTexture);
 
@@ -111,7 +111,6 @@ void main() {
     basic.add(cube);
   }
 
-
   // Create sphere representing the light source
   ShaderProgram fixedShaderPrg =
       phaseMain.createProgram(createSolidColorShader());
@@ -124,9 +123,23 @@ void main() {
 
   double _lastTimeMs = 0.0;
 
-  phaseDisplayShadow.UpdateViewPort(canvas, 0.5);
-  phaseMain.UpdateViewPort(canvas, 0.5);
-  phaseDisplayShadow.viewPortX = phaseMain.viewPortW;
+  void resolutionChange(HTML.Event ev) {
+    int w = canvas.clientWidth;
+    int h = canvas.clientHeight;
+    canvas.width = w;
+    canvas.height = h;
+    print("size change $w $h");
+    w = w ~/ 2;
+    perspective.AdjustAspect(w, h);
+    phaseMain.viewPortW = w;
+    phaseMain.viewPortH = h;
+    phaseDisplayShadow.viewPortW = w;
+    phaseDisplayShadow.viewPortH = h;
+    phaseDisplayShadow.viewPortX = phaseMain.viewPortW;
+  }
+
+  resolutionChange(null);
+  HTML.window.onResize.listen(resolutionChange);
 
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
@@ -135,8 +148,6 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-
-
 
     // Compute the shadow map
     phaseComputeShadow.draw([shadowProjection, light]);

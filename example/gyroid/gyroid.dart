@@ -211,6 +211,19 @@ void main() {
   ShaderProgram program = phase.createProgram(createSphericalGyroidShader());
   program.add(UnitMesh);
 
+  void resolutionChange(HTML.Event ev) {
+    int w = canvas.clientWidth;
+    int h = canvas.clientHeight;
+    canvas.width = w;
+    canvas.height = h;
+    print("size change $w $h");
+    phase.viewPortW = w;
+    phase.viewPortH = h;
+  }
+
+  resolutionChange(null);
+  HTML.window.onResize.listen(resolutionChange);
+
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
     program.SetUniform(uTime, timeMs / 1000.0);
@@ -220,7 +233,6 @@ void main() {
     int h = canvas.clientHeight;
 
     program.SetUniform(uCanvasSize, new VM.Vector2(0.0 + w, 0.0 + h));
-    phase.UpdateViewPort(canvas);
     phase.draw([]);
     HTML.window.animationFrame.then(animate);
   }

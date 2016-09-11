@@ -80,15 +80,6 @@ class RenderingPhase extends NamedEntity {
     _framebuffer = fb;
   }
 
-  void UpdateViewPort(HTML.CanvasElement canvas,
-      [double xscale = 1.0, double yscale = 1.0]) {
-    // TODO: FIX THIS
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
-    viewPortW = (xscale * canvas.clientWidth).floor();
-    viewPortH = (yscale * canvas.clientHeight).floor();
-  }
-
   void draw(List<ShaderInputProvider> inputs, [List<DrawStats> stats = null]) {
     if (_framebuffer == null) {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);

@@ -66,6 +66,20 @@ void main() {
   ShaderProgram sprites = phase.createProgram(createPointSpritesShader());
   sprites.add(Utils.MakeParticles(2000));
 
+  void resolutionChange(HTML.Event ev) {
+    int w = canvas.clientWidth;
+    int h = canvas.clientHeight;
+    canvas.width = w;
+    canvas.height = h;
+    print("size change $w $h");
+    perspective.AdjustAspect(w, h);
+    phase.viewPortW = w;
+    phase.viewPortH = h;
+  }
+
+  resolutionChange(null);
+  HTML.window.onResize.listen(resolutionChange);
+
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
@@ -74,8 +88,6 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
 
-    perspective.Adjust(canvas);
-    phase.UpdateViewPort(canvas);
     List<DrawStats> stats = [];
     phase.draw([perspective], stats);
     List<String> out = [];

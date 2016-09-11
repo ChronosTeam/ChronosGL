@@ -72,10 +72,25 @@ void main() {
       VM.Vector2 q = new VM.Vector2(0.01, 0.01);
       md.setFace4UV(2, q, q, q, q);
       md.setFace4UV(3, q, q, q, q);
-      Mesh m = new Mesh(md.name, md, mat)..setPos(x.toDouble(), 0.0, z.toDouble());
+      Mesh m = new Mesh(md.name, md, mat)
+        ..setPos(x.toDouble(), 0.0, z.toDouble());
       prg.add(m);
     }
   }
+
+  void resolutionChange(HTML.Event ev) {
+    int w = canvas.clientWidth;
+    int h = canvas.clientHeight;
+    canvas.width = w;
+    canvas.height = h;
+    print("size change $w $h");
+    perspective.AdjustAspect(w, h);
+    phase.viewPortW = w;
+    phase.viewPortH = h;
+  }
+
+  resolutionChange(null);
+  HTML.window.onResize.listen(resolutionChange);
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
@@ -84,8 +99,6 @@ void main() {
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    perspective.Adjust(canvas);
-    phase.UpdateViewPort(canvas);
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }

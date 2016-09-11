@@ -1,7 +1,6 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 
-
 List<ShaderObject> createNormal2ColorShader() {
   return [
     new ShaderObject("Normal2Color")
@@ -19,7 +18,6 @@ List<ShaderObject> createNormal2ColorShader() {
       ..SetBodyWithMain(["gl_FragColor = vec4( ${vColors}, 1.0 );"])
   ];
 }
-
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
@@ -66,6 +64,20 @@ void main() {
       prg.add(mesh);
     }
 
+    void resolutionChange(HTML.Event ev) {
+      int w = canvas.clientWidth;
+      int h = canvas.clientHeight;
+      canvas.width = w;
+      canvas.height = h;
+      print("size change $w $h");
+      perspective.AdjustAspect(w, h);
+      phase.viewPortW = w;
+      phase.viewPortH = h;
+    }
+
+    resolutionChange(null);
+    HTML.window.onResize.listen(resolutionChange);
+
     double _lastTimeMs = 0.0;
     void animate(timeMs) {
       timeMs = 0.0 + timeMs;
@@ -73,8 +85,6 @@ void main() {
       _lastTimeMs = timeMs;
       orbit.azimuth += 0.001;
       orbit.animate(elapsed);
-      perspective.Adjust(canvas);
-      phase.UpdateViewPort(canvas);
       phase.draw([perspective]);
       HTML.window.animationFrame.then(animate);
     }
