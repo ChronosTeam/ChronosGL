@@ -12,7 +12,7 @@ Future<MeshData> loadObj(String url) {
     c.complete(result);
   });
   hr.send('');
-  return c.future;
+  return c.future as Future<MeshData>;
 }
 
 MeshData doLoadObj(String text) {

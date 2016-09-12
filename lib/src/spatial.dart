@@ -89,7 +89,7 @@ class Spatial  extends NamedEntity {
     setPos(rcp * Math.cos(azimuth), radius * Math.sin(polar), rcp * Math.sin(azimuth));
   }
 
-  void translate(num x, num y, num z, [double factor = 1.0]) {
+  void translate(double x, double y, double z, [double factor = 1.0]) {
     transform[POSX] += x * factor;
     transform[POSY] += y * factor;
     transform[POSZ] += z * factor;
@@ -101,27 +101,27 @@ class Spatial  extends NamedEntity {
     transform[POSZ] += vector[2] * factor;
   }
 
-  void moveForward(num amount) {
+  void moveForward(double amount) {
     moveBackward(-amount);
   }
 
-  void moveBackward(num amount) {
+  void moveBackward(double amount) {
     transform[POSX] += transform[BACKX] * amount;
     transform[POSY] += transform[BACKY] * amount;
     transform[POSZ] += transform[BACKZ] * amount;
   }
 
-  void moveUp(num amount) {
+  void moveUp(double amount) {
     transform[POSX] += transform[UPX] * amount;
     transform[POSY] += transform[UPY] * amount;
     transform[POSZ] += transform[UPZ] * amount;
   }
 
-  void moveLeft(num amount) {
+  void moveLeft(double amount) {
     moveRight(-amount);
   }
 
-  void moveRight(num amount) {
+  void moveRight(double amount) {
     transform[POSX] += transform[RIGHTX] * amount;
     transform[POSY] += transform[RIGHTY] * amount;
     transform[POSZ] += transform[RIGHTZ] * amount;
