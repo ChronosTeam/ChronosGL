@@ -64,7 +64,8 @@ class Light extends ShaderInputProvider {
     VM.Vector3 up = (_dir.x == 0.0 && _dir.z == 0.0) ? _up2 : _up;
     // Note, here is where we use the fact that direction also includes
     // position.
-    VM.setViewMatrix(m, _dir, new VM.Vector3.zero(), up);
+    // dir_ can be normalized but does not have to.
+    VM.setViewMatrix(m,  new VM.Vector3.zero(), _dir, up);
   }
 
   // This needs to stay in sync with UnpackLightSourceInfo

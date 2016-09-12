@@ -1,30 +1,29 @@
 part of chronosshader;
 
 final String _shadowHelpers = """
-// r,g,b,a  are in the range of [0, 255]
-// float = r / (256^4) + g / (256^3) + b / 256^2 + a / 256^1
+// r,g,b,a  are in the range of [0, 254]
+// float = r / 255^1 + g / 255^2 + b / 255^3 + a / 255^4
 // float is assumed to be in [0, 1]
-// Not that the conversion from bytes to floats introduces a 1/256 factor
-// From http://spidergl.org/example.php?id=6
-const vec4 _shift = vec4(256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0);
-const vec4 _shiftInverse = vec4(1.0 / (256.0*256.0*256.0),
-	                              1.0 / (256.0*256.0),
-	                              1.0 / 256.0,
-	                              1.0);
+// Not that the conversion from bytes to floats introduces a 1/255 factor
+// Inspired by http://spidergl.org/example.php?id=6
+
+// 256.0 does not work quite as well.
+const float _b = 255.0;
+const vec4 _shift = vec4(1.0, _b, _b * _b, _b * _b * _b);
+const vec4 _shiftInv = vec4(1.0, 1.0 / _b, 1.0 / (_b * _b), 1.0 / (_b * _b * _b));
+
 vec4 packDepth(float depth) {
-	const vec4 bit_mask  = vec4(0.0, 1.0/256.0, 1.0/256.0, 1.0/256.0);
 	vec4 res = fract(depth * _shift);
   // the next three correction terms can probably be omitted if we
   // know for sure that we are dealing with 8 bits per color component
-  res.w -= res.z / 256.0;
-  res.z -= res.y / 256.0;
-  res.y -= res.z / 256.0;
+  res.r -= res.g / _b;
+  res.g -= res.b / _b;
+  res.b -= res.a / _b;
 	return res;
 }
 
-// color.x + color.y / 256.0^1 + color.z / 256.0^2 + color.a / 256.0^3
 float unpackDepth(vec4 rgba_depth) {
-	return dot(rgba_depth, _shiftInverse);
+	return dot(rgba_depth, _shiftInv);
 }
 
 float computeShadow(vec4 positionFromLight, sampler2D shadowSampler,
@@ -39,6 +38,7 @@ float computeShadow(vec4 positionFromLight, sampler2D shadowSampler,
 		}
 
 		float shadow = unpackDepth(texture2D(shadowSampler, uv));
+
 
 		if (depth.z > shadow + bias) {
 			return darkness;
@@ -240,24 +240,13 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
       ]),
     new ShaderObject("LightBlinnPhongF")
       ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight0])
-      ..AddUniformVars(
-          [uLightSourceInfo0, uShadowSampler0, uEyePosition])
+      ..AddUniformVars([uLightSourceInfo0, uShadowSampler0, uEyePosition])
       ..SetBody([
         _lightHelpers,
         _shadowHelpers,
         """
-        vec4 myComputeShadow(vec4 positionFromLight,
-                             sampler2D shadowSampler,
-                             float darkness, float bias) {
-		      vec3 depth = positionFromLight.xyz / positionFromLight.w;
-		      depth = 0.5 * depth + vec3(0.5);
-		      vec2 uv = depth.xy;
-
-          return texture2D(shadowSampler, uv);
-        }
-
       void main() {
-        LightSourceInfo info =  UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
+        LightSourceInfo info = UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
         float diffuseFactor = 0.0;
         float specularFactor = 0.0;
         GetDiffuseAndSpecularFactors(info,
@@ -266,17 +255,10 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
                                      ${uEyePosition},
                                      diffuseFactor, specularFactor);
 
-        float shadow = 1.0;
-        vec4 col = myComputeShadow(${vPositionFromLight0},
-                                      ${uShadowSampler0}, 0.4, 0.0);
-
-        gl_FragColor = vec4(diffuseFactor * shadow * info.diffuseColor +
-                            specularFactor * shadow * info.specularColor, 1.0 );
-
-        gl_FragColor.r = col.r;
-        gl_FragColor.g = col.g;
-        gl_FragColor.b = col.b + useValueButReturnZero(gl_FragColor.b);
-        gl_FragColor.a = 1.0;
+        float shadow = computeShadow(${vPositionFromLight0},
+                                     ${uShadowSampler0}, 0.4, -0.1);
+        gl_FragColor.rgb = diffuseFactor * shadow * info.diffuseColor +
+                             specularFactor * shadow * info.specularColor;
       }
       """
       ])
@@ -350,8 +332,11 @@ List<ShaderObject> createCopyShaderForShadow() {
       void main(void) {
           vec2 uv = ${vTextureCoordinates}.xy;
           vec4 color = texture2D(${uTextureSampler}, uv);
-          // color = packDepth(unpackDepth(color));
+          // Commenting the next line should not make any difference
+          //color = packDepth(unpackDepth(color));
           gl_FragColor = color;
+          // necessary?
+          gl_FragColor.a = 1.0;
       }
       """
       ])

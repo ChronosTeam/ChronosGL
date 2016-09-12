@@ -1,6 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
+import 'dart:web_gl' as WEBGL;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -20,12 +21,16 @@ void main() {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
 
-  int w = canvas.clientWidth ~/ 2;
-  int h = canvas.clientHeight;
+  final int w = canvas.clientWidth ~/ 2;
+  final int h = canvas.clientHeight;
 
   Perspective perspective = new Perspective(orbit);
 
-  ChronosFramebuffer shadowBuffer = new ChronosFramebuffer(chronosGL.gl, w, h);
+  // using RGBA is absolutely crucial since we store floats
+  // in a 4 byte fix-point format where the most significant
+  // byte ends up in the A chanel.
+  ChronosFramebuffer shadowBuffer =
+      new ChronosFramebuffer(chronosGL.gl, w, h, WEBGL.RGBA);
 
   //Projection shadowProjection =
   //   new Orthographic(orbit, -100.0, 100.0, -100.0, 0.0, 100.0);
@@ -46,7 +51,6 @@ void main() {
 
   ShaderProgram copyToScreen =
       phaseDisplayShadow.createProgram(createCopyShaderForShadow());
-  //phaseDisplayShadow.createProgram(createCopyShader());
 
   copyToScreen.SetUniform(uTextureSampler, shadowBuffer.colorTexture);
   copyToScreen.add(UnitMesh);
