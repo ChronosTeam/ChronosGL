@@ -32,7 +32,7 @@ class Mesh extends Node {
   bool debug = false;
   final VM.Matrix3 _normMatrix = new VM.Matrix3.zero();
   final Map<String, WEBGL.Buffer> _buffers = {};
-  WEBGL.Buffer _indexBuffer = null;
+  WEBGL.Buffer _indexBuffer;
   int numItems;
   int numInstances = 0;
   Material material;
@@ -112,6 +112,7 @@ class Mesh extends Node {
   }
 
   // this gets called by Node.draw()
+  @override
   void draw2(ShaderProgram program, List<DrawStats> stats) {
     if (debug) {
       print("draw2: $name items ${numItems}");

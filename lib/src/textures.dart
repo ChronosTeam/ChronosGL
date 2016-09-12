@@ -1,7 +1,8 @@
 part of chronosgl;
 
-GetGlExtensionDepth(WEBGL.RenderingContext gl) {
-  var ext = null;
+// FIXME: use proper type
+dynamic GetGlExtensionDepth(WEBGL.RenderingContext gl) {
+  var ext;
   for (String prefix in ["", "MOZ_", "WEBKIT_"]) {
     ext = gl.getExtension(prefix + "WEBGL_depth_texture");
     if (ext != null) break;
@@ -12,8 +13,9 @@ GetGlExtensionDepth(WEBGL.RenderingContext gl) {
   return ext;
 }
 
-GetGlExtensionAnisotropic(WEBGL.RenderingContext gl) {
-  var ext = null;
+// FIXME: use proper type
+dynamic GetGlExtensionAnisotropic(WEBGL.RenderingContext gl) {
+  var ext;
   for (String prefix in ["", "MOZ_", "WEBKIT_"]) {
     ext = gl.getExtension(prefix + "EXT_texture_filter_anisotropic");
     if (ext != null) break;
@@ -24,7 +26,8 @@ GetGlExtensionAnisotropic(WEBGL.RenderingContext gl) {
   return ext;
 }
 
-GetGlExtensionStandardDerivatives(WEBGL.RenderingContext gl) {
+// FIXME: use proper type
+dynamic GetGlExtensionStandardDerivatives(WEBGL.RenderingContext gl) {
   var ext = gl.getExtension("OES_standard_derivatives");
   if (ext == null) {
     LogWarn("ExtensionStandardDerivative NOT SUPPORTED");
@@ -99,7 +102,7 @@ class TextureProperties {
 // Base class for all textures
 class Texture {
   final String _url;
-  WEBGL.Texture _texture = null;
+  WEBGL.Texture _texture;
 
   TextureProperties properties = new TextureProperties();
 
@@ -158,6 +161,7 @@ class CanvasTexture extends Texture {
     _canvas = MakeSolidColorCanvas(fillStyle);
   }
 
+  @override
   void Install(WEBGL.RenderingContext gl) {
     // Check for CubeChild
     if (_textureType != WEBGL.TEXTURE_2D) return;
@@ -178,6 +182,7 @@ class CanvasTexture extends Texture {
     gl.bindTexture(_textureType, null);
   }
 
+  @override
   void InstallAsCubeChild(WEBGL.RenderingContext gl) {
     gl.texImage2D(
         _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _canvas);
@@ -196,6 +201,7 @@ class ImageTexture extends Texture {
     _image.src = url;
   }
 
+  @override
   void Install(WEBGL.RenderingContext gl) {
     // Check for CubeChild
     if (_textureType != WEBGL.TEXTURE_2D) return;
@@ -209,11 +215,13 @@ class ImageTexture extends Texture {
     gl.bindTexture(_textureType, null);
   }
 
+  @override
   void InstallAsCubeChild(WEBGL.RenderingContext gl) {
     gl.texImage2D(
         _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _image);
   }
 
+  @override
   Future<dynamic> GetFuture() {
     return _future;
   }
@@ -250,6 +258,7 @@ class TypedTexture extends Texture {
     gl.bindTexture(WEBGL.TEXTURE_2D, null);
   }
 
+  @override
   void Install(WEBGL.RenderingContext gl) {
     _texture = gl.createTexture();
     gl.bindTexture(WEBGL.TEXTURE_2D, _texture);
@@ -292,6 +301,7 @@ class CubeTexture extends Texture {
     properties.clamp = true;
   }
 
+  @override
   void Install(WEBGL.RenderingContext gl) {
     _texture = gl.createTexture();
     gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, _texture);

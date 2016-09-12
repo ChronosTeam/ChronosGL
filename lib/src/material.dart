@@ -26,7 +26,7 @@ class ShaderProgramInputs extends NamedEntity {
     SetUniformWithOrigin(this, canonical, val);
   }
 
-  GetUniformVal(String canonical) {
+  dynamic GetUniformVal(String canonical) {
     if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
     return _uniforms[canonical];
   }
@@ -93,10 +93,11 @@ class Material extends ShaderInputProvider {
   }
 
   void SetUniform(String canonical, val, [bool allowOverride = false]) {
-    assert (allowOverride || !_uniforms.containsKey(canonical));
+    assert(allowOverride || !_uniforms.containsKey(canonical));
     _uniforms[canonical] = val;
   }
 
+  @override
   void UpdateUniforms(ShaderProgramInputs inputs) {
     _uniforms.forEach((String k, v) {
       inputs.SetUniformWithOrigin(this, k, v);

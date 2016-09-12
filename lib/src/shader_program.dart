@@ -14,6 +14,7 @@ class DrawStats {
   DrawStats(this.name, this.numInstances, this.numItems, this.drawMode,
       this.useArrayBuffer);
 
+  @override
   String toString() {
     return "[${name}] ${numInstances} ${numItems} ${drawMode} ${useArrayBuffer}";
   }

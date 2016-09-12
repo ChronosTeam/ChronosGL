@@ -171,7 +171,7 @@ ShaderVarDesc RetrieveShaderVarDesc(String canonical) {
 // SetBody(WithMain) must be called last;
 class ShaderObject {
   String name;
-  String shader = null;
+  String shader;
 
   Map<String, String> attributeVars = {};
   Map<String, String> uniformVars = {};

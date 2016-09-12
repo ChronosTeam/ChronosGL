@@ -89,5 +89,5 @@ class StatsFps extends Stats {
     AddRawValue(_graphHeight * fps.ceil() ~/ _maxFps);
   }
 
-  StatsFps(Element root, String fg, String bg) : super(root, fg, bg) {}
+  StatsFps(Element root, String fg, String bg) : super(root, fg, bg);
 }

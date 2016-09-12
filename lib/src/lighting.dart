@@ -65,7 +65,7 @@ class Light extends ShaderInputProvider {
     // Note, here is where we use the fact that direction also includes
     // position.
     // dir_ can be normalized but does not have to.
-    VM.setViewMatrix(m,  new VM.Vector3.zero(), _dir, up);
+    VM.setViewMatrix(m, new VM.Vector3.zero(), _dir, up);
   }
 
   // This needs to stay in sync with UnpackLightSourceInfo
@@ -104,6 +104,7 @@ class Light extends ShaderInputProvider {
     return m;
   }
 
+  @override
   void UpdateUniforms(ShaderProgramInputs inputs) {
     inputs.SetUniformWithOrigin(this, uLightSourceInfo + "${no}", PackInfo());
   }
@@ -128,6 +129,7 @@ class ShadowProjection extends ShaderInputProvider {
     Update();
   }
 
+  @override
   void UpdateUniforms(ShaderProgramInputs inputs) {
     _light.getViewMatrixForShadow(_viewMatrix);
     _projViewMatrix.setFrom(_proj);

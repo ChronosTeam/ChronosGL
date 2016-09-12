@@ -395,6 +395,7 @@ class MeshData extends NamedEntity {
     }
   
      */
+  @override
   String toString() {
     return "F ${_faces.length} ${_vertices.length}";
   }

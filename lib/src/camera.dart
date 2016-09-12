@@ -102,7 +102,7 @@ class OrbitCamera extends Camera {
 class FlyingCamera extends Camera {
   VM.Vector3 momentum_ = new VM.Vector3.zero();
 
-  FlyingCamera(): super("camera:flying");
+  FlyingCamera() : super("camera:flying");
 
   void animate(double elapsed) {
     Map<int, bool> cpk = currentlyPressedKeys;
@@ -129,34 +129,40 @@ class FlyingCamera extends Camera {
     translateFromVec(momentum_);
   }
 
+  @override
   void moveForward(double amount) {
     VM.Vector3 t = getBack();
     t.negate();
     VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
+  @override
   void moveBackward(double amount) {
     VM.Vector3 t = getBack();
     VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
+  @override
   void moveUp(num amount) {
     VM.Vector3 t = getUp();
     VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
+  @override
   void moveDown(num amount) {
     VM.Vector3 t = getUp();
     t.negate();
     VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
+  @override
   void moveLeft(num amount) {
     VM.Vector3 t = getRight();
     t.negate();
     VM.Vector3.mix(momentum_, t, amount, momentum_);
   }
 
+  @override
   void moveRight(num amount) {
     VM.Vector3 t = getRight();
     VM.Vector3.mix(momentum_, t, amount, momentum_);

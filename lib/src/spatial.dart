@@ -5,14 +5,13 @@ final int UPX = 1, UPY = 5, UPZ = 9;
 final int BACKX = 2, BACKY = 6, BACKZ = 10;
 final int POSX = 12, POSY = 13, POSZ = 14;
 
-class Spatial  extends NamedEntity {
-
+class Spatial extends NamedEntity {
   Spatial(String name) : super(name);
   // position and rotation
-  // the idea to use a matrix4 for this might be problematic, 
-  // as the values degenerate over time. 
+  // the idea to use a matrix4 for this might be problematic,
+  // as the values degenerate over time.
   // Might be better to use Quaternions anyways
-  // regular lookAt calls could "repair" the matrix 
+  // regular lookAt calls could "repair" the matrix
   // ( or an optimized variant of lookAt).
   final VM.Matrix4 transform = new VM.Matrix4.identity();
 
@@ -65,11 +64,11 @@ class Spatial  extends NamedEntity {
   }
   /*
   void scale(num x, num y, num z) {
-    transform[0] *= x;  
-    transform[5] *= x;  
-    transform[10] *= x;  
+    transform[0] *= x;
+    transform[5] *= x;
+    transform[10] *= x;
   }*/
-  
+
   void addPos(double x, double y, double z) {
     translate(x, y, z); // alias
   }
@@ -86,7 +85,8 @@ class Spatial  extends NamedEntity {
 
   void setPosFromSpherical(double radius, double azimuth, double polar) {
     double rcp = radius * Math.cos(polar);
-    setPos(rcp * Math.cos(azimuth), radius * Math.sin(polar), rcp * Math.sin(azimuth));
+    setPos(rcp * Math.cos(azimuth), radius * Math.sin(polar),
+        rcp * Math.sin(azimuth));
   }
 
   void translate(double x, double y, double z, [double factor = 1.0]) {
@@ -115,6 +115,10 @@ class Spatial  extends NamedEntity {
     transform[POSX] += transform[UPX] * amount;
     transform[POSY] += transform[UPY] * amount;
     transform[POSZ] += transform[UPZ] * amount;
+  }
+
+  void moveDown(double amount) {
+    moveUp(-amount);
   }
 
   void moveLeft(double amount) {

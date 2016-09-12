@@ -1,6 +1,5 @@
 part of chronosgl;
 
-
 class Orthographic extends ShaderInputProvider {
   final Camera _camera;
   final VM.Matrix4 _proj = new VM.Matrix4.zero();
@@ -19,6 +18,7 @@ class Orthographic extends ShaderInputProvider {
     Update();
   }
 
+  @override
   void UpdateUniforms(ShaderProgramInputs inputs) {
     _camera.getViewMatrix(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
@@ -39,7 +39,6 @@ class Orthographic extends ShaderInputProvider {
     Update();
   }
 }
-
 
 class Perspective extends ShaderInputProvider {
   Camera _camera;
@@ -79,6 +78,7 @@ class Perspective extends ShaderInputProvider {
     _camera = cam;
   }
 
+  @override
   void UpdateUniforms(ShaderProgramInputs inputs) {
     inputs.SetUniformWithOrigin(this, uEyePosition, _camera.getEyePosition());
     _camera.getViewMatrix(_viewMatrix);
