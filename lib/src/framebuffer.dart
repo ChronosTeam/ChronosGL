@@ -4,12 +4,12 @@ class ChronosFramebuffer {
   WEBGL.RenderingContext gl;
 
   WEBGL.Framebuffer framebuffer;
-  WEBGL.Renderbuffer renderbuffer;
+  //WEBGL.Renderbuffer renderbuffer;
   TypedTexture colorTexture;
   TypedTexture depthTexture;
   var depthTextureExt;
 
-  ChronosFramebuffer(this.gl, width, height) {
+  ChronosFramebuffer(this.gl, width, height, [colorFormat = WEBGL.RGB]) {
     depthTextureExt = GetGlExtensionDepth(gl);
     // http://blog.tojicode.com/2012/07/using-webgldepthtexture.html
     if (depthTextureExt == null) {
@@ -19,7 +19,7 @@ class ChronosFramebuffer {
     framebuffer = gl.createFramebuffer();
 
     colorTexture = new TypedTexture(
-        "frame::color", width, height, WEBGL.RGB, WEBGL.UNSIGNED_BYTE);
+        "frame::color", width, height, colorFormat, WEBGL.UNSIGNED_BYTE);
     colorTexture.Install(gl);
     depthTexture = new TypedTexture("frame::depth", width, height,
         WEBGL.DEPTH_COMPONENT, WEBGL.UNSIGNED_SHORT);
@@ -65,15 +65,37 @@ class ChronosFramebuffer {
     }
     return result;
   }
-  
+
   // e.g. into Float32List
+  // BROKEN: https://github.com/dart-lang/sdk/issues/11614
   void ExtractData(var buf, int x, int y, int w, int h) {
     gl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
-    int implFormat =
-        gl.getParameter(WEBGL.RenderingContext.IMPLEMENTATION_COLOR_READ_FORMAT);
+    // RGB (3 values per pixel), RGBA (4 values per pixel)
+    // see TypeToNumChannels
+    int implFormat = gl
+        .getParameter(WEBGL.RenderingContext.IMPLEMENTATION_COLOR_READ_FORMAT);
+    print ("impl format: ${implFormat}");
+    // FLOAT, UNSIGNED BYTE
     int implType =
         gl.getParameter(WEBGL.RenderingContext.IMPLEMENTATION_COLOR_READ_TYPE);
+    print ("impl type: ${implType}");
     gl.readPixels(x, y, w, h, implFormat, implType, buf);
     gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
+  }
+}
+
+int TypeToNumChannels(int t) {
+  switch (t) {
+    case WEBGL.LUMINANCE:
+      return 1;
+    case WEBGL.LUMINANCE_ALPHA:
+      return 2;
+    case WEBGL.RGB:
+      return 3;
+    case WEBGL.RGBA:
+      return 4;
+    default:
+      assert(false);
+      return -1;
   }
 }
