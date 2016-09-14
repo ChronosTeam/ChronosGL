@@ -23,6 +23,11 @@ class Light extends ShaderInputProvider {
   double _spotCutoff = 0.0; // for spot
   double _spotFocus = 0.0; // for spot
 
+  dynamic get type => _type;
+  dynamic get dir => _dir;
+  VM.Vector3 get pos => _pos;
+  dynamic get angle => _spotCutoff;
+
   // Light emanating from a point in all directions.
   // Light gets "weaker" with increased distance.
   Light.Point(
@@ -60,12 +65,26 @@ class Light extends ShaderInputProvider {
   }
 
   void getViewMatrixForShadow(VM.Matrix4 m) {
-    assert(_type == typeLightDir);
     VM.Vector3 up = (_dir.x == 0.0 && _dir.z == 0.0) ? _up2 : _up;
-    // Note, here is where we use the fact that direction also includes
-    // position.
-    // dir_ can be normalized but does not have to.
-    VM.setViewMatrix(m, new VM.Vector3.zero(), _dir, up);
+    VM.Vector3 pos;
+    VM.Vector3 focus;
+    switch (_type) {
+      case typeLightDir:
+        // Note, here is where we use the fact that direction also includes
+        // position.
+        // dir_ can be normalized but does not have to.
+        focus = _dir;
+        pos = new VM.Vector3.zero();
+        break;
+      case typeLightSpot:
+        focus = _pos -_dir;
+        pos = _pos;
+        break;
+      default:
+        assert(false);
+        break;
+    }
+    VM.setViewMatrix(m, pos, focus, up);
   }
 
   // This needs to stay in sync with UnpackLightSourceInfo
@@ -148,6 +167,16 @@ class ShadowProjection extends ShaderInputProvider {
   void Update() {
     double w = _r - _l;
     double h = w / _aspect;
-    VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + h, _f, _b);
+    switch (_light.type) {
+      case typeLightDir:
+        VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + h, _f, _b);
+        break;
+      case typeLightSpot:
+        // FIXME - fix the hardcoded constant
+        VM.setPerspectiveMatrix(_proj, 90.0 * Math.PI / 180.0, _aspect, .1, _b);
+        break;
+      default:
+        assert(false);
+    }
   }
 }

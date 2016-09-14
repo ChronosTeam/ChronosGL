@@ -12,12 +12,14 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
-  VM.Vector3 posLight1 = new VM.Vector3(0.0, 50.0, 0.0);
+  VM.Vector3 posLight = new VM.Vector3(2.0, 10.0, 5.0);
+  VM.Vector3 dirLight = new VM.Vector3(0.0, 1.0, 0.0);
+
   VM.Vector3 colWhite = new VM.Vector3(0.0, 0.0, 1.0);
   VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
 
-  Light light = new Light.Directional(0, posLight1, colRed, colWhite);
-
+  //Light light = new Light.Directional(0, dirLight, colRed, colWhite);
+  Light light = new Light.Spot(0, posLight, dirLight, colRed, colWhite, 100.0, 0.85, 2.0);
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
 
@@ -32,11 +34,8 @@ void main() {
   ChronosFramebuffer shadowBuffer =
       new ChronosFramebuffer(chronosGL.gl, w, h, WEBGL.RGBA);
 
-  //Projection shadowProjection =
-  //   new Orthographic(orbit, -100.0, 100.0, -100.0, 0.0, 100.0);
-
   ShadowProjection shadowProjection =
-      new ShadowProjection(light, -20.0, 20.0, -20.0, 0.0, 100.0);
+      new ShadowProjection(light, -30.0, 30.0, -30.0, 0.0, 100.0);
   shadowProjection.AdjustAspect(w, h);
 
   RenderingPhase phaseComputeShadow =
@@ -121,7 +120,7 @@ void main() {
   Material icoMat = new Material("sphere")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
   Mesh ico1 = new Mesh("spehere", Shapes.Icosahedron(), icoMat)
-    ..setPosFromVec(posLight1);
+    ..setPosFromVec(posLight);
 
   fixedShaderPrg.add(ico1);
 
@@ -142,17 +141,35 @@ void main() {
     phaseDisplayShadow.viewPortX = phaseMain.viewPortW;
   }
 
+  double GetInputValue(HTML.InputElement e) {
+    return double.parse(e.value);
+  }
+
+  double SwallowEvent(HTML.Event e) {
+    e.stopPropagation();
+  }
+
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
+  //HTML.document.getElementById("posx").onChange.listen((HTML.Event ev) =>
+  //light.pos.x = GetInputValue(ev));
+  HTML.document.getElementById("posx").onMouseMove.listen(SwallowEvent);
+  HTML.document.getElementById("posy").onMouseMove.listen(SwallowEvent);
+  HTML.document.getElementById("posz").onMouseMove.listen(SwallowEvent);
 
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
-    orbit.azimuth += 0.001;
+    //orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
 
+    double lx = GetInputValue(HTML.document.getElementById("posx"));
+    double ly = GetInputValue(HTML.document.getElementById("posy"));
+    double lz = GetInputValue(HTML.document.getElementById("posz"));
+    light.pos.setValues(lx, ly, lz);
+    ico1.setPosFromVec(light.pos);
     // Compute the shadow map
     phaseComputeShadow.draw([shadowProjection, light]);
     // show the shadow map
