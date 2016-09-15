@@ -48,10 +48,10 @@ void main() {
   Math.Random rng = new Math.Random();
 
   loadObj("../ct_logo.obj").then((MeshData md) {
-    Mesh mesh = new Mesh(md.name, md, mat)
+    Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
-    Node node = new Node("wrapper", mesh);
+    Node node = new Node.Container("wrapper", mesh);
     //n.invert = true;
     node.lookAt(new VM.Vector3(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);

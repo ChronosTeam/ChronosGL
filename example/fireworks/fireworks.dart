@@ -47,7 +47,7 @@ List<ShaderObject> createFireWorksShader() {
 
 Math.Random rand = new Math.Random();
 
-Mesh getRocket(Texture tw) {
+Node getRocket(Texture tw) {
   int numPoints = 200;
 
   List<VM.Vector3> vertices = [];
@@ -70,7 +70,7 @@ Mesh getRocket(Texture tw) {
     ..blend = true
     ..depthWrite = false
     ..blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;
-  return new Mesh(md.name, md, mat);
+  return new Node(md.name, md, mat);
 }
 
 void main() {

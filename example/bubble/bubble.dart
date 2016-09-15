@@ -51,7 +51,7 @@ void main() {
   MeshData md = Shapes.Icosahedron(3);
   //md.generateNormalsAssumingTriangleMode();
   md.generateRadialNormals(new VM.Vector3(0.0, 0.0, 0.0));
-  Mesh m = new Mesh("sphere", md, mat)..setPos(0.0, 0.0, 0.0);
+  Node m = new Node("sphere", md, mat)..setPos(0.0, 0.0, 0.0);
 
   shaderSpheres.add(m);
 

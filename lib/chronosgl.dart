@@ -22,7 +22,6 @@ part "src/camera.dart";
 part "src/utils.dart";
 part "src/lighting.dart";
 part "src/material.dart";
-part "src/mesh.dart";
 part "src/mesh_data.dart";
 part "src/projection.dart";
 part "src/shapes/shapes.dart";
@@ -59,7 +58,7 @@ abstract class NamedEntity {
 
 final MeshData UnitQuad = Shapes.Quad(1);
 final Material EmptyMaterial = new Material("empty-mat");
-final Mesh UnitMesh = new Mesh("unit-mesh", UnitQuad, EmptyMaterial);
+final Node UnitNode = new Node("unit-mesh", UnitQuad, EmptyMaterial);
 
 class RenderingPhase extends NamedEntity {
   final WEBGL.RenderingContext _gl;

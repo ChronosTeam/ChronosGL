@@ -16,7 +16,7 @@ void main() {
   Material mat = new Material("mat");
   MeshData md = Shapes.Cube(x: 10.0, y: 10.0, z: 10.0);
 
-  Mesh m = new Mesh(md.name, md, mat)
+  Node m = new Node(md.name, md, mat)
     ..setPos(0.0, 0.0, 0.0)
     ..lookUp(1.0)
     ..lookLeft(0.7);

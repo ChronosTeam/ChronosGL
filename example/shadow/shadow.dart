@@ -18,8 +18,8 @@ void main() {
   VM.Vector3 colWhite = new VM.Vector3(0.0, 0.0, 1.0);
   VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
 
-  //Light light = new Light.Directional(0, dirLight, colRed, colWhite);
-  Light light = new Light.Spot(0, posLight, dirLight, colRed, colWhite, 100.0, 0.85, 2.0);
+  Light light = new Light.Directional(0, dirLight, colRed, colWhite);
+  //Light light = new Light.Spot(0, posLight, dirLight, colRed, colWhite, 100.0, 0.85, 2.0);
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
 
@@ -52,7 +52,7 @@ void main() {
       phaseDisplayShadow.createProgram(createCopyShaderForShadow());
 
   copyToScreen.SetUniform(uTextureSampler, shadowBuffer.colorTexture);
-  copyToScreen.add(UnitMesh);
+  copyToScreen.add(UnitNode);
 
   RenderingPhase phaseMain = new RenderingPhase("main", chronosGL.gl);
   phaseMain.clearColorBuffer = false;
@@ -75,7 +75,7 @@ void main() {
     ..SetUniform(uColor, new VM.Vector3(0.8, 0.8, 0.8));
 
   {
-    Mesh ico = new Mesh(
+    Node ico = new Node(
         "sphere",
         Shapes.Icosahedron(3)..generateNormalsAssumingTriangleMode(),
         mat1)..setPos(0.0, 0.0, 0.0);
@@ -83,13 +83,13 @@ void main() {
     basic.add(ico);
   }
   {
-    Mesh cube = new Mesh("cube", Shapes.Cube(), mat2)..setPos(-5.0, 0.0, -5.0);
+    Node cube = new Node("cube", Shapes.Cube(), mat2)..setPos(-5.0, 0.0, -5.0);
     shadowMap.add(cube);
     basic.add(cube);
   }
 
   {
-    Mesh cyl = new Mesh(
+    Node cyl = new Node(
         "cylinder",
         Shapes.Cylinder(3.0, 6.0, 2.0, 32)
           ..generateNormalsAssumingTriangleMode(),
@@ -108,7 +108,7 @@ void main() {
 */
   {
     // plane
-    Mesh cube = new Mesh("cube", Shapes.Cube(x: 20.0, y: 0.1, z: 20.0), mat3)
+    Node cube = new Node("cube", Shapes.Cube(x: 20.0, y: 0.1, z: 20.0), mat3)
       ..setPos(0.0, -10.0, 0.0);
     shadowMap.add(cube);
     basic.add(cube);
@@ -119,7 +119,7 @@ void main() {
       phaseMain.createProgram(createSolidColorShader());
   Material icoMat = new Material("sphere")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
-  Mesh ico1 = new Mesh("spehere", Shapes.Icosahedron(), icoMat)
+  Node ico1 = new Node("spehere", Shapes.Icosahedron(), icoMat)
     ..setPosFromVec(posLight);
 
   fixedShaderPrg.add(ico1);

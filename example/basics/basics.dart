@@ -34,31 +34,31 @@ void main() {
     ..blend = true;
 
   {
-    Mesh ico = new Mesh("sphere", Shapes.Icosahedron(3), matWood)
+    Node ico = new Node("sphere", Shapes.Icosahedron(3), matWood)
       ..setPos(0.0, 0.0, 0.0);
     basic.add(ico);
   }
   {
-    Mesh cube = new Mesh("cube", Shapes.Cube(), matGradient)
+    Node cube = new Node("cube", Shapes.Cube(), matGradient)
       ..setPos(-5.0, 0.0, -5.0);
     basic.add(cube);
   }
 
   {
-    Mesh cyl =
-        new Mesh("cylinder", Shapes.Cylinder(3.0, 6.0, 2.0, 32), matTrans)
+    Node cyl =
+        new Node("cylinder", Shapes.Cylinder(3.0, 6.0, 2.0, 32), matTrans)
           ..setPos(5.0, 0.0, -5.0);
     basic.add(cyl);
   }
   {
-    Mesh quad = new Mesh("quad", Shapes.Quad(2), matTrans)
+    Node quad = new Node("quad", Shapes.Quad(2), matTrans)
       //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
       ..setPos(-5.0, 0.0, 5.0);
     basic.add(quad);
   }
   {
-    Mesh torus =
-        new Mesh("torus", Shapes.TorusKnot(radius: 1.0, tube: 0.4), matGradient)
+    Node torus =
+        new Node("torus", Shapes.TorusKnot(radius: 1.0, tube: 0.4), matGradient)
           ..setPos(5.0, 0.0, 5.0);
     basic.add(torus);
   }

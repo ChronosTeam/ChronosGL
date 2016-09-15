@@ -53,7 +53,7 @@ void main() {
       .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
   MeshData md = Shapes.Icosahedron(3);
   //..multiplyVertices(100);
-  Mesh m = new Mesh(md.name, md, mat)..transform.scale(100.0);
+  Node m = new Node(md.name, md, mat)..transform.scale(100.0);
   skyprg.add(m);
 
   ShaderProgram prg = phase.createProgram(createSkyScraperShader());
@@ -72,7 +72,7 @@ void main() {
       VM.Vector2 q = new VM.Vector2(0.01, 0.01);
       md.setFace4UV(2, q, q, q, q);
       md.setFace4UV(3, q, q, q, q);
-      Mesh m = new Mesh(md.name, md, mat)
+      Node m = new Node(md.name, md, mat)
         ..setPos(x.toDouble(), 0.0, z.toDouble());
       prg.add(m);
     }

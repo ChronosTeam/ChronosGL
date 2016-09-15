@@ -24,7 +24,7 @@ void main() {
     ..SetUniform(uColor, new VM.Vector3.zero())
     ..blend = true
     ..depthTest = false;
-  Mesh m = new Mesh("torus", Shapes.TorusKnot(), mat);
+  Node m = new Node("torus", Shapes.TorusKnot(), mat);
 
   programBasic.add(m);
 

@@ -79,14 +79,14 @@ void main() {
     ..SetUniform(uTextureSampler, solid)
     ..SetUniform(uColor, new VM.Vector3(0.8, 0.8, 0.8));
 
-  Mesh ico = new Mesh(
+  Node ico = new Node(
       "sphere",
       Shapes.Icosahedron(3)..generateNormalsAssumingTriangleMode(),
       mat1)..setPos(0.0, 0.0, 0.0);
 
-  Mesh cube = new Mesh("cube", Shapes.Cube(), mat2)..setPos(-5.0, 0.0, -5.0);
+  Node cube = new Node("cube", Shapes.Cube(), mat2)..setPos(-5.0, 0.0, -5.0);
 
-  Mesh cyl = new Mesh(
+  Node cyl = new Node(
       "cylinder",
       Shapes.Cylinder(3.0, 6.0, 2.0, 32)..generateNormalsAssumingTriangleMode(),
       mat3)..setPos(5.0, 0.0, -5.0);
@@ -98,10 +98,10 @@ void main() {
     basic.add(torus);
   }*/
 
-  Mesh plane = new Mesh("cube", Shapes.Cube(x: 20.0, y: 0.1, z: 20.0), matPlane)
+  Node plane = new Node("cube", Shapes.Cube(x: 20.0, y: 0.1, z: 20.0), matPlane)
     ..setPos(0.0, -10.0, 0.0);
 
-  for (Mesh m in [ico, cube, cyl, plane]) {
+  for (Node m in [ico, cube, cyl, plane]) {
     prgOrthographic.add(m);
     prgPerspective.add(m);
   }

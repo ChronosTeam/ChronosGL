@@ -39,7 +39,7 @@ void main() {
       MeshData md = mymd[i];
       // the logo is missing normals so we generate them here, but wait, why are the colors all wrong ?
       md.generateNormalsAssumingTriangleMode();
-      Mesh mesh = new Mesh(md.name, md, mat);
+      Node mesh = new Node(md.name, md, mat);
       if (md == ctLogo) {
         mesh.rotX(3.14 / 2);
         mesh.rotZ(3.14);
@@ -55,7 +55,7 @@ void main() {
       md
         //..deDeuplicateIndices()
         ..generateNormalsAssumingTriangleMode();
-      Mesh mesh = new Mesh(md.name, md, mat);
+      Node mesh = new Node(md.name, md, mat);
       if (md == ctLogo) {
         mesh.rotX(3.14 / 2);
         mesh.rotZ(3.14);

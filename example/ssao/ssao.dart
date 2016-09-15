@@ -36,7 +36,7 @@ void main() {
     ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetUniform(uTexture2Sampler, fb.depthTexture)
     ..SetUniform(uTextureSampler, fb.colorTexture)
-    ..add(UnitMesh);
+    ..add(UnitNode);
 
   RenderingPhase phase1only =
       new RenderingPhase("phase1only", chronosGL.gl, null);
@@ -53,10 +53,10 @@ void main() {
   loadObj("../ct_logo.obj").then((MeshData md) {
     Material mat = new Material("mat")
       ..SetUniform(uColor, new VM.Vector3(0.9, 0.9, 0.9));
-    Mesh mesh = new Mesh(md.name, md, mat)
+    Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
-    Node n = new Node("wrapper", mesh)
+    Node n = new Node.Container("wrapper", mesh)
       //n.invert = true;
       ..lookAt(new VM.Vector3(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);

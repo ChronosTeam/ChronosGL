@@ -43,9 +43,9 @@ void main() {
 
   loadObj("../ct_logo.obj").then((MeshData md) {
     Material mat = new Material("mat");
-    Mesh mesh = new Mesh(md.name, md, mat)..rotX(3.14 / 2);
+    Node mesh = new Node(md.name, md, mat)..rotX(3.14 / 2);
     //mesh.rotY(3.14);
-    Node n = new Node("wrapper", mesh);
+    Node n = new Node.Container("wrapper", mesh);
     //n.invert = true;
     n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
     //n.matrix.scale(0.02);

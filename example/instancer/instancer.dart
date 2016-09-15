@@ -45,7 +45,7 @@ void main() {
   RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
 
   Material mat = new Material("mat");
-  Mesh m = new Mesh("torus", Shapes.TorusKnot(radius: 12.0), mat);
+  Node m = new Node("torus", Shapes.TorusKnot(radius: 12.0), mat);
 
   int count = 1000;
   Float32List translations = new Float32List(count * 3);

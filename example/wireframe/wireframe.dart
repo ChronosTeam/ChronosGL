@@ -25,7 +25,7 @@ void main() {
     ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5))
     ..blend = true;
   {
-    Mesh ico = new Mesh(
+    Node ico = new Node(
         "sphere",
         Shapes.Icosahedron(2)..generateWireframeCenters(),
         matWireframe)..setPos(0.0, 0.0, 0.0);
@@ -33,14 +33,14 @@ void main() {
   }
 
   {
-    Mesh cube = new Mesh(
+    Node cube = new Node(
         "cube", Shapes.Cube()..generateWireframeCenters(), matWireframe)
       ..setPos(-5.0, 0.0, -5.0);
     program.add(cube);
   }
 
   {
-    Mesh cyl = new Mesh(
+    Node cyl = new Node(
         "cylinder",
         Shapes.CylinderWireframeFriendly(3.0, 4.0, 2.0, 16)
           ..generateWireframeCenters(),
@@ -49,14 +49,14 @@ void main() {
   }
 
   {
-    Mesh quad = new Mesh(
+    Node quad = new Node(
         "quad", Shapes.Quad(2)..generateWireframeCenters(), matWireframe)
       ..setPos(-5.0, 0.0, 5.0);
     program.add(quad);
   }
 
   {
-    Mesh torus = new Mesh(
+    Node torus = new Node(
         "torus",
         Shapes.TorusKnot(radius: 1.0, tube: 0.4)..generateWireframeCenters(),
         matWireframe)..setPos(5.0, 0.0, 5.0);

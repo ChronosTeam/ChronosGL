@@ -7,11 +7,20 @@ abstract class ShaderInputProvider extends NamedEntity {
   void UpdateUniforms(ShaderProgramInputs inputs);
 }
 
+const String cDepthTest = "cDepthTest";
+const String cDepthWrite = "cDepthWrite";
+const String cBlend = "cBlend";
+const String cBlendFactorSrc =  "cBlendFactorSrc";
+const String cBlendFactorDst =  "cBlendFactorDst";
+const String cBlendEquation =  "cBlendEquation";
+
+
 // For use with uniforms
 class ShaderProgramInputs extends NamedEntity {
   // TODO: this should contain all the state, including blending, depth writing
   // and detect incompatible settings
   Map<String, dynamic> _uniforms = {};
+  Map<String, dynamic> _controls = {};
   Map<String, NamedEntity> _origin = {};
 
   ShaderProgramInputs(String name) : super(name);
@@ -31,6 +40,11 @@ class ShaderProgramInputs extends NamedEntity {
     return _uniforms[canonical];
   }
 
+  SetControlWithOrigin(NamedEntity origin, String canonical, var val) {
+    _controls[canonical] = val;
+    _origin[canonical] = origin;
+  }
+
   bool HasUniform(String canonical) {
     return _uniforms.containsKey(canonical);
   }
@@ -45,7 +59,12 @@ class ShaderProgramInputs extends NamedEntity {
       _origin[k] = other._origin[k];
     });
   }
+
 }
+
+void ActivateControls (WEBGL.RenderingContext gl, Map<String, dynamic> controls ) {
+}
+
 
 // Material is a very light weight class that just bundles up
 // a bunch of ShaderInputs

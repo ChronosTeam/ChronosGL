@@ -11,13 +11,13 @@ void main() {
 
   RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
   ShaderProgram programCM = phase.createProgram(createCubeMapShader());
-  Mesh sky = Utils.MakeSkycube(cubeTex);
+  Node sky = Utils.MakeSkycube(cubeTex);
   programCM.add(sky);
 
   Material mat = new Material("cubemap")
     ..SetUniform(uTextureCubeSampler, cubeTex);
   MeshData md = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
-  programCM.add(new Mesh("cube", md, mat));
+  programCM.add(new Node("cube", md, mat));
 
   ShaderProgram programSprites =
       phase.createProgram(createPointSpritesShader());

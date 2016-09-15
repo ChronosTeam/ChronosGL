@@ -78,10 +78,10 @@ class Utils {
     }, d);
   }
 
-  static Mesh MakeSkycube(Texture cubeTexture) {
+  static Node MakeSkycube(Texture cubeTexture) {
     Material mat = new Material("skycube")..SetUniform(uTextureCubeSampler, cubeTexture);
     MeshData md = Shapes.Cube(x:512.0, y:512.0, z:512.0);
-    return new Mesh("skycube", md, mat);
+    return new Node("skycube", md, mat);
   }
 
   /*
@@ -164,13 +164,13 @@ class Utils {
   } 
    */
 
-  static Mesh MakeParticles(int numPoints, [int dimension = 100]) {
+  static Node MakeParticles(int numPoints, [int dimension = 100]) {
     return MakePointSprites(numPoints, createParticleTexture(), dimension);
   }
 
   static int id = 1;
 
-  static Mesh MakePointSprites(int numPoints, Texture texture,
+  static Node MakePointSprites(int numPoints, Texture texture,
       [int dimension = 500]) {
     // TODO: make this asynchronous (async/await?)
     Math.Random rand = new Math.Random();
@@ -192,7 +192,7 @@ class Utils {
       ..depthWrite = false
       ..blend_dFactor = WEBGL.ONE_MINUS_SRC_COLOR;
     id++;
-    return new Mesh('point_sprites_mesh_' + id.toString(), md, mat);
+    return new Node('point_sprites_mesh_' + id.toString(), md, mat);
   }
 
   static Future<Object> loadFile(String url, [bool binary = false]) {
