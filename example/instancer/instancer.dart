@@ -8,7 +8,7 @@ List<ShaderObject> createInstancedShader() {
   return [
     new ShaderObject("InstancedV")
       ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(iaRotatation)
+      ..AddAttributeVar(iaRotation)
       ..AddAttributeVar(iaTranslation)
       ..AddVaryingVar(vColors)
       ..AddUniformVar(uPerspectiveViewMatrix)
@@ -20,7 +20,7 @@ List<ShaderObject> createInstancedShader() {
         }
 
         void main(void) {
-          vec3 P = rotate_vertex_position(${aVertexPosition}, ${iaRotatation}) + 
+          vec3 P = rotate_vertex_position(${aVertexPosition}, ${iaRotation}) +
                     ${iaTranslation};
           gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(P, 1);
           ${vColors} = vec3( sin(${aVertexPosition}.x)/2.0+0.5, 
@@ -66,7 +66,7 @@ void main() {
     }
   }
 
-  m.AddBuffer(iaRotatation, rotations);
+  m.AddBuffer(iaRotation, rotations);
   m.AddBuffer(iaTranslation, translations);
   m.numInstances = 1000;
 

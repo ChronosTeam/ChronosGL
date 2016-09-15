@@ -127,19 +127,19 @@ class Node extends Spatial {
 
   void UpdateShaderInputs(ShaderProgramInputs program) {
     for (String canonical in _buffers.keys) {
-      program.SetAttributeWithOrigin(this, canonical, _buffers[canonical]);
+      program.SetInputWithOrigin(this, canonical, _buffers[canonical]);
     }
 
     // should this really be here - interaction with indexer
     if (_indexBuffer != null) {
-      program.SetElementArrayWithOrigin(this, _indexBuffer);
+      program.SetInputWithOrigin(this, eArray, _indexBuffer);
     }
 
     // TODO: computing the normal matrix like this is wrong
     _normMatrix.copyNormalMatrix(_mvMatrix);
-    program.SetUniformWithOrigin(this, uTransformationMatrix, transform);
-    program.SetUniformWithOrigin(this, uModelMatrix, _mvMatrix);
-    program.SetUniformWithOrigin(this, uNormalMatrix, _normMatrix);
+    program.SetInputWithOrigin(this, uTransformationMatrix, transform);
+    program.SetInputWithOrigin(this, uModelMatrix, _mvMatrix);
+    program.SetInputWithOrigin(this, uNormalMatrix, _normMatrix);
   }
 
   // this gets called by Node.draw()

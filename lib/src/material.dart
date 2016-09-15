@@ -7,73 +7,47 @@ abstract class ShaderInputProvider extends NamedEntity {
   void UpdateShaderInputs(ShaderProgramInputs inputs);
 }
 
-// For use with uniforms
+
 class ShaderProgramInputs extends NamedEntity {
   // TODO: this should contain all the state, including blending, depth writing
   // and detect incompatible settings
-  Map<String, dynamic> _uniforms = {};
-  Map<String, dynamic> _controls = {};
-  Map<String, dynamic> _attributes = {};
-  dynamic _element_array;
-
+  Map<String, dynamic> _inputs = {};
   Map<String, NamedEntity> _origin = {};
 
   ShaderProgramInputs(String name) : super(name);
 
-  void SetUniformWithOrigin(NamedEntity origin, String canonical, var val) {
+  void SetInputWithOrigin(NamedEntity origin, String canonical, var val) {
     if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
-    _uniforms[canonical] = val;
+    _inputs[canonical] = val;
     _origin[canonical] = origin;
   }
 
-  void SetUniform(String canonical, val) {
-    SetUniformWithOrigin(this, canonical, val);
+  void SetInput(String canonical, val) {
+    SetInputWithOrigin(this, canonical, val);
   }
 
-  dynamic GetUniformVal(String canonical) {
+  dynamic GetInputVal(String canonical) {
     if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
-    return _uniforms[canonical];
+    return _inputs[canonical];
   }
 
-  void SetControlWithOrigin(NamedEntity origin, String canonical, var val) {
-    _controls[canonical] = val;
-    _origin[canonical] = origin;
+
+  bool HasInput(String canonical) {
+    return _inputs.containsKey(canonical);
   }
 
-  bool HasUniform(String canonical) {
-    return _uniforms.containsKey(canonical);
-  }
-
-  Iterable<String> AllUniforms() {
-    return _uniforms.keys;
-  }
-
-  void SetAttributeWithOrigin(NamedEntity origin, String canonical, var val) {
-    _attributes[canonical] = val;
-    _origin[canonical] = origin;
-  }
-
-  Iterable<String> AllAttributes() {
-    return _attributes.keys;
-  }
-
-  dynamic GetAttributeVal(String canonical) {
-    if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
-    return _attributes[canonical];
+  Iterable<String> AllInputs() {
+    return _inputs.keys;
   }
 
   void MergeInputs(ShaderProgramInputs other) {
-    other._uniforms.forEach((String k, v) {
-      _uniforms[k] = v;
+    other._inputs.forEach((String k, v) {
+      _inputs[k] = v;
       _origin[k] = other._origin[k];
     });
   }
-
-  void SetElementArrayWithOrigin(NamedEntity origin, WEBGL.Buffer buffer) {
-    _element_array = buffer;
-    _origin[eArray] = origin;
-  }
 }
+
 
 void ActivateControls(
     WEBGL.RenderingContext gl, Map<String, dynamic> controls) {}
@@ -131,7 +105,7 @@ class Material extends ShaderInputProvider {
   @override
   void UpdateShaderInputs(ShaderProgramInputs inputs) {
     _uniforms.forEach((String k, v) {
-      inputs.SetUniformWithOrigin(this, k, v);
+      inputs.SetInputWithOrigin(this, k, v);
     });
   }
 }

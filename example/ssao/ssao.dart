@@ -31,11 +31,11 @@ void main() {
   phase2.viewPortH = height;
   ShaderProgram prg2 = phase2.createProgram(createSSAOShader());
   prg2
-    ..SetUniform(uCameraNear, 0.1)
-    ..SetUniform(uCameraFar, 2529.0)
-    ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
-    ..SetUniform(uTexture2Sampler, fb.depthTexture)
-    ..SetUniform(uTextureSampler, fb.colorTexture)
+    ..SetInput(uCameraNear, 0.1)
+    ..SetInput(uCameraFar, 2529.0)
+    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetInput(uTexture2Sampler, fb.depthTexture)
+    ..SetInput(uTextureSampler, fb.colorTexture)
     ..add(UnitNode);
 
   RenderingPhase phase1only =

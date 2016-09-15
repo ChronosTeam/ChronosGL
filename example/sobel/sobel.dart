@@ -27,9 +27,9 @@ void main() {
 
   ShaderProgram prg2 = phase2.createProgram(createSobelShader());
   prg2
-    ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
-    ..SetUniform(uTexture2Sampler, fb.depthTexture)
-    ..SetUniform(uTextureSampler, fb.colorTexture)
+    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetInput(uTexture2Sampler, fb.depthTexture)
+    ..SetInput(uTextureSampler, fb.colorTexture)
     ..add(UnitNode);
 
   RenderingPhase phase1only =

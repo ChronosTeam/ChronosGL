@@ -52,7 +52,7 @@ void main() {
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    perlinNoise.SetUniform(uTime, timeMs / 1000.0);
+    perlinNoise.SetInput(uTime, timeMs / 1000.0);
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }

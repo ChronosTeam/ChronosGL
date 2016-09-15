@@ -37,11 +37,13 @@ class ShaderVarDesc {
 
 // Used both as enum and as string. The latter allows for a limited form
 // of syntax checking inside shader programs.
-
+const int prefixElement = 0x65; // 'e';
 const String eArray = "eArray"; // element array
 // ===========================================================
 // Misc Controls
 // ===========================================================
+const int prefixControl = 0x63; // 'c;
+
 const String cDepthTest = "cDepthTest";
 const String cDepthWrite = "cDepthWrite";
 const String cBlend = "cBlend";
@@ -52,6 +54,8 @@ const String cBlendEquation =  "cBlendEquation";
 // ===========================================================
 // Attributes
 // ===========================================================
+const int prefixAttribute = 0x61; // 'a';
+
 const String aColors = "aColors";
 const String aColorAlpha = "aColorAlpha";
 const String aVertexPosition = "aVertexPosition";
@@ -64,7 +68,9 @@ const String aPointSize = "aPointSize";
 // ===========================================================
 // Instancer
 // ===========================================================
-const String iaRotatation = "iaRotation";
+const int prefixInstancer = 0x69; // 'i';
+
+const String iaRotation = "iaRotation";
 const String iaTranslation = "iaTranslation";
 const String iaScale = "iaScale";
 
@@ -82,6 +88,8 @@ const String vPositionFromLight0 = "vPositionFromLight0";
 // ===========================================================
 // Uniform
 // ===========================================================
+const int prefixUniform = 0x75; // 'u';
+
 const String uTransformationMatrix = "uTransformationMatrix";
 //const String uModelViewMatrix = "uModelViewMatrix";
 //const String uViewMatrix = "uViewMatrix";
@@ -120,6 +128,7 @@ const String uLightSourceInfo2 = uLightSourceInfo + "2";
 const String uLightSourceInfo3 = uLightSourceInfo + "3";
 
 Map<String, ShaderVarDesc> _VarsDb = {
+  eArray: new ShaderVarDesc("index", ""),
   // attribute vars
   // This should also contain an alpha channel
   aColors: new ShaderVarDesc("vec3", "per vertex color"),
@@ -131,7 +140,7 @@ Map<String, ShaderVarDesc> _VarsDb = {
   aCenter: new ShaderVarDesc("vec4", "for wireframe"),
   aPointSize: new ShaderVarDesc("float", ""),
 
-  iaRotatation: new ShaderVarDesc("vec4", ""),
+  iaRotation: new ShaderVarDesc("vec4", ""),
   iaTranslation: new ShaderVarDesc("vec3", ""),
   iaScale: new ShaderVarDesc("vec3", ""),
 

@@ -67,7 +67,7 @@ void main() {
     m.rollLeft(elapsed * 0.0005);
     m.lookLeft(elapsed * 0.0005);
     for (ShaderProgram p in prgs) {
-      p.SetUniform(uTime, timeMs / 1000.0);
+      p.SetInput(uTime, timeMs / 1000.0);
     }
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);

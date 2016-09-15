@@ -51,7 +51,7 @@ void main() {
   ShaderProgram copyToScreen =
       phaseDisplayShadow.createProgram(createCopyShaderForShadow());
 
-  copyToScreen.SetUniform(uTextureSampler, shadowBuffer.colorTexture);
+  copyToScreen.SetInput(uTextureSampler, shadowBuffer.colorTexture);
   copyToScreen.add(UnitNode);
 
   RenderingPhase phaseMain = new RenderingPhase("main", chronosGL.gl);
@@ -59,7 +59,7 @@ void main() {
   ShaderProgram basic =
       phaseMain.createProgram(createLightShaderBlinnPhongWithShadow());
 
-  basic.SetUniform(uShadowSampler0, shadowBuffer.colorTexture);
+  basic.SetInput(uShadowSampler0, shadowBuffer.colorTexture);
 
   Texture solid = new CanvasTexture.SolidColor("red-solid", "red");
   final Material mat1 = new Material("mat1")

@@ -232,7 +232,7 @@ void main() {
     int w = canvas.clientWidth;
     int h = canvas.clientHeight;
 
-    program.SetUniform(uCanvasSize, new VM.Vector2(0.0 + w, 0.0 + h));
+    program.SetInput(uCanvasSize, new VM.Vector2(0.0 + w, 0.0 + h));
     phase.draw([]);
     HTML.window.animationFrame.then(animate);
   }

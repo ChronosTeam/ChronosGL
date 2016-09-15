@@ -271,19 +271,23 @@ class ShaderProgram extends ShaderProgramInputs {
 
   void Draw(int numInstances, int numItems, int drawMode, bool useArrayBuffer,
       List<DrawStats> stats) {
-    for (String canonical in AllUniforms()) {
-      if (_program.HasUniform(canonical)) {
-        _program.SetUniform(canonical, GetUniformVal(canonical));
-      }
-    }
-
-    if (_element_array != null) {
-      _program.SetElementArray(_element_array);
-    }
-
-    for (String canonical in AllAttributes()) {
-      if (_program.HasAttribute(canonical)) {
-        _program.SetAttribute(canonical, GetAttributeVal(canonical), false, 0, 0);
+    for (String canonical in AllInputs()) {
+      switch (canonical.codeUnitAt(0)) {
+        case prefixUniform:
+          if (_program.HasUniform(canonical)) {
+            _program.SetUniform(canonical, GetInputVal(canonical));
+          }
+          break;
+        case prefixElement:
+          _program.SetElementArray(GetInputVal(canonical));
+          break;
+        case prefixInstancer:
+        case prefixAttribute:
+          if (_program.HasAttribute(canonical)) {
+            _program.SetAttribute(
+                canonical, GetInputVal(canonical), false, 0, 0);
+          }
+          break;
       }
     }
 
