@@ -19,7 +19,7 @@ class Orthographic extends ShaderInputProvider {
   }
 
   @override
-  void UpdateUniforms(ShaderProgramInputs inputs) {
+  void UpdateShaderInputs(ShaderProgramInputs inputs) {
     _camera.getViewMatrix(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
     _projViewMatrix.multiply(_viewMatrix);
@@ -79,7 +79,7 @@ class Perspective extends ShaderInputProvider {
   }
 
   @override
-  void UpdateUniforms(ShaderProgramInputs inputs) {
+  void UpdateShaderInputs(ShaderProgramInputs inputs) {
     inputs.SetUniformWithOrigin(this, uEyePosition, _camera.getEyePosition());
     _camera.getViewMatrix(_viewMatrix);
     _perspectiveViewMatrix.setFrom(_mat);

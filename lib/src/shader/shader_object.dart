@@ -37,6 +37,21 @@ class ShaderVarDesc {
 
 // Used both as enum and as string. The latter allows for a limited form
 // of syntax checking inside shader programs.
+
+const String eArray = "eArray"; // element array
+// ===========================================================
+// Misc Controls
+// ===========================================================
+const String cDepthTest = "cDepthTest";
+const String cDepthWrite = "cDepthWrite";
+const String cBlend = "cBlend";
+const String cBlendFactorSrc =  "cBlendFactorSrc";
+const String cBlendFactorDst =  "cBlendFactorDst";
+const String cBlendEquation =  "cBlendEquation";
+
+// ===========================================================
+// Attributes
+// ===========================================================
 const String aColors = "aColors";
 const String aColorAlpha = "aColorAlpha";
 const String aVertexPosition = "aVertexPosition";
@@ -46,11 +61,16 @@ const String aBinormal = "aBinormal";
 const String aCenter = "aCenter";
 const String aPointSize = "aPointSize";
 
+// ===========================================================
 // Instancer
+// ===========================================================
 const String iaRotatation = "iaRotation";
 const String iaTranslation = "iaTranslation";
 const String iaScale = "iaScale";
 
+// ===========================================================
+// Varying
+// ===========================================================
 const String vColors = "vColors";
 const String vTextureCoordinates = "vTextureCoordinates";
 const String vLightWeighting = "vLightWeighting";
@@ -59,6 +79,9 @@ const String vVertexPosition = "vVertexPosition";
 const String vCenter = "vCenter";
 const String vPositionFromLight0 = "vPositionFromLight0";
 
+// ===========================================================
+// Uniform
+// ===========================================================
 const String uTransformationMatrix = "uTransformationMatrix";
 //const String uModelViewMatrix = "uModelViewMatrix";
 //const String uViewMatrix = "uViewMatrix";

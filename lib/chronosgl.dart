@@ -98,7 +98,7 @@ class RenderingPhase extends NamedEntity {
     for (ShaderProgram prg in _programs) {
       if (!prg.hasEnabledObjects()) continue;
       for (ShaderInputProvider p in inputs) {
-        p.UpdateUniforms(prg);
+        p.UpdateShaderInputs(prg);
       }
       prg.draw(stats);
     }

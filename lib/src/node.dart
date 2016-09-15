@@ -125,6 +125,23 @@ class Node extends Spatial {
     }
   }
 
+  void UpdateShaderInputs(ShaderProgramInputs program) {
+    for (String canonical in _buffers.keys) {
+      program.SetAttributeWithOrigin(this, canonical, _buffers[canonical]);
+    }
+
+    // should this really be here - interaction with indexer
+    if (_indexBuffer != null) {
+      program.SetElementArrayWithOrigin(this, _indexBuffer);
+    }
+
+    // TODO: computing the normal matrix like this is wrong
+    _normMatrix.copyNormalMatrix(_mvMatrix);
+    program.SetUniformWithOrigin(this, uTransformationMatrix, transform);
+    program.SetUniformWithOrigin(this, uModelMatrix, _mvMatrix);
+    program.SetUniformWithOrigin(this, uNormalMatrix, _normMatrix);
+  }
+
   // this gets called by Node.draw()
   void drawOne(ShaderProgram program, List<DrawStats> stats) {
     if (debug) {
@@ -136,13 +153,8 @@ class Node extends Spatial {
 
     if (numItems == 0) return;
     material.RenderingInit(gl);
-    bindBuffers(program);
-    material.UpdateUniforms(program);
-    _normMatrix.copyNormalMatrix(_mvMatrix);
-    program.SetUniformWithOrigin(this, uTransformationMatrix, transform);
-    program.SetUniformWithOrigin(this, uModelMatrix, _mvMatrix);
-    program.SetUniformWithOrigin(this, uNormalMatrix, _normMatrix);
-
+    material.UpdateShaderInputs(program);
+    UpdateShaderInputs(program);
     program.Draw(numInstances, numItems, _meshData.DrawMode(),
         _indexBuffer != null, stats);
 
@@ -162,17 +174,6 @@ class Node extends Spatial {
     }
     for (Node node in _children) {
       node.draw(program, _mvMatrix, stats);
-    }
-  }
-
-  void bindBuffers(ShaderProgram program) {
-    for (String canonical in _buffers.keys) {
-      program.MaybeSetAttribute(canonical, _buffers[canonical]);
-    }
-
-    // should this really be here - interaction with indexer
-    if (_indexBuffer != null) {
-      program.SetElementArray(_indexBuffer);
     }
   }
 }

@@ -4,16 +4,8 @@ part of chronosgl;
 abstract class ShaderInputProvider extends NamedEntity {
   ShaderInputProvider(String name) : super(name);
 
-  void UpdateUniforms(ShaderProgramInputs inputs);
+  void UpdateShaderInputs(ShaderProgramInputs inputs);
 }
-
-const String cDepthTest = "cDepthTest";
-const String cDepthWrite = "cDepthWrite";
-const String cBlend = "cBlend";
-const String cBlendFactorSrc =  "cBlendFactorSrc";
-const String cBlendFactorDst =  "cBlendFactorDst";
-const String cBlendEquation =  "cBlendEquation";
-
 
 // For use with uniforms
 class ShaderProgramInputs extends NamedEntity {
@@ -21,6 +13,9 @@ class ShaderProgramInputs extends NamedEntity {
   // and detect incompatible settings
   Map<String, dynamic> _uniforms = {};
   Map<String, dynamic> _controls = {};
+  Map<String, dynamic> _attributes = {};
+  dynamic _element_array;
+
   Map<String, NamedEntity> _origin = {};
 
   ShaderProgramInputs(String name) : super(name);
@@ -49,8 +44,22 @@ class ShaderProgramInputs extends NamedEntity {
     return _uniforms.containsKey(canonical);
   }
 
-  Iterable<String> GetCanonicals() {
+  Iterable<String> AllUniforms() {
     return _uniforms.keys;
+  }
+
+  void SetAttributeWithOrigin(NamedEntity origin, String canonical, var val) {
+    _attributes[canonical] = val;
+    _origin[canonical] = origin;
+  }
+
+  Iterable<String> AllAttributes() {
+    return _attributes.keys;
+  }
+
+  dynamic GetAttributeVal(String canonical) {
+    if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
+    return _attributes[canonical];
   }
 
   void MergeInputs(ShaderProgramInputs other) {
@@ -60,11 +69,14 @@ class ShaderProgramInputs extends NamedEntity {
     });
   }
 
+  void SetElementArrayWithOrigin(NamedEntity origin, WEBGL.Buffer buffer) {
+    _element_array = buffer;
+    _origin[eArray] = origin;
+  }
 }
 
-void ActivateControls (WEBGL.RenderingContext gl, Map<String, dynamic> controls ) {
-}
-
+void ActivateControls(
+    WEBGL.RenderingContext gl, Map<String, dynamic> controls) {}
 
 // Material is a very light weight class that just bundles up
 // a bunch of ShaderInputs
@@ -117,7 +129,7 @@ class Material extends ShaderInputProvider {
   }
 
   @override
-  void UpdateUniforms(ShaderProgramInputs inputs) {
+  void UpdateShaderInputs(ShaderProgramInputs inputs) {
     _uniforms.forEach((String k, v) {
       inputs.SetUniformWithOrigin(this, k, v);
     });

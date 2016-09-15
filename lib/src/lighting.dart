@@ -124,7 +124,7 @@ class Light extends ShaderInputProvider {
   }
 
   @override
-  void UpdateUniforms(ShaderProgramInputs inputs) {
+  void UpdateShaderInputs(ShaderProgramInputs inputs) {
     inputs.SetUniformWithOrigin(this, uLightSourceInfo + "${no}", PackInfo());
   }
 }
@@ -149,7 +149,7 @@ class ShadowProjection extends ShaderInputProvider {
   }
 
   @override
-  void UpdateUniforms(ShaderProgramInputs inputs) {
+  void UpdateShaderInputs(ShaderProgramInputs inputs) {
     _light.getViewMatrixForShadow(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
     _projViewMatrix.multiply(_viewMatrix);

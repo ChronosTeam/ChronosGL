@@ -75,10 +75,6 @@ class CoreProgram {
         index, desc.GetSize(), WEBGL.FLOAT, normalized, stride, offset);
   }
 
-  void SetElementArray(WEBGL.Buffer b) {
-    _gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, b);
-  }
-
   bool HasUniform(String canonical) {
     return _uniformLocations.containsKey(canonical);
   }
@@ -229,6 +225,10 @@ class CoreProgram {
       _gl.disableVertexAttribArray(index);
     }
   }
+
+  void SetElementArray(WEBGL.Buffer elementArray) {
+    _gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, elementArray);
+  }
 }
 
 // ShaderProgram represents multiple invocations of the same
@@ -269,22 +269,21 @@ class ShaderProgram extends ShaderProgramInputs {
     return false;
   }
 
-  void MaybeSetAttribute(String canonical, WEBGL.Buffer buffer,
-      [bool normalized = false, int stride = 0, int offset = 0]) {
-    if (!_program.HasAttribute(canonical)) return;
-    _program.SetAttribute(canonical, buffer, normalized, stride, offset);
-  }
-
-  void SetElementArray(WEBGL.Buffer b) {
-    _program.SetElementArray(b);
-  }
-
   void Draw(int numInstances, int numItems, int drawMode, bool useArrayBuffer,
       List<DrawStats> stats) {
-    for (String canonical in GetCanonicals()) {
-      var val = GetUniformVal(canonical);
+    for (String canonical in AllUniforms()) {
       if (_program.HasUniform(canonical)) {
-        _program.SetUniform(canonical, val);
+        _program.SetUniform(canonical, GetUniformVal(canonical));
+      }
+    }
+
+    if (_element_array != null) {
+      _program.SetElementArray(_element_array);
+    }
+
+    for (String canonical in AllAttributes()) {
+      if (_program.HasAttribute(canonical)) {
+        _program.SetAttribute(canonical, GetAttributeVal(canonical), false, 0, 0);
       }
     }
 
