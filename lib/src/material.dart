@@ -4,9 +4,9 @@ part of chronosgl;
 abstract class ShaderInputProvider extends NamedEntity {
   ShaderInputProvider(String name) : super(name);
 
-  void UpdateShaderInputs(ShaderProgramInputs inputs);
+  void AddShaderInputs(ShaderProgramInputs inputs);
+  void RemoveShaderInputs(ShaderProgramInputs inputs);
 }
-
 
 class ShaderProgramInputs extends NamedEntity {
   // TODO: this should contain all the state, including blending, depth writing
@@ -16,14 +16,26 @@ class ShaderProgramInputs extends NamedEntity {
 
   ShaderProgramInputs(String name) : super(name);
 
-  void SetInputWithOrigin(NamedEntity origin, String canonical, var val) {
+  void ForceInputWithOrigin(NamedEntity origin, String canonical, var val) {
     if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
     _inputs[canonical] = val;
     _origin[canonical] = origin;
   }
 
+  void SetInputWithOrigin(NamedEntity origin, String canonical, var val) {
+    if(_inputs.containsKey(canonical)) {
+      LogError("canonical already present: ${canonical}");
+      assert(false);
+    }
+    ForceInputWithOrigin(origin, canonical, val);
+  }
+
   void SetInput(String canonical, val) {
     SetInputWithOrigin(this, canonical, val);
+  }
+
+  void ForceInput(String canonical, val) {
+    ForceInputWithOrigin(this, canonical, val);
   }
 
   bool HasInput(String canonical) {
@@ -40,8 +52,13 @@ class ShaderProgramInputs extends NamedEntity {
       _origin[k] = other._origin[k];
     });
   }
-}
 
+  void Remove(String canonical) {
+    assert (_inputs.containsKey(canonical));
+    _inputs.remove(canonical);
+    _origin.remove(canonical);
+  }
+}
 
 void ActivateControls(
     WEBGL.RenderingContext gl, Map<String, dynamic> controls) {}
@@ -97,9 +114,16 @@ class Material extends ShaderInputProvider {
   }
 
   @override
-  void UpdateShaderInputs(ShaderProgramInputs inputs) {
+  void AddShaderInputs(ShaderProgramInputs inputs) {
     _uniforms.forEach((String k, v) {
       inputs.SetInputWithOrigin(this, k, v);
     });
+  }
+
+  @override
+  void RemoveShaderInputs(ShaderProgramInputs inputs) {
+    for (String canonical in _uniforms.keys) {
+      inputs.Remove(canonical);
+    };
   }
 }

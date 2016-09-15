@@ -77,7 +77,7 @@ class Light extends ShaderInputProvider {
         pos = new VM.Vector3.zero();
         break;
       case typeLightSpot:
-        focus = _pos -_dir;
+        focus = _pos - _dir;
         pos = _pos;
         break;
       default:
@@ -124,8 +124,13 @@ class Light extends ShaderInputProvider {
   }
 
   @override
-  void UpdateShaderInputs(ShaderProgramInputs inputs) {
+  void AddShaderInputs(ShaderProgramInputs inputs) {
     inputs.SetInputWithOrigin(this, uLightSourceInfo + "${no}", PackInfo());
+  }
+
+  @override
+  void RemoveShaderInputs(ShaderProgramInputs inputs) {
+    inputs.Remove(uLightSourceInfo + "${no}");
   }
 }
 
@@ -149,12 +154,17 @@ class ShadowProjection extends ShaderInputProvider {
   }
 
   @override
-  void UpdateShaderInputs(ShaderProgramInputs inputs) {
+  void AddShaderInputs(ShaderProgramInputs inputs) {
     _light.getViewMatrixForShadow(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
     _projViewMatrix.multiply(_viewMatrix);
     inputs.SetInputWithOrigin(
         this, uLightPerspectiveViewMatrix + "${_light.no}", _projViewMatrix);
+  }
+
+  @override
+  void RemoveShaderInputs(ShaderProgramInputs inputs) {
+    inputs.Remove(uLightPerspectiveViewMatrix + "${_light.no}");
   }
 
   void AdjustAspect(int w, int h) {

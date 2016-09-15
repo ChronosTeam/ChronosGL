@@ -125,7 +125,7 @@ class Node extends Spatial {
     }
   }
 
-  void UpdateShaderInputs(ShaderProgramInputs program) {
+  void AddShaderInputs(ShaderProgramInputs program) {
     for (String canonical in _buffers.keys) {
       program.SetInputWithOrigin(this, canonical, _buffers[canonical]);
     }
@@ -142,6 +142,16 @@ class Node extends Spatial {
     program.SetInputWithOrigin(this, uNormalMatrix, _normMatrix);
   }
 
+  void RemoveShaderInputs(ShaderProgramInputs program) {
+    for (String canonical in _buffers.keys) {
+      program.Remove(canonical);
+    }
+    if (_indexBuffer != null) program.Remove(eArray);
+    program.Remove(uTransformationMatrix);
+    program.Remove(uModelMatrix);
+    program.Remove(uNormalMatrix);
+  }
+
   // this gets called by Node.draw()
   void drawOne(ShaderProgram program, List<DrawStats> stats) {
     if (debug) {
@@ -153,10 +163,11 @@ class Node extends Spatial {
 
     if (numItems == 0) return;
     material.RenderingInit(gl);
-    material.UpdateShaderInputs(program);
-    UpdateShaderInputs(program);
+    material.AddShaderInputs(program);
+    AddShaderInputs(program);
     program.Draw(numInstances, numItems, _meshData.DrawMode(), stats);
-
+    RemoveShaderInputs(program);
+    material.RemoveShaderInputs(program);
     material.RenderingExit(gl);
   }
 

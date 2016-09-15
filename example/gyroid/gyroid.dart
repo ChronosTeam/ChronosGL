@@ -226,13 +226,13 @@ void main() {
 
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
-    program.SetInput(uTime, timeMs / 1000.0);
+    program.ForceInput(uTime, timeMs / 1000.0);
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
     int w = canvas.clientWidth;
     int h = canvas.clientHeight;
 
-    program.SetInput(uCanvasSize, new VM.Vector2(0.0 + w, 0.0 + h));
+    program.ForceInput(uCanvasSize, new VM.Vector2(0.0 + w, 0.0 + h));
     phase.draw([]);
     HTML.window.animationFrame.then(animate);
   }

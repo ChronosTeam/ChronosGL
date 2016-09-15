@@ -108,7 +108,7 @@ void main() {
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    pssp.SetInput(uTime, timeMs / 1000.0);
+    pssp.ForceInput(uTime, timeMs / 1000.0);
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }
