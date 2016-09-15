@@ -226,7 +226,7 @@ void main() {
 
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
-    program.SetUniform(uTime, timeMs / 1000.0);
+    program.SetInput(uTime, timeMs / 1000.0);
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
     int w = canvas.clientWidth;
