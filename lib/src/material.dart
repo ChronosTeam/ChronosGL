@@ -26,12 +26,6 @@ class ShaderProgramInputs extends NamedEntity {
     SetInputWithOrigin(this, canonical, val);
   }
 
-  dynamic GetInputVal(String canonical) {
-    if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
-    return _inputs[canonical];
-  }
-
-
   bool HasInput(String canonical) {
     return _inputs.containsKey(canonical);
   }

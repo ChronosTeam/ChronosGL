@@ -9,14 +9,12 @@ class DrawStats {
   int numInstances;
   int numItems;
   int drawMode;
-  bool useArrayBuffer;
 
-  DrawStats(this.name, this.numInstances, this.numItems, this.drawMode,
-      this.useArrayBuffer);
+  DrawStats(this.name, this.numInstances, this.numItems, this.drawMode);
 
   @override
   String toString() {
-    return "[${name}] ${numInstances} ${numItems} ${drawMode} ${useArrayBuffer}";
+    return "[${name}] ${numInstances} ${numItems} ${drawMode}";
   }
 }
 
@@ -60,11 +58,11 @@ class CoreProgram {
     }
   }
 
-  bool HasAttribute(String canonical) {
+  bool _HasAttribute(String canonical) {
     return _attributeLocations.containsKey(canonical);
   }
 
-  void SetAttribute(String canonical, WEBGL.Buffer buffer, normalized,
+  void _SetAttribute(String canonical, WEBGL.Buffer buffer, normalized,
       int stride, int offset) {
     final int index = _attributeLocations[canonical];
     _gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
@@ -75,11 +73,11 @@ class CoreProgram {
         index, desc.GetSize(), WEBGL.FLOAT, normalized, stride, offset);
   }
 
-  bool HasUniform(String canonical) {
+  bool _HasUniform(String canonical) {
     return _uniformLocations.containsKey(canonical);
   }
 
-  void SetUniform(String canonical, var val) {
+  void _SetUniform(String canonical, var val) {
     _uniformInitialized.add(canonical);
 
     // Note, we could make this smarter and skip
@@ -171,20 +169,43 @@ class CoreProgram {
       final index = _attributeLocations[a];
       if (debug) print("[${name}] $a $index");
       _gl.enableVertexAttribArray(index);
-      if (a.startsWith("ia")) {
+      if (a.codeUnitAt(0) == prefixInstancer) {
         _extInstancedArrays.vertexAttribDivisorAngle(index, 1);
       }
     }
   }
 
-  void Draw(bool debug, int numInstances, int numItems, int drawMode,
-      bool useArrayBuffer) {
+  void SetInputs(Map<String, dynamic> inputs) {
+    for (String canonical in inputs.keys) {
+      switch (canonical.codeUnitAt(0)) {
+        case prefixUniform:
+          if (_HasUniform(canonical)) {
+            _SetUniform(canonical, inputs[canonical]);
+          }
+          break;
+        case prefixElement:
+          _gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, inputs[canonical]);
+          break;
+        case prefixInstancer:
+        case prefixAttribute:
+          if (_HasAttribute(canonical)) {
+            _SetAttribute(canonical, inputs[canonical], false, 0, 0);
+          }
+          break;
+      }
+    }
+  }
+
+  void Draw(bool debug, Map<String, dynamic> inputs, int numInstances,
+      int numItems, int drawMode) {
+    SetInputs(inputs);
     if (debug)
       print("[${name}] draw points: ${drawMode} instances${numInstances}");
     if (!AllUniformsInitialized()) {
       throw "${name}: uninitialized uniforms: ${UniformsUninitialized()}";
     }
 
+    final bool useArrayBuffer = inputs.containsKey(eArray);
     if (numInstances > 0) {
       if (useArrayBuffer) {
         _extInstancedArrays.drawElementsInstancedAngle(
@@ -224,10 +245,6 @@ class CoreProgram {
       }
       _gl.disableVertexAttribArray(index);
     }
-  }
-
-  void SetElementArray(WEBGL.Buffer elementArray) {
-    _gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, elementArray);
   }
 }
 
@@ -269,33 +286,12 @@ class ShaderProgram extends ShaderProgramInputs {
     return false;
   }
 
-  void Draw(int numInstances, int numItems, int drawMode, bool useArrayBuffer,
-      List<DrawStats> stats) {
-    for (String canonical in AllInputs()) {
-      switch (canonical.codeUnitAt(0)) {
-        case prefixUniform:
-          if (_program.HasUniform(canonical)) {
-            _program.SetUniform(canonical, GetInputVal(canonical));
-          }
-          break;
-        case prefixElement:
-          _program.SetElementArray(GetInputVal(canonical));
-          break;
-        case prefixInstancer:
-        case prefixAttribute:
-          if (_program.HasAttribute(canonical)) {
-            _program.SetAttribute(
-                canonical, GetInputVal(canonical), false, 0, 0);
-          }
-          break;
-      }
-    }
-
+  void Draw(
+      int numInstances, int numItems, int drawMode, List<DrawStats> stats) {
     if (stats != null) {
-      stats.add(new DrawStats(
-          _program.name, numInstances, numItems, drawMode, useArrayBuffer));
+      stats.add(new DrawStats(_program.name, numInstances, numItems, drawMode));
     }
-    _program.Draw(debug, numInstances, numItems, drawMode, useArrayBuffer);
+    _program.Draw(debug, _inputs, numInstances, numItems, drawMode);
   }
 
   // This is a weird flow control:

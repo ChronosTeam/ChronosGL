@@ -155,8 +155,7 @@ class Node extends Spatial {
     material.RenderingInit(gl);
     material.UpdateShaderInputs(program);
     UpdateShaderInputs(program);
-    program.Draw(numInstances, numItems, _meshData.DrawMode(),
-        _indexBuffer != null, stats);
+    program.Draw(numInstances, numItems, _meshData.DrawMode(), stats);
 
     material.RenderingExit(gl);
   }
