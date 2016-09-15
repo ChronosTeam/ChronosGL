@@ -40,7 +40,7 @@ class ShaderProgramInputs extends NamedEntity {
     return _uniforms[canonical];
   }
 
-  SetControlWithOrigin(NamedEntity origin, String canonical, var val) {
+  void SetControlWithOrigin(NamedEntity origin, String canonical, var val) {
     _controls[canonical] = val;
     _origin[canonical] = origin;
   }

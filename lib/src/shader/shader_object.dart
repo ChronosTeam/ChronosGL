@@ -4,6 +4,8 @@ class ShaderVarDesc {
   String type;
   String purpose = "";
 
+  ShaderVarDesc(this.type, this.purpose);
+
   int GetSize() {
     switch (type) {
       case "float":
@@ -31,8 +33,6 @@ class ShaderVarDesc {
         return false;
     }
   }
-
-  ShaderVarDesc(this.type, this.purpose);
 }
 
 // Used both as enum and as string. The latter allows for a limited form

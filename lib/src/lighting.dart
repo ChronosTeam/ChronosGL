@@ -23,11 +23,6 @@ class Light extends ShaderInputProvider {
   double _spotCutoff = 0.0; // for spot
   double _spotFocus = 0.0; // for spot
 
-  dynamic get type => _type;
-  dynamic get dir => _dir;
-  VM.Vector3 get pos => _pos;
-  dynamic get angle => _spotCutoff;
-
   // Light emanating from a point in all directions.
   // Light gets "weaker" with increased distance.
   Light.Point(
@@ -63,6 +58,11 @@ class Light extends ShaderInputProvider {
     _type = typeLightHemi;
     _dir.setFrom(dir); // normalize
   }
+
+  dynamic get type => _type;
+  dynamic get dir => _dir;
+  VM.Vector3 get pos => _pos;
+  dynamic get angle => _spotCutoff;
 
   void getViewMatrixForShadow(VM.Matrix4 m) {
     VM.Vector3 up = (_dir.x == 0.0 && _dir.z == 0.0) ? _up2 : _up;

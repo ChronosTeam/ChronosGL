@@ -44,24 +44,6 @@ class Node extends Spatial {
 
   final VM.Matrix4 _mvMatrix = new VM.Matrix4.identity();
 
-  void add(Node node) {
-    _children.add(node);
-  }
-
-  void AddBuffer(String canonical, Float32List data) {
-    if (debug) print("AddBuffer ${canonical} ${data.length}");
-    _buffers[canonical] = CreateAndInitializeArrayBuffer(gl, data);
-  }
-
-  void ChangeBufferCanonical(String canonical, Float32List data) {
-    if (debug) print("ChangeBuffer ${canonical} ${data.length}");
-    ChangeArrayBuffer(gl, _buffers[canonical], data);
-  }
-
-  int Drawmode() {
-    return _meshData.DrawMode();
-  }
-
   Node.Container(String name, [Node child = null]) : super(name) {
     if (child != null) _children.add(child);
   }
@@ -92,6 +74,24 @@ class Node extends Spatial {
     } else {
       numItems = _meshData.GetVertexData().length ~/ 3;
     }
+  }
+
+  void add(Node node) {
+    _children.add(node);
+  }
+
+  void AddBuffer(String canonical, Float32List data) {
+    if (debug) print("AddBuffer ${canonical} ${data.length}");
+    _buffers[canonical] = CreateAndInitializeArrayBuffer(gl, data);
+  }
+
+  void ChangeBufferCanonical(String canonical, Float32List data) {
+    if (debug) print("ChangeBuffer ${canonical} ${data.length}");
+    ChangeArrayBuffer(gl, _buffers[canonical], data);
+  }
+
+  int Drawmode() {
+    return _meshData.DrawMode();
   }
 
   void UpdateMeshData(MeshData md) {
@@ -158,7 +158,7 @@ class Node extends Spatial {
     // In particular if material != null we should apply it so it
     // is valid/active for all _children as well
     if (material != null && _meshData != null) {
-          drawOne(program, stats);
+      drawOne(program, stats);
     }
     for (Node node in _children) {
       node.draw(program, _mvMatrix, stats);
