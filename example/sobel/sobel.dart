@@ -1,9 +1,13 @@
 import 'dart:html' as HTML;
 
 import 'package:chronosgl/chronosgl.dart';
+import 'package:chronosgl/chronosutil.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 void main() {
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
@@ -14,6 +18,7 @@ void main() {
   canvas.width = width;
   canvas.height = height;
   perspective.AdjustAspect(width, height);
+
   ChronosFramebuffer fb = new ChronosFramebuffer(chronosGL.gl, width, height);
   RenderingPhase phase1 = new RenderingPhase("phase1", chronosGL.gl, fb);
   phase1.viewPortW = width;
@@ -65,7 +70,7 @@ void main() {
       _lastTimeMs = timeMs;
       orbit.azimuth += 0.001;
       orbit.animate(elapsed);
-      //perspective.Adjust(canvas);
+      fps.UpdateFrameCount(timeMs);
       if (useSobel) {
         phase1.draw([perspective]);
         phase2.draw([perspective]);

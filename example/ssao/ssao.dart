@@ -12,6 +12,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
   Perspective perspective = new Perspective(orbit, 0.1, 2520.0);
+
   final width = canvas.clientWidth;
   final height = canvas.clientHeight;
   canvas.width = width;
@@ -19,7 +20,6 @@ void main() {
   perspective.AdjustAspect(width, height);
 
   ChronosFramebuffer fb = new ChronosFramebuffer(chronosGL.gl, width, height);
-
   RenderingPhase phase1 = new RenderingPhase("phase1", chronosGL.gl, fb);
   phase1.viewPortW = width;
   phase1.viewPortH = height;
@@ -42,6 +42,7 @@ void main() {
       new RenderingPhase("phase1only", chronosGL.gl, null);
   phase1only.viewPortW = width;
   phase1only.viewPortH = height;
+  phase1only.AddShaderProgram(prg1);
 
   bool useSSAO = true;
   HTML.InputElement myselect =
@@ -68,9 +69,9 @@ void main() {
       timeMs = 0.0 + timeMs;
       double elapsed = timeMs - _lastTimeMs;
       _lastTimeMs = timeMs;
+      orbit.azimuth += 0.001;
       orbit.animate(elapsed);
       fps.UpdateFrameCount(timeMs);
-      //perspective.Adjust(canvas);
       if (useSSAO) {
         phase1.draw([perspective]);
         phase2.draw([perspective]);
