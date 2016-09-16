@@ -1,0 +1,92 @@
+import 'dart:html' as HTML;
+
+import 'package:chronosgl/chronosgl.dart';
+
+// A very simple shaders - many other are available out of the box.
+List<ShaderObject> demoShader() {
+  return [
+    new ShaderObject("demoVertexShader")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddVaryingVar(vColors)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
+      ..SetBody([
+        """
+        void main(void) {
+          gl_Position = ${uPerspectiveViewMatrix} *
+                        ${uModelMatrix} *
+                        vec4(${aVertexPosition}, 1.0);
+          ${vColors}.r = sin(${aVertexPosition}.x)/2.0+0.5;
+          ${vColors}.g = cos(${aVertexPosition}.y)/2.0+0.5;
+          ${vColors}.b = sin(${aVertexPosition}.z)/2.0+0.5;
+        }
+        """
+      ]),
+    new ShaderObject("demoFragmentShader")
+      ..AddVaryingVar(vColors)
+      ..SetBodyWithMain(["gl_FragColor.rgb = ${vColors};"])
+  ];
+}
+
+void main() {
+  // The canvas is what we render the 3d scene into.
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  // Make sure canvas is really full screen
+  final int w = canvas.clientWidth;
+  final int h = canvas.clientHeight;
+  canvas.width = w;
+  canvas.height = h;
+
+  // Create a ChronosGL object for the canvas.
+  ChronosGL chronosGL = new ChronosGL(canvas);
+
+  // Create camera.
+  OrbitCamera orbit = new OrbitCamera(5.0, 0.0);
+  // Create a perspective. We use a combined view+perspective matrix,
+  // so the camera is part of the perspective.
+  Perspective perspective = new Perspective(orbit);
+  perspective.AdjustAspect(w, h);
+
+  // Create a phase to run our two shaders.
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  // Use the entire canvas.
+  phase.viewPortW = w;
+  phase.viewPortH = h;
+  // Create the first shader and add it to the phase
+  RenderProgram basic = phase.createProgram(demoShader());
+
+  // Make a torus and add it to the first program,
+  Material mat = new Material("mat");
+  Node torus = new Node(
+      "torus", ShapeTorusKnot(chronosGL.gl, radius: 1.0, tube: 0.4), mat);
+  basic.add(torus);
+
+  // Crate the second program and the point sprites. The details are
+  // hidden in the library functions.
+  RenderProgram sprites = phase.createProgram(createPointSpritesShader());
+  sprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
+
+
+  double _lastTimeMs = 0.0;
+  void animate(timeMs) {
+    // timeMs can be both int or double - force a double
+    timeMs = 0.0 + timeMs;
+    double elapsed = timeMs - _lastTimeMs;
+    _lastTimeMs = timeMs;
+    // animate the camera a little
+    orbit.azimuth += 0.001;
+    // allow the camera to also reflect mouse movement.
+    orbit.animate(elapsed);
+
+    // Draw both the knot and point sprites with the given perspective.
+    phase.draw([perspective]);
+
+    HTML.window.animationFrame.then(animate);
+  }
+
+  // The point sprites use texture. Wait until the texture is ready
+  // then start the main animation loop.
+  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+    animate(0.0);
+  });
+}
