@@ -24,7 +24,7 @@ void main() {
     ..SetUniform(uColor, new VM.Vector3.zero())
     ..blend = true
     ..depthTest = false;
-  Node m = new Node("torus", Shapes.TorusKnot(), mat);
+  Node m = new Node("torus", ShapeTorusKnot(chronosGL.gl), mat);
 
   programBasic.add(m);
 
@@ -39,7 +39,7 @@ void main() {
 
   RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(2000));
+  programSprites.add(Utils.MakeParticles(chronosGL.gl,2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

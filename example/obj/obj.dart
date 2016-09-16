@@ -41,7 +41,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  loadObj("../ct_logo.obj").then((MeshData md) {
+  loadObj("../ct_logo.obj", chronosGL.gl).then((MeshData md) {
     Material mat = new Material("mat");
     Node mesh = new Node(md.name, md, mat)..rotX(3.14 / 2);
     //mesh.rotY(3.14);

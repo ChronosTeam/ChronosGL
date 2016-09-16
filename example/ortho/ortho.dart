@@ -56,8 +56,7 @@ void main() {
       phaseOrthograhic.createProgram(createTexturedShader());
 
   Perspective perspective = new Perspective(orbit);
-  RenderPhase phasePerspective =
-      new RenderPhase("perspective", chronosGL.gl);
+  RenderPhase phasePerspective = new RenderPhase("perspective", chronosGL.gl);
   phasePerspective.clearColorBuffer = false;
   RenderProgram prgPerspective =
       phasePerspective.createProgram(createTexturedShader());
@@ -81,14 +80,15 @@ void main() {
 
   Node ico = new Node(
       "sphere",
-      Shapes.Icosahedron(3)..generateNormalsAssumingTriangleMode(),
+      ShapeIcosahedron(chronosGL.gl, 3)..generateNormalsAssumingTriangleMode(),
       mat1)..setPos(0.0, 0.0, 0.0);
 
-  Node cube = new Node("cube", Shapes.Cube(), mat2)..setPos(-5.0, 0.0, -5.0);
+  Node cube = new Node("cube", ShapeCube(chronosGL.gl), mat2)
+    ..setPos(-5.0, 0.0, -5.0);
 
   Node cyl = new Node(
       "cylinder",
-      Shapes.Cylinder(3.0, 6.0, 2.0, 32)..generateNormalsAssumingTriangleMode(),
+      ShapeCylinder( chronosGL.gl, 3.0, 6.0, 2.0, 32)..generateNormalsAssumingTriangleMode(),
       mat3)..setPos(5.0, 0.0, -5.0);
 
   /*
@@ -98,7 +98,8 @@ void main() {
     basic.add(torus);
   }*/
 
-  Node plane = new Node("cube", Shapes.Cube(x: 20.0, y: 0.1, z: 20.0), matPlane)
+  Node plane = new Node(
+      "cube", ShapeCube(chronosGL.gl, x: 20.0, y: 0.1, z: 20.0), matPlane)
     ..setPos(0.0, -10.0, 0.0);
 
   for (Node m in [ico, cube, cyl, plane]) {

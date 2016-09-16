@@ -3,9 +3,9 @@ part of chronosgl;
 // single color cylinder
 // uv mapping is weird to help with debugging
 
-MeshData createCylinderInternal(
-    double radTop, double radBot, double height, int radialSubdivisions) {
-  MeshData md = new MeshData("cylinder");
+MeshData ShapeCylinder(WEBGL.RenderingContext gl, double radTop,
+    double radBot, double height, int radialSubdivisions) {
+  MeshData md = new MeshData("cylinder", gl);
   md.EnableAttribute(aTextureCoordinates);
   double halfHeight = height / 2;
 
@@ -30,12 +30,12 @@ MeshData createCylinderInternal(
     vertices.add(new VM.Vector3(x * radBot, -halfHeight, z * radBot));
     uvs.add(new VM.Vector2(u, 0.0));
   }
-  assert (vertices.length == 2 + 2 * radialSubdivisions);
+  assert(vertices.length == 2 + 2 * radialSubdivisions);
 
   // triangles for top and bottom
   for (int i = 0; i < radialSubdivisions; i++) {
     final int t = (i * 2) + 2; // top node
-    final int b = t + 1;  // bot node
+    final int b = t + 1; // bot node
     int j = i + 1;
     if (j == radialSubdivisions) j = 0;
     final int tnext = (j * 2) + 2;
@@ -55,7 +55,7 @@ MeshData createCylinderInternal(
   return md;
 }
 
-MeshData createCylinderInternalWireframeFriendly(
+MeshData ShapeCylinderWireframeFriendly(WEBGL.RenderingContext gl,
     double radTop, double radBot, double height, int radialSubdivisions) {
   // Compute points on edges
   final double halfHeight = height / 2;
@@ -78,7 +78,7 @@ MeshData createCylinderInternalWireframeFriendly(
   final VM.Vector3 centerTop = new VM.Vector3(0.0, halfHeight, 0.0);
   final VM.Vector3 centerBot = new VM.Vector3(0.0, -halfHeight, 0.0);
 
-  MeshData md = new MeshData("cylinder-wireframe-friendly");
+  MeshData md = new MeshData("cylinder-wireframe-friendly", gl);
   md.EnableAttribute(aTextureCoordinates);
 
   // top and bottom are Face3

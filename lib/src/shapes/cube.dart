@@ -15,7 +15,7 @@ List<VM.Vector3> _CubeNormals = [
   new VM.Vector3(-1.0, 0.0, 0.0)
 ];
 
-MeshData createCubeInternal(
+MeshData ShapeCube(WEBGL.RenderingContext gl,
     {double x: 1.0,
     double y: 1.0,
     double z: 1.0,
@@ -147,7 +147,7 @@ MeshData createCubeInternal(
   ];
    */
 
-  MeshData md = new MeshData("cube");
+  MeshData md = new MeshData("cube", gl);
   md.EnableAttribute(aNormal);
   md.EnableAttribute(aTextureCoordinates);
 

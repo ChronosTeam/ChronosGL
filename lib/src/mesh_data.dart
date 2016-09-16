@@ -30,6 +30,8 @@ class Face4 {
 //   of the attribute data rather then flatten everything to
 //   a List<double>
 class MeshData extends NamedEntity {
+  WEBGL.RenderingContext _gl;
+
   List<Face1> _points1 = [];
   List<Face2> _lines2 = [];
   List<Face3> _faces3 = [];
@@ -38,7 +40,7 @@ class MeshData extends NamedEntity {
   List<int> _faces = [];
   Map<String, List<double>> _attributes = {};
 
-  MeshData(String name) : super("meshdata:" +name);
+  MeshData(String name, this._gl) : super("meshdata:" +name);
 
   int DrawMode() {
     if (_points1.length > 0) {

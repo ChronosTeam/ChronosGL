@@ -209,7 +209,7 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
 
   RenderProgram program = phase.createProgram(createSphericalGyroidShader());
-  program.add(UnitNode);
+  program.add(UnitNode(chronosGL.gl));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

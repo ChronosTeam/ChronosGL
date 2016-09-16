@@ -29,10 +29,10 @@ void main() {
 
   List<MeshData> mymd = new List<MeshData>();
 
-  loadObj("../ct_logo.obj").then((MeshData ctLogo) {
+  loadObj("../ct_logo.obj", chronosGL.gl).then((MeshData ctLogo) {
     mymd.add(ctLogo);
-    mymd.add(Shapes.Cylinder(1.0, 1.0, 2.0, 16));
-    mymd.add(Shapes.Cube());
+    mymd.add(ShapeCylinder(chronosGL.gl,1.0, 1.0, 2.0, 16));
+    mymd.add(ShapeCube(chronosGL.gl));
     Material mat = new Material("mat");
     // No deduping
     for (var i = 0; i < mymd.length; i++) {

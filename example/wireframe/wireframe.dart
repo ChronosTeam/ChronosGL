@@ -27,14 +27,14 @@ void main() {
   {
     Node ico = new Node(
         "sphere",
-        Shapes.Icosahedron(2)..generateWireframeCenters(),
+        ShapeIcosahedron(chronosGL.gl, 2)..generateWireframeCenters(),
         matWireframe)..setPos(0.0, 0.0, 0.0);
     program.add(ico);
   }
 
   {
     Node cube = new Node(
-        "cube", Shapes.Cube()..generateWireframeCenters(), matWireframe)
+        "cube", ShapeCube(chronosGL.gl)..generateWireframeCenters(), matWireframe)
       ..setPos(-5.0, 0.0, -5.0);
     program.add(cube);
   }
@@ -42,7 +42,7 @@ void main() {
   {
     Node cyl = new Node(
         "cylinder",
-        Shapes.CylinderWireframeFriendly(3.0, 4.0, 2.0, 16)
+        ShapeCylinderWireframeFriendly(chronosGL.gl,3.0, 4.0, 2.0, 16)
           ..generateWireframeCenters(),
         matWireframe)..setPos(5.0, 0.0, -5.0);
     program.add(cyl);
@@ -50,7 +50,7 @@ void main() {
 
   {
     Node quad = new Node(
-        "quad", Shapes.Quad(2)..generateWireframeCenters(), matWireframe)
+        "quad", ShapeQuad(chronosGL.gl,2)..generateWireframeCenters(), matWireframe)
       ..setPos(-5.0, 0.0, 5.0);
     program.add(quad);
   }
@@ -58,7 +58,7 @@ void main() {
   {
     Node torus = new Node(
         "torus",
-        Shapes.TorusKnot(radius: 1.0, tube: 0.4)..generateWireframeCenters(),
+        ShapeTorusKnot(chronosGL.gl,radius: 1.0, tube: 0.4)..generateWireframeCenters(),
         matWireframe)..setPos(5.0, 0.0, 5.0);
     program.add(torus);
   }

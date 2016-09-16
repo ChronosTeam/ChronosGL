@@ -51,7 +51,7 @@ void main() {
   // Sky Sphere
   RenderProgram skyprg = phase
       .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
-  MeshData md = Shapes.Icosahedron(3);
+  MeshData md = ShapeIcosahedron(chronosGL.gl, 3);
   //..multiplyVertices(100);
   Node m = new Node(md.name, md, mat)..transform.scale(100.0);
   skyprg.add(m);
@@ -61,7 +61,7 @@ void main() {
   for (int x = -10; x < 10; x += 4) {
     for (int z = -10; z < 10; z += 4) {
       // 0.01 and 0.99 is to remove some artifacts on the edges
-      MeshData md = Shapes.Cube(
+      MeshData md = ShapeCube(chronosGL.gl,
           x: 1.0,
           y: 2.0,
           z: 1.0,

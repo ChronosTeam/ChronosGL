@@ -11,7 +11,7 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram prg = phase.createProgram(createSolidColorShader());
 
-  MeshData sphere = Shapes.Icosahedron();
+  MeshData sphere = ShapeIcosahedron(chronosGL.gl);
   Material headMat = new Material("head")
     ..SetUniform(uColor, new VM.Vector3(0.94, 0.72, 0.63));
   Node head = new Node("head", sphere, headMat);
@@ -39,7 +39,7 @@ void main() {
 
   RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(2000));
+  programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -57,7 +57,7 @@ void main() {
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
-    timeMs = 0.0 +  timeMs;
+    timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;

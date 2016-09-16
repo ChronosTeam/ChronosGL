@@ -36,10 +36,9 @@ void main() {
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetInput(uTexture2Sampler, fb.depthTexture)
     ..SetInput(uTextureSampler, fb.colorTexture)
-    ..add(UnitNode);
+    ..add(UnitNode(chronosGL.gl));
 
-  RenderPhase phase1only =
-      new RenderPhase("phase1only", chronosGL.gl, null);
+  RenderPhase phase1only = new RenderPhase("phase1only", chronosGL.gl, null);
   phase1only.viewPortW = width;
   phase1only.viewPortH = height;
   phase1only.AddShaderProgram(prg1);
@@ -51,7 +50,7 @@ void main() {
     useSSAO = myselect.checked;
   });
 
-  loadObj("../ct_logo.obj").then((MeshData md) {
+  loadObj("../ct_logo.obj", chronosGL.gl).then((MeshData md) {
     Material mat = new Material("mat")
       ..SetUniform(uColor, new VM.Vector3(0.9, 0.9, 0.9));
     Node mesh = new Node(md.name, md, mat)

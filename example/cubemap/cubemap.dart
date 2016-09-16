@@ -11,17 +11,17 @@ void main() {
 
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram programCM = phase.createProgram(createCubeMapShader());
-  Node sky = Utils.MakeSkycube(cubeTex);
+  Node sky = Utils.MakeSkycube(chronosGL.gl, cubeTex);
   programCM.add(sky);
 
   Material mat = new Material("cubemap")
     ..SetUniform(uTextureCubeSampler, cubeTex);
-  MeshData md = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
+  MeshData md = ShapeCube(chronosGL.gl,x: 2.0, y: 2.0, z: 2.0);
   programCM.add(new Node("cube", md, mat));
 
   RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(2000));
+  programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

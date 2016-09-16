@@ -2,21 +2,21 @@ part of chronosgl;
 
 // only loads fully triangulated OBJ files
 
-Future<MeshData> loadObj(String url) {
+Future<MeshData> loadObj(String url, WEBGL.RenderingContext gl) {
   Completer c = new Completer();
   HTML.HttpRequest hr = new HTML.HttpRequest();
   //hr.responseType = "arraybuffer";
   hr.open("GET", url);
   hr.onLoadEnd.listen((e) {
-    MeshData result = doLoadObj(hr.response);
+    MeshData result = doLoadObj(hr.response, gl);
     c.complete(result);
   });
   hr.send('');
   return c.future as Future<MeshData>;
 }
 
-MeshData doLoadObj(String text) {
-  MeshData md = new MeshData(text);
+MeshData doLoadObj(String text, WEBGL.RenderingContext gl) {
+  MeshData md = new MeshData(text, gl);
   md.EnableAttribute(aTextureCoordinates);
   md.EnableAttribute(aNormal);
 

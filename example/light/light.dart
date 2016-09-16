@@ -35,8 +35,8 @@ void main() {
     new Light.Spot(LIGHT0, posLight, posLight, colRed, colBlue, 50.0, 0.95, 2.0)
   ];
 
-  MeshData cubeMeshData = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
-  MeshData sphereMeshData = Shapes.Icosahedron()
+  MeshData cubeMeshData = ShapeCube(chronosGL.gl, x: 2.0, y: 2.0, z: 2.0);
+  MeshData sphereMeshData = ShapeIcosahedron(chronosGL.gl)
     ..generateNormalsAssumingTriangleMode();
   Material cubeMat = new Material("mat");
   List<Node> meshes = [];
@@ -61,7 +61,7 @@ void main() {
     for (double y = -40.0; y < 40.0; y += 4.0) {
       Node m = new Node(
           "plane-$x-$y",
-          Shapes.Cube(x: 4.0, y: 0.1, z: 4.0)
+          ShapeCube(chronosGL.gl, x: 4.0, y: 0.1, z: 4.0)
             ..generateNormalsAssumingTriangleMode(),
           cubeMat)..setPos(x + 2.0, -20.0, y + 2.0);
       plane.add(m);
@@ -75,13 +75,13 @@ void main() {
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
   Node shapePointLight =
-      new Node("pointLight", Shapes.Icosahedron(), lightSourceMat)
+      new Node("pointLight", ShapeIcosahedron(chronosGL.gl), lightSourceMat)
         ..setPosFromVec(posLight);
   fixedBlinnPhong.add(shapePointLight);
   fixedGourad.add(shapePointLight);
 
   Node shapeDirLight =
-      new Node("dirLight", Shapes.Cylinder(0.4, 0.4, 200.0, 20), lightSourceMat)
+      new Node("dirLight", ShapeCylinder(chronosGL.gl, 0.4, 0.4, 200.0, 20), lightSourceMat)
         ..setPosFromVec(dirLight);
   fixedBlinnPhong.add(shapeDirLight);
   fixedGourad.add(shapeDirLight);

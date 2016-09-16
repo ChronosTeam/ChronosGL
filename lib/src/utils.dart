@@ -78,9 +78,9 @@ class Utils {
     }, d);
   }
 
-  static Node MakeSkycube(Texture cubeTexture) {
+  static Node MakeSkycube(WEBGL.RenderingContext gl, Texture cubeTexture) {
     Material mat = new Material("skycube")..SetUniform(uTextureCubeSampler, cubeTexture);
-    MeshData md = Shapes.Cube(x:512.0, y:512.0, z:512.0);
+    MeshData md = ShapeCube(gl, x:512.0, y:512.0, z:512.0);
     return new Node("skycube", md, mat);
   }
 
@@ -164,13 +164,13 @@ class Utils {
   } 
    */
 
-  static Node MakeParticles(int numPoints, [int dimension = 100]) {
-    return MakePointSprites(numPoints, createParticleTexture(), dimension);
+  static Node MakeParticles(WEBGL.RenderingContext gl, int numPoints, [int dimension = 100]) {
+    return MakePointSprites(gl, numPoints, createParticleTexture(), dimension);
   }
 
   static int id = 1;
 
-  static Node MakePointSprites(int numPoints, Texture texture,
+  static Node MakePointSprites(WEBGL.RenderingContext gl, int numPoints, Texture texture,
       [int dimension = 500]) {
     // TODO: make this asynchronous (async/await?)
     Math.Random rand = new Math.Random();
@@ -181,7 +181,7 @@ class Utils {
           (rand.nextDouble() - 0.5) * dimension,
           (rand.nextDouble() - 0.5) * dimension));
     }
-    MeshData md = new MeshData("stars");
+    MeshData md = new MeshData("stars", gl);
     md.AddFaces1(numPoints);
     md.AddVertices(vertices);
 

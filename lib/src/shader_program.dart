@@ -6,18 +6,18 @@ part of chronosgl;
 // Begin()
 // (SetUniform()* SetAttribute()* Draw())+
 // End()
-class ShaderProgram {
-  String name;
+class ShaderProgram extends NamedEntity {
+  WEBGL.RenderingContext _gl;
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
-  WEBGL.RenderingContext _gl;
   WEBGL.Program _program;
   Map<String, int> _attributeLocations = {};
   Map<String, WEBGL.UniformLocation> _uniformLocations = {};
   Set<String> _uniformInitialized = new Set<String>();
   WEBGL.AngleInstancedArrays _extInstancedArrays;
 
-  ShaderProgram(this._gl, this._shaderObjectV, this._shaderObjectF, this.name) {
+  ShaderProgram(String name, this._gl, this._shaderObjectV, this._shaderObjectF)
+    : super(name) {
     _extInstancedArrays = _gl.getExtension("ANGLE_instanced_arrays");
     ShaderUtils su = new ShaderUtils(_gl);
     _program = su.getProgram(_shaderObjectV.shader, _shaderObjectF.shader);

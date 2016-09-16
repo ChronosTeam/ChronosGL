@@ -45,7 +45,7 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
 
   Material mat = new Material("mat");
-  Node m = new Node("torus", Shapes.TorusKnot(radius: 12.0), mat);
+  Node m = new Node("torus", ShapeTorusKnot(chronosGL.gl, radius: 12.0), mat);
 
   int count = 1000;
   Float32List translations = new Float32List(count * 3);
@@ -75,7 +75,7 @@ void main() {
 
   RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(2000));
+  programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

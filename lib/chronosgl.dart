@@ -57,9 +57,12 @@ abstract class NamedEntity {
   NamedEntity(this.name);
 }
 
-final MeshData UnitQuad = Shapes.Quad(1);
 final Material EmptyMaterial = new Material("empty-mat");
-final Node UnitNode = new Node("unit-mesh", UnitQuad, EmptyMaterial);
+
+Node UnitNode( WEBGL.RenderingContext gl) {
+  final MeshData UnitQuad = ShapeQuad(gl, 1);
+  return new Node("unit-mesh", UnitQuad, EmptyMaterial);
+}
 
 class RenderPhase extends NamedEntity {
   final WEBGL.RenderingContext _gl;
@@ -112,7 +115,7 @@ class RenderPhase extends NamedEntity {
   }
 
   RenderProgram createProgram(List<ShaderObject> so) {
-    ShaderProgram prg = new ShaderProgram(_gl, so[0], so[1], so[0].name);
+    ShaderProgram prg = new ShaderProgram(so[0].name, _gl, so[0], so[1]);
     RenderProgram pn = new RenderProgram(so[0].name, prg);
     AddShaderProgram(pn);
     return pn;

@@ -52,7 +52,7 @@ void main() {
       phaseDisplayShadow.createProgram(createCopyShaderForShadow());
 
   copyToScreen.SetInput(uTextureSampler, shadowBuffer.colorTexture);
-  copyToScreen.add(UnitNode);
+  copyToScreen.add(UnitNode(chronosGL.gl));
 
   RenderPhase phaseMain = new RenderPhase("main", chronosGL.gl);
   phaseMain.clearColorBuffer = false;
@@ -77,13 +77,15 @@ void main() {
   {
     Node ico = new Node(
         "sphere",
-        Shapes.Icosahedron(3)..generateNormalsAssumingTriangleMode(),
+        ShapeIcosahedron(chronosGL.gl, 3)
+          ..generateNormalsAssumingTriangleMode(),
         mat1)..setPos(0.0, 0.0, 0.0);
     shadowMap.add(ico);
     basic.add(ico);
   }
   {
-    Node cube = new Node("cube", Shapes.Cube(), mat2)..setPos(-5.0, 0.0, -5.0);
+    Node cube = new Node("cube", ShapeCube(chronosGL.gl), mat2)
+      ..setPos(-5.0, 0.0, -5.0);
     shadowMap.add(cube);
     basic.add(cube);
   }
@@ -91,7 +93,7 @@ void main() {
   {
     Node cyl = new Node(
         "cylinder",
-        Shapes.Cylinder(3.0, 6.0, 2.0, 32)
+        ShapeCylinder(chronosGL.gl, 3.0, 6.0, 2.0, 32)
           ..generateNormalsAssumingTriangleMode(),
         mat2)..setPos(5.0, 0.0, -5.0);
     shadowMap.add(cyl);
@@ -108,7 +110,8 @@ void main() {
 */
   {
     // plane
-    Node cube = new Node("cube", Shapes.Cube(x: 20.0, y: 0.1, z: 20.0), mat3)
+    Node cube = new Node(
+        "cube", ShapeCube(chronosGL.gl, x: 20.0, y: 0.1, z: 20.0), mat3)
       ..setPos(0.0, -10.0, 0.0);
     shadowMap.add(cube);
     basic.add(cube);
@@ -119,7 +122,7 @@ void main() {
       phaseMain.createProgram(createSolidColorShader());
   Material icoMat = new Material("sphere")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
-  Node ico1 = new Node("spehere", Shapes.Icosahedron(), icoMat)
+  Node ico1 = new Node("spehere", ShapeIcosahedron(chronosGL.gl), icoMat)
     ..setPosFromVec(posLight);
 
   fixedShaderPrg.add(ico1);

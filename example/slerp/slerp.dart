@@ -47,7 +47,7 @@ void main() {
   Material mat = new Material("mat");
   Math.Random rng = new Math.Random();
 
-  loadObj("../ct_logo.obj").then((MeshData md) {
+  loadObj("../ct_logo.obj", chronosGL.gl).then((MeshData md) {
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
@@ -92,7 +92,7 @@ void main() {
 
     RenderProgram programSprites =
         phase.createProgram(createPointSpritesShader());
-    programSprites.add(Utils.MakeParticles(2000));
+    programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
     void resolutionChange(HTML.Event ev) {
       int w = canvas.clientWidth;

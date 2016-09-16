@@ -34,37 +34,37 @@ void main() {
     ..blend = true;
 
   {
-    Node ico = new Node("sphere", Shapes.Icosahedron(3), matWood)
+    Node ico = new Node("sphere", ShapeIcosahedron(chronosGL.gl, 3), matWood)
       ..setPos(0.0, 0.0, 0.0);
     basic.add(ico);
   }
   {
-    Node cube = new Node("cube", Shapes.Cube(), matGradient)
+    Node cube = new Node("cube", ShapeCube(chronosGL.gl), matGradient)
       ..setPos(-5.0, 0.0, -5.0);
     basic.add(cube);
   }
 
   {
     Node cyl =
-        new Node("cylinder", Shapes.Cylinder(3.0, 6.0, 2.0, 32), matTrans)
+        new Node("cylinder", ShapeCylinder(chronosGL.gl, 3.0, 6.0, 2.0, 32), matTrans)
           ..setPos(5.0, 0.0, -5.0);
     basic.add(cyl);
   }
   {
-    Node quad = new Node("quad", Shapes.Quad(2), matTrans)
+    Node quad = new Node("quad", ShapeQuad(chronosGL.gl, 2), matTrans)
       //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
       ..setPos(-5.0, 0.0, 5.0);
     basic.add(quad);
   }
   {
     Node torus =
-        new Node("torus", Shapes.TorusKnot(radius: 1.0, tube: 0.4), matGradient)
+        new Node("torus", ShapeTorusKnot(chronosGL.gl, radius: 1.0, tube: 0.4), matGradient)
           ..setPos(5.0, 0.0, 5.0);
     basic.add(torus);
   }
 
   RenderProgram sprites = phase.createProgram(createPointSpritesShader());
-  sprites.add(Utils.MakeParticles(2000));
+  sprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
