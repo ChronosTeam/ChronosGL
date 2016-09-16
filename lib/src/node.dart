@@ -2,7 +2,6 @@ part of chronosgl;
 
 class Node extends Spatial {
   WEBGL.RenderingContext gl = ChronosGL.globalGL;
-  final VM.Matrix3 _normMatrix = new VM.Matrix3.zero();
 
   Material material;
   MeshData _meshData;
@@ -10,8 +9,8 @@ class Node extends Spatial {
 
   // children inherent the parent matrix for its rotation and position
   final List<Node> _children = [];
-
-  final VM.Matrix4 _mvMatrix = new VM.Matrix4.identity();
+  final VM.Matrix3 _normMatrix = new VM.Matrix3.zero();
+  final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
 
   Node.Container(String name, [Node child = null]) : super(name) {
     if (child != null) _children.add(child);
@@ -60,9 +59,9 @@ class Node extends Spatial {
 
   void AddShaderInputs(RenderInputs program) {
     // TODO: computing the normal matrix like this is wrong
-    _normMatrix.copyNormalMatrix(_mvMatrix);
+    _normMatrix.copyNormalMatrix(_modelMatrix);
     program.SetInputWithOrigin(this, uTransformationMatrix, transform);
-    program.SetInputWithOrigin(this, uModelMatrix, _mvMatrix);
+    program.SetInputWithOrigin(this, uModelMatrix, _modelMatrix);
     program.SetInputWithOrigin(this, uNormalMatrix, _normMatrix);
   }
 
@@ -98,10 +97,10 @@ class Node extends Spatial {
   }
 
   void draw(
-      RenderProgram program, VM.Matrix4 parentMVMatrix, List<DrawStats> stats) {
+      RenderProgram program, VM.Matrix4 parentModelMatrix, List<DrawStats> stats) {
     // copy the mvMatrix, so we don't change the original
-    _mvMatrix.setFrom(parentMVMatrix);
-    _mvMatrix.multiply(transform);
+    _modelMatrix.setFrom(parentModelMatrix);
+    _modelMatrix.multiply(transform);
     // TODO: we should tolerate either of them being null
     // In particular if material != null we should apply it so it
     // is valid/active for all _children as well
@@ -109,7 +108,7 @@ class Node extends Spatial {
       drawOne(program, stats);
     }
     for (Node node in _children) {
-      node.draw(program, _mvMatrix, stats);
+      node.draw(program, _modelMatrix, stats);
     }
   }
 }

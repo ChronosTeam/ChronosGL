@@ -1,9 +1,5 @@
 part of chronosgl;
 
-const int DRAW_MODE_POINTS = WEBGL.POINTS;
-const int DRAW_MODE_LINES = WEBGL.LINES;
-const int DRAW_MODE_TRIANGLES = WEBGL.TRIANGLES;
-
 class DrawStats {
   String name;
   int numInstances;
@@ -75,7 +71,7 @@ class RenderInputs extends NamedEntity {
 // At alls contains its inputs
 class RenderProgram extends RenderInputs {
   final ShaderProgram _program;
-  
+
   // these are the identity by default
   final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
   final List<Node> objects = new List<Node>();

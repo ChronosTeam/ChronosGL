@@ -69,11 +69,11 @@ class MeshData extends RenderInputProvider {
 
   int DrawMode() {
     if (_points1.length > 0) {
-      return DRAW_MODE_POINTS;
+      return WEBGL.POINTS;
     } else if (_lines2.length > 0) {
-      return DRAW_MODE_LINES;
+      return WEBGL.LINES;
     } else {
-      return DRAW_MODE_TRIANGLES;
+      return WEBGL.TRIANGLES;
     }
   }
 
