@@ -486,7 +486,7 @@ class MeshData extends RenderInputProvider {
      */
   @override
   String toString() {
-    return "F ${_faces.length} ${_vertices.length}";
+    return "MESH[${name}] F:${_faces.length} F3:${_faces3.length} V:${_vertices.length}";
   }
 }
 
