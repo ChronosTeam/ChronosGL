@@ -185,12 +185,9 @@ class Utils {
     md.AddFaces1(numPoints);
     md.AddVertices(vertices);
 
-    Material mat = new Material("stars")
+    Material mat = new Material.Transparent("stars", new BlendEquation.Mix())
       ..SetUniform(uTextureSampler, texture)
-      ..SetUniform(uPointSize, 1000)
-      ..blend = true
-      ..depthWrite = false
-      ..blend_dFactor = WEBGL.ONE_MINUS_SRC_COLOR;
+      ..SetUniform(uPointSize, 1000);
     id++;
     return new Node('point_sprites_mesh_' + id.toString(), md, mat);
   }

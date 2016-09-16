@@ -19,11 +19,10 @@ void main() {
   canvas2d = Utils.createGradientImage2(0.0, canvas2d);
   Texture generatedTexture = new CanvasTexture("gen", canvas2d);
 
-  Material mat = new Material("torus")
+  // Maybe disable depth test?
+  Material mat = new Material.Transparent("torus", new BlendEquation.Standard())
     ..SetUniform(uTextureSampler, generatedTexture)
-    ..SetUniform(uColor, new VM.Vector3.zero())
-    ..blend = true
-    ..depthTest = false;
+    ..SetUniform(uColor, new VM.Vector3.zero());
   Node m = new Node("torus", ShapeTorusKnot(chronosGL.gl), mat);
 
   programBasic.add(m);

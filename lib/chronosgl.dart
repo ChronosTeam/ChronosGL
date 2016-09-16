@@ -125,7 +125,6 @@ class RenderPhase extends NamedEntity {
 }
 
 class ChronosGL {
-  static WEBGL.RenderingContext globalGL;
   static bool useElementIndexUint = false;
   var elementIndexUintExt;
 
@@ -151,7 +150,6 @@ class ChronosGL {
       throw new Exception(
           'calling canvas.getContext("experimental-webgl") failed, make sure you run on a computer that supports WebGL, test here: http://get.webgl.org/');
     }
-    ChronosGL.globalGL = gl;
 
     if (useElementIndexUint) {
       elementIndexUintExt = gl.getExtension("OES_element_index_uint");

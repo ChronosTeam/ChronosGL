@@ -1,9 +1,17 @@
 part of chronosgl;
 
-class Node extends Spatial {
-  WEBGL.RenderingContext gl = ChronosGL.globalGL;
 
-  Material material;
+
+// Node represents a tree hierarchy of objects that well be rendered
+// with a single RenderProgram.
+// Currently, only leaf Nodes will cause draw calls by providing
+// both MeshData and Material (and optionally InstancerData).
+// Non leaf Nodes (aka containers) currently do not support
+// having a Material associated with them but we would like to change
+// that.
+// Each Node is also a Spatial so it be re-oriented with respect to its parent
+class Node extends Spatial {
+  Material _material;
   MeshData _meshData;
   InstancerData _instancerData;
 
@@ -16,14 +24,14 @@ class Node extends Spatial {
     if (child != null) _children.add(child);
   }
 
-  Node(String name, this._meshData, this.material) : super(name) {
+  Node(String name, this._meshData, this._material) : super(name) {
     //if (!meshData.isOptimized) meshData.optimize();
     _meshData.SanityCheck();
     _meshData.Finalize();
   }
 
   Node.WithInstances(
-      String name, this._meshData, this._instancerData, this.material)
+      String name, this._meshData, this._instancerData, this._material)
       : super(name) {
     //if (!meshData.isOptimized) meshData.optimize();
     _meshData.SanityCheck();
@@ -74,12 +82,11 @@ class Node extends Spatial {
   // this gets called by Node.draw()
   void drawOne(RenderProgram program, List<DrawStats> stats) {
     if (debug) {
-      print("draw2: $name items ${_meshData.numItems}");
+      print("drawOne: $name items ${_meshData.numItems}");
     }
 
     if (_meshData.numItems == 0) return;
-    material.RenderingInit(gl);
-    material.AddRenderInputs(program);
+    _material.AddRenderInputs(program);
     _meshData.AddRenderInputs(program);
     AddShaderInputs(program);
     if (_instancerData != null) _instancerData.AddRenderInputs(program);
@@ -92,20 +99,17 @@ class Node extends Spatial {
     if (_instancerData != null) _instancerData.RemoveRenderInputs(program);
     RemoveShaderInputs(program);
     _meshData.RemoveRenderInputs(program);
-    material.RemoveRenderInputs(program);
-    material.RenderingExit(gl);
+    _material.RemoveRenderInputs(program);
   }
 
-  void draw(
-      RenderProgram program, VM.Matrix4 parentModelMatrix, List<DrawStats> stats) {
+  void draw(RenderProgram program, VM.Matrix4 parentModelMatrix,
+      List<DrawStats> stats) {
     if (!enabled) return;
     // copy the mvMatrix, so we don't change the original
     _modelMatrix.setFrom(parentModelMatrix);
     _modelMatrix.multiply(transform);
-    // TODO: we should tolerate either of them being null
-    // In particular if material != null we should apply it so it
-    // is valid/active for all _children as well
-    if (material != null && _meshData != null) {
+
+    if (_material != null && _meshData != null) {
       drawOne(program, stats);
     }
     for (Node node in _children) {

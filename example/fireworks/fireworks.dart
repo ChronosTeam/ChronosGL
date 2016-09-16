@@ -64,12 +64,9 @@ Node getRocket(dynamic gl, Texture tw) {
     ..AddVertices(vertices)
     ..AddAttributesVector3(aNormal, normals);
 
-  Material mat = new Material("mat")
+  Material mat = new Material.Transparent("mat", new BlendEquation.Mix())
     ..SetUniform(uTextureSampler, tw)
-    ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0))
-    ..blend = true
-    ..depthWrite = false
-    ..blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;
+    ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0));
   return new Node(md.name, md, mat);
 }
 

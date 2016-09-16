@@ -47,10 +47,8 @@ class Face4 {
   Face4(this.a, this.b, this.c, this.d);
 }
 
-// Note:
-// * It would also be nice to preserve the incoming structure
-//   of the attribute data rather then flatten everything to
-//   a List<double>
+// MeshData presents attributes and vertex buffers associated with
+// an object, e.g. a sphere, cube, etc.
 class MeshData extends RenderInputProvider {
   final WEBGL.RenderingContext _gl;
 
@@ -190,7 +188,10 @@ class MeshData extends RenderInputProvider {
   }
 
   // Note, this is meant to be called only once at the when everything
-  // is dones
+  // is done.
+  // * It would also be nice to preserve the incoming structure
+  //   of the attribute data rather then flatten everything to
+  //   a List<double>
   List<double> GetAttributeData(String canonical) {
     List<double> a = _attributes[canonical];
     if (a is TypedData) return a;

@@ -1,6 +1,5 @@
 part of chronosgl;
 
-
 // Represent a GPU shader program
 // The protocol is roughly this:
 // Begin()
@@ -17,7 +16,7 @@ class ShaderProgram extends NamedEntity {
   WEBGL.AngleInstancedArrays _extInstancedArrays;
 
   ShaderProgram(String name, this._gl, this._shaderObjectV, this._shaderObjectF)
-    : super(name) {
+      : super(name) {
     _extInstancedArrays = _gl.getExtension("ANGLE_instanced_arrays");
     ShaderUtils su = new ShaderUtils(_gl);
     _program = su.getProgram(_shaderObjectV.shader, _shaderObjectF.shader);
@@ -58,6 +57,33 @@ class ShaderProgram extends NamedEntity {
 
   bool _HasUniform(String canonical) {
     return _uniformLocations.containsKey(canonical);
+  }
+
+  void _SetControl(String canonical, var val) {
+    switch (canonical) {
+      case cDepthTest:
+        if (val == true) {
+          _gl.enable(WEBGL.DEPTH_TEST);
+        } else {
+          _gl.disable(WEBGL.DEPTH_TEST);
+        }
+        break;
+      case cDepthWrite:
+         _gl.depthMask(val);
+        break;
+      case cBlend:
+        if (val == true) {
+          _gl.enable(WEBGL.BLEND);
+        } else {
+          _gl.disable(WEBGL.BLEND);
+        }
+        break;
+      case cBlendEquation:
+        BlendEquation beq = val as BlendEquation;
+        _gl.blendFunc(beq.srcFactor, beq.dstFactor);
+        _gl.blendEquation(beq.equation);
+        break;
+    }
   }
 
   void _SetUniform(String canonical, var val) {
@@ -169,6 +195,9 @@ class ShaderProgram extends NamedEntity {
         case prefixElement:
           _gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, inputs[canonical]);
           break;
+        case prefixControl:
+          _SetControl(canonical,inputs[canonical]);
+          break;
         case prefixInstancer:
         case prefixAttribute:
           if (_HasAttribute(canonical)) {
@@ -230,4 +259,3 @@ class ShaderProgram extends NamedEntity {
     }
   }
 }
-

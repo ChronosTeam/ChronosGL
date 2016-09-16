@@ -23,7 +23,8 @@ void main() {
   final Material matWireframe = new Material("wire")
     ..SetUniform(uColorAlpha, new VM.Vector4(1.0, 1.0, 0.0, 1.0))
     ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5))
-    ..blend = true;
+    ..SetUniform(cBlend, true, true)
+    ..SetUniform(cBlendEquation, new BlendEquation.Standard());
   {
     Node ico = new Node(
         "sphere",
@@ -34,15 +35,16 @@ void main() {
 
   {
     Node cube = new Node(
-        "cube", ShapeCube(chronosGL.gl)..generateWireframeCenters(), matWireframe)
-      ..setPos(-5.0, 0.0, -5.0);
+        "cube",
+        ShapeCube(chronosGL.gl)..generateWireframeCenters(),
+        matWireframe)..setPos(-5.0, 0.0, -5.0);
     program.add(cube);
   }
 
   {
     Node cyl = new Node(
         "cylinder",
-        ShapeCylinderWireframeFriendly(chronosGL.gl,3.0, 4.0, 2.0, 16)
+        ShapeCylinderWireframeFriendly(chronosGL.gl, 3.0, 4.0, 2.0, 16)
           ..generateWireframeCenters(),
         matWireframe)..setPos(5.0, 0.0, -5.0);
     program.add(cyl);
@@ -50,15 +52,17 @@ void main() {
 
   {
     Node quad = new Node(
-        "quad", ShapeQuad(chronosGL.gl,2)..generateWireframeCenters(), matWireframe)
-      ..setPos(-5.0, 0.0, 5.0);
+        "quad",
+        ShapeQuad(chronosGL.gl, 2)..generateWireframeCenters(),
+        matWireframe)..setPos(-5.0, 0.0, 5.0);
     program.add(quad);
   }
 
   {
     Node torus = new Node(
         "torus",
-        ShapeTorusKnot(chronosGL.gl,radius: 1.0, tube: 0.4)..generateWireframeCenters(),
+        ShapeTorusKnot(chronosGL.gl, radius: 1.0, tube: 0.4)
+          ..generateWireframeCenters(),
         matWireframe)..setPos(5.0, 0.0, 5.0);
     program.add(torus);
   }

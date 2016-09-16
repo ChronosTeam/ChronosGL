@@ -8,52 +8,43 @@ abstract class RenderInputProvider extends NamedEntity {
   void RemoveRenderInputs(RenderInputs inputs);
 }
 
+class BlendEquation {
+  int equation;
+  int srcFactor;
+  int dstFactor;
 
+  BlendEquation.Standard() {
+    srcFactor = WEBGL.SRC_ALPHA;
+    dstFactor = WEBGL.ONE_MINUS_SRC_ALPHA; // This was ONE;
+    equation = WEBGL.FUNC_ADD;
+  }
+
+  BlendEquation.Mix() {
+    srcFactor = WEBGL.SRC_ALPHA;
+    dstFactor = WEBGL.ONE_MINUS_SRC_COLOR;
+    equation = WEBGL.FUNC_ADD;
+  }
+}
 
 // Material is a very light weight class that just bundles up
 // a bunch of ShaderInputs
 class Material extends RenderInputProvider {
-  bool depthTest = true;
-  bool depthWrite = true;
-  bool blend = false;
-  int blend_sFactor = WEBGL.SRC_ALPHA;
-  int blend_dFactor = WEBGL.ONE_MINUS_SRC_ALPHA; // This was ONE;
-  int blendEquation = WEBGL.FUNC_ADD;
   Map<String, dynamic> _uniforms = {};
 
-  Material(String name) : super(name);
-
-  // TODO: get rid of there and instead introduce some "tri-state" logic
-  void RenderingInit(WEBGL.RenderingContext gl) {
-    if (blend) {
-      gl.enable(WEBGL.BLEND);
-      gl.blendFunc(blend_sFactor, blend_dFactor);
-      gl.blendEquation(blendEquation);
-    }
-
-    if (!depthTest) {
-      gl.disable(WEBGL.DEPTH_TEST);
-    }
-    if (!depthWrite) {
-      gl.depthMask(false);
-    }
+  Material(String name) : super(name) {
+    SetUniform(cDepthTest, true);
+    SetUniform(cDepthWrite, true);
+    SetUniform(cBlend, false);
   }
 
-  void RenderingExit(WEBGL.RenderingContext gl) {
-    if (blend) {
-      gl.disable(WEBGL.BLEND);
-    }
-    if (!depthTest) {
-      gl.enable(WEBGL.DEPTH_TEST);
-    }
-    if (!depthWrite) {
-      gl.depthMask(true);
-    }
+  Material.Transparent(String name, BlendEquation beq) : super(name) {
+    SetUniform(cDepthTest, true);
+    SetUniform(cDepthWrite, false);
+    SetUniform(cBlend, true);
+    SetUniform(cBlendEquation, beq);
   }
 
-  bool HasUniform(String canonical) {
-    return _uniforms.containsKey(canonical);
-  }
+  Material.BlendAndDepthNeutral(String name) : super(name);
 
   void SetUniform(String canonical, val, [bool allowOverride = false]) {
     assert(allowOverride || !_uniforms.containsKey(canonical));
@@ -71,6 +62,7 @@ class Material extends RenderInputProvider {
   void RemoveRenderInputs(RenderInputs inputs) {
     for (String canonical in _uniforms.keys) {
       inputs.Remove(canonical);
-    };
+    }
+    ;
   }
 }

@@ -31,7 +31,8 @@ void main() {
 
   final Material matTrans = new Material("trans")
     ..SetUniform(uTextureSampler, trans)
-    ..blend = true;
+    ..SetUniform(cBlend, true, true)
+    ..SetUniform(cBlendEquation, new BlendEquation.Standard());
 
   {
     Node ico = new Node("sphere", ShapeIcosahedron(chronosGL.gl, 3), matWood)
@@ -45,9 +46,9 @@ void main() {
   }
 
   {
-    Node cyl =
-        new Node("cylinder", ShapeCylinder(chronosGL.gl, 3.0, 6.0, 2.0, 32), matTrans)
-          ..setPos(5.0, 0.0, -5.0);
+    Node cyl = new Node(
+        "cylinder", ShapeCylinder(chronosGL.gl, 3.0, 6.0, 2.0, 32), matTrans)
+      ..setPos(5.0, 0.0, -5.0);
     basic.add(cyl);
   }
   {
@@ -57,9 +58,10 @@ void main() {
     basic.add(quad);
   }
   {
-    Node torus =
-        new Node("torus", ShapeTorusKnot(chronosGL.gl, radius: 1.0, tube: 0.4), matGradient)
-          ..setPos(5.0, 0.0, 5.0);
+    Node torus = new Node(
+        "torus",
+        ShapeTorusKnot(chronosGL.gl, radius: 1.0, tube: 0.4),
+        matGradient)..setPos(5.0, 0.0, 5.0);
     basic.add(torus);
   }
 

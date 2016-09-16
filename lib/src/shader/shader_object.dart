@@ -47,9 +47,7 @@ const int prefixControl = 0x63; // 'c;
 const String cDepthTest = "cDepthTest";
 const String cDepthWrite = "cDepthWrite";
 const String cBlend = "cBlend";
-const String cBlendFactorSrc =  "cBlendFactorSrc";
-const String cBlendFactorDst =  "cBlendFactorDst";
-const String cBlendEquation =  "cBlendEquation";
+const String cBlendEquation = "cBlendEquation";
 
 // ===========================================================
 // Attributes
@@ -129,6 +127,13 @@ const String uLightSourceInfo3 = uLightSourceInfo + "3";
 
 Map<String, ShaderVarDesc> _VarsDb = {
   eArray: new ShaderVarDesc("index", ""),
+
+  //
+  cBlend: new ShaderVarDesc("", ""),
+  cBlendEquation: new ShaderVarDesc("", ""),
+  cDepthWrite: new ShaderVarDesc("", ""),
+  cDepthTest: new ShaderVarDesc("", ""),
+
   // attribute vars
   // This should also contain an alpha channel
   aColors: new ShaderVarDesc("vec3", "per vertex color"),
