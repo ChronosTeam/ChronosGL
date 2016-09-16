@@ -51,15 +51,15 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   double d = 20.0;
   Orthographic orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
-  RenderingPhase phaseOrthograhic = new RenderingPhase("shadow", chronosGL.gl);
-  ShaderProgram prgOrthographic =
+  RenderPhase phaseOrthograhic = new RenderPhase("shadow", chronosGL.gl);
+  RenderProgram prgOrthographic =
       phaseOrthograhic.createProgram(createTexturedShader());
 
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phasePerspective =
-      new RenderingPhase("perspective", chronosGL.gl);
+  RenderPhase phasePerspective =
+      new RenderPhase("perspective", chronosGL.gl);
   phasePerspective.clearColorBuffer = false;
-  ShaderProgram prgPerspective =
+  RenderProgram prgPerspective =
       phasePerspective.createProgram(createTexturedShader());
 
   Texture solid = new CanvasTexture.SolidColor("red-solid", "red");

@@ -12,17 +12,17 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   orbit.setPos(0.0, 0.0, 56.0);
   Perspective perspective = new Perspective(orbit, 0.1, 10000.0);
-  RenderingPhase phaseBlinnPhong =
-      new RenderingPhase("blinn-phong", chronosGL.gl);
-  ShaderProgram lightBlinnPhong =
+  RenderPhase phaseBlinnPhong =
+      new RenderPhase("blinn-phong", chronosGL.gl);
+  RenderProgram lightBlinnPhong =
       phaseBlinnPhong.createProgram(createLightShaderBlinnPhong());
-  ShaderProgram fixedBlinnPhong =
+  RenderProgram fixedBlinnPhong =
       phaseBlinnPhong.createProgram(createSolidColorShader());
 
-  RenderingPhase phaseGourad = new RenderingPhase("gourad", chronosGL.gl);
-  ShaderProgram lightGourad =
+  RenderPhase phaseGourad = new RenderPhase("gourad", chronosGL.gl);
+  RenderProgram lightGourad =
       phaseGourad.createProgram(createLightShaderGourad());
-  ShaderProgram fixedGourad =
+  RenderProgram fixedGourad =
       phaseGourad.createProgram(createSolidColorShader());
 
   VM.Vector3 colBlue = new VM.Vector3(0.0, 0.0, 1.0);
@@ -128,7 +128,7 @@ void main() {
     }
 
     Light light = lights[selectLight.selectedIndex];
-    RenderingPhase phase =
+    RenderPhase phase =
         selectPhase.selectedIndex == 0 ? phaseBlinnPhong : phaseGourad;
     phase.draw([perspective, light]);
 

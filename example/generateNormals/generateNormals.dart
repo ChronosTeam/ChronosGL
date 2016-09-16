@@ -24,8 +24,8 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(25.0, -45.0, 0.3);
   Perspective perspective = new Perspective(orbit, 0.1, 2520.0);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
-  ShaderProgram prg = phase.createProgram(createNormal2ColorShader());
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderProgram prg = phase.createProgram(createNormal2ColorShader());
 
   List<MeshData> mymd = new List<MeshData>();
 

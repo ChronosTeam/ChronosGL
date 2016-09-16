@@ -12,8 +12,8 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
-  ShaderProgram prg = phase.createProgram(createDemoShader());
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderProgram prg = phase.createProgram(createDemoShader());
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

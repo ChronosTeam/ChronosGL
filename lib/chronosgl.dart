@@ -60,10 +60,10 @@ final MeshData UnitQuad = Shapes.Quad(1);
 final Material EmptyMaterial = new Material("empty-mat");
 final Node UnitNode = new Node("unit-mesh", UnitQuad, EmptyMaterial);
 
-class RenderingPhase extends NamedEntity {
+class RenderPhase extends NamedEntity {
   final WEBGL.RenderingContext _gl;
   ChronosFramebuffer _framebuffer;
-  final List<ShaderProgram> _programs = [];
+  final List<RenderProgram> _programs = [];
   //final VM.Matrix4 _pMatrix = new VM.Matrix4.identity();
   bool clearColorBuffer = true;
   bool clearDepthBuffer = true;
@@ -72,8 +72,7 @@ class RenderingPhase extends NamedEntity {
   int viewPortW = 0;
   int viewPortH = 0;
 
-  RenderingPhase(String name, this._gl, [this._framebuffer = null])
-      : super(name);
+  RenderPhase(String name, this._gl, [this._framebuffer = null]) : super(name);
 
   void SetFramebuffer(ChronosFramebuffer fb) {
     _framebuffer = fb;
@@ -95,7 +94,7 @@ class RenderingPhase extends NamedEntity {
       _gl.clear(mode);
     }
 
-    for (ShaderProgram prg in _programs) {
+    for (RenderProgram prg in _programs) {
       if (!prg.hasEnabledObjects()) continue;
       for (ShaderInputProvider p in inputs) {
         p.AddShaderInputs(prg);
@@ -107,12 +106,13 @@ class RenderingPhase extends NamedEntity {
     }
   }
 
-  void AddShaderProgram(ShaderProgram s) {
+  void AddShaderProgram(RenderProgram s) {
     _programs.add(s);
   }
 
-  ShaderProgram createProgram(List<ShaderObject> so) {
-    ShaderProgram pn = new ShaderProgram(_gl, so[0], so[1], so[0].name);
+  RenderProgram createProgram(List<ShaderObject> so) {
+    CoreProgram prg = new CoreProgram(_gl, so[0], so[1], so[0].name);
+    RenderProgram pn = new RenderProgram(so[0].name, prg);
     AddShaderProgram(pn);
     return pn;
   }

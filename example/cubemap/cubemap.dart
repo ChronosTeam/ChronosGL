@@ -9,8 +9,8 @@ void main() {
 
   Texture cubeTex = new CubeTexture("stars", "skybox_", ".png");
 
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
-  ShaderProgram programCM = phase.createProgram(createCubeMapShader());
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderProgram programCM = phase.createProgram(createCubeMapShader());
   Node sky = Utils.MakeSkycube(cubeTex);
   programCM.add(sky);
 
@@ -19,7 +19,7 @@ void main() {
   MeshData md = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
   programCM.add(new Node("cube", md, mat));
 
-  ShaderProgram programSprites =
+  RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 

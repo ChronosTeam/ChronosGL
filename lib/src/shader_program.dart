@@ -251,7 +251,7 @@ class CoreProgram {
 // ShaderProgram represents multiple invocations of the same
 // CoreProgram.
 // At alls contains its inputs
-class ShaderProgram extends ShaderProgramInputs {
+class RenderProgram extends ShaderProgramInputs {
   final CoreProgram _program;
 
   // Should this be done per processed Mesh?
@@ -263,10 +263,7 @@ class ShaderProgram extends ShaderProgramInputs {
   final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
   final List<Node> objects = new List<Node>();
 
-  ShaderProgram(
-      WEBGL.RenderingContext gl, shaderObjectV, shaderObjectF, String name)
-      : _program = new CoreProgram(gl, shaderObjectV, shaderObjectF, name),
-        super(name);
+  RenderProgram(String name, this._program) : super(name);
 
   void add(Node obj) {
     objects.add(obj);

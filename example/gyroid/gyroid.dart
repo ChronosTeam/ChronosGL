@@ -206,9 +206,9 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
 
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
 
-  ShaderProgram program = phase.createProgram(createSphericalGyroidShader());
+  RenderProgram program = phase.createProgram(createSphericalGyroidShader());
   program.add(UnitNode);
 
   void resolutionChange(HTML.Event ev) {

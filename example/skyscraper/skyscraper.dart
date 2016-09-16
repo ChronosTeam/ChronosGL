@@ -45,18 +45,18 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(25.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
 
   Material mat = new Material("mat");
   // Sky Sphere
-  ShaderProgram skyprg = phase
+  RenderProgram skyprg = phase
       .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
   MeshData md = Shapes.Icosahedron(3);
   //..multiplyVertices(100);
   Node m = new Node(md.name, md, mat)..transform.scale(100.0);
   skyprg.add(m);
 
-  ShaderProgram prg = phase.createProgram(createSkyScraperShader());
+  RenderProgram prg = phase.createProgram(createSkyScraperShader());
 
   for (int x = -10; x < 10; x += 4) {
     for (int z = -10; z < 10; z += 4) {

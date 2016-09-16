@@ -42,7 +42,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(265.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
 
   Material mat = new Material("mat");
   Node m = new Node("torus", Shapes.TorusKnot(radius: 12.0), mat);
@@ -70,10 +70,10 @@ void main() {
   m.AddBuffer(iaTranslation, translations);
   m.numInstances = 1000;
 
-  ShaderProgram prg = phase.createProgram(createInstancedShader());
+  RenderProgram prg = phase.createProgram(createInstancedShader());
   prg.add(m);
 
-  ShaderProgram programSprites =
+  RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 

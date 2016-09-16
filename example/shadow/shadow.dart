@@ -38,25 +38,25 @@ void main() {
       new ShadowProjection(light, -30.0, 30.0, -30.0, 0.0, 100.0);
   shadowProjection.AdjustAspect(w, h);
 
-  RenderingPhase phaseComputeShadow =
-      new RenderingPhase("compute-shadow", chronosGL.gl, shadowBuffer);
+  RenderPhase phaseComputeShadow =
+      new RenderPhase("compute-shadow", chronosGL.gl, shadowBuffer);
   phaseComputeShadow.viewPortW = w;
   phaseComputeShadow.viewPortH = h;
-  ShaderProgram shadowMap =
+  RenderProgram shadowMap =
       phaseComputeShadow.createProgram(createShadowShader());
 
-  RenderingPhase phaseDisplayShadow =
-      new RenderingPhase("display-shadow", chronosGL.gl);
+  RenderPhase phaseDisplayShadow =
+      new RenderPhase("display-shadow", chronosGL.gl);
 
-  ShaderProgram copyToScreen =
+  RenderProgram copyToScreen =
       phaseDisplayShadow.createProgram(createCopyShaderForShadow());
 
   copyToScreen.SetInput(uTextureSampler, shadowBuffer.colorTexture);
   copyToScreen.add(UnitNode);
 
-  RenderingPhase phaseMain = new RenderingPhase("main", chronosGL.gl);
+  RenderPhase phaseMain = new RenderPhase("main", chronosGL.gl);
   phaseMain.clearColorBuffer = false;
-  ShaderProgram basic =
+  RenderProgram basic =
       phaseMain.createProgram(createLightShaderBlinnPhongWithShadow());
 
   basic.SetInput(uShadowSampler0, shadowBuffer.colorTexture);
@@ -115,7 +115,7 @@ void main() {
   }
 
   // Create sphere representing the light source
-  ShaderProgram fixedShaderPrg =
+  RenderProgram fixedShaderPrg =
       phaseMain.createProgram(createSolidColorShader());
   Material icoMat = new Material("sphere")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
@@ -145,7 +145,7 @@ void main() {
     return double.parse(e.value);
   }
 
-  double SwallowEvent(HTML.Event e) {
+  void SwallowEvent(HTML.Event e) {
     e.stopPropagation();
   }
 

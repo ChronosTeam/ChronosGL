@@ -20,16 +20,16 @@ void main() {
   perspective.AdjustAspect(width, height);
 
   ChronosFramebuffer fb = new ChronosFramebuffer(chronosGL.gl, width, height);
-  RenderingPhase phase1 = new RenderingPhase("phase1", chronosGL.gl, fb);
+  RenderPhase phase1 = new RenderPhase("phase1", chronosGL.gl, fb);
   phase1.viewPortW = width;
   phase1.viewPortH = height;
 
-  ShaderProgram prg1 = phase1.createProgram(createSolidColorShader());
+  RenderProgram prg1 = phase1.createProgram(createSolidColorShader());
 
-  RenderingPhase phase2 = new RenderingPhase("phase2", chronosGL.gl, null);
+  RenderPhase phase2 = new RenderPhase("phase2", chronosGL.gl, null);
   phase2.viewPortW = width;
   phase2.viewPortH = height;
-  ShaderProgram prg2 = phase2.createProgram(createSSAOShader());
+  RenderProgram prg2 = phase2.createProgram(createSSAOShader());
   prg2
     ..SetInput(uCameraNear, 0.1)
     ..SetInput(uCameraFar, 2529.0)
@@ -38,8 +38,8 @@ void main() {
     ..SetInput(uTextureSampler, fb.colorTexture)
     ..add(UnitNode);
 
-  RenderingPhase phase1only =
-      new RenderingPhase("phase1only", chronosGL.gl, null);
+  RenderPhase phase1only =
+      new RenderPhase("phase1only", chronosGL.gl, null);
   phase1only.viewPortW = width;
   phase1only.viewPortH = height;
   phase1only.AddShaderProgram(prg1);

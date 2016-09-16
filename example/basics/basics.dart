@@ -13,8 +13,8 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
-  ShaderProgram basic = phase.createProgram(createTexturedShader());
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderProgram basic = phase.createProgram(createTexturedShader());
 
   //TextureWrapper red = new TextureWrapper.SolidColor("red", "rgba(255,0,0,1)");
   Texture gradient = new ImageTexture("../gradient.jpg");
@@ -63,7 +63,7 @@ void main() {
     basic.add(torus);
   }
 
-  ShaderProgram sprites = phase.createProgram(createPointSpritesShader());
+  RenderProgram sprites = phase.createProgram(createPointSpritesShader());
   sprites.add(Utils.MakeParticles(2000));
 
   void resolutionChange(HTML.Event ev) {

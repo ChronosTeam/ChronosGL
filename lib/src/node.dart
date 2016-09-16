@@ -153,7 +153,7 @@ class Node extends Spatial {
   }
 
   // this gets called by Node.draw()
-  void drawOne(ShaderProgram program, List<DrawStats> stats) {
+  void drawOne(RenderProgram program, List<DrawStats> stats) {
     if (debug) {
       print("draw2: $name items ${numItems}");
       //print(program.shaderObject.textureSamplerUniform);
@@ -172,7 +172,7 @@ class Node extends Spatial {
   }
 
   void draw(
-      ShaderProgram program, VM.Matrix4 parentMVMatrix, List<DrawStats> stats) {
+      RenderProgram program, VM.Matrix4 parentMVMatrix, List<DrawStats> stats) {
     // copy the mvMatrix, so we don't change the original
     _mvMatrix.setFrom(parentMVMatrix);
     _mvMatrix.multiply(transform);

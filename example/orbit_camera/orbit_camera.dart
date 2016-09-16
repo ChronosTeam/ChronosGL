@@ -8,8 +8,8 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
-  ShaderProgram prg = phase.createProgram(createSolidColorShader());
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderProgram prg = phase.createProgram(createSolidColorShader());
 
   MeshData sphere = Shapes.Icosahedron();
   Material headMat = new Material("head")
@@ -37,7 +37,7 @@ void main() {
 
   prg.add(head);
 
-  ShaderProgram programSprites =
+  RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 

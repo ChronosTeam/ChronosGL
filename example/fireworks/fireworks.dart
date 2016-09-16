@@ -78,13 +78,13 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
 
-  ShaderProgram programSprites =
+  RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(2000));
 
-  ShaderProgram pssp = phase.createProgram(createFireWorksShader());
+  RenderProgram pssp = phase.createProgram(createFireWorksShader());
   pssp.add(getRocket(Utils.createParticleTexture("fireworks")));
 
   void resolutionChange(HTML.Event ev) {
