@@ -79,7 +79,7 @@ class RenderPhase extends NamedEntity {
     _framebuffer = fb;
   }
 
-  void draw(List<ShaderInputProvider> inputs, [List<DrawStats> stats = null]) {
+  void draw(List<RenderInputProvider> inputs, [List<DrawStats> stats = null]) {
     if (_framebuffer == null) {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
     } else {
@@ -97,12 +97,12 @@ class RenderPhase extends NamedEntity {
 
     for (RenderProgram prg in _programs) {
       if (!prg.hasEnabledObjects()) continue;
-      for (ShaderInputProvider p in inputs) {
-        p.AddShaderInputs(prg);
+      for (RenderInputProvider p in inputs) {
+        p.AddRenderInputs(prg);
       }
       prg.draw(stats);
-      for (ShaderInputProvider p in inputs) {
-        p.RemoveShaderInputs(prg);
+      for (RenderInputProvider p in inputs) {
+        p.RemoveRenderInputs(prg);
       }
     }
   }

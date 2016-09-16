@@ -11,7 +11,7 @@ const int LIGHT0 = 0;
 final VM.Vector3 _up = new VM.Vector3(0.0, 1.0, 0.0);
 final VM.Vector3 _up2 = new VM.Vector3(0.0, 0.0, 1.0);
 
-class Light extends ShaderInputProvider {
+class Light extends RenderInputProvider {
   int no;
   int _type;
   VM.Vector3 _pos = new VM.Vector3.zero();
@@ -124,18 +124,18 @@ class Light extends ShaderInputProvider {
   }
 
   @override
-  void AddShaderInputs(ShaderProgramInputs inputs) {
+  void AddRenderInputs(RenderInputs inputs) {
     inputs.SetInputWithOrigin(this, uLightSourceInfo + "${no}", PackInfo());
   }
 
   @override
-  void RemoveShaderInputs(ShaderProgramInputs inputs) {
+  void RemoveRenderInputs(RenderInputs inputs) {
     inputs.Remove(uLightSourceInfo + "${no}");
   }
 }
 
 // very much like a orthographic
-class ShadowProjection extends ShaderInputProvider {
+class ShadowProjection extends RenderInputProvider {
   final Light _light;
   final VM.Matrix4 _proj = new VM.Matrix4.zero();
   final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
@@ -154,7 +154,7 @@ class ShadowProjection extends ShaderInputProvider {
   }
 
   @override
-  void AddShaderInputs(ShaderProgramInputs inputs) {
+  void AddRenderInputs(RenderInputs inputs) {
     _light.getViewMatrixForShadow(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
     _projViewMatrix.multiply(_viewMatrix);
@@ -163,7 +163,7 @@ class ShadowProjection extends ShaderInputProvider {
   }
 
   @override
-  void RemoveShaderInputs(ShaderProgramInputs inputs) {
+  void RemoveRenderInputs(RenderInputs inputs) {
     inputs.Remove(uLightPerspectiveViewMatrix + "${_light.no}");
   }
 

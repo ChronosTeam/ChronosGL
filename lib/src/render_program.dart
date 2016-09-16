@@ -18,11 +18,62 @@ class DrawStats {
   }
 }
 
+class RenderInputs extends NamedEntity {
+  // TODO: this should contain all the state, including blending, depth writing
+  // and detect incompatible settings
+  Map<String, dynamic> _inputs = {};
+  Map<String, NamedEntity> _origin = {};
+
+  RenderInputs(String name) : super(name);
+
+  void ForceInputWithOrigin(NamedEntity origin, String canonical, var val) {
+    if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
+    _inputs[canonical] = val;
+    _origin[canonical] = origin;
+  }
+
+  void SetInputWithOrigin(NamedEntity origin, String canonical, var val) {
+    if(_inputs.containsKey(canonical)) {
+      LogError("canonical already present: ${canonical}");
+      assert(false);
+    }
+    ForceInputWithOrigin(origin, canonical, val);
+  }
+
+  void SetInput(String canonical, val) {
+    SetInputWithOrigin(this, canonical, val);
+  }
+
+  void ForceInput(String canonical, val) {
+    ForceInputWithOrigin(this, canonical, val);
+  }
+
+  bool HasInput(String canonical) {
+    return _inputs.containsKey(canonical);
+  }
+
+  Iterable<String> AllInputs() {
+    return _inputs.keys;
+  }
+
+  void MergeInputs(RenderInputs other) {
+    other._inputs.forEach((String k, v) {
+      _inputs[k] = v;
+      _origin[k] = other._origin[k];
+    });
+  }
+
+  void Remove(String canonical) {
+    assert (_inputs.containsKey(canonical));
+    _inputs.remove(canonical);
+    _origin.remove(canonical);
+  }
+}
 
 // ShaderProgram represents multiple invocations of the same
 // CoreProgram.
 // At alls contains its inputs
-class RenderProgram extends ShaderProgramInputs {
+class RenderProgram extends RenderInputs {
   final ShaderProgram _program;
 
   // Should this be done per processed Mesh?
