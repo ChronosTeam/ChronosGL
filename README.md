@@ -20,25 +20,29 @@ A scene graph for WebGL written in Dart
 * points sprites ( very basic particles )
 * skybox
 * async texture loader with progress feedback
-* only dependent on vector_math library
 * great support for canvas based textures
 * focus on procedural content generation and textureless rendering
-
-
-## Usage
-
-create a new Dart webapp project, add this as a pubspec.yaml dependency:
-dependencies:
-  chronosgl: any
 
 ## Basic Concepts
 
 [See the class glossary](class_glossary.md)
 
-## Example
+## Example (from example/simple/)
 
-[HTML part](example/simple/simple.html)
-[Dart part](example/simple/simple.dart)
+* [HTML part](example/simple/simple.html)
+* [Dart part](example/simple/simple.dart)
+
+## Usage
+
+Create a new Dart webapp project, add this as a pubspec.yaml dependency:
+        dependencies:
+          chronosgl: any
+
+You may also need the vector_math library which is the only library that ChronosGL
+is dependent on.
+
+
+Copy the example from above and run it in Dartium.
 
 It should look like this:
 <img src="http://i.imgur.com/Zb1XyCG.png" style="width: 600px;"/>
