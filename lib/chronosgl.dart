@@ -66,6 +66,7 @@ Node UnitNode( WEBGL.RenderingContext gl) {
   return new Node("unit-mesh", UnitQuad, EmptyMaterial);
 }
 
+/// RenderPhase represents a sequence of RenderPrograms.
 class RenderPhase extends NamedEntity {
   final WEBGL.RenderingContext _gl;
   ChronosFramebuffer _framebuffer;
@@ -112,14 +113,14 @@ class RenderPhase extends NamedEntity {
     }
   }
 
-  void AddShaderProgram(RenderProgram s) {
+  void AddRenderProgram(RenderProgram s) {
     _programs.add(s);
   }
 
   RenderProgram createProgram(List<ShaderObject> so) {
     ShaderProgram prg = new ShaderProgram(so[0].name, _gl, so[0], so[1]);
     RenderProgram pn = new RenderProgram(so[0].name, prg);
-    AddShaderProgram(pn);
+    AddRenderProgram(pn);
     return pn;
   }
 }

@@ -1,9 +1,9 @@
 part of chronosgl;
 
-// Represent a GPU shader program
+// ShaderProgram represents a GPU shader program
 // The protocol is roughly this:
 // Begin()
-// (SetUniform()* SetAttribute()* Draw())+
+// (SetInputs() Draw())+
 // End()
 class ShaderProgram extends NamedEntity {
   WEBGL.RenderingContext _gl;

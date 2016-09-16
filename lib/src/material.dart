@@ -1,6 +1,16 @@
 part of chronosgl;
 
-// An object which will update the state of ShaderProgramInputs
+/// RenderInputProvider provides inputs (aks parameters) necessary for running
+/// a ShaderProgram. The primary examples for such inputs are:
+/// Uniforms, Attributes, VertexBuffers
+/// Each parameter has a canonical name, c.f. shader_object.dart.
+/// A large number of those are already registered by default.
+/// Additional ones required by custom shaders can be registered at
+/// startup.
+/// There are small number of unusual control inputs, e.g.
+/// cBlend that indirectly effect the behavior of a ShaderProgram.
+/// These are mostly related to fixed function features, like
+/// blending and depth buffers.
 abstract class RenderInputProvider extends NamedEntity {
   RenderInputProvider(String name) : super(name);
 
@@ -26,8 +36,7 @@ class BlendEquation {
   }
 }
 
-// Material is a very light weight class that just bundles up
-// a bunch of ShaderInputs
+/// Material is a light weight container for Inputs.
 class Material extends RenderInputProvider {
   Map<String, dynamic> _uniforms = {};
 

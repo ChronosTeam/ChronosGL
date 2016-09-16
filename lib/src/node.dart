@@ -2,14 +2,14 @@ part of chronosgl;
 
 
 
-// Node represents a tree hierarchy of objects that well be rendered
-// with a single RenderProgram.
-// Currently, only leaf Nodes will cause draw calls by providing
-// both MeshData and Material (and optionally InstancerData).
-// Non leaf Nodes (aka containers) currently do not support
-// having a Material associated with them but we would like to change
-// that.
-// Each Node is also a Spatial so it be re-oriented with respect to its parent
+/// Node represents a tree hierarchy of objects that well be rendered
+/// with a single RenderProgram.
+/// Currently, only leaf Nodes will cause draw calls by providing
+/// both MeshData and Material (and optionally InstancerData).
+/// Non leaf Nodes (aka containers) currently do not support
+/// having a Material associated with them but we would like to change
+/// that.
+/// Each Node is also a Spatial so it be re-oriented with respect to its parent
 class Node extends Spatial {
   Material _material;
   MeshData _meshData;

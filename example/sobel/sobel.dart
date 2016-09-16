@@ -40,7 +40,7 @@ void main() {
   RenderPhase phase1only = new RenderPhase("phase1only", chronosGL.gl, null);
   phase1only.viewPortW = width;
   phase1only.viewPortH = height;
-  phase1only.AddShaderProgram(prg1);
+  phase1only.AddRenderProgram(prg1);
 
   bool useSobel = true;
 

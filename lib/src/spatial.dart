@@ -5,6 +5,8 @@ final int UPX = 1, UPY = 5, UPZ = 9;
 final int BACKX = 2, BACKY = 6, BACKZ = 10;
 final int POSX = 12, POSY = 13, POSZ = 14;
 
+/// Spatial is a base class for object that need to be transformed, e.g.
+/// moved, scaled, rotated.
 class Spatial extends NamedEntity {
   Spatial(String name) : super(name);
   // position and rotation

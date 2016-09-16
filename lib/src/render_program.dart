@@ -14,6 +14,7 @@ class DrawStats {
   }
 }
 
+/// RenderInputs represents a container of Inputs for a ShaderProgram.
 class RenderInputs extends NamedEntity {
   // TODO: this should contain all the state, including blending, depth writing
   // and detect incompatible settings
@@ -66,9 +67,8 @@ class RenderInputs extends NamedEntity {
   }
 }
 
-// ShaderProgram represents multiple invocations of the same
-// CoreProgram.
-// At alls contains its inputs
+/// RenderProgram combines a ShaderProgram with a collection of Nodes
+/// to be rendered by it.
 class RenderProgram extends RenderInputs {
   final ShaderProgram _program;
 

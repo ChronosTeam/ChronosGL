@@ -1,12 +1,12 @@
-ChronosGL
-=========
+# ChronosGL
+
 
 <img src="http://i.imgur.com/JkaU6LF.png" style="width: 600px;"/>
 
 A scene graph for WebGL written in Dart
 ---------------------------------------
 
-# Features:
+## Features:
 
 * MIT licensed
 * very high focus on simple, minimal and elegant code and API
@@ -20,29 +20,22 @@ A scene graph for WebGL written in Dart
 * points sprites ( very basic particles )
 * skybox
 * async texture loader with progress feedback
-* only Quaternion, Matrix4 and Vector3 math
+* only dependent on vector_math library
 * great support for canvas based textures
 * focus on procedural content generation and textureless rendering
 
 
-
-# Some basic ideas:
-
-* ChronosGL contains getters for all important objects: Make it easy to find everything using code completion.
-* The main loop iterates over all ShaderPrograms
-* A ShaderProgam contains all Meshes that shall use its Shader
-* Camera extends Spatial
-* Node extends Spatial
-* Mesh extends Node
-* Nodes can contain child nodes and they inherit their parents transformation.
-
-# Usage
+## Usage
 
 create a new Dart webapp project, add this as a pubspec.yaml dependency:
 dependencies:
   chronosgl: any
 
-(The package name has switched to all lowercase!)
+## Basic Concepts
+
+[See the class glossary](class_glossary.md)
+
+
 
 create a HTML page and add a canvas similar to this:
 

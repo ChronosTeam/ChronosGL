@@ -490,6 +490,8 @@ class MeshData extends RenderInputProvider {
   }
 }
 
+// InstancerData presents attributes and vertex buffers associated with
+// instancing.
 class InstancerData extends RenderInputProvider {
   final WEBGL.RenderingContext _gl;
 
