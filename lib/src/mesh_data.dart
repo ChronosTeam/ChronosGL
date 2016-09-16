@@ -57,7 +57,6 @@ class MeshData extends RenderInputProvider {
   final Map<String, WEBGL.Buffer> _buffers = {};
   WEBGL.Buffer _indexBuffer;
   int numItems = 0;
-  bool debug = false;
   List<Face1> _points1 = [];
   List<Face2> _lines2 = [];
   List<Face3> _faces3 = [];

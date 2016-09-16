@@ -2,8 +2,6 @@ part of chronosgl;
 
 class Node extends Spatial {
   WEBGL.RenderingContext gl = ChronosGL.globalGL;
-  bool debug = false;
-  bool enabled = true;
   final VM.Matrix3 _normMatrix = new VM.Matrix3.zero();
 
   Material material;

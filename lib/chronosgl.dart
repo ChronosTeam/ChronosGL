@@ -53,6 +53,8 @@ void LogWarn(String s) {
 
 abstract class NamedEntity {
   final String name;
+  bool debug = false;
+  bool enabled = true;
 
   NamedEntity(this.name);
 }

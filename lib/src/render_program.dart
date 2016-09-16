@@ -75,12 +75,7 @@ class RenderInputs extends NamedEntity {
 // At alls contains its inputs
 class RenderProgram extends RenderInputs {
   final ShaderProgram _program;
-
-  // Should this be done per processed Mesh?
-
-  bool debug = false;
-  bool active;
-
+  
   // these are the identity by default
   final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
   final List<Node> objects = new List<Node>();
