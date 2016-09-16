@@ -98,6 +98,7 @@ class Node extends Spatial {
 
   void draw(
       RenderProgram program, VM.Matrix4 parentModelMatrix, List<DrawStats> stats) {
+    if (!enabled) return;
     // copy the mvMatrix, so we don't change the original
     _modelMatrix.setFrom(parentModelMatrix);
     _modelMatrix.multiply(transform);

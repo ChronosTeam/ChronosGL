@@ -101,7 +101,7 @@ class RenderPhase extends NamedEntity {
     }
 
     for (RenderProgram prg in _programs) {
-      if (!prg.hasEnabledObjects()) continue;
+      if (!prg.enabled) continue;
       for (RenderInputProvider p in inputs) {
         p.AddRenderInputs(prg);
       }

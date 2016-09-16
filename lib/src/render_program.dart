@@ -90,11 +90,6 @@ class RenderProgram extends RenderInputs {
     return objects.clear();
   }
 
-  bool hasEnabledObjects() {
-    if (objects.any((Node n) => n.enabled)) return true;
-    return false;
-  }
-
   void Draw(
       int numInstances, int numItems, int drawMode, List<DrawStats> stats) {
     if (stats != null) {
