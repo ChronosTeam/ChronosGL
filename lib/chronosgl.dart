@@ -17,6 +17,7 @@ part "src/node.dart";
 part "src/textures.dart";
 part "src/shader_utils.dart";
 part "src/shader_program.dart";
+part "src/render_program.dart";
 part "src/spatial.dart";
 part "src/camera.dart";
 part "src/utils.dart";
@@ -111,7 +112,7 @@ class RenderPhase extends NamedEntity {
   }
 
   RenderProgram createProgram(List<ShaderObject> so) {
-    CoreProgram prg = new CoreProgram(_gl, so[0], so[1], so[0].name);
+    ShaderProgram prg = new ShaderProgram(_gl, so[0], so[1], so[0].name);
     RenderProgram pn = new RenderProgram(so[0].name, prg);
     AddShaderProgram(pn);
     return pn;
