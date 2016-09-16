@@ -78,7 +78,7 @@ class Utils {
     }, d);
   }
 
-  static Node MakeSkycube(WEBGL.RenderingContext gl, Texture cubeTexture) {
+  static Node MakeSkycube(gl, Texture cubeTexture) {
     Material mat = new Material("skycube")..SetUniform(uTextureCubeSampler, cubeTexture);
     MeshData md = ShapeCube(gl, x:512.0, y:512.0, z:512.0);
     return new Node("skycube", md, mat);

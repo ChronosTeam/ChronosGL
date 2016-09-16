@@ -35,18 +35,7 @@ List<ShaderObject> createInstancedShader() {
   ];
 }
 
-void main() {
-  StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(265.0);
-  Perspective perspective = new Perspective(orbit);
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
-
-  Material mat = new Material("mat");
-  Node m = new Node("torus", ShapeTorusKnot(chronosGL.gl, radius: 12.0), mat);
-
+InstancerData MakeInstances(dynamic gl) {
   int count = 1000;
   Float32List translations = new Float32List(count * 3);
   Float32List rotations = new Float32List(count * 4);
@@ -66,9 +55,24 @@ void main() {
     }
   }
 
-  m.AddBuffer(iaRotation, rotations);
-  m.AddBuffer(iaTranslation, translations);
-  m.numInstances = 1000;
+  InstancerData out = new InstancerData("instances", gl, count);
+  out.AddBuffer(iaRotation, rotations);
+  out.AddBuffer(iaTranslation, translations);
+  return out;
+}
+
+void main() {
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  OrbitCamera orbit = new OrbitCamera(265.0);
+  Perspective perspective = new Perspective(orbit);
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+
+  Material mat = new Material("mat");
+  Node m = new Node.WithInstances("torus", ShapeTorusKnot(chronosGL.gl, radius: 12.0),
+      MakeInstances(chronosGL.gl), mat);
 
   RenderProgram prg = phase.createProgram(createInstancedShader());
   prg.add(m);

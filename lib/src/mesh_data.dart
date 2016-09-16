@@ -1,5 +1,32 @@
 part of chronosgl;
 
+void ChangeArrayBuffer(
+    WEBGL.RenderingContext gl, WEBGL.Buffer buffer, Float32List data) {
+  gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
+  gl.bufferData(WEBGL.ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
+}
+
+WEBGL.Buffer CreateAndInitializeArrayBuffer(
+    WEBGL.RenderingContext gl, Float32List data) {
+  WEBGL.Buffer b = gl.createBuffer();
+  ChangeArrayBuffer(gl, b, data);
+  return b;
+}
+
+void ChangeElementArrayBuffer(
+    WEBGL.RenderingContext gl, WEBGL.Buffer buffer, TypedData data) {
+  gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, buffer);
+  gl.bufferData(WEBGL.ELEMENT_ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
+}
+
+WEBGL.Buffer CreateAndInitializeElementArrayBuffer(
+    WEBGL.RenderingContext gl, TypedData data) {
+  assert((data is Uint16List) || (data is Uint32List));
+  WEBGL.Buffer b = gl.createBuffer();
+  ChangeElementArrayBuffer(gl, b, data);
+  return b;
+}
+
 class Face1 {
   int a;
   Face1(this.a);
@@ -21,17 +48,16 @@ class Face4 {
 }
 
 // Note:
-// * It helps testability to keep this class
-//   from being free of WebGL dependencies
-// * But if we used WebGL buffers here at some point
-//   they could be reused for different Meshes.
-//   Right now each Mesh creates its own WebGL buffers.
 // * It would also be nice to preserve the incoming structure
 //   of the attribute data rather then flatten everything to
 //   a List<double>
-class MeshData extends NamedEntity {
-  WEBGL.RenderingContext _gl;
+class MeshData extends RenderInputProvider {
+  final WEBGL.RenderingContext _gl;
 
+  final Map<String, WEBGL.Buffer> _buffers = {};
+  WEBGL.Buffer _indexBuffer;
+  int numItems = 0;
+  bool debug = false;
   List<Face1> _points1 = [];
   List<Face2> _lines2 = [];
   List<Face3> _faces3 = [];
@@ -40,7 +66,7 @@ class MeshData extends NamedEntity {
   List<int> _faces = [];
   Map<String, List<double>> _attributes = {};
 
-  MeshData(String name, this._gl) : super("meshdata:" +name);
+  MeshData(String name, this._gl) : super("meshdata:" + name);
 
   int DrawMode() {
     if (_points1.length > 0) {
@@ -50,6 +76,25 @@ class MeshData extends NamedEntity {
     } else {
       return DRAW_MODE_TRIANGLES;
     }
+  }
+
+  void clearData() {
+    for (String canonical in _buffers.keys) {
+      _gl.deleteBuffer(_buffers[canonical]);
+    }
+    if (_indexBuffer != null) {
+      _gl.deleteBuffer(_indexBuffer);
+    }
+  }
+
+  void AddBuffer(String canonical, Float32List data) {
+    if (debug) print("AddBuffer ${canonical} ${data.length}");
+    _buffers[canonical] = CreateAndInitializeArrayBuffer(_gl, data);
+  }
+
+  void ChangeBufferCanonical(String canonical, Float32List data) {
+    if (debug) print("ChangeBuffer ${canonical} ${data.length}");
+    ChangeArrayBuffer(_gl, _buffers[canonical], data);
   }
 
   bool UsesArrayBuffer() {
@@ -97,6 +142,48 @@ class MeshData extends NamedEntity {
         throw "${name}: bad attribute size $n $x";
       }
     }
+  }
+
+  void Finalize() {
+    AddBuffer(aVertexPosition, GetVertexData());
+
+    for (String canonical in GetAttributes()) {
+      AddBuffer(canonical, GetAttributeData(canonical));
+    }
+
+    List<int> indices = GetVertexIndices();
+    if (indices != null) {
+      numItems = indices.length;
+      if (ChronosGL.useElementIndexUint) {
+        _indexBuffer = CreateAndInitializeElementArrayBuffer(
+            _gl, new Uint32List.fromList(indices));
+      } else {
+        _indexBuffer = CreateAndInitializeElementArrayBuffer(
+            _gl, new Uint16List.fromList(indices));
+      }
+    } else {
+      numItems = GetVertexData().length ~/ 3;
+    }
+  }
+
+  @override
+  void AddRenderInputs(RenderInputs program) {
+    for (String canonical in _buffers.keys) {
+      program.SetInputWithOrigin(this, canonical, _buffers[canonical]);
+    }
+
+    // should this really be here - interaction with indexer
+    if (_indexBuffer != null) {
+      program.SetInputWithOrigin(this, eArray, _indexBuffer);
+    }
+  }
+
+  @override
+  void RemoveRenderInputs(RenderInputs program) {
+    for (String canonical in _buffers.keys) {
+      program.Remove(canonical);
+    }
+    if (_indexBuffer != null) program.Remove(eArray);
   }
 
   Iterable<String> GetAttributes() {
@@ -400,5 +487,36 @@ class MeshData extends NamedEntity {
   @override
   String toString() {
     return "F ${_faces.length} ${_vertices.length}";
+  }
+}
+
+class InstancerData extends RenderInputProvider {
+  final WEBGL.RenderingContext _gl;
+
+  final Map<String, WEBGL.Buffer> _buffers = {};
+  int numInstances;
+
+  InstancerData(String name, this._gl, this.numInstances) : super(name);
+
+  void AddBuffer(String canonical, Float32List data) {
+    _buffers[canonical] = CreateAndInitializeArrayBuffer(_gl, data);
+  }
+
+  void ChangeBufferCanonical(String canonical, Float32List data) {
+    ChangeArrayBuffer(_gl, _buffers[canonical], data);
+  }
+
+  @override
+  void AddRenderInputs(RenderInputs program) {
+    for (String canonical in _buffers.keys) {
+      program.SetInputWithOrigin(this, canonical, _buffers[canonical]);
+    }
+  }
+
+  @override
+  void RemoveRenderInputs(RenderInputs program) {
+    for (String canonical in _buffers.keys) {
+      program.Remove(canonical);
+    }
   }
 }
