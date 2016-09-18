@@ -43,6 +43,7 @@ List<ShaderObject> createShadowShader() {
   ];
 }
 
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -50,7 +51,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
 
   OrbitCamera orbit = new OrbitCamera(20.0);
-  double d = 30.0;
+  double d = 40.0;
   Orthographic orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
   RenderPhase phaseOrthograhic = new RenderPhase("shadow", chronosGL.gl);
   RenderProgram prgOrthographic =
@@ -73,30 +74,35 @@ void main() {
     ..SetUniform(uTextureSampler, solid)
     ..SetUniform(uColor, new VM.Vector3(0.8, 0.8, 0.8));
 
-  double length = 20.0;
   double thickness = 3.0;
+  double length = 5.0 * thickness;
 
   Node side1 = new Node(
       "side1",
-      ShapeCube(chronosGL.gl,
-          x: length, y: thickness, z: thickness),
-      mat1)..setPos(-thickness, 0.5, 0.0);
+      ShapeCube(chronosGL.gl, x: length, y: thickness, z: thickness),
+      mat1)..setPos(-thickness, 0.0, 0.0);
 
   Node side2 = new Node(
       "side2",
       ShapeCube(chronosGL.gl, x: thickness, y: thickness, z: length),
-      mat2)..setPos(-length, 0.5, length + thickness);
+      mat2)..setPos(-length, 0.0, length + thickness);
 
-  Node side3 = new Node(
-      "side3",
-      ShapeCube(chronosGL.gl,
-          x: thickness, y: length, z: thickness),
-      mat3)..setPos(length, length - thickness + 0.5, 0.0);
-  Node triangle = new Node.Container("tringle");
+  double length3 = length - thickness;
+  Node side3a = new Node(
+      "side3a",
+      ShapeCube(chronosGL.gl, x: thickness, y: length3, z: thickness),
+      mat3)..setPos(length, length3 - 1 * thickness, 0.0);
+
+  Node side3b = new Node("side3b",
+      ShapeWedge(chronosGL.gl, x: thickness, y: thickness, z: thickness), mat3)
+    ..rotY(Math.PI)
+    ..setPos(length, length + length3 - thickness, 0.0);
+
+  Node triangle = new Node.Container("triangle");
   triangle.add(side1);
   triangle.add(side2);
-  triangle.add(side3);
-
+  triangle.add(side3a);
+  triangle.add(side3b);
   /*
   Node plane = new Node(
       "cube", ShapeCube(chronosGL.gl, x: 20.0, y: 0.1, z: 20.0), matPlane)
@@ -122,6 +128,9 @@ void main() {
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
 
+  // 35deg is slightly too large.
+  // Need to find a math reference for actual real angle.
+  // E.g.: http://www.cse.ust.hk/~pang/papers/Impossible_Figures_ToG.pdf
   orbit.polar = 35.0 * Math.PI / 180.0;
   orbit.azimuth = -45.0 * Math.PI / 180.0;
   double _lastTimeMs = 0.0;
