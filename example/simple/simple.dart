@@ -40,36 +40,37 @@ void main() {
   // Create a ChronosGL object for the canvas.
   ChronosGL chronosGL = new ChronosGL(canvas);
 
-  // Create camera.
-  OrbitCamera orbit = new OrbitCamera(5.0, 0.0);
+  // Create camera, listening to 'body' element for control inputs.
+  OrbitCamera orbit = new OrbitCamera(5.0, 0.0, 0.0, HTML.document.body);
   // Create a perspective. We use a combined view+perspective matrix,
   // so the camera is part of the perspective.
   Perspective perspective = new Perspective(orbit);
   perspective.AdjustAspect(w, h);
 
-  // Create a phase to run our two shaders.
+  // Create a phase to run our two shader programs.
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   // Use the entire canvas.
   phase.viewPortW = w;
   phase.viewPortH = h;
-  // Create the first shader and add it to the phase
+  // Create the first shader programs and add it to the phase.
   RenderProgram basic = phase.createProgram(demoShader());
 
   // Make a torus and add it to the first program,
-  Material mat = new Material("mat");
+  Material mat = new Material("torus-mat");
   Node torus = new Node(
       "torus", ShapeTorusKnot(chronosGL.gl, radius: 1.0, tube: 0.4), mat);
   basic.add(torus);
 
-  // Crate the second program and the point sprites. The details are
+  // Create the second program and the point sprites. The details are
   // hidden in the library functions.
   RenderProgram sprites = phase.createProgram(createPointSpritesShader());
   sprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
 
+  // Main loop body"
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
-    // timeMs can be both int or double - force a double
+    // timeMs can be both int or double - force a double.
     timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
