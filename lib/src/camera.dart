@@ -1,5 +1,6 @@
 part of chronosgl;
 
+/// Camera ...
 class Camera extends Spatial {
   Camera(String name) : super(name);
   // Get the model view matrix.  This overwrites the content of parameter m.
@@ -27,7 +28,8 @@ class Camera extends Spatial {
 class OrbitCamera extends Camera {
   double _radius;
   double azimuth;
-  double _polar;
+  double polar;
+  double roll = 0.0;
   final VM.Vector3 _lookAtPos = new VM.Vector3.zero();
   num mouseWheelFactor = -0.01;
 
@@ -35,7 +37,7 @@ class OrbitCamera extends Camera {
   Map<String, bool> _cpmb = currentlyPressedMouseButtons;
 
   OrbitCamera(this._radius,
-      [this.azimuth = 0.0, this._polar = 0.0, HTML.Element eventElement = null])
+      [this.azimuth = 0.0, this.polar = 0.0, HTML.Element eventElement = null])
       : super("camera:orbit") {
     if (eventElement == null) eventElement = HTML.document.body;
     eventElement.onMouseWheel.listen((HTML.WheelEvent e) {
@@ -52,7 +54,7 @@ class OrbitCamera extends Camera {
         //azimuth += e.movement.x*0.01;
         //polar += e.movement.y*0.01;
         azimuth += (mouseX - mouseDownX) * 0.01;
-        _polar += (mouseDownY - mouseY) * 0.01;
+        polar += (mouseDownY - mouseY) * 0.01;
         mouseDownX = mouseX;
         mouseDownY = mouseY;
       }
@@ -66,7 +68,7 @@ class OrbitCamera extends Camera {
       //polar += e.movement.y*0.01;
       HTML.Point p = e.touches[0].client;
       azimuth += (p.x - mouseDownX) * 0.01;
-      _polar += (mouseDownY - p.y) * 0.01;
+      polar += (mouseDownY - p.y) * 0.01;
       mouseDownX = p.x;
       mouseDownY = p.y;
     });
@@ -83,18 +85,19 @@ class OrbitCamera extends Camera {
       azimuth -= (0.03);
     }
     if (_cpk[Key.UP] != null) {
-      _polar += (0.03);
+      polar += (0.03);
     } else if (_cpk[Key.DOWN] != null) {
-      _polar -= (0.03);
+      polar -= (0.03);
     }
     if (_cpk[Key.SPACE] != null) {
       azimuth = 0.0;
-      _polar = 0.0;
+      polar = 0.0;
     }
-    _polar = _polar.clamp(-Math.PI / 2 + 0.1, Math.PI / 2 - 0.1);
-    setPosFromSpherical(_radius, azimuth, _polar);
+    polar = polar.clamp(-Math.PI / 2 + 0.1, Math.PI / 2 - 0.1);
+    setPosFromSpherical(_radius, azimuth, polar);
     addPosFromVec(_lookAtPos);
     lookAt(_lookAtPos);
+    rollLeft(roll);
   }
 }
 
