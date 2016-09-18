@@ -4,11 +4,13 @@ import 'dart:html' as HTML;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
+String model = "../ct_logo.obj";
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL chronosGL = new ChronosGL(canvas, useElementIndexUint: true);
   OrbitCamera orbit = new OrbitCamera(25.0);
   Perspective perspective = new Perspective(orbit);
 
@@ -41,7 +43,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  loadObj("../ct_logo.obj", chronosGL.gl).then((MeshData md) {
+  loadObj(model, chronosGL.gl).then((MeshData md) {
     Material mat = new Material("mat");
     Node mesh = new Node(md.name, md, mat)..rotX(3.14 / 2);
     //mesh.rotY(3.14);
