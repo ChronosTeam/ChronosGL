@@ -42,6 +42,14 @@ void main() {
   }
 
   {
+    Node wedge = new Node(
+        "wedge",
+        ShapeWedge(chronosGL.gl)..generateWireframeCenters(),
+        matWireframe)..setPos(0.0, -5.0, 0.0);
+    program.add(wedge);
+  }
+
+  {
     Node cyl = new Node(
         "cylinder",
         ShapeCylinderWireframeFriendly(chronosGL.gl, 3.0, 4.0, 2.0, 16)

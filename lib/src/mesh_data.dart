@@ -356,7 +356,7 @@ class MeshData extends RenderInputProvider {
     return true;
   }
 
-  // add support for Face4
+  // populate aCenter Input
   void generateWireframeCenters() {
     if (!_attributes.containsKey(aCenter)) EnableAttribute(aCenter);
     List<double> centers = _attributes[aCenter];
