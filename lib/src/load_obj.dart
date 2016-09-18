@@ -69,8 +69,8 @@ MeshData doLoadObj(String url, String text, WEBGL.RenderingContext gl) {
         while (f.length < 3) f.add("");
 
         int vtx = int.parse(f[0]) - 1;
-        int tex = f[1] == "" ? vtx : int.parse(f[1]) - 1;
-        int nor = f[2] == "" ? vtx : int.parse(f[2]) - 1;
+        int tex = f[1] == "" ? -1 : int.parse(f[1]) - 1;
+        int nor = f[2] == "" ? -1 : int.parse(f[2]) - 1;
 
         if (vtx < vertices.length) {
           faceVertices.add(vertices[vtx]);
@@ -78,16 +78,16 @@ MeshData doLoadObj(String url, String text, WEBGL.RenderingContext gl) {
           faceVertices.add(new VM.Vector3.zero());
         }
 
-        if (tex < uvs.length) {
+        if (tex != -1 && tex < uvs.length) {
           faceUvs.add(uvs[tex]);
         } else {
-          //print("problem uv ${tex}");
+          //print("problem uv $i ${tex}");
           faceUvs.add(new VM.Vector2.zero());
         }
-        if (nor < normals.length) {
+        if (nor != -1 && nor < normals.length) {
           faceNormal.add(normals[nor]);
         } else {
-          print("problem normals ${nor}");
+          //print("problem normals $i ${nor}");
           faceNormal.add(new VM.Vector3.zero());
         }
       }
