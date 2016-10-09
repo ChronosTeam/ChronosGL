@@ -45,23 +45,23 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(25.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
 
   Material mat = new Material("mat");
   // Sky Sphere
-  ShaderProgram skyprg = phase
+  RenderProgram skyprg = phase
       .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
-  MeshData md = Shapes.Icosahedron(3);
+  MeshData md = ShapeIcosahedron(chronosGL.gl, 3);
   //..multiplyVertices(100);
-  Mesh m = new Mesh(md.name, md, mat)..transform.scale(100.0);
+  Node m = new Node(md.name, md, mat)..transform.scale(100.0);
   skyprg.add(m);
 
-  ShaderProgram prg = phase.createProgram(createSkyScraperShader());
+  RenderProgram prg = phase.createProgram(createSkyScraperShader());
 
   for (int x = -10; x < 10; x += 4) {
     for (int z = -10; z < 10; z += 4) {
       // 0.01 and 0.99 is to remove some artifacts on the edges
-      MeshData md = Shapes.Cube(
+      MeshData md = ShapeCube(chronosGL.gl,
           x: 1.0,
           y: 2.0,
           z: 1.0,
@@ -72,7 +72,7 @@ void main() {
       VM.Vector2 q = new VM.Vector2(0.01, 0.01);
       md.setFace4UV(2, q, q, q, q);
       md.setFace4UV(3, q, q, q, q);
-      Mesh m = new Mesh(md.name, md, mat)
+      Node m = new Node(md.name, md, mat)
         ..setPos(x.toDouble(), 0.0, z.toDouble());
       prg.add(m);
     }

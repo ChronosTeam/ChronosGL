@@ -18,47 +18,59 @@ void main() {
   if (ext == null) HTML.window.alert("OES_standard_derivatives not supported");
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
-  ShaderProgram program = phase.createProgram(createWireframeShader());
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderProgram program = phase.createProgram(createWireframeShader());
   final Material matWireframe = new Material("wire")
     ..SetUniform(uColorAlpha, new VM.Vector4(1.0, 1.0, 0.0, 1.0))
     ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5))
-    ..blend = true;
+    ..SetUniform(cBlend, true, true)
+    ..SetUniform(cBlendEquation, new BlendEquation.Standard());
   {
-    Mesh ico = new Mesh(
+    Node ico = new Node(
         "sphere",
-        Shapes.Icosahedron(2)..generateWireframeCenters(),
+        ShapeIcosahedron(chronosGL.gl, 2)..generateWireframeCenters(),
         matWireframe)..setPos(0.0, 0.0, 0.0);
     program.add(ico);
   }
 
   {
-    Mesh cube = new Mesh(
-        "cube", Shapes.Cube()..generateWireframeCenters(), matWireframe)
-      ..setPos(-5.0, 0.0, -5.0);
+    Node cube = new Node(
+        "cube",
+        ShapeCube(chronosGL.gl)..generateWireframeCenters(),
+        matWireframe)..setPos(-5.0, 0.0, -5.0);
     program.add(cube);
   }
 
   {
-    Mesh cyl = new Mesh(
+    Node wedge = new Node(
+        "wedge",
+        ShapeWedge(chronosGL.gl)..generateWireframeCenters(),
+        matWireframe)..setPos(0.0, -5.0, 0.0);
+    program.add(wedge);
+  }
+
+  {
+    Node cyl = new Node(
         "cylinder",
-        Shapes.CylinderWireframeFriendly(3.0, 4.0, 2.0, 16)
+        ShapeCylinderWireframeFriendly(chronosGL.gl, 3.0, 4.0, 2.0, 16)
           ..generateWireframeCenters(),
         matWireframe)..setPos(5.0, 0.0, -5.0);
     program.add(cyl);
   }
 
   {
-    Mesh quad = new Mesh(
-        "quad", Shapes.Quad(2)..generateWireframeCenters(), matWireframe)
-      ..setPos(-5.0, 0.0, 5.0);
+    Node quad = new Node(
+        "quad",
+        ShapeQuad(chronosGL.gl, 2)..generateWireframeCenters(),
+        matWireframe)..setPos(-5.0, 0.0, 5.0);
     program.add(quad);
   }
 
   {
-    Mesh torus = new Mesh(
+    Node torus = new Node(
         "torus",
-        Shapes.TorusKnot(radius: 1.0, tube: 0.4)..generateWireframeCenters(),
+        ShapeTorusKnot(chronosGL.gl, radius: 1.0, tube: 0.4)
+          ..generateWireframeCenters(),
         matWireframe)..setPos(5.0, 0.0, 5.0);
     program.add(torus);
   }

@@ -75,7 +75,7 @@ final List<VM.Vector3> _icoVertices = [
 //   2            320          312  
 //   3           1280         1272
 //   4           5120         5112
-MeshData createIcosahedronInternal([int subdivisions = 4]) {
+MeshData ShapeIcosahedron(WEBGL.RenderingContext gl, [int subdivisions = 4]) {
   List<Face3> faces = [];
   List<VM.Vector3> vertices = [];
 
@@ -112,7 +112,7 @@ MeshData createIcosahedronInternal([int subdivisions = 4]) {
     faces = tmp;
   }
   
-  MeshData md = new MeshData("icosahedron-${subdivisions}");
+  MeshData md = new MeshData("icosahedron-${subdivisions}", gl);
   md.EnableAttribute(aTextureCoordinates);
   // create final vertices and uvs of a Icosahedron
   for (Face3 f in faces) {

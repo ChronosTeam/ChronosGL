@@ -1,42 +1,22 @@
 part of chronosgl;
 
-const int DRAW_MODE_POINTS = WEBGL.POINTS;
-const int DRAW_MODE_LINES = WEBGL.LINES;
-const int DRAW_MODE_TRIANGLES = WEBGL.TRIANGLES;
-
-class DrawStats {
-  String name;
-  int numInstances;
-  int numItems;
-  int drawMode;
-  bool useArrayBuffer;
-
-  DrawStats(this.name, this.numInstances, this.numItems, this.drawMode,
-      this.useArrayBuffer);
-
-  @override
-  String toString() {
-    return "[${name}] ${numInstances} ${numItems} ${drawMode} ${useArrayBuffer}";
-  }
-}
-
-// Represent a GPU shader program
+// ShaderProgram represents a GPU shader program
 // The protocol is roughly this:
 // Begin()
-// (SetUniform()* SetAttribute()* Draw())+
+// (SetInputs() Draw())+
 // End()
-class CoreProgram {
-  String name;
+class ShaderProgram extends NamedEntity {
+  WEBGL.RenderingContext _gl;
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
-  WEBGL.RenderingContext _gl;
   WEBGL.Program _program;
   Map<String, int> _attributeLocations = {};
   Map<String, WEBGL.UniformLocation> _uniformLocations = {};
   Set<String> _uniformInitialized = new Set<String>();
   WEBGL.AngleInstancedArrays _extInstancedArrays;
 
-  CoreProgram(this._gl, this._shaderObjectV, this._shaderObjectF, this.name) {
+  ShaderProgram(String name, this._gl, this._shaderObjectV, this._shaderObjectF)
+      : super(name) {
     _extInstancedArrays = _gl.getExtension("ANGLE_instanced_arrays");
     ShaderUtils su = new ShaderUtils(_gl);
     _program = su.getProgram(_shaderObjectV.shader, _shaderObjectF.shader);
@@ -60,11 +40,11 @@ class CoreProgram {
     }
   }
 
-  bool HasAttribute(String canonical) {
+  bool _HasAttribute(String canonical) {
     return _attributeLocations.containsKey(canonical);
   }
 
-  void SetAttribute(String canonical, WEBGL.Buffer buffer, normalized,
+  void _SetAttribute(String canonical, WEBGL.Buffer buffer, normalized,
       int stride, int offset) {
     final int index = _attributeLocations[canonical];
     _gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
@@ -75,15 +55,38 @@ class CoreProgram {
         index, desc.GetSize(), WEBGL.FLOAT, normalized, stride, offset);
   }
 
-  void SetElementArray(WEBGL.Buffer b) {
-    _gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, b);
-  }
-
-  bool HasUniform(String canonical) {
+  bool _HasUniform(String canonical) {
     return _uniformLocations.containsKey(canonical);
   }
 
-  void SetUniform(String canonical, var val) {
+  void _SetControl(String canonical, var val) {
+    switch (canonical) {
+      case cDepthTest:
+        if (val == true) {
+          _gl.enable(WEBGL.DEPTH_TEST);
+        } else {
+          _gl.disable(WEBGL.DEPTH_TEST);
+        }
+        break;
+      case cDepthWrite:
+         _gl.depthMask(val);
+        break;
+      case cBlend:
+        if (val == true) {
+          _gl.enable(WEBGL.BLEND);
+        } else {
+          _gl.disable(WEBGL.BLEND);
+        }
+        break;
+      case cBlendEquation:
+        BlendEquation beq = val as BlendEquation;
+        _gl.blendFunc(beq.srcFactor, beq.dstFactor);
+        _gl.blendEquation(beq.equation);
+        break;
+    }
+  }
+
+  void _SetUniform(String canonical, var val) {
     _uniformInitialized.add(canonical);
 
     // Note, we could make this smarter and skip
@@ -175,20 +178,46 @@ class CoreProgram {
       final index = _attributeLocations[a];
       if (debug) print("[${name}] $a $index");
       _gl.enableVertexAttribArray(index);
-      if (a.startsWith("ia")) {
+      if (a.codeUnitAt(0) == prefixInstancer) {
         _extInstancedArrays.vertexAttribDivisorAngle(index, 1);
       }
     }
   }
 
-  void Draw(bool debug, int numInstances, int numItems, int drawMode,
-      bool useArrayBuffer) {
+  void SetInputs(Map<String, dynamic> inputs) {
+    for (String canonical in inputs.keys) {
+      switch (canonical.codeUnitAt(0)) {
+        case prefixUniform:
+          if (_HasUniform(canonical)) {
+            _SetUniform(canonical, inputs[canonical]);
+          }
+          break;
+        case prefixElement:
+          _gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, inputs[canonical]);
+          break;
+        case prefixControl:
+          _SetControl(canonical,inputs[canonical]);
+          break;
+        case prefixInstancer:
+        case prefixAttribute:
+          if (_HasAttribute(canonical)) {
+            _SetAttribute(canonical, inputs[canonical], false, 0, 0);
+          }
+          break;
+      }
+    }
+  }
+
+  void Draw(bool debug, Map<String, dynamic> inputs, int numInstances,
+      int numItems, int drawMode) {
+    SetInputs(inputs);
     if (debug)
       print("[${name}] draw points: ${drawMode} instances${numInstances}");
     if (!AllUniformsInitialized()) {
       throw "${name}: uninitialized uniforms: ${UniformsUninitialized()}";
     }
 
+    final bool useArrayBuffer = inputs.containsKey(eArray);
     if (numInstances > 0) {
       if (useArrayBuffer) {
         _extInstancedArrays.drawElementsInstancedAngle(
@@ -228,84 +257,5 @@ class CoreProgram {
       }
       _gl.disableVertexAttribArray(index);
     }
-  }
-}
-
-// ShaderProgram represents multiple invocations of the same
-// CoreProgram.
-// At alls contains its inputs
-class ShaderProgram extends ShaderProgramInputs {
-  final WEBGL.RenderingContext _gl;
-  CoreProgram _program;
-
-  // Should this be done per processed Mesh?
-
-  bool debug = false;
-  bool active;
-
-  // these are the identity by default
-  final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
-  final List<Node> objects = new List<Node>();
-
-  ShaderProgram(this._gl, shaderObjectV, shaderObjectF, String name)
-      : super(name) {
-    _program = new CoreProgram(_gl, shaderObjectV, shaderObjectF, name);
-  }
-
-  void add(Node obj) {
-    objects.add(obj);
-  }
-
-  bool remove(Node obj) {
-    return objects.remove(obj);
-  }
-
-  void removeAll() {
-    return objects.clear();
-  }
-
-  bool hasEnabledObjects() {
-    if (objects.any((Node n) => n.enabled)) return true;
-    return false;
-  }
-
-  void MaybeSetAttribute(String canonical, WEBGL.Buffer buffer,
-      [bool normalized = false, int stride = 0, int offset = 0]) {
-    if (!_program.HasAttribute(canonical)) return;
-    _program.SetAttribute(canonical, buffer, normalized, stride, offset);
-  }
-
-  void SetElementArray(WEBGL.Buffer b) {
-    _program.SetElementArray(b);
-  }
-
-  void Draw(int numInstances, int numItems, int drawMode, bool useArrayBuffer,
-      List<DrawStats> stats) {
-    for (String canonical in GetCanonicals()) {
-      var val = GetUniformVal(canonical);
-      if (_program.HasUniform(canonical)) {
-        _program.SetUniform(canonical, val);
-      }
-    }
-
-    if (stats != null) {
-      stats.add(new DrawStats(
-          _program.name, numInstances, numItems, drawMode, useArrayBuffer));
-    }
-    _program.Draw(debug, numInstances, numItems, drawMode, useArrayBuffer);
-  }
-
-  // This is a weird flow control:
-  // * When draw() is called,
-  // * we recursively draw items in objects passing "this" as a parameter
-  // * the objects then call the Draw method above
-  void draw(List<DrawStats> stats) {
-    _program.Begin(debug);
-    _modelMatrix.setIdentity();
-    if (debug) print("[draw objects ${objects.length}");
-    for (Node node in objects) {
-      if (node.enabled) node.draw(this, _modelMatrix, stats);
-    }
-    _program.End(debug);
   }
 }

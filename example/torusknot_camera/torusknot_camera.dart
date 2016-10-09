@@ -12,19 +12,18 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   TorusKnotCamera tkc = new TorusKnotCamera();
   Perspective perspective = new Perspective(tkc);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
 
-  ShaderProgram programBasic = phase.createProgram(createTexturedShader());
+  RenderProgram programBasic = phase.createProgram(createTexturedShader());
 
   canvas2d = Utils.createGradientImage2(0.0, canvas2d);
   Texture generatedTexture = new CanvasTexture("gen", canvas2d);
 
-  Material mat = new Material("torus")
+  // Maybe disable depth test?
+  Material mat = new Material.Transparent("torus", new BlendEquation.Standard())
     ..SetUniform(uTextureSampler, generatedTexture)
-    ..SetUniform(uColor, new VM.Vector3.zero())
-    ..blend = true
-    ..depthTest = false;
-  Mesh m = new Mesh("torus", Shapes.TorusKnot(), mat);
+    ..SetUniform(uColor, new VM.Vector3.zero());
+  Node m = new Node("torus", ShapeTorusKnot(chronosGL.gl), mat);
 
   programBasic.add(m);
 
@@ -37,9 +36,9 @@ void main() {
     //chronosGL.programs['point_sprites'].add(new PointSprites.fromVertex(p1, textureCache.get("textures/particle.bmp")));
   }
 
-  ShaderProgram programSprites =
+  RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(2000));
+  programSprites.add(Utils.MakeParticles(chronosGL.gl,2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

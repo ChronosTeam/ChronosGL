@@ -8,7 +8,7 @@ List<ShaderObject> createInstancedShader() {
   return [
     new ShaderObject("InstancedV")
       ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(iaRotatation)
+      ..AddAttributeVar(iaRotation)
       ..AddAttributeVar(iaTranslation)
       ..AddVaryingVar(vColors)
       ..AddUniformVar(uPerspectiveViewMatrix)
@@ -20,7 +20,7 @@ List<ShaderObject> createInstancedShader() {
         }
 
         void main(void) {
-          vec3 P = rotate_vertex_position(${aVertexPosition}, ${iaRotatation}) + 
+          vec3 P = rotate_vertex_position(${aVertexPosition}, ${iaRotation}) +
                     ${iaTranslation};
           gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(P, 1);
           ${vColors} = vec3( sin(${aVertexPosition}.x)/2.0+0.5, 
@@ -35,18 +35,7 @@ List<ShaderObject> createInstancedShader() {
   ];
 }
 
-void main() {
-  StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(265.0);
-  Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
-
-  Material mat = new Material("mat");
-  Mesh m = new Mesh("torus", Shapes.TorusKnot(radius: 12.0), mat);
-
+InstancerData MakeInstances(dynamic gl) {
   int count = 1000;
   Float32List translations = new Float32List(count * 3);
   Float32List rotations = new Float32List(count * 4);
@@ -66,16 +55,31 @@ void main() {
     }
   }
 
-  m.AddBuffer(iaRotatation, rotations);
-  m.AddBuffer(iaTranslation, translations);
-  m.numInstances = 1000;
+  InstancerData out = new InstancerData("instances", gl, count);
+  out.AddBuffer(iaRotation, rotations);
+  out.AddBuffer(iaTranslation, translations);
+  return out;
+}
 
-  ShaderProgram prg = phase.createProgram(createInstancedShader());
+void main() {
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  OrbitCamera orbit = new OrbitCamera(265.0);
+  Perspective perspective = new Perspective(orbit);
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+
+  Material mat = new Material("mat");
+  Node m = new Node.WithInstances("torus", ShapeTorusKnot(chronosGL.gl, radius: 12.0),
+      MakeInstances(chronosGL.gl), mat);
+
+  RenderProgram prg = phase.createProgram(createInstancedShader());
   prg.add(m);
 
-  ShaderProgram programSprites =
+  RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(2000));
+  programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

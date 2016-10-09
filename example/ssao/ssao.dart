@@ -12,6 +12,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
   Perspective perspective = new Perspective(orbit, 0.1, 2520.0);
+
   final width = canvas.clientWidth;
   final height = canvas.clientHeight;
   canvas.width = width;
@@ -19,29 +20,28 @@ void main() {
   perspective.AdjustAspect(width, height);
 
   ChronosFramebuffer fb = new ChronosFramebuffer(chronosGL.gl, width, height);
-
-  RenderingPhase phase1 = new RenderingPhase("phase1", chronosGL.gl, fb);
+  RenderPhase phase1 = new RenderPhase("phase1", chronosGL.gl, fb);
   phase1.viewPortW = width;
   phase1.viewPortH = height;
 
-  ShaderProgram prg1 = phase1.createProgram(createSolidColorShader());
+  RenderProgram prg1 = phase1.createProgram(createSolidColorShader());
 
-  RenderingPhase phase2 = new RenderingPhase("phase2", chronosGL.gl, null);
+  RenderPhase phase2 = new RenderPhase("phase2", chronosGL.gl, null);
   phase2.viewPortW = width;
   phase2.viewPortH = height;
-  ShaderProgram prg2 = phase2.createProgram(createSSAOShader());
+  RenderProgram prg2 = phase2.createProgram(createSSAOShader());
   prg2
-    ..SetUniform(uCameraNear, 0.1)
-    ..SetUniform(uCameraFar, 2529.0)
-    ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
-    ..SetUniform(uTexture2Sampler, fb.depthTexture)
-    ..SetUniform(uTextureSampler, fb.colorTexture)
-    ..add(UnitMesh);
+    ..SetInput(uCameraNear, 0.1)
+    ..SetInput(uCameraFar, 2529.0)
+    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetInput(uTexture2Sampler, fb.depthTexture)
+    ..SetInput(uTextureSampler, fb.colorTexture)
+    ..add(UnitNode(chronosGL.gl));
 
-  RenderingPhase phase1only =
-      new RenderingPhase("phase1only", chronosGL.gl, null);
+  RenderPhase phase1only = new RenderPhase("phase1only", chronosGL.gl, null);
   phase1only.viewPortW = width;
   phase1only.viewPortH = height;
+  phase1only.AddRenderProgram(prg1);
 
   bool useSSAO = true;
   HTML.InputElement myselect =
@@ -50,13 +50,13 @@ void main() {
     useSSAO = myselect.checked;
   });
 
-  loadObj("../ct_logo.obj").then((MeshData md) {
+  loadObj("../ct_logo.obj", chronosGL.gl).then((MeshData md) {
     Material mat = new Material("mat")
       ..SetUniform(uColor, new VM.Vector3(0.9, 0.9, 0.9));
-    Mesh mesh = new Mesh(md.name, md, mat)
+    Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
-    Node n = new Node("wrapper", mesh)
+    Node n = new Node.Container("wrapper", mesh)
       //n.invert = true;
       ..lookAt(new VM.Vector3(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);
@@ -68,9 +68,9 @@ void main() {
       timeMs = 0.0 + timeMs;
       double elapsed = timeMs - _lastTimeMs;
       _lastTimeMs = timeMs;
+      orbit.azimuth += 0.001;
       orbit.animate(elapsed);
       fps.UpdateFrameCount(timeMs);
-      //perspective.Adjust(canvas);
       if (useSSAO) {
         phase1.draw([perspective]);
         phase2.draw([perspective]);

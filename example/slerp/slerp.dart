@@ -41,17 +41,17 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
-  ShaderProgram prg = phase.createProgram(createDemoShader());
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderProgram prg = phase.createProgram(createDemoShader());
 
   Material mat = new Material("mat");
   Math.Random rng = new Math.Random();
 
-  loadObj("../ct_logo.obj").then((MeshData md) {
-    Mesh mesh = new Mesh(md.name, md, mat)
+  loadObj("../ct_logo.obj", chronosGL.gl).then((MeshData md) {
+    Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
-    Node node = new Node("wrapper", mesh);
+    Node node = new Node.Container("wrapper", mesh);
     //n.invert = true;
     node.lookAt(new VM.Vector3(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);
@@ -90,9 +90,9 @@ void main() {
 
     prg.add(node);
 
-    ShaderProgram programSprites =
+    RenderProgram programSprites =
         phase.createProgram(createPointSpritesShader());
-    programSprites.add(Utils.MakeParticles(2000));
+    programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
     void resolutionChange(HTML.Event ev) {
       int w = canvas.clientWidth;

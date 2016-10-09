@@ -7,16 +7,16 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(65.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
-  List<ShaderProgram> prgs = new List<ShaderProgram>();
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  List<RenderProgram> prgs = new List<RenderProgram>();
   prgs.add(phase.createProgram(createPlasmaShader()));
   prgs.add(phase.createProgram(createPlasmaShader2()));
   prgs.add(phase.createProgram(createPlasmaShader3()));
 
   Material mat = new Material("mat");
-  MeshData md = Shapes.Cube(x: 10.0, y: 10.0, z: 10.0);
+  MeshData md = ShapeCube(chronosGL.gl, x: 10.0, y: 10.0, z: 10.0);
 
-  Mesh m = new Mesh(md.name, md, mat)
+  Node m = new Node(md.name, md, mat)
     ..setPos(0.0, 0.0, 0.0)
     ..lookUp(1.0)
     ..lookLeft(0.7);
@@ -38,9 +38,9 @@ void main() {
     pointer = myselect.selectedIndex;
     prgs[(pointer)].add(m);
   });
-  ShaderProgram programSprites =
+  RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(2000));
+  programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -66,8 +66,8 @@ void main() {
 
     m.rollLeft(elapsed * 0.0005);
     m.lookLeft(elapsed * 0.0005);
-    for (ShaderProgram p in prgs) {
-      p.SetUniform(uTime, timeMs / 1000.0);
+    for (RenderProgram p in prgs) {
+      p.ForceInput(uTime, timeMs / 1000.0);
     }
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);

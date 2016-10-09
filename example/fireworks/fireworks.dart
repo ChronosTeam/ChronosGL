@@ -47,7 +47,7 @@ List<ShaderObject> createFireWorksShader() {
 
 Math.Random rand = new Math.Random();
 
-Mesh getRocket(Texture tw) {
+Node getRocket(dynamic gl, Texture tw) {
   int numPoints = 200;
 
   List<VM.Vector3> vertices = [];
@@ -58,19 +58,16 @@ Mesh getRocket(Texture tw) {
         rand.nextDouble() - 0.5));
   }
 
-  MeshData md = new MeshData("firefwork-particles")
+  MeshData md = new MeshData("firefwork-particles", gl)
     ..EnableAttribute(aNormal)
     ..AddFaces1(numPoints)
     ..AddVertices(vertices)
     ..AddAttributesVector3(aNormal, normals);
 
-  Material mat = new Material("mat")
+  Material mat = new Material.Transparent("mat", new BlendEquation.Mix())
     ..SetUniform(uTextureSampler, tw)
-    ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0))
-    ..blend = true
-    ..depthWrite = false
-    ..blend_dFactor = 0x0301; // WebGLRenderingContext.ONE_MINUS_SRC_COLOR;
-  return new Mesh(md.name, md, mat);
+    ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0));
+  return new Node(md.name, md, mat);
 }
 
 void main() {
@@ -78,14 +75,14 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
 
-  ShaderProgram programSprites =
+  RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(2000));
+  programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
-  ShaderProgram pssp = phase.createProgram(createFireWorksShader());
-  pssp.add(getRocket(Utils.createParticleTexture("fireworks")));
+  RenderProgram pssp = phase.createProgram(createFireWorksShader());
+  pssp.add(getRocket(chronosGL.gl, Utils.createParticleTexture("fireworks")));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -108,7 +105,7 @@ void main() {
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    pssp.SetUniform(uTime, timeMs / 1000.0);
+    pssp.ForceInput(uTime, timeMs / 1000.0);
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }

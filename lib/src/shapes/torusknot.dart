@@ -4,7 +4,7 @@ part of chronosgl;
 VM.Vector3 p1 = new VM.Vector3.zero();
 VM.Vector3 p2 = new VM.Vector3.zero();
 
-MeshData createTorusKnotInternal(
+MeshData ShapeTorusKnot(WEBGL.RenderingContext gl,
     {double radius: 20.0,
     double tube: 4.0,
     int segmentsR: 128,
@@ -12,7 +12,7 @@ MeshData createTorusKnotInternal(
     int p: 2,
     int q: 3,
     double heightScale: 1.0}) {
-  MeshData md = new MeshData("torusknot");
+  MeshData md = new MeshData("torusknot", gl);
   md.EnableAttribute(aTextureCoordinates);
 
   List<VM.Vector3> vertices = [];

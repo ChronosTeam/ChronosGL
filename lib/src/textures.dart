@@ -108,8 +108,12 @@ class Texture {
 
   static List<Texture> _cache = [];
 
+  Texture(this._url) {
+    _cache.add(this);
+  }
+
   static Future<dynamic> loadAndInstallAllTextures(WEBGL.RenderingContext gl) {
-    List<Future<HTML.Event>> futures = [];
+    List<Future<dynamic>> futures = [];
     for (Texture tw in _cache) {
       Future<dynamic> f = tw.GetFuture();
       if (f != null) futures.add(f);
@@ -123,9 +127,6 @@ class Texture {
     });
   }
 
-  Texture(this._url) {
-    _cache.add(this);
-  }
 
   WEBGL.Texture GetTexture() {
     return _texture;
@@ -276,7 +277,7 @@ class TypedTexture extends Texture {
 }
 
 class CubeTexture extends Texture {
-  List<Texture> _cubeChildren = null;
+  List<Texture> _cubeChildren;
 
   CubeTexture(String url, String prefix, String suffix) : super(url) {
     _cubeChildren = [

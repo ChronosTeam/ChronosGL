@@ -1,106 +1,81 @@
 part of chronosgl;
 
-// An object which will update the state of ShaderProgramInputs
-abstract class ShaderInputProvider extends NamedEntity {
-  ShaderInputProvider(String name) : super(name);
+/// RenderInputProvider provides inputs (aks parameters) necessary for running
+/// a ShaderProgram. The primary examples for such inputs are:
+/// Uniforms, Attributes, VertexBuffers
+/// Each parameter has a canonical name, c.f. shader_object.dart.
+/// A large number of those are already registered by default.
+/// Additional ones required by custom shaders can be registered at
+/// startup.
+/// There are small number of unusual control inputs, e.g.
+/// cBlend that indirectly effect the behavior of a ShaderProgram.
+/// These are mostly related to fixed function features, like
+/// blending and depth buffers.
+abstract class RenderInputProvider extends NamedEntity {
+  RenderInputProvider(String name) : super(name);
 
-  void UpdateUniforms(ShaderProgramInputs inputs);
+  void AddRenderInputs(RenderInputs inputs);
+  void RemoveRenderInputs(RenderInputs inputs);
 }
 
-// For use with uniforms
-class ShaderProgramInputs extends NamedEntity {
-  // TODO: this should contain all the state, including blending, depth writing
-  // and detect incompatible settings
-  Map<String, dynamic> _uniforms = {};
-  Map<String, NamedEntity> _origin = {};
+class BlendEquation {
+  int equation;
+  int srcFactor;
+  int dstFactor;
 
-  ShaderProgramInputs(String name) : super(name);
-
-  void SetUniformWithOrigin(NamedEntity origin, String canonical, var val) {
-    if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
-    _uniforms[canonical] = val;
-    _origin[canonical] = origin;
+  BlendEquation.Standard() {
+    srcFactor = WEBGL.SRC_ALPHA;
+    dstFactor = WEBGL.ONE_MINUS_SRC_ALPHA; // This was ONE;
+    equation = WEBGL.FUNC_ADD;
   }
 
-  void SetUniform(String canonical, val) {
-    SetUniformWithOrigin(this, canonical, val);
-  }
-
-  dynamic GetUniformVal(String canonical) {
-    if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
-    return _uniforms[canonical];
-  }
-
-  bool HasUniform(String canonical) {
-    return _uniforms.containsKey(canonical);
-  }
-
-  Iterable<String> GetCanonicals() {
-    return _uniforms.keys;
-  }
-
-  void MergeInputs(ShaderProgramInputs other) {
-    other._uniforms.forEach((String k, v) {
-      _uniforms[k] = v;
-      _origin[k] = other._origin[k];
-    });
+  BlendEquation.Mix() {
+    srcFactor = WEBGL.SRC_ALPHA;
+    dstFactor = WEBGL.ONE_MINUS_SRC_COLOR;
+    equation = WEBGL.FUNC_ADD;
   }
 }
 
-// Material is a very light weight class that just bundles up
-// a bunch of ShaderInputs
-class Material extends ShaderInputProvider {
-  bool depthTest = true;
-  bool depthWrite = true;
-  bool blend = false;
-  int blend_sFactor = WEBGL.SRC_ALPHA;
-  int blend_dFactor = WEBGL.ONE_MINUS_SRC_ALPHA; // This was ONE;
-  int blendEquation = WEBGL.FUNC_ADD;
+/// Material is a light weight container for Inputs.
+class Material extends RenderInputProvider {
   Map<String, dynamic> _uniforms = {};
 
-  Material(String name) : super(name);
-
-  // TODO: get rid of there and instead introduce some "tri-state" logic
-  void RenderingInit(WEBGL.RenderingContext gl) {
-    if (blend) {
-      gl.enable(WEBGL.BLEND);
-      gl.blendFunc(blend_sFactor, blend_dFactor);
-      gl.blendEquation(blendEquation);
-    }
-
-    if (!depthTest) {
-      gl.disable(WEBGL.DEPTH_TEST);
-    }
-    if (!depthWrite) {
-      gl.depthMask(false);
-    }
+  Material(String name) : super(name) {
+    SetUniform(cDepthTest, true);
+    SetUniform(cDepthWrite, true);
+    SetUniform(cBlend, false);
   }
 
-  void RenderingExit(WEBGL.RenderingContext gl) {
-    if (blend) {
-      gl.disable(WEBGL.BLEND);
-    }
-    if (!depthTest) {
-      gl.enable(WEBGL.DEPTH_TEST);
-    }
-    if (!depthWrite) {
-      gl.depthMask(true);
-    }
+  Material.Transparent(String name, BlendEquation beq) : super(name) {
+    SetUniform(cDepthTest, true);
+    SetUniform(cDepthWrite, false);
+    SetUniform(cBlend, true);
+    SetUniform(cBlendEquation, beq);
   }
 
-  bool HasUniform(String canonical) {
-    return _uniforms.containsKey(canonical);
-  }
+  Material.BlendAndDepthNeutral(String name) : super(name);
 
   void SetUniform(String canonical, val, [bool allowOverride = false]) {
     assert(allowOverride || !_uniforms.containsKey(canonical));
     _uniforms[canonical] = val;
   }
 
+  bool HasUniform(String canonical) {
+    return _uniforms.containsKey(canonical);
+  }
+
   @override
-  void UpdateUniforms(ShaderProgramInputs inputs) {
+  void AddRenderInputs(RenderInputs inputs) {
     _uniforms.forEach((String k, v) {
-      inputs.SetUniformWithOrigin(this, k, v);
+      inputs.SetInputWithOrigin(this, k, v);
     });
+  }
+
+  @override
+  void RemoveRenderInputs(RenderInputs inputs) {
+    for (String canonical in _uniforms.keys) {
+      inputs.Remove(canonical);
+    }
+    ;
   }
 }

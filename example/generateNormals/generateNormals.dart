@@ -24,22 +24,22 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(25.0, -45.0, 0.3);
   Perspective perspective = new Perspective(orbit, 0.1, 2520.0);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
-  ShaderProgram prg = phase.createProgram(createNormal2ColorShader());
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderProgram prg = phase.createProgram(createNormal2ColorShader());
 
   List<MeshData> mymd = new List<MeshData>();
 
-  loadObj("../ct_logo.obj").then((MeshData ctLogo) {
+  loadObj("../ct_logo.obj", chronosGL.gl).then((MeshData ctLogo) {
     mymd.add(ctLogo);
-    mymd.add(Shapes.Cylinder(1.0, 1.0, 2.0, 16));
-    mymd.add(Shapes.Cube());
+    mymd.add(ShapeCylinder(chronosGL.gl,1.0, 1.0, 2.0, 16));
+    mymd.add(ShapeCube(chronosGL.gl));
     Material mat = new Material("mat");
     // No deduping
     for (var i = 0; i < mymd.length; i++) {
       MeshData md = mymd[i];
       // the logo is missing normals so we generate them here, but wait, why are the colors all wrong ?
       md.generateNormalsAssumingTriangleMode();
-      Mesh mesh = new Mesh(md.name, md, mat);
+      Node mesh = new Node(md.name, md, mat);
       if (md == ctLogo) {
         mesh.rotX(3.14 / 2);
         mesh.rotZ(3.14);
@@ -55,7 +55,7 @@ void main() {
       md
         //..deDeuplicateIndices()
         ..generateNormalsAssumingTriangleMode();
-      Mesh mesh = new Mesh(md.name, md, mat);
+      Node mesh = new Node(md.name, md, mat);
       if (md == ctLogo) {
         mesh.rotX(3.14 / 2);
         mesh.rotZ(3.14);

@@ -2,21 +2,21 @@ part of chronosgl;
 
 // only loads fully triangulated OBJ files
 
-Future<MeshData> loadObj(String url) {
+Future<MeshData> loadObj(String url, WEBGL.RenderingContext gl) {
   Completer c = new Completer();
   HTML.HttpRequest hr = new HTML.HttpRequest();
   //hr.responseType = "arraybuffer";
   hr.open("GET", url);
   hr.onLoadEnd.listen((e) {
-    MeshData result = doLoadObj(hr.response);
+    MeshData result = doLoadObj(url, hr.response, gl);
     c.complete(result);
   });
   hr.send('');
   return c.future as Future<MeshData>;
 }
 
-MeshData doLoadObj(String text) {
-  MeshData md = new MeshData(text);
+MeshData doLoadObj(String url, String text, WEBGL.RenderingContext gl) {
+  MeshData md = new MeshData(url, gl);
   md.EnableAttribute(aTextureCoordinates);
   md.EnableAttribute(aNormal);
 
@@ -34,9 +34,10 @@ MeshData doLoadObj(String text) {
   List<VM.Vector3> normals = [];
   List<VM.Vector2> uvs = [];
 
+  final DateTime start = new DateTime.now();
+
   for (String line2 in lines) {
     String line = line2.replaceAll("[ \t]+", " ").replaceFirst('\s\s*\$', "");
-
     // ignore comments
     if (line.length == 0 || line[0] == "#") continue;
 
@@ -44,8 +45,8 @@ MeshData doLoadObj(String text) {
     if (array[0] == "g") {
       groups[array[1]] = vertices.length;
     } else if (array[0] == "v") {
-      vertices.add(new VM.Vector3(double.parse(array[1]), double.parse(array[2]),
-          double.parse(array[3])));
+      vertices.add(new VM.Vector3(double.parse(array[1]),
+          double.parse(array[2]), double.parse(array[3])));
     } else if (array[0] == "vt") {
       uvs.add(new VM.Vector2(double.parse(array[1]), double.parse(array[2])));
     } else if (array[0] == "vn") {
@@ -64,19 +65,12 @@ MeshData doLoadObj(String text) {
       for (int i = 1; i < 4; ++i) {
         // add a new entry to the map and arrays
         List<String> f = array[i].split("/");
-        int vtx, nor, tex;
+        assert(f.length > 0);
+        while (f.length < 3) f.add("");
 
-        if (f.length == 1) {
-          vtx = int.parse(f[0]) - 1;
-          nor = vtx;
-          tex = vtx;
-        } else if (f.length == 3) {
-          vtx = int.parse(f[0]) - 1;
-          tex = int.parse(f[1]) - 1;
-          nor = int.parse(f[2]) - 1;
-        } else {
-          throw "*** Error: did not understand face ' ${array[i]}";
-        }
+        int vtx = int.parse(f[0]) - 1;
+        int tex = f[1] == "" ? -1 : int.parse(f[1]) - 1;
+        int nor = f[2] == "" ? -1 : int.parse(f[2]) - 1;
 
         if (vtx < vertices.length) {
           faceVertices.add(vertices[vtx]);
@@ -84,14 +78,16 @@ MeshData doLoadObj(String text) {
           faceVertices.add(new VM.Vector3.zero());
         }
 
-        if (tex < uvs.length) {
+        if (tex != -1 && tex < uvs.length) {
           faceUvs.add(uvs[tex]);
         } else {
+          //print("problem uv $i ${tex}");
           faceUvs.add(new VM.Vector2.zero());
         }
-        if (nor < normals.length) {
+        if (nor != -1 && nor < normals.length) {
           faceNormal.add(normals[nor]);
         } else {
+          //print("problem normals $i ${nor}");
           faceNormal.add(new VM.Vector3.zero());
         }
       }
@@ -101,6 +97,7 @@ MeshData doLoadObj(String text) {
       md.AddAttributesVector2(aTextureCoordinates, faceUvs);
     }
   }
-
+  final Duration delta = new DateTime.now().difference(start);
+  print("loaded (${delta}) ${md}");
   return md;
 }

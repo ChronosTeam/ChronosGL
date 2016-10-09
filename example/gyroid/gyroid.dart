@@ -206,10 +206,10 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
 
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
 
-  ShaderProgram program = phase.createProgram(createSphericalGyroidShader());
-  program.add(UnitMesh);
+  RenderProgram program = phase.createProgram(createSphericalGyroidShader());
+  program.add(UnitNode(chronosGL.gl));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -226,13 +226,13 @@ void main() {
 
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
-    program.SetUniform(uTime, timeMs / 1000.0);
+    program.ForceInput(uTime, timeMs / 1000.0);
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
     int w = canvas.clientWidth;
     int h = canvas.clientHeight;
 
-    program.SetUniform(uCanvasSize, new VM.Vector2(0.0 + w, 0.0 + h));
+    program.ForceInput(uCanvasSize, new VM.Vector2(0.0 + w, 0.0 + h));
     phase.draw([]);
     HTML.window.animationFrame.then(animate);
   }

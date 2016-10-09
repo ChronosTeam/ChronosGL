@@ -7,29 +7,29 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(165.0);
   Perspective perspective = new Perspective(orbit);
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
-  ShaderProgram programBasic = phase.createProgram(createTexturedShader());
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderProgram programBasic = phase.createProgram(createTexturedShader());
 
   Texture blockTex = new ImageTexture("../gradient.jpg");
 
-  ShaderProgram perlinNoise =
+  RenderProgram perlinNoise =
       phase.createProgram(createPerlinNoiseColorShader(false));
 
   Material mat = new Material("torus")
     ..SetUniform(uTextureSampler, blockTex)
     ..SetUniform(uColor, new VM.Vector3.zero());
-  Mesh m1 = new Mesh("torus1", Shapes.TorusKnot(), mat)
+  Node m1 = new Node("torus1", ShapeTorusKnot(chronosGL.gl), mat)
     ..setPos(-50.0, 0.0, 0.0);
   programBasic.add(m1);
 
   Material matDummy = new Material("mat");
-  Mesh m2 = new Mesh("torus2", Shapes.TorusKnot(), matDummy)
+  Node m2 = new Node("torus2", ShapeTorusKnot(chronosGL.gl), matDummy)
     ..setPos(50.0, 0.0, 0.0);
   perlinNoise.add(m2);
 
-  ShaderProgram programSprites =
+  RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(2000));
+  programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -52,7 +52,7 @@ void main() {
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    perlinNoise.SetUniform(uTime, timeMs / 1000.0);
+    perlinNoise.ForceInput(uTime, timeMs / 1000.0);
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }

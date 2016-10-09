@@ -11,7 +11,7 @@ const int LIGHT0 = 0;
 final VM.Vector3 _up = new VM.Vector3(0.0, 1.0, 0.0);
 final VM.Vector3 _up2 = new VM.Vector3(0.0, 0.0, 1.0);
 
-class Light extends ShaderInputProvider {
+class Light extends RenderInputProvider {
   int no;
   int _type;
   VM.Vector3 _pos = new VM.Vector3.zero();
@@ -59,13 +59,32 @@ class Light extends ShaderInputProvider {
     _dir.setFrom(dir); // normalize
   }
 
+  dynamic get type => _type;
+  dynamic get dir => _dir;
+  VM.Vector3 get pos => _pos;
+  dynamic get angle => _spotCutoff;
+
   void getViewMatrixForShadow(VM.Matrix4 m) {
-    assert(_type == typeLightDir);
     VM.Vector3 up = (_dir.x == 0.0 && _dir.z == 0.0) ? _up2 : _up;
-    // Note, here is where we use the fact that direction also includes
-    // position.
-    // dir_ can be normalized but does not have to.
-    VM.setViewMatrix(m, new VM.Vector3.zero(), _dir, up);
+    VM.Vector3 pos;
+    VM.Vector3 focus;
+    switch (_type) {
+      case typeLightDir:
+        // Note, here is where we use the fact that direction also includes
+        // position.
+        // dir_ can be normalized but does not have to.
+        focus = _dir;
+        pos = new VM.Vector3.zero();
+        break;
+      case typeLightSpot:
+        focus = _pos - _dir;
+        pos = _pos;
+        break;
+      default:
+        assert(false);
+        break;
+    }
+    VM.setViewMatrix(m, pos, focus, up);
   }
 
   // This needs to stay in sync with UnpackLightSourceInfo
@@ -105,13 +124,18 @@ class Light extends ShaderInputProvider {
   }
 
   @override
-  void UpdateUniforms(ShaderProgramInputs inputs) {
-    inputs.SetUniformWithOrigin(this, uLightSourceInfo + "${no}", PackInfo());
+  void AddRenderInputs(RenderInputs inputs) {
+    inputs.SetInputWithOrigin(this, uLightSourceInfo + "${no}", PackInfo());
+  }
+
+  @override
+  void RemoveRenderInputs(RenderInputs inputs) {
+    inputs.Remove(uLightSourceInfo + "${no}");
   }
 }
 
 // very much like a orthographic
-class ShadowProjection extends ShaderInputProvider {
+class ShadowProjection extends RenderInputProvider {
   final Light _light;
   final VM.Matrix4 _proj = new VM.Matrix4.zero();
   final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
@@ -130,12 +154,17 @@ class ShadowProjection extends ShaderInputProvider {
   }
 
   @override
-  void UpdateUniforms(ShaderProgramInputs inputs) {
+  void AddRenderInputs(RenderInputs inputs) {
     _light.getViewMatrixForShadow(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
     _projViewMatrix.multiply(_viewMatrix);
-    inputs.SetUniformWithOrigin(
+    inputs.SetInputWithOrigin(
         this, uLightPerspectiveViewMatrix + "${_light.no}", _projViewMatrix);
+  }
+
+  @override
+  void RemoveRenderInputs(RenderInputs inputs) {
+    inputs.Remove(uLightPerspectiveViewMatrix + "${_light.no}");
   }
 
   void AdjustAspect(int w, int h) {
@@ -148,6 +177,16 @@ class ShadowProjection extends ShaderInputProvider {
   void Update() {
     double w = _r - _l;
     double h = w / _aspect;
-    VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + h, _f, _b);
+    switch (_light.type) {
+      case typeLightDir:
+        VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + h, _f, _b);
+        break;
+      case typeLightSpot:
+        // FIXME - fix the hardcoded constant
+        VM.setPerspectiveMatrix(_proj, 90.0 * Math.PI / 180.0, _aspect, .1, _b);
+        break;
+      default:
+        assert(false);
+    }
   }
 }

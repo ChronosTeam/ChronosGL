@@ -9,19 +9,19 @@ void main() {
 
   Texture cubeTex = new CubeTexture("stars", "skybox_", ".png");
 
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
-  ShaderProgram programCM = phase.createProgram(createCubeMapShader());
-  Mesh sky = Utils.MakeSkycube(cubeTex);
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderProgram programCM = phase.createProgram(createCubeMapShader());
+  Node sky = Utils.MakeSkycube(chronosGL.gl, cubeTex);
   programCM.add(sky);
 
   Material mat = new Material("cubemap")
     ..SetUniform(uTextureCubeSampler, cubeTex);
-  MeshData md = Shapes.Cube(x: 2.0, y: 2.0, z: 2.0);
-  programCM.add(new Mesh("cube", md, mat));
+  MeshData md = ShapeCube(chronosGL.gl,x: 2.0, y: 2.0, z: 2.0);
+  programCM.add(new Node("cube", md, mat));
 
-  ShaderProgram programSprites =
+  RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(2000));
+  programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

@@ -1,9 +1,13 @@
 import 'dart:html' as HTML;
 
 import 'package:chronosgl/chronosgl.dart';
+import 'package:chronosgl/chronosutil.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 void main() {
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3);
@@ -14,29 +18,29 @@ void main() {
   canvas.width = width;
   canvas.height = height;
   perspective.AdjustAspect(width, height);
+
   ChronosFramebuffer fb = new ChronosFramebuffer(chronosGL.gl, width, height);
-  RenderingPhase phase1 = new RenderingPhase("phase1", chronosGL.gl, fb);
+  RenderPhase phase1 = new RenderPhase("phase1", chronosGL.gl, fb);
   phase1.viewPortW = width;
   phase1.viewPortH = height;
 
-  ShaderProgram prg1 = phase1.createProgram(createPlane2GreyShader());
+  RenderProgram prg1 = phase1.createProgram(createPlane2GreyShader());
 
-  RenderingPhase phase2 = new RenderingPhase("phase2", chronosGL.gl, null);
+  RenderPhase phase2 = new RenderPhase("phase2", chronosGL.gl, null);
   phase2.viewPortW = width;
   phase2.viewPortH = height;
 
-  ShaderProgram prg2 = phase2.createProgram(createSobelShader());
+  RenderProgram prg2 = phase2.createProgram(createSobelShader());
   prg2
-    ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
-    ..SetUniform(uTexture2Sampler, fb.depthTexture)
-    ..SetUniform(uTextureSampler, fb.colorTexture)
-    ..add(UnitMesh);
+    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetInput(uTexture2Sampler, fb.depthTexture)
+    ..SetInput(uTextureSampler, fb.colorTexture)
+    ..add(UnitNode(chronosGL.gl));
 
-  RenderingPhase phase1only =
-      new RenderingPhase("phase1only", chronosGL.gl, null);
+  RenderPhase phase1only = new RenderPhase("phase1only", chronosGL.gl, null);
   phase1only.viewPortW = width;
   phase1only.viewPortH = height;
-  phase1only.AddShaderProgram(prg1);
+  phase1only.AddRenderProgram(prg1);
 
   bool useSobel = true;
 
@@ -46,12 +50,12 @@ void main() {
     useSobel = myselect.checked;
   });
 
-  loadObj("../ct_logo.obj").then((MeshData md) {
+  loadObj("../ct_logo.obj", chronosGL.gl).then((MeshData md) {
     Material mat = new Material("mat");
-    Mesh mesh = new Mesh(md.name, md, mat)
+    Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
-    Node n = new Node("wrapper", mesh);
+    Node n = new Node.Container("wrapper", mesh);
     //n.invert = true;
     n.lookAt(new VM.Vector3(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);
@@ -65,7 +69,7 @@ void main() {
       _lastTimeMs = timeMs;
       orbit.azimuth += 0.001;
       orbit.animate(elapsed);
-      //perspective.Adjust(canvas);
+      fps.UpdateFrameCount(timeMs);
       if (useSobel) {
         phase1.draw([perspective]);
         phase2.draw([perspective]);

@@ -4,16 +4,18 @@ import 'dart:html' as HTML;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
+String model = "../ct_logo.obj";
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL chronosGL = new ChronosGL(canvas, useElementIndexUint: true);
   OrbitCamera orbit = new OrbitCamera(25.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderingPhase phase = new RenderingPhase("main", chronosGL.gl);
-  ShaderProgram prg = phase.createProgram(createDemoShader());
+  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderProgram prg = phase.createProgram(createDemoShader());
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -41,11 +43,11 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  loadObj("../ct_logo.obj").then((MeshData md) {
+  loadObj(model, chronosGL.gl).then((MeshData md) {
     Material mat = new Material("mat");
-    Mesh mesh = new Mesh(md.name, md, mat)..rotX(3.14 / 2);
+    Node mesh = new Node(md.name, md, mat)..rotX(3.14 / 2);
     //mesh.rotY(3.14);
-    Node n = new Node("wrapper", mesh);
+    Node n = new Node.Container("wrapper", mesh);
     //n.invert = true;
     n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
     //n.matrix.scale(0.02);

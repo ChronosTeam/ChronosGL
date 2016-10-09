@@ -17,12 +17,12 @@ part "src/node.dart";
 part "src/textures.dart";
 part "src/shader_utils.dart";
 part "src/shader_program.dart";
+part "src/render_program.dart";
 part "src/spatial.dart";
 part "src/camera.dart";
 part "src/utils.dart";
 part "src/lighting.dart";
 part "src/material.dart";
-part "src/mesh.dart";
 part "src/mesh_data.dart";
 part "src/projection.dart";
 part "src/shapes/shapes.dart";
@@ -53,18 +53,24 @@ void LogWarn(String s) {
 
 abstract class NamedEntity {
   final String name;
+  bool debug = false;
+  bool enabled = true;
 
   NamedEntity(this.name);
 }
 
-final MeshData UnitQuad = Shapes.Quad(1);
 final Material EmptyMaterial = new Material("empty-mat");
-final Mesh UnitMesh = new Mesh("unit-mesh", UnitQuad, EmptyMaterial);
 
-class RenderingPhase extends NamedEntity {
+Node UnitNode( WEBGL.RenderingContext gl) {
+  final MeshData UnitQuad = ShapeQuad(gl, 1);
+  return new Node("unit-mesh", UnitQuad, EmptyMaterial);
+}
+
+/// RenderPhase represents a sequence of RenderPrograms.
+class RenderPhase extends NamedEntity {
   final WEBGL.RenderingContext _gl;
   ChronosFramebuffer _framebuffer;
-  final List<ShaderProgram> _programs = [];
+  final List<RenderProgram> _programs = [];
   //final VM.Matrix4 _pMatrix = new VM.Matrix4.identity();
   bool clearColorBuffer = true;
   bool clearDepthBuffer = true;
@@ -73,14 +79,13 @@ class RenderingPhase extends NamedEntity {
   int viewPortW = 0;
   int viewPortH = 0;
 
-  RenderingPhase(String name, this._gl, [this._framebuffer = null])
-      : super(name);
+  RenderPhase(String name, this._gl, [this._framebuffer = null]) : super(name);
 
   void SetFramebuffer(ChronosFramebuffer fb) {
     _framebuffer = fb;
   }
 
-  void draw(List<ShaderInputProvider> inputs, [List<DrawStats> stats = null]) {
+  void draw(List<RenderInputProvider> inputs, [List<DrawStats> stats = null]) {
     if (_framebuffer == null) {
       _gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
     } else {
@@ -96,28 +101,31 @@ class RenderingPhase extends NamedEntity {
       _gl.clear(mode);
     }
 
-    for (ShaderProgram prg in _programs) {
-      if (!prg.hasEnabledObjects()) continue;
-      for (ShaderInputProvider p in inputs) {
-        p.UpdateUniforms(prg);
+    for (RenderProgram prg in _programs) {
+      if (!prg.enabled) continue;
+      for (RenderInputProvider p in inputs) {
+        p.AddRenderInputs(prg);
       }
       prg.draw(stats);
+      for (RenderInputProvider p in inputs) {
+        p.RemoveRenderInputs(prg);
+      }
     }
   }
 
-  void AddShaderProgram(ShaderProgram s) {
+  void AddRenderProgram(RenderProgram s) {
     _programs.add(s);
   }
 
-  ShaderProgram createProgram(List<ShaderObject> so) {
-    ShaderProgram pn = new ShaderProgram(_gl, so[0], so[1], so[0].name);
-    AddShaderProgram(pn);
+  RenderProgram createProgram(List<ShaderObject> so) {
+    ShaderProgram prg = new ShaderProgram(so[0].name, _gl, so[0], so[1]);
+    RenderProgram pn = new RenderProgram(so[0].name, prg);
+    AddRenderProgram(pn);
     return pn;
   }
 }
 
 class ChronosGL {
-  static WEBGL.RenderingContext globalGL;
   static bool useElementIndexUint = false;
   var elementIndexUintExt;
 
@@ -143,7 +151,6 @@ class ChronosGL {
       throw new Exception(
           'calling canvas.getContext("experimental-webgl") failed, make sure you run on a computer that supports WebGL, test here: http://get.webgl.org/');
     }
-    ChronosGL.globalGL = gl;
 
     if (useElementIndexUint) {
       elementIndexUintExt = gl.getExtension("OES_element_index_uint");

@@ -1,6 +1,6 @@
 part of chronosgl;
 
-class Orthographic extends ShaderInputProvider {
+class Orthographic extends RenderInputProvider {
   final Camera _camera;
   final VM.Matrix4 _proj = new VM.Matrix4.zero();
   final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
@@ -19,11 +19,16 @@ class Orthographic extends ShaderInputProvider {
   }
 
   @override
-  void UpdateUniforms(ShaderProgramInputs inputs) {
+  void AddRenderInputs(RenderInputs inputs) {
     _camera.getViewMatrix(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
     _projViewMatrix.multiply(_viewMatrix);
-    inputs.SetUniformWithOrigin(this, uPerspectiveViewMatrix, _projViewMatrix);
+    inputs.SetInputWithOrigin(this, uPerspectiveViewMatrix, _projViewMatrix);
+  }
+
+  @override
+  void RemoveRenderInputs(RenderInputs inputs) {
+    inputs.Remove(uPerspectiveViewMatrix);
   }
 
   void Update() {
@@ -40,7 +45,7 @@ class Orthographic extends ShaderInputProvider {
   }
 }
 
-class Perspective extends ShaderInputProvider {
+class Perspective extends RenderInputProvider {
   Camera _camera;
   double _fov = 50.0; // horizontal fov in deg  divided by 2
   double _aspect = 1.0;
@@ -79,12 +84,18 @@ class Perspective extends ShaderInputProvider {
   }
 
   @override
-  void UpdateUniforms(ShaderProgramInputs inputs) {
-    inputs.SetUniformWithOrigin(this, uEyePosition, _camera.getEyePosition());
+  void AddRenderInputs(RenderInputs inputs) {
+    inputs.SetInputWithOrigin(this, uEyePosition, _camera.getEyePosition());
     _camera.getViewMatrix(_viewMatrix);
     _perspectiveViewMatrix.setFrom(_mat);
     _perspectiveViewMatrix.multiply(_viewMatrix);
-    inputs.SetUniformWithOrigin(
+    inputs.SetInputWithOrigin(
         this, uPerspectiveViewMatrix, _perspectiveViewMatrix);
+  }
+
+  @override
+  void RemoveRenderInputs(RenderInputs inputs) {
+    inputs.Remove(uEyePosition);
+    inputs.Remove(uPerspectiveViewMatrix);
   }
 }

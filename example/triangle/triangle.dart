@@ -1,6 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
+import 'dart:math' as Math;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -42,24 +43,19 @@ List<ShaderObject> createShadowShader() {
   ];
 }
 
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
 
-  OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
-  double d = 20.0;
+  OrbitCamera orbit = new OrbitCamera(20.0);
+  double d = 40.0;
   Orthographic orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
   RenderPhase phaseOrthograhic = new RenderPhase("shadow", chronosGL.gl);
   RenderProgram prgOrthographic =
       phaseOrthograhic.createProgram(createTexturedShader());
-
-  Perspective perspective = new Perspective(orbit);
-  RenderPhase phasePerspective = new RenderPhase("perspective", chronosGL.gl);
-  phasePerspective.clearColorBuffer = false;
-  RenderProgram prgPerspective =
-      phasePerspective.createProgram(createTexturedShader());
 
   Texture solid = new CanvasTexture.SolidColor("red-solid", "red");
   final Material mat1 = new Material("mat1")
@@ -78,34 +74,45 @@ void main() {
     ..SetUniform(uTextureSampler, solid)
     ..SetUniform(uColor, new VM.Vector3(0.8, 0.8, 0.8));
 
-  Node ico = new Node(
-      "sphere",
-      ShapeIcosahedron(chronosGL.gl, 3)..generateNormalsAssumingTriangleMode(),
-      mat1)..setPos(0.0, 0.0, 0.0);
+  double thickness = 3.0;
+  double length = 5.0 * thickness;
 
-  Node cube = new Node("cube", ShapeCube(chronosGL.gl), mat2)
-    ..setPos(-5.0, 0.0, -5.0);
+  Node side1 = new Node(
+      "side1",
+      ShapeCube(chronosGL.gl, x: length, y: thickness, z: thickness),
+      mat1)..setPos(-thickness, 0.0, 0.0);
 
-  Node cyl = new Node(
-      "cylinder",
-      ShapeCylinder( chronosGL.gl, 3.0, 6.0, 2.0, 32)..generateNormalsAssumingTriangleMode(),
-      mat3)..setPos(5.0, 0.0, -5.0);
+  Node side2 = new Node(
+      "side2",
+      ShapeCube(chronosGL.gl, x: thickness, y: thickness, z: length),
+      mat2)..setPos(-length, 0.0, length + thickness);
 
+  double length3 = length - thickness;
+  Node side3a = new Node(
+      "side3a",
+      ShapeCube(chronosGL.gl, x: thickness, y: length3, z: thickness),
+      mat3)..setPos(length, length3 - 1 * thickness, 0.0);
+
+  Node side3b = new Node("side3b",
+      ShapeWedge(chronosGL.gl, x: thickness, y: thickness, z: thickness), mat3)
+    ..rotY(Math.PI)
+    ..setPos(length, length + length3 - thickness, 0.0);
+
+  Node triangle = new Node.Container("triangle");
+  triangle.add(side1);
+  triangle.add(side2);
+  triangle.add(side3a);
+  triangle.add(side3b);
   /*
-    Mesh torus = new Mesh(Shapes.TorusKnot(radius: 1.0, tube: 0.4)..generateNormalsAssumingTriangleMode(), mat2)
-      ..setPos(5.0, 0.0, 5.0);
-    program.add(torus);
-    basic.add(torus);
-  }*/
-
   Node plane = new Node(
       "cube", ShapeCube(chronosGL.gl, x: 20.0, y: 0.1, z: 20.0), matPlane)
-    ..setPos(0.0, -10.0, 0.0);
+    ..setPos(0.0, -1.5, 0.0);
 
-  for (Node m in [ico, cube, cyl, plane]) {
+  for (Node m in [triangle, plane]) {
     prgOrthographic.add(m);
-    prgPerspective.add(m);
   }
+*/
+  prgOrthographic.add(triangle);
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -113,29 +120,32 @@ void main() {
     canvas.width = w;
     canvas.height = h;
     print("size change $w $h");
-    w = w ~/ 2;
-    perspective.AdjustAspect(w, h);
     orthographic.AdjustAspect(w, h);
     phaseOrthograhic.viewPortW = w;
     phaseOrthograhic.viewPortH = h;
-    phasePerspective.viewPortW = w;
-    phasePerspective.viewPortH = h;
-    phaseOrthograhic.viewPortX = phasePerspective.viewPortW;
   }
 
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
 
+  // 35deg is slightly too large.
+  // Need to find a math reference for actual real angle.
+  // E.g.: http://www.cse.ust.hk/~pang/papers/Impossible_Figures_ToG.pdf
+  orbit.polar = 35.0 * Math.PI / 180.0;
+  orbit.azimuth = -45.0 * Math.PI / 180.0;
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
     timeMs += 0.0; // force double
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     //orbit.azimuth += 0.001;
+    //orbit.rotZ(0.001);
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
+    orbit.roll += 0.01;
+    double polar = orbit.polar * 180.0 / Math.PI;
+    double azimuth = orbit.azimuth * 180.0 / Math.PI;
+    fps.UpdateFrameCount(timeMs, "${polar}<br>${azimuth}");
     phaseOrthograhic.draw([orthographic]);
-    phasePerspective.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }
 
