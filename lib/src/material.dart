@@ -60,6 +60,10 @@ class Material extends RenderInputProvider {
     _uniforms[canonical] = val;
   }
 
+  bool HasUniform(String canonical) {
+    return _uniforms.containsKey(canonical);
+  }
+
   @override
   void AddRenderInputs(RenderInputs inputs) {
     _uniforms.forEach((String k, v) {

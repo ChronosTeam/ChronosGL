@@ -38,6 +38,12 @@ class Node extends Spatial {
     _meshData.Finalize();
   }
 
+  Material get material => _material;
+
+  MeshData get meshData => _meshData;
+
+  InstancerData get instancerData => _instancerData;
+
   void add(Node node) {
     _children.add(node);
   }
