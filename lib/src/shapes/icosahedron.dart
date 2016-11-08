@@ -75,7 +75,8 @@ final List<VM.Vector3> _icoVertices = [
 //   2            320          312  
 //   3           1280         1272
 //   4           5120         5112
-MeshData ShapeIcosahedron(WEBGL.RenderingContext gl, [int subdivisions = 4]) {
+MeshData ShapeIcosahedron(WEBGL.RenderingContext gl,
+    [int subdivisions = 4, double scale = 1.0, bool computeNormals=true]) {
   List<Face3> faces = [];
   List<VM.Vector3> vertices = [];
 
@@ -114,6 +115,9 @@ MeshData ShapeIcosahedron(WEBGL.RenderingContext gl, [int subdivisions = 4]) {
   
   MeshData md = new MeshData("icosahedron-${subdivisions}", gl);
   md.EnableAttribute(aTextureCoordinates);
+  if (computeNormals) {
+     md.EnableAttribute(aNormal);
+  }
   // create final vertices and uvs of a Icosahedron
   for (Face3 f in faces) {
     md.AddFaces3(1);
@@ -123,13 +127,17 @@ MeshData ShapeIcosahedron(WEBGL.RenderingContext gl, [int subdivisions = 4]) {
     assert (v2.length <1.01 && v2.length >0.99);
     VM.Vector3 v3 = vertices[f.c];
     assert (v3.length <1.01 && v3.length >0.99);
-    md.AddVertices([v1, v2, v3]);
+
     //print ("@ ${v1.subtract(v2).length()}");
     //print ("@ ${v2.subtract(v3).length()}");
     //print ("@ ${v3.subtract(v1).length()}");
     VM.Vector2 t1 = new VM.Vector2(getU2(v1.z, v1.x), getV2(v1.y));
     VM.Vector2 t2 = new VM.Vector2(getU2(v2.z, v2.x), getV2(v2.y));
     VM.Vector2 t3 = new VM.Vector2(getU2(v3.z, v3.x), getV2(v3.y));
+    if (computeNormals) {
+      md.AddAttributesVector3(aNormal,[v1, v2, v3]);
+    }
+    md.AddVertices([v1.scaled(scale), v2.scaled(scale), v3.scaled(scale)]);
     md.AddAttributesVector2(aTextureCoordinates, [t1, t2, t3]);
   }
   //print("@@@@ ${md.name} ${md._vertices.length} ${md._faces3.length}");
