@@ -31,11 +31,9 @@ class Node extends Spatial {
   }
 
   Node.WithInstances(
-      String name, this._meshData, this._instancerData, this._material)
+      String name, MeshData md, this._instancerData, this._material)
       : super(name) {
-    //if (!meshData.isOptimized) meshData.optimize();
-    _meshData.SanityCheck();
-    _meshData.Finalize();
+    UpdateMeshData(md);
   }
 
   Material get material => _material;
@@ -44,6 +42,12 @@ class Node extends Spatial {
 
   InstancerData get instancerData => _instancerData;
 
+  void UpdateMeshData(MeshData md) {
+    //if (!meshData.isOptimized) meshData.optimize();
+    md.SanityCheck();
+    md.Finalize();
+    _meshData = md;
+  }
   void add(Node node) {
     _children.add(node);
   }
