@@ -78,6 +78,10 @@ class OrbitCamera extends Camera {
     _lookAtPos.setFrom(v);
   }
 
+  void setRadius(double v) {
+    _radius = v;
+  }
+
   void animate(double elapsed) {
     if (_cpk[Key.LEFT] != null) {
       azimuth += (0.03);
