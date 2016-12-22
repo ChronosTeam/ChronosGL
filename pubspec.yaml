@@ -6,6 +6,7 @@ homepage: https://github.com/rhulha/ChronosGL
 dependencies:
   browser: any
   vector_math: any
+  test: any
 transformers:
 - $dart2js:
     checked: true
