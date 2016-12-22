@@ -34,6 +34,12 @@ class BlendEquation {
     dstFactor = WEBGL.ONE_MINUS_SRC_COLOR;
     equation = WEBGL.FUNC_ADD;
   }
+
+  BlendEquation.Add() {
+    srcFactor = WEBGL.ONE;
+    dstFactor = WEBGL.ONE;
+    equation = WEBGL.FUNC_ADD;
+  }
 }
 
 /// Material is a light weight container for Inputs.
@@ -57,6 +63,10 @@ class Material extends RenderInputProvider {
 
   void SetUniform(String canonical, val, [bool allowOverride = false]) {
     assert(allowOverride || !_uniforms.containsKey(canonical));
+    _uniforms[canonical] = val;
+  }
+
+  void ForceUniform(String canonical, val) {
     _uniforms[canonical] = val;
   }
 

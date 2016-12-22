@@ -1,26 +1,26 @@
 part of chronosgl;
 
-void ChangeArrayBuffer(
-    WEBGL.RenderingContext gl, WEBGL.Buffer buffer, Float32List data) {
+void ChangeArrayBuffer(WEBGL.RenderingContext gl, WEBGL.Buffer buffer,
+    Float32List data) {
   gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
   gl.bufferData(WEBGL.ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
 }
 
-WEBGL.Buffer CreateAndInitializeArrayBuffer(
-    WEBGL.RenderingContext gl, Float32List data) {
+WEBGL.Buffer CreateAndInitializeArrayBuffer(WEBGL.RenderingContext gl,
+    Float32List data) {
   WEBGL.Buffer b = gl.createBuffer();
   ChangeArrayBuffer(gl, b, data);
   return b;
 }
 
-void ChangeElementArrayBuffer(
-    WEBGL.RenderingContext gl, WEBGL.Buffer buffer, TypedData data) {
+void ChangeElementArrayBuffer(WEBGL.RenderingContext gl, WEBGL.Buffer buffer,
+    TypedData data) {
   gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, buffer);
   gl.bufferData(WEBGL.ELEMENT_ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
 }
 
-WEBGL.Buffer CreateAndInitializeElementArrayBuffer(
-    WEBGL.RenderingContext gl, TypedData data) {
+WEBGL.Buffer CreateAndInitializeElementArrayBuffer(WEBGL.RenderingContext gl,
+    TypedData data) {
   assert((data is Uint16List) || (data is Uint32List));
   WEBGL.Buffer b = gl.createBuffer();
   ChangeElementArrayBuffer(gl, b, data);
@@ -29,21 +29,25 @@ WEBGL.Buffer CreateAndInitializeElementArrayBuffer(
 
 class Face1 {
   int a;
+
   Face1(this.a);
 }
 
 class Face2 {
   int a, b;
+
   Face2(this.a, this.b);
 }
 
 class Face3 {
   int a, b, c;
+
   Face3(this.a, this.b, this.c);
 }
 
 class Face4 {
   int a, b, c, d;
+
   Face4(this.a, this.b, this.c, this.d);
 }
 
@@ -62,6 +66,7 @@ class MeshData extends RenderInputProvider {
   List<double> _vertices = [];
   List<int> _faces = [];
   Map<String, List<double>> _attributes = {};
+  Set<String> _finalized = new Set();
 
   MeshData(String name, this._gl) : super("meshdata:" + name);
 
@@ -103,7 +108,7 @@ class MeshData extends RenderInputProvider {
       assert(_lines2.length == 0 && _faces3.length == 0 && _faces4.length == 0);
     } else if (_lines2.length > 0) {
       assert(
-          _points1.length == 0 && _faces3.length == 0 && _faces4.length == 0);
+      _points1.length == 0 && _faces3.length == 0 && _faces4.length == 0);
     }
 
     int maxIndexFace1 = -1;
@@ -141,12 +146,18 @@ class MeshData extends RenderInputProvider {
     }
   }
 
+  // can be called multiple times
   void Finalize() {
-    AddBuffer(aVertexPosition, GetVertexData());
-
     for (String canonical in GetAttributes()) {
-      AddBuffer(canonical, GetAttributeData(canonical));
+      if (!_finalized.contains(canonical)) {
+        AddBuffer(canonical, GetAttributeData(canonical));
+        _finalized.add(canonical);
+      }
     }
+
+    if (_finalized.contains(aVertexPosition)) return;
+    _finalized.add(aVertexPosition);
+    AddBuffer(aVertexPosition, GetVertexData());
 
     List<int> indices = GetVertexIndices();
     if (indices != null) {
@@ -285,7 +296,8 @@ class MeshData extends RenderInputProvider {
     assert(_faces.length == 0);
     final int n = end & 0xffffff;
     Uint32List f = new Uint32List(n);
-    for (int i = 0; i < end; i++) f[i] = lst[i];
+    for (int i = 0; i < end; i++)
+      f[i] = lst[i];
     _faces = f;
   }
 
@@ -293,7 +305,8 @@ class MeshData extends RenderInputProvider {
     assert(_vertices.length == 0);
     final int n = end & 0xffffff;
     Float32List f = new Float32List(n);
-    for (int i = 0; i < end; i++) f[i] = lst[i];
+    for (int i = 0; i < end; i++)
+      f[i] = lst[i];
     _vertices = f;
   }
 
@@ -301,7 +314,8 @@ class MeshData extends RenderInputProvider {
     assert(_attributes[canonical].length == 0);
     final int n = end & 0xffffff;
     Float32List f = new Float32List(n);
-    for (int i = 0; i < end; i++) f[i] = lst[i];
+    for (int i = 0; i < end; i++)
+      f[i] = lst[i];
     _attributes[canonical] = f;
   }
 
@@ -326,6 +340,7 @@ class MeshData extends RenderInputProvider {
       _attributes[canonical].addAll(v.storage);
     }
   }
+
   /*
     void generateEmptyNormals() {
       if (normals.length != vertices.length) {
@@ -335,8 +350,8 @@ class MeshData extends RenderInputProvider {
 
   VM.Vector3 temp = new VM.Vector3.zero();
 
-  bool normalFromPoints(
-      VM.Vector3 a, VM.Vector3 b, VM.Vector3 c, VM.Vector3 normal) {
+  bool normalFromPoints(VM.Vector3 a, VM.Vector3 b, VM.Vector3 c,
+      VM.Vector3 normal) {
     temp
       ..setFrom(b)
       ..sub(a);
@@ -447,8 +462,8 @@ class MeshData extends RenderInputProvider {
     }
   }
 
-  void setFace4UV(
-      int n, VM.Vector2 a, VM.Vector2 b, VM.Vector2 c, VM.Vector2 d) {
+  void setFace4UV(int n, VM.Vector2 a, VM.Vector2 b, VM.Vector2 c,
+      VM.Vector2 d) {
     assert(_attributes.containsKey(aTextureCoordinates));
     Face4 f = _faces4[n];
     List<double> uvs = _attributes[aTextureCoordinates];
@@ -486,7 +501,8 @@ class MeshData extends RenderInputProvider {
      */
   @override
   String toString() {
-    return "MESH[${name}] F:${_faces.length} F3:${_faces3.length} V:${_vertices.length}";
+    return "MESH[${name}] F:${_faces.length} F3:${_faces3.length} V:${_vertices
+        .length}";
   }
 }
 
