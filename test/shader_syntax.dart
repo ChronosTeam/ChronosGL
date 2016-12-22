@@ -25,7 +25,6 @@ void main() {
     print("${program}");
     program = phase.createProgram(createSobelShader());
     print("${program}");
-    q
     print("OK");
   });
 }

@@ -70,10 +70,6 @@ void main() {
     ..SetUniform(uTextureSampler, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 1.0, 0.0));
 
-  final Material matPlane = new Material("plane")
-    ..SetUniform(uTextureSampler, solid)
-    ..SetUniform(uColor, new VM.Vector3(0.8, 0.8, 0.8));
-
   double thickness = 3.0;
   double length = 5.0 * thickness;
 

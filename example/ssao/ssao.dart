@@ -56,11 +56,13 @@ void main() {
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
-    Node n = new Node.Container("wrapper", mesh)
-      //n.invert = true;
-      ..lookAt(new VM.Vector3(100.0, 0.0, -100.0));
-    //n.matrix.scale(0.02);
 
+    /*
+    Node n = new Node.Container("wrapper", mesh)
+      ..lookAt(new VM.Vector3(100.0, 0.0, -100.0));
+    // n.invert = true;
+    // n.matrix.scale(0.02);
+    */
     prg1.add(mesh);
 
     double _lastTimeMs = 0.0;
