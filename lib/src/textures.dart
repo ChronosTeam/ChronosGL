@@ -127,24 +127,26 @@ class Texture {
     });
   }
 
-
   WEBGL.Texture GetTexture() {
     return _texture;
   }
 
   void Install(WEBGL.RenderingContext gl) {
-    LogError("abstract Install() called");
-    assert(false);
+    assert(false, "abstract Install() called");
   }
 
   void InstallAsCubeChild(WEBGL.RenderingContext gl) {
-    LogError("abstract InstallAsCubeChild() called");
-    assert(false);
+    assert(false, "abstract InstallAsCubeChild() called");
   }
 
   // Primarly for image base texture so we can wait until the image has load
   Future<dynamic> GetFuture() {
     return null;
+  }
+
+  @override
+  String toString() {
+    return "Texture[${_url}]";
   }
 }
 
@@ -188,6 +190,11 @@ class CanvasTexture extends Texture {
     gl.texImage2D(
         _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _canvas);
   }
+
+  @override
+  String toString() {
+    return "CanvasTexture[${_url}, ${_textureType}]";
+  }
 }
 
 class ImageTexture extends Texture {
@@ -226,6 +233,11 @@ class ImageTexture extends Texture {
   Future<dynamic> GetFuture() {
     return _future;
   }
+
+  @override
+  String toString() {
+    return "ImageTexture[${_url}, ${_textureType}]";
+  }
 }
 
 class TypedTexture extends Texture {
@@ -235,7 +247,9 @@ class TypedTexture extends Texture {
   final int _formatType;
   // e.g.  WEBGL.UNSIGNED_SHORT, WEBGL.UNSIGNED_BYTE. WEBGL.FLOAT
   final int _dataType;
-  // null, Float32List, etc  - using null requires a patch to the dart
+  // null, Float32List, etc
+  // null is required by the shadow example
+  // There used to be a bug - this seems fixed now, cf.:
   // sdk: https://github.com/dart-lang/sdk/issues/23517
   var _data;
 
@@ -254,7 +268,7 @@ class TypedTexture extends Texture {
     _width = w;
     _height = h;
     gl.bindTexture(WEBGL.TEXTURE_2D, _texture);
-    gl.texImage2DTyped(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
+    gl.texImage2D(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
         _formatType, _dataType, _data);
     gl.bindTexture(WEBGL.TEXTURE_2D, null);
   }
@@ -263,7 +277,7 @@ class TypedTexture extends Texture {
   void Install(WEBGL.RenderingContext gl) {
     _texture = gl.createTexture();
     gl.bindTexture(WEBGL.TEXTURE_2D, _texture);
-    gl.texImage2DTyped(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
+    gl.texImage2D(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
         _formatType, _dataType, _data);
     properties.Install(gl, WEBGL.TEXTURE_2D);
     int err = gl.getError();
@@ -273,6 +287,11 @@ class TypedTexture extends Texture {
 
   dynamic GetData() {
     return _data;
+  }
+
+  @override
+  String toString() {
+    return "TypedTexture[${_url}, ${_dataType}, ${_format_type}]";
   }
 }
 
