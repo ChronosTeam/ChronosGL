@@ -1,18 +1,18 @@
 library chronosutil;
 
-import 'dart:html';
+import 'dart:html' as HTML;
 
 const int _numBars = 90;
 const int _graphHeight = 30;
 const int _maxFps = 90;
 
 class Stats {
-  Element _root;
-  Element _text;
-  Element _extra;
-  Element _graph;
+  HTML.Element _root;
+  HTML.Element _text;
+  HTML.Element _extra;
+  HTML.Element _graph;
 
-  Stats(Element root, String fg, String bg) {
+  Stats(HTML.Element root, String fg, String bg) {
     if (root == null) throw "no element provided";
     _root = root;
     _root.style
@@ -30,19 +30,19 @@ class Stats {
     _graph = _MakeGraph(fg, bg, _numBars, _graphHeight);
     _root.append(_graph);
 
-    _extra = new Element.div();
+    _extra = new HTML.Element.div();
     _root.append(_extra);
   }
 
-  Element _MakeText(String initial) {
-    Element text = new Element.div();
+  HTML.Element _MakeText(String initial) {
+    HTML.Element text = new HTML.Element.div();
     text.style..fontWeight = "bold";
     text.text = initial;
     return text;
   }
 
-  Element _MakeGraph(String fg, String bg, int bars, int height) {
-    Element graph = new Element.div();
+  HTML.Element _MakeGraph(String fg, String bg, int bars, int height) {
+    HTML.Element graph = new HTML.Element.div();
     graph.style
       ..width = "${bars}px"
       ..height = "${height}px"
@@ -50,7 +50,7 @@ class Stats {
       ..background = fg;
 
     for (int i = 0; i < bars; i++) {
-      Element e = new Element.span();
+      HTML.Element e = new HTML.Element.span();
       e.style
         ..width = "1px"
         ..height = "${height}px"
@@ -65,7 +65,7 @@ class Stats {
   void AddRawValue(int v) {
     if (v < 0) v = 0;
     if (v > _graphHeight) v = _graphHeight;
-    Element e = _graph.firstChild;
+    HTML.Element e = _graph.firstChild;
     e.style.height = "${v}px";
     _graph.append(e);
   }
@@ -77,7 +77,7 @@ class StatsFps extends Stats {
   int _frames = 0;
   double _lastSample = 0.0;
 
-  StatsFps(Element root, String fg, String bg) : super(root, fg, bg);
+  StatsFps(HTML.Element root, String fg, String bg) : super(root, fg, bg);
 
   void UpdateFrameCount(double now, [String extra = ""]) {
     _frames++;
