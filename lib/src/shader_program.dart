@@ -22,7 +22,6 @@ class ShaderProgram extends NamedEntity {
     _program = su.getProgram(_shaderObjectV.shader, _shaderObjectF.shader);
     for (String v in _shaderObjectV.attributeVars.keys) {
       _attributeLocations[v] = _gl.getAttribLocation(_program, v);
-      //HTML.window.console.log("$v ${_attributeLocations[v]} ");
       if (_attributeLocations[v] < 0) {
         LogError("cannot get location for  attribute $v");
         assert(false);

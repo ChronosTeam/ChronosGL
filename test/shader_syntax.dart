@@ -10,13 +10,22 @@ void main() {
     RenderPhase phase = new RenderPhase("test", chronosGL.gl);
     RenderProgram program;
     program = phase.createProgram(createTexturedShader());
+    print("${program}");
     program = phase.createProgram(createLightShaderGourad());
+    print("${program}");
     program = phase.createProgram(createLightShaderBlinnPhong());
+    print("${program}");
     program = phase.createProgram(createLightShaderBlinnPhongWithShadow());
+    print("${program}");
     program = phase.createProgram(createShadowShader());
+    print("${program}");
     program = phase.createProgram(createCopyShader());
+    print("${program}");
     program = phase.createProgram(createSSAOShader());
+    print("${program}");
     program = phase.createProgram(createSobelShader());
+    print("${program}");
+    q
     print("OK");
   });
 }
