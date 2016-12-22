@@ -142,14 +142,14 @@ void GetDiffuseAndSpecularFactors(LightSourceInfo info,
 List<ShaderObject> createLightShaderGourad() {
   return [
     new ShaderObject("LightGouradV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aNormal)
+      ..AddAttributeVars([aVertexPosition, aNormal])
+      ..AddVaryingVars([vColors])
       ..AddUniformVar(uPerspectiveViewMatrix)
       ..AddUniformVar(uModelMatrix)
       ..AddUniformVar(uNormalMatrix)
       ..AddUniformVar(uLightSourceInfo0)
       ..AddUniformVar(uEyePosition)
-      ..AddVaryingVar(vColors)
+      ..AddUniformVar(uColor)
       ..SetBody([
         _lightHelpers,
         """
@@ -166,7 +166,8 @@ List<ShaderObject> createLightShaderGourad() {
                                      diffuseFactor, specularFactor);
 
          ${vColors} = diffuseFactor * info.diffuseColor +
-                      specularFactor * info.specularColor;
+                      specularFactor * info.specularColor +
+                      uColor;
         }
         """
       ]),
@@ -196,7 +197,7 @@ List<ShaderObject> createLightShaderBlinnPhong() {
       ]),
     new ShaderObject("LightBlinnPhongF")
       ..AddVaryingVars([vVertexPosition, vNormal])
-      ..AddUniformVars([uLightSourceInfo0, uEyePosition])
+      ..AddUniformVars([uLightSourceInfo0, uEyePosition, uColor])
       ..SetBody([
         _lightHelpers,
         """
@@ -211,7 +212,8 @@ List<ShaderObject> createLightShaderBlinnPhong() {
                                      diffuseFactor, specularFactor);
 
          gl_FragColor = vec4(diffuseFactor * info.diffuseColor +
-                             specularFactor * info.specularColor, 1.0 );
+                             specularFactor * info.specularColor +
+                             uColor, 1.0 );
       }
       """
       ])
@@ -245,6 +247,18 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
         _lightHelpers,
         _shadowHelpers,
         """
+
+void foo(vec4 positionFromLight, sampler2D shadowSampler,
+                    float darkness, float bias) {
+		vec3 depth = positionFromLight.xyz / positionFromLight.w;
+		depth = 0.5 * depth + vec3(0.5);
+		vec2 uv = depth.xy;
+
+  float r = gl_FragColor.r;
+	gl_FragColor =	texture2D(shadowSampler, uv);
+   gl_FragColor.r += useValueButReturnZero(r);
+}
+
       void main() {
         LightSourceInfo info = UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
         float diffuseFactor = 0.0;
@@ -257,8 +271,10 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
 
         float shadow = computeShadow(${vPositionFromLight0},
                                      ${uShadowSampler0}, 0.4, -0.1);
+        //shadow = 1.0;
         gl_FragColor.rgb = diffuseFactor * shadow * info.diffuseColor +
                              specularFactor * shadow * info.specularColor;
+        //foo(${vPositionFromLight0}, ${uShadowSampler0}, 0.4, -0.1);
       }
       """
       ])
@@ -269,6 +285,7 @@ List<ShaderObject> createShadowShader() {
   return [
     new ShaderObject("ShadowV")
       ..AddAttributeVar(aVertexPosition)
+      ..AddVaryingVar(vPositionFromLight0)
       ..AddUniformVar(uLightPerspectiveViewMatrix0)
       ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain([
@@ -277,9 +294,11 @@ List<ShaderObject> createShadowShader() {
         """
         gl_Position = ${uLightPerspectiveViewMatrix0} * ${uModelMatrix} *
                       vec4(${aVertexPosition}, 1.0);
+        ${vPositionFromLight0} = gl_Position;
         """
       ]),
     new ShaderObject("ShadowF")
+      ..AddVaryingVar(vPositionFromLight0)
       ..SetBody([
         _shadowHelpers,
         """
@@ -287,7 +306,7 @@ List<ShaderObject> createShadowShader() {
           // Note, this is equivalent to passing
           //   ${vPositionFromLight0} = gl_Position;
           // in the vertex shader and then computing
-          //   d = ${vPositionFromLight0}.z / ${vPositionFromLight0}.w * 0.5 + 0.5;
+          //float d = ${vPositionFromLight0}.z / ${vPositionFromLight0}.w * 0.5 + 0.5;
           float d  = gl_FragCoord.z;
           // d is value between 0.0 and 1.0
           gl_FragColor = packDepth(d);
@@ -336,7 +355,10 @@ List<ShaderObject> createCopyShaderForShadow() {
           //color = packDepth(unpackDepth(color));
           gl_FragColor = color;
           // necessary?
-          gl_FragColor.a = 1.0;
+          //gl_FragColor.r = unpackDepth(color) * 0.4;
+          //gl_FragColor.g = 0.0;
+          //gl_FragColor.b = 0.0;
+          //gl_FragColor.a = 1.0;
       }
       """
       ])
