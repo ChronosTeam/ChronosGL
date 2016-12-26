@@ -291,7 +291,7 @@ class TypedTexture extends Texture {
 
   @override
   String toString() {
-    return "TypedTexture[${_url}, ${_dataType}, ${_format_type}]";
+    return "TypedTexture[${_url}, ${_dataType}, ${_formatType}]";
   }
 }
 
