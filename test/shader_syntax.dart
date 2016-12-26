@@ -4,7 +4,7 @@ import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 
 void main() {
-  test("blah", () {
+  test("shader_syntax", () {
     HTML.CanvasElement canvas = new HTML.CanvasElement(width: 200, height: 200);
     ChronosGL chronosGL = new ChronosGL(canvas);
     RenderPhase phase = new RenderPhase("test", chronosGL.gl);
@@ -25,6 +25,7 @@ void main() {
     print("${program}");
     program = phase.createProgram(createSobelShader());
     print("${program}");
-    print("OK");
   });
+
+  print("PASS");
 }

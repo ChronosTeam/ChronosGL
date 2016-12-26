@@ -102,23 +102,13 @@ void main() {
     }
     {
       final List<VM.Vector2> d = DATA.Bird;
-      print(d.length);
       List<int> triangles = Triangulate(d);
       expect(triangles.length, equals(3 * (d.length - 2)));
       double area = GetSignedArea(d);
       double tarea = getTrianguatedArea(triangles, d);
-      print("${area} ${tarea}");
       expect(area, closeTo(tarea, 0.00001));
     }
   });
-
-  /*
-  test("bird", () {
-    expect(Bird.length, equals(275));
-    List<int> triangles = Triangulate(Bird);
-    expect(triangles.length, equals(819));
-  });
-  */
 
   print("PASS\n");
 }
