@@ -53,8 +53,7 @@ class RenderPhase extends NamedEntity {
 
   RenderProgram createProgram(List<ShaderObject> so) {
     ShaderProgram prg = new ShaderProgram(so[0].name, _gl, so[0], so[1]);
-    RenderProgram pn = new RenderProgram(so[0].name, prg);
-    AddRenderProgram(pn);
-    return pn;
+    AddRenderProgram(prg);
+    return prg;
   }
 }

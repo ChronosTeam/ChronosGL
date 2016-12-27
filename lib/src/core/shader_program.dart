@@ -1,11 +1,7 @@
 part of core;
 
 // ShaderProgram represents a GPU shader program
-// The protocol is roughly this:
-// Begin()
-// (SetInputs() Draw())+
-// End()
-class ShaderProgram extends NamedEntity {
+class ShaderProgram extends RenderProgram {
   WEBGL.RenderingContext _gl;
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
@@ -182,7 +178,8 @@ class ShaderProgram extends NamedEntity {
     return out;
   }
 
-  void Begin(bool debug) {
+  @override
+  void _drawSetUp() {
     if (debug) print("[${name} setting attributes");
     _gl.useProgram(_program);
     for (String a in _attributeLocations.keys) {
@@ -219,10 +216,11 @@ class ShaderProgram extends NamedEntity {
     }
   }
 
-  void Draw(bool debug, Map<String, dynamic> inputs, List<DrawStats> stats) {
+  @override
+  void _draw(List<DrawStats> stats) {
 
     _numInstances = 0;
-    SetInputs(inputs);
+    SetInputs(GetInputs());
     if (_numItems == 0) return;
      if (stats != null) {
       stats.add(new DrawStats(name, _numInstances, _numItems, _drawMode));
@@ -233,7 +231,7 @@ class ShaderProgram extends NamedEntity {
       throw "${name}: uninitialized uniforms: ${UniformsUninitialized()}";
     }
 
-    final bool useArrayBuffer = inputs.containsKey(eArray);
+    final bool useArrayBuffer = HasInput(eArray);
     if (_numInstances > 0) {
       if (useArrayBuffer) {
         _extInstancedArrays.drawElementsInstancedAngle(
@@ -264,7 +262,8 @@ class ShaderProgram extends NamedEntity {
     if (debug) print(_gl.getProgramInfoLog(_program));
   }
 
-  void End(bool debug) {
+  @override
+  void _drawTearDown() {
     if (debug) print("[${name} unsetting attributes");
     for (String canonical in _attributeLocations.keys) {
       int index = _attributeLocations[canonical];

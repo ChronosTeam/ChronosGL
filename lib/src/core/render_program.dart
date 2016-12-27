@@ -15,13 +15,11 @@ class DrawStats {
 /// RenderProgram combines a ShaderProgram with a collection of Nodes
 /// to be rendered by it.
 class RenderProgram extends RenderInputs {
-  final ShaderProgram _program;
-
   // these are the identity by default
   final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
   final List<Node> objects = new List<Node>();
 
-  RenderProgram(String name, this._program) : super(name);
+  RenderProgram(String name) : super(name);
 
   void add(Node obj) {
     objects.add(obj);
@@ -35,11 +33,20 @@ class RenderProgram extends RenderInputs {
     return objects.clear();
   }
 
-  void _draw(List<DrawStats> stats) {
-    _program.Draw(debug, GetInputs(), stats);
+  _draw(List<DrawStats> stats) {
+    assert(false, "must be impemented in subclass");
   }
 
-  void _drawRecursively(Node node, final VM.Matrix4 parent, List<DrawStats> stats) {
+  _drawSetUp() {
+    assert(false, "must be impemented in subclass");
+  }
+
+  _drawTearDown() {
+    assert(false, "must be impemented in subclass");
+  }
+
+  void _drawRecursively(
+      Node node, final VM.Matrix4 parent, List<DrawStats> stats) {
     if (!node.enabled) return;
     final VM.Matrix4 m = node.UpdateModelMatrix(parent);
     if (node.SomethingToDraw()) {
@@ -58,12 +65,12 @@ class RenderProgram extends RenderInputs {
   // * we recursively draw items in objects passing "this" as a parameter
   // * the objects then call the Draw method above
   void draw(List<DrawStats> stats) {
-    _program.Begin(debug);
+    _drawSetUp();
     _modelMatrix.setIdentity();
     if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {
       _drawRecursively(node, _modelMatrix, stats);
     }
-    _program.End(debug);
+    _drawTearDown();
   }
 }
