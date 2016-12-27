@@ -1,30 +1,5 @@
 part of core;
 
-/*
-class Uniform {
-  WEBGL.UniformLocation uniformLocation;
-  WEBGL.RenderingContext gl;
-
-  Uniform(this.uniformLocation, this.gl);
-
-  WEBGL.UniformLocation getUniformLocation() {
-    return uniformLocation;
-  }
-
-  void setValue1f(num v) {
-    gl.uniform1f(uniformLocation, v);
-  }
-
-  void setValue3f(num x, num y, num z) {
-    gl.uniform3f(uniformLocation, x, y, z);
-  }
-
-  void setValue3fv(VM.Vector3 v) {
-    gl.uniform3fv(uniformLocation, v.storage);
-  }
-}
-*/
-
 class ShaderUtils {
   WEBGL.RenderingContext gl;
 
