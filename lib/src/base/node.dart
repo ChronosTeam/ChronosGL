@@ -1,4 +1,4 @@
-part of core;
+part of base;
 
 /// Node represents a tree hierarchy of objects that well be rendered
 /// with a single RenderProgram.
@@ -10,7 +10,7 @@ part of core;
 /// Each Node is also a Spatial so it be re-oriented with respect to its parent
 class Node extends Spatial {
   RenderInputProvider _material;
-  MeshData _meshData;
+  RenderInputProvider _meshData;
   RenderInputProvider _instancerData;
 
   // children inherent the parent matrix for its rotation and position
@@ -27,9 +27,8 @@ class Node extends Spatial {
   }
 
   Node.WithInstances(
-      String name, MeshData md, this._instancerData, this._material)
+      String name, this._meshData, this._instancerData, this._material)
       : super(name) {
-    UpdateMeshData(md);
   }
 
   RenderInputProvider get material => _material;

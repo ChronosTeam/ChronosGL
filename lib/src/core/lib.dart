@@ -14,7 +14,6 @@ import "../base/lib.dart";
 export "../base/lib.dart";
 
 part "extensions.dart";
-part "node.dart";
 part "shader_program.dart";
 part "render_program.dart";
 part "mesh_data.dart";
