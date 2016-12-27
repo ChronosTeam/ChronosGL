@@ -1,4 +1,4 @@
-part of chronosgl;
+part of shapes;
 
 // single color cylinder
 // uv mapping is weird to help with debugging

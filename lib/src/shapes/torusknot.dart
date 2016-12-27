@@ -1,4 +1,4 @@
-part of chronosgl;
+part of shapes;
 
 
 VM.Vector3 p1 = new VM.Vector3.zero();

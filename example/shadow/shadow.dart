@@ -171,6 +171,7 @@ void main() {
     double lx = GetInputValue(HTML.document.getElementById("posx"));
     double ly = GetInputValue(HTML.document.getElementById("posy"));
     double lz = GetInputValue(HTML.document.getElementById("posz"));
+    //  note: since we have a directional light, pos has not effect
     light.pos.setValues(lx, ly, lz);
     ico1.setPosFromVec(light.pos);
     // Compute the shadow map

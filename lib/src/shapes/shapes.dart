@@ -1,4 +1,4 @@
-part of chronosgl;
+part of shapes;
 
 
 MeshData ShapeQuad(WEBGL.RenderingContext gl, int size) {

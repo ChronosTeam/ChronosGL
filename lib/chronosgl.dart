@@ -9,31 +9,12 @@ import 'dart:convert';
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-//import 'chronosshader.dart';
-//export 'chronosshader.dart';
-
 import 'src/core/lib.dart';
 export 'src/core/lib.dart';
 
-/*
-part "src/node.dart";
-part "src/textures.dart";
-part "src/shader_utils.dart";
-part "src/shader_program.dart";
-part "src/render_program.dart";
-part "src/spatial.dart";
-part "src/camera.dart";
-part "src/framebuffer.dart";
-part "src/lighting.dart";
-part "src/material.dart";
-part "src/mesh_data.dart";
-part "src/projection.dart";
-*/
-part "src/shapes/shapes.dart";
-part "src/shapes/cylinder.dart";
-part "src/shapes/cube.dart";
-part "src/shapes/torusknot.dart";
-part "src/shapes/icosahedron.dart";
+import 'src/shapes/lib.dart';
+export 'src/shapes/lib.dart';
+
 part "src/pickray.dart";
 part "src/input.dart";
 part "src/load_obj.dart";

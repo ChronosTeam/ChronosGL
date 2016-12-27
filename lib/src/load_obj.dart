@@ -138,7 +138,7 @@ class CanvasTexture extends Texture {
   }
 
   void UpdateFromCanvas(WEBGL.RenderingContext gl) {
-    gl.bindTexture(_textureType, GetTexture());
+    gl.bindTexture(GetTextureType(), GetTexture());
     gl.texImage2D(
         GetTextureType(), 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _canvas);
     gl.bindTexture(GetTextureType(), null);
@@ -210,7 +210,7 @@ class CubeTexture extends Texture {
     properties.clamp = true;
   }
 
-  CubeTexture.fromTextures(String url, List<Texture> texs) : super(url) {
+  CubeTexture.fromTextures(String url, List<Texture> texs) : super(WEBGL.TEXTURE_CUBE_MAP, url) {
     _cubeChildren = texs;
     properties.clamp = true;
   }
