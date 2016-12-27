@@ -190,6 +190,8 @@ class MeshData extends RenderInputProvider {
     if (_indexBuffer != null) {
       program.SetInputWithOrigin(this, eArray, _indexBuffer);
     }
+    program.SetInputWithOrigin(this, cDrawMode, DrawMode());
+    program.SetInputWithOrigin(this, cNumItems, numItems);
   }
 
   @override
@@ -198,6 +200,8 @@ class MeshData extends RenderInputProvider {
       program.Remove(canonical);
     }
     if (_indexBuffer != null) program.Remove(eArray);
+    program.Remove(cDrawMode);
+    program.Remove(cNumItems);
   }
 
   Iterable<String> GetAttributes() {
@@ -514,35 +518,4 @@ class MeshData extends RenderInputProvider {
   }
 }
 
-// InstancerData presents attributes and vertex buffers associated with
-// instancing.
-class InstancerData extends RenderInputProvider {
-  final WEBGL.RenderingContext _gl;
 
-  final Map<String, WEBGL.Buffer> _buffers = {};
-  int numInstances;
-
-  InstancerData(String name, this._gl, this.numInstances) : super(name);
-
-  void AddBuffer(String canonical, Float32List data) {
-    _buffers[canonical] = CreateAndInitializeArrayBuffer(_gl, data);
-  }
-
-  void ChangeBufferCanonical(String canonical, Float32List data) {
-    ChangeArrayBuffer(_gl, _buffers[canonical], data);
-  }
-
-  @override
-  void AddRenderInputs(RenderInputs program) {
-    for (String canonical in _buffers.keys) {
-      program.SetInputWithOrigin(this, canonical, _buffers[canonical]);
-    }
-  }
-
-  @override
-  void RemoveRenderInputs(RenderInputs program) {
-    for (String canonical in _buffers.keys) {
-      program.Remove(canonical);
-    }
-  }
-}

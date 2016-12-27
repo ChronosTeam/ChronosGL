@@ -23,5 +23,5 @@ part "material.dart";
 part "shader_utils.dart";
 part "framebuffer.dart";
 part "render_phase.dart";
-
+part "instancer.dart";
 

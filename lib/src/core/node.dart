@@ -11,7 +11,7 @@ part of core;
 class Node extends Spatial {
   RenderInputProvider _material;
   MeshData _meshData;
-  InstancerData _instancerData;
+  RenderInputProvider _instancerData;
 
   // children inherent the parent matrix for its rotation and position
   final List<Node> children = [];
@@ -36,9 +36,9 @@ class Node extends Spatial {
 
   RenderInputProvider get material => _material;
 
-  MeshData get meshData => _meshData;
+  RenderInputProvider get meshData => _meshData;
 
-  InstancerData get instancerData => _instancerData;
+  RenderInputProvider get instancerData => _instancerData;
 
   void UpdateMeshData(MeshData md) {
     //if (!meshData.isOptimized) meshData.optimize();
@@ -50,29 +50,6 @@ class Node extends Spatial {
   void add(Node node) {
     children.add(node);
   }
-
-  /*
-  void UpdateMeshData(MeshData md) {
-    _meshData = md;
-    ChangeBufferCanonical(aVertexPosition, _meshData.GetVertexData());
-
-    for (String canonical in _meshData.GetAttributes()) {
-      ChangeBufferCanonical(canonical, _meshData.GetAttributeData(canonical));
-    }
-    List<int> indices = _meshData.GetVertexIndices();
-    if (indices != null) {
-      numItems = indices.length;
-      if (ChronosGL.useElementIndexUint) {
-        ChangeElementArrayBuffer(
-            gl, _indexBuffer, new Uint32List.fromList(indices));
-      } else {
-        ChangeElementArrayBuffer(
-            gl, _indexBuffer, new Uint16List.fromList(indices));
-      }
-    } else {
-      numItems = _meshData.GetVertexData().length ~/ 3;
-    }
-  }*/
 
   void AddShaderInputs(RenderInputs program) {
     // TODO: computing the normal matrix like this is wrong
@@ -96,18 +73,6 @@ class Node extends Spatial {
     program.Remove(uNormalMatrix);
   }
 
-  int GetNumInstances() {
-      return _instancerData == null ? 0 : _instancerData.numInstances;
-  }
-
-  int GetNumItems() {
-      return _meshData.numItems;
-  }
-
-  int GetDrawMode() {
-    return _meshData.DrawMode();
-  }
-
   VM.Matrix4 UpdateModelMatrix(final VM.Matrix4 parent) {
     // copy the mvMatrix, so we don't change the original
     _modelMatrix.setFrom(parent);
@@ -116,8 +81,8 @@ class Node extends Spatial {
   }
 
   bool SomethingToDraw() {
-    return _material != null && _meshData != null && _meshData.numItems != 0;
+    return _material != null && _meshData != null;
   }
 
-  String toString() => "$name items ${_meshData.numItems}";
+  String toString() => "$name";
 }

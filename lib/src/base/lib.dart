@@ -29,7 +29,7 @@ void LogInfo(String s) {
 }
 
 void LogDebug(String s) {
-  print("D:" + s);
+  //print("D:" + s);
 }
 
 void LogError(String s) {

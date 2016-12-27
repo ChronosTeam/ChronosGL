@@ -35,12 +35,8 @@ class RenderProgram extends RenderInputs {
     return objects.clear();
   }
 
-  void _draw(
-      int numInstances, int numItems, int drawMode, List<DrawStats> stats) {
-    if (stats != null) {
-      stats.add(new DrawStats(_program.name, numInstances, numItems, drawMode));
-    }
-    _program.Draw(debug, GetInputs(), numInstances, numItems, drawMode);
+  void _draw(List<DrawStats> stats) {
+    _program.Draw(debug, GetInputs(), stats);
   }
 
   void _drawRecursively(Node node, final VM.Matrix4 parent, List<DrawStats> stats) {
@@ -49,7 +45,7 @@ class RenderProgram extends RenderInputs {
     if (node.SomethingToDraw()) {
       LogDebug("drawing: ${node}");
       node.AddShaderInputs(this);
-      _draw(node.GetNumInstances(), node.GetNumItems(), node.GetDrawMode(), stats);
+      _draw(stats);
       node.RemoveShaderInputs(this);
     }
     for (Node child in node.children) {

@@ -1,5 +1,6 @@
 part of core;
 
+/*
 class Uniform {
   WEBGL.UniformLocation uniformLocation;
   WEBGL.RenderingContext gl;
@@ -22,6 +23,7 @@ class Uniform {
     gl.uniform3fv(uniformLocation, v.storage);
   }
 }
+*/
 
 class ShaderUtils {
   WEBGL.RenderingContext gl;
@@ -60,3 +62,4 @@ class ShaderUtils {
     return program;
   }
 }
+
