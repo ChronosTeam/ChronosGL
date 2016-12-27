@@ -1,4 +1,4 @@
-part of core;
+part of base;
 
 class Orthographic extends RenderInputProvider {
   final Camera _camera;

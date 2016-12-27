@@ -1,7 +1,6 @@
  library chronosshader;
 
-
- part 'shader_object.dart';
+import "../base/lib.dart";
 
  part 'simple_shaders.dart';
  part 'basic_shader.dart';

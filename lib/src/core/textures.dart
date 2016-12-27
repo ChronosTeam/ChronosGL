@@ -76,7 +76,6 @@ class Texture {
   }
 
   void Bind([bool initTime = false]) {
-    print("BIND DSSSSSS");
     if (initTime) {
       _texture = _gl.createTexture();
     }
@@ -85,7 +84,6 @@ class Texture {
   }
 
   void UnBind([bool initTime = false]) {
-    print("UNBIND DSSSSSS");
     if (initTime) {
       properties.Install(_gl, _textureType);
       int err = _gl.getError();

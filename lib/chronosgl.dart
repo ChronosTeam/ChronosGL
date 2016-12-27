@@ -15,6 +15,8 @@ export 'src/core/lib.dart';
 import 'src/shapes/lib.dart';
 export 'src/shapes/lib.dart';
 
+export "src/shader/lib.dart";
+
 part "src/pickray.dart";
 part "src/input.dart";
 part "src/load_obj.dart";

@@ -1,7 +1,5 @@
 part of core;
 
-
-
 /// Node represents a tree hierarchy of objects that well be rendered
 /// with a single RenderProgram.
 /// Currently, only leaf Nodes will cause draw calls by providing
@@ -11,17 +9,17 @@ part of core;
 /// that.
 /// Each Node is also a Spatial so it be re-oriented with respect to its parent
 class Node extends Spatial {
-  Material _material;
+  RenderInputProvider _material;
   MeshData _meshData;
   InstancerData _instancerData;
 
   // children inherent the parent matrix for its rotation and position
-  final List<Node> _children = [];
+  final List<Node> children = [];
   final VM.Matrix3 _normMatrix = new VM.Matrix3.zero();
   final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
 
   Node.Container(String name, [Node child = null]) : super(name) {
-    if (child != null) _children.add(child);
+    if (child != null) children.add(child);
   }
 
   Node(String name, this._meshData, this._material) : super(name) {
@@ -36,7 +34,7 @@ class Node extends Spatial {
     UpdateMeshData(md);
   }
 
-  Material get material => _material;
+  RenderInputProvider get material => _material;
 
   MeshData get meshData => _meshData;
 
@@ -48,8 +46,9 @@ class Node extends Spatial {
     md.Finalize();
     _meshData = md;
   }
+
   void add(Node node) {
-    _children.add(node);
+    children.add(node);
   }
 
   /*
@@ -81,49 +80,44 @@ class Node extends Spatial {
     program.SetInputWithOrigin(this, uTransformationMatrix, transform);
     program.SetInputWithOrigin(this, uModelMatrix, _modelMatrix);
     program.SetInputWithOrigin(this, uNormalMatrix, _normMatrix);
+
+    _material.AddRenderInputs(program);
+    _meshData.AddRenderInputs(program);
+    if (_instancerData != null) _instancerData.AddRenderInputs(program);
   }
 
   void RemoveShaderInputs(RenderInputs program) {
+     if (_instancerData != null) _instancerData.RemoveRenderInputs(program);
+    _meshData.RemoveRenderInputs(program);
+    _material.RemoveRenderInputs(program);
+
     program.Remove(uTransformationMatrix);
     program.Remove(uModelMatrix);
     program.Remove(uNormalMatrix);
   }
 
-  // this gets called by Node.draw()
-  void drawOne(RenderProgram program, List<DrawStats> stats) {
-    if (debug) {
-      print("drawOne: $name items ${_meshData.numItems}");
-    }
-
-    if (_meshData.numItems == 0) return;
-    _material.AddRenderInputs(program);
-    _meshData.AddRenderInputs(program);
-    AddShaderInputs(program);
-    if (_instancerData != null) _instancerData.AddRenderInputs(program);
-    if (_meshData.numItems != 0) {
-      int instances = _instancerData == null ? 0 : _instancerData.numInstances;
-      program.Draw(instances, _meshData.numItems, _meshData.DrawMode(), stats);
-    } else {
-      print("WARNING: no items to render");
-    }
-    if (_instancerData != null) _instancerData.RemoveRenderInputs(program);
-    RemoveShaderInputs(program);
-    _meshData.RemoveRenderInputs(program);
-    _material.RemoveRenderInputs(program);
+  int GetNumInstances() {
+      return _instancerData == null ? 0 : _instancerData.numInstances;
   }
 
-  void draw(RenderProgram program, VM.Matrix4 parentModelMatrix,
-      List<DrawStats> stats) {
-    if (!enabled) return;
+  int GetNumItems() {
+      return _meshData.numItems;
+  }
+
+  int GetDrawMode() {
+    return _meshData.DrawMode();
+  }
+
+  VM.Matrix4 UpdateModelMatrix(final VM.Matrix4 parent) {
     // copy the mvMatrix, so we don't change the original
-    _modelMatrix.setFrom(parentModelMatrix);
+    _modelMatrix.setFrom(parent);
     _modelMatrix.multiply(transform);
-
-    if (_material != null && _meshData != null) {
-      drawOne(program, stats);
-    }
-    for (Node node in _children) {
-      node.draw(program, _modelMatrix, stats);
-    }
+    return _modelMatrix;
   }
+
+  bool SomethingToDraw() {
+    return _material != null && _meshData != null && _meshData.numItems != 0;
+  }
+
+  String toString() => "$name items ${_meshData.numItems}";
 }

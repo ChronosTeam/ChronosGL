@@ -1,0 +1,42 @@
+library base;
+
+// This library does not depend on "dart:html"
+// It would be nice if we could also break the dependency on dart:web_gl
+// for easier testing.
+
+import 'dart:math' as Math;
+
+import 'package:vector_math/vector_math.dart' as VM;
+
+part 'shader_object.dart';
+part "abstractions.dart";
+part "spatial.dart";
+part "projection.dart";
+part "camera.dart";
+part "lighting.dart";
+
+/*
+part "lighting.dart";
+part "textures.dart";
+part "material.dart";
+part "shader_utils.dart";
+part "framebuffer.dart";
+part "render_phase.dart";
+*/
+
+void LogInfo(String s) {
+  print("I: " + s);
+}
+
+void LogDebug(String s) {
+  print("D:" + s);
+}
+
+void LogError(String s) {
+  print("E:" + s);
+}
+
+void LogWarn(String s) {
+  print("W:" + s);
+}
+

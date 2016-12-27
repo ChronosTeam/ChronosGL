@@ -10,39 +10,18 @@ import 'dart:math' as Math;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-import "../shader/lib.dart";
-export "../shader/lib.dart";
+import "../base/lib.dart";
+export "../base/lib.dart";
 
-
-part "abstractions.dart";
 part "extensions.dart";
 part "node.dart";
 part "shader_program.dart";
 part "render_program.dart";
-part "spatial.dart";
 part "mesh_data.dart";
-part "projection.dart";
-part "camera.dart";
-part "lighting.dart";
 part "textures.dart";
 part "material.dart";
 part "shader_utils.dart";
 part "framebuffer.dart";
 part "render_phase.dart";
 
-void LogInfo(String s) {
-  print("I: " + s);
-}
-
-void LogDebugx(String s) {
-  print("D:" + s);
-}
-
-void LogError(String s) {
-  print("E:" + s);
-}
-
-void LogWarn(String s) {
-  print("W:" + s);
-}
 

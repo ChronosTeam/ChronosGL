@@ -1,4 +1,4 @@
-part of chronosshader;
+part of base;
 
 class ShaderVarDesc {
   String type;

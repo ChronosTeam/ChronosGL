@@ -1,22 +1,5 @@
 part of core;
 
-/// RenderInputProvider provides inputs (aks parameters) necessary for running
-/// a ShaderProgram. The primary examples for such inputs are:
-/// Uniforms, Attributes, VertexBuffers
-/// Each parameter has a canonical name, c.f. shader_object.dart.
-/// A large number of those are already registered by default.
-/// Additional ones required by custom shaders can be registered at
-/// startup.
-/// There are small number of unusual control inputs, e.g.
-/// cBlend that indirectly effect the behavior of a ShaderProgram.
-/// These are mostly related to fixed function features, like
-/// blending and depth buffers.
-abstract class RenderInputProvider extends NamedEntity {
-  RenderInputProvider(String name) : super(name);
-
-  void AddRenderInputs(RenderInputs inputs);
-  void RemoveRenderInputs(RenderInputs inputs);
-}
 
 class BlendEquation {
   int equation;

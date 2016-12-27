@@ -1,4 +1,4 @@
-part of core;
+part of base;
 
 const int typeLightNone = 1;
 const int typeLightSpot = 2;

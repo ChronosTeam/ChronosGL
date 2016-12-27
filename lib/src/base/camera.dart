@@ -1,4 +1,4 @@
-part of core;
+part of base;
 
 /// Camera ...
 class Camera extends Spatial {
