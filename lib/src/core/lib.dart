@@ -15,6 +15,7 @@ export "../shader/lib.dart";
 
 
 part "abstractions.dart";
+part "extensions.dart";
 part "node.dart";
 part "shader_program.dart";
 part "render_program.dart";
@@ -45,4 +46,3 @@ void LogWarn(String s) {
   print("W:" + s);
 }
 
-bool globalUseElementIndexUint = false;

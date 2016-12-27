@@ -41,7 +41,7 @@ class ChronosGL {
   final HTML.CanvasElement _canvas;
 
   ChronosGL(this._canvas,
-      {bool preserveDrawingBuffer: false, bool useElementIndexUint: false}) {
+      {bool preserveDrawingBuffer: false}) {
     //_aspect = _canvas.clientWidth / _canvas.clientHeight;
     Map attributes = {
       "alpha": false,
@@ -58,13 +58,6 @@ class ChronosGL {
           'calling canvas.getContext("experimental-webgl") failed, make sure you run on a computer that supports WebGL, test here: http://get.webgl.org/');
     }
 
-    if (useElementIndexUint) {
-      elementIndexUintExt = gl.getExtension("OES_element_index_uint");
-      if (elementIndexUintExt == null) {
-        throw "Error: OES_element_index_uint is not supported";
-      }
-      globalUseElementIndexUint = useElementIndexUint;
-    }
 
     //print( gl.getSupportedExtensions());
 
