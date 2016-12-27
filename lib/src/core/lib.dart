@@ -1,5 +1,8 @@
 library core;
 
+// This library does not depend on "dart:html"
+// It would be nice if we could also break the dependency on dart:web_gl
+// for easier testing.
 import 'dart:typed_data';
 import 'dart:async';
 import 'dart:web_gl' as WEBGL;
@@ -24,6 +27,7 @@ part "textures.dart";
 part "material.dart";
 part "shader_utils.dart";
 part "framebuffer.dart";
+part "render_phase.dart";
 
 void LogInfo(String s) {
   print("I: " + s);
