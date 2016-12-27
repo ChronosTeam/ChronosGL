@@ -35,8 +35,6 @@ dynamic GetGlExtensionStandardDerivatives(WEBGL.RenderingContext gl) {
   return ext;
 }
 
-
-
 const int kNoAnisotropicFilterLevel = 1;
 
 int MaxAnisotropicFilterLevel(WEBGL.RenderingContext gl) {
@@ -93,23 +91,62 @@ class TextureProperties {
   }
 }
 
+bool IsCubeChildTextureType(int t) {
+  switch (t) {
+    case WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_X:
+    case WEBGL.TEXTURE_CUBE_MAP_POSITIVE_X:
+    case WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Y:
+    case WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Y:
+    case WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Z:
+    case WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Z:
+      return true;
+    default:
+      return false;
+  }
+}
+
 // Base class for all textures
 class Texture {
   final String _url;
   WEBGL.Texture _texture;
   final int _textureType;
+  final WEBGL.RenderingContext _gl;
 
   TextureProperties properties = new TextureProperties();
 
   static List<Texture> _cache = [];
 
-  Texture(this._textureType, this._url) {
+  Texture(this._gl, this._textureType, this._url) {
     _cache.add(this);
+  }
+
+  void Bind([bool initTime = false]) {
+    print("BIND DSSSSSS");
+    if (initTime) {
+      _texture = _gl.createTexture();
+    }
+
+    _gl.bindTexture(_textureType, _texture);
+  }
+
+  void UnBind([bool initTime = false]) {
+    print("UNBIND DSSSSSS");
+    if (initTime) {
+      properties.Install(_gl, _textureType);
+      int err = _gl.getError();
+      assert(err == WEBGL.NO_ERROR);
+    }
+    _gl.bindTexture(_textureType, null);
+  }
+
+  void SetImageData(var data) {
+    _gl.texImage2D(
+        _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, data);
   }
 
   int GetTextureType() => _textureType;
 
-  static Future<dynamic> loadAndInstallAllTextures(WEBGL.RenderingContext gl) {
+  static Future<dynamic> loadAndInstallAllTextures() {
     List<Future<dynamic>> futures = [];
     for (Texture tw in _cache) {
       Future<dynamic> f = tw.GetFuture();
@@ -119,7 +156,7 @@ class Texture {
       LogInfo("All images have loaded");
       for (Texture tw in _cache) {
         if (tw._texture != null) continue;
-        tw.Install(gl);
+        tw.Install();
       }
     });
   }
@@ -128,16 +165,11 @@ class Texture {
     return _texture;
   }
 
-  void  SetTexture( WEBGL.Texture t) {
-    assert (_texture == null);
-    _texture = t;
-  }
-
-  void Install(WEBGL.RenderingContext gl) {
+  void Install() {
     assert(false, "abstract Install() called");
   }
 
-  void InstallAsCubeChild(WEBGL.RenderingContext gl) {
+  void InstallAsCubeChild() {
     assert(false, "abstract InstallAsCubeChild() called");
   }
 
@@ -152,8 +184,6 @@ class Texture {
   }
 }
 
-
-
 class TypedTexture extends Texture {
   int _width;
   int _height;
@@ -167,36 +197,32 @@ class TypedTexture extends Texture {
   // sdk: https://github.com/dart-lang/sdk/issues/23517
   var _data;
 
-  TypedTexture(
-      String url, this._width, this._height, this._formatType, this._dataType,
+  TypedTexture(WEBGL.RenderingContext gl, String url, this._width, this._height,
+      this._formatType, this._dataType,
       [this._data = null])
-      : super(WEBGL.TEXTURE_2D, url) {
+      : super(gl, WEBGL.TEXTURE_2D, url) {
     properties.flipY = false;
     properties.clamp = true;
     properties.mipmap = false;
     properties.SetFilterNearest();
   }
 
-  void UpdateContent(WEBGL.RenderingContext gl, int w, int h, var data) {
+  void UpdateContent(int w, int h, var data) {
     _data = data;
     _width = w;
     _height = h;
-    gl.bindTexture(WEBGL.TEXTURE_2D, _texture);
-    gl.texImage2D(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
+    Bind();
+    _gl.texImage2D(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
         _formatType, _dataType, _data);
-    gl.bindTexture(WEBGL.TEXTURE_2D, null);
+    UnBind();
   }
 
   @override
-  void Install(WEBGL.RenderingContext gl) {
-    _texture = gl.createTexture();
-    gl.bindTexture(WEBGL.TEXTURE_2D, _texture);
-    gl.texImage2D(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
+  void Install() {
+    Bind(true);
+    _gl.texImage2D(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
         _formatType, _dataType, _data);
-    properties.Install(gl, WEBGL.TEXTURE_2D);
-    int err = gl.getError();
-    assert(err == WEBGL.NO_ERROR);
-    gl.bindTexture(WEBGL.TEXTURE_2D, null);
+    UnBind(true);
   }
 
   dynamic GetData() {
@@ -208,4 +234,3 @@ class TypedTexture extends Texture {
     return "TypedTexture[${_url}, ${_dataType}, ${_formatType}]";
   }
 }
-

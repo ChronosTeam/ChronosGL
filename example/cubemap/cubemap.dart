@@ -48,7 +48,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures().then((dummy) {
     animate(0.0);
   });
 }
