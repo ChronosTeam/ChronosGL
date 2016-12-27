@@ -61,7 +61,7 @@ void main() {
 
   basic.SetInput(uShadowSampler0, shadowBuffer.colorTexture);
 
-  Texture solid = new CanvasTexture.SolidColor("red-solid", "red");
+  Texture solid = new CanvasTexture.SolidColor(chronosGL.gl, "red-solid", "red");
   final Material mat1 = new Material("mat1")
     ..SetUniform(uTextureSampler, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));

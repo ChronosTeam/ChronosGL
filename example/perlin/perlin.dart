@@ -10,7 +10,7 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram programBasic = phase.createProgram(createTexturedShader());
 
-  Texture blockTex = new ImageTexture("../gradient.jpg");
+  Texture blockTex = new ImageTexture(chronosGL.gl, "../gradient.jpg");
 
   RenderProgram perlinNoise =
       phase.createProgram(createPerlinNoiseColorShader(false));

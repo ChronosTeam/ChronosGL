@@ -17,9 +17,9 @@ void main() {
   RenderProgram basic = phase.createProgram(createTexturedShader());
 
   //TextureWrapper red = new TextureWrapper.SolidColor("red", "rgba(255,0,0,1)");
-  Texture gradient = new ImageTexture("../gradient.jpg");
-  Texture trans = new ImageTexture("../transparent.png");
-  Texture wood = new ImageTexture("../wood.jpg");
+  Texture gradient = new ImageTexture(chronosGL.gl, "../gradient.jpg");
+  Texture trans = new ImageTexture(chronosGL.gl,"../transparent.png");
+  Texture wood = new ImageTexture(chronosGL.gl,"../wood.jpg");
 
   final Material matWood = new Material("wood")
     ..SetUniform(uTextureSampler, wood)

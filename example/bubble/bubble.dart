@@ -44,7 +44,7 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   // Note, moving the camera does not have an effect
 
-  Texture bubble = new ImageTexture("sphere.png");
+  Texture bubble = new ImageTexture(chronosGL.gl, "sphere.png");
 
   RenderProgram shaderSpheres = phase.createProgram(sphereShader());
   Material mat = new Material("sphere")..SetUniform(uTextureSampler, bubble);

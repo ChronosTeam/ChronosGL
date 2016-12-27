@@ -7,7 +7,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(15.0);
   Perspective perspective = new Perspective(orbit);
 
-  Texture cubeTex = new CubeTexture("stars", "skybox_", ".png");
+  Texture cubeTex = new CubeTexture(chronosGL.gl, "stars", "skybox_", ".png");
 
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram programCM = phase.createProgram(createCubeMapShader());

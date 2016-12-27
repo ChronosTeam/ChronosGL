@@ -51,8 +51,8 @@ class Utils {
     });
   }
 
-  static Texture createParticleTexture([String name = "Utils::Particles"]) {
-    return new CanvasTexture(name, createParticleCanvas());
+  static Texture createParticleTexture(gl, [String name = "Utils::Particles"]) {
+    return new CanvasTexture(gl, name, createParticleCanvas());
   }
 
   static HTML.CanvasElement createParticleCanvas() {
@@ -165,7 +165,7 @@ class Utils {
    */
 
   static Node MakeParticles(WEBGL.RenderingContext gl, int numPoints, [int dimension = 100]) {
-    return MakePointSprites(gl, numPoints, createParticleTexture(), dimension);
+    return MakePointSprites(gl, numPoints, createParticleTexture(gl), dimension);
   }
 
   static int id = 1;

@@ -113,11 +113,11 @@ HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {
 class CanvasTexture extends Texture {
   HTML.CanvasElement _canvas;
 
-  CanvasTexture(String url, this._canvas,
+  CanvasTexture(WEBGL.RenderingContext gl, String url, this._canvas,
       [textureType = WEBGL.TEXTURE_2D])
       : super(textureType, url);
 
-  CanvasTexture.SolidColor(String url, String fillStyle,
+  CanvasTexture.SolidColor(WEBGL.RenderingContext gl, String url, String fillStyle,
       [textureType = WEBGL.TEXTURE_2D])
       : super(textureType, url) {
     _canvas = MakeSolidColorCanvas(fillStyle);
@@ -155,7 +155,7 @@ class ImageTexture extends Texture {
   HTML.ImageElement _image;
   Future<dynamic> _future;
 
-  ImageTexture(String url, [textureType = WEBGL.TEXTURE_2D])
+  ImageTexture(WEBGL.RenderingContext gl, String url, [textureType = WEBGL.TEXTURE_2D])
       : super(textureType, url) {
     _image = new HTML.ImageElement();
     _future = _image.onLoad.first;
@@ -191,26 +191,26 @@ class ImageTexture extends Texture {
 class CubeTexture extends Texture {
   List<Texture> _cubeChildren;
 
-  CubeTexture(String url, String prefix, String suffix) :
+  CubeTexture(WEBGL.RenderingContext gl, String url, String prefix, String suffix) :
         super(WEBGL.TEXTURE_CUBE_MAP, url) {
     _cubeChildren = [
-      new ImageTexture(
+      new ImageTexture(gl,
           prefix + "nx" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_X),
-      new ImageTexture(
+      new ImageTexture(gl,
           prefix + "px" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_X),
-      new ImageTexture(
+      new ImageTexture(gl,
           prefix + "ny" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Y),
-      new ImageTexture(
+      new ImageTexture(gl,
           prefix + "py" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Y),
-      new ImageTexture(
+      new ImageTexture(gl,
           prefix + "nz" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Z),
-      new ImageTexture(
+      new ImageTexture(gl,
           prefix + "pz" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Z),
     ];
     properties.clamp = true;
   }
 
-  CubeTexture.fromTextures(String url, List<Texture> texs) : super(WEBGL.TEXTURE_CUBE_MAP, url) {
+  CubeTexture.fromTextures(WEBGL.RenderingContext gl, String url, List<Texture> texs) : super(WEBGL.TEXTURE_CUBE_MAP, url) {
     _cubeChildren = texs;
     properties.clamp = true;
   }

@@ -17,7 +17,7 @@ void main() {
   RenderProgram programBasic = phase.createProgram(createTexturedShader());
 
   canvas2d = Utils.createGradientImage2(0.0, canvas2d);
-  Texture generatedTexture = new CanvasTexture("gen", canvas2d);
+  Texture generatedTexture = new CanvasTexture(chronosGL.gl, "gen", canvas2d);
 
   // Maybe disable depth test?
   Material mat = new Material.Transparent("torus", new BlendEquation.Standard())

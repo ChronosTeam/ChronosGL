@@ -82,7 +82,7 @@ void main() {
   programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
   RenderProgram pssp = phase.createProgram(createFireWorksShader());
-  pssp.add(getRocket(chronosGL.gl, Utils.createParticleTexture("fireworks")));
+  pssp.add(getRocket(chronosGL.gl, Utils.createParticleTexture(chronosGL.gl, "fireworks")));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
