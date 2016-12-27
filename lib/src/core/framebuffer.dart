@@ -1,4 +1,4 @@
-part of chronosgl;
+part of core;
 
 class ChronosFramebuffer {
   WEBGL.RenderingContext gl;

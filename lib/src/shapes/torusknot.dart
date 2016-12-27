@@ -110,3 +110,29 @@ VM.Vector3 getTorusKnotPos(double u, int in_q, int in_p, double radius,
 
   return vec;
 }
+
+// this class lets a Camera fly through a TorusKnot like through a tunnel
+class TorusKnotCamera extends Camera {
+  TorusKnotCamera() : super("camera:torusknot");
+
+  VM.Vector3 p1 = new VM.Vector3.zero();
+  VM.Vector3 p2 = new VM.Vector3.zero();
+
+  int p = 2;
+  int q = 3;
+  double radius = 20.0;
+
+  double time = 0.0;
+  VM.Vector3 up = new VM.Vector3.zero();
+
+  void animate(double elapsed) {
+    time += elapsed;
+    getTorusKnotPos(time / 1500, q, p, radius, 1.0, p1);
+    getTorusKnotPos((time / 1500) + 0.1, q, p, radius, 1.0, p2);
+    up
+      ..setFrom(p2)
+      ..normalize();
+    setPosFromVec(p1);
+    lookAt(p2);
+  }
+}

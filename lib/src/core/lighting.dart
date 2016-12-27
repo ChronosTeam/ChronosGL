@@ -1,4 +1,4 @@
-part of chronosgl;
+part of core;
 
 const int typeLightNone = 1;
 const int typeLightSpot = 2;
@@ -158,6 +158,7 @@ class ShadowProjection extends RenderInputProvider {
     _light.getViewMatrixForShadow(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
     _projViewMatrix.multiply(_viewMatrix);
+    //print("lightmat: ${_projViewMatrix}");
     inputs.SetInputWithOrigin(
         this, uLightPerspectiveViewMatrix + "${_light.no}", _projViewMatrix);
   }

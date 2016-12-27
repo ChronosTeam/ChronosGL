@@ -1,4 +1,4 @@
-part of chronosgl;
+part of core;
 
 /// RenderInputProvider provides inputs (aks parameters) necessary for running
 /// a ShaderProgram. The primary examples for such inputs are:

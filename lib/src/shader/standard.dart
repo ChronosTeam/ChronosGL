@@ -1,5 +1,6 @@
 part of chronosshader;
 
+/*
 // Adapted from Babylon JS Shaders
 
 int typeLightNone = 1;
@@ -12,6 +13,7 @@ int typeShadowNone = 1;
 int typeShadowReg = 2;
 int typeShadowPcf0 = 3;
 int typeShadowVsm0 = 4;
+
 
 class LightConfig {
   int lightType;
@@ -424,3 +426,4 @@ List<ShaderObject> createStandardShader(
     ..SetBody([MakeStandardFragment(useSpecularTerm, configs)]);
   return [v, f];
 }
+*/

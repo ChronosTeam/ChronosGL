@@ -1,4 +1,5 @@
-part of chronosgl;
+part of core;
+
 
 void ChangeArrayBuffer(
     WEBGL.RenderingContext gl, WEBGL.Buffer buffer, Float32List data) {
@@ -53,6 +54,10 @@ class Face4 {
 
 // MeshData presents attributes and vertex buffers associated with
 // an object, e.g. a sphere, cube, etc.
+// Protocol:
+// After creation:
+// * populate the object by calling AddFaceX
+// * Call Finalize
 class MeshData extends RenderInputProvider {
   final WEBGL.RenderingContext _gl;
 
@@ -160,10 +165,10 @@ class MeshData extends RenderInputProvider {
     _finalized.add(aVertexPosition);
     AddBuffer(aVertexPosition, GetVertexData());
 
-    List<int> indices = GetVertexIndices();
+    List<int> indices = _GetVertexIndices();
     if (indices != null) {
       numItems = indices.length;
-      if (ChronosGL.useElementIndexUint) {
+      if (globalUseElementIndexUint) {
         _indexBuffer = CreateAndInitializeElementArrayBuffer(
             _gl, new Uint32List.fromList(indices));
       } else {
@@ -215,7 +220,9 @@ class MeshData extends RenderInputProvider {
     return new Float32List.fromList(_vertices);
   }
 
-  List<int> GetVertexIndices() {
+  // GetVertexIndices is usually only called once to initialize _faces.
+  // Its main purpose is to convert Face4 into two triangles
+  List<int> _GetVertexIndices() {
     if (_points1.length > 0) return null;
     if (_faces.isEmpty) {
       _faces = new Uint32List(

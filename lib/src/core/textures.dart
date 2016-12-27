@@ -1,4 +1,4 @@
-part of chronosgl;
+part of core;
 
 // FIXME: use proper type
 dynamic GetGlExtensionDepth(WEBGL.RenderingContext gl) {
@@ -35,13 +35,7 @@ dynamic GetGlExtensionStandardDerivatives(WEBGL.RenderingContext gl) {
   return ext;
 }
 
-HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {
-  HTML.CanvasElement canvas = new HTML.CanvasElement(width: 2, height: 2);
-  HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
-  ctx.fillStyle = fillStyle;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  return canvas;
-}
+
 
 const int kNoAnisotropicFilterLevel = 1;
 
@@ -103,14 +97,17 @@ class TextureProperties {
 class Texture {
   final String _url;
   WEBGL.Texture _texture;
+  final int _textureType;
 
   TextureProperties properties = new TextureProperties();
 
   static List<Texture> _cache = [];
 
-  Texture(this._url) {
+  Texture(this._textureType, this._url) {
     _cache.add(this);
   }
+
+  int GetTextureType() => _textureType;
 
   static Future<dynamic> loadAndInstallAllTextures(WEBGL.RenderingContext gl) {
     List<Future<dynamic>> futures = [];
@@ -131,6 +128,11 @@ class Texture {
     return _texture;
   }
 
+  void  SetTexture( WEBGL.Texture t) {
+    assert (_texture == null);
+    _texture = t;
+  }
+
   void Install(WEBGL.RenderingContext gl) {
     assert(false, "abstract Install() called");
   }
@@ -146,99 +148,11 @@ class Texture {
 
   @override
   String toString() {
-    return "Texture[${_url}]";
+    return "Texture[${_url}, ${_textureType}]";
   }
 }
 
-class CanvasTexture extends Texture {
-  HTML.CanvasElement _canvas;
-  final int _textureType;
 
-  CanvasTexture(String url, this._canvas,
-      [this._textureType = WEBGL.TEXTURE_2D])
-      : super(url);
-
-  CanvasTexture.SolidColor(String url, String fillStyle,
-      [this._textureType = WEBGL.TEXTURE_2D])
-      : super(url) {
-    _canvas = MakeSolidColorCanvas(fillStyle);
-  }
-
-  @override
-  void Install(WEBGL.RenderingContext gl) {
-    // Check for CubeChild
-    if (_textureType != WEBGL.TEXTURE_2D) return;
-    _texture = gl.createTexture();
-    gl.bindTexture(_textureType, _texture);
-    gl.texImage2D(
-        _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _canvas);
-    properties.Install(gl, _textureType);
-    int err = gl.getError();
-    assert(err == WEBGL.NO_ERROR);
-    gl.bindTexture(_textureType, null);
-  }
-
-  void UpdateFromCanvas(WEBGL.RenderingContext gl) {
-    gl.bindTexture(_textureType, _texture);
-    gl.texImage2D(
-        _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _canvas);
-    gl.bindTexture(_textureType, null);
-  }
-
-  @override
-  void InstallAsCubeChild(WEBGL.RenderingContext gl) {
-    gl.texImage2D(
-        _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _canvas);
-  }
-
-  @override
-  String toString() {
-    return "CanvasTexture[${_url}, ${_textureType}]";
-  }
-}
-
-class ImageTexture extends Texture {
-  HTML.ImageElement _image;
-  final int _textureType;
-  Future<dynamic> _future;
-
-  ImageTexture(String url, [this._textureType = WEBGL.TEXTURE_2D])
-      : super(url) {
-    _image = new HTML.ImageElement();
-    _future = _image.onLoad.first;
-    _image.src = url;
-  }
-
-  @override
-  void Install(WEBGL.RenderingContext gl) {
-    // Check for CubeChild
-    if (_textureType != WEBGL.TEXTURE_2D) return;
-    _texture = gl.createTexture();
-    gl.bindTexture(_textureType, _texture);
-    gl.texImage2D(
-        _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _image);
-    properties.Install(gl, _textureType);
-    int err = gl.getError();
-    assert(err == WEBGL.NO_ERROR);
-    gl.bindTexture(_textureType, null);
-  }
-
-  @override
-  void InstallAsCubeChild(WEBGL.RenderingContext gl) {
-    gl.texImage2D(
-        _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, _image);
-  }
-
-  @override
-  Future<dynamic> GetFuture() {
-    return _future;
-  }
-
-  @override
-  String toString() {
-    return "ImageTexture[${_url}, ${_textureType}]";
-  }
-}
 
 class TypedTexture extends Texture {
   int _width;
@@ -256,7 +170,7 @@ class TypedTexture extends Texture {
   TypedTexture(
       String url, this._width, this._height, this._formatType, this._dataType,
       [this._data = null])
-      : super(url) {
+      : super(WEBGL.TEXTURE_2D, url) {
     properties.flipY = false;
     properties.clamp = true;
     properties.mipmap = false;
@@ -295,42 +209,3 @@ class TypedTexture extends Texture {
   }
 }
 
-class CubeTexture extends Texture {
-  List<Texture> _cubeChildren;
-
-  CubeTexture(String url, String prefix, String suffix) : super(url) {
-    _cubeChildren = [
-      new ImageTexture(
-          prefix + "nx" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_X),
-      new ImageTexture(
-          prefix + "px" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_X),
-      new ImageTexture(
-          prefix + "ny" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Y),
-      new ImageTexture(
-          prefix + "py" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Y),
-      new ImageTexture(
-          prefix + "nz" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Z),
-      new ImageTexture(
-          prefix + "pz" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Z),
-    ];
-    properties.clamp = true;
-  }
-
-  CubeTexture.fromTextures(String url, List<Texture> texs) : super(url) {
-    _cubeChildren = texs;
-    properties.clamp = true;
-  }
-
-  @override
-  void Install(WEBGL.RenderingContext gl) {
-    _texture = gl.createTexture();
-    gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, _texture);
-    for (Texture child in _cubeChildren) {
-      child.InstallAsCubeChild(gl);
-    }
-    properties.Install(gl, WEBGL.TEXTURE_CUBE_MAP);
-    int err = gl.getError();
-    assert(err == WEBGL.NO_ERROR);
-    gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, null);
-  }
-}

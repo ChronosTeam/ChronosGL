@@ -4,15 +4,18 @@ import 'dart:html' as HTML;
 import 'dart:web_gl' as WEBGL;
 import 'dart:math' as Math;
 
-import 'dart:typed_data';
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-import 'chronosshader.dart';
-export 'chronosshader.dart';
+//import 'chronosshader.dart';
+//export 'chronosshader.dart';
 
+import 'src/core/lib.dart';
+export 'src/core/lib.dart';
+
+/*
 part "src/node.dart";
 part "src/textures.dart";
 part "src/shader_utils.dart";
@@ -20,11 +23,12 @@ part "src/shader_program.dart";
 part "src/render_program.dart";
 part "src/spatial.dart";
 part "src/camera.dart";
-part "src/utils.dart";
+part "src/framebuffer.dart";
 part "src/lighting.dart";
 part "src/material.dart";
 part "src/mesh_data.dart";
 part "src/projection.dart";
+*/
 part "src/shapes/shapes.dart";
 part "src/shapes/cylinder.dart";
 part "src/shapes/cube.dart";
@@ -33,31 +37,10 @@ part "src/shapes/icosahedron.dart";
 part "src/pickray.dart";
 part "src/input.dart";
 part "src/load_obj.dart";
-part "src/framebuffer.dart";
 
-void LogInfo(String s) {
-  HTML.window.console.log(s);
-}
+part "src/utils.dart";
 
-void LogDebugx(String s) {
-  HTML.window.console.debug(s);
-}
 
-void LogError(String s) {
-  HTML.window.console.error(s);
-}
-
-void LogWarn(String s) {
-  HTML.window.console.warn(s);
-}
-
-abstract class NamedEntity {
-  final String name;
-  bool debug = false;
-  bool enabled = true;
-
-  NamedEntity(this.name);
-}
 
 final Material EmptyMaterial = new Material("empty-mat");
 

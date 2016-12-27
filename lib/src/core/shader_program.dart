@@ -1,4 +1,4 @@
-part of chronosgl;
+part of core;
 
 // ShaderProgram represents a GPU shader program
 // The protocol is roughly this:
@@ -222,7 +222,7 @@ class ShaderProgram extends NamedEntity {
         _extInstancedArrays.drawElementsInstancedAngle(
             drawMode,
             numItems,
-            ChronosGL.useElementIndexUint
+            globalUseElementIndexUint
                 ? WEBGL.UNSIGNED_INT
                 : WEBGL.UNSIGNED_SHORT,
             0,
@@ -236,7 +236,7 @@ class ShaderProgram extends NamedEntity {
         _gl.drawElements(
             drawMode,
             numItems,
-            ChronosGL.useElementIndexUint
+            globalUseElementIndexUint
                 ? WEBGL.UNSIGNED_INT
                 : WEBGL.UNSIGNED_SHORT,
             0);

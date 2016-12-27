@@ -1,4 +1,4 @@
-part of chronosgl;
+part of core;
 
 class DrawStats {
   String name;
@@ -9,9 +9,7 @@ class DrawStats {
   DrawStats(this.name, this.numInstances, this.numItems, this.drawMode);
 
   @override
-  String toString() {
-    return "[${name}] ${numInstances} ${numItems} ${drawMode}";
-  }
+  String toString() => "[${name}] ${numInstances} ${numItems} ${drawMode}";
 }
 
 /// RenderInputs represents a container of Inputs for a ShaderProgram.
