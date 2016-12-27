@@ -49,8 +49,6 @@ void main() {
   RenderProgram shaderSpheres = phase.createProgram(sphereShader());
   Material mat = new Material("sphere")..SetUniform(uTextureSampler, bubble);
   MeshData md = ShapeIcosahedron(chronosGL.gl, 3);
-  //md.generateNormalsAssumingTriangleMode();
-  md.generateRadialNormals(new VM.Vector3(0.0, 0.0, 0.0));
   Node m = new Node("sphere", md, mat)..setPos(0.0, 0.0, 0.0);
 
   shaderSpheres.add(m);

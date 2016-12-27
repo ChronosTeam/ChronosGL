@@ -2,23 +2,23 @@ part of chronosgl;
 
 // only loads fully triangulated OBJ files
 
-Future<MeshData> loadObj(String url, WEBGL.RenderingContext gl) {
+Future<GeometryBuilder> loadObj(String url) {
   Completer c = new Completer();
   HTML.HttpRequest hr = new HTML.HttpRequest();
   //hr.responseType = "arraybuffer";
   hr.open("GET", url);
   hr.onLoadEnd.listen((e) {
-    MeshData result = doLoadObj(url, hr.response, gl);
+    GeometryBuilder result = ParseObj(hr.response);
     c.complete(result);
   });
   hr.send('');
-  return c.future as Future<MeshData>;
+  return c.future as Future<GeometryBuilder>;
 }
 
-MeshData doLoadObj(String url, String text, WEBGL.RenderingContext gl) {
-  MeshData md = new MeshData(url, gl);
-  md.EnableAttribute(aTextureCoordinates);
-  md.EnableAttribute(aNormal);
+GeometryBuilder ParseObj(String text) {
+  GeometryBuilder gb = new GeometryBuilder();
+  gb.EnableAttribute(aTextureCoordinates);
+  gb.EnableAttribute(aNormal);
 
   // This is a map which associates a range of indices with a name
   // The name comes from the 'g' tag (of the form "g NAME"). Indices
@@ -91,15 +91,14 @@ MeshData doLoadObj(String url, String text, WEBGL.RenderingContext gl) {
           faceNormal.add(new VM.Vector3.zero());
         }
       }
-      md.AddFaces3(1);
-      md.AddVertices(faceVertices);
-      md.AddAttributesVector3(aNormal, faceNormal);
-      md.AddAttributesVector2(aTextureCoordinates, faceUvs);
+      gb.AddVerticesFace3(faceVertices);
+      gb.AddAttributesVector3(aNormal, faceNormal);
+      gb.AddAttributesVector2(aTextureCoordinates, faceUvs);
     }
   }
   final Duration delta = new DateTime.now().difference(start);
-  print("loaded (${delta}) ${md}");
-  return md;
+  print("loaded (${delta}) ${gb}");
+  return gb;
 }
 
 HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {

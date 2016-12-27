@@ -15,14 +15,15 @@ List<VM.Vector3> _CubeNormals = [
   new VM.Vector3(-1.0, 0.0, 0.0)
 ];
 
-MeshData ShapeCube(WEBGL.RenderingContext gl,
+GeometryBuilder CubeGeometry(
     {double x: 1.0,
     double y: 1.0,
     double z: 1.0,
     double uMin: 0.0,
     double uMax: 1.0,
     double vMin: 0.0,
-    double vMax: 1.0}) {
+    double vMax: 1.0,
+    bool computeNormals: true}) {
   List<VM.Vector3> vertices = [
     // Front face
     new VM.Vector3(-x, -y, z),
@@ -99,20 +100,19 @@ MeshData ShapeCube(WEBGL.RenderingContext gl,
     new VM.Vector2(uMin, vMax)
   ];
 
-  MeshData md = new MeshData("cube", gl);
-  md.EnableAttribute(aNormal);
-  md.EnableAttribute(aTextureCoordinates);
-
-  md.AddFaces4(6);
-
-  md.AddVertices(vertices);
-  md.AddAttributesVector2(aTextureCoordinates, uvs);
-  for (int i = 0; i < _CubeNormals.length; i++) {
-    VM.Vector3 n = _CubeNormals[i];
-    md.AddAttributesVector3(aNormal, [n, n, n, n]);
+  GeometryBuilder gb = new GeometryBuilder();
+  gb.EnableAttribute(aTextureCoordinates);
+  if (computeNormals) gb.EnableAttribute(aNormal);
+  gb.AddFaces4(6);
+  gb.AddVertices(vertices);
+  gb.AddAttributesVector2(aTextureCoordinates, uvs);
+  if (computeNormals) {
+    for (int i = 0; i < _CubeNormals.length; i++) {
+      VM.Vector3 n = _CubeNormals[i];
+      gb.AddAttributesVector3(aNormal, [n, n, n, n]);
+    }
   }
-
-  return md;
+  return gb;
 }
 
 final List<VM.Vector3> _WedgeNormals = [
@@ -130,14 +130,15 @@ final List<VM.Vector3> _WedgeNormals = [
 
 // A Wedge is the lower partof a cube that was cut in half
 // through the plane: (-x, y, -z) (-x, y, z), (x, -y, -z), (x, -y, z)
-MeshData ShapeWedge(WEBGL.RenderingContext gl,
+GeometryBuilder WedgeGeometry(
     {double x: 1.0,
     double y: 1.0,
     double z: 1.0,
     double uMin: 0.0,
     double uMax: 1.0,
     double vMin: 0.0,
-    double vMax: 1.0}) {
+    double vMax: 1.0,
+    bool computeNormals: true}) {
   List<VM.Vector3> vertices3 = [
     // Front face3
     new VM.Vector3(-x, -y, z),
@@ -151,7 +152,7 @@ MeshData ShapeWedge(WEBGL.RenderingContext gl,
   ];
 
   List<VM.Vector3> vertices4 = [
-    // Front face3
+    // Front face4
     // Top/Right diagonal face
     new VM.Vector3(-x, y, -z),
     new VM.Vector3(-x, y, z),
@@ -171,7 +172,7 @@ MeshData ShapeWedge(WEBGL.RenderingContext gl,
     new VM.Vector3(-x, y, -z)
   ];
 
-  List<VM.Vector2> uvs = [
+  List<VM.Vector2> uvs3 = [
     // Front face
     new VM.Vector2(uMin, vMin),
     new VM.Vector2(uMax, vMin),
@@ -181,7 +182,9 @@ MeshData ShapeWedge(WEBGL.RenderingContext gl,
     new VM.Vector2(uMax, vMin),
     new VM.Vector2(uMax, vMax),
     new VM.Vector2(uMin, vMax),
+  ];
 
+  List<VM.Vector2> uvs4 = [
     // Top/Right diagonal face
     new VM.Vector2(uMin, vMax),
     new VM.Vector2(uMin, vMin),
@@ -201,19 +204,18 @@ MeshData ShapeWedge(WEBGL.RenderingContext gl,
     new VM.Vector2(uMin, vMax)
   ];
 
-  MeshData md = new MeshData("wedge", gl);
-  md.EnableAttribute(aNormal);
-  md.EnableAttribute(aTextureCoordinates);
+  GeometryBuilder gb = new GeometryBuilder();
+  gb.EnableAttribute(aTextureCoordinates);
+  gb.EnableAttribute(aNormal);
 
-  md.AddFaces3(2);
-  md.AddVertices(vertices3);
-  md.AddFaces4(3);
-  md.AddVertices(vertices4);
-  md.AddAttributesVector2(aTextureCoordinates, uvs);
-  for (int i = 0; i < _WedgeNormals.length; i++) {
-    VM.Vector3 n = _WedgeNormals[i];
-    md.AddAttributesVector3(aNormal, [n, n, n, n]);
-  }
+  gb.AddFaces3(2);
+  gb.AddVertices(vertices3);
+  gb.AddAttributesVector2(aTextureCoordinates, uvs3);
 
-  return md;
+  gb.AddFaces4(3);
+  gb.AddVertices(vertices4);
+  gb.AddAttributesVector2(aTextureCoordinates, uvs4);
+
+  if (computeNormals) gb.GenerateNormalsAssumingTriangleMode();
+  return gb;
 }

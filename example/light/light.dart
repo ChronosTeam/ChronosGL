@@ -37,8 +37,8 @@ void main() {
   ];
 
   MeshData cubeMeshData = ShapeCube(chronosGL.gl, x: 2.0, y: 2.0, z: 2.0);
-  MeshData sphereMeshData = ShapeIcosahedron(chronosGL.gl)
-    ..generateNormalsAssumingTriangleMode();
+  MeshData sphereMeshData = ShapeIcosahedron(chronosGL.gl);
+
   Material cubeMat = new Material("mat")..SetUniform(uColor, colGray);
   List<Node> meshes = [];
   for (int i = 0; i < 8; i++) {
@@ -62,8 +62,7 @@ void main() {
     for (double y = -40.0; y < 40.0; y += 4.0) {
       Node m = new Node(
           "plane-$x-$y",
-          ShapeCube(chronosGL.gl, x: 4.0, y: 0.1, z: 4.0)
-            ..generateNormalsAssumingTriangleMode(),
+          ShapeCube(chronosGL.gl, x: 4.0, y: 0.1, z: 4.0),
           cubeMat)..setPos(x + 2.0, -20.0, y + 2.0);
       plane.add(m);
     }

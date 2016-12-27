@@ -1,6 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:math' as Math;
 import 'dart:html' as HTML;
+import 'dart:web_gl' as WEBGL;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -58,9 +59,7 @@ Node getRocket(dynamic gl, Texture tw) {
         rand.nextDouble() - 0.5));
   }
 
-  MeshData md = new MeshData("firefwork-particles", gl)
-    ..EnableAttribute(aNormal)
-    ..AddFaces1(numPoints)
+  MeshData md = new MeshData("firefwork-particles", gl, WEBGL.POINTS)
     ..AddVertices(vertices)
     ..AddAttributesVector3(aNormal, normals);
 

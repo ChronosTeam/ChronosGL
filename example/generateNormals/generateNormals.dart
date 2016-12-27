@@ -27,20 +27,20 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram prg = phase.createProgram(createNormal2ColorShader());
 
-  List<MeshData> mymd = new List<MeshData>();
+  loadObj("../ct_logo.obj").then((GeometryBuilder ctLogo) {
+    List<GeometryBuilder> geos = [
+      ctLogo,
+      CylinderGeometry(1.0, 1.0, 2.0, 16),
+      CubeGeometry(computeNormals: false)
+    ];
 
-  loadObj("../ct_logo.obj", chronosGL.gl).then((MeshData ctLogo) {
-    mymd.add(ctLogo);
-    mymd.add(ShapeCylinder(chronosGL.gl,1.0, 1.0, 2.0, 16));
-    mymd.add(ShapeCube(chronosGL.gl));
     Material mat = new Material("mat");
     // No deduping
-    for (var i = 0; i < mymd.length; i++) {
-      MeshData md = mymd[i];
+    for (var i = 0; i < geos.length; i++) {
+      MeshData md = GeometryBuilderToMeshData("", chronosGL.gl, geos[i]);
       // the logo is missing normals so we generate them here, but wait, why are the colors all wrong ?
-      md.generateNormalsAssumingTriangleMode();
       Node mesh = new Node(md.name, md, mat);
-      if (md == ctLogo) {
+      if (geos[i] == ctLogo) {
         mesh.rotX(3.14 / 2);
         mesh.rotZ(3.14);
       }
@@ -49,14 +49,12 @@ void main() {
     }
 
     // with deduping (sorry -this is currently not necessary because we de-dup most things implicitly)
-    for (var i = 0; i < mymd.length; i++) {
-      MeshData md = mymd[i];
+    for (var i = 0; i < geos.length; i++) {
+      geos[i].GenerateNormalsAssumingTriangleMode();
+      MeshData md = GeometryBuilderToMeshData("", chronosGL.gl, geos[i]);
       // because some vertices were reused for different faces, so we need to deduplicate the indices
-      md
-        //..deDeuplicateIndices()
-        ..generateNormalsAssumingTriangleMode();
       Node mesh = new Node(md.name, md, mat);
-      if (md == ctLogo) {
+      if (geos[i] == ctLogo) {
         mesh.rotX(3.14 / 2);
         mesh.rotZ(3.14);
       }

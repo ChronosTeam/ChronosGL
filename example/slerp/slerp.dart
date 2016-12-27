@@ -47,7 +47,8 @@ void main() {
   Material mat = new Material("mat");
   Math.Random rng = new Math.Random();
 
-  loadObj("../ct_logo.obj", chronosGL.gl).then((MeshData md) {
+  loadObj("../ct_logo.obj").then((GeometryBuilder gb) {
+    MeshData md = GeometryBuilderToMeshData("", chronosGL.gl, gb);
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);

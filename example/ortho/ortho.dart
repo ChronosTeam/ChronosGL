@@ -80,7 +80,7 @@ void main() {
 
   Node ico = new Node(
       "sphere",
-      ShapeIcosahedron(chronosGL.gl, 3)..generateNormalsAssumingTriangleMode(),
+      ShapeIcosahedron(chronosGL.gl, 3),
       mat1)..setPos(0.0, 0.0, 0.0);
 
   Node cube = new Node("cube", ShapeCube(chronosGL.gl), mat2)
@@ -88,7 +88,7 @@ void main() {
 
   Node cyl = new Node(
       "cylinder",
-      ShapeCylinder( chronosGL.gl, 3.0, 6.0, 2.0, 32)..generateNormalsAssumingTriangleMode(),
+      ShapeCylinder( chronosGL.gl, 3.0, 6.0, 2.0, 32),
       mat3)..setPos(5.0, 0.0, -5.0);
 
   /*

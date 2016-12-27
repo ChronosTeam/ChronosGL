@@ -181,8 +181,7 @@ class Utils {
           (rand.nextDouble() - 0.5) * dimension,
           (rand.nextDouble() - 0.5) * dimension));
     }
-    MeshData md = new MeshData("stars", gl);
-    md.AddFaces1(numPoints);
+    MeshData md = new MeshData("stars", gl, WEBGL.POINTS);
     md.AddVertices(vertices);
 
     Material mat = new Material.Transparent("stars", new BlendEquation.Mix())

@@ -3,10 +3,8 @@ part of shapes;
 // single color cylinder
 // uv mapping is weird to help with debugging
 
-MeshData ShapeCylinder(WEBGL.RenderingContext gl, double radTop,
-    double radBot, double height, int radialSubdivisions) {
-  MeshData md = new MeshData("cylinder", gl);
-  md.EnableAttribute(aTextureCoordinates);
+GeometryBuilder CylinderGeometry(
+    double radTop, double radBot, double height, int radialSubdivisions) {
   double halfHeight = height / 2;
 
   List<VM.Vector3> vertices = [];
@@ -32,6 +30,10 @@ MeshData ShapeCylinder(WEBGL.RenderingContext gl, double radTop,
   }
   assert(vertices.length == 2 + 2 * radialSubdivisions);
 
+  GeometryBuilder gb = new GeometryBuilder();
+  gb.EnableAttribute(aTextureCoordinates);
+  gb.AddVertices(vertices);
+  gb.AddAttributesVector2(aTextureCoordinates, uvs);
   // triangles for top and bottom
   for (int i = 0; i < radialSubdivisions; i++) {
     final int t = (i * 2) + 2; // top node
@@ -41,21 +43,18 @@ MeshData ShapeCylinder(WEBGL.RenderingContext gl, double radTop,
     final int tnext = (j * 2) + 2;
     final int bnext = tnext + 1;
     // triangle in top circle
-    md.AddFace3(0, t, tnext);
+    gb.AddFace3(0, t, tnext);
     // triangle in bottom circle
-    md.AddFace3(1, b, bnext);
+    gb.AddFace3(1, b, bnext);
     // triangle from two verts top to one vert bottom
-    md.AddFace3(tnext, t, b);
+    gb.AddFace3(tnext, t, b);
     // triangle from two verts bottom to one vert top
-    md.AddFace3(b, bnext, tnext);
+    gb.AddFace3(b, bnext, tnext);
   }
-
-  md.AddVertices(vertices);
-  md.AddAttributesVector2(aTextureCoordinates, uvs);
-  return md;
+  return gb;
 }
 
-MeshData ShapeCylinderWireframeFriendly(WEBGL.RenderingContext gl,
+GeometryBuilder CylinderGeometryWireframeFriendly(
     double radTop, double radBot, double height, int radialSubdivisions) {
   // Compute points on edges
   final double halfHeight = height / 2;
@@ -78,25 +77,25 @@ MeshData ShapeCylinderWireframeFriendly(WEBGL.RenderingContext gl,
   final VM.Vector3 centerTop = new VM.Vector3(0.0, halfHeight, 0.0);
   final VM.Vector3 centerBot = new VM.Vector3(0.0, -halfHeight, 0.0);
 
-  MeshData md = new MeshData("cylinder-wireframe-friendly", gl);
-  md.EnableAttribute(aTextureCoordinates);
+  GeometryBuilder gb = new GeometryBuilder();
+  gb.EnableAttribute(aTextureCoordinates);
 
   // top and bottom are Face3
-  md.AddFaces3(2 * radialSubdivisions);
+  gb.AddFaces3(2 * radialSubdivisions);
   for (int i = 0; i < radialSubdivisions; i++) {
-    md.AddVertices([centerTop, top[i], top[i + 1]]);
+    gb.AddVertices([centerTop, top[i], top[i + 1]]);
     // TODO: fix these
-    md.AddAttributesVector2(aTextureCoordinates, [zero, zero, zero]);
-    md.AddVertices([centerBot, bot[i + 1], bot[i]]);
+    gb.AddVertices([centerBot, bot[i + 1], bot[i]]);
     // TODO: fix these
-    md.AddAttributesVector2(aTextureCoordinates, [zero, zero, zero]);
+    gb.AddAttributesVector2(aTextureCoordinates, [zero, zero, zero]);
+    gb.AddAttributesVector2(aTextureCoordinates, [zero, zero, zero]);
   }
 
-  md.AddFaces4(radialSubdivisions);
+  gb.AddFaces4(radialSubdivisions);
   for (int i = 0; i < radialSubdivisions; i++) {
-    md.AddVertices([top[i + 1], top[i], bot[i], bot[i + 1]]);
+    gb.AddVertices([top[i + 1], top[i], bot[i], bot[i + 1]]);
     // TODO: fix these
-    md.AddAttributesVector2(aTextureCoordinates, [zero, zero, zero, zero]);
+    gb.AddAttributesVector2(aTextureCoordinates, [zero, zero, zero, zero]);
   }
-  return md;
+  return gb;
 }

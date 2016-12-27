@@ -4,7 +4,7 @@ part of shapes;
 VM.Vector3 p1 = new VM.Vector3.zero();
 VM.Vector3 p2 = new VM.Vector3.zero();
 
-MeshData ShapeTorusKnot(WEBGL.RenderingContext gl,
+GeometryBuilder ShapeTorusKnotGeometry(
     {double radius: 20.0,
     double tube: 4.0,
     int segmentsR: 128,
@@ -12,8 +12,6 @@ MeshData ShapeTorusKnot(WEBGL.RenderingContext gl,
     int p: 2,
     int q: 3,
     double heightScale: 1.0}) {
-  MeshData md = new MeshData("torusknot", gl);
-  md.EnableAttribute(aTextureCoordinates);
 
   List<VM.Vector3> vertices = [];
 
@@ -53,6 +51,9 @@ MeshData ShapeTorusKnot(WEBGL.RenderingContext gl,
     }
   }
 
+  GeometryBuilder gb = new GeometryBuilder();
+  gb.EnableAttribute(aTextureCoordinates);
+
   for (var i = 0; i < segmentsR; ++i) {
     for (var j = 0; j < segmentsT; ++j) {
       int ip = (i + 1) % segmentsR;
@@ -79,9 +80,9 @@ MeshData ShapeTorusKnot(WEBGL.RenderingContext gl,
       uvc[0] = 1.0;
       uvd[0] = 0.0;
 */
-      md.AddFaces4(1);
-      md.AddVertices([vertices[a], vertices[b], vertices[c], vertices[d]]);
-      md.AddAttributesVector2(aTextureCoordinates, [uva, uvb, uvc, uvd]);
+      gb.AddFaces4(1);
+      gb.AddVertices([vertices[a], vertices[b], vertices[c], vertices[d]]);
+      gb.AddAttributesVector2(aTextureCoordinates, [uva, uvb, uvc, uvd]);
       /*
       uvs.addAll(uva);
       uvs.addAll(uvb);
@@ -93,8 +94,7 @@ MeshData ShapeTorusKnot(WEBGL.RenderingContext gl,
        */
     }
   }
-
-  return md;
+  return gb;
 }
 
 VM.Vector3 getTorusKnotPos(double u, int in_q, int in_p, double radius,

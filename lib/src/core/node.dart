@@ -24,8 +24,6 @@ class Node extends Spatial {
 
   Node(String name, this._meshData, this._material) : super(name) {
     //if (!meshData.isOptimized) meshData.optimize();
-    _meshData.SanityCheck();
-    _meshData.Finalize();
   }
 
   Node.WithInstances(
@@ -42,8 +40,6 @@ class Node extends Spatial {
 
   void UpdateMeshData(MeshData md) {
     //if (!meshData.isOptimized) meshData.optimize();
-    md.SanityCheck();
-    md.Finalize();
     _meshData = md;
   }
 

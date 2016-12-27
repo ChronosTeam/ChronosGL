@@ -50,7 +50,8 @@ void main() {
     useSobel = myselect.checked;
   });
 
-  loadObj("../ct_logo.obj", chronosGL.gl).then((MeshData md) {
+  loadObj("../ct_logo.obj").then((GeometryBuilder gb) {
+    MeshData md = GeometryBuilderToMeshData("", chronosGL.gl, gb);
     Material mat = new Material("mat");
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)

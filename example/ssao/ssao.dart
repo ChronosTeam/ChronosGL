@@ -50,7 +50,8 @@ void main() {
     useSSAO = myselect.checked;
   });
 
-  loadObj("../ct_logo.obj", chronosGL.gl).then((MeshData md) {
+  loadObj("../ct_logo.obj").then((GeometryBuilder gb) {
+    MeshData md = GeometryBuilderToMeshData("", chronosGL.gl, gb);
     Material mat = new Material("mat")
       ..SetUniform(uColor, new VM.Vector3(0.9, 0.9, 0.9));
     Node mesh = new Node(md.name, md, mat)

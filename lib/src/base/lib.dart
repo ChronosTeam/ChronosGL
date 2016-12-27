@@ -14,15 +14,8 @@ part "spatial.dart";
 part "projection.dart";
 part "camera.dart";
 part "lighting.dart";
+part "geometry_builder.dart";
 
-/*
-part "lighting.dart";
-part "textures.dart";
-part "material.dart";
-part "shader_utils.dart";
-part "framebuffer.dart";
-part "render_phase.dart";
-*/
 
 void LogInfo(String s) {
   print("I: " + s);
