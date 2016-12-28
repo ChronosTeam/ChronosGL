@@ -1,4 +1,4 @@
-part of core;
+part of base;
 
 class DrawStats {
   String name;
@@ -14,7 +14,7 @@ class DrawStats {
 
 /// RenderProgram combines a ShaderProgram with a collection of Nodes
 /// to be rendered by it.
-class RenderProgram extends RenderInputs {
+abstract class RenderProgram extends RenderInputs {
   // these are the identity by default
   final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
   final List<Node> objects = new List<Node>();
@@ -33,17 +33,11 @@ class RenderProgram extends RenderInputs {
     return objects.clear();
   }
 
-  _draw(List<DrawStats> stats) {
-    assert(false, "must be impemented in subclass");
-  }
+  DrawOne( Map<String, dynamic>  inputs, List<DrawStats> stats);
 
-  _drawSetUp() {
-    assert(false, "must be impemented in subclass");
-  }
+  DrawSetUp();
 
-  _drawTearDown() {
-    assert(false, "must be impemented in subclass");
-  }
+  DrawTearDown();
 
   void _drawRecursively(
       Node node, final VM.Matrix4 parent, List<DrawStats> stats) {
@@ -52,7 +46,7 @@ class RenderProgram extends RenderInputs {
     if (node.SomethingToDraw()) {
       LogDebug("drawing: ${node}");
       node.AddShaderInputs(this);
-      _draw(stats);
+      DrawOne(GetInputs(), stats);
       node.RemoveShaderInputs(this);
     }
     for (Node child in node.children) {
@@ -65,12 +59,12 @@ class RenderProgram extends RenderInputs {
   // * we recursively draw items in objects passing "this" as a parameter
   // * the objects then call the Draw method above
   void draw(List<DrawStats> stats) {
-    _drawSetUp();
+    DrawSetUp();
     _modelMatrix.setIdentity();
     if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {
       _drawRecursively(node, _modelMatrix, stats);
     }
-    _drawTearDown();
+    DrawTearDown();
   }
 }

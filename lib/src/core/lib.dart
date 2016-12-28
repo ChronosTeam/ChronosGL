@@ -15,7 +15,6 @@ export "../base/lib.dart";
 
 part "extensions.dart";
 part "shader_program.dart";
-part "render_program.dart";
 part "mesh_data.dart";
 part "textures.dart";
 part "material.dart";

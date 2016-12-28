@@ -179,7 +179,7 @@ class ShaderProgram extends RenderProgram {
   }
 
   @override
-  void _drawSetUp() {
+  void DrawSetUp() {
     if (debug) print("[${name} setting attributes");
     _gl.useProgram(_program);
     for (String a in _attributeLocations.keys) {
@@ -217,10 +217,9 @@ class ShaderProgram extends RenderProgram {
   }
 
   @override
-  void _draw(List<DrawStats> stats) {
-
+  void DrawOne(Map<String, dynamic> inputs, List<DrawStats> stats) {
     _numInstances = 0;
-    SetInputs(GetInputs());
+    SetInputs(inputs);
     if (_numItems == 0) return;
      if (stats != null) {
       stats.add(new DrawStats(name, _numInstances, _numItems, _drawMode));
@@ -263,7 +262,7 @@ class ShaderProgram extends RenderProgram {
   }
 
   @override
-  void _drawTearDown() {
+  void DrawTearDown() {
     if (debug) print("[${name} unsetting attributes");
     for (String canonical in _attributeLocations.keys) {
       int index = _attributeLocations[canonical];

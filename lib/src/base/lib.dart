@@ -16,6 +16,7 @@ part "camera.dart";
 part "lighting.dart";
 part "geometry_builder.dart";
 part "node.dart";
+part "render_program.dart";
 
 void LogInfo(String s) {
   print("I: " + s);
