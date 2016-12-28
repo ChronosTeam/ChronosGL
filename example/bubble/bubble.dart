@@ -2,8 +2,6 @@ import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
 
-import 'package:vector_math/vector_math.dart' as VM;
-
 // https://cycling74.com/forums/topic/shader-help-recreating-gl_sphere_map/
 // https://www.opengl.org/wiki/Mathematics_of_glTexGen
 
