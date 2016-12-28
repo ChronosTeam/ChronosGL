@@ -1,6 +1,6 @@
 library base;
 
-// This library does not depend on "dart:html"
+// This library does not depend on "dart:html" nor "dart:webgl"
 // It would be nice if we could also break the dependency on dart:web_gl
 // for easier testing.
 
