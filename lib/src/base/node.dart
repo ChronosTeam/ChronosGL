@@ -37,11 +37,6 @@ class Node extends Spatial {
 
   RenderInputProvider get instancerData => _instancerData;
 
-  void UpdateMeshData(MeshData md) {
-    //if (!meshData.isOptimized) meshData.optimize();
-    _meshData = md;
-  }
-
   void add(Node node) {
     children.add(node);
   }
