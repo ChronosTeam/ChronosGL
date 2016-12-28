@@ -6,7 +6,6 @@ library core;
 import 'dart:typed_data';
 import 'dart:async';
 import 'dart:web_gl' as WEBGL;
-import 'dart:math' as Math;
 
 import 'package:vector_math/vector_math.dart' as VM;
 

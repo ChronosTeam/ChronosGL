@@ -33,11 +33,11 @@ abstract class RenderProgram extends RenderInputs {
     return objects.clear();
   }
 
-  DrawOne( Map<String, dynamic>  inputs, List<DrawStats> stats);
+  void DrawOne( Map<String, dynamic>  inputs, List<DrawStats> stats);
 
-  DrawSetUp();
+  void DrawSetUp();
 
-  DrawTearDown();
+  void DrawTearDown();
 
   void _drawRecursively(
       Node node, final VM.Matrix4 parent, List<DrawStats> stats) {

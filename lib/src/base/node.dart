@@ -28,8 +28,7 @@ class Node extends Spatial {
 
   Node.WithInstances(
       String name, this._meshData, this._instancerData, this._material)
-      : super(name) {
-  }
+      : super(name);
 
   RenderInputProvider get material => _material;
 
@@ -74,5 +73,6 @@ class Node extends Spatial {
     return _material != null && _meshData != null;
   }
 
+  @override
   String toString() => "$name";
 }

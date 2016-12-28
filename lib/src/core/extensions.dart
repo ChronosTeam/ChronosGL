@@ -54,4 +54,5 @@ dynamic UseElementIndexUint(WEBGL.RenderingContext gl) {
     throw "Error: OES_element_index_uint is not supported";
   }
   globalUseElementIndexUint = true;
+  return ext;
 }

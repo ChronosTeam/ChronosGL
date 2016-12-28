@@ -42,21 +42,8 @@ class MeshData extends RenderInputProvider {
   Float32List _vertices;
   List<int> _faces;
   Map<String, Float32List> _attributes = {};
-  Set<String> _finalized = new Set();
 
   MeshData(String name, this._gl, this._drawMode) : super("meshdata:" + name);
-
-  /*
-  int DrawMode() {
-    if (_points1.length > 0) {
-      return WEBGL.POINTS;
-    } else if (_lines2.length > 0) {
-      return WEBGL.LINES;
-    } else {
-      return WEBGL.TRIANGLES;
-    }
-  }
-  */
 
   void clearData() {
     for (String canonical in _buffers.keys) {
@@ -97,14 +84,13 @@ class MeshData extends RenderInputProvider {
   }
 
   void AddFaces(List<int> faces) {
-    TypedData data;
     if (globalUseElementIndexUint) {
-      data = new Uint32List.fromList(faces);
+      _faces = new Uint32List.fromList(faces);
     } else {
-      data = new Uint16List.fromList(faces);
+      _faces = new Uint16List.fromList(faces);
     }
-    _indexBuffer = CreateAndInitializeElementArrayBuffer(_gl, data);
-    _faces = data;
+    _indexBuffer =
+        CreateAndInitializeElementArrayBuffer(_gl, _faces as TypedData);
   }
 
   @override
