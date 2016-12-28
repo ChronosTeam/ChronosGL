@@ -200,3 +200,28 @@ MeshData GeometryBuilderToMeshData(
   }
   return md;
 }
+
+MeshData GeometryBuilderToMeshDataLines(
+    String name, WEBGL.RenderingContext gl, GeometryBuilder gb) {
+  MeshData md = new MeshData(name, gl, WEBGL.LINES);
+  md.AddVertices(gb.vertices);
+  md.AddFaces(gb.GenerateLineIndices());
+  for (String canonical in gb.attributes.keys) {
+    dynamic lst = gb.attributes[canonical];
+    switch (lst[0].runtimeType) {
+      case VM.Vector2:
+        md.AddAttributesVector2(canonical, lst);
+        break;
+      case VM.Vector3:
+        md.AddAttributesVector3(canonical, lst);
+        break;
+      case VM.Vector4:
+        md.AddAttributesVector4(canonical, lst);
+        break;
+      default:
+        assert(false);
+        break;
+    }
+  }
+  return md;
+}

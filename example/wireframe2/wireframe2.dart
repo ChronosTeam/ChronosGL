@@ -19,70 +19,69 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   Perspective perspective = new Perspective(orbit);
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
-  RenderProgram program = phase.createProgram(createWireframeShader());
+  RenderProgram program = phase.createProgram(createSolidColorShader());
   final Material matWireframe = new Material("wire")
-    ..SetUniform(uColorAlpha, new VM.Vector4(1.0, 1.0, 0.0, 1.0))
-    ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5))
+    ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0))
     ..SetUniform(cBlend, true, true)
     ..SetUniform(cBlendEquation, new BlendEquation.Standard());
 
-  {
-    GeometryBuilder gb = IcosahedronGeometry(2)..GenerateWireframeCenters();
+
+   {
+    GeometryBuilder gb = IcosahedronGeometry(2);
     Node ico = new Node(
         "sphere",
-        GeometryBuilderToMeshData("icosahedron", chronosGL.gl, gb),
+        GeometryBuilderToMeshDataLines("icosahedron", chronosGL.gl, gb),
         matWireframe)..setPos(0.0, 0.0, 0.0);
     program.add(ico);
   }
 
   {
-    GeometryBuilder gb = CubeGeometry()..GenerateWireframeCenters();
+    GeometryBuilder gb = CubeGeometry();
     Node cube = new Node(
         "cube",
-        GeometryBuilderToMeshData("cube", chronosGL.gl, gb),
+        GeometryBuilderToMeshDataLines("cube", chronosGL.gl, gb),
         matWireframe)..setPos(-5.0, 0.0, -5.0);
     program.add(cube);
   }
 
   {
-    GeometryBuilder gb = WedgeGeometry()..GenerateWireframeCenters();
+    GeometryBuilder gb = WedgeGeometry();
     Node wedge = new Node(
         "wedge",
-        GeometryBuilderToMeshData("wedge", chronosGL.gl, gb),
+        GeometryBuilderToMeshDataLines("wedge", chronosGL.gl, gb),
         matWireframe)..setPos(0.0, -5.0, 0.0);
     program.add(wedge);
   }
 
 
   {
-    GeometryBuilder gb = CylinderGeometryWireframeFriendly(3.0, 4.0, 2.0, 16)
-      ..GenerateWireframeCenters();
+    GeometryBuilder gb = CylinderGeometryWireframeFriendly(3.0, 4.0, 2.0, 16);
     Node cyl = new Node(
         "cylinder",
-        GeometryBuilderToMeshData("cylinder", chronosGL.gl, gb),
+        GeometryBuilderToMeshDataLines("cylinder", chronosGL.gl, gb),
         matWireframe)..setPos(5.0, 0.0, -5.0);
     program.add(cyl);
   }
 
 
   {
-    GeometryBuilder gb = QuadGeometry(2)..GenerateWireframeCenters();
+    GeometryBuilder gb = QuadGeometry(2);
     Node quad = new Node(
         "quad",
-        GeometryBuilderToMeshData("quad", chronosGL.gl, gb),
+        GeometryBuilderToMeshDataLines("quad", chronosGL.gl, gb),
         matWireframe)..setPos(-5.0, 0.0, 5.0);
     program.add(quad);
   }
 
   {
-    GeometryBuilder gb = ShapeTorusKnotGeometry(radius: 1.0, tube: 0.4)
-      ..GenerateWireframeCenters();
+    GeometryBuilder gb = ShapeTorusKnotGeometry(radius: 1.0, tube: 0.4);
     Node torus = new Node(
         "torus",
-        GeometryBuilderToMeshData("torus", chronosGL.gl, gb),
+        GeometryBuilderToMeshDataLines("torus", chronosGL.gl, gb),
         matWireframe)..setPos(5.0, 0.0, 5.0);
     program.add(torus);
   }
+
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

@@ -156,6 +156,33 @@ class GeometryBuilder {
     return faces;
   }
 
+  List<int> GenerateLineIndices() {
+    List<int> lines = new List<int>(_faces3.length * 6 + _faces4.length * 8);
+    int i = 0;
+    for (Face3 f3 in _faces3) {
+      lines[i + 0] = f3.a;
+      lines[i + 1] = f3.b;
+      lines[i + 2] = f3.b;
+      lines[i + 3] = f3.c;
+      lines[i + 4] = f3.c;
+      lines[i + 5] = f3.a;
+      i += 6;
+    }
+    for (Face4 f4 in _faces4) {
+      lines[i + 0] = f4.a;
+      lines[i + 1] = f4.b;
+      lines[i + 2] = f4.b;
+      lines[i + 3] = f4.c;
+      lines[i + 4] = f4.c;
+      lines[i + 5] = f4.d;
+      lines[i + 6] = f4.d;
+      lines[i + 7] = f4.a;
+      i += 8;
+    }
+    assert(i == lines.length);
+    return lines;
+  }
+
   static bool normalFromPoints(VM.Vector3 a, VM.Vector3 b, VM.Vector3 c,
       VM.Vector3 temp, VM.Vector3 normal) {
     temp
