@@ -87,7 +87,7 @@ void main() {
 
   // The point sprites use texture. Wait until the texture is ready
   // then start the main animation loop.
-  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures().then((dummy) {
     animate(0.0);
   });
 }

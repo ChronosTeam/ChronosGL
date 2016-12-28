@@ -58,21 +58,20 @@ void main() {
 
   RenderProgram prg = phase.createProgram(createSkyScraperShader());
 
+  // 0.01 and 0.99 is to remove some artifacts on the edges
+  VM.Vector2 q = new VM.Vector2(0.01, 0.01);
+  GeometryBuilder gb = CubeGeometry(
+      x: 1.0, y: 2.0, z: 1.0, uMin: 0.01, uMax: 0.99, vMin: 0.01, vMax: 0.99);
+  List uvs = gb.attributes[aTextureCoordinates];
+  // change top and bottom face
+  for (int  i = 2 * 4; i < 4 * 4; i++) {
+    uvs[i].setFrom(q);
+  }
+  MeshData house = GeometryBuilderToMeshData("house", chronosGL.gl, gb);
+
   for (int x = -10; x < 10; x += 4) {
     for (int z = -10; z < 10; z += 4) {
-      // 0.01 and 0.99 is to remove some artifacts on the edges
-      MeshData md = ShapeCube(chronosGL.gl,
-          x: 1.0,
-          y: 2.0,
-          z: 1.0,
-          uMin: 0.01,
-          uMax: 0.99,
-          vMin: 0.01,
-          vMax: 0.99);
-      VM.Vector2 q = new VM.Vector2(0.01, 0.01);
-      md.setFace4UV(2, q, q, q, q);
-      md.setFace4UV(3, q, q, q, q);
-      Node m = new Node(md.name, md, mat)
+      Node m = new Node(house.name, house, mat)
         ..setPos(x.toDouble(), 0.0, z.toDouble());
       prg.add(m);
     }
@@ -103,7 +102,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures().then((dummy) {
     animate(0.0);
   });
 }

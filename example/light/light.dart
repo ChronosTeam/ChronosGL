@@ -27,6 +27,7 @@ void main() {
 
   VM.Vector3 colBlue = new VM.Vector3(0.0, 0.0, 1.0);
   VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
+  VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
   VM.Vector3 posLight = new VM.Vector3(10.0, 20.0, 0.0);
   VM.Vector3 dirLight = new VM.Vector3(0.0, 50.0, 0.0);
   List<Light> lights = [
@@ -36,9 +37,9 @@ void main() {
   ];
 
   MeshData cubeMeshData = ShapeCube(chronosGL.gl, x: 2.0, y: 2.0, z: 2.0);
-  MeshData sphereMeshData = ShapeIcosahedron(chronosGL.gl)
-    ..generateNormalsAssumingTriangleMode();
-  Material cubeMat = new Material("mat");
+  MeshData sphereMeshData = ShapeIcosahedron(chronosGL.gl);
+
+  Material cubeMat = new Material("mat")..SetUniform(uColor, colGray);
   List<Node> meshes = [];
   for (int i = 0; i < 8; i++) {
     double x = i & 1 == 0 ? -10.0 : 10.0;
@@ -61,8 +62,7 @@ void main() {
     for (double y = -40.0; y < 40.0; y += 4.0) {
       Node m = new Node(
           "plane-$x-$y",
-          ShapeCube(chronosGL.gl, x: 4.0, y: 0.1, z: 4.0)
-            ..generateNormalsAssumingTriangleMode(),
+          ShapeCube(chronosGL.gl, x: 4.0, y: 0.1, z: 4.0),
           cubeMat)..setPos(x + 2.0, -20.0, y + 2.0);
       plane.add(m);
     }
@@ -135,7 +135,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures().then((dummy) {
     animate(0.0);
   });
 }

@@ -2,8 +2,6 @@ import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
 
-import 'package:vector_math/vector_math.dart' as VM;
-
 // https://cycling74.com/forums/topic/shader-help-recreating-gl_sphere_map/
 // https://www.opengl.org/wiki/Mathematics_of_glTexGen
 
@@ -44,13 +42,11 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   // Note, moving the camera does not have an effect
 
-  Texture bubble = new ImageTexture("sphere.png");
+  Texture bubble = new ImageTexture(chronosGL.gl, "sphere.png");
 
   RenderProgram shaderSpheres = phase.createProgram(sphereShader());
   Material mat = new Material("sphere")..SetUniform(uTextureSampler, bubble);
   MeshData md = ShapeIcosahedron(chronosGL.gl, 3);
-  //md.generateNormalsAssumingTriangleMode();
-  md.generateRadialNormals(new VM.Vector3(0.0, 0.0, 0.0));
   Node m = new Node("sphere", md, mat)..setPos(0.0, 0.0, 0.0);
 
   shaderSpheres.add(m);
@@ -80,7 +76,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures().then((dummy) {
     animate(0.0);
   });
 }

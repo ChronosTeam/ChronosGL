@@ -1,4 +1,4 @@
-part of chronosshader;
+part of base;
 
 class ShaderVarDesc {
   String type;
@@ -48,7 +48,9 @@ const String cDepthTest = "cDepthTest";
 const String cDepthWrite = "cDepthWrite";
 const String cBlend = "cBlend";
 const String cBlendEquation = "cBlendEquation";
-
+const String cNumItems = "cNumItems";
+const String cNumInstances = "cNumInstances";
+const String cDrawMode = "cDrawMode";
 // ===========================================================
 // Attributes
 // ===========================================================
@@ -133,6 +135,9 @@ Map<String, ShaderVarDesc> _VarsDb = {
   cBlendEquation: new ShaderVarDesc("", ""),
   cDepthWrite: new ShaderVarDesc("", ""),
   cDepthTest: new ShaderVarDesc("", ""),
+  cNumItems: new ShaderVarDesc("", ""),
+  cNumInstances: new ShaderVarDesc("", ""),
+  cDrawMode: new ShaderVarDesc("", ""),
 
   // attribute vars
   // This should also contain an alpha channel

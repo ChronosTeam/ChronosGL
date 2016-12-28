@@ -1,4 +1,4 @@
-part of chronosgl;
+part of base;
 
 final int RIGHTX = 0, RIGHTY = 4, RIGHTZ = 8;
 final int UPX = 1, UPY = 5, UPZ = 9;

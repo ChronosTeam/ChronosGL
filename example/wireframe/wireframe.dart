@@ -25,52 +25,61 @@ void main() {
     ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5))
     ..SetUniform(cBlend, true, true)
     ..SetUniform(cBlendEquation, new BlendEquation.Standard());
+
   {
+    GeometryBuilder gb = IcosahedronGeometry(2)..GenerateWireframeCenters();
     Node ico = new Node(
         "sphere",
-        ShapeIcosahedron(chronosGL.gl, 2)..generateWireframeCenters(),
+        GeometryBuilderToMeshData("icosahedron", chronosGL.gl, gb),
         matWireframe)..setPos(0.0, 0.0, 0.0);
     program.add(ico);
   }
 
   {
+    GeometryBuilder gb = CubeGeometry()..GenerateWireframeCenters();
     Node cube = new Node(
         "cube",
-        ShapeCube(chronosGL.gl)..generateWireframeCenters(),
+        GeometryBuilderToMeshData("cube", chronosGL.gl, gb),
         matWireframe)..setPos(-5.0, 0.0, -5.0);
     program.add(cube);
   }
 
   {
+    GeometryBuilder gb = WedgeGeometry()..GenerateWireframeCenters();
     Node wedge = new Node(
         "wedge",
-        ShapeWedge(chronosGL.gl)..generateWireframeCenters(),
+        GeometryBuilderToMeshData("wedge", chronosGL.gl, gb),
         matWireframe)..setPos(0.0, -5.0, 0.0);
     program.add(wedge);
   }
 
+
   {
+    GeometryBuilder gb = CylinderGeometryWireframeFriendly(3.0, 4.0, 2.0, 16)
+      ..GenerateWireframeCenters();
     Node cyl = new Node(
         "cylinder",
-        ShapeCylinderWireframeFriendly(chronosGL.gl, 3.0, 4.0, 2.0, 16)
-          ..generateWireframeCenters(),
+        GeometryBuilderToMeshData("cylinder", chronosGL.gl, gb),
         matWireframe)..setPos(5.0, 0.0, -5.0);
     program.add(cyl);
   }
 
+
   {
+    GeometryBuilder gb = QuadGeometry(2)..GenerateWireframeCenters();
     Node quad = new Node(
         "quad",
-        ShapeQuad(chronosGL.gl, 2)..generateWireframeCenters(),
+        GeometryBuilderToMeshData("quad", chronosGL.gl, gb),
         matWireframe)..setPos(-5.0, 0.0, 5.0);
     program.add(quad);
   }
 
   {
+    GeometryBuilder gb = ShapeTorusKnotGeometry(radius: 1.0, tube: 0.4)
+      ..GenerateWireframeCenters();
     Node torus = new Node(
         "torus",
-        ShapeTorusKnot(chronosGL.gl, radius: 1.0, tube: 0.4)
-          ..generateWireframeCenters(),
+        GeometryBuilderToMeshData("torus", chronosGL.gl, gb),
         matWireframe)..setPos(5.0, 0.0, 5.0);
     program.add(torus);
   }
@@ -103,7 +112,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures().then((dummy) {
     animate(0.0);
   });
 }

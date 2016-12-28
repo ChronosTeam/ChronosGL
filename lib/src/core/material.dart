@@ -1,22 +1,5 @@
-part of chronosgl;
+part of core;
 
-/// RenderInputProvider provides inputs (aks parameters) necessary for running
-/// a ShaderProgram. The primary examples for such inputs are:
-/// Uniforms, Attributes, VertexBuffers
-/// Each parameter has a canonical name, c.f. shader_object.dart.
-/// A large number of those are already registered by default.
-/// Additional ones required by custom shaders can be registered at
-/// startup.
-/// There are small number of unusual control inputs, e.g.
-/// cBlend that indirectly effect the behavior of a ShaderProgram.
-/// These are mostly related to fixed function features, like
-/// blending and depth buffers.
-abstract class RenderInputProvider extends NamedEntity {
-  RenderInputProvider(String name) : super(name);
-
-  void AddRenderInputs(RenderInputs inputs);
-  void RemoveRenderInputs(RenderInputs inputs);
-}
 
 class BlendEquation {
   int equation;
@@ -32,6 +15,12 @@ class BlendEquation {
   BlendEquation.Mix() {
     srcFactor = WEBGL.SRC_ALPHA;
     dstFactor = WEBGL.ONE_MINUS_SRC_COLOR;
+    equation = WEBGL.FUNC_ADD;
+  }
+
+  BlendEquation.Add() {
+    srcFactor = WEBGL.ONE;
+    dstFactor = WEBGL.ONE;
     equation = WEBGL.FUNC_ADD;
   }
 }
@@ -57,6 +46,10 @@ class Material extends RenderInputProvider {
 
   void SetUniform(String canonical, val, [bool allowOverride = false]) {
     assert(allowOverride || !_uniforms.containsKey(canonical));
+    _uniforms[canonical] = val;
+  }
+
+  void ForceUniform(String canonical, val) {
     _uniforms[canonical] = val;
   }
 

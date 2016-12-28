@@ -61,7 +61,8 @@ void main() {
 
   basic.SetInput(uShadowSampler0, shadowBuffer.colorTexture);
 
-  Texture solid = new CanvasTexture.SolidColor("red-solid", "red");
+  Texture solid =
+      new CanvasTexture.SolidColor(chronosGL.gl, "red-solid", "red");
   final Material mat1 = new Material("mat1")
     ..SetUniform(uTextureSampler, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
@@ -75,11 +76,8 @@ void main() {
     ..SetUniform(uColor, new VM.Vector3(0.8, 0.8, 0.8));
 
   {
-    Node ico = new Node(
-        "sphere",
-        ShapeIcosahedron(chronosGL.gl, 3)
-          ..generateNormalsAssumingTriangleMode(),
-        mat1)..setPos(0.0, 0.0, 0.0);
+    Node ico = new Node("sphere", ShapeIcosahedron(chronosGL.gl, 3), mat1)
+      ..setPos(0.0, 0.0, 0.0);
     shadowMap.add(ico);
     basic.add(ico);
   }
@@ -92,10 +90,8 @@ void main() {
 
   {
     Node cyl = new Node(
-        "cylinder",
-        ShapeCylinder(chronosGL.gl, 3.0, 6.0, 2.0, 32)
-          ..generateNormalsAssumingTriangleMode(),
-        mat2)..setPos(5.0, 0.0, -5.0);
+        "cylinder", ShapeCylinder(chronosGL.gl, 3.0, 6.0, 2.0, 32), mat2)
+      ..setPos(5.0, 0.0, -5.0);
     shadowMap.add(cyl);
     basic.add(cyl);
   }
@@ -171,6 +167,7 @@ void main() {
     double lx = GetInputValue(HTML.document.getElementById("posx"));
     double ly = GetInputValue(HTML.document.getElementById("posy"));
     double lz = GetInputValue(HTML.document.getElementById("posz"));
+    //  note: since we have a directional light, pos has not effect
     light.pos.setValues(lx, ly, lz);
     ico1.setPosFromVec(light.pos);
     // Compute the shadow map
@@ -183,7 +180,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures().then((dummy) {
     animate(0.0);
   });
 }

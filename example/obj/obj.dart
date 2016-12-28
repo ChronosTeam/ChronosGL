@@ -10,7 +10,8 @@ void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas, useElementIndexUint: true);
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  //UseElementIndexUint(chronosGL.gl);
   OrbitCamera orbit = new OrbitCamera(25.0);
   Perspective perspective = new Perspective(orbit);
 
@@ -43,7 +44,9 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  loadObj(model, chronosGL.gl).then((MeshData md) {
+  loadObj(model).then((GeometryBuilder gb) {
+    MeshData md = GeometryBuilderToMeshData(model, chronosGL.gl, gb);
+
     Material mat = new Material("mat");
     Node mesh = new Node(md.name, md, mat)..rotX(3.14 / 2);
     //mesh.rotY(3.14);

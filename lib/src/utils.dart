@@ -51,8 +51,8 @@ class Utils {
     });
   }
 
-  static Texture createParticleTexture([String name = "Utils::Particles"]) {
-    return new CanvasTexture(name, createParticleCanvas());
+  static Texture createParticleTexture(gl, [String name = "Utils::Particles"]) {
+    return new CanvasTexture(gl, name, createParticleCanvas());
   }
 
   static HTML.CanvasElement createParticleCanvas() {
@@ -165,7 +165,7 @@ class Utils {
    */
 
   static Node MakeParticles(WEBGL.RenderingContext gl, int numPoints, [int dimension = 100]) {
-    return MakePointSprites(gl, numPoints, createParticleTexture(), dimension);
+    return MakePointSprites(gl, numPoints, createParticleTexture(gl), dimension);
   }
 
   static int id = 1;
@@ -181,8 +181,7 @@ class Utils {
           (rand.nextDouble() - 0.5) * dimension,
           (rand.nextDouble() - 0.5) * dimension));
     }
-    MeshData md = new MeshData("stars", gl);
-    md.AddFaces1(numPoints);
+    MeshData md = new MeshData("stars", gl, WEBGL.POINTS);
     md.AddVertices(vertices);
 
     Material mat = new Material.Transparent("stars", new BlendEquation.Mix())
@@ -230,4 +229,67 @@ class Utils {
     }
     return null;
   }
+}
+
+MeshData ShapeCube(WEBGL.RenderingContext gl,
+    {double x: 1.0,
+    double y: 1.0,
+    double z: 1.0,
+    double uMin: 0.0,
+    double uMax: 1.0,
+    double vMin: 0.0,
+    double vMax: 1.0}) {
+  GeometryBuilder gb = CubeGeometry(
+      x: x, y: y, z: z, uMin: uMin, uMax: uMax, vMin: vMin, vMax: vMax);
+  return GeometryBuilderToMeshData("cube", gl, gb);
+}
+
+MeshData ShapeWedge(WEBGL.RenderingContext gl,
+    {double x: 1.0,
+    double y: 1.0,
+    double z: 1.0,
+    double uMin: 0.0,
+    double uMax: 1.0,
+    double vMin: 0.0,
+    double vMax: 1.0}) {
+  GeometryBuilder gb = WedgeGeometry(
+      x: x, y: y, z: z, uMin: uMin, uMax: uMax, vMin: vMin, vMax: vMax);
+  return GeometryBuilderToMeshData("wedge", gl, gb);
+}
+
+MeshData ShapeCylinder(WEBGL.RenderingContext gl, double radTop, double radBot,
+    double height, int radialSubdivisions) {
+  GeometryBuilder gb =
+      CylinderGeometry(radTop, radBot, height, radialSubdivisions);
+  return GeometryBuilderToMeshData("cylinder-${radialSubdivisions}", gl, gb);
+}
+
+MeshData ShapeIcosahedron(WEBGL.RenderingContext gl,
+    [int subdivisions = 4, double scale = 1.0, bool computeNormals = true]) {
+  GeometryBuilder gb = IcosahedronGeometry(subdivisions, scale, computeNormals);
+  return GeometryBuilderToMeshData("icosahedron-${subdivisions}", gl, gb);
+}
+
+MeshData ShapeTorusKnot(WEBGL.RenderingContext gl,
+    {double radius: 20.0,
+    double tube: 4.0,
+    int segmentsR: 128,
+    int segmentsT: 16,
+    int p: 2,
+    int q: 3,
+    double heightScale: 1.0}) {
+  GeometryBuilder gb = ShapeTorusKnotGeometry(
+      radius: radius,
+      tube: tube,
+      segmentsR: segmentsR,
+      segmentsT: segmentsT,
+      p: p,
+      q: q,
+      heightScale: heightScale);
+  return GeometryBuilderToMeshData("torusknot", gl, gb);
+}
+
+MeshData ShapeQuad(WEBGL.RenderingContext gl, int size) {
+  GeometryBuilder gb = QuadGeometry(size);
+  return GeometryBuilderToMeshData("quad", gl, gb);
 }

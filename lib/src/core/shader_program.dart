@@ -1,11 +1,7 @@
-part of chronosgl;
+part of core;
 
 // ShaderProgram represents a GPU shader program
-// The protocol is roughly this:
-// Begin()
-// (SetInputs() Draw())+
-// End()
-class ShaderProgram extends NamedEntity {
+class ShaderProgram extends RenderProgram {
   WEBGL.RenderingContext _gl;
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
@@ -14,6 +10,9 @@ class ShaderProgram extends NamedEntity {
   Map<String, WEBGL.UniformLocation> _uniformLocations = {};
   Set<String> _uniformInitialized = new Set<String>();
   WEBGL.AngleInstancedArrays _extInstancedArrays;
+  int _drawMode = -1;
+  int _numInstances = 0;
+  int _numItems = 0;
 
   ShaderProgram(String name, this._gl, this._shaderObjectV, this._shaderObjectF)
       : super(name) {
@@ -22,7 +21,6 @@ class ShaderProgram extends NamedEntity {
     _program = su.getProgram(_shaderObjectV.shader, _shaderObjectF.shader);
     for (String v in _shaderObjectV.attributeVars.keys) {
       _attributeLocations[v] = _gl.getAttribLocation(_program, v);
-      //HTML.window.console.log("$v ${_attributeLocations[v]} ");
       if (_attributeLocations[v] < 0) {
         LogError("cannot get location for  attribute $v");
         assert(false);
@@ -61,6 +59,15 @@ class ShaderProgram extends NamedEntity {
 
   void _SetControl(String canonical, var val) {
     switch (canonical) {
+      case cNumInstances:
+        _numInstances = val;
+        break;
+      case cDrawMode:
+        _drawMode = val;
+        break;
+      case cNumItems:
+        _numItems = val;
+        break;
       case cDepthTest:
         if (val == true) {
           _gl.enable(WEBGL.DEPTH_TEST);
@@ -69,7 +76,7 @@ class ShaderProgram extends NamedEntity {
         }
         break;
       case cDepthWrite:
-         _gl.depthMask(val);
+        _gl.depthMask(val);
         break;
       case cBlend:
         if (val == true) {
@@ -171,7 +178,8 @@ class ShaderProgram extends NamedEntity {
     return out;
   }
 
-  void Begin(bool debug) {
+  @override
+  void DrawSetUp() {
     if (debug) print("[${name} setting attributes");
     _gl.useProgram(_program);
     for (String a in _attributeLocations.keys) {
@@ -196,7 +204,7 @@ class ShaderProgram extends NamedEntity {
           _gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, inputs[canonical]);
           break;
         case prefixControl:
-          _SetControl(canonical,inputs[canonical]);
+          _SetControl(canonical, inputs[canonical]);
           break;
         case prefixInstancer:
         case prefixAttribute:
@@ -208,47 +216,53 @@ class ShaderProgram extends NamedEntity {
     }
   }
 
-  void Draw(bool debug, Map<String, dynamic> inputs, int numInstances,
-      int numItems, int drawMode) {
+  @override
+  void DrawOne(Map<String, dynamic> inputs, List<DrawStats> stats) {
+    _numInstances = 0;
     SetInputs(inputs);
+    if (_numItems == 0) return;
+     if (stats != null) {
+      stats.add(new DrawStats(name, _numInstances, _numItems, _drawMode));
+    }
     if (debug)
-      print("[${name}] draw points: ${drawMode} instances${numInstances}");
+      print("[${name}] draw points: ${_drawMode} instances${_numInstances}");
     if (!AllUniformsInitialized()) {
       throw "${name}: uninitialized uniforms: ${UniformsUninitialized()}";
     }
 
-    final bool useArrayBuffer = inputs.containsKey(eArray);
-    if (numInstances > 0) {
+    final bool useArrayBuffer = HasInput(eArray);
+    if (_numInstances > 0) {
       if (useArrayBuffer) {
         _extInstancedArrays.drawElementsInstancedAngle(
-            drawMode,
-            numItems,
-            ChronosGL.useElementIndexUint
+            _drawMode,
+            _numItems,
+            globalUseElementIndexUint
                 ? WEBGL.UNSIGNED_INT
                 : WEBGL.UNSIGNED_SHORT,
             0,
-            numInstances);
+            _numInstances);
       } else {
         _extInstancedArrays.drawArraysInstancedAngle(
-            drawMode, 0, numItems, numInstances);
+            _drawMode, 0, _numItems, _numInstances);
       }
     } else {
       if (useArrayBuffer) {
         _gl.drawElements(
-            drawMode,
-            numItems,
-            ChronosGL.useElementIndexUint
+            _drawMode,
+            _numItems,
+            globalUseElementIndexUint
                 ? WEBGL.UNSIGNED_INT
                 : WEBGL.UNSIGNED_SHORT,
             0);
       } else {
-        _gl.drawArrays(drawMode, 0, numItems);
+        _gl.drawArrays(_drawMode, 0, _numItems);
       }
     }
     if (debug) print(_gl.getProgramInfoLog(_program));
   }
 
-  void End(bool debug) {
+  @override
+  void DrawTearDown() {
     if (debug) print("[${name} unsetting attributes");
     for (String canonical in _attributeLocations.keys) {
       int index = _attributeLocations[canonical];

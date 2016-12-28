@@ -1,6 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:math' as Math;
 import 'dart:html' as HTML;
+import 'dart:web_gl' as WEBGL;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -58,9 +59,7 @@ Node getRocket(dynamic gl, Texture tw) {
         rand.nextDouble() - 0.5));
   }
 
-  MeshData md = new MeshData("firefwork-particles", gl)
-    ..EnableAttribute(aNormal)
-    ..AddFaces1(numPoints)
+  MeshData md = new MeshData("firefwork-particles", gl, WEBGL.POINTS)
     ..AddVertices(vertices)
     ..AddAttributesVector3(aNormal, normals);
 
@@ -82,7 +81,7 @@ void main() {
   programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
   RenderProgram pssp = phase.createProgram(createFireWorksShader());
-  pssp.add(getRocket(chronosGL.gl, Utils.createParticleTexture("fireworks")));
+  pssp.add(getRocket(chronosGL.gl, Utils.createParticleTexture(chronosGL.gl, "fireworks")));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -110,7 +109,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures().then((dummy) {
     animate(0.0);
   });
 }

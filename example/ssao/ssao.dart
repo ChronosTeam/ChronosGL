@@ -50,17 +50,20 @@ void main() {
     useSSAO = myselect.checked;
   });
 
-  loadObj("../ct_logo.obj", chronosGL.gl).then((MeshData md) {
+  loadObj("../ct_logo.obj").then((GeometryBuilder gb) {
+    MeshData md = GeometryBuilderToMeshData("", chronosGL.gl, gb);
     Material mat = new Material("mat")
       ..SetUniform(uColor, new VM.Vector3(0.9, 0.9, 0.9));
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
-    Node n = new Node.Container("wrapper", mesh)
-      //n.invert = true;
-      ..lookAt(new VM.Vector3(100.0, 0.0, -100.0));
-    //n.matrix.scale(0.02);
 
+    /*
+    Node n = new Node.Container("wrapper", mesh)
+      ..lookAt(new VM.Vector3(100.0, 0.0, -100.0));
+    // n.invert = true;
+    // n.matrix.scale(0.02);
+    */
     prg1.add(mesh);
 
     double _lastTimeMs = 0.0;
@@ -80,7 +83,7 @@ void main() {
       HTML.window.animationFrame.then(animate);
     }
 
-    Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+    Texture.loadAndInstallAllTextures().then((dummy) {
       animate(0.0);
     });
   });

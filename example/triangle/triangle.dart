@@ -57,7 +57,7 @@ void main() {
   RenderProgram prgOrthographic =
       phaseOrthograhic.createProgram(createTexturedShader());
 
-  Texture solid = new CanvasTexture.SolidColor("red-solid", "red");
+  Texture solid = new CanvasTexture.SolidColor(chronosGL.gl, "red-solid", "red");
   final Material mat1 = new Material("mat1")
     ..SetUniform(uTextureSampler, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
@@ -69,10 +69,6 @@ void main() {
   final Material mat3 = new Material("mat3")
     ..SetUniform(uTextureSampler, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 1.0, 0.0));
-
-  final Material matPlane = new Material("plane")
-    ..SetUniform(uTextureSampler, solid)
-    ..SetUniform(uColor, new VM.Vector3(0.8, 0.8, 0.8));
 
   double thickness = 3.0;
   double length = 5.0 * thickness;
@@ -149,7 +145,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures().then((dummy) {
     animate(0.0);
   });
 }

@@ -10,7 +10,7 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram programBasic = phase.createProgram(createTexturedShader());
 
-  Texture blockTex = new ImageTexture("../gradient.jpg");
+  Texture blockTex = new ImageTexture(chronosGL.gl, "../gradient.jpg");
 
   RenderProgram perlinNoise =
       phase.createProgram(createPerlinNoiseColorShader(false));
@@ -57,7 +57,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures().then((dummy) {
     animate(0.0);
   });
 }

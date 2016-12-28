@@ -61,7 +61,7 @@ void main() {
   RenderProgram prgPerspective =
       phasePerspective.createProgram(createTexturedShader());
 
-  Texture solid = new CanvasTexture.SolidColor("red-solid", "red");
+  Texture solid = new CanvasTexture.SolidColor(chronosGL.gl, "red-solid", "red");
   final Material mat1 = new Material("mat1")
     ..SetUniform(uTextureSampler, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
@@ -80,7 +80,7 @@ void main() {
 
   Node ico = new Node(
       "sphere",
-      ShapeIcosahedron(chronosGL.gl, 3)..generateNormalsAssumingTriangleMode(),
+      ShapeIcosahedron(chronosGL.gl, 3),
       mat1)..setPos(0.0, 0.0, 0.0);
 
   Node cube = new Node("cube", ShapeCube(chronosGL.gl), mat2)
@@ -88,7 +88,7 @@ void main() {
 
   Node cyl = new Node(
       "cylinder",
-      ShapeCylinder( chronosGL.gl, 3.0, 6.0, 2.0, 32)..generateNormalsAssumingTriangleMode(),
+      ShapeCylinder( chronosGL.gl, 3.0, 6.0, 2.0, 32),
       mat3)..setPos(5.0, 0.0, -5.0);
 
   /*
@@ -139,7 +139,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures(chronosGL.gl).then((dummy) {
+  Texture.loadAndInstallAllTextures().then((dummy) {
     animate(0.0);
   });
 }

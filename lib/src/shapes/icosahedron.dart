@@ -1,4 +1,4 @@
-part of chronosgl;
+part of shapes;
 
 double getU2(double z, double x) {
   return 0.5 * (1.0 + Math.atan2(z, x) * (1 / Math.PI));
@@ -75,7 +75,8 @@ final List<VM.Vector3> _icoVertices = [
 //   2            320          312  
 //   3           1280         1272
 //   4           5120         5112
-MeshData ShapeIcosahedron(WEBGL.RenderingContext gl, [int subdivisions = 4]) {
+GeometryBuilder IcosahedronGeometry(
+    [int subdivisions = 4, double scale = 1.0, bool computeNormals=true]) {
   List<Face3> faces = [];
   List<VM.Vector3> vertices = [];
 
@@ -91,11 +92,20 @@ MeshData ShapeIcosahedron(WEBGL.RenderingContext gl, [int subdivisions = 4]) {
     for (Face3 f in faces) {
       // Note: a,b,c are unit vectors
       VM.Vector3 a = new VM.Vector3.copy(vertices[f.a]);
-      a..add(vertices[f.b])..scale(0.5)..normalize();
+      a
+        ..add(vertices[f.b])
+        ..scale(0.5)
+        ..normalize();
       VM.Vector3 b = new VM.Vector3.copy(vertices[f.b]);
-      b..add(vertices[f.c])..scale(0.5)..normalize();
+      b
+        ..add(vertices[f.c])
+        ..scale(0.5)
+        ..normalize();
       VM.Vector3 c = new VM.Vector3.copy(vertices[f.c]);
-      c..add(vertices[f.a])..scale(0.5)..normalize();
+      c
+        ..add(vertices[f.a])
+        ..scale(0.5)
+        ..normalize();
       final int ia = vertices.length;
       vertices.add(a);
       final int ib = vertices.length;
@@ -111,27 +121,33 @@ MeshData ShapeIcosahedron(WEBGL.RenderingContext gl, [int subdivisions = 4]) {
     //print("@@@@ ${vertices.length} ${tmp.length}");
     faces = tmp;
   }
-  
-  MeshData md = new MeshData("icosahedron-${subdivisions}", gl);
-  md.EnableAttribute(aTextureCoordinates);
+
+  GeometryBuilder gb = new GeometryBuilder();
+  gb.EnableAttribute(aTextureCoordinates);
+  if (computeNormals) {
+    gb.EnableAttribute(aNormal);
+  }
   // create final vertices and uvs of a Icosahedron
   for (Face3 f in faces) {
-    md.AddFaces3(1);
     VM.Vector3 v1 = vertices[f.a];
-    assert (v1.length <1.01 && v1.length >0.99);
+    assert (v1.length < 1.01 && v1.length > 0.99);
     VM.Vector3 v2 = vertices[f.b];
-    assert (v2.length <1.01 && v2.length >0.99);
+    assert (v2.length < 1.01 && v2.length > 0.99);
     VM.Vector3 v3 = vertices[f.c];
-    assert (v3.length <1.01 && v3.length >0.99);
-    md.AddVertices([v1, v2, v3]);
+    assert (v3.length < 1.01 && v3.length > 0.99);
+
     //print ("@ ${v1.subtract(v2).length()}");
     //print ("@ ${v2.subtract(v3).length()}");
     //print ("@ ${v3.subtract(v1).length()}");
     VM.Vector2 t1 = new VM.Vector2(getU2(v1.z, v1.x), getV2(v1.y));
     VM.Vector2 t2 = new VM.Vector2(getU2(v2.z, v2.x), getV2(v2.y));
     VM.Vector2 t3 = new VM.Vector2(getU2(v3.z, v3.x), getV2(v3.y));
-    md.AddAttributesVector2(aTextureCoordinates, [t1, t2, t3]);
+    if (computeNormals) {
+      gb.AddAttributesVector3(aNormal, [v1, v2, v3]);
+    }
+    gb.AddVerticesFace3([v1.scaled(scale), v2.scaled(scale), v3.scaled(scale)]);
+    gb.AddAttributesVector2(aTextureCoordinates, [t1, t2, t3]);
   }
-  //print("@@@@ ${md.name} ${md._vertices.length} ${md._faces3.length}");
-  return md;
+  return gb;
 }
+

@@ -2,23 +2,23 @@ part of chronosgl;
 
 // only loads fully triangulated OBJ files
 
-Future<MeshData> loadObj(String url, WEBGL.RenderingContext gl) {
+Future<GeometryBuilder> loadObj(String url) {
   Completer c = new Completer();
   HTML.HttpRequest hr = new HTML.HttpRequest();
   //hr.responseType = "arraybuffer";
   hr.open("GET", url);
   hr.onLoadEnd.listen((e) {
-    MeshData result = doLoadObj(url, hr.response, gl);
+    GeometryBuilder result = ParseObj(hr.response);
     c.complete(result);
   });
   hr.send('');
-  return c.future as Future<MeshData>;
+  return c.future as Future<GeometryBuilder>;
 }
 
-MeshData doLoadObj(String url, String text, WEBGL.RenderingContext gl) {
-  MeshData md = new MeshData(url, gl);
-  md.EnableAttribute(aTextureCoordinates);
-  md.EnableAttribute(aNormal);
+GeometryBuilder ParseObj(String text) {
+  GeometryBuilder gb = new GeometryBuilder();
+  gb.EnableAttribute(aTextureCoordinates);
+  gb.EnableAttribute(aNormal);
 
   // This is a map which associates a range of indices with a name
   // The name comes from the 'g' tag (of the form "g NAME"). Indices
@@ -91,13 +91,127 @@ MeshData doLoadObj(String url, String text, WEBGL.RenderingContext gl) {
           faceNormal.add(new VM.Vector3.zero());
         }
       }
-      md.AddFaces3(1);
-      md.AddVertices(faceVertices);
-      md.AddAttributesVector3(aNormal, faceNormal);
-      md.AddAttributesVector2(aTextureCoordinates, faceUvs);
+      gb.AddVerticesFace3(faceVertices);
+      gb.AddAttributesVector3(aNormal, faceNormal);
+      gb.AddAttributesVector2(aTextureCoordinates, faceUvs);
     }
   }
   final Duration delta = new DateTime.now().difference(start);
-  print("loaded (${delta}) ${md}");
-  return md;
+  print("loaded (${delta}) ${gb}");
+  return gb;
+}
+
+HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {
+  HTML.CanvasElement canvas = new HTML.CanvasElement(width: 2, height: 2);
+  HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
+  ctx.fillStyle = fillStyle;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  return canvas;
+}
+
+class CanvasTexture extends Texture {
+  HTML.CanvasElement _canvas;
+
+  CanvasTexture(WEBGL.RenderingContext gl, String url, this._canvas,
+      [textureType = WEBGL.TEXTURE_2D])
+      : super(gl, textureType, url);
+
+  CanvasTexture.SolidColor(
+      WEBGL.RenderingContext gl, String url, String fillStyle,
+      [textureType = WEBGL.TEXTURE_2D])
+      : super(gl, textureType, url) {
+    _canvas = MakeSolidColorCanvas(fillStyle);
+  }
+
+  @override
+  void Install() {
+    // Check for CubeChild
+    if (GetTextureType() != WEBGL.TEXTURE_2D) return;
+    Bind(true);
+    SetImageData(_canvas);
+    UnBind(true);
+  }
+
+  void UpdateFromCanvas(WEBGL.RenderingContext gl) {
+    Bind();
+    SetImageData(_canvas);
+    UnBind();
+  }
+
+  @override
+  void InstallAsCubeChild() {
+    SetImageData(_canvas);
+  }
+}
+
+class ImageTexture extends Texture {
+  HTML.ImageElement _image;
+  Future<dynamic> _future;
+
+  ImageTexture(WEBGL.RenderingContext gl, String url,
+      [textureType = WEBGL.TEXTURE_2D])
+      : super(gl, textureType, url) {
+    _image = new HTML.ImageElement();
+    _future = _image.onLoad.first;
+    _image.src = url;
+  }
+
+  @override
+  void Install() {
+    // Check for CubeChild
+    if (GetTextureType() != WEBGL.TEXTURE_2D) return;
+    Bind(true);
+    SetImageData(_image);
+    UnBind(true);
+  }
+
+  @override
+  void InstallAsCubeChild() {
+    SetImageData(_image);
+  }
+
+  @override
+  Future<dynamic> GetFuture() {
+    return _future;
+  }
+}
+
+class CubeTexture extends Texture {
+  List<Texture> _cubeChildren;
+
+  CubeTexture(
+      WEBGL.RenderingContext gl, String url, String prefix, String suffix)
+      : super(gl, WEBGL.TEXTURE_CUBE_MAP, url) {
+    _cubeChildren = [
+      new ImageTexture(
+          gl, prefix + "nx" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_X),
+      new ImageTexture(
+          gl, prefix + "px" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_X),
+      new ImageTexture(
+          gl, prefix + "ny" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Y),
+      new ImageTexture(
+          gl, prefix + "py" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Y),
+      new ImageTexture(
+          gl, prefix + "nz" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Z),
+      new ImageTexture(
+          gl, prefix + "pz" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Z),
+    ];
+    properties.clamp = true;
+  }
+
+  CubeTexture.fromTextures(
+      WEBGL.RenderingContext gl, String url, List<Texture> texs)
+      : super(gl, WEBGL.TEXTURE_CUBE_MAP, url) {
+    _cubeChildren = texs;
+    properties.clamp = true;
+  }
+
+  @override
+  void Install() {
+    Bind(true);
+    for (Texture child in _cubeChildren) {
+      child.InstallAsCubeChild();
+    }
+    UnBind(true);
+  }
 }
