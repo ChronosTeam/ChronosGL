@@ -107,7 +107,11 @@ class ShaderProgram extends RenderProgram {
         _gl.uniform1f(l, val);
         break;
       case "mat4":
-        _gl.uniformMatrix4fv(l, false, val.storage);
+        if (desc.arraySize == 0) {
+          _gl.uniformMatrix4fv(l, false, val.storage);
+        } else if (val is Float32List) {
+          _gl.uniformMatrix4fv(l, false, val);
+        }
         break;
       case "mat3":
         _gl.uniformMatrix3fv(l, false, val.storage);
@@ -221,7 +225,7 @@ class ShaderProgram extends RenderProgram {
     _numInstances = 0;
     SetInputs(inputs);
     if (_numItems == 0) return;
-     if (stats != null) {
+    if (stats != null) {
       stats.add(new DrawStats(name, _numInstances, _numItems, _drawMode));
     }
     if (debug)
