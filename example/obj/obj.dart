@@ -1,10 +1,10 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
-
+import 'dart:async';
 import 'package:vector_math/vector_math.dart' as VM;
 
-String model = "../ct_logo.obj";
+String modelFile = "../ct_logo.obj";
 
 void main() {
   StatsFps fps =
@@ -44,8 +44,14 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  loadObj(model).then((GeometryBuilder gb) {
-    MeshData md = GeometryBuilderToMeshData(model, chronosGL.gl, gb);
+  List<Future<dynamic>> futures = [
+    LoadRaw(modelFile),
+  ];
+
+  Future.wait(futures).then((List list) {
+    // Setup Mesh
+    GeometryBuilder gb = GeometryFromWavefront(list[0]);
+    MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL.gl, gb);
 
     Material mat = new Material("mat");
     Node mesh = new Node(md.name, md, mat)..rotX(3.14 / 2);

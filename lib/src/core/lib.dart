@@ -10,7 +10,6 @@ import 'dart:web_gl' as WEBGL;
 import 'package:vector_math/vector_math.dart' as VM;
 
 import "../base/lib.dart";
-export "../base/lib.dart";
 
 part "extensions.dart";
 part "shader_program.dart";
