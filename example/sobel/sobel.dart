@@ -1,8 +1,11 @@
 import 'dart:html' as HTML;
+import 'dart:async';
 
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'package:vector_math/vector_math.dart' as VM;
+
+String modelFile = "../ct_logo.obj";
 
 void main() {
   StatsFps fps =
@@ -50,8 +53,32 @@ void main() {
     useSobel = myselect.checked;
   });
 
-  loadObj("../ct_logo.obj").then((GeometryBuilder gb) {
-    MeshData md = GeometryBuilderToMeshData("", chronosGL.gl, gb);
+  double _lastTimeMs = 0.0;
+  void animate(timeMs) {
+    timeMs = 0.0 + timeMs;
+    double elapsed = timeMs - _lastTimeMs;
+    _lastTimeMs = timeMs;
+    orbit.azimuth += 0.001;
+    orbit.animate(elapsed);
+    fps.UpdateFrameCount(timeMs);
+    if (useSobel) {
+      phase1.draw([perspective]);
+      phase2.draw([perspective]);
+    } else {
+      phase1only.draw([perspective]);
+    }
+    HTML.window.animationFrame.then(animate);
+  }
+
+  List<Future<dynamic>> futures = [
+    LoadRaw(modelFile),
+  ];
+
+  Future.wait(futures).then((List list) {
+    // Setup Mesh
+    GeometryBuilder ctLogo = GeometryFromWavefront(list[0]);
+
+    MeshData md = GeometryBuilderToMeshData("", chronosGL.gl, ctLogo);
     Material mat = new Material("mat");
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
@@ -63,25 +90,6 @@ void main() {
 
     prg1.add(mesh);
 
-    double _lastTimeMs = 0.0;
-    void animate(timeMs) {
-      timeMs = 0.0 + timeMs;
-      double elapsed = timeMs - _lastTimeMs;
-      _lastTimeMs = timeMs;
-      orbit.azimuth += 0.001;
-      orbit.animate(elapsed);
-      fps.UpdateFrameCount(timeMs);
-      if (useSobel) {
-        phase1.draw([perspective]);
-        phase2.draw([perspective]);
-      } else {
-        phase1only.draw([perspective]);
-      }
-      HTML.window.animationFrame.then(animate);
-    }
-
-    Texture.loadAndInstallAllTextures().then((dummy) {
-      animate(0.0);
-    });
+    animate(0.0);
   });
 }
