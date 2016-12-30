@@ -31,6 +31,29 @@ Future<HTML.ImageElement> LoadImage(String url) {
   return c.future as Future<HTML.ImageElement>;
 }
 
+Future<HTML.ImageElement> LoadVideo(String url) {
+  Completer c = new Completer();
+  HTML.VideoElement video = new HTML.VideoElement();
+  // this is crucial since we are waiting for "onplaying"
+  video.autoplay = true;
+  video.loop = true;
+  video.onPlaying.first.then((_) => c.complete(video));
+  video.src = url;
+  return c.future as Future<HTML.VideoElement>;
+}
+
+Future<HTML.VideoElement> MakeVideoElementFromCamera() {
+  Completer c = new Completer();
+  HTML.window.navigator
+      .getUserMedia(video: true)
+      .then((HTML.MediaStream stream) {
+    HTML.VideoElement video = new HTML.VideoElement()
+      ..autoplay = true;
+    video.onPlaying.first.then((_) => c.complete(video));
+    video.src = HTML.Url.createObjectUrl(stream);
+  });
+  return c.future as Future<HTML.VideoElement>;
+}
 
 HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {
   HTML.CanvasElement canvas = new HTML.CanvasElement(width: 2, height: 2);
