@@ -176,7 +176,7 @@ class MeshData extends RenderInputProvider {
   */
 }
 
-_GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
+void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
   for (String canonical in gb.attributes.keys) {
     dynamic lst = gb.attributes[canonical];
     if (lst[0].runtimeType == VM.Vector2) {
