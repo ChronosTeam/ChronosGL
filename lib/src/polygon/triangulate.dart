@@ -78,5 +78,5 @@ List<int> Triangulate(List<VM.Vector2> contour) {
 // David Eberly's algorithm for finding a bridge between hole and outer polygon
 // We assume the hole does not touch the contour
 void FindBridge(List<VM.Vector2> contour, VM.Vector2 leftmostHole) {
-  double qx = double.NEGATIVE_INFINITY;
+  //double qx = double.NEGATIVE_INFINITY;
 }
