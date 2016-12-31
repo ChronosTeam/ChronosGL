@@ -1,0 +1,93 @@
+{
+  "config": {
+    "loadArguments":{},
+    "name":"config",
+    "url":"model.config",
+    "type":"config",
+    "importArguments":{}
+  },
+  "mesh": {
+    "loadArguments":{},
+    "name":"mesh",
+    "url":"hellknight.mesh",
+    "type":"json",
+    "importArguments":{}
+  },
+  "anim": {
+    "loadArguments":{},
+    "name":"mesh",
+    "url":"idle2.anim",
+    "type":"json",
+    "importArguments":{}
+  },
+  "bodyDiffuse": {
+    "loadArguments":{},
+    "name":"bodyDiffuse",
+    "url":"body_diffuse.png",
+    "type":"tex2d",
+    "importArguments":{}
+  },
+  "bodyNormal": {
+    "loadArguments":{},
+    "name":"bodyNormal",
+    "url":"body_normal.png",
+    "type":"tex2d",
+    "importArguments":{}
+  },
+  "bodySpecular": {
+    "loadArguments":{},
+    "name":"bodySpecular",
+    "url":"body_specular.png",
+    "type":"tex2d",
+    "importArguments":{}
+  },
+  "tongueDiffuse": {
+    "loadArguments":{},
+    "name":"tongueDiffuse",
+    "url":"tongue_diffuse.png",
+    "type":"tex2d",
+    "importArguments":{}
+  },
+  "tongueNormal": {
+    "loadArguments":{},
+    "name":"tongueNormal",
+    "url":"tongue_normal.png",
+    "type":"tex2d",
+    "importArguments":{}
+  },
+  "tongueSpecular": {
+    "loadArguments":{},
+    "name":"tongueSpecular",
+    "url":"tongue_specular.png",
+    "type":"tex2d",
+    "importArguments":{}
+  },
+  "salivaDiffuse": {
+    "loadArguments":{},
+    "name":"salivaDiffuse",
+    "url":"saliva_diffuse.png",
+    "type":"tex2d",
+    "importArguments":{}
+  },
+  "salivaSpecular": {
+    "loadArguments":{},
+    "name":"salivaSpecular",
+    "url":"saliva_specular.png",
+    "type":"tex2d",
+    "importArguments":{}
+  },
+  "droolDiffuse": {
+    "loadArguments":{},
+    "name":"droolDiffuse",
+    "url":"drool_diffuse.png",
+    "type":"tex2d",
+    "importArguments":{}
+  },
+  "droolSpecular": {
+    "loadArguments":{},
+    "name":"droolSpecular",
+    "url":"drool_specular.png",
+    "type":"tex2d",
+    "importArguments":{}
+  }
+}
