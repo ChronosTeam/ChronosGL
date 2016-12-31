@@ -176,11 +176,7 @@ class MeshData extends RenderInputProvider {
   */
 }
 
-MeshData GeometryBuilderToMeshData(
-    String name, WEBGL.RenderingContext gl, GeometryBuilder gb) {
-  MeshData md = new MeshData(name, gl, WEBGL.TRIANGLES);
-  md.AddVertices(gb.vertices);
-  md.AddFaces(gb.GenerateFaceIndices());
+_GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
   for (String canonical in gb.attributes.keys) {
     dynamic lst = gb.attributes[canonical];
     if (lst[0].runtimeType == VM.Vector2) {
@@ -193,6 +189,14 @@ MeshData GeometryBuilderToMeshData(
       assert(false);
     }
   }
+}
+
+MeshData GeometryBuilderToMeshData(
+    String name, WEBGL.RenderingContext gl, GeometryBuilder gb) {
+  MeshData md = new MeshData(name, gl, WEBGL.TRIANGLES);
+  md.AddVertices(gb.vertices);
+  md.AddFaces(gb.GenerateFaceIndices());
+  _GeometryBuilderAttributesToMeshData(gb, md);
   return md;
 }
 
@@ -201,22 +205,6 @@ MeshData GeometryBuilderToMeshDataLines(
   MeshData md = new MeshData(name, gl, WEBGL.LINES);
   md.AddVertices(gb.vertices);
   md.AddFaces(gb.GenerateLineIndices());
-  for (String canonical in gb.attributes.keys) {
-    dynamic lst = gb.attributes[canonical];
-    switch (lst[0].runtimeType) {
-      case VM.Vector2:
-        md.AddAttributesVector2(canonical, lst);
-        break;
-      case VM.Vector3:
-        md.AddAttributesVector3(canonical, lst);
-        break;
-      case VM.Vector4:
-        md.AddAttributesVector4(canonical, lst);
-        break;
-      default:
-        assert(false);
-        break;
-    }
-  }
+  _GeometryBuilderAttributesToMeshData(gb, md);
   return md;
 }
