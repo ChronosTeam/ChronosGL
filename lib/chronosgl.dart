@@ -20,6 +20,7 @@ export 'src/shapes/lib.dart';
 
 export "src/shader/lib.dart";
 export "src/importer/lib.dart";
+export 'src/animation/lib.dart';
 
 part "src/pickray.dart";
 part "src/input.dart";
