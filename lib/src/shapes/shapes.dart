@@ -2,7 +2,7 @@ part of shapes;
 
 
 
-GeometryBuilder QuadGeometry(int size) {
+GeometryBuilder QuadGeometry(num size) {
   List<VM.Vector3> vertices = [
     new VM.Vector3(-1.0 * size, -1.0 * size, 0.0),
     new VM.Vector3(1.0 * size, -1.0 * size, 0.0),

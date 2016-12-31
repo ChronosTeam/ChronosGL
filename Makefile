@@ -12,5 +12,4 @@ tests:
 	which dartium
 	/usr/lib/dart/bin/pub run test   -p vm test/polygon.dart 
 	/usr/lib/dart/bin/pub run test   -p dartium test/shader_syntax.dart
-	/usr/lib/dart/bin/pub run test   -p dartium test/geometry.dart
-
+	/usr/lib/dart/bin/pub run test   -p vm test/geometry.dart

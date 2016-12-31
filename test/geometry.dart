@@ -1,29 +1,35 @@
-@TestOn("dartium")
+@TestOn("vm")
 import "package:test/test.dart";
-import 'package:chronosgl/chronosgl.dart';
+import '../lib/src/shapes/lib.dart';
+import '../lib/src/base/lib.dart';
 
 void main() {
-  test("geometry", () {
+  test("basic", () {
     {
-      MeshData md;
+      GeometryBuilder gb = CubeGeometry();
+      expect(gb.GenerateFaceIndices().length, equals(3 * 6 * 2));
+    }
 
-      for (int i = 0; i <= 5; ++i) {
-        md = ShapeIcosahedron(null, i);
-        print("${md}");
-      }
-    }
     {
-      MeshData md = ShapeCube(null);
-      //md.Finalize();
-      print("${md}");
+      GeometryBuilder gb = WedgeGeometry();
+      expect(gb.GenerateFaceIndices().length, equals(3 * 3 * 2 + 3 * 2));
     }
+
     {
-      MeshData md = ShapeCylinder(null, 3.0, 6.0, 2.0, 32);
-      print("${md}");
+      GeometryBuilder gb = QuadGeometry(1.0);
+      expect(gb.GenerateFaceIndices().length, equals(3 * 2));
     }
-    {
-      MeshData md = ShapeQuad(null, 2);
-      print("${md}");
+
+    for (int i = 2; i < 16; i++) {
+      GeometryBuilder gb = CylinderGeometry(3.0, 6.0, 2.0, i);
+      expect(gb.GenerateFaceIndices().length, equals(3 * i * 4));
+    }
+
+    // TODO: come up with a closed form
+    var triangles = [0, 240, 960, 3840, 15360, 61440];
+    for (int i = 1; i <= 5; ++i) {
+      GeometryBuilder gb = IcosahedronGeometry(i);
+      expect(gb.GenerateFaceIndices().length, equals(triangles[i]));
     }
   });
 
