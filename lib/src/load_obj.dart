@@ -31,7 +31,7 @@ Future<HTML.ImageElement> LoadImage(String url) {
   return c.future as Future<HTML.ImageElement>;
 }
 
-Future<HTML.ImageElement> LoadVideo(String url) {
+Future<HTML.VideoElement> LoadVideo(String url) {
   Completer c = new Completer();
   HTML.VideoElement video = new HTML.VideoElement();
   // this is crucial since we are waiting for "onplaying"
