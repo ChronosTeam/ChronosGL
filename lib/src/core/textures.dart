@@ -187,13 +187,16 @@ class TypedTexture extends Texture {
   }
 }
 
-// This sort of depends on dart:html but we use a dynamic type to disguise it.
+// This sort of depends on dart:html but we use a dynamic type to disguise
+// it.
+// TODO: We want to call  Install() in the constructor but this does not
+// seem to work for video elements.
 class WebTexture extends Texture {
   dynamic _element; // CanvasElement, ImageElement, VideoElement
 
   WebTexture(WEBGL.RenderingContext gl, String url, this._element,
       [textureType = WEBGL.TEXTURE_2D])
-      : super(gl, textureType, url) {}
+      : super(gl, textureType, url);
 
   @override
   void Install() {

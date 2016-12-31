@@ -52,7 +52,7 @@ void main() {
     orbit.animate(elapsed);
     try {
       texture.Update();
-    } catch (exception, stackTrace) {
+    } catch (exception) {
       print(exception);
     }
     List<DrawStats> stats = [];
