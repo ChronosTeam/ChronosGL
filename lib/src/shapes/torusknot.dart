@@ -61,10 +61,11 @@ GeometryBuilder ShapeTorusKnotGeometry(
       final int b = grid[ip][j];
       final int c = grid[ip][jp];
       final int d = grid[i][jp];
-      final ip1 = i + 1;
+
       final jp1 = j + 1;
 
       /*
+      final ip1 = i + 1;
       VM.Vector2 uva = new VM.Vector2(i / segmentsR, j / segmentsT);
       VM.Vector2 uvb = new VM.Vector2(ip1 / segmentsR, j / segmentsT);
       VM.Vector2 uvc = new VM.Vector2(ip1 / segmentsR, jp1 / segmentsT);
