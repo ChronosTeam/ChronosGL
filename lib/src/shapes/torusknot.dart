@@ -1,6 +1,5 @@
 part of shapes;
 
-
 VM.Vector3 p1 = new VM.Vector3.zero();
 VM.Vector3 p2 = new VM.Vector3.zero();
 
@@ -11,8 +10,8 @@ GeometryBuilder ShapeTorusKnotGeometry(
     int segmentsT: 16,
     int p: 2,
     int q: 3,
-    double heightScale: 1.0}) {
-
+    double heightScale: 1.0,
+    useQuads: true}) {
   List<VM.Vector3> vertices = [];
 
   VM.Vector3 tang = new VM.Vector3.zero();
@@ -54,44 +53,40 @@ GeometryBuilder ShapeTorusKnotGeometry(
   GeometryBuilder gb = new GeometryBuilder();
   gb.EnableAttribute(aTextureCoordinates);
 
-  for (var i = 0; i < segmentsR; ++i) {
-    for (var j = 0; j < segmentsT; ++j) {
-      int ip = (i + 1) % segmentsR;
-      int jp = (j + 1) % segmentsT;
-      int a = grid[i][j];
-      int b = grid[ip][j];
-      int c = grid[ip][jp];
-      int d = grid[i][jp];
+  for (int i = 0; i < segmentsR; ++i) {
+    for (int j = 0; j < segmentsT; ++j) {
+      final int ip = (i + 1) % segmentsR;
+      final int jp = (j + 1) % segmentsT;
+      final int a = grid[i][j];
+      final int b = grid[ip][j];
+      final int c = grid[ip][jp];
+      final int d = grid[i][jp];
+      final ip1 = i + 1;
+      final jp1 = j + 1;
 
-      // TODO(rhulha): I change the texture compuation because the original
-      //               did not seem correct but it got worse that way
+      /*
       VM.Vector2 uva = new VM.Vector2(i / segmentsR, j / segmentsT);
-      VM.Vector2 uvb = new VM.Vector2((i + 1) / segmentsR, j / segmentsT);
-      VM.Vector2 uvc = new VM.Vector2((i + 1) / segmentsR, (j + 1) / segmentsT);
-      VM.Vector2 uvd = new VM.Vector2(i / segmentsR, (j + 1) / segmentsT);
-
-      //uva[0] = 0; uva[1] = 0;
-      //uvb[0] = 1; uvb[1] = 0;
-      //uvc[0] = 1; uvc[1] = 1;
-      //uvd[0] = 0; uvd[1] = 1;
-      /*
-      uva[0] = 0.0;
-      uvb[0] = 1.0;
-      uvc[0] = 1.0;
-      uvd[0] = 0.0;
-*/
-      gb.AddFaces4(1);
-      gb.AddVertices([vertices[a], vertices[b], vertices[c], vertices[d]]);
-      gb.AddAttributesVector2(aTextureCoordinates, [uva, uvb, uvc, uvd]);
-      /*
-      uvs.addAll(uva);
-      uvs.addAll(uvb);
-      uvs.addAll(uvc);
-
-      uvs.addAll(uvd);
-      uvs.addAll(uvc);
-      uvs.addAll(uvb);
-       */
+      VM.Vector2 uvb = new VM.Vector2(ip1 / segmentsR, j / segmentsT);
+      VM.Vector2 uvc = new VM.Vector2(ip1 / segmentsR, jp1 / segmentsT);
+      VM.Vector2 uvd = new VM.Vector2(i / segmentsR, jp1 / segmentsT);
+      */
+      VM.Vector2 uva = new VM.Vector2(0.0, j / segmentsT);
+      VM.Vector2 uvb = new VM.Vector2(1.0, j / segmentsT);
+      VM.Vector2 uvc = new VM.Vector2(1.0, jp1 / segmentsT);
+      VM.Vector2 uvd = new VM.Vector2(0.0, jp1 / segmentsT);
+      if (useQuads) {
+        gb.AddFaces4(1);
+        gb.AddVertices([vertices[a], vertices[b], vertices[c], vertices[d]]);
+        gb.AddAttributesVector2(aTextureCoordinates, [uva, uvb, uvc, uvd]);
+      } else {
+        gb.AddFaces3(2);
+        gb.AddVertices([vertices[a], vertices[b], vertices[c]]);
+        gb.AddVertices([vertices[a], vertices[c], vertices[d]]);
+        // TODO: explain why this choice of uvs is more appealing
+        gb.AddAttributesVector2(aTextureCoordinates, [uva, uvb, uvc]);
+        gb.AddAttributesVector2(aTextureCoordinates, [uvd, uvc, uvb]);
+        //gb.AddAttributesVector2(aTextureCoordinates, [uva, uvc, uvd]);
+      }
     }
   }
   return gb;

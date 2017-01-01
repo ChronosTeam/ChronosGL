@@ -22,8 +22,8 @@ class Utils {
   static HTML.CanvasElement createCanvas(
       HTML.CanvasElement canvas, callback(HTML.CanvasRenderingContext2D ctx),
       [int size = 512]) {
-    if (canvas == null) canvas =
-        new HTML.CanvasElement(width: size, height: size);
+    if (canvas == null)
+      canvas = new HTML.CanvasElement(width: size, height: size);
     HTML.CanvasRenderingContext2D context = canvas.getContext('2d');
     callback(context);
     return canvas;
@@ -79,8 +79,9 @@ class Utils {
   }
 
   static Node MakeSkycube(gl, Texture cubeTexture) {
-    Material mat = new Material("skycube")..SetUniform(uTextureCubeSampler, cubeTexture);
-    MeshData md = ShapeCube(gl, x:512.0, y:512.0, z:512.0);
+    Material mat = new Material("skycube")
+      ..SetUniform(uTextureCubeSampler, cubeTexture);
+    MeshData md = ShapeCube(gl, x: 512.0, y: 512.0, z: 512.0);
     return new Node("skycube", md, mat);
   }
 
@@ -90,7 +91,7 @@ class Utils {
     Material mm(String middle) {
       return new Material()..SetUniform(uTextureSampler, textureCache.getTW(prefix + middle + suffix).texture);
     }
-    
+
     Mesh skybox_nx = createQuad(mm(nx), 1004);
     skybox_nx.setPos(-2.0, 2.0, -1000.0);
     chronosGL.programBasic.addFollowCameraObject(skybox_nx);
@@ -161,16 +162,19 @@ class Utils {
         p: p,
         q: q,
         heightScale: heightScale), mat);
-  } 
+  }
    */
 
-  static Node MakeParticles(WEBGL.RenderingContext gl, int numPoints, [int dimension = 100]) {
-    return MakePointSprites(gl, numPoints, createParticleTexture(gl), dimension);
+  static Node MakeParticles(WEBGL.RenderingContext gl, int numPoints,
+      [int dimension = 100]) {
+    return MakePointSprites(
+        gl, numPoints, createParticleTexture(gl), dimension);
   }
 
   static int id = 1;
 
-  static Node MakePointSprites(WEBGL.RenderingContext gl, int numPoints, Texture texture,
+  static Node MakePointSprites(
+      WEBGL.RenderingContext gl, int numPoints, Texture texture,
       [int dimension = 500]) {
     // TODO: make this asynchronous (async/await?)
     Math.Random rand = new Math.Random();
@@ -277,7 +281,8 @@ MeshData ShapeTorusKnot(WEBGL.RenderingContext gl,
     int segmentsT: 16,
     int p: 2,
     int q: 3,
-    double heightScale: 1.0}) {
+    double heightScale: 1.0,
+    useQuads: true}) {
   GeometryBuilder gb = ShapeTorusKnotGeometry(
       radius: radius,
       tube: tube,
@@ -285,7 +290,8 @@ MeshData ShapeTorusKnot(WEBGL.RenderingContext gl,
       segmentsT: segmentsT,
       p: p,
       q: q,
-      heightScale: heightScale);
+      heightScale: heightScale,
+      useQuads: useQuads);
   return GeometryBuilderToMeshData("torusknot", gl, gb);
 }
 
