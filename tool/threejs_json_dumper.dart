@@ -1,3 +1,6 @@
+// cf.: https://github.com/mrdoob/three.js/blob/dev/src/loaders/JSONLoader.js
+//      https://github.com/mrdoob/three.js/wiki/JSON-Model-format-3
+
 import 'dart:io';
 import 'dart:convert';
 import 'package:args/args.dart';
@@ -108,6 +111,9 @@ void ShowInfo(Map json) {
   }
   List<int> faces = json["faces"];
   List bones = json["bones"];
+  List<Map> morphTargets = json["morphTargets"];
+  if (morphTargets == null) morphTargets = [];
+
   List<int> skinIndices = json["skinIndices"];
   List<double> skinWeights = json["skinWeights"];
   Map animation = json["animation"];
@@ -124,6 +130,9 @@ void ShowInfo(Map json) {
   print("skinIndices: ${skinIndices.length} ${skinIndices.length ~/ 2}");
   print("skinWeigths: ${skinWeights.length}");
   print("animation: ${animation['name']}");
+  for (Map m in morphTargets) {
+     print("morphTarget: ${m['name']} ${m['vertices'].length}");
+  }
 }
 
 void main(List<String> arguments) {
