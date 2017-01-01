@@ -1,6 +1,6 @@
 part of core;
 
-// FIXME: use proper type
+// TODO: use proper return type
 dynamic GetGlExtensionDepth(WEBGL.RenderingContext gl) {
   var ext;
   for (String prefix in ["", "MOZ_", "WEBKIT_"]) {
@@ -13,7 +13,7 @@ dynamic GetGlExtensionDepth(WEBGL.RenderingContext gl) {
   return ext;
 }
 
-// FIXME: use proper type
+// TODO: use proper return type
 dynamic GetGlExtensionAnisotropic(WEBGL.RenderingContext gl) {
   var ext;
   for (String prefix in ["", "MOZ_", "WEBKIT_"]) {
@@ -26,7 +26,7 @@ dynamic GetGlExtensionAnisotropic(WEBGL.RenderingContext gl) {
   return ext;
 }
 
-// FIXME: use proper type
+// TODO: use proper return type
 dynamic GetGlExtensionStandardDerivatives(WEBGL.RenderingContext gl) {
   var ext = gl.getExtension("OES_standard_derivatives");
   if (ext == null) {
@@ -48,6 +48,7 @@ int MaxAnisotropicFilterLevel(WEBGL.RenderingContext gl) {
 
 bool globalUseElementIndexUint = false;
 
+// TODO: use proper return type
 dynamic UseElementIndexUint(WEBGL.RenderingContext gl) {
   var ext = gl.getExtension("OES_element_index_uint");
   if (ext == null) {
@@ -55,4 +56,8 @@ dynamic UseElementIndexUint(WEBGL.RenderingContext gl) {
   }
   globalUseElementIndexUint = true;
   return ext;
+}
+
+List GetSupportedExtensions(WEBGL.RenderingContext gl) {
+  return gl.getSupportedExtensions();
 }
