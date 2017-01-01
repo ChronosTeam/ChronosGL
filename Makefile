@@ -21,7 +21,7 @@ tests:
 	/usr/lib/dart/bin/pub run test   -p vm test/polygon.dart
 	/usr/lib/dart/bin/pub run test   -p vm test/geometry.dart
 	/usr/lib/dart/bin/pub run test   -p dartium test/shader_syntax.dart
-
+	/usr/lib/dart/bin/pub run test   -p dartium test/show_extensions.dart
 
 presubmit: tests buildall
 
@@ -32,8 +32,8 @@ webserver:
 
 
 buildalldev:
-	$(DDC) example/wireframe/wireframe.dart --verbose --out=wireframe.js
-	$(DDC) example/shadow/shadow.dart --verbose --out=shadow.js
-	$(DDC) example/obj/obj.dart --verbose --out=obj.js
+	$(DDC) example/wireframe/wireframe.dart --verbose --out=build/wireframe.js
+	$(DDC) example/shadow/shadow.dart --verbose --out=build/shadow.js
+	$(DDC) example/obj/obj.dart --verbose --out=build/obj.js
 
 #		$(DDC) test/geometry.dart --out=geometry.js

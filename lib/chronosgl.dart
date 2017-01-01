@@ -28,28 +28,25 @@ part "src/load_obj.dart";
 
 part "src/utils.dart";
 
-
+const String NO_WEBGL_MESSAGE = """
+Calling canvas.getContext("experimental-webgl") failed,
+make sure you run on a computer that supports WebGL.
+Test here: http://get.webgl.org/
+""";
 
 final Material EmptyMaterial = new Material("empty-mat");
 
-Node UnitNode( WEBGL.RenderingContext gl) {
+Node UnitNode(WEBGL.RenderingContext gl) {
   final MeshData UnitQuad = ShapeQuad(gl, 1);
   return new Node("unit-mesh", UnitQuad, EmptyMaterial);
 }
 
-
-
 class ChronosGL {
-  var elementIndexUintExt;
-
   WEBGL.RenderingContext gl;
 
-  // TODO: move this into a RenderingPhase
   final HTML.CanvasElement _canvas;
 
-  ChronosGL(this._canvas,
-      {bool preserveDrawingBuffer: false}) {
-    //_aspect = _canvas.clientWidth / _canvas.clientHeight;
+  ChronosGL(this._canvas, {bool preserveDrawingBuffer: false}) {
     Map attributes = {
       "alpha": false,
       "depth": true,
@@ -61,12 +58,8 @@ class ChronosGL {
 
     gl = _canvas.getContext("webgl", attributes);
     if (gl == null) {
-      throw new Exception(
-          'calling canvas.getContext("experimental-webgl") failed, make sure you run on a computer that supports WebGL, test here: http://get.webgl.org/');
+      throw new Exception(NO_WEBGL_MESSAGE);
     }
-
-
-    //print( gl.getSupportedExtensions());
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(WEBGL.DEPTH_TEST);
