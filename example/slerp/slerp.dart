@@ -1,4 +1,5 @@
 import 'dart:html' as HTML;
+import 'dart:async';
 
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:math' as Math;
@@ -36,6 +37,8 @@ VM.Quaternion slerp(VM.Quaternion a, VM.Quaternion b, double t) {
       scale0 * az + scale1 * bz, scale0 * aw + scale1 * bw);
 }
 
+String modelFile = "../ct_logo.obj";
+
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
@@ -44,11 +47,31 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram prg = phase.createProgram(createDemoShader());
 
+  void resolutionChange(HTML.Event ev) {
+    int w = canvas.clientWidth;
+    int h = canvas.clientHeight;
+    canvas.width = w;
+    canvas.height = h;
+    print("size change $w $h");
+    perspective.AdjustAspect(w, h);
+    phase.viewPortW = w;
+    phase.viewPortH = h;
+  }
+
+  resolutionChange(null);
+  HTML.window.onResize.listen(resolutionChange);
+
   Material mat = new Material("mat");
   Math.Random rng = new Math.Random();
 
-  loadObj("../ct_logo.obj").then((GeometryBuilder gb) {
-    MeshData md = GeometryBuilderToMeshData("", chronosGL.gl, gb);
+  List<Future<dynamic>> futures = [
+    LoadRaw(modelFile),
+  ];
+
+  Future.wait(futures).then((List list) {
+    // Setup Mesh
+    GeometryBuilder ctLogo = GeometryFromWavefront(list[0]);
+    MeshData md = GeometryBuilderToMeshData("", chronosGL.gl, ctLogo);
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
@@ -94,20 +117,6 @@ void main() {
     RenderProgram programSprites =
         phase.createProgram(createPointSpritesShader());
     programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
-
-    void resolutionChange(HTML.Event ev) {
-      int w = canvas.clientWidth;
-      int h = canvas.clientHeight;
-      canvas.width = w;
-      canvas.height = h;
-      print("size change $w $h");
-      perspective.AdjustAspect(w, h);
-      phase.viewPortW = w;
-      phase.viewPortH = h;
-    }
-
-    resolutionChange(null);
-    HTML.window.onResize.listen(resolutionChange);
 
     double _lastTimeMs = 0.0;
     void animate(timeMs) {

@@ -1,6 +1,5 @@
 part of core;
 
-
 class TextureProperties {
   bool mipmap = false;
   bool clamp = false;
@@ -185,5 +184,37 @@ class TypedTexture extends Texture {
   @override
   String toString() {
     return "TypedTexture[${_url}, ${_dataType}, ${_formatType}]";
+  }
+}
+
+// This sort of depends on dart:html but we use a dynamic type to disguise
+// it.
+// TODO: We want to call  Install() in the constructor but this does not
+// seem to work for video elements.
+class WebTexture extends Texture {
+  dynamic _element; // CanvasElement, ImageElement, VideoElement
+
+  WebTexture(WEBGL.RenderingContext gl, String url, this._element,
+      [textureType = WEBGL.TEXTURE_2D])
+      : super(gl, textureType, url);
+
+  @override
+  void Install() {
+    // Check for CubeChild
+    if (GetTextureType() != WEBGL.TEXTURE_2D) return;
+    Bind(true);
+    SetImageData(_element);
+    UnBind(true);
+  }
+
+  void Update() {
+    Bind();
+    SetImageData(_element);
+    UnBind();
+  }
+
+  @override
+  void InstallAsCubeChild() {
+    SetImageData(_element);
   }
 }

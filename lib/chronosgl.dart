@@ -9,6 +9,9 @@ import 'dart:convert';
 
 import 'package:vector_math/vector_math.dart' as VM;
 
+import 'src/base/lib.dart';
+export 'src/base/lib.dart';
+
 import 'src/core/lib.dart';
 export 'src/core/lib.dart';
 
@@ -16,6 +19,8 @@ import 'src/shapes/lib.dart';
 export 'src/shapes/lib.dart';
 
 export "src/shader/lib.dart";
+export "src/importer/lib.dart";
+export 'src/animation/lib.dart';
 
 part "src/pickray.dart";
 part "src/input.dart";

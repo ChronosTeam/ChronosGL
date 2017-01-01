@@ -1,10 +1,11 @@
 part of base;
 
 class ShaderVarDesc {
-  String type;
-  String purpose = "";
+  final String type;
+  final String purpose;
+  final int arraySize;
 
-  ShaderVarDesc(this.type, this.purpose);
+  ShaderVarDesc(this.type, this.purpose, {this.arraySize: 0});
 
   int GetSize() {
     switch (type) {
@@ -62,8 +63,13 @@ const String aVertexPosition = "aVertexPosition";
 const String aTextureCoordinates = "aTextureCoordinates";
 const String aNormal = "aNormal";
 const String aBinormal = "aBinormal";
+//
 const String aCenter = "aCenter";
+// For point sprites
 const String aPointSize = "aPointSize";
+// For animations
+const String aBoneIndex = "aBoneIndex";
+const String aBoneWeight = "aBoneWeight";
 
 // ===========================================================
 // Instancer
@@ -119,6 +125,7 @@ const String uPointSize = "uPointSize";
 const String uFogNear = "uFogNear";
 const String uFogFar = "uFogFar";
 const String uEyePosition = "uEyePosition";
+const String uBoneMatrices = "uBoneMatrices";
 
 const String uMaterial = "uMaterial";
 const String uLightSourceInfo = "uLightSourceInfo";
@@ -149,6 +156,8 @@ Map<String, ShaderVarDesc> _VarsDb = {
   aBinormal: new ShaderVarDesc("vec3", "vertex binormals"),
   aCenter: new ShaderVarDesc("vec4", "for wireframe"),
   aPointSize: new ShaderVarDesc("float", ""),
+  aBoneIndex: new ShaderVarDesc("vec4", ""),
+  aBoneWeight: new ShaderVarDesc("vec4", ""),
 
   iaRotation: new ShaderVarDesc("vec4", ""),
   iaTranslation: new ShaderVarDesc("vec3", ""),
@@ -196,6 +205,7 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uLightSourceInfo1: new ShaderVarDesc("mat4", ""),
   uLightSourceInfo2: new ShaderVarDesc("mat4", ""),
   uLightSourceInfo3: new ShaderVarDesc("mat4", ""),
+  uBoneMatrices: new ShaderVarDesc("mat4", "", arraySize:128),
 };
 
 void IntroduceNewShaderVar(String canonical, ShaderVarDesc desc) {
@@ -304,7 +314,8 @@ class ShaderObject {
     out.add("");
     for (String v in uniformVars.keys) {
       ShaderVarDesc d = _VarsDb[v];
-      out.add("uniform ${d.type} ${uniformVars[v]};");
+      String suffix = d.arraySize == 0 ? "" : "[${d.arraySize}]";
+      out.add("uniform ${d.type} ${uniformVars[v]}${suffix};");
     }
     out.add("");
 

@@ -1,5 +1,6 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
+import 'dart:async';
 
 List<ShaderObject> createNormal2ColorShader() {
   return [
@@ -19,6 +20,8 @@ List<ShaderObject> createNormal2ColorShader() {
   ];
 }
 
+String modelFile = "../ct_logo.obj";
+
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
@@ -27,7 +30,39 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram prg = phase.createProgram(createNormal2ColorShader());
 
-  loadObj("../ct_logo.obj").then((GeometryBuilder ctLogo) {
+  void resolutionChange(HTML.Event ev) {
+    int w = canvas.clientWidth;
+    int h = canvas.clientHeight;
+    canvas.width = w;
+    canvas.height = h;
+    print("size change $w $h");
+    perspective.AdjustAspect(w, h);
+    phase.viewPortW = w;
+    phase.viewPortH = h;
+  }
+
+  resolutionChange(null);
+  HTML.window.onResize.listen(resolutionChange);
+
+  double _lastTimeMs = 0.0;
+  void animate(timeMs) {
+    timeMs = 0.0 + timeMs;
+    double elapsed = timeMs - _lastTimeMs;
+    _lastTimeMs = timeMs;
+    orbit.azimuth += 0.001;
+    orbit.animate(elapsed);
+    phase.draw([perspective]);
+    HTML.window.animationFrame.then(animate);
+  }
+
+  List<Future<dynamic>> futures = [
+    LoadRaw(modelFile),
+  ];
+
+  Future.wait(futures).then((List list) {
+    // Setup Mesh
+    GeometryBuilder ctLogo = GeometryFromWavefront(list[0]);
+
     List<GeometryBuilder> geos = [
       ctLogo,
       CylinderGeometry(1.0, 1.0, 2.0, 16),
@@ -62,33 +97,6 @@ void main() {
       prg.add(mesh);
     }
 
-    void resolutionChange(HTML.Event ev) {
-      int w = canvas.clientWidth;
-      int h = canvas.clientHeight;
-      canvas.width = w;
-      canvas.height = h;
-      print("size change $w $h");
-      perspective.AdjustAspect(w, h);
-      phase.viewPortW = w;
-      phase.viewPortH = h;
-    }
-
-    resolutionChange(null);
-    HTML.window.onResize.listen(resolutionChange);
-
-    double _lastTimeMs = 0.0;
-    void animate(timeMs) {
-      timeMs = 0.0 + timeMs;
-      double elapsed = timeMs - _lastTimeMs;
-      _lastTimeMs = timeMs;
-      orbit.azimuth += 0.001;
-      orbit.animate(elapsed);
-      phase.draw([perspective]);
-      HTML.window.animationFrame.then(animate);
-    }
-
-    Texture.loadAndInstallAllTextures().then((dummy) {
-      animate(0.0);
-    });
+    animate(0.0);
   });
 }
