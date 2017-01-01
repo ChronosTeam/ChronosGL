@@ -168,20 +168,20 @@ List<int> extractTicks(List<Map> data) {
   return out;
 }
 
-List<VM.Vector4> extractValueVec3(List<Map> data) {
-  List<VM.Vector4> out = new List<VM.Vector4>(data.length);
+List<VM.Vector> extractValueVec3(List<Map> data) {
+  List<VM.Vector3> out = new List<VM.Vector3>(data.length);
   for (int i = 0; i < data.length; i++) {
     var p = data[i]['value'];
-    out[i] = new VM.Vector4(p[0], p[1], p[2], 1.0);
+    out[i] = new VM.Vector3(p[0], p[1], p[2]);
   }
   return out;
 }
 
-List<VM.Vector4> extractValueVec4(List<Map> data) {
-  List<VM.Vector4> out = new List<VM.Vector4>(data.length);
+List<VM.Quaternion> extractValueQuaternion(List<Map> data) {
+  List<VM.Quaternion> out = new List<VM.Quaternion>(data.length);
   for (int i = 0; i < data.length; i++) {
     var p = data[i]['value'];
-    out[i] = new VM.Vector4(p[0], p[1], p[2], p[3]);
+    out[i] = new VM.Quaternion(p[0], p[1], p[2], p[3]);
   }
   return out;
 }
@@ -216,7 +216,7 @@ SkeletonAnimation ReadAnim(
     BoneAnimation ba =
         new BoneAnimation(name, index,
             extractTicks(positions), extractValueVec3(positions),
-            extractTicks(rotations), extractValueVec4(rotations),
+            extractTicks(rotations), extractValueQuaternion(rotations),
             extractTicks(scales), extractValueVec3(scales));
     sa.InsertBone(ba);
   }

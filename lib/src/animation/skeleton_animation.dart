@@ -94,15 +94,11 @@ class BoneAnimation {
   final int boneIndex;
 
   List<int> _positionTimes;
-  List<VM.Vector4> _positionValues;
+  List<VM.Vector3> _positionValues;
   List<int> _rotationTimes;
-  List<VM.Vector4> _rotationValues;
+  List<VM.Quaternion> _rotationValues;
   List<int> _scaleTimes;
-  List<VM.Vector4> _scaleValues;
-
-  final VM.Matrix4 _positionMatrix = new VM.Matrix4.zero();
-  final VM.Matrix4 _rotationMatrix = new VM.Matrix4.zero();
-  final VM.Matrix4 _scaleMatrix = new VM.Matrix4.zero();
+  List<VM.Vector3> _scaleValues;
 
   /// Construct bone animation with [boneName]. Animation key frames
   /// will be loaded from [positions], [rotations], and [scales].
@@ -116,14 +112,18 @@ class BoneAnimation {
       this._scaleTimes,
       this._scaleValues) {
     if (_positionTimes == null || _positionTimes.length == 0) {
-      setNoPositionAnimation();
+      _positionTimes = [0];
+      _positionValues = [new VM.Vector3(0.0, 0.0, 0.0)];
     }
 
     if (_rotationTimes == null || _rotationTimes.length == 0) {
-      setNoRotationAnimation();
+      _rotationTimes = [0];
+      _rotationValues = [new VM.Quaternion(0.0, 0.0, 0.0, 1.0)];
     }
+    
     if (_scaleTimes == null || _scaleTimes.length == 0) {
-      setNoScaleAnimation();
+      _scaleTimes = [0];
+      _scaleValues = [new VM.Vector3(1.0, 1.0, 1.0)];
     }
 
     assert(_rotationTimes.length > 0);
@@ -132,24 +132,6 @@ class BoneAnimation {
     assert(_rotationTimes.length == _rotationValues.length);
     assert(_positionTimes.length == _positionValues.length);
     assert(_scaleTimes.length == _scaleValues.length);
-  }
-
-  /// Makes bone have no position animation.
-  void setNoPositionAnimation() {
-    _positionTimes = [0];
-    _positionValues = [new VM.Vector4(0.0, 0.0, 0.0, 0.1)];
-  }
-
-  /// Makes bone have no rotation animation.
-  void setNoRotationAnimation() {
-    _rotationTimes = [0];
-    _rotationValues = [new VM.Vector4(0.0, 0.0, 0.0, 1.0)];
-  }
-
-  /// Makes bone have no scale animation.
-  void setNoScaleAnimation() {
-    _scaleTimes = [0];
-    _scaleValues = [new VM.Vector4(1.0, 1.0, 1.0, 1.0)];
   }
 
   static int _findTime(List<int> timeList, int t) {
@@ -161,72 +143,19 @@ class BoneAnimation {
     return 0;
   }
 
-  void _buildScaledMatrixAtTick(int t) {
-    final int scaleIndex = _findTime(_scaleTimes, t);
-    assert(scaleIndex >= 0);
-    _scaleMatrix[0] = _scaleValues[scaleIndex].x;
-    _scaleMatrix[5] = _scaleValues[scaleIndex].y;
-    _scaleMatrix[10] = _scaleValues[scaleIndex].z;
-    _scaleMatrix[15] = 1.0;
-  }
-
-  void _buildPositionMatrixAtTick(int t) {
-    final int positionIndex = _findTime(_positionTimes, t);
-    assert(positionIndex >= 0);
-    _positionMatrix[0] = 1.0;
-    _positionMatrix[5] = 1.0;
-    _positionMatrix[10] = 1.0;
-    _positionMatrix[12] = _positionValues[positionIndex].x;
-    _positionMatrix[13] = _positionValues[positionIndex].y;
-    _positionMatrix[14] = _positionValues[positionIndex].z;
-    _positionMatrix[15] = 1.0;
-  }
-
-  void _buildRotationMatrixAtTick(int t) {
-    final int rotationIndex = _findTime(_rotationTimes, t);
-    assert(rotationIndex >= 0);
-
-    double x = _rotationValues[rotationIndex].x;
-    double y = _rotationValues[rotationIndex].y;
-    double z = _rotationValues[rotationIndex].z;
-    double w = _rotationValues[rotationIndex].w;
-    double x2 = x + x;
-    double y2 = y + y;
-    double z2 = z + z;
-
-    double xx = x * x2;
-    double xy = x * y2;
-    double xz = x * z2;
-    double yy = y * y2;
-    double yz = y * z2;
-    double zz = z * z2;
-    double wx = w * x2;
-    double wy = w * y2;
-    double wz = w * z2;
-
-    _rotationMatrix[0] = 1.0 - (yy + zz);
-    _rotationMatrix[1] = xy + wz;
-    _rotationMatrix[2] = xz - wy;
-    _rotationMatrix[4] = xy - wz;
-    _rotationMatrix[5] = 1.0 - (xx + zz);
-    _rotationMatrix[6] = yz + wx;
-    _rotationMatrix[8] = xz + wy;
-    _rotationMatrix[9] = yz - wx;
-    _rotationMatrix[10] = 1.0 - (xx + yy);
-    _rotationMatrix[15] = 1.0;
-  }
-
   /// Set [boneMatrix] to correspond to bone animation at time [t].
   /// Does not interpolate between key frames.
-  void setBoneMatrixAtTick(int t, VM.Matrix4 boneMatrix) {
-    _buildRotationMatrixAtTick(t);
-    _buildScaledMatrixAtTick(t);
-    _buildPositionMatrixAtTick(t);
-    // boneMatrix =  _positionMatrix * _scaleMatrix * _rotationMatrix
-    // TODO: use "multiply into" if available
-    boneMatrix.setFrom(_positionMatrix);
-    boneMatrix.multiply(_scaleMatrix);
-    boneMatrix.multiply(_rotationMatrix);
+  void setBoneMatrixAtTick(int tick, VM.Matrix4 boneMatrix) {
+    final int scaleIndex = _findTime(_scaleTimes, tick);
+    assert(scaleIndex >= 0);
+    final int positionIndex = _findTime(_positionTimes, tick);
+    assert(positionIndex >= 0);
+    final int rotationIndex = _findTime(_rotationTimes, tick);
+    assert(rotationIndex >= 0);
+    VM.Vector3 s = _scaleValues[scaleIndex];
+    VM.Vector3 t = _positionValues[positionIndex];
+    VM.Quaternion r = _rotationValues[rotationIndex];
+    boneMatrix.setFromTranslationRotationScale(t, r, s);
   }
 }
 
