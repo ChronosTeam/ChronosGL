@@ -160,10 +160,10 @@ List<Bone> ReadSkeleton(Map data, Map<String, int> nameToPos) {
   return skeleton;
 }
 
-List<int> extractTicks(List<Map> data) {
-  List<int> out = new List<int>(data.length);
+List<double> extractTicks(List<Map> data, int ticksPerSecond) {
+  List<double> out = new List<double>(data.length);
   for (int i = 0; i < data.length; i++) {
-    out[i] = data[i]['time'];
+    out[i] = data[i]['time'] / ticksPerSecond;
   }
   return out;
 }
@@ -192,8 +192,8 @@ SkeletonAnimation ReadAnim(
   final int duration = data["duration"];
   final int ticksPerSec = data["ticksPerSecond"];
 
-  SkeletonAnimation sa = new SkeletonAnimation(
-      animName, duration, ticksPerSec, skeleton.length);
+  SkeletonAnimation sa =
+      new SkeletonAnimation(animName, duration / ticksPerSec, skeleton.length);
   var anims = data["boneAnimations"];
   for (Map a in anims) {
     String name = a["name"];
@@ -213,11 +213,15 @@ SkeletonAnimation ReadAnim(
     print(
         "${name}:  pos: ${positions.length}   rot: ${rotations.length}  scl: ${scales.length}");
 
-    BoneAnimation ba =
-        new BoneAnimation(name, index,
-            extractTicks(positions), extractValueVec3(positions),
-            extractTicks(rotations), extractValueQuaternion(rotations),
-            extractTicks(scales), extractValueVec3(scales));
+    BoneAnimation ba = new BoneAnimation(
+        name,
+        index,
+        extractTicks(positions, ticksPerSec),
+        extractValueVec3(positions),
+        extractTicks(rotations, ticksPerSec),
+        extractValueQuaternion(rotations),
+        extractTicks(scales, ticksPerSec),
+        extractValueVec3(scales));
     sa.InsertBone(ba);
   }
   print("animation with ${sa.animList.length} bones");
@@ -274,9 +278,8 @@ void main() {
     fps.UpdateFrameCount(timeMs);
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
-    final int ticks = (timeMs / 1000.0 * anim.ticksPerSec).floor();
-    poser.pose(skeleton, globalOffsetTransform, anim, posedSkeleton,
-        ticks % anim.durationInTicks);
+    final double relTime = (timeMs / 1000.0) % anim.duration;
+    poser.pose(skeleton, globalOffsetTransform, anim, posedSkeleton, relTime);
     for (int i = 0; i < posedSkeleton.skinningTransforms.length; ++i) {
       final int offset = i * 16;
       final VM.Matrix4 m = posedSkeleton.skinningTransforms[i];

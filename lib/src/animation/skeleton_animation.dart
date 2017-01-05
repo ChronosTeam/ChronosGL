@@ -36,7 +36,7 @@ class PosedSkeleton {
 class SkeletonPoser {
   final VM.Matrix4 _scratchMatrix = new VM.Matrix4.zero();
 
-  void _updateMatrices(Bone bone, BoneAnimation boneAnimation, int t,
+  void _updateMatrices(Bone bone, BoneAnimation boneAnimation, double t,
       VM.Matrix4 parentTransform, VM.Matrix4 globalTransform) {
     VM.Matrix4 transform = _scratchMatrix;
     if (boneAnimation != null) {
@@ -51,7 +51,7 @@ class SkeletonPoser {
   }
 
   void _updateGlobalTransform(Bone bone, VM.Matrix4 parentTransform,
-      SkeletonAnimation animation, PosedSkeleton posedSkeleton, int t) {
+      SkeletonAnimation animation, PosedSkeleton posedSkeleton, double t) {
     final int boneIndex = bone.boneIndex;
     final VM.Matrix4 globalTransform =
         posedSkeleton.globalTransforms[boneIndex];
@@ -80,7 +80,7 @@ class SkeletonPoser {
   }
 
   void pose(List<Bone> skeleton, VM.Matrix4 globalOffsetTransform,
-      SkeletonAnimation animation, PosedSkeleton posedSkeleton, int t) {
+      SkeletonAnimation animation, PosedSkeleton posedSkeleton, double t) {
     VM.Matrix4 parentTransform = new VM.Matrix4.identity();
     _updateGlobalTransform(
         skeleton[0], parentTransform, animation, posedSkeleton, t);
@@ -93,11 +93,11 @@ class BoneAnimation {
   final String boneName;
   final int boneIndex;
 
-  List<int> _positionTimes;
+  List<double> _positionTimes;
   List<VM.Vector3> _positionValues;
-  List<int> _rotationTimes;
+  List<double> _rotationTimes;
   List<VM.Quaternion> _rotationValues;
-  List<int> _scaleTimes;
+  List<double> _scaleTimes;
   List<VM.Vector3> _scaleValues;
 
   /// Construct bone animation with [boneName]. Animation key frames
@@ -112,17 +112,17 @@ class BoneAnimation {
       this._scaleTimes,
       this._scaleValues) {
     if (_positionTimes == null || _positionTimes.length == 0) {
-      _positionTimes = [0];
+      _positionTimes = [0.0];
       _positionValues = [new VM.Vector3(0.0, 0.0, 0.0)];
     }
 
     if (_rotationTimes == null || _rotationTimes.length == 0) {
-      _rotationTimes = [0];
+      _rotationTimes = [0.0];
       _rotationValues = [new VM.Quaternion(0.0, 0.0, 0.0, 1.0)];
     }
-    
+
     if (_scaleTimes == null || _scaleTimes.length == 0) {
-      _scaleTimes = [0];
+      _scaleTimes = [0.0];
       _scaleValues = [new VM.Vector3(1.0, 1.0, 1.0)];
     }
 
@@ -134,7 +134,7 @@ class BoneAnimation {
     assert(_scaleTimes.length == _scaleValues.length);
   }
 
-  static int _findTime(List<int> timeList, int t) {
+  static int _findTime(List<double> timeList, double t) {
     for (int i = 0; i < timeList.length - 1; i++) {
       if (t < timeList[i + 1]) {
         return i;
@@ -145,7 +145,7 @@ class BoneAnimation {
 
   /// Set [boneMatrix] to correspond to bone animation at time [t].
   /// Does not interpolate between key frames.
-  void setBoneMatrixAtTick(int tick, VM.Matrix4 boneMatrix) {
+  void setBoneMatrixAtTick(double tick, VM.Matrix4 boneMatrix) {
     final int scaleIndex = _findTime(_scaleTimes, tick);
     assert(scaleIndex >= 0);
     final int positionIndex = _findTime(_positionTimes, tick);
@@ -163,11 +163,10 @@ class BoneAnimation {
 class SkeletonAnimation {
   final String name;
   final List<BoneAnimation> animList;
-  final int durationInTicks;
-  final int ticksPerSec;
+  final double duration;
 
   SkeletonAnimation(
-      this.name, this.durationInTicks, this.ticksPerSec, int length)
+      this.name, this.duration, int length)
       : animList = new List<BoneAnimation>(length);
 
   void InsertBone(BoneAnimation ba) {
