@@ -58,6 +58,7 @@ class SkeletonPoser {
     _updateMatrices(bone, animation.animList[boneIndex], t, parentTransform,
         globalTransform);
 
+    // recurse
     for (int i = 0; i < bone.children.length; i++) {
       Bone childBone = bone.children[i];
       _updateGlobalTransform(
@@ -90,7 +91,6 @@ class SkeletonPoser {
 
 /// Key frame animation data for a single bone in a skeleton.
 class BoneAnimation {
-  final String boneName;
   final int boneIndex;
 
   List<double> _positionTimes;
@@ -103,7 +103,6 @@ class BoneAnimation {
   /// Construct bone animation with [boneName]. Animation key frames
   /// will be loaded from [positions], [rotations], and [scales].
   BoneAnimation(
-      this.boneName,
       this.boneIndex,
       this._positionTimes,
       this._positionValues,

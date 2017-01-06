@@ -213,7 +213,6 @@ SkeletonAnimation ReadAnim(
         "${name}:  pos: ${positions.length}   rot: ${rotations.length}  scl: ${scales.length}");
 
     BoneAnimation ba = new BoneAnimation(
-        name,
         index,
         extractTicks(positions, ticksPerSec),
         extractValueVec3(positions),
