@@ -42,7 +42,7 @@ void PoseSkeleton(List<Bone> skeleton, VM.Matrix4 globalOffsetTransform,
   for (int i = 0; i < skeleton.length; i++) {
     Bone bone = skeleton[i];
     VM.Matrix4 t = posedSkeleton.globalTransforms[i];
-    if (i == 0) {
+    if (bone.parentNum < 0) {
       t.setIdentity();
     } else {
       t.setFrom(posedSkeleton.globalTransforms[bone.parentNum]);

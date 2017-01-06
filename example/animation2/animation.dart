@@ -291,12 +291,12 @@ List<Bone> ReadBones(Map json) {
     final VM.Quaternion r = MakeQuaternion(m["qrot"]);
     VM.Matrix4 mat = new VM.Matrix4.zero()
       ..setFromTranslationRotationScale(t, r, s);
-    Bone b = new Bone(name, i, mat, new VM.Matrix4.identity());
-    bones[i] = b;
-    if (parent != -1) {
-      bones[parent].children.add(b);
+    if (i != 0 && parent < 0) {
+      print("found unusal root node ${i} ${parent}");
     }
+    bones[i] = new Bone(name, i, parent, new VM.Matrix4.identity(), mat);
   }
+  print("bones: ${bones.length}");
   return bones;
 }
 
@@ -315,12 +315,11 @@ SkeletonAnimation ReadAnimation(Map json) {
     List<VM.Vector3> sValues = [];
     for (Map m in hierarchy[i]["keys"]) {
       double t = m["time"].toDouble();
-      /*
+
       if (m.containsKey("pos")) {
         pTimes.add(t);
         pValues.add(MakeTransVector3(m["pos"]));
       }
-      */
 
       if (m.containsKey("scale")) {
         sTimes.add(t);
@@ -338,6 +337,7 @@ SkeletonAnimation ReadAnimation(Map json) {
         new BoneAnimation(i, pTimes, pValues, rTimes, rValues, sTimes, sValues);
     s.InsertBone(ba);
   }
+  print("anim-bones: ${s.animList.length}");
   return s;
 }
 
@@ -352,6 +352,10 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   //RenderProgram prg = phase.createProgram(createDemoShader());
   RenderProgram prg = phase.createProgram(createAnimationShader());
+
+  final RenderProgram prgWire = phase.createProgram(createSolidColorShader());
+  final Material matWire = new Material("wire")
+    ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
 
   Material mat = new Material("mat");
   VM.Matrix4 identity = new VM.Matrix4.identity();
@@ -378,7 +382,6 @@ void main() {
   List<Bone> skeleton;
   SkeletonAnimation anim;
   PosedSkeleton posedSkeleton;
-  SkeletonPoser poser = new SkeletonPoser();
   VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
 
   double _lastTimeMs = 0.0;
@@ -394,15 +397,9 @@ void main() {
     HTML.window.animationFrame.then(animate);
 
     final double relTime = (timeMs / 1000.0) % anim.duration;
-    print ("${relTime}");
-    poser.pose(skeleton, globalOffsetTransform, anim, posedSkeleton, relTime);
-    for (int i = 0; i < posedSkeleton.skinningTransforms.length; ++i) {
-      final int offset = i * 16;
-      final VM.Matrix4 m = posedSkeleton.skinningTransforms[i];
-      for (int t = 0; t < 16; t++) {
-        matrices[offset + t] = m[t];
-      }
-    }
+    //print("${relTime}");
+    PoseSkeleton(skeleton, globalOffsetTransform, anim, posedSkeleton, relTime);
+    FlattenMatrix4List(posedSkeleton.skinningTransforms, matrices);
   }
 
   List<Future<dynamic>> futures = [

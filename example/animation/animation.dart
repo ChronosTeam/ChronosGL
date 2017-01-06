@@ -239,9 +239,7 @@ void main() {
 
   final RenderProgram prgWire = phase.createProgram(createSolidColorShader());
   final Material matWire = new Material("wire")
-    ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0))
-    ..SetUniform(cBlend, true, true)
-    ..SetUniform(cBlendEquation, new BlendEquation.Standard());
+    ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
 
   final Material mat = new Material("mat");
   VM.Matrix4 identity = new VM.Matrix4.identity();
