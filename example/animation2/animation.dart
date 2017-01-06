@@ -274,8 +274,8 @@ VM.Vector3 MakeScaleVector3(List<num> lst) {
 VM.Quaternion MakeQuaternion(List<num> lst) {
   if (lst == null) return new VM.Quaternion.identity();
 
-  return new VM.Quaternion(lst[1].toDouble(), lst[2].toDouble(),
-      lst[3].toDouble(), lst[0].toDouble());
+  return new VM.Quaternion(lst[0].toDouble(), lst[1].toDouble(),
+      lst[2].toDouble(), lst[3].toDouble());
 }
 
 List<Bone> ReadBones(Map json) {
@@ -326,12 +326,11 @@ SkeletonAnimation ReadAnimation(Map json) {
         sValues.add(MakeScaleVector3(m["scl"]));
       }
 
-      /*
+
       if (m.containsKey("rot")) {
         rTimes.add(t);
         rValues.add(MakeQuaternion(m["rot"]));
       }
-      */
     }
     BoneAnimation ba =
         new BoneAnimation(i, pTimes, pValues, rTimes, rValues, sTimes, sValues);
@@ -383,6 +382,7 @@ void main() {
   SkeletonAnimation anim;
   PosedSkeleton posedSkeleton;
   VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
+  MeshData mdWire;
 
   double _lastTimeMs = 0.0;
 
@@ -400,6 +400,9 @@ void main() {
     //print("${relTime}");
     PoseSkeleton(skeleton, globalOffsetTransform, anim, posedSkeleton, relTime);
     FlattenMatrix4List(posedSkeleton.skinningTransforms, matrices);
+    List<VM.Vector3> bonePos =
+        BonePosFromPosedSkeleton(skeleton, posedSkeleton);
+    mdWire.ChangeVertices(FlattenVector3List(bonePos));
   }
 
   List<Future<dynamic>> futures = [
@@ -412,11 +415,23 @@ void main() {
     skeleton = ReadBones(list[0]);
     anim = ReadAnimation(list[0]);
     posedSkeleton = new PosedSkeleton(skeleton.length);
-    MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL.gl, gb[0]);
-    Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
-    Node n = new Node.Container("wrapper", mesh);
-    n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
-    prg.add(n);
+    {
+      MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL.gl, gb[0]);
+      Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
+      Node n = new Node.Container("wrapper", mesh);
+      n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+      //prg.add(n);
+    }
+
+    {
+      PoseSkeleton(skeleton, globalOffsetTransform, anim, posedSkeleton, 0.0);
+      mdWire = LineEndPointsToMeshData("wire", chronosGL.gl,
+          BonePosFromPosedSkeleton(skeleton, posedSkeleton));
+      Node mesh = new Node(mdWire.name, mdWire, matWire)..rotX(3.14 / 4);
+      Node n = new Node.Container("wrapper", mesh);
+      n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+      prgWire.add(n);
+    }
 
     // Start
     animate(0.0);

@@ -170,12 +170,12 @@ List<VM.Vector3> BonePosFromPosedSkeleton(
     List<Bone> bones, PosedSkeleton posed) {
   List<VM.Vector3> out = [];
 
-  for (int i = 1; i < bones.length; ++i) {
+  for (int i = 0; i < bones.length; ++i) {
     final int parent = bones[i].parentNum;
-
+    if (parent == -1) continue;
     out.add(posed.globalTransforms[i].getTranslation());
     out.add(posed.globalTransforms[parent].getTranslation());
   }
-  print("skeleton bone ${out.length}");
+  //print("skeleton bone ${out.length}");
   return out;
 }
