@@ -178,15 +178,15 @@ class Utils {
       [int dimension = 500]) {
     // TODO: make this asynchronous (async/await?)
     Math.Random rand = new Math.Random();
-    List<VM.Vector3> vertices = [];
+    List<VM.Vector3> vertices = new List<VM.Vector3>(numPoints);
     for (var i = 0; i < numPoints; i++) {
-      vertices.add(new VM.Vector3(
+      vertices[i] = new VM.Vector3(
           (rand.nextDouble() - 0.5) * dimension,
           (rand.nextDouble() - 0.5) * dimension,
-          (rand.nextDouble() - 0.5) * dimension));
+          (rand.nextDouble() - 0.5) * dimension);
     }
     MeshData md = new MeshData("stars", gl, WEBGL.POINTS);
-    md.AddVertices(vertices);
+    md.AddVertices(FlattenVector3List(vertices));
 
     Material mat = new Material.Transparent("stars", new BlendEquation.Mix())
       ..SetUniform(uTextureSampler, texture)
