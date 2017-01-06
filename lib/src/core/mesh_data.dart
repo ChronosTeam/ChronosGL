@@ -27,6 +27,45 @@ WEBGL.Buffer CreateAndInitializeElementArrayBuffer(
   return b;
 }
 
+Float32List FlattenVector3List(List<VM.Vector3> v, [Float32List data = null]) {
+  if (data == null) data = new Float32List(v.length * 3);
+  for (int i = 0; i < v.length; ++i) {
+    data[i * 3 + 0] = v[i].x;
+    data[i * 3 + 1] = v[i].y;
+    data[i * 3 + 2] = v[i].z;
+  }
+  return data;
+}
+
+Float32List FlattenVector2List(List<VM.Vector2> v, [Float32List data = null]) {
+  if (data == null) data = new Float32List(v.length * 2);
+  for (int i = 0; i < v.length; ++i) {
+    data[i * 2 + 0] = v[i].x;
+    data[i * 2 + 1] = v[i].y;
+  }
+  return data;
+}
+
+Float32List FlattenVector4List(List<VM.Vector4> v, [Float32List data = null]) {
+  if (data == null) data = new Float32List(v.length * 4);
+  for (int i = 0; i < v.length; ++i) {
+    data[i * 4 + 0] = v[i].x;
+    data[i * 4 + 1] = v[i].y;
+    data[i * 4 + 2] = v[i].z;
+    data[i * 4 + 3] = v[i].w;
+  }
+  return data;
+}
+
+Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data = null]) {
+  if (data == null) data = new Float32List(v.length * 16);
+  for (int i = 0; i < v.length; ++i) {
+    VM.Matrix4 m = v[i];
+    for (int j = 0; j < 16; ++j) data[i * 16 + j] = m[j];
+  }
+  return data;
+}
+
 // MeshData presents attributes and vertex buffers associated with
 // an object, e.g. a sphere, cube, etc.
 // Protocol:
@@ -59,8 +98,15 @@ class MeshData extends RenderInputProvider {
     _buffers[canonical] = CreateAndInitializeArrayBuffer(_gl, data);
   }
 
-  void ChangeBufferCanonical(String canonical, Float32List data) {
+  void ChangeAttribute(String canonical, Float32List data, int width) {
     if (debug) print("ChangeBuffer ${canonical} ${data.length}");
+    assert(data.length ~/ width == _vertices.length ~/ 3);
+    _attributes[canonical] = data;
+    ChangeArrayBuffer(_gl, _buffers[canonical], data);
+  }
+
+  void ChangeVertices(Float32List data) {
+    final String canonical = aVertexPosition;
     _attributes[canonical] = data;
     ChangeArrayBuffer(_gl, _buffers[canonical], data);
   }
@@ -72,13 +118,13 @@ class MeshData extends RenderInputProvider {
     return _vertices.length ~/ 3;
   }
 
-  void AddVertices(List<VM.Vector3> vs) {
-    Float32List data = new Float32List(vs.length * 3);
-    for (int i = 0; i < vs.length; ++i) {
-      data[i * 3 + 0] = vs[i].x;
-      data[i * 3 + 1] = vs[i].y;
-      data[i * 3 + 2] = vs[i].z;
-    }
+  void AddAttribute(String canonical, Float32List data, int width) {
+    assert(data.length ~/ width == _vertices.length ~/ 3);
+    _addBuffer(canonical, data);
+    _attributes[canonical] = data;
+  }
+
+  void AddVertices(Float32List data) {
     _addBuffer(aVertexPosition, data);
     _vertices = data;
   }
@@ -121,49 +167,6 @@ class MeshData extends RenderInputProvider {
     return _attributes.keys;
   }
 
-  void AddAttributesDouble(String canonical, List<double> lst) {
-    assert(lst.length == _vertices.length ~/ 3);
-    Float32List data = new Float32List.fromList(lst);
-    _addBuffer(canonical, data);
-    _attributes[canonical] = data;
-  }
-
-  void AddAttributesVector2(String canonical, List<VM.Vector2> lst) {
-    assert(lst.length == _vertices.length ~/ 3);
-    Float32List data = new Float32List(lst.length * 2);
-    for (int i = 0; i < lst.length; ++i) {
-      data[i * 2 + 0] = lst[i].x;
-      data[i * 2 + 1] = lst[i].y;
-    }
-    _addBuffer(canonical, data);
-    _attributes[canonical] = data;
-  }
-
-  void AddAttributesVector3(String canonical, List<VM.Vector3> lst) {
-    assert(lst.length == _vertices.length ~/ 3);
-    Float32List data = new Float32List(lst.length * 3);
-    for (int i = 0; i < lst.length; ++i) {
-      data[i * 3 + 0] = lst[i].x;
-      data[i * 3 + 1] = lst[i].y;
-      data[i * 3 + 2] = lst[i].z;
-    }
-    _addBuffer(canonical, data);
-    _attributes[canonical] = data;
-  }
-
-  void AddAttributesVector4(String canonical, List<VM.Vector4> lst) {
-    assert(lst.length == _vertices.length ~/ 3);
-    Float32List data = new Float32List(lst.length * 4);
-    for (int i = 0; i < lst.length; ++i) {
-      data[i * 4 + 0] = lst[i].x;
-      data[i * 4 + 1] = lst[i].y;
-      data[i * 4 + 2] = lst[i].z;
-      data[i * 4 + 3] = lst[i].w;
-    }
-    _addBuffer(canonical, data);
-    _attributes[canonical] = data;
-  }
-
   /*
   @override
   String toString() {
@@ -180,11 +183,11 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
   for (String canonical in gb.attributes.keys) {
     dynamic lst = gb.attributes[canonical];
     if (lst[0].runtimeType == VM.Vector2) {
-      md.AddAttributesVector2(canonical, lst);
+      md.AddAttribute(canonical, FlattenVector2List(lst), 2);
     } else if (lst[0].runtimeType == VM.Vector3) {
-      md.AddAttributesVector3(canonical, lst);
+      md.AddAttribute(canonical, FlattenVector3List(lst), 3);
     } else if (lst[0].runtimeType == VM.Vector4) {
-      md.AddAttributesVector4(canonical, lst);
+      md.AddAttribute(canonical, FlattenVector4List(lst), 4);
     } else {
       assert(false);
     }
@@ -194,7 +197,7 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
 MeshData GeometryBuilderToMeshData(
     String name, WEBGL.RenderingContext gl, GeometryBuilder gb) {
   MeshData md = new MeshData(name, gl, WEBGL.TRIANGLES);
-  md.AddVertices(gb.vertices);
+  md.AddVertices(FlattenVector3List(gb.vertices));
   md.AddFaces(gb.GenerateFaceIndices());
   _GeometryBuilderAttributesToMeshData(gb, md);
   return md;
@@ -203,8 +206,18 @@ MeshData GeometryBuilderToMeshData(
 MeshData GeometryBuilderToMeshDataLines(
     String name, WEBGL.RenderingContext gl, GeometryBuilder gb) {
   MeshData md = new MeshData(name, gl, WEBGL.LINES);
-  md.AddVertices(gb.vertices);
+  md.AddVertices(FlattenVector3List(gb.vertices));
   md.AddFaces(gb.GenerateLineIndices());
   _GeometryBuilderAttributesToMeshData(gb, md);
+  return md;
+}
+
+MeshData LineEndPointsToMeshData(
+    String name, WEBGL.RenderingContext gl, List<VM.Vector3> points) {
+  MeshData md = new MeshData(name, gl, WEBGL.LINES);
+  md.AddVertices(FlattenVector3List(points));
+  List<int> faces = new List<int>(points.length);
+  for (int i = 0; i < points.length; ++i) faces[i] = i;
+  md.AddFaces(faces);
   return md;
 }

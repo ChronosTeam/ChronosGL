@@ -10,11 +10,13 @@ class Bone {
   final String boneName;
   final VM.Matrix4 localTransform;
   final VM.Matrix4 offsetTransform;
-  final List<Bone> children = new List<Bone>();
   final int boneIndex;
+  final int parentNum;
 
-  Bone(
-      this.boneName, this.boneIndex, this.localTransform, this.offsetTransform);
+  Bone(this.boneName, this.boneIndex, this.parentNum, this.localTransform,
+      this.offsetTransform) {
+    assert(boneIndex > parentNum);
+  }
 }
 
 /// Skeleton ready to be used for skinning.
@@ -33,59 +35,36 @@ class PosedSkeleton {
   }
 }
 
-class SkeletonPoser {
-  final VM.Matrix4 _scratchMatrix = new VM.Matrix4.zero();
-
-  void _updateMatrices(Bone bone, BoneAnimation boneAnimation, double t,
-      VM.Matrix4 parentTransform, VM.Matrix4 globalTransform) {
-    VM.Matrix4 transform = _scratchMatrix;
-    if (boneAnimation != null) {
-      boneAnimation.setBoneMatrixAtTick(t, transform);
+void PoseSkeleton(List<Bone> skeleton, VM.Matrix4 globalOffsetTransform,
+    SkeletonAnimation animation, PosedSkeleton posedSkeleton, double time) {
+  VM.Matrix4 parentTransform = new VM.Matrix4.identity();
+  VM.Matrix4 tmp = new VM.Matrix4.zero();
+  for (int i = 0; i < skeleton.length; i++) {
+    Bone bone = skeleton[i];
+    VM.Matrix4 t = posedSkeleton.globalTransforms[i];
+    if (i == 0) {
+      t.setIdentity();
     } else {
-      transform = bone.localTransform;
+      t.setFrom(posedSkeleton.globalTransforms[bone.parentNum]);
     }
-    // globalTransform = parentTransform * nodeTransform;
+
+    BoneAnimation a = animation.animList[i];
+    if (a != null) {
+      a.setBoneMatrixAtTick(time, tmp);
+      t.multiply(tmp);
+    } else {
+      t.multiply(bone.localTransform);
+    }
+  }
+
+  for (int i = 0; i < skeleton.length; i++) {
+    final VM.Matrix4 t = posedSkeleton.skinningTransforms[i];
+    //  skinningTransform = skeleton.globalOffsetTransform *
+    //                          globalTransform * offsetTransform
     // TODO: use "multiply into" if available
-    globalTransform.setFrom(parentTransform);
-    globalTransform.multiply(transform);
-  }
-
-  void _updateGlobalTransform(Bone bone, VM.Matrix4 parentTransform,
-      SkeletonAnimation animation, PosedSkeleton posedSkeleton, double t) {
-    final int boneIndex = bone.boneIndex;
-    final VM.Matrix4 globalTransform =
-        posedSkeleton.globalTransforms[boneIndex];
-    _updateMatrices(bone, animation.animList[boneIndex], t, parentTransform,
-        globalTransform);
-
-    // recurse
-    for (int i = 0; i < bone.children.length; i++) {
-      Bone childBone = bone.children[i];
-      _updateGlobalTransform(
-          childBone, globalTransform, animation, posedSkeleton, t);
-    }
-  }
-
-  void _updateSkinningTransform(PosedSkeleton posedSkeleton,
-      List<Bone> skeleton, VM.Matrix4 globalOffsetTransform) {
-    for (int i = 0; i < skeleton.length; i++) {
-      final VM.Matrix4 skinningTransform = posedSkeleton.skinningTransforms[i];
-
-      //  skinningTransform = skeleton.globalOffsetTransform *
-      //                          globalTransform * offsetTransform
-      // TODO: use "multiply into" if available
-      skinningTransform.setFrom(globalOffsetTransform);
-      skinningTransform.multiply(posedSkeleton.globalTransforms[i]);
-      skinningTransform.multiply(skeleton[i].offsetTransform);
-    }
-  }
-
-  void pose(List<Bone> skeleton, VM.Matrix4 globalOffsetTransform,
-      SkeletonAnimation animation, PosedSkeleton posedSkeleton, double t) {
-    VM.Matrix4 parentTransform = new VM.Matrix4.identity();
-    _updateGlobalTransform(
-        skeleton[0], parentTransform, animation, posedSkeleton, t);
-    _updateSkinningTransform(posedSkeleton, skeleton, globalOffsetTransform);
+    t.setFrom(globalOffsetTransform);
+    t.multiply(posedSkeleton.globalTransforms[i]);
+    t..multiply(skeleton[i].offsetTransform);
   }
 }
 
@@ -164,12 +143,39 @@ class SkeletonAnimation {
   final List<BoneAnimation> animList;
   final double duration;
 
-  SkeletonAnimation(
-      this.name, this.duration, int length)
+  SkeletonAnimation(this.name, this.duration, int length)
       : animList = new List<BoneAnimation>(length);
 
   void InsertBone(BoneAnimation ba) {
     assert(animList[ba.boneIndex] == null);
     animList[ba.boneIndex] = ba;
   }
+}
+
+List<VM.Vector3> BonePosFromSkeleton(List<Bone> bones) {
+  List<VM.Vector3> out = [];
+
+  for (int i = 1; i < bones.length; ++i) {
+    final Bone a = bones[i];
+    final Bone b = bones[a.parentNum];
+
+    out.add(a.localTransform.getTranslation());
+    out.add(b.localTransform.getTranslation());
+  }
+  print("skeleton bone ${out.length}");
+  return out;
+}
+
+List<VM.Vector3> BonePosFromPosedSkeleton(
+    List<Bone> bones, PosedSkeleton posed) {
+  List<VM.Vector3> out = [];
+
+  for (int i = 1; i < bones.length; ++i) {
+    final int parent = bones[i].parentNum;
+
+    out.add(posed.globalTransforms[i].getTranslation());
+    out.add(posed.globalTransforms[parent].getTranslation());
+  }
+  print("skeleton bone ${out.length}");
+  return out;
 }

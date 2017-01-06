@@ -144,15 +144,13 @@ List<Bone> ReadSkeleton(Map data, Map<String, int> nameToPos) {
     Bone b = new Bone(
         name,
         index,
+        index == 0 ? -1 : nameToPos[parent],
         localTransform == null
             ? new VM.Matrix4.identity()
             : new VM.Matrix4.fromList(localTransform),
         offsetTransform == null
             ? new VM.Matrix4.identity()
             : new VM.Matrix4.fromList(offsetTransform));
-    if (parent != "root") {
-      skeleton[nameToPos[parent]].children.add(b);
-    }
     skeleton[index] = b;
   }
   print("sleleton with ${skeleton.length} bones");
@@ -235,11 +233,17 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(300.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  final RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   //RenderProgram prg = phase.createProgram(createDemoShader());
-  RenderProgram prg = phase.createProgram(createAnimationShader());
+  final RenderProgram prg = phase.createProgram(createAnimationShader());
 
-  Material mat = new Material("mat");
+  final RenderProgram prgWire = phase.createProgram(createSolidColorShader());
+  final Material matWire = new Material("wire")
+    ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0))
+    ..SetUniform(cBlend, true, true)
+    ..SetUniform(cBlendEquation, new BlendEquation.Standard());
+
+  final Material mat = new Material("mat");
   VM.Matrix4 identity = new VM.Matrix4.identity();
   Float32List matrices = new Float32List(16 * 128);
   for (int i = 0; i < matrices.length; ++i) {
@@ -263,9 +267,10 @@ void main() {
   List<Bone> skeleton;
   SkeletonAnimation anim;
   PosedSkeleton posedSkeleton;
-  SkeletonPoser poser = new SkeletonPoser();
   double _lastTimeMs = 0.0;
   VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
+
+  MeshData mdWire;
 
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
@@ -277,14 +282,12 @@ void main() {
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
     final double relTime = (timeMs / 1000.0) % anim.duration;
-    poser.pose(skeleton, globalOffsetTransform, anim, posedSkeleton, relTime);
-    for (int i = 0; i < posedSkeleton.skinningTransforms.length; ++i) {
-      final int offset = i * 16;
-      final VM.Matrix4 m = posedSkeleton.skinningTransforms[i];
-      for (int t = 0; t < 16; t++) {
-        matrices[offset + t] = m[t];
-      }
-    }
+    PoseSkeleton(skeleton, globalOffsetTransform, anim, posedSkeleton, relTime);
+    FlattenMatrix4List(posedSkeleton.skinningTransforms, matrices);
+
+    List<VM.Vector3> bonePos =
+        BonePosFromPosedSkeleton(skeleton, posedSkeleton);
+    mdWire.ChangeVertices(FlattenVector3List(bonePos));
   }
 
   List<Future<dynamic>> futures = [
@@ -294,16 +297,18 @@ void main() {
   ];
 
   Future.wait(futures).then((List list) {
-    // Setup Mesh
-    GeometryBuilder gb = ReadMeshData(list[0]);
-    MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL.gl, gb);
-    Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
-    Node n = new Node.Container("wrapper", mesh);
-    n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
-    prg.add(n);
     // Setup Texture
     Texture tex = new ImageTextureLoaded(chronosGL.gl, textureFile, list[2]);
     mat..SetUniform(uTextureSampler, tex);
+    // Setup Mesh
+    GeometryBuilder gb = ReadMeshData(list[0]);
+    {
+      MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL.gl, gb);
+      Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
+      Node n = new Node.Container("wrapper", mesh);
+      n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+      prg.add(n);
+    }
 
     assert(list[1].length == 1);
     Map<String, int> nameToPos = {};
@@ -311,6 +316,16 @@ void main() {
     anim = ReadAnim(list[1][0], skeleton, nameToPos);
     posedSkeleton = new PosedSkeleton(skeleton.length);
 
+    {
+      PoseSkeleton(skeleton, globalOffsetTransform, anim, posedSkeleton, 0.0);
+      mdWire = LineEndPointsToMeshData("wire", chronosGL.gl,
+          BonePosFromPosedSkeleton(skeleton, posedSkeleton));
+      Node mesh = new Node(mdWire.name, mdWire, matWire)
+        ..rotX(3.14 / 4);
+      Node n = new Node.Container("wrapper", mesh);
+      n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+      prgWire.add(n);
+    }
     // Start
     animate(0.0);
   });
