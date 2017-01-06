@@ -5,7 +5,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:vector_math/vector_math.dart' as VM;
-//import '../../lib/src/animation/lib.dart' as ANIM;
 
 String meshFile = "../asset/hellknight/hellknight.mesh";
 String animFile = "../asset/hellknight/walk7.anim";
