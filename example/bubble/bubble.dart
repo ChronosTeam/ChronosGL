@@ -1,7 +1,9 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
+import "dart:async";
 
+String textureFile = "sphere.png";
 // https://cycling74.com/forums/topic/shader-help-recreating-gl_sphere_map/
 // https://www.opengl.org/wiki/Mathematics_of_glTexGen
 
@@ -27,14 +29,14 @@ List<ShaderObject> sphereShader() {
     new ShaderObject("sphereF")
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uTexture)
-      ..SetBodyWithMain([
-        "gl_FragColor = texture2D(${uTexture}, ${vTextureCoordinates});"
-      ])
+      ..SetBodyWithMain(
+          ["gl_FragColor = texture2D(${uTexture}, ${vTextureCoordinates});"])
   ];
 }
 
 void main() {
-  StatsFps fps = new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(5.0, 10.0);
@@ -42,25 +44,24 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   // Note, moving the camera does not have an effect
 
-  Texture bubble = new ImageTexture(chronosGL.gl, "sphere.png");
-
   RenderProgram shaderSpheres = phase.createProgram(sphereShader());
-  Material mat = new Material("sphere")..SetUniform(uTexture, bubble);
+  Material mat = new Material("sphere");
   MeshData md = ShapeIcosahedron(chronosGL.gl, 3);
   Node m = new Node("sphere", md, mat)..setPos(0.0, 0.0, 0.0);
 
   shaderSpheres.add(m);
 
-   void resolutionChange(HTML.Event ev) {
+  void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
     int h = canvas.clientHeight;
     canvas.width = w;
     canvas.height = h;
-    print ("size change $w $h");
+    print("size change $w $h");
     perspective.AdjustAspect(w, h);
     phase.viewPortW = w;
     phase.viewPortH = h;
   }
+
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
 
@@ -76,7 +77,12 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures().then((dummy) {
+  List<Future<dynamic>> futures = [
+    LoadImage(textureFile),
+  ];
+  Future.wait(futures).then((List list) {
+    Texture bubble = new ImageTextureLoaded(chronosGL.gl, textureFile, list[0]);
+    mat..SetUniform(uTexture, bubble);
     animate(0.0);
   });
 }

@@ -43,7 +43,6 @@ List<ShaderObject> createShadowShader() {
   ];
 }
 
-
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -57,7 +56,8 @@ void main() {
   RenderProgram prgOrthographic =
       phaseOrthograhic.createProgram(createTexturedShader());
 
-  Texture solid = new CanvasTexture.SolidColor(chronosGL.gl, "red-solid", "red");
+  Texture solid =
+      new CanvasTexture.SolidColor(chronosGL.gl, "red-solid", "red");
   final Material mat1 = new Material("mat1")
     ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
@@ -145,7 +145,5 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures().then((dummy) {
-    animate(0.0);
-  });
+  animate(0.0);
 }

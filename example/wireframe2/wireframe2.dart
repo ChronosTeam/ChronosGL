@@ -23,8 +23,7 @@ void main() {
     ..SetUniform(cBlend, true, true)
     ..SetUniform(cBlendEquation, new BlendEquation.Standard());
 
-
-   {
+  {
     GeometryBuilder gb = IcosahedronGeometry(2);
     Node ico = new Node(
         "sphere",
@@ -51,7 +50,6 @@ void main() {
     program.add(wedge);
   }
 
-
   {
     GeometryBuilder gb = CylinderGeometryWireframeFriendly(3.0, 4.0, 2.0, 16);
     Node cyl = new Node(
@@ -60,7 +58,6 @@ void main() {
         matWireframe)..setPos(5.0, 0.0, -5.0);
     program.add(cyl);
   }
-
 
   {
     GeometryBuilder gb = QuadGeometry(2);
@@ -79,7 +76,6 @@ void main() {
         matWireframe)..setPos(5.0, 0.0, 5.0);
     program.add(torus);
   }
-
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -109,7 +105,5 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures().then((dummy) {
-    animate(0.0);
-  });
+  animate(0.0);
 }

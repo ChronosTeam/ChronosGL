@@ -66,7 +66,6 @@ void main() {
   RenderProgram sprites = phase.createProgram(createPointSpritesShader());
   sprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
-
   // Main loop body"
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
@@ -85,9 +84,5 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  // The point sprites use texture. Wait until the texture is ready
-  // then start the main animation loop.
-  Texture.loadAndInstallAllTextures().then((dummy) {
-    animate(0.0);
-  });
+  animate(0.0);
 }

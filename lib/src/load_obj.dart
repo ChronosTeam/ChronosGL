@@ -63,18 +63,22 @@ HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {
   return canvas;
 }
 
+
 class CanvasTexture extends Texture {
   HTML.CanvasElement _canvas;
 
   CanvasTexture(WEBGL.RenderingContext gl, String url, this._canvas,
       [textureType = WEBGL.TEXTURE_2D])
-      : super(gl, textureType, url);
+      : super(gl, textureType, url) {
+    Install();
+  }
 
   CanvasTexture.SolidColor(
       WEBGL.RenderingContext gl, String url, String fillStyle,
       [textureType = WEBGL.TEXTURE_2D])
       : super(gl, textureType, url) {
     _canvas = MakeSolidColorCanvas(fillStyle);
+    Install();
   }
 
   @override
@@ -124,6 +128,7 @@ class ImageTextureLoaded extends Texture {
     SetImageData(_image);
   }
 }
+
 
 class ImageTexture extends Texture {
   HTML.ImageElement _image;

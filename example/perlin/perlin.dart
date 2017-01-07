@@ -1,6 +1,8 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 import 'dart:html' as HTML;
+import "dart:async";
+String textureFile = "../gradient.jpg";
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
@@ -10,13 +12,10 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram programBasic = phase.createProgram(createTexturedShader());
 
-  Texture blockTex = new ImageTexture(chronosGL.gl, "../gradient.jpg");
-
   RenderProgram perlinNoise =
       phase.createProgram(createPerlinNoiseColorShader(false));
 
   Material mat = new Material("torus")
-    ..SetUniform(uTexture, blockTex)
     ..SetUniform(uColor, new VM.Vector3.zero());
   Node m1 = new Node("torus1", ShapeTorusKnot(chronosGL.gl), mat)
     ..setPos(-50.0, 0.0, 0.0);
@@ -57,7 +56,13 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures().then((dummy) {
+  List<Future<dynamic>> futures = [
+    LoadImage(textureFile),
+  ];
+
+  Future.wait(futures).then((List list) {
+    Texture tex = new ImageTextureLoaded(chronosGL.gl, textureFile, list[0]);
+    mat..SetUniform(uTexture, tex);
     animate(0.0);
   });
 }

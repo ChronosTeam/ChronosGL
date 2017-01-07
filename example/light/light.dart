@@ -12,8 +12,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   orbit.setPos(0.0, 0.0, 56.0);
   Perspective perspective = new Perspective(orbit, 0.1, 10000.0);
-  RenderPhase phaseBlinnPhong =
-      new RenderPhase("blinn-phong", chronosGL.gl);
+  RenderPhase phaseBlinnPhong = new RenderPhase("blinn-phong", chronosGL.gl);
   RenderProgram lightBlinnPhong =
       phaseBlinnPhong.createProgram(createLightShaderBlinnPhong());
   RenderProgram fixedBlinnPhong =
@@ -80,9 +79,10 @@ void main() {
   fixedBlinnPhong.add(shapePointLight);
   fixedGourad.add(shapePointLight);
 
-  Node shapeDirLight =
-      new Node("dirLight", ShapeCylinder(chronosGL.gl, 0.4, 0.4, 200.0, 20), lightSourceMat)
-        ..setPosFromVec(dirLight);
+  Node shapeDirLight = new Node(
+      "dirLight",
+      ShapeCylinder(chronosGL.gl, 0.4, 0.4, 200.0, 20),
+      lightSourceMat)..setPosFromVec(dirLight);
   fixedBlinnPhong.add(shapeDirLight);
   fixedGourad.add(shapeDirLight);
 
@@ -135,7 +135,5 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures().then((dummy) {
-    animate(0.0);
-  });
+  animate(0.0);
 }

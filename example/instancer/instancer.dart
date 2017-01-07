@@ -71,8 +71,11 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
 
   Material mat = new Material("mat");
-  Node m = new Node.WithInstances("torus", ShapeTorusKnot(chronosGL.gl, radius: 12.0),
-      MakeInstances(chronosGL.gl), mat);
+  Node m = new Node.WithInstances(
+      "torus",
+      ShapeTorusKnot(chronosGL.gl, radius: 12.0),
+      MakeInstances(chronosGL.gl),
+      mat);
 
   RenderProgram prg = phase.createProgram(createInstancedShader());
   prg.add(m);
@@ -107,7 +110,5 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures().then((dummy) {
-    animate(0.0);
-  });
+  animate(0.0);
 }
