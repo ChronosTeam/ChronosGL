@@ -52,7 +52,7 @@ class Utils {
   }
 
   static Texture createParticleTexture(gl, [String name = "Utils::Particles"]) {
-    return new CanvasTexture(gl, name, createParticleCanvas());
+    return new WebTexture(gl, name, createParticleCanvas())..Install();
   }
 
   static HTML.CanvasElement createParticleCanvas() {
@@ -193,33 +193,6 @@ class Utils {
       ..SetUniform(uPointSize, 1000);
     id++;
     return new Node('point_sprites_mesh_' + id.toString(), md, mat);
-  }
-
-  static Future<Object> loadFile(String url, [bool binary = false]) {
-    Completer c = new Completer();
-    HTML.HttpRequest hr = new HTML.HttpRequest();
-    hr.open("GET", url);
-    if (binary) hr.responseType = "arraybuffer";
-    hr.onLoadEnd.listen((e) {
-      c.complete(hr.response);
-    });
-    hr.send();
-    return c.future;
-  }
-
-  static Future<Object> loadBinaryFile(String url) {
-    return loadFile(url, true);
-  }
-
-  static Future<Object> loadJsonFile(String url) {
-    Completer c = new Completer();
-    HTML.HttpRequest hr = new HTML.HttpRequest();
-    hr.open("GET", url);
-    hr.onLoadEnd.listen((e) {
-      c.complete(JSON.decode(hr.responseText));
-    });
-    hr.send();
-    return c.future;
   }
 
   static String getQueryVariable(String name) {

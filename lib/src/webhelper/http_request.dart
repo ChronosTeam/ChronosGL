@@ -41,19 +41,6 @@ Future<HTML.VideoElement> LoadVideo(String url) {
   return c.future as Future<HTML.VideoElement>;
 }
 
-Future<HTML.VideoElement> MakeVideoElementFromCamera() {
-  Completer c = new Completer();
-  HTML.window.navigator
-      .getUserMedia(video: true)
-      .then((HTML.MediaStream stream) {
-    HTML.VideoElement video = new HTML.VideoElement()..autoplay = true;
-    video.onPlaying.first.then((_) => c.complete(video));
-    video.src = HTML.Url.createObjectUrl(stream);
-  });
-  return c.future as Future<HTML.VideoElement>;
-}
-
-
 final List<String> _kUrlInfix = ["nx", "px", "ny", "py", "nz", "pz"];
 
 List<Future<HTML.ImageElement>> LoadCubeImages(

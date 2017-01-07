@@ -1,4 +1,4 @@
-part of chronosgl;
+part of webhelper;
 
 Future<HTML.VideoElement> MakeVideoElementFromCamera() {
   Completer c = new Completer();

@@ -25,7 +25,6 @@ export 'src/webhelper/lib.dart';
 
 part "src/pickray.dart";
 part "src/input.dart";
-part "src/load_obj.dart";
 
 part "src/utils.dart";
 
