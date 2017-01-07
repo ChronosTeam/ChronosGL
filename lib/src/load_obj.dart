@@ -47,8 +47,7 @@ Future<HTML.VideoElement> MakeVideoElementFromCamera() {
   HTML.window.navigator
       .getUserMedia(video: true)
       .then((HTML.MediaStream stream) {
-    HTML.VideoElement video = new HTML.VideoElement()
-      ..autoplay = true;
+    HTML.VideoElement video = new HTML.VideoElement()..autoplay = true;
     video.onPlaying.first.then((_) => c.complete(video));
     video.src = HTML.Url.createObjectUrl(stream);
   });
@@ -63,14 +62,13 @@ HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {
   return canvas;
 }
 
-
 class CanvasTexture extends Texture {
   HTML.CanvasElement _canvas;
 
   CanvasTexture(WEBGL.RenderingContext gl, String url, this._canvas,
       [textureType = WEBGL.TEXTURE_2D])
       : super(gl, textureType, url) {
-    Install();
+    _Install();
   }
 
   CanvasTexture.SolidColor(
@@ -78,11 +76,10 @@ class CanvasTexture extends Texture {
       [textureType = WEBGL.TEXTURE_2D])
       : super(gl, textureType, url) {
     _canvas = MakeSolidColorCanvas(fillStyle);
-    Install();
+    _Install();
   }
 
-  @override
-  void Install() {
+  void _Install() {
     // Check for CubeChild
     if (GetTextureType() != WEBGL.TEXTURE_2D) return;
     Bind(true);
@@ -95,109 +92,41 @@ class CanvasTexture extends Texture {
     SetImageData(_canvas);
     UnBind();
   }
-
-  @override
-  void InstallAsCubeChild() {
-    SetImageData(_canvas);
-  }
 }
 
 // The image must already be loaded
-class ImageTextureLoaded extends Texture {
+class ImageTexture extends Texture {
   HTML.ImageElement _image;
 
-  ImageTextureLoaded(
-      WEBGL.RenderingContext gl, String url, HTML.ImageElement img,
+  ImageTexture(WEBGL.RenderingContext gl, String url, HTML.ImageElement img,
       [textureType = WEBGL.TEXTURE_2D])
       : super(gl, textureType, url) {
     _image = img;
-    Install();
+    _Install();
   }
 
-  @override
-  void Install() {
+  void _Install() {
     // Check for CubeChild
     if (GetTextureType() != WEBGL.TEXTURE_2D) return;
     Bind(true);
     SetImageData(_image);
     UnBind(true);
   }
+}
 
-  @override
-  void InstallAsCubeChild() {
-    SetImageData(_image);
+final List<String> _kUrlInfix = ["nx", "px", "ny", "py", "nz", "pz"];
+
+List<Future<HTML.ImageElement>> LoadCubeImages(
+    String urlPrefix, String urlSuffix) {
+  List<Future<HTML.ImageElement>> out = new List<Future<HTML.ImageElement>>(6);
+  for (int i = 0; i < _kUrlInfix.length; ++i) {
+    Completer c = new Completer();
+    HTML.ImageElement image = new HTML.ImageElement();
+    image.onLoad.first.then((_) => c.complete(image));
+    image.src = urlPrefix + _kUrlInfix[i] + urlSuffix;
+    out[i] = c.future as Future<HTML.ImageElement>;
   }
+  return out;
 }
 
 
-class ImageTexture extends Texture {
-  HTML.ImageElement _image;
-  Future<dynamic> _future;
-
-  ImageTexture(WEBGL.RenderingContext gl, String url,
-      [textureType = WEBGL.TEXTURE_2D])
-      : super(gl, textureType, url) {
-    _image = new HTML.ImageElement();
-    _future = _image.onLoad.first;
-    _image.src = url;
-  }
-
-  @override
-  void Install() {
-    // Check for CubeChild
-    if (GetTextureType() != WEBGL.TEXTURE_2D) return;
-    Bind(true);
-    SetImageData(_image);
-    UnBind(true);
-  }
-
-  @override
-  void InstallAsCubeChild() {
-    SetImageData(_image);
-  }
-
-  @override
-  Future<dynamic> GetFuture() {
-    return _future;
-  }
-}
-
-class CubeTexture extends Texture {
-  List<Texture> _cubeChildren;
-
-  CubeTexture(
-      WEBGL.RenderingContext gl, String url, String prefix, String suffix)
-      : super(gl, WEBGL.TEXTURE_CUBE_MAP, url) {
-    _cubeChildren = [
-      new ImageTexture(
-          gl, prefix + "nx" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_X),
-      new ImageTexture(
-          gl, prefix + "px" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_X),
-      new ImageTexture(
-          gl, prefix + "ny" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Y),
-      new ImageTexture(
-          gl, prefix + "py" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Y),
-      new ImageTexture(
-          gl, prefix + "nz" + suffix, WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Z),
-      new ImageTexture(
-          gl, prefix + "pz" + suffix, WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Z),
-    ];
-    properties.clamp = true;
-  }
-
-  CubeTexture.fromTextures(
-      WEBGL.RenderingContext gl, String url, List<Texture> texs)
-      : super(gl, WEBGL.TEXTURE_CUBE_MAP, url) {
-    _cubeChildren = texs;
-    properties.clamp = true;
-  }
-
-  @override
-  void Install() {
-    Bind(true);
-    for (Texture child in _cubeChildren) {
-      child.InstallAsCubeChild();
-    }
-    UnBind(true);
-  }
-}

@@ -68,11 +68,7 @@ class Texture {
 
   TextureProperties properties = new TextureProperties();
 
-  static List<Texture> _cache = [];
-
-  Texture(this._gl, this._textureType, this._url) {
-    _cache.add(this);
-  }
+  Texture(this._gl, this._textureType, this._url);
 
   void Bind([bool initTime = false]) {
     if (initTime) {
@@ -98,36 +94,8 @@ class Texture {
 
   int GetTextureType() => _textureType;
 
-  static Future<dynamic> loadAndInstallAllTextures() {
-    List<Future<dynamic>> futures = [];
-    for (Texture tw in _cache) {
-      Future<dynamic> f = tw.GetFuture();
-      if (f != null) futures.add(f);
-    }
-    return Future.wait(futures).then((List list) {
-      LogInfo("All images have loaded");
-      for (Texture tw in _cache) {
-        if (tw._texture != null) continue;
-        tw.Install();
-      }
-    });
-  }
-
   WEBGL.Texture GetTexture() {
     return _texture;
-  }
-
-  void Install() {
-    assert(false, "abstract Install() called");
-  }
-
-  void InstallAsCubeChild() {
-    assert(false, "abstract InstallAsCubeChild() called");
-  }
-
-  // Primarly for image base texture so we can wait until the image has load
-  Future<dynamic> GetFuture() {
-    return null;
   }
 
   @override
@@ -157,6 +125,7 @@ class TypedTexture extends Texture {
     properties.clamp = true;
     properties.mipmap = false;
     properties.SetFilterNearest();
+    _Install();
   }
 
   void UpdateContent(int w, int h, var data) {
@@ -169,8 +138,7 @@ class TypedTexture extends Texture {
     UnBind();
   }
 
-  @override
-  void Install() {
+  void _Install() {
     Bind(true);
     _gl.texImage2D(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
         _formatType, _dataType, _data);
@@ -198,10 +166,7 @@ class WebTexture extends Texture {
       [textureType = WEBGL.TEXTURE_2D])
       : super(gl, textureType, url);
 
-  @override
   void Install() {
-    // Check for CubeChild
-    if (GetTextureType() != WEBGL.TEXTURE_2D) return;
     Bind(true);
     SetImageData(_element);
     UnBind(true);
@@ -212,9 +177,28 @@ class WebTexture extends Texture {
     SetImageData(_element);
     UnBind();
   }
+}
 
-  @override
-  void InstallAsCubeChild() {
-    SetImageData(_element);
+final List<int> _kCubeModifier = [
+  WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_X,
+  WEBGL.TEXTURE_CUBE_MAP_POSITIVE_X,
+  WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+  WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Y,
+  WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Z,
+  WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Z,
+];
+
+class CubeTexture extends Texture {
+  CubeTexture(WEBGL.RenderingContext gl, String url, List images)
+      : super(gl, WEBGL.TEXTURE_CUBE_MAP, url) {
+    assert(images.length == _kCubeModifier.length);
+    Bind(true);
+    for (int i = 0; i < _kCubeModifier.length; ++i) {
+      _gl.texImage2D(_kCubeModifier[i], 0, WEBGL.RGBA, WEBGL.RGBA,
+          WEBGL.UNSIGNED_BYTE,images[i]);
+    }
+    UnBind(true);
+
+    properties.clamp = true;
   }
 }

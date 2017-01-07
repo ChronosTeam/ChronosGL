@@ -296,7 +296,7 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Texture
-    Texture tex = new ImageTextureLoaded(chronosGL.gl, textureFile, list[2]);
+    Texture tex = new ImageTexture(chronosGL.gl, textureFile, list[2]);
     mat..SetUniform(uTexture, tex);
     // Setup Mesh
     GeometryBuilder gb = ReadMeshData(list[0]);

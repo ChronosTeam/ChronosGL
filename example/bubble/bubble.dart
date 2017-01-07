@@ -81,7 +81,7 @@ void main() {
     LoadImage(textureFile),
   ];
   Future.wait(futures).then((List list) {
-    Texture bubble = new ImageTextureLoaded(chronosGL.gl, textureFile, list[0]);
+    Texture bubble = new ImageTexture(chronosGL.gl, textureFile, list[0]);
     mat..SetUniform(uTexture, bubble);
     animate(0.0);
   });
