@@ -39,7 +39,7 @@ GeometryBuilder GeometryFromWavefront(String text) {
           double.parse(array[3])));
     } else if (array[0] == "f") {
       // face
-      if (array.length != 4) {
+      if (array.length != 4 && array.length != 5) {
         print("*** Error: face '" + line + "' not handled");
         continue;
       }
@@ -47,7 +47,7 @@ GeometryBuilder GeometryFromWavefront(String text) {
       List<VM.Vector3> faceVertices = [];
       List<VM.Vector3> faceNormal = [];
       List<VM.Vector2> faceUvs = [];
-      for (int i = 1; i < 4; ++i) {
+      for (int i = 1; i < array.length; ++i) {
         // add a new entry to the map and arrays
         List<String> f = array[i].split("/");
         assert(f.length > 0);
@@ -76,7 +76,11 @@ GeometryBuilder GeometryFromWavefront(String text) {
           faceNormal.add(new VM.Vector3.zero());
         }
       }
-      gb.AddVerticesFace3(faceVertices);
+      if (array.length == 4) {
+        gb.AddVerticesFace3(faceVertices);
+      } else {
+        gb.AddVerticesFace4(faceVertices);
+      }
       gb.AddAttributesVector3(aNormal, faceNormal);
       gb.AddAttributesVector2(aTextureCoordinates, faceUvs);
     }
@@ -85,4 +89,3 @@ GeometryBuilder GeometryFromWavefront(String text) {
   print("loaded (${delta}) ${gb}");
   return gb;
 }
-
