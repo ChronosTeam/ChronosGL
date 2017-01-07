@@ -51,7 +51,7 @@ void main() {
   RenderProgram copyToScreen =
       phaseDisplayShadow.createProgram(createCopyShaderForShadow());
 
-  copyToScreen.SetInput(uTextureSampler, shadowBuffer.colorTexture);
+  copyToScreen.SetInput(uTexture, shadowBuffer.colorTexture);
   copyToScreen.add(UnitNode(chronosGL.gl));
 
   RenderPhase phaseMain = new RenderPhase("main", chronosGL.gl);
@@ -59,20 +59,20 @@ void main() {
   RenderProgram basic =
       phaseMain.createProgram(createLightShaderBlinnPhongWithShadow());
 
-  basic.SetInput(uShadowSampler0, shadowBuffer.colorTexture);
+  basic.SetInput(uShadowMap, shadowBuffer.colorTexture);
 
   Texture solid =
       new CanvasTexture.SolidColor(chronosGL.gl, "red-solid", "red");
   final Material mat1 = new Material("mat1")
-    ..SetUniform(uTextureSampler, solid)
+    ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
 
   final Material mat2 = new Material("mat2")
-    ..SetUniform(uTextureSampler, solid)
+    ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0));
 
   final Material mat3 = new Material("mat3")
-    ..SetUniform(uTextureSampler, solid)
+    ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(0.8, 0.8, 0.8));
 
   {

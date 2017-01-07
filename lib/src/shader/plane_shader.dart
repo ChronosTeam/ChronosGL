@@ -5,17 +5,17 @@ List<ShaderObject> createPlane2GreyShader() {
     new ShaderObject("Plane2GreyV")
       ..AddAttributeVar(aVertexPosition)
       ..AddAttributeVar(aNormal)
-      ..AddVaryingVar(vColors)
+      ..AddVaryingVar(vColor)
       ..AddUniformVar(uPerspectiveViewMatrix)
       ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain([
         "float d = sin(dot( ${aVertexPosition}, ${aNormal})) / 2.0 + 0.5;",
-        "${vColors} = vec3(d,d,d);",
+        "${vColor} = vec3(d,d,d);",
         StdVertexBody,  
       ]),
     new ShaderObject("Plane2GreyF")
-      ..AddVaryingVar(vColors)
-      ..SetBodyWithMain(["gl_FragColor = vec4(${vColors}, 1.0);"])
+      ..AddVaryingVar(vColor)
+      ..SetBodyWithMain(["gl_FragColor = vec4(${vColor}, 1.0);"])
        
   ];
 }
@@ -44,7 +44,7 @@ void main(void) {
   gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
   float d=dot( ${aVertexPosition}, ${aNormal});
   vec3 hsv = vec3(d,1,1);
-  ${vColors}=HSV2RGB(hsv);
+  ${vColor} = HSV2RGB(hsv);
 }
 """;
 
@@ -55,10 +55,10 @@ List<ShaderObject> createPlane2ColorShader() {
       ..AddAttributeVar(aNormal)
       ..AddUniformVar(uPerspectiveViewMatrix)
       ..AddUniformVar(uModelMatrix)
-      ..AddVaryingVar(vColors)
+      ..AddVaryingVar(vColor)
       ..SetBody([_VertexShaderPlane2ColorV]),
     new ShaderObject("Plane2ColorF")
-      ..AddVaryingVar(vColors)
+      ..AddVaryingVar(vColor)
       ..SetBodyWithMain(["gl_FragColor = vec4( vColor, 1.0 );"])
   ];
 }

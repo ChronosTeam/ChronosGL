@@ -15,7 +15,7 @@ void main() {
   programCM.add(sky);
 
   Material mat = new Material("cubemap")
-    ..SetUniform(uTextureCubeSampler, cubeTex);
+    ..SetUniform(uCubeTexture, cubeTex);
   MeshData md = ShapeCube(chronosGL.gl,x: 2.0, y: 2.0, z: 2.0);
   programCM.add(new Node("cube", md, mat));
 

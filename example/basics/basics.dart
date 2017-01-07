@@ -22,15 +22,15 @@ void main() {
   Texture wood = new ImageTexture(chronosGL.gl,"../wood.jpg");
 
   final Material matWood = new Material("wood")
-    ..SetUniform(uTextureSampler, wood)
+    ..SetUniform(uTexture, wood)
     ..SetUniform(uColor, new VM.Vector3(1.0, 0.9, 0.0));
 
   final Material matGradient = new Material("gradient")
     ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0))
-    ..SetUniform(uTextureSampler, gradient);
+    ..SetUniform(uTexture, gradient);
 
   final Material matTrans = new Material("trans")
-    ..SetUniform(uTextureSampler, trans)
+    ..SetUniform(uTexture, trans)
     ..SetUniform(cBlend, true, true)
     ..SetUniform(cBlendEquation, new BlendEquation.Standard());
 

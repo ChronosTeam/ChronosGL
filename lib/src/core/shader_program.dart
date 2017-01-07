@@ -131,20 +131,26 @@ class ShaderProgram extends RenderProgram {
       case "sampler2D":
         int n;
         switch (canonical) {
-          case uTextureSampler:
+          case uTexture:
             n = 0;
             break;
-          case uTexture2Sampler:
+          case uTexture2:
             n = 1;
             break;
-          case uTexture3Sampler:
+          case uTexture3:
             n = 2;
             break;
-          case uTexture4Sampler:
+          case uTexture4:
             n = 3;
             break;
-          case uShadowSampler0:
-            n = 8;
+          case uDepthMap:
+            n = 4;
+            break;
+          case uBumpMap:
+            n = 5;
+            break;
+          case uShadowMap:
+            n = 6;
             break;
           default:
             throw "unknown texture ";
@@ -154,9 +160,8 @@ class ShaderProgram extends RenderProgram {
         _gl.uniform1i(l, n);
         break;
       case "samplerCube":
-        assert(canonical == uTextureCubeSampler);
-        int n = (_uniformLocations.containsKey(uTextureSampler) ? 1 : 0) +
-            (_uniformLocations.containsKey(uTexture2Sampler) ? 1 : 0);
+        assert(canonical == uCubeTexture);
+        int n = 8;
         _gl.activeTexture(WEBGL.TEXTURE0 + n);
         _gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, val.GetTexture());
         _gl.uniform1i(l, n);

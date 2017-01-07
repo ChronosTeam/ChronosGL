@@ -79,7 +79,7 @@ void main() {
     texture.properties.clamp = true;
     // Figure out why moving this into the WebTexture contructor does not work.
     texture.Install();
-    matGradient.SetUniform(uTextureSampler, texture);
+    matGradient.SetUniform(uTexture, texture);
     animate(0.0);
   });
 }

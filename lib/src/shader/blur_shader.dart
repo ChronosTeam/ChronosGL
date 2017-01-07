@@ -4,19 +4,19 @@ part of chronosshader;
 List<ShaderObject> createBlurShader() {
   return [
     new ShaderObject("BlurV")
-      ..AddAttributeVar(aVertexPosition, aVertexPosition)
-      ..AddAttributeVar(aTextureCoordinates, aTextureCoordinates)
-      ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
+      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVar(aTextureCoordinates)
+      ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uPerspectiveViewMatrix)
       ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain(
           [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("BlurF")
-      ..AddVaryingVar(vTextureCoordinates, vTextureCoordinates)
-      ..AddUniformVar(uCameraFar, uCameraFar)
-      ..AddUniformVar(uCameraNear, uCameraNear)
-      ..AddUniformVar(uCanvasSize, uCanvasSize)
-      ..AddUniformVar(uTextureSampler, uTextureSampler)
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uCameraFar)
+      ..AddUniformVar(uCameraNear)
+      ..AddUniformVar(uCanvasSize)
+      ..AddUniformVar(uTexture)
       ..SetBodyWithMain([
         """
       float offset[3];
@@ -31,10 +31,10 @@ List<ShaderObject> createBlurShader() {
       //gl_FragColor = vec4(gl_FragCoord.x/size.x, gl_FragCoord.y/size.y, 0., 0.);
       //gl_FragColor = vec4(${vTextureCoordinates}.x, ${vTextureCoordinates}.y, 0., 0.);
 
-      gl_FragColor = texture2D( ${uTextureSampler}, ${vTextureCoordinates})* weight[0];
+      gl_FragColor = texture2D( ${uTexture}, ${vTextureCoordinates})* weight[0];
       for (int i=1; i<3; i++) {
-          gl_FragColor += texture2D( ${uTextureSampler}, ${vTextureCoordinates}+vec2(0.0, offset[i]/size.y) ) * weight[i];
-          gl_FragColor += texture2D( ${uTextureSampler}, ${vTextureCoordinates}-vec2(0.0, offset[i]/size.y) ) * weight[i];
+          gl_FragColor += texture2D( ${uTexture}, ${vTextureCoordinates}+vec2(0.0, offset[i]/size.y) ) * weight[i];
+          gl_FragColor += texture2D( ${uTexture}, ${vTextureCoordinates}-vec2(0.0, offset[i]/size.y) ) * weight[i];
       }
 
 """
@@ -105,7 +105,7 @@ List<ShaderObject> createBlurShader2() {
       ..AddUniformVar(uCameraFar, "cameraFar")
       ..AddUniformVar(uCameraNear, "cameraNear")
       ..AddUniformVar(uCanvasSize, "iResolution")
-      ..AddUniformVar(uTextureSampler, "iChannel0")
+      ..AddUniformVar(uTexture, "iChannel0")
       ..SetBody([Blur2FragShader])
   ];
 }

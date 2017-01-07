@@ -143,7 +143,7 @@ List<ShaderObject> createLightShaderGourad() {
   return [
     new ShaderObject("LightGouradV")
       ..AddAttributeVars([aVertexPosition, aNormal])
-      ..AddVaryingVars([vColors])
+      ..AddVaryingVars([vColor])
       ..AddUniformVar(uPerspectiveViewMatrix)
       ..AddUniformVar(uModelMatrix)
       ..AddUniformVar(uNormalMatrix)
@@ -165,15 +165,15 @@ List<ShaderObject> createLightShaderGourad() {
                                      ${uEyePosition},
                                      diffuseFactor, specularFactor);
 
-         ${vColors} = diffuseFactor * info.diffuseColor +
+         ${vColor} = diffuseFactor * info.diffuseColor +
                       specularFactor * info.specularColor +
                       uColor;
         }
         """
       ]),
     new ShaderObject("LightGrouradV")
-      ..AddVaryingVar(vColors)
-      ..SetBodyWithMain(["gl_FragColor = vec4(${vColors}, 1.0 );"])
+      ..AddVaryingVar(vColor)
+      ..SetBodyWithMain(["gl_FragColor = vec4(${vColor}, 1.0 );"])
   ];
 }
 
@@ -242,7 +242,7 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
       ]),
     new ShaderObject("LightBlinnPhongF")
       ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight0])
-      ..AddUniformVars([uLightSourceInfo0, uShadowSampler0, uEyePosition])
+      ..AddUniformVars([uLightSourceInfo0, uShadowMap, uEyePosition])
       ..SetBody([
         _lightHelpers,
         _shadowHelpers,
@@ -270,11 +270,11 @@ void foo(vec4 positionFromLight, sampler2D shadowSampler,
                                      diffuseFactor, specularFactor);
 
         float shadow = computeShadow(${vPositionFromLight0},
-                                     ${uShadowSampler0}, 0.4, -0.1);
+                                     ${uShadowMap}, 0.4, -0.1);
         //shadow = 1.0;
         gl_FragColor.rgb = diffuseFactor * shadow * info.diffuseColor +
                              specularFactor * shadow * info.specularColor;
-        //foo(${vPositionFromLight0}, ${uShadowSampler0}, 0.4, -0.1);
+        //foo(${vPositionFromLight0}, ${uShadowMap}, 0.4, -0.1);
       }
       """
       ])
@@ -326,10 +326,10 @@ List<ShaderObject> createCopyShader() {
           [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("copyF")
       ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTextureSampler)
+      ..AddUniformVar(uTexture)
       ..SetBodyWithMain([
         "vec2 v = ${vTextureCoordinates}.xy;",
-        "gl_FragColor.rgb = texture2D (${uTextureSampler}, v).rgb;"
+        "gl_FragColor.rgb = texture2D (${uTexture}, v).rgb;"
       ])
   ];
 }
@@ -344,13 +344,13 @@ List<ShaderObject> createCopyShaderForShadow() {
           [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("copyF")
       ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTextureSampler)
+      ..AddUniformVar(uTexture)
       ..SetBody([
         _shadowHelpers,
         """
       void main(void) {
           vec2 uv = ${vTextureCoordinates}.xy;
-          vec4 color = texture2D(${uTextureSampler}, uv);
+          vec4 color = texture2D(${uTexture}, uv);
           // Commenting the next line should not make any difference
           //color = packDepth(unpackDepth(color));
           gl_FragColor = color;

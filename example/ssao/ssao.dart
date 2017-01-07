@@ -37,8 +37,8 @@ void main() {
     ..SetInput(uCameraNear, 0.1)
     ..SetInput(uCameraFar, 2529.0)
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
-    ..SetInput(uTexture2Sampler, fb.depthTexture)
-    ..SetInput(uTextureSampler, fb.colorTexture)
+    ..SetInput(uDepthMap, fb.depthTexture)
+    ..SetInput(uTexture, fb.colorTexture)
     ..add(UnitNode(chronosGL.gl));
 
   RenderPhase phase1only = new RenderPhase("phase1only", chronosGL.gl, null);

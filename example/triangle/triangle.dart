@@ -59,15 +59,15 @@ void main() {
 
   Texture solid = new CanvasTexture.SolidColor(chronosGL.gl, "red-solid", "red");
   final Material mat1 = new Material("mat1")
-    ..SetUniform(uTextureSampler, solid)
+    ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
 
   final Material mat2 = new Material("mat2")
-    ..SetUniform(uTextureSampler, solid)
+    ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0));
 
   final Material mat3 = new Material("mat3")
-    ..SetUniform(uTextureSampler, solid)
+    ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 1.0, 0.0));
 
   double thickness = 3.0;

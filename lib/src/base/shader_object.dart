@@ -57,7 +57,7 @@ const String cDrawMode = "cDrawMode";
 // ===========================================================
 const int prefixAttribute = 0x61; // 'a';
 
-const String aColors = "aColors";
+const String aColor = "aColors";
 const String aColorAlpha = "aColorAlpha";
 const String aVertexPosition = "aVertexPosition";
 const String aTextureCoordinates = "aTextureCoordinates";
@@ -83,7 +83,7 @@ const String iaScale = "iaScale";
 // ===========================================================
 // Varying
 // ===========================================================
-const String vColors = "vColors";
+const String vColor = "vColors";
 const String vTextureCoordinates = "vTextureCoordinates";
 const String vLightWeighting = "vLightWeighting";
 const String vNormal = "vNormal";
@@ -107,13 +107,16 @@ const String uLightPerspectiveViewMatrix0 = uLightPerspectiveViewMatrix + "0";
 
 const String uModelMatrix = "uModelMatrix";
 
-const String uShadowSampler0 = "uShadowSampler0";
 
-const String uTextureSampler = "uTextureSampler";
-const String uTextureCubeSampler = "uTextureCubeSampler";
-const String uTexture2Sampler = "uTexture2Sampler";
-const String uTexture3Sampler = "uTexture3Sampler";
-const String uTexture4Sampler = "uTexture4Sampler";
+const String uTexture = "uTexture";
+const String uCubeTexture = "uCubeTexture";
+const String uTexture2 = "uTexture2";
+const String uTexture3 = "uTexture3";
+const String uTexture4 = "uTexture4";
+const String uBumpMap = "uBumpMap";
+const String uDepthMap = "uDepthMap";
+const String uShadowMap = "uShadowMap";
+
 const String uTime = "uTime";
 const String uColor = "uColor";
 const String uColorAlpha2 = "uColorAlpha2";
@@ -148,7 +151,7 @@ Map<String, ShaderVarDesc> _VarsDb = {
 
   // attribute vars
   // This should also contain an alpha channel
-  aColors: new ShaderVarDesc("vec3", "per vertex color"),
+  aColor: new ShaderVarDesc("vec3", "per vertex color"),
   aColorAlpha: new ShaderVarDesc("vec4", "per vertex color"),
   aVertexPosition: new ShaderVarDesc("vec3", "vertex coordinates"),
   aTextureCoordinates: new ShaderVarDesc("vec2", "texture uvs"),
@@ -164,7 +167,7 @@ Map<String, ShaderVarDesc> _VarsDb = {
   iaScale: new ShaderVarDesc("vec3", ""),
 
   // Varying
-  vColors: new ShaderVarDesc("vec3", "per vertex color"),
+  vColor: new ShaderVarDesc("vec3", "per vertex color"),
   vTextureCoordinates: new ShaderVarDesc("vec2", ""),
   vLightWeighting: new ShaderVarDesc("vec3", ""),
   vNormal: new ShaderVarDesc("vec3", ""),
@@ -182,13 +185,16 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uPerspectiveViewMatrix: new ShaderVarDesc("mat4", ""),
   uLightPerspectiveViewMatrix0: new ShaderVarDesc("mat4", ""),
 
-  uShadowSampler0: new ShaderVarDesc("sampler2D", ""),
+  uShadowMap: new ShaderVarDesc("sampler2D", ""),
 
-  uTextureSampler: new ShaderVarDesc("sampler2D", ""),
-  uTexture2Sampler: new ShaderVarDesc("sampler2D", ""),
-  uTexture3Sampler: new ShaderVarDesc("sampler2D", ""),
-  uTexture4Sampler: new ShaderVarDesc("sampler2D", ""),
-  uTextureCubeSampler: new ShaderVarDesc("samplerCube", ""),
+  uTexture: new ShaderVarDesc("sampler2D", ""),
+  uTexture2: new ShaderVarDesc("sampler2D", ""),
+  uTexture3: new ShaderVarDesc("sampler2D", ""),
+  uTexture4: new ShaderVarDesc("sampler2D", ""),
+  uBumpMap: new ShaderVarDesc("sampler2D", ""),
+  uDepthMap: new ShaderVarDesc("sampler2D", ""),
+  uCubeTexture: new ShaderVarDesc("samplerCube", ""),
+
   uTime: new ShaderVarDesc("float", "time since program start in sec"),
   uCameraNear: new ShaderVarDesc("float", ""),
   uCameraFar: new ShaderVarDesc("float", ""),

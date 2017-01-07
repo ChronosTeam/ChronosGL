@@ -80,7 +80,7 @@ class Utils {
 
   static Node MakeSkycube(gl, Texture cubeTexture) {
     Material mat = new Material("skycube")
-      ..SetUniform(uTextureCubeSampler, cubeTexture);
+      ..SetUniform(uCubeTexture, cubeTexture);
     MeshData md = ShapeCube(gl, x: 512.0, y: 512.0, z: 512.0);
     return new Node("skycube", md, mat);
   }
@@ -189,7 +189,7 @@ class Utils {
     md.AddVertices(FlattenVector3List(vertices));
 
     Material mat = new Material.Transparent("stars", new BlendEquation.Mix())
-      ..SetUniform(uTextureSampler, texture)
+      ..SetUniform(uTexture, texture)
       ..SetUniform(uPointSize, 1000);
     id++;
     return new Node('point_sprites_mesh_' + id.toString(), md, mat);

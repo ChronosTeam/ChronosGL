@@ -26,9 +26,9 @@ List<ShaderObject> sphereShader() {
       ..SetBodyWithMain([StdVertexBody, _SphereV]),
     new ShaderObject("sphereF")
       ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTextureSampler)
+      ..AddUniformVar(uTexture)
       ..SetBodyWithMain([
-        "gl_FragColor = texture2D(${uTextureSampler}, ${vTextureCoordinates});"
+        "gl_FragColor = texture2D(${uTexture}, ${vTextureCoordinates});"
       ])
   ];
 }
@@ -45,7 +45,7 @@ void main() {
   Texture bubble = new ImageTexture(chronosGL.gl, "sphere.png");
 
   RenderProgram shaderSpheres = phase.createProgram(sphereShader());
-  Material mat = new Material("sphere")..SetUniform(uTextureSampler, bubble);
+  Material mat = new Material("sphere")..SetUniform(uTexture, bubble);
   MeshData md = ShapeIcosahedron(chronosGL.gl, 3);
   Node m = new Node("sphere", md, mat)..setPos(0.0, 0.0, 0.0);
 

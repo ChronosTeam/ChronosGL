@@ -16,7 +16,7 @@ void main() {
       phase.createProgram(createPerlinNoiseColorShader(false));
 
   Material mat = new Material("torus")
-    ..SetUniform(uTextureSampler, blockTex)
+    ..SetUniform(uTexture, blockTex)
     ..SetUniform(uColor, new VM.Vector3.zero());
   Node m1 = new Node("torus1", ShapeTorusKnot(chronosGL.gl), mat)
     ..setPos(-50.0, 0.0, 0.0);
