@@ -129,6 +129,7 @@ const String uFogNear = "uFogNear";
 const String uFogFar = "uFogFar";
 const String uEyePosition = "uEyePosition";
 const String uBoneMatrices = "uBoneMatrices";
+const String uBumpScale = "uBumpScale";
 
 const String uMaterial = "uMaterial";
 const String uLightSourceInfo = "uLightSourceInfo";
@@ -212,6 +213,7 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uLightSourceInfo2: new ShaderVarDesc("mat4", ""),
   uLightSourceInfo3: new ShaderVarDesc("mat4", ""),
   uBoneMatrices: new ShaderVarDesc("mat4", "", arraySize:128),
+  uBumpScale: new ShaderVarDesc("float", ""),
 };
 
 void IntroduceNewShaderVar(String canonical, ShaderVarDesc desc) {
