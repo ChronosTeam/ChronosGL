@@ -8,12 +8,13 @@ const String StdVertexTextureForward =
 
 const String NullVertexBody = "gl_Position = vec4(${aVertexPosition}, 1.0);";
 
+// No globals, no dependencies on Shader variables
 const String StdLibShader = """
 // ============================================================
 // MISC
 // ============================================================
 
-vec3 ColorFromPostion(vec3 pos) {
+vec3 ColorFromPosition(vec3 pos) {
     return vec3( sin(pos.x) / 2.0 + 0.5,
                  cos(pos.y) / 2.0 + 0.5,
                  sin(pos.z) / 2.0 + 0.5);
@@ -36,7 +37,7 @@ vec3 RangeToGray(float f, float a, float b) {
 }
 
 float useValueButReturnZero(float x) {
-  return (x + 1.0) * (x + 1.0) - x * x - 2.0 * x - 1.0;
+    return (x + 1.0) * (x + 1.0) - x * x - 2.0 * x - 1.0;
 }
 
 // ============================================================
@@ -143,17 +144,17 @@ const vec4 _shift = vec4(1.0, _b, _b * _b, _b * _b * _b);
 const vec4 _shiftInv = vec4(1.0, 1.0 / _b, 1.0 / (_b * _b), 1.0 / (_b * _b * _b));
 
 vec4 packDepth(float depth) {
-	vec4 res = fract(depth * _shift);
-  // the next three correction terms can probably be omitted if we
-  // know for sure that we are dealing with 8 bits per color component
-  res.r -= res.g / _b;
-  res.g -= res.b / _b;
-  res.b -= res.a / _b;
-	return res;
+	  vec4 res = fract(depth * _shift);
+    // the next three correction terms can probably be omitted if we
+    // know for sure that we are dealing with 8 bits per color component
+    res.r -= res.g / _b;
+    res.g -= res.b / _b;
+    res.b -= res.a / _b;
+	  return res;
 }
 
 float unpackDepth(vec4 rgba_depth) {
-	return dot(rgba_depth, _shiftInv);
+	  return dot(rgba_depth, _shiftInv);
 }
 
 float computeShadow(vec4 positionFromLight, sampler2D shadowMap,
@@ -217,6 +218,4 @@ vec3 perturbNormalArb(vec3 surf_pos, vec3 surf_norm, vec2 dHdxy) {
     vec3 vGrad = sign( fDet ) * ( dHdxy.x * R1 + dHdxy.y * R2 );
     return normalize( abs( fDet ) * surf_norm - vGrad );
 }
-
-
 """;

@@ -12,7 +12,7 @@ List<ShaderObject> createNormal2ColorShader() {
       ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain([
         StdVertexBody,
-        "vColors = normalize(${aNormal} / 2.0 + vec3(0.5) );"
+        "${vColor} = normalize(${aNormal} / 2.0 + vec3(0.5) );"
       ]),
     new ShaderObject("Normal2ColorF")
       ..AddVaryingVar(vColor)

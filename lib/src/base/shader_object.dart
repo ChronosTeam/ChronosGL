@@ -83,7 +83,7 @@ const String iaScale = "iaScale";
 // ===========================================================
 // Varying
 // ===========================================================
-const String vColor = "vColors";
+const String vColor = "vColor";
 const String vTextureCoordinates = "vTextureCoordinates";
 const String vLightWeighting = "vLightWeighting";
 const String vNormal = "vNormal";
