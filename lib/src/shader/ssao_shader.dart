@@ -152,7 +152,7 @@ List<ShaderObject> createSSAOShader() {
       ..AddVaryingVar(vTextureCoordinates)
       ..SetBodyWithMain([
         NullVertexBody,
-        "${vTextureCoordinates} = ${aTextureCoordinates};"
+        StdVertexTextureForward,
       ]),
     new ShaderObject("SSAOF")
       ..AddVaryingVar(vTextureCoordinates)
@@ -167,4 +167,3 @@ List<ShaderObject> createSSAOShader() {
       ..SetBody([_SSAOShaderImpl])
   ];
 }
-

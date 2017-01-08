@@ -10,7 +10,7 @@ List<ShaderObject> createTexturedShader() {
       ..AddAttributeVar(aTextureCoordinates)
       ..AddVaryingVar(vTextureCoordinates)
       ..SetBodyWithMain(
-          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+          [StdVertexBody, StdVertexTextureForward]),
     new ShaderObject("TexturedF")
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uColor)
@@ -70,5 +70,26 @@ List<ShaderObject> createPointSpritesShader() {
       ..AddUniformVar(uTexture)
       ..SetBodyWithMain(
           ["gl_FragColor = texture2D( ${uTexture},  gl_PointCoord);"])
+  ];
+}
+
+List<ShaderObject> createDemoShader() {
+  return [
+    new ShaderObject("FixedVertexColorV")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
+      ..AddVaryingVar(vColor)
+      ..SetBodyWithMain([
+        StdVertexBody,
+        """
+      ${vColor} = vec3( sin(${aVertexPosition}.x)/2.0+0.5,
+                         cos(${aVertexPosition}.y)/2.0+0.5,
+                         sin(${aVertexPosition}.z)/2.0+0.5);
+"""
+      ]),
+    new ShaderObject("FixedVertexColorF")
+      ..AddVaryingVar(vColor)
+      ..SetBodyWithMain(["gl_FragColor = vec4( ${vColor}, 1.0 );"])
   ];
 }

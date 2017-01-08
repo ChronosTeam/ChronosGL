@@ -11,7 +11,7 @@ List<ShaderObject> createPlane2GreyShader() {
       ..SetBodyWithMain([
         "float d = sin(dot( ${aVertexPosition}, ${aNormal})) / 2.0 + 0.5;",
         "${vColor} = vec3(d,d,d);",
-        StdVertexBody,  
+        StdVertexBody,
       ]),
     new ShaderObject("Plane2GreyF")
       ..AddVaryingVar(vColor)
