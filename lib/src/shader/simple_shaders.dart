@@ -1,6 +1,5 @@
 part of chronosshader;
 
-
 List<ShaderObject> createTexturedShader() {
   return [
     new ShaderObject("Textured")
@@ -9,8 +8,7 @@ List<ShaderObject> createTexturedShader() {
       ..AddUniformVar(uModelMatrix)
       ..AddAttributeVar(aTextureCoordinates)
       ..AddVaryingVar(vTextureCoordinates)
-      ..SetBodyWithMain(
-          [StdVertexBody, StdVertexTextureForward]),
+      ..SetBodyWithMain([StdVertexBody, StdVertexTextureForward]),
     new ShaderObject("TexturedF")
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uColor)
@@ -82,12 +80,8 @@ List<ShaderObject> createDemoShader() {
       ..AddVaryingVar(vColor)
       ..SetBodyWithMain([
         StdVertexBody,
-        """
-      ${vColor} = vec3( sin(${aVertexPosition}.x)/2.0+0.5,
-                         cos(${aVertexPosition}.y)/2.0+0.5,
-                         sin(${aVertexPosition}.z)/2.0+0.5);
-"""
-      ]),
+        "${vColor} = ColorFromPosition(${aVertexPosition});",
+      ], prolog: [StdLibShader]),
     new ShaderObject("FixedVertexColorF")
       ..AddVaryingVar(vColor)
       ..SetBodyWithMain(["gl_FragColor = vec4( ${vColor}, 1.0 );"])
