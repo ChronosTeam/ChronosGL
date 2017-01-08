@@ -84,50 +84,6 @@ gl_FragColor = vec4(diffuseFactor * info.diffuseColor +
   ];
 }
 
-List<ShaderObject> createLightShaderBlinnPhongWithBumpMap() {
-  return [
-    new ShaderObject("LightBlinnPhongV")
-      ..AddAttributeVars([aVertexPosition, aNormal, aTextureCoordinates])
-      ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
-      ..SetBodyWithMain([
-        """
-        vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
-        gl_Position = ${uPerspectiveViewMatrix} * pos;
-        ${vVertexPosition} = pos.xyz;
-        ${vTextureCoordinates} = ${aTextureCoordinates};
-        ${vNormal} = ${uNormalMatrix} * ${aNormal};
-        """
-      ]),
-    new ShaderObject("LightBlinnPhongF")
-      ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
-      ..AddUniformVars(
-          [uLightSourceInfo0, uEyePosition, uColor, uBumpMap, uBumpScale])
-      ..SetBody([
-        """
-
-      void main() {
-        vec3 normal = perturbNormalArb(${uEyePosition}- ${vVertexPosition}, vNormal, dHdxy_fwd(${vTextureCoordinates}) );
-        //if (normal.x != 10000000.0) normal =  vNormal;
-        LightSourceInfo info =  UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
-        float diffuseFactor = 0.0;
-        float specularFactor = 0.0;
-        GetDiffuseAndSpecularFactors(info,
-                                     ${vVertexPosition},
-                                     normal,
-                                     ${uEyePosition},
-                                     diffuseFactor, specularFactor);
-
-         gl_FragColor = vec4(diffuseFactor * info.diffuseColor +
-                             specularFactor * info.specularColor +
-                             uColor, 1.0 );
-      }
-      """
-      ], prolog: [
-        StdLibShader
-      ])
-  ];
-}
 
 List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
   return [

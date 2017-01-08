@@ -4,9 +4,12 @@ import 'dart:html' as HTML;
 import 'dart:async';
 import 'package:vector_math/vector_math.dart' as VM;
 
-const String dir = "../asset/leeperrysmith/";
-const String modelFile = dir + "LeePerrySmith.obj";
-const String bumpmapFile = dir + "Infinite-Level_02_Disp_NoSmoothUV-4096.jpg";
+String Dir = "../asset/leeperrysmith/";
+String modelFile = Dir + "LeePerrySmith.obj";
+String normalmapFile = Dir + "Infinite-Level_02_Tangent_SmoothUV.jpg";
+String textureFile = Dir + "Map-COL.jpg";
+String specularmapFile = Dir + "Map-SPEC.jpg";
+
 
 List<ShaderObject> createShader() {
   return [
@@ -19,42 +22,44 @@ List<ShaderObject> createShader() {
         vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
         gl_Position = ${uPerspectiveViewMatrix} * pos;
         ${vVertexPosition} = pos.xyz;
-        ${vTextureCoordinates} = ${aTextureCoordinates};
         ${vNormal} = ${uNormalMatrix} * ${aNormal};
-        """
+        ${vTextureCoordinates} = ${aTextureCoordinates};
+"""
       ]),
     new ShaderObject("LightBlinnPhongF")
       ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
-      ..AddUniformVars([uLightSourceInfo0, uEyePosition, uColor])
-      ..AddUniformVars([uBumpScale, uBumpMap])
+      ..AddUniformVars([uLightSourceInfo0, uEyePosition, uColor, uTexture])
       ..SetBodyWithMain([
         """
-
-vec2 uv = dHdxy_fwd(${vTextureCoordinates}, ${uBumpScale}, ${uBumpMap});
-vec3 normal = perturbNormalArb(${uEyePosition} - ${vVertexPosition}, vNormal, uv);
-
-LightSourceInfo info = UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
+LightSourceInfo info =  UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
 
 float diffuseFactor = 0.0;
 float specularFactor = 0.0;
 
 GetDiffuseAndSpecularFactors(info,
                              ${vVertexPosition},
-                             normal,
+                             ${vNormal},
                              ${uEyePosition},
                               diffuseFactor, specularFactor);
 
-gl_FragColor = vec4(diffuseFactor * info.diffuseColor +
+vec4 diffuseMap = texture2D(${uTexture}, ${vTextureCoordinates} );
+
+gl_FragColor = vec4(diffuseMap.rgb * diffuseFactor * info.diffuseColor +
                     specularFactor * info.specularColor +
                     uColor,
                     1.0);
+
+if (diffuseMap.r != 666.0) {
+ // gl_FragColor = diffuseMap;
+}
+
 """
       ], prolog: [
-        StdLibShader,
-        StdLibShaderDerivative,
+        StdLibShader
       ])
   ];
 }
+
 
 void main() {
   StatsFps fps =
@@ -71,16 +76,18 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram fixed = phase.createProgram(createSolidColorShader());
   RenderProgram prg = phase.createProgram(createShader());
-  VM.Vector3 colSkin = new VM.Vector3(0.333, 0.157, 0.067);
-  //VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
+  VM.Vector3 colBlue = new VM.Vector3(0.0, 0.0, 1.0);
+  VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
+  VM.Vector3 colWhite = new VM.Vector3(1.0, 1.0, 1.0);
+  VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
   VM.Vector3 posLight = new VM.Vector3(0.5, 1.0, 0.0);
   VM.Vector3 dirLight = new VM.Vector3(0.0, 10.0, 0.0);
   VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
-  VM.Vector3 colDiffuse = new VM.Vector3.all(0.5);
-  VM.Vector3 colSpecular = new VM.Vector3.all(0.133);
-  Light light = new Light.Spot(
-      LIGHT0, posLight, posLight, colDiffuse, colSpecular, 50.0, 0.95, 2.0);
-  //Light light = new Light.Directional(LIGHT0, dirLight, colRed, colBlue);
+  VM.Vector3 colDiffuse  = new VM.Vector3.all(0.866);
+   VM.Vector3 colSpecular  = new VM.Vector3.all(0.133);
+  //Light light = new Light.Spot(
+  //    LIGHT0, posLight, posLight, colDiffuse , colSpecular, 50.0, 0.95, 2.0);
+  Light light = new Light.Directional(LIGHT0, dirLight, colDiffuse, colSpecular);
 
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, colYellow);
@@ -115,18 +122,29 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Material mat = new Material("mat")..SetUniform(uColor, colSkin);
+  Material mat = new Material("mat")..SetUniform(uColor, colGray);
 
   List<Future<dynamic>> futures = [
     LoadRaw(modelFile),
-    LoadImage(bumpmapFile),
+    LoadImage(textureFile),
+    LoadImage(specularmapFile),
+    LoadImage(normalmapFile),
   ];
 
   Future.wait(futures).then((List list) {
-    // Setup Bumpmap
-    Texture bumpmap = new WebTexture(chronosGL.gl, bumpmapFile, list[1]);
-    mat.SetUniform(uBumpMap, bumpmap);
-    mat.SetUniform(uBumpScale, 12.0);
+    // Setup Maps
+    WebTexture texture = new WebTexture(chronosGL.gl, textureFile, list[1]);
+    texture.Install();
+    /*
+    Texture specularmap =
+        new ImageTexture(chronosGL.gl, specularmapFile, list[2]);
+    Texture normalmap = new ImageTexture(chronosGL.gl, normalmapFile, list[3]);
+    */
+    mat.SetUniform(uTexture, texture);
+    //mat.SetUniform(uNormalMap, normalmap);
+    //mat.SetUniform(uSpecularMap, specularmap);
+    mat.SetUniform(uNormalScale, 0.8);
+
     // Setup Mesh
     GeometryBuilder gb = GeometryFromWavefront(list[0]);
     gb.GenerateNormalsAssumingTriangleMode();
