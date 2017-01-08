@@ -107,13 +107,15 @@ const String uLightPerspectiveViewMatrix0 = uLightPerspectiveViewMatrix + "0";
 
 const String uModelMatrix = "uModelMatrix";
 
-
 const String uTexture = "uTexture";
 const String uCubeTexture = "uCubeTexture";
 const String uTexture2 = "uTexture2";
 const String uTexture3 = "uTexture3";
 const String uTexture4 = "uTexture4";
 const String uBumpMap = "uBumpMap";
+const String uNormalMap = "uNormalMap";
+const String uSpecularMap = "uSpecularMap";
+
 const String uDepthMap = "uDepthMap";
 const String uShadowMap = "uShadowMap";
 
@@ -130,6 +132,7 @@ const String uFogFar = "uFogFar";
 const String uEyePosition = "uEyePosition";
 const String uBoneMatrices = "uBoneMatrices";
 const String uBumpScale = "uBumpScale";
+const String uNormalScale = "uNormalScale";
 
 const String uMaterial = "uMaterial";
 const String uLightSourceInfo = "uLightSourceInfo";
@@ -192,6 +195,8 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uTexture2: new ShaderVarDesc("sampler2D", ""),
   uTexture3: new ShaderVarDesc("sampler2D", ""),
   uTexture4: new ShaderVarDesc("sampler2D", ""),
+  uSpecularMap: new ShaderVarDesc("sampler2D", ""),
+  uNormalMap: new ShaderVarDesc("sampler2D", ""),
   uBumpMap: new ShaderVarDesc("sampler2D", ""),
   uDepthMap: new ShaderVarDesc("sampler2D", ""),
   uCubeTexture: new ShaderVarDesc("samplerCube", ""),
@@ -212,8 +217,9 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uLightSourceInfo1: new ShaderVarDesc("mat4", ""),
   uLightSourceInfo2: new ShaderVarDesc("mat4", ""),
   uLightSourceInfo3: new ShaderVarDesc("mat4", ""),
-  uBoneMatrices: new ShaderVarDesc("mat4", "", arraySize:128),
-  uBumpScale: new ShaderVarDesc("float", ""),
+  uBoneMatrices: new ShaderVarDesc("mat4", "", arraySize: 128),
+  uBumpScale: new ShaderVarDesc("float", "for bump maps"),
+  uNormalScale: new ShaderVarDesc("float", "for normal maps"),
 };
 
 void IntroduceNewShaderVar(String canonical, ShaderVarDesc desc) {
@@ -293,12 +299,12 @@ class ShaderObject {
     }
   }
 
-  void SetBodyWithMain(List<String> body, {List<String> prolog=null}) {
+  void SetBodyWithMain(List<String> body, {List<String> prolog = null}) {
     assert(shader == null);
     shader = _CreateShader(true, body, prolog);
   }
 
-  void SetBody(List<String> body, {List<String> prolog=null}) {
+  void SetBody(List<String> body, {List<String> prolog = null}) {
     assert(shader == null);
     shader = _CreateShader(false, body, prolog);
   }
