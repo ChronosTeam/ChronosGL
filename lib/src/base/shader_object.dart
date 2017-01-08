@@ -293,19 +293,19 @@ class ShaderObject {
     }
   }
 
-  void SetBodyWithMain(List<String> body) {
+  void SetBodyWithMain(List<String> body, {List<String> prolog=null}) {
     assert(shader == null);
-    shader = _CreateShader(true, body);
+    shader = _CreateShader(true, body, prolog);
   }
 
-  void SetBody(List<String> body) {
+  void SetBody(List<String> body, {List<String> prolog=null}) {
     assert(shader == null);
-    shader = _CreateShader(false, body);
+    shader = _CreateShader(false, body, prolog);
   }
 
   // InitializeShader updates the shader field from header and body.
   // If you have set shader manually do not call this.
-  String _CreateShader(bool addWrapperForMain, List<String> body) {
+  String _CreateShader(bool addWrapperForMain, List<String> body, prolog) {
     assert(shader == null);
     List<String> out = [];
     out.add("precision highp float;");
@@ -326,6 +326,8 @@ class ShaderObject {
       out.add("uniform ${d.type} ${uniformVars[v]}${suffix};");
     }
     out.add("");
+
+    if (prolog != null) out.addAll(prolog);
 
     if (addWrapperForMain) {
       out.add("void main(void) {");
