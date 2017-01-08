@@ -184,30 +184,74 @@ List<ShaderObject> createLightShaderGourad() {
 List<ShaderObject> createLightShaderBlinnPhong() {
   return [
     new ShaderObject("LightBlinnPhongV")
-      ..AddAttributeVars([aVertexPosition, aNormal])
-      ..AddVaryingVars([vVertexPosition, vNormal])
+      ..AddAttributeVars([aVertexPosition, aNormal, aTextureCoordinates])
+      ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
       ..SetBodyWithMain([
         """
         vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
         gl_Position = ${uPerspectiveViewMatrix} * pos;
         ${vVertexPosition} = pos.xyz;
+        ${vTextureCoordinates} = ${aTextureCoordinates};
         ${vNormal} = ${uNormalMatrix} * ${aNormal};
         """
       ]),
     new ShaderObject("LightBlinnPhongF")
-      ..AddVaryingVars([vVertexPosition, vNormal])
-      ..AddUniformVars([uLightSourceInfo0, uEyePosition, uColor])
+      ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
+      ..AddUniformVars(
+          [uLightSourceInfo0, uEyePosition, uColor, uBumpMap, uBumpScale])
       ..SetBody([
         _lightHelpers,
         """
+     #extension GL_OES_standard_derivatives : enable
+     vec2 dHdxy_fwd(vec2 uv) {
+         vec2 dSTdx = dFdx( uv );
+         vec2 dSTdy = dFdy( uv );
+
+         float Hll = ${uBumpScale} * texture2D( ${uBumpMap}, uv ).x;
+         float dBx = ${uBumpScale} * texture2D( ${uBumpMap}, uv + dSTdx ).x - Hll;
+         float dBy = ${uBumpScale} * texture2D( ${uBumpMap}, uv + dSTdy ).x - Hll;
+
+         return vec2( dBx, dBy );
+     }
+
+     vec3 perturbNormalArb(vec3 surf_pos, vec3 surf_norm, vec2 dHdxy) {
+           surf_norm = normalize  (surf_norm);
+           vec3 vSigmaX = dFdx( surf_pos );
+           vec3 vSigmaY = dFdy( surf_pos );
+           vec3 vN = surf_norm;            // normalized
+
+           vec3 R1 = cross( vSigmaY, vN );
+           vec3 R2 = cross( vN, vSigmaX );
+
+            float fDet = dot( vSigmaX, R1 );
+
+            vec3 vGrad = sign( fDet ) * ( dHdxy.x * R1 + dHdxy.y * R2 );
+            return normalize( abs( fDet ) * surf_norm - vGrad );
+         }
+
+      vec3 ScalarToColor(float f, float a, float b) {
+         if (f > a) return vec3(1.0);
+         if (f < b) return vec3(0.0);
+         return vec3 ((f - b) / (a-b));
+      }
+
+      bool isnan( float val ) {
+          return ( val < 0.0 || 0.0 < val || val == 0.0 ) ? false : true;
+          // important: some nVidias failed to cope with version below.
+          // Probably wrong optimization.
+          /*return ( val <= 0.0 || 0.0 <= val ) ? false : true;*/
+      }
+
       void main() {
+        vec3 normal = perturbNormalArb(${uEyePosition}- ${vVertexPosition}, vNormal, dHdxy_fwd(${vTextureCoordinates}) );
+        //if (normal.x != 10000000.0) normal =  vNormal;
         LightSourceInfo info =  UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
         float diffuseFactor = 0.0;
         float specularFactor = 0.0;
         GetDiffuseAndSpecularFactors(info,
                                      ${vVertexPosition},
-                                     ${vNormal},
+                                     normal,
                                      ${uEyePosition},
                                      diffuseFactor, specularFactor);
 
