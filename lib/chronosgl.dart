@@ -4,9 +4,6 @@ import 'dart:html' as HTML;
 import 'dart:web_gl' as WEBGL;
 import 'dart:math' as Math;
 
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:vector_math/vector_math.dart' as VM;
 
 import 'src/base/lib.dart';
@@ -21,10 +18,10 @@ export 'src/shapes/lib.dart';
 export "src/shader/lib.dart";
 export "src/importer/lib.dart";
 export 'src/animation/lib.dart';
+export 'src/webhelper/lib.dart';
 
 part "src/pickray.dart";
 part "src/input.dart";
-part "src/load_obj.dart";
 
 part "src/utils.dart";
 

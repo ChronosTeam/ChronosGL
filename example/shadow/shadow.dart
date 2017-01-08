@@ -5,6 +5,153 @@ import 'dart:web_gl' as WEBGL;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
+
+List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
+  return [
+    new ShaderObject("LightBlinnPhongV")
+      ..AddAttributeVars([aVertexPosition, aNormal])
+      ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight0])
+      ..AddUniformVars([
+        uPerspectiveViewMatrix,
+        uLightPerspectiveViewMatrix0,
+        uModelMatrix,
+        uNormalMatrix
+      ])
+      ..SetBodyWithMain([
+        """
+        vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
+        ${vPositionFromLight0} = ${uLightPerspectiveViewMatrix0} * pos;
+        gl_Position = ${uPerspectiveViewMatrix} * pos;
+        ${vVertexPosition} = pos.xyz;
+        ${vNormal} = ${uNormalMatrix} * ${aNormal};
+        """
+      ]),
+    new ShaderObject("LightBlinnPhongF")
+      ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight0])
+      ..AddUniformVars([uLightSourceInfo0, uShadowMap, uEyePosition])
+      ..SetBody([
+        """
+
+void foo(vec4 positionFromLight, sampler2D shadowSampler,
+                    float darkness, float bias) {
+		vec3 depth = positionFromLight.xyz / positionFromLight.w;
+		depth = 0.5 * depth + vec3(0.5);
+		vec2 uv = depth.xy;
+
+  float r = gl_FragColor.r;
+	gl_FragColor =	texture2D(shadowSampler, uv);
+   gl_FragColor.r += useValueButReturnZero(r);
+}
+
+      void main() {
+        LightSourceInfo info = UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
+        float diffuseFactor = 0.0;
+        float specularFactor = 0.0;
+        GetDiffuseAndSpecularFactors(info,
+                                     ${vVertexPosition},
+                                     ${vNormal},
+                                     ${uEyePosition},
+                                     diffuseFactor, specularFactor);
+
+        float shadow = computeShadow(${vPositionFromLight0},
+                                     ${uShadowMap}, 0.4, -0.1);
+        //shadow = 1.0;
+        gl_FragColor.rgb = diffuseFactor * shadow * info.diffuseColor +
+                             specularFactor * shadow * info.specularColor;
+        //foo(${vPositionFromLight0}, ${uShadowMap}, 0.4, -0.1);
+      }
+      """
+      ], prolog: [
+        StdLibShader
+      ])
+  ];
+}
+
+List<ShaderObject> createShadowShader() {
+  return [
+    new ShaderObject("ShadowV")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddVaryingVar(vPositionFromLight0)
+      ..AddUniformVar(uLightPerspectiveViewMatrix0)
+      ..AddUniformVar(uModelMatrix)
+      ..SetBodyWithMain([
+        // Note we could just use gl_FragCoord.z in the Fragment shader
+        // but this seems more logical
+        """
+        gl_Position = ${uLightPerspectiveViewMatrix0} * ${uModelMatrix} *
+                      vec4(${aVertexPosition}, 1.0);
+        ${vPositionFromLight0} = gl_Position;
+        """
+      ]),
+    new ShaderObject("ShadowF")
+      ..AddVaryingVar(vPositionFromLight0)
+      ..SetBodyWithMain([
+        """
+// Note, this is equivalent to passing
+//   ${vPositionFromLight0} = gl_Position;
+// in the vertex shader and then computing
+// float d = ${vPositionFromLight0}.z / ${vPositionFromLight0}.w * 0.5 + 0.5;
+float d  = gl_FragCoord.z;
+
+// d is value between 0.0 and 1.0
+gl_FragColor = packDepth(d);
+"""
+      ], prolog: [
+        StdLibShader
+      ])
+  ];
+}
+
+List<ShaderObject> createCopyShader() {
+  return [
+    new ShaderObject("copyV")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVar(aTextureCoordinates)
+      ..AddVaryingVar(vTextureCoordinates)
+      ..SetBodyWithMain(
+          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+    new ShaderObject("copyF")
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uTexture)
+      ..SetBodyWithMain([
+        "vec2 v = ${vTextureCoordinates}.xy;",
+        "gl_FragColor.rgb = texture2D (${uTexture}, v).rgb;"
+      ])
+  ];
+}
+
+List<ShaderObject> createCopyShaderForShadow() {
+  return [
+    new ShaderObject("copyV")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVar(aTextureCoordinates)
+      ..AddVaryingVar(vTextureCoordinates)
+      ..SetBodyWithMain(
+          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+    new ShaderObject("copyF")
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uTexture)
+      ..SetBodyWithMain([
+        """
+vec2 uv = ${vTextureCoordinates}.xy;
+vec4 color = texture2D(${uTexture}, uv);
+// Commenting the next line should not make any difference
+//color = packDepth(unpackDepth(color));
+gl_FragColor = color;
+
+// necessary?
+//gl_FragColor.r = unpackDepth(color) * 0.4;
+//gl_FragColor.g = 0.0;
+//gl_FragColor.b = 0.0;
+//gl_FragColor.a = 1.0;
+"""
+      ], prolog: [
+        StdLibShader
+      ])
+  ];
+}
+
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -51,7 +198,7 @@ void main() {
   RenderProgram copyToScreen =
       phaseDisplayShadow.createProgram(createCopyShaderForShadow());
 
-  copyToScreen.SetInput(uTextureSampler, shadowBuffer.colorTexture);
+  copyToScreen.SetInput(uTexture, shadowBuffer.colorTexture);
   copyToScreen.add(UnitNode(chronosGL.gl));
 
   RenderPhase phaseMain = new RenderPhase("main", chronosGL.gl);
@@ -59,20 +206,20 @@ void main() {
   RenderProgram basic =
       phaseMain.createProgram(createLightShaderBlinnPhongWithShadow());
 
-  basic.SetInput(uShadowSampler0, shadowBuffer.colorTexture);
+  basic.SetInput(uShadowMap, shadowBuffer.colorTexture);
 
   Texture solid =
       new CanvasTexture.SolidColor(chronosGL.gl, "red-solid", "red");
   final Material mat1 = new Material("mat1")
-    ..SetUniform(uTextureSampler, solid)
+    ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
 
   final Material mat2 = new Material("mat2")
-    ..SetUniform(uTextureSampler, solid)
+    ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0));
 
   final Material mat3 = new Material("mat3")
-    ..SetUniform(uTextureSampler, solid)
+    ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(0.8, 0.8, 0.8));
 
   {
@@ -180,7 +327,5 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures().then((dummy) {
-    animate(0.0);
-  });
+  animate(0.0);
 }

@@ -21,9 +21,10 @@ void main() {
 
   // Maybe disable depth test?
   Material mat = new Material.Transparent("torus", new BlendEquation.Standard())
-    ..SetUniform(uTextureSampler, generatedTexture)
+    ..SetUniform(uTexture, generatedTexture)
     ..SetUniform(uColor, new VM.Vector3.zero());
-  Node m = new Node("torus", ShapeTorusKnot(chronosGL.gl, useQuads:false), mat);
+  Node m =
+      new Node("torus", ShapeTorusKnot(chronosGL.gl, useQuads: false), mat);
 
   programBasic.add(m);
 
@@ -38,7 +39,7 @@ void main() {
 
   RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(chronosGL.gl,2000));
+  programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -71,7 +72,5 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures().then((dummy) {
-    animate(0.0);
-  });
+  animate(0.0);
 }

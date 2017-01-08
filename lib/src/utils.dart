@@ -52,7 +52,7 @@ class Utils {
   }
 
   static Texture createParticleTexture(gl, [String name = "Utils::Particles"]) {
-    return new CanvasTexture(gl, name, createParticleCanvas());
+    return new WebTexture(gl, name, createParticleCanvas())..Install();
   }
 
   static HTML.CanvasElement createParticleCanvas() {
@@ -80,7 +80,7 @@ class Utils {
 
   static Node MakeSkycube(gl, Texture cubeTexture) {
     Material mat = new Material("skycube")
-      ..SetUniform(uTextureCubeSampler, cubeTexture);
+      ..SetUniform(uCubeTexture, cubeTexture);
     MeshData md = ShapeCube(gl, x: 512.0, y: 512.0, z: 512.0);
     return new Node("skycube", md, mat);
   }
@@ -189,37 +189,10 @@ class Utils {
     md.AddVertices(FlattenVector3List(vertices));
 
     Material mat = new Material.Transparent("stars", new BlendEquation.Mix())
-      ..SetUniform(uTextureSampler, texture)
+      ..SetUniform(uTexture, texture)
       ..SetUniform(uPointSize, 1000);
     id++;
     return new Node('point_sprites_mesh_' + id.toString(), md, mat);
-  }
-
-  static Future<Object> loadFile(String url, [bool binary = false]) {
-    Completer c = new Completer();
-    HTML.HttpRequest hr = new HTML.HttpRequest();
-    hr.open("GET", url);
-    if (binary) hr.responseType = "arraybuffer";
-    hr.onLoadEnd.listen((e) {
-      c.complete(hr.response);
-    });
-    hr.send();
-    return c.future;
-  }
-
-  static Future<Object> loadBinaryFile(String url) {
-    return loadFile(url, true);
-  }
-
-  static Future<Object> loadJsonFile(String url) {
-    Completer c = new Completer();
-    HTML.HttpRequest hr = new HTML.HttpRequest();
-    hr.open("GET", url);
-    hr.onLoadEnd.listen((e) {
-      c.complete(JSON.decode(hr.responseText));
-    });
-    hr.send();
-    return c.future;
   }
 
   static String getQueryVariable(String name) {

@@ -30,7 +30,7 @@ void main() {
    gl_Position = uPerspectiveViewMatrix * pos;
 
 
-   ${vColors} = vec3( sin(${aVertexPosition}.x)/2.0+0.5,
+   ${vColor} = vec3( sin(${aVertexPosition}.x)/2.0+0.5,
                       cos(${aVertexPosition}.y)/2.0+0.5,
                       sin(${aVertexPosition}.z)/2.0+0.5);
   vTextureCoordinates = aTextureCoordinates;
@@ -40,7 +40,7 @@ void main() {
 
 String skinningFragmentShader = """
 void main() {
-  gl_FragColor = texture2D(${uTextureSampler}, ${vTextureCoordinates});
+  gl_FragColor = texture2D(${uTexture}, ${vTextureCoordinates});
 }
 """;
 
@@ -55,15 +55,15 @@ List<ShaderObject> createAnimationShader() {
       ..AddVaryingVar(vVertexPosition)
       ..AddVaryingVar(vTextureCoordinates)
       //..AddVaryingVar(vNormal)
-      ..AddVaryingVar(vColors)
+      ..AddVaryingVar(vColor)
       ..AddUniformVar(uPerspectiveViewMatrix)
       ..AddUniformVar(uModelMatrix)
       ..AddUniformVar(uBoneMatrices)
       ..SetBody([skinningVertexShader]),
     new ShaderObject("AnimationV")
-      ..AddVaryingVar(vColors, vColors)
+      ..AddVaryingVar(vColor)
       ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTextureSampler)
+      ..AddUniformVar(uTexture)
       ..SetBody([skinningFragmentShader]),
   ];
 }
@@ -296,8 +296,8 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Texture
-    Texture tex = new ImageTextureLoaded(chronosGL.gl, textureFile, list[2]);
-    mat..SetUniform(uTextureSampler, tex);
+    Texture tex = new WebTexture(chronosGL.gl, textureFile, list[2]);
+    mat..SetUniform(uTexture, tex);
     // Setup Mesh
     GeometryBuilder gb = ReadMeshData(list[0]);
     {

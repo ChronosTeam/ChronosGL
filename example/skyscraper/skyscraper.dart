@@ -64,7 +64,7 @@ void main() {
       x: 1.0, y: 2.0, z: 1.0, uMin: 0.01, uMax: 0.99, vMin: 0.01, vMax: 0.99);
   List uvs = gb.attributes[aTextureCoordinates];
   // change top and bottom face
-  for (int  i = 2 * 4; i < 4 * 4; i++) {
+  for (int i = 2 * 4; i < 4 * 4; i++) {
     uvs[i].setFrom(q);
   }
   MeshData house = GeometryBuilderToMeshData("house", chronosGL.gl, gb);
@@ -102,7 +102,5 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures().then((dummy) {
-    animate(0.0);
-  });
+  animate(0.0);
 }

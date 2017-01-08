@@ -53,7 +53,6 @@ void main() {
     program.add(wedge);
   }
 
-
   {
     GeometryBuilder gb = CylinderGeometryWireframeFriendly(3.0, 4.0, 2.0, 16)
       ..GenerateWireframeCenters();
@@ -63,7 +62,6 @@ void main() {
         matWireframe)..setPos(5.0, 0.0, -5.0);
     program.add(cyl);
   }
-
 
   {
     GeometryBuilder gb = QuadGeometry(2)..GenerateWireframeCenters();
@@ -112,7 +110,5 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures().then((dummy) {
-    animate(0.0);
-  });
+  animate(0.0);
 }

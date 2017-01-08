@@ -13,6 +13,7 @@ class ShaderProgram extends RenderProgram {
   int _drawMode = -1;
   int _numInstances = 0;
   int _numItems = 0;
+  int _nextTextureUnit = 0;
 
   ShaderProgram(String name, this._gl, this._shaderObjectV, this._shaderObjectF)
       : super(name) {
@@ -129,37 +130,17 @@ class ShaderProgram extends RenderProgram {
         _gl.uniform2fv(l, val.storage);
         break;
       case "sampler2D":
-        int n;
-        switch (canonical) {
-          case uTextureSampler:
-            n = 0;
-            break;
-          case uTexture2Sampler:
-            n = 1;
-            break;
-          case uTexture3Sampler:
-            n = 2;
-            break;
-          case uTexture4Sampler:
-            n = 3;
-            break;
-          case uShadowSampler0:
-            n = 8;
-            break;
-          default:
-            throw "unknown texture ";
-        }
-        _gl.activeTexture(WEBGL.TEXTURE0 + n);
+        _gl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
         _gl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
-        _gl.uniform1i(l, n);
+        _gl.uniform1i(l, _nextTextureUnit);
+        _nextTextureUnit++;
         break;
       case "samplerCube":
-        assert(canonical == uTextureCubeSampler);
-        int n = (_uniformLocations.containsKey(uTextureSampler) ? 1 : 0) +
-            (_uniformLocations.containsKey(uTexture2Sampler) ? 1 : 0);
-        _gl.activeTexture(WEBGL.TEXTURE0 + n);
+        assert(canonical == uCubeTexture);
+        _gl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
         _gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, val.GetTexture());
-        _gl.uniform1i(l, n);
+        _gl.uniform1i(l, _nextTextureUnit);
+        _nextTextureUnit++;
         break;
       default:
         print("Error: unknow uniform type: ${desc.type}");
@@ -197,6 +178,7 @@ class ShaderProgram extends RenderProgram {
   }
 
   void SetInputs(Map<String, dynamic> inputs) {
+    _nextTextureUnit = 0;
     for (String canonical in inputs.keys) {
       switch (canonical.codeUnitAt(0)) {
         case prefixUniform:

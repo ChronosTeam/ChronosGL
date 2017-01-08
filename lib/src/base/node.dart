@@ -74,5 +74,6 @@ class Node extends Spatial {
   }
 
   @override
-  String toString() => "$name";
+
+  String toString() => "NODE[${name}]";
 }

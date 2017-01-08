@@ -10,7 +10,7 @@ List<ShaderObject> createInstancedShader() {
       ..AddAttributeVar(aVertexPosition)
       ..AddAttributeVar(iaRotation)
       ..AddAttributeVar(iaTranslation)
-      ..AddVaryingVar(vColors)
+      ..AddVaryingVar(vColor)
       ..AddUniformVar(uPerspectiveViewMatrix)
       ..AddUniformVar(uModelMatrix)
       ..SetBody([
@@ -23,15 +23,15 @@ List<ShaderObject> createInstancedShader() {
           vec3 P = rotate_vertex_position(${aVertexPosition}, ${iaRotation}) +
                     ${iaTranslation};
           gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(P, 1);
-          ${vColors} = vec3( sin(${aVertexPosition}.x)/2.0+0.5, 
+          ${vColor} = vec3( sin(${aVertexPosition}.x)/2.0+0.5,
                        cos(${aVertexPosition}.y)/2.0+0.5, 
                        sin(${aVertexPosition}.z)/2.0+0.5);
         }
         """
       ]),
     new ShaderObject("InstancedF")
-      ..AddVaryingVar(vColors)
-      ..SetBodyWithMain([" gl_FragColor = vec4( ${vColors}, 1. );"])
+      ..AddVaryingVar(vColor)
+      ..SetBodyWithMain([" gl_FragColor = vec4( ${vColor}, 1. );"])
   ];
 }
 
@@ -71,8 +71,11 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
 
   Material mat = new Material("mat");
-  Node m = new Node.WithInstances("torus", ShapeTorusKnot(chronosGL.gl, radius: 12.0),
-      MakeInstances(chronosGL.gl), mat);
+  Node m = new Node.WithInstances(
+      "torus",
+      ShapeTorusKnot(chronosGL.gl, radius: 12.0),
+      MakeInstances(chronosGL.gl),
+      mat);
 
   RenderProgram prg = phase.createProgram(createInstancedShader());
   prg.add(m);
@@ -107,7 +110,5 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures().then((dummy) {
-    animate(0.0);
-  });
+  animate(0.0);
 }

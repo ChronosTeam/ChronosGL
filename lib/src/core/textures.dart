@@ -21,6 +21,7 @@ class TextureProperties {
 
   // This assumes a texture is already bound
   void Install(WEBGL.RenderingContext gl, int type) {
+    LogInfo("Setup texture ${flipY}  ${anisotropicFilterLevel}");
     if (flipY) {
       gl.pixelStorei(WEBGL.UNPACK_FLIP_Y_WEBGL, 1);
     }
@@ -42,6 +43,15 @@ class TextureProperties {
     if (mipmap) {
       gl.generateMipmap(type);
     }
+  }
+
+  TextureProperties();
+
+  TextureProperties.forFramebuffer() {
+    flipY = false;
+    clamp = true;
+    mipmap = false;
+    SetFilterNearest();
   }
 }
 
@@ -65,14 +75,9 @@ class Texture {
   WEBGL.Texture _texture;
   final int _textureType;
   final WEBGL.RenderingContext _gl;
+  final TextureProperties properties;
 
-  TextureProperties properties = new TextureProperties();
-
-  static List<Texture> _cache = [];
-
-  Texture(this._gl, this._textureType, this._url) {
-    _cache.add(this);
-  }
+  Texture(this._gl, this._textureType, this._url, this.properties);
 
   void Bind([bool initTime = false]) {
     if (initTime) {
@@ -80,14 +85,15 @@ class Texture {
     }
 
     _gl.bindTexture(_textureType, _texture);
-  }
 
-  void UnBind([bool initTime = false]) {
     if (initTime) {
       properties.Install(_gl, _textureType);
       int err = _gl.getError();
       assert(err == WEBGL.NO_ERROR);
     }
+  }
+
+  void UnBind([bool initTime = false]) {
     _gl.bindTexture(_textureType, null);
   }
 
@@ -98,36 +104,8 @@ class Texture {
 
   int GetTextureType() => _textureType;
 
-  static Future<dynamic> loadAndInstallAllTextures() {
-    List<Future<dynamic>> futures = [];
-    for (Texture tw in _cache) {
-      Future<dynamic> f = tw.GetFuture();
-      if (f != null) futures.add(f);
-    }
-    return Future.wait(futures).then((List list) {
-      LogInfo("All images have loaded");
-      for (Texture tw in _cache) {
-        if (tw._texture != null) continue;
-        tw.Install();
-      }
-    });
-  }
-
   WEBGL.Texture GetTexture() {
     return _texture;
-  }
-
-  void Install() {
-    assert(false, "abstract Install() called");
-  }
-
-  void InstallAsCubeChild() {
-    assert(false, "abstract InstallAsCubeChild() called");
-  }
-
-  // Primarly for image base texture so we can wait until the image has load
-  Future<dynamic> GetFuture() {
-    return null;
   }
 
   @override
@@ -150,13 +128,10 @@ class TypedTexture extends Texture {
   var _data;
 
   TypedTexture(WEBGL.RenderingContext gl, String url, this._width, this._height,
-      this._formatType, this._dataType,
-      [this._data = null])
-      : super(gl, WEBGL.TEXTURE_2D, url) {
-    properties.flipY = false;
-    properties.clamp = true;
-    properties.mipmap = false;
-    properties.SetFilterNearest();
+      this._formatType, this._dataType, [this._data = null])
+      : super(
+            gl, WEBGL.TEXTURE_2D, url, new TextureProperties.forFramebuffer()) {
+    _Install();
   }
 
   void UpdateContent(int w, int h, var data) {
@@ -169,8 +144,7 @@ class TypedTexture extends Texture {
     UnBind();
   }
 
-  @override
-  void Install() {
+  void _Install() {
     Bind(true);
     _gl.texImage2D(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
         _formatType, _dataType, _data);
@@ -195,13 +169,14 @@ class WebTexture extends Texture {
   dynamic _element; // CanvasElement, ImageElement, VideoElement
 
   WebTexture(WEBGL.RenderingContext gl, String url, this._element,
-      [textureType = WEBGL.TEXTURE_2D])
-      : super(gl, textureType, url);
+      [delayInstall=false, TextureProperties tp = null, textureType = WEBGL.TEXTURE_2D])
+      : super(gl, textureType, url, tp == null ? new TextureProperties() : tp) {
+    if (!delayInstall) {
+      Install();
+    }
+  }
 
-  @override
   void Install() {
-    // Check for CubeChild
-    if (GetTextureType() != WEBGL.TEXTURE_2D) return;
     Bind(true);
     SetImageData(_element);
     UnBind(true);
@@ -212,9 +187,28 @@ class WebTexture extends Texture {
     SetImageData(_element);
     UnBind();
   }
+}
 
-  @override
-  void InstallAsCubeChild() {
-    SetImageData(_element);
+final List<int> _kCubeModifier = [
+  WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_X,
+  WEBGL.TEXTURE_CUBE_MAP_POSITIVE_X,
+  WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+  WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Y,
+  WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Z,
+  WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Z,
+];
+
+class CubeTexture extends Texture {
+  CubeTexture(WEBGL.RenderingContext gl, String url, List images)
+      : super(gl, WEBGL.TEXTURE_CUBE_MAP, url, new TextureProperties()) {
+    assert(images.length == _kCubeModifier.length);
+    Bind(true);
+    for (int i = 0; i < _kCubeModifier.length; ++i) {
+      _gl.texImage2D(_kCubeModifier[i], 0, WEBGL.RGBA, WEBGL.RGBA,
+          WEBGL.UNSIGNED_BYTE, images[i]);
+    }
+    UnBind(true);
+
+    properties.clamp = true;
   }
 }

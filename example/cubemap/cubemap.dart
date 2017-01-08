@@ -1,5 +1,6 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
+import "dart:async";
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
@@ -7,16 +8,11 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(15.0);
   Perspective perspective = new Perspective(orbit);
 
-  Texture cubeTex = new CubeTexture(chronosGL.gl, "stars", "skybox_", ".png");
-
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram programCM = phase.createProgram(createCubeMapShader());
-  Node sky = Utils.MakeSkycube(chronosGL.gl, cubeTex);
-  programCM.add(sky);
 
-  Material mat = new Material("cubemap")
-    ..SetUniform(uTextureCubeSampler, cubeTex);
-  MeshData md = ShapeCube(chronosGL.gl,x: 2.0, y: 2.0, z: 2.0);
+  Material mat = new Material("cubemap");
+  MeshData md = ShapeCube(chronosGL.gl, x: 2.0, y: 2.0, z: 2.0);
   programCM.add(new Node("cube", md, mat));
 
   RenderProgram programSprites =
@@ -48,7 +44,13 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures().then((dummy) {
+  List<Future<dynamic>> futures = LoadCubeImages("skybox_", ".png");
+
+  Future.wait(futures).then((List list) {
+    Texture cubeTex = new CubeTexture(chronosGL.gl, "stars", list);
+    mat.SetUniform(uCubeTexture, cubeTex);
+    Node sky = Utils.MakeSkycube(chronosGL.gl, cubeTex);
+    programCM.add(sky);
     animate(0.0);
   });
 }

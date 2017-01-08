@@ -3,6 +3,7 @@ import 'dart:html' as HTML;
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'package:vector_math/vector_math.dart' as VM;
+import "dart:async";
 
 void main() {
   StatsFps fps =
@@ -16,21 +17,13 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram basic = phase.createProgram(createTexturedShader());
 
-  //TextureWrapper red = new TextureWrapper.SolidColor("red", "rgba(255,0,0,1)");
-  Texture gradient = new ImageTexture(chronosGL.gl, "../gradient.jpg");
-  Texture trans = new ImageTexture(chronosGL.gl,"../transparent.png");
-  Texture wood = new ImageTexture(chronosGL.gl,"../wood.jpg");
-
   final Material matWood = new Material("wood")
-    ..SetUniform(uTextureSampler, wood)
     ..SetUniform(uColor, new VM.Vector3(1.0, 0.9, 0.0));
 
   final Material matGradient = new Material("gradient")
-    ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0))
-    ..SetUniform(uTextureSampler, gradient);
+    ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0));
 
   final Material matTrans = new Material("trans")
-    ..SetUniform(uTextureSampler, trans)
     ..SetUniform(cBlend, true, true)
     ..SetUniform(cBlendEquation, new BlendEquation.Standard());
 
@@ -102,7 +95,22 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures().then((dummy) {
+  List<Future<dynamic>> futures = [
+    LoadImage("../gradient.jpg"),
+    LoadImage("../transparent.png"),
+    LoadImage("../wood.jpg"),
+  ];
+
+  Future.wait(futures).then((List list) {
+    Texture gradient =
+        new WebTexture(chronosGL.gl, "../gradient.jpg", list[0]);
+    matGradient.SetUniform(uTexture, gradient);
+    Texture trans =
+        new WebTexture(chronosGL.gl, "../transparent.png", list[1]);
+    matTrans.SetUniform(uTexture, trans);
+
+    Texture wood = new WebTexture(chronosGL.gl, "../wood.jpg", list[2]);
+    matWood.SetUniform(uTexture, wood);
     animate(0.0);
   });
 }

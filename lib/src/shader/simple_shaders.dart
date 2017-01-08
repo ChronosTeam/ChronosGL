@@ -1,10 +1,5 @@
 part of chronosshader;
 
-const String StdVertexBody =
-    "gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);";
-
-const String NullVertexBody = "gl_Position = vec4(${aVertexPosition}, 1.0);";
-
 List<ShaderObject> createTexturedShader() {
   return [
     new ShaderObject("Textured")
@@ -13,14 +8,13 @@ List<ShaderObject> createTexturedShader() {
       ..AddUniformVar(uModelMatrix)
       ..AddAttributeVar(aTextureCoordinates)
       ..AddVaryingVar(vTextureCoordinates)
-      ..SetBodyWithMain(
-          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+      ..SetBodyWithMain([StdVertexBody, StdVertexTextureForward]),
     new ShaderObject("TexturedF")
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uColor)
-      ..AddUniformVar(uTextureSampler)
+      ..AddUniformVar(uTexture)
       ..SetBodyWithMain([
-        "gl_FragColor = texture2D(${uTextureSampler}, ${vTextureCoordinates}) + vec4( ${uColor}, 0.0 );"
+        "gl_FragColor = texture2D(${uTexture}, ${vTextureCoordinates}) + vec4( ${uColor}, 0.0 );"
       ])
   ];
 }
@@ -54,9 +48,9 @@ List<ShaderObject> createCubeMapShader() {
       ]),
     new ShaderObject("CubeMapF")
       ..AddVaryingVar(vVertexPosition)
-      ..AddUniformVar(uTextureCubeSampler)
+      ..AddUniformVar(uCubeTexture)
       ..SetBodyWithMain([
-        "gl_FragColor = textureCube( ${uTextureCubeSampler}, ${vVertexPosition} );"
+        "gl_FragColor = textureCube( ${uCubeTexture}, ${vVertexPosition} );"
       ]),
   ];
 }
@@ -71,8 +65,25 @@ List<ShaderObject> createPointSpritesShader() {
       ..SetBodyWithMain(
           [StdVertexBody, "gl_PointSize = ${uPointSize}/gl_Position.z;"]),
     new ShaderObject("PointSpritesF")
-      ..AddUniformVar(uTextureSampler)
+      ..AddUniformVar(uTexture)
       ..SetBodyWithMain(
-          ["gl_FragColor = texture2D( ${uTextureSampler},  gl_PointCoord);"])
+          ["gl_FragColor = texture2D( ${uTexture},  gl_PointCoord);"])
+  ];
+}
+
+List<ShaderObject> createDemoShader() {
+  return [
+    new ShaderObject("FixedVertexColorV")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddUniformVar(uPerspectiveViewMatrix)
+      ..AddUniformVar(uModelMatrix)
+      ..AddVaryingVar(vColor)
+      ..SetBodyWithMain([
+        StdVertexBody,
+        "${vColor} = ColorFromPosition(${aVertexPosition});",
+      ], prolog: [StdLibShader]),
+    new ShaderObject("FixedVertexColorF")
+      ..AddVaryingVar(vColor)
+      ..SetBodyWithMain(["gl_FragColor = vec4( ${vColor}, 1.0 );"])
   ];
 }

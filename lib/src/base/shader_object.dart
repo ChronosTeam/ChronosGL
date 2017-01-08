@@ -57,7 +57,7 @@ const String cDrawMode = "cDrawMode";
 // ===========================================================
 const int prefixAttribute = 0x61; // 'a';
 
-const String aColors = "aColors";
+const String aColor = "aColors";
 const String aColorAlpha = "aColorAlpha";
 const String aVertexPosition = "aVertexPosition";
 const String aTextureCoordinates = "aTextureCoordinates";
@@ -83,7 +83,7 @@ const String iaScale = "iaScale";
 // ===========================================================
 // Varying
 // ===========================================================
-const String vColors = "vColors";
+const String vColor = "vColor";
 const String vTextureCoordinates = "vTextureCoordinates";
 const String vLightWeighting = "vLightWeighting";
 const String vNormal = "vNormal";
@@ -107,13 +107,18 @@ const String uLightPerspectiveViewMatrix0 = uLightPerspectiveViewMatrix + "0";
 
 const String uModelMatrix = "uModelMatrix";
 
-const String uShadowSampler0 = "uShadowSampler0";
+const String uTexture = "uTexture";
+const String uCubeTexture = "uCubeTexture";
+const String uTexture2 = "uTexture2";
+const String uTexture3 = "uTexture3";
+const String uTexture4 = "uTexture4";
+const String uBumpMap = "uBumpMap";
+const String uNormalMap = "uNormalMap";
+const String uSpecularMap = "uSpecularMap";
 
-const String uTextureSampler = "uTextureSampler";
-const String uTextureCubeSampler = "uTextureCubeSampler";
-const String uTexture2Sampler = "uTexture2Sampler";
-const String uTexture3Sampler = "uTexture3Sampler";
-const String uTexture4Sampler = "uTexture4Sampler";
+const String uDepthMap = "uDepthMap";
+const String uShadowMap = "uShadowMap";
+
 const String uTime = "uTime";
 const String uColor = "uColor";
 const String uColorAlpha2 = "uColorAlpha2";
@@ -126,6 +131,8 @@ const String uFogNear = "uFogNear";
 const String uFogFar = "uFogFar";
 const String uEyePosition = "uEyePosition";
 const String uBoneMatrices = "uBoneMatrices";
+const String uBumpScale = "uBumpScale";
+const String uNormalScale = "uNormalScale";
 
 const String uMaterial = "uMaterial";
 const String uLightSourceInfo = "uLightSourceInfo";
@@ -148,7 +155,7 @@ Map<String, ShaderVarDesc> _VarsDb = {
 
   // attribute vars
   // This should also contain an alpha channel
-  aColors: new ShaderVarDesc("vec3", "per vertex color"),
+  aColor: new ShaderVarDesc("vec3", "per vertex color"),
   aColorAlpha: new ShaderVarDesc("vec4", "per vertex color"),
   aVertexPosition: new ShaderVarDesc("vec3", "vertex coordinates"),
   aTextureCoordinates: new ShaderVarDesc("vec2", "texture uvs"),
@@ -164,7 +171,7 @@ Map<String, ShaderVarDesc> _VarsDb = {
   iaScale: new ShaderVarDesc("vec3", ""),
 
   // Varying
-  vColors: new ShaderVarDesc("vec3", "per vertex color"),
+  vColor: new ShaderVarDesc("vec3", "per vertex color"),
   vTextureCoordinates: new ShaderVarDesc("vec2", ""),
   vLightWeighting: new ShaderVarDesc("vec3", ""),
   vNormal: new ShaderVarDesc("vec3", ""),
@@ -182,13 +189,18 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uPerspectiveViewMatrix: new ShaderVarDesc("mat4", ""),
   uLightPerspectiveViewMatrix0: new ShaderVarDesc("mat4", ""),
 
-  uShadowSampler0: new ShaderVarDesc("sampler2D", ""),
+  uShadowMap: new ShaderVarDesc("sampler2D", ""),
 
-  uTextureSampler: new ShaderVarDesc("sampler2D", ""),
-  uTexture2Sampler: new ShaderVarDesc("sampler2D", ""),
-  uTexture3Sampler: new ShaderVarDesc("sampler2D", ""),
-  uTexture4Sampler: new ShaderVarDesc("sampler2D", ""),
-  uTextureCubeSampler: new ShaderVarDesc("samplerCube", ""),
+  uTexture: new ShaderVarDesc("sampler2D", ""),
+  uTexture2: new ShaderVarDesc("sampler2D", ""),
+  uTexture3: new ShaderVarDesc("sampler2D", ""),
+  uTexture4: new ShaderVarDesc("sampler2D", ""),
+  uSpecularMap: new ShaderVarDesc("sampler2D", ""),
+  uNormalMap: new ShaderVarDesc("sampler2D", ""),
+  uBumpMap: new ShaderVarDesc("sampler2D", ""),
+  uDepthMap: new ShaderVarDesc("sampler2D", ""),
+  uCubeTexture: new ShaderVarDesc("samplerCube", ""),
+
   uTime: new ShaderVarDesc("float", "time since program start in sec"),
   uCameraNear: new ShaderVarDesc("float", ""),
   uCameraFar: new ShaderVarDesc("float", ""),
@@ -205,7 +217,9 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uLightSourceInfo1: new ShaderVarDesc("mat4", ""),
   uLightSourceInfo2: new ShaderVarDesc("mat4", ""),
   uLightSourceInfo3: new ShaderVarDesc("mat4", ""),
-  uBoneMatrices: new ShaderVarDesc("mat4", "", arraySize:128),
+  uBoneMatrices: new ShaderVarDesc("mat4", "", arraySize: 128),
+  uBumpScale: new ShaderVarDesc("float", "for bump maps"),
+  uNormalScale: new ShaderVarDesc("float", "for normal maps"),
 };
 
 void IntroduceNewShaderVar(String canonical, ShaderVarDesc desc) {
@@ -285,19 +299,19 @@ class ShaderObject {
     }
   }
 
-  void SetBodyWithMain(List<String> body) {
+  void SetBodyWithMain(List<String> body, {List<String> prolog = null}) {
     assert(shader == null);
-    shader = _CreateShader(true, body);
+    shader = _CreateShader(true, body, prolog);
   }
 
-  void SetBody(List<String> body) {
+  void SetBody(List<String> body, {List<String> prolog = null}) {
     assert(shader == null);
-    shader = _CreateShader(false, body);
+    shader = _CreateShader(false, body, prolog);
   }
 
   // InitializeShader updates the shader field from header and body.
   // If you have set shader manually do not call this.
-  String _CreateShader(bool addWrapperForMain, List<String> body) {
+  String _CreateShader(bool addWrapperForMain, List<String> body, prolog) {
     assert(shader == null);
     List<String> out = [];
     out.add("precision highp float;");
@@ -318,6 +332,8 @@ class ShaderObject {
       out.add("uniform ${d.type} ${uniformVars[v]}${suffix};");
     }
     out.add("");
+
+    if (prolog != null) out.addAll(prolog);
 
     if (addWrapperForMain) {
       out.add("void main(void) {");

@@ -7,16 +7,16 @@ List<ShaderObject> createNormal2ColorShader() {
     new ShaderObject("Normal2Color")
       ..AddAttributeVar(aVertexPosition)
       ..AddAttributeVar(aNormal)
-      ..AddVaryingVar(vColors)
+      ..AddVaryingVar(vColor)
       ..AddUniformVar(uPerspectiveViewMatrix)
       ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain([
         StdVertexBody,
-        "vColors = normalize(${aNormal} / 2.0 + vec3(0.5) );"
+        "${vColor} = normalize(${aNormal} / 2.0 + vec3(0.5) );"
       ]),
     new ShaderObject("Normal2ColorF")
-      ..AddVaryingVar(vColors)
-      ..SetBodyWithMain(["gl_FragColor = vec4( ${vColors}, 1.0 );"])
+      ..AddVaryingVar(vColor)
+      ..SetBodyWithMain(["gl_FragColor = vec4( ${vColor}, 1.0 );"])
   ];
 }
 

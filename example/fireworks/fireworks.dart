@@ -30,10 +30,10 @@ List<ShaderObject> createFireWorksShader() {
     new ShaderObject("FireWorksF")
       ..AddUniformVar(uTime)
       ..AddUniformVar(uColor)
-      ..AddUniformVar(uTextureSampler)
+      ..AddUniformVar(uTexture)
       ..SetBodyWithMain([
         """
-      gl_FragColor = texture2D(${uTextureSampler}, gl_PointCoord);
+      gl_FragColor = texture2D(${uTexture}, gl_PointCoord);
       float t = mod(${uTime}, 5.0);
       if( t < 3.0) {
          //gl_FragColor.x = 1.0;
@@ -64,7 +64,7 @@ Node getRocket(dynamic gl, Texture tw) {
     ..AddAttribute(aNormal, FlattenVector3List(normals), 3);
 
   Material mat = new Material.Transparent("mat", new BlendEquation.Mix())
-    ..SetUniform(uTextureSampler, tw)
+    ..SetUniform(uTexture, tw)
     ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0));
   return new Node(md.name, md, mat);
 }
@@ -81,7 +81,8 @@ void main() {
   programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
   RenderProgram pssp = phase.createProgram(createFireWorksShader());
-  pssp.add(getRocket(chronosGL.gl, Utils.createParticleTexture(chronosGL.gl, "fireworks")));
+  pssp.add(getRocket(
+      chronosGL.gl, Utils.createParticleTexture(chronosGL.gl, "fireworks")));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -109,7 +110,5 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Texture.loadAndInstallAllTextures().then((dummy) {
-    animate(0.0);
-  });
+  animate(0.0);
 }

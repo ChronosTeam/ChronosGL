@@ -7,7 +7,7 @@ List<ShaderObject> demoShader() {
   return [
     new ShaderObject("demoVertexShader")
       ..AddAttributeVar(aVertexPosition)
-      ..AddVaryingVar(vColors)
+      ..AddVaryingVar(vColor)
       ..AddUniformVar(uPerspectiveViewMatrix)
       ..AddUniformVar(uModelMatrix)
       ..SetBody([
@@ -16,15 +16,15 @@ List<ShaderObject> demoShader() {
           gl_Position = ${uPerspectiveViewMatrix} *
                         ${uModelMatrix} *
                         vec4(${aVertexPosition}, 1.0);
-          ${vColors}.r = sin(${aVertexPosition}.x)/2.0+0.5;
-          ${vColors}.g = cos(${aVertexPosition}.y)/2.0+0.5;
-          ${vColors}.b = sin(${aVertexPosition}.z)/2.0+0.5;
+          ${vColor}.r = sin(${aVertexPosition}.x)/2.0+0.5;
+          ${vColor}.g = cos(${aVertexPosition}.y)/2.0+0.5;
+          ${vColor}.b = sin(${aVertexPosition}.z)/2.0+0.5;
         }
         """
       ]),
     new ShaderObject("demoFragmentShader")
-      ..AddVaryingVar(vColors)
-      ..SetBodyWithMain(["gl_FragColor.rgb = ${vColors};"])
+      ..AddVaryingVar(vColor)
+      ..SetBodyWithMain(["gl_FragColor.rgb = ${vColor};"])
   ];
 }
 
@@ -66,7 +66,6 @@ void main() {
   RenderProgram sprites = phase.createProgram(createPointSpritesShader());
   sprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
-
   // Main loop body"
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
@@ -85,9 +84,5 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  // The point sprites use texture. Wait until the texture is ready
-  // then start the main animation loop.
-  Texture.loadAndInstallAllTextures().then((dummy) {
-    animate(0.0);
-  });
+  animate(0.0);
 }
