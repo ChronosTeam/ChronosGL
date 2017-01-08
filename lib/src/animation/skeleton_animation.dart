@@ -37,7 +37,6 @@ class PosedSkeleton {
 
 void PoseSkeleton(List<Bone> skeleton, VM.Matrix4 globalOffsetTransform,
     SkeletonAnimation animation, PosedSkeleton posedSkeleton, double time) {
-  VM.Matrix4 parentTransform = new VM.Matrix4.identity();
   VM.Matrix4 tmp = new VM.Matrix4.zero();
   for (int i = 0; i < skeleton.length; i++) {
     Bone bone = skeleton[i];
