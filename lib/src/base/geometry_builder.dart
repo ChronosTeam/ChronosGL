@@ -266,4 +266,18 @@ class GeometryBuilder {
     }
     attributes[aCenter] = center;
   }
+
+  @override
+  String toString() {
+    List<String> s = [
+      "GB:",
+      "V[${vertices.length}]",
+      "f3[${_faces3.length}]",
+      "f4[${_faces4.length}]"
+    ];
+    for (String canonical in attributes.keys) {
+      s.add("${canonical}[${attributes[canonical].length}]");
+    }
+    return s.join(" ");
+  }
 }
