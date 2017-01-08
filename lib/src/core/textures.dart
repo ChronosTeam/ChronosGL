@@ -21,6 +21,7 @@ class TextureProperties {
 
   // This assumes a texture is already bound
   void Install(WEBGL.RenderingContext gl, int type) {
+    LogInfo("Setup texture ${flipY}  ${anisotropicFilterLevel}");
     if (flipY) {
       gl.pixelStorei(WEBGL.UNPACK_FLIP_Y_WEBGL, 1);
     }
@@ -42,6 +43,15 @@ class TextureProperties {
     if (mipmap) {
       gl.generateMipmap(type);
     }
+  }
+
+  TextureProperties();
+
+  TextureProperties.forFramebuffer() {
+    flipY = false;
+    clamp = true;
+    mipmap = false;
+    SetFilterNearest();
   }
 }
 
@@ -65,10 +75,9 @@ class Texture {
   WEBGL.Texture _texture;
   final int _textureType;
   final WEBGL.RenderingContext _gl;
+  final TextureProperties properties;
 
-  TextureProperties properties = new TextureProperties();
-
-  Texture(this._gl, this._textureType, this._url);
+  Texture(this._gl, this._textureType, this._url, this.properties);
 
   void Bind([bool initTime = false]) {
     if (initTime) {
@@ -76,14 +85,15 @@ class Texture {
     }
 
     _gl.bindTexture(_textureType, _texture);
-  }
 
-  void UnBind([bool initTime = false]) {
     if (initTime) {
       properties.Install(_gl, _textureType);
       int err = _gl.getError();
       assert(err == WEBGL.NO_ERROR);
     }
+  }
+
+  void UnBind([bool initTime = false]) {
     _gl.bindTexture(_textureType, null);
   }
 
@@ -118,13 +128,9 @@ class TypedTexture extends Texture {
   var _data;
 
   TypedTexture(WEBGL.RenderingContext gl, String url, this._width, this._height,
-      this._formatType, this._dataType,
-      [this._data = null])
-      : super(gl, WEBGL.TEXTURE_2D, url) {
-    properties.flipY = false;
-    properties.clamp = true;
-    properties.mipmap = false;
-    properties.SetFilterNearest();
+      this._formatType, this._dataType, [this._data = null])
+      : super(
+            gl, WEBGL.TEXTURE_2D, url, new TextureProperties.forFramebuffer()) {
     _Install();
   }
 
@@ -163,8 +169,12 @@ class WebTexture extends Texture {
   dynamic _element; // CanvasElement, ImageElement, VideoElement
 
   WebTexture(WEBGL.RenderingContext gl, String url, this._element,
-      [textureType = WEBGL.TEXTURE_2D])
-      : super(gl, textureType, url);
+      [delayInstall=false, TextureProperties tp = null, textureType = WEBGL.TEXTURE_2D])
+      : super(gl, textureType, url, tp == null ? new TextureProperties() : tp) {
+    if (!delayInstall) {
+      Install();
+    }
+  }
 
   void Install() {
     Bind(true);
@@ -190,12 +200,12 @@ final List<int> _kCubeModifier = [
 
 class CubeTexture extends Texture {
   CubeTexture(WEBGL.RenderingContext gl, String url, List images)
-      : super(gl, WEBGL.TEXTURE_CUBE_MAP, url) {
+      : super(gl, WEBGL.TEXTURE_CUBE_MAP, url, new TextureProperties()) {
     assert(images.length == _kCubeModifier.length);
     Bind(true);
     for (int i = 0; i < _kCubeModifier.length; ++i) {
       _gl.texImage2D(_kCubeModifier[i], 0, WEBGL.RGBA, WEBGL.RGBA,
-          WEBGL.UNSIGNED_BYTE,images[i]);
+          WEBGL.UNSIGNED_BYTE, images[i]);
     }
     UnBind(true);
 

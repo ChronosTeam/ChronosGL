@@ -20,19 +20,20 @@ HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {
   return canvas;
 }
 
+// TODO: deprecated, use WebTexture instead
 class CanvasTexture extends Texture {
   HTML.CanvasElement _canvas;
 
   CanvasTexture(WEBGL.RenderingContext gl, String url, this._canvas,
       [textureType = WEBGL.TEXTURE_2D])
-      : super(gl, textureType, url) {
+      : super(gl, textureType, url, new TextureProperties()) {
     _Install();
   }
 
   CanvasTexture.SolidColor(
       WEBGL.RenderingContext gl, String url, String fillStyle,
       [textureType = WEBGL.TEXTURE_2D])
-      : super(gl, textureType, url) {
+      : super(gl, textureType, url, new TextureProperties()) {
     _canvas = MakeSolidColorCanvas(fillStyle);
     _Install();
   }
@@ -50,22 +51,5 @@ class CanvasTexture extends Texture {
   }
 }
 
-// The image must already be loaded
-class ImageTexture extends Texture {
-  HTML.ImageElement _image;
-
-  ImageTexture(WEBGL.RenderingContext gl, String url, HTML.ImageElement img,
-      [textureType = WEBGL.TEXTURE_2D])
-      : super(gl, textureType, url) {
-    _image = img;
-    _Install();
-  }
-
-  void _Install() {
-    Bind(true);
-    SetImageData(_image);
-    UnBind(true);
-  }
-}
 
 
