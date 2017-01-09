@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:vector_math/vector_math.dart' as VM;
 
 const String dir = "../asset/leeperrysmith/";
-const String modelFile = dir + "LeePerrySmith.obj";
+const String modelFile = dir + "LeePerrySmith.js";
 const String bumpmapFile = dir + "Infinite-Level_02_Disp_NoSmoothUV-4096.jpg";
 
 List<ShaderObject> createShader() {
@@ -118,7 +118,7 @@ void main() {
   Material mat = new Material("mat")..SetUniform(uColor, colSkin);
 
   List<Future<dynamic>> futures = [
-    LoadRaw(modelFile),
+    LoadJson(modelFile),
     LoadImage(bumpmapFile),
   ];
 
@@ -128,9 +128,9 @@ void main() {
     mat.SetUniform(uBumpMap, bumpmap);
     mat.SetUniform(uBumpScale, 12.0);
     // Setup Mesh
-    GeometryBuilder gb = GeometryFromWavefront(list[0]);
-    gb.GenerateNormalsAssumingTriangleMode();
-    MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL.gl, gb);
+    List<GeometryBuilder> gbs = ReadThreeJsMeshes(list[0]);
+    print(gbs[0]);
+    MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL.gl, gbs[0]);
 
     Node mesh = new Node(md.name, md, mat);
     Node n = new Node.Container("wrapper", mesh);

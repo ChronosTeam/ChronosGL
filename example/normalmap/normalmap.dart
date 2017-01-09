@@ -5,11 +5,10 @@ import 'dart:async';
 import 'package:vector_math/vector_math.dart' as VM;
 
 String Dir = "../asset/leeperrysmith/";
-String modelFile = Dir + "LeePerrySmith.obj";
+String modelFile = Dir + "LeePerrySmith.js";
 String normalmapFile = Dir + "Infinite-Level_02_Tangent_SmoothUV.jpg";
 String textureFile = Dir + "Map-COL.jpg";
 String specularmapFile = Dir + "Map-SPEC.jpg";
-
 
 List<ShaderObject> createShader() {
   return [
@@ -60,7 +59,6 @@ if (diffuseMap.r != 666.0) {
   ];
 }
 
-
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -76,18 +74,19 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram fixed = phase.createProgram(createSolidColorShader());
   RenderProgram prg = phase.createProgram(createShader());
-  VM.Vector3 colBlue = new VM.Vector3(0.0, 0.0, 1.0);
-  VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
-  VM.Vector3 colWhite = new VM.Vector3(1.0, 1.0, 1.0);
+  //VM.Vector3 colBlue = new VM.Vector3(0.0, 0.0, 1.0);
+  //VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
+  //VM.Vector3 colWhite = new VM.Vector3(1.0, 1.0, 1.0);
   VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
   VM.Vector3 posLight = new VM.Vector3(0.5, 1.0, 0.0);
   VM.Vector3 dirLight = new VM.Vector3(0.0, 10.0, 0.0);
   VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
-  VM.Vector3 colDiffuse  = new VM.Vector3.all(0.866);
-   VM.Vector3 colSpecular  = new VM.Vector3.all(0.133);
+  VM.Vector3 colDiffuse = new VM.Vector3.all(0.866);
+  VM.Vector3 colSpecular = new VM.Vector3.all(0.133);
   //Light light = new Light.Spot(
   //    LIGHT0, posLight, posLight, colDiffuse , colSpecular, 50.0, 0.95, 2.0);
-  Light light = new Light.Directional(LIGHT0, dirLight, colDiffuse, colSpecular);
+  Light light =
+      new Light.Directional(LIGHT0, dirLight, colDiffuse, colSpecular);
 
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, colYellow);
@@ -125,7 +124,7 @@ void main() {
   Material mat = new Material("mat")..SetUniform(uColor, colGray);
 
   List<Future<dynamic>> futures = [
-    LoadRaw(modelFile),
+    LoadJson(modelFile),
     LoadImage(textureFile),
     LoadImage(specularmapFile),
     LoadImage(normalmapFile),
@@ -146,9 +145,9 @@ void main() {
     mat.SetUniform(uNormalScale, 0.8);
 
     // Setup Mesh
-    GeometryBuilder gb = GeometryFromWavefront(list[0]);
-    gb.GenerateNormalsAssumingTriangleMode();
-    MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL.gl, gb);
+    List<GeometryBuilder> gbs = ReadThreeJsMeshes(list[0]);
+    print(gbs[0]);
+    MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL.gl, gbs[0]);
 
     Node mesh = new Node(md.name, md, mat);
     Node n = new Node.Container("wrapper", mesh);
