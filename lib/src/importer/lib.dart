@@ -7,4 +7,5 @@ import 'package:vector_math/vector_math.dart' as VM;
 import "../base/lib.dart";
 
 part "wavefront.dart";
+part "threejs.dart";
 
