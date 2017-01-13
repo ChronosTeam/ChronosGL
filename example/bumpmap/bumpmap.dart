@@ -25,7 +25,8 @@ List<ShaderObject> createShader() {
       ]),
     new ShaderObject("LightBlinnPhongF")
       ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
-      ..AddUniformVars([uLightSourceInfo0, uEyePosition, uColor])
+      ..AddUniformVars([uSpotLights, uPointLights, uDirectionalLights])
+      ..AddUniformVars([uEyePosition, uColor])
       ..AddUniformVars([uBumpScale, uBumpMap])
       ..SetBodyWithMain([
         """
@@ -33,28 +34,32 @@ List<ShaderObject> createShader() {
 vec2 uv = dHdxy_fwd(${vTextureCoordinates}, ${uBumpScale}, ${uBumpMap});
 vec3 normal = perturbNormalArb(${uEyePosition} - ${vVertexPosition}, vNormal, uv);
 
-LightSourceInfo info = UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
+vec3 diffuseAccumulator;
+vec3 specularAccumulator;
+CombinedLight(${vVertexPosition}, normal, ${uEyePosition},
+              diffuseAccumulator, specularAccumulator);
 
-float diffuseFactor = 0.0;
-float specularFactor = 0.0;
 
-GetDiffuseAndSpecularFactors(info,
-                             ${vVertexPosition},
-                             normal,
-                             ${uEyePosition},
-                              diffuseFactor, specularFactor);
+gl_FragColor.rgb = diffuseAccumulator +
+                   specularAccumulator +
+                   uColor;
+gl_FragColor.a = 1.0;
 
-gl_FragColor = vec4(diffuseFactor * info.diffuseColor +
-                    specularFactor * info.specularColor +
-                    uColor,
-                    1.0);
 """
       ], prolog: [
-        StdLibShader,
         StdLibShaderDerivative,
+        StdLibShader,
       ])
   ];
 }
+
+VM.Vector3 colSkin = new VM.Vector3(0.333, 0.157, 0.067);
+//VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
+VM.Vector3 posLight = new VM.Vector3(0.5, 1.0, 0.0);
+VM.Vector3 dirLight = new VM.Vector3(0.0, 10.0, 0.0);
+VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
+VM.Vector3 colDiffuse = new VM.Vector3.all(0.5);
+VM.Vector3 colSpecular = new VM.Vector3.all(0.133);
 
 void main() {
   StatsFps fps =
@@ -71,16 +76,10 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram fixed = phase.createProgram(createSolidColorShader());
   RenderProgram prg = phase.createProgram(createShader());
-  VM.Vector3 colSkin = new VM.Vector3(0.333, 0.157, 0.067);
-  //VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
-  VM.Vector3 posLight = new VM.Vector3(0.5, 1.0, 0.0);
-  VM.Vector3 dirLight = new VM.Vector3(0.0, 10.0, 0.0);
-  VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
-  VM.Vector3 colDiffuse = new VM.Vector3.all(0.5);
-  VM.Vector3 colSpecular = new VM.Vector3.all(0.133);
-  Light light = new Light.Spot(
-      LIGHT0, posLight, posLight, colDiffuse, colSpecular, 50.0, 0.95, 2.0);
-  //Light light = new Light.Directional(LIGHT0, dirLight, colRed, colBlue);
+
+  Illumination illumination = new Illumination();
+  illumination.AddLight(new SpotLight("spot", posLight, posLight, colDiffuse,
+      colSpecular, 50.0, 0.95, 2.0, 25.0));
 
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, colYellow);
@@ -111,7 +110,7 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    phase.draw([perspective, light]);
+    phase.draw([perspective, illumination]);
     HTML.window.animationFrame.then(animate);
   }
 

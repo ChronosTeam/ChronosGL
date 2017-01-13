@@ -27,24 +27,20 @@ List<ShaderObject> createShader() {
       ]),
     new ShaderObject("LightBlinnPhongF")
       ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
-      ..AddUniformVars([uLightSourceInfo0, uEyePosition, uColor, uTexture])
+      ..AddUniformVars([uSpotLights, uPointLights, uDirectionalLights])
+      ..AddUniformVars([uEyePosition, uColor, uTexture])
       ..SetBodyWithMain([
         """
-LightSourceInfo info =  UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
+vec3 diffuseAccumulator;
+vec3 specularAccumulator;
 
-float diffuseFactor = 0.0;
-float specularFactor = 0.0;
-
-GetDiffuseAndSpecularFactors(info,
-                             ${vVertexPosition},
-                             ${vNormal},
-                             ${uEyePosition},
-                              diffuseFactor, specularFactor);
+CombinedLight(${vVertexPosition}, ${vNormal}, ${uEyePosition},
+              diffuseAccumulator, specularAccumulator);
 
 vec4 diffuseMap = texture2D(${uTexture}, ${vTextureCoordinates} );
 
-gl_FragColor = vec4(diffuseMap.rgb * diffuseFactor * info.diffuseColor +
-                    specularFactor * info.specularColor +
+gl_FragColor = vec4(diffuseMap.rgb * diffuseAccumulator +
+                    specularAccumulator +
                     uColor,
                     1.0);
 
@@ -58,6 +54,16 @@ if (diffuseMap.r != 666.0) {
       ])
   ];
 }
+
+//VM.Vector3 colBlue = new VM.Vector3(0.0, 0.0, 1.0);
+//VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
+//VM.Vector3 colWhite = new VM.Vector3(1.0, 1.0, 1.0);
+VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
+VM.Vector3 posLight = new VM.Vector3(0.5, 1.0, 0.0);
+VM.Vector3 dirLight = new VM.Vector3(0.0, 10.0, 0.0);
+VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
+VM.Vector3 colDiffuse = new VM.Vector3.all(0.866);
+VM.Vector3 colSpecular = new VM.Vector3.all(0.133);
 
 void main() {
   StatsFps fps =
@@ -74,19 +80,10 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
   RenderProgram fixed = phase.createProgram(createSolidColorShader());
   RenderProgram prg = phase.createProgram(createShader());
-  //VM.Vector3 colBlue = new VM.Vector3(0.0, 0.0, 1.0);
-  //VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
-  //VM.Vector3 colWhite = new VM.Vector3(1.0, 1.0, 1.0);
-  VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
-  VM.Vector3 posLight = new VM.Vector3(0.5, 1.0, 0.0);
-  VM.Vector3 dirLight = new VM.Vector3(0.0, 10.0, 0.0);
-  VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
-  VM.Vector3 colDiffuse = new VM.Vector3.all(0.866);
-  VM.Vector3 colSpecular = new VM.Vector3.all(0.133);
-  //Light light = new Light.Spot(
-  //    LIGHT0, posLight, posLight, colDiffuse , colSpecular, 50.0, 0.95, 2.0);
-  Light light =
-      new Light.Directional(LIGHT0, dirLight, colDiffuse, colSpecular);
+
+  Illumination illumination = new Illumination();
+  illumination.AddLight(new SpotLight("spot", posLight, posLight, colDiffuse,
+      colSpecular, 50.0, 0.95, 2.0, 25.0));
 
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, colYellow);
@@ -117,7 +114,7 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    phase.draw([perspective, light]);
+    phase.draw([perspective, illumination]);
     HTML.window.animationFrame.then(animate);
   }
 

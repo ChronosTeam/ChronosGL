@@ -7,27 +7,28 @@ List<ShaderObject> createLightShaderGourad() {
       ..AddAttributeVars([aVertexPosition, aNormal])
       ..AddVaryingVars([vColor])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
-      ..AddUniformVar(uLightSourceInfo0)
-      ..AddUniformVar(uEyePosition)
-      ..AddUniformVar(uColor)
+      ..AddUniformVars([uSpotLights])
+      ..AddUniformVars([uPointLights])
+      ..AddUniformVars([uDirectionalLights])
+      ..AddUniformVars([uEyePosition, uColor])
       ..SetBody([
         """
-        void main() {
-        vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
-        gl_Position = ${uPerspectiveViewMatrix} * pos;
-        vec3 normal = ${uNormalMatrix} * ${aNormal};
+    void main() {
+    vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
+    gl_Position = ${uPerspectiveViewMatrix} * pos;
+    vec3 normal = ${uNormalMatrix} * ${aNormal};
 
-        LightSourceInfo info =  UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
-        float diffuseFactor = 0.0;
-        float specularFactor = 0.0;
-        GetDiffuseAndSpecularFactors(info, pos.xyz, normal,
-                                     ${uEyePosition},
-                                     diffuseFactor, specularFactor);
+    vec3 diffuseAccumulator;
+    vec3 specularAccumulator;
 
-         ${vColor} = diffuseFactor * info.diffuseColor +
-                      specularFactor * info.specularColor +
-                      uColor;
-        }
+    CombinedLight(pos.xyz, normal, ${uEyePosition},
+                  ${uSpotLights}, ${uPointLights}, ${uDirectionalLights},
+                  diffuseAccumulator, specularAccumulator);
+
+     ${vColor} = diffuseAccumulator +
+                 specularAccumulator +
+                 uColor;
+    }
         """
       ], prolog: [
         StdLibShader
@@ -58,29 +59,24 @@ List<ShaderObject> createLightShaderBlinnPhong() {
       ]),
     new ShaderObject("LightBlinnPhongF")
       ..AddVaryingVars([vVertexPosition, vNormal])
-      ..AddUniformVars([uLightSourceInfo0, uEyePosition, uColor])
+      ..AddUniformVars([uSpotLights, uPointLights, uDirectionalLights])
+      ..AddUniformVars([uEyePosition, uColor])
       ..SetBodyWithMain([
         """
-LightSourceInfo info =  UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
+    vec3 diffuseAccumulator;
+    vec3 specularAccumulator;
 
-float diffuseFactor = 0.0;
-float specularFactor = 0.0;
+    CombinedLight(${vVertexPosition}, ${vNormal}, ${uEyePosition},
+                  ${uSpotLights}, ${uPointLights}, ${uDirectionalLights},
+                  diffuseAccumulator, specularAccumulator);
 
-GetDiffuseAndSpecularFactors(info,
-                             ${vVertexPosition},
-                             ${vNormal},
-                             ${uEyePosition},
-                              diffuseFactor, specularFactor);
-
-gl_FragColor = vec4(diffuseFactor * info.diffuseColor +
-                    specularFactor * info.specularColor +
-                    uColor,
-                    1.0);
-
+    gl_FragColor.rgb = diffuseAccumulator +
+                       specularAccumulator +
+                       uColor;
+    gl_FragColor.a = 1.0;
 """
       ], prolog: [
         StdLibShader
       ])
   ];
 }
-

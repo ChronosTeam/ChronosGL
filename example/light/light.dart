@@ -1,14 +1,42 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
+//import 'dart:web_gl' as WEBGL;
 import 'dart:html' as HTML;
 import 'package:vector_math/vector_math.dart' as VM;
+import "dart:math" as MATH;
+
+final VM.Vector3 colBlack = new VM.Vector3(0.0, 0.0, 0.0);
+final VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
+
+final VM.Vector3 colBlue = new VM.Vector3(0.0, 0.0, 1.0);
+final VM.Vector3 colLiteBlue = new VM.Vector3(0.0, 0.0, 0.5);
+
+final VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
+final VM.Vector3 colLiteRed = new VM.Vector3(0.5, 0.0, 0.0);
+
+final VM.Vector3 colGreen = new VM.Vector3(0.0, 1.0, 0.0);
+final VM.Vector3 colLiteGreen = new VM.Vector3(0.0, 0.5, 0.0);
+
+final VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
+
+final VM.Vector3 posLight = new VM.Vector3(11.0, 20.0, 0.0);
+final VM.Vector3 dirLight = new VM.Vector3(0.0, 50.0, 0.0);
+
+final double range = 50.0;
+final double cutoff = 0.95;
+final double glossiness = 25.0;
+
+// These must be in-sync with the .html file
+final String idPoint = "idPoint";
+final String idSpot = "idSpot";
+final String idDirectional = "idDirectional";
 
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-
+  //chronosGL.gl.enable(WEBGL.CULL_FACE);
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   orbit.setPos(0.0, 0.0, 56.0);
   Perspective perspective = new Perspective(orbit, 0.1, 10000.0);
@@ -24,16 +52,42 @@ void main() {
   RenderProgram fixedGourad =
       phaseGourad.createProgram(createSolidColorShader());
 
-  VM.Vector3 colBlue = new VM.Vector3(0.0, 0.0, 1.0);
-  VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
-  VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
-  VM.Vector3 posLight = new VM.Vector3(10.0, 20.0, 0.0);
-  VM.Vector3 dirLight = new VM.Vector3(0.0, 50.0, 0.0);
-  List<Light> lights = [
-    new Light.Directional(LIGHT0, dirLight, colRed, colBlue),
-    new Light.Point(LIGHT0, posLight, colRed, colBlue, 70.0),
-    new Light.Spot(LIGHT0, posLight, posLight, colRed, colBlue, 50.0, 0.95, 2.0)
-  ];
+  Map<String, Light> lightSources = {
+    idDirectional:
+        new DirectionalLight("dir", dirLight, colLiteRed, colRed, glossiness),
+    idPoint: new PointLight(
+        "point", posLight, colLiteBlue, colBlue, range, glossiness),
+    idSpot: new SpotLight("spot", posLight, posLight, colLiteGreen, colGreen,
+        range, cutoff, 2.0, glossiness)
+  };
+
+  Illumination illumination = new Illumination();
+  for (Light l in lightSources.values) {
+    illumination.AddLight(l);
+  }
+
+  // Same order as lightSources
+  Material lightSourceMat = new Material("light")
+    ..SetUniform(uColor, colYellow);
+  Map<String, Node> lightVisualizers = {
+    idDirectional: new Node(
+        "DirLightViz",
+        DirectionalLightVisualizer(chronosGL.gl, 80.0, 30.0, dirLight),
+        lightSourceMat),
+    idPoint: new Node(
+        "PointLightViz",
+        PointLightVisualizer(chronosGL.gl, posLight, range),
+        lightSourceMat),
+    idSpot: new Node(
+        "SpotLightViz",
+        SpotLightVisualizer(chronosGL.gl, posLight, -posLight, range, cutoff),
+        lightSourceMat)
+  };
+
+  for (Node n in lightVisualizers.values) {
+    fixedBlinnPhong.add(n);
+    fixedGourad.add(n);
+  }
 
   MeshData cubeMeshData = ShapeCube(chronosGL.gl, x: 2.0, y: 2.0, z: 2.0);
   MeshData sphereMeshData = ShapeIcosahedron(chronosGL.gl);
@@ -55,46 +109,33 @@ void main() {
     lightGourad.add(m);
     lightBlinnPhong.add(m);
   }
+
   // Subdivide plane to show Gourad shading issues
-  List<Node> plane = [];
-  for (double x = -40.0; x < 40.0; x += 4.0) {
-    for (double y = -40.0; y < 40.0; y += 4.0) {
-      Node m = new Node(
-          "plane-$x-$y",
-          ShapeCube(chronosGL.gl, x: 4.0, y: 0.1, z: 4.0),
-          cubeMat)..setPos(x + 2.0, -20.0, y + 2.0);
-      plane.add(m);
-    }
-  }
-  for (Node m in plane) {
-    lightGourad.add(m);
-    lightBlinnPhong.add(m);
-  }
-
-  Material lightSourceMat = new Material("light")
-    ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
-  Node shapePointLight =
-      new Node("pointLight", ShapeIcosahedron(chronosGL.gl), lightSourceMat)
-        ..setPosFromVec(posLight);
-  fixedBlinnPhong.add(shapePointLight);
-  fixedGourad.add(shapePointLight);
-
-  Node shapeDirLight = new Node(
-      "dirLight",
-      ShapeCylinder(chronosGL.gl, 0.4, 0.4, 200.0, 20),
-      lightSourceMat)..setPosFromVec(dirLight);
-  fixedBlinnPhong.add(shapeDirLight);
-  fixedGourad.add(shapeDirLight);
-
-  HTML.SelectElement selectLight =
-      HTML.document.querySelector('#light') as HTML.SelectElement;
-  assert(selectLight != null);
-  selectLight.selectedIndex = 0;
+  Node grid =
+      new Node("grid", ShapeGrid(chronosGL.gl, 20, 20, 80.0, 80.0), cubeMat);
+  grid.rotX(-MATH.PI * 0.48);
+  grid.setPos(0.0, -20.0, 20.0);
+  lightGourad.add(grid);
+  lightBlinnPhong.add(grid);
 
   HTML.SelectElement selectPhase =
       HTML.document.querySelector('#phase') as HTML.SelectElement;
   assert(selectPhase != null);
   selectPhase.selectedIndex = 0;
+
+  for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
+    input.onChange.listen((HTML.Event e) {
+      HTML.InputElement input = e.target as HTML.InputElement;
+      print("${input.id} toggle ${input.checked}");
+      lightSources[input.id].enabled = input.checked;
+      lightVisualizers[input.id].enabled = input.checked;
+    });
+  }
+
+  for (HTML.Element e in HTML.document.getElementsByTagName("input")) {
+    print("initialize inputs ${e.id}");
+    e.dispatchEvent(new HTML.Event("change"));
+  }
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -127,11 +168,9 @@ void main() {
       m.lookLeft(elapsed * 0.0003);
     }
 
-    Light light = lights[selectLight.selectedIndex];
     RenderPhase phase =
         selectPhase.selectedIndex == 0 ? phaseBlinnPhong : phaseGourad;
-    phase.draw([perspective, light]);
-
+    phase.draw([perspective, illumination]);
     HTML.window.animationFrame.then(animate);
   }
 
