@@ -22,7 +22,9 @@ List<ShaderObject> createLightShaderGourad() {
     vec3 specularAccumulator;
 
     CombinedLight(pos.xyz, normal, ${uEyePosition},
-                  ${uSpotLights}, ${uPointLights}, ${uDirectionalLights},
+                  ${uSpotLights},
+                  ${uPointLights},
+                  ${uDirectionalLights},
                   diffuseAccumulator, specularAccumulator);
 
      ${vColor} = diffuseAccumulator +

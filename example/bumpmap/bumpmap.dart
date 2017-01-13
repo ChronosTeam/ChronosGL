@@ -37,6 +37,9 @@ vec3 normal = perturbNormalArb(${uEyePosition} - ${vVertexPosition}, vNormal, uv
 vec3 diffuseAccumulator;
 vec3 specularAccumulator;
 CombinedLight(${vVertexPosition}, normal, ${uEyePosition},
+              ${uSpotLights},
+              ${uPointLights},
+              ${uDirectionalLights},
               diffuseAccumulator, specularAccumulator);
 
 

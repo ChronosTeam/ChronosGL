@@ -35,6 +35,9 @@ vec3 diffuseAccumulator;
 vec3 specularAccumulator;
 
 CombinedLight(${vVertexPosition}, ${vNormal}, ${uEyePosition},
+              ${uSpotLights},
+              ${uPointLights},
+              ${uDirectionalLights},
               diffuseAccumulator, specularAccumulator);
 
 vec4 diffuseMap = texture2D(${uTexture}, ${vTextureCoordinates} );
