@@ -5,6 +5,7 @@ library base;
 // for easier testing.
 
 import 'dart:math' as Math;
+import 'dart:typed_data';
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -13,10 +14,10 @@ part "abstractions.dart";
 part "spatial.dart";
 part "projection.dart";
 part "camera.dart";
-part "lighting.dart";
 part "geometry_builder.dart";
 part "node.dart";
 part "render_program.dart";
+part "illumination.dart";
 
 void LogInfo(String s) {
   print("I: " + s);

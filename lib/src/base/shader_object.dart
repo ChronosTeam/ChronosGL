@@ -1,5 +1,8 @@
 part of base;
 
+const int kMaxLightsPerType = 2;
+const int kMaxBones = 128;
+
 class ShaderVarDesc {
   final String type;
   final String purpose;
@@ -135,11 +138,13 @@ const String uBumpScale = "uBumpScale";
 const String uNormalScale = "uNormalScale";
 
 const String uMaterial = "uMaterial";
-const String uLightSourceInfo = "uLightSourceInfo";
-const String uLightSourceInfo0 = uLightSourceInfo + "0";
-const String uLightSourceInfo1 = uLightSourceInfo + "1";
-const String uLightSourceInfo2 = uLightSourceInfo + "2";
-const String uLightSourceInfo3 = uLightSourceInfo + "3";
+
+const String uSpotLights = "uSpotLights";
+const String uSpotLightsCount = "uSpotLightsCount";
+const String uPointLights = "uPointLights";
+const String uPointLightsCount = "uPointLightsCount";
+const String uDirectionalLights = "uDirectionalLights";
+const String uDirectionalLightsCount = "uDirectionalLightsCount";
 
 Map<String, ShaderVarDesc> _VarsDb = {
   eArray: new ShaderVarDesc("index", ""),
@@ -213,11 +218,12 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uColorAlpha2: new ShaderVarDesc("vec4", ""),
   uEyePosition: new ShaderVarDesc("vec3", ""),
   uMaterial: new ShaderVarDesc("mat4", ""),
-  uLightSourceInfo0: new ShaderVarDesc("mat4", ""),
-  uLightSourceInfo1: new ShaderVarDesc("mat4", ""),
-  uLightSourceInfo2: new ShaderVarDesc("mat4", ""),
-  uLightSourceInfo3: new ShaderVarDesc("mat4", ""),
-  uBoneMatrices: new ShaderVarDesc("mat4", "", arraySize: 128),
+  uBoneMatrices: new ShaderVarDesc("mat4", "", arraySize: kMaxBones),
+
+  uSpotLights: new ShaderVarDesc("mat4", "", arraySize: kMaxLightsPerType),
+  uPointLights: new ShaderVarDesc("mat4", "", arraySize: kMaxLightsPerType),
+  uDirectionalLights: new ShaderVarDesc("mat4", "", arraySize: kMaxLightsPerType),
+
   uBumpScale: new ShaderVarDesc("float", "for bump maps"),
   uNormalScale: new ShaderVarDesc("float", "for normal maps"),
 };

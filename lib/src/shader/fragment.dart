@@ -43,43 +43,6 @@ float useValueButReturnZero(float x) {
 // ============================================================
 // LIGHT
 // ============================================================
-struct LightIntensity {
-    float diffuse;
-    float specular;
-    float attenuation;
-};
-
-struct LightSourceInfo {
-    vec3 pos;      // for spot and point
-    vec3 dir;      // for spot and dir light
-    vec3 diffuseColor;
-    vec3 specularColor;
-    float type;
-    float range;        // for spot and point
-    float spotCutoff;   // for spot
-    float spotFocus;    // for spot
-    float glossiness;   // Oddball: this comes from the material
-};
-
-// This needs to stay in sync woth Light::PackInfo in lighting.dart
-const float LIGHT_TYPE_SPOT = 2.0;
-const float LIGHT_TYPE_DIRECTIONAL = 5.0;
-const float LIGHT_TYPE_POINT = 3.0;
-
-
-LightSourceInfo UnpackLightSourceInfo(mat4 m, float glossiness) {
-    LightSourceInfo info;
-    info.pos = m[0].xyz;
-    info.dir = normalize(m[1].xyz);
-    info.diffuseColor = m[2].xyz;
-    info.specularColor = m[3].xyz;
-    info.type = m[0].a;
-    info.range = m[1].a;
-    info.spotCutoff = m[2].a;
-    info.spotFocus = m[3].a;
-    info.glossiness = glossiness;
-    return info;
-}
 
 float GetDiffuse(vec3 lightDir, vec3 normal) {
     return max(dot(normal, lightDir), 0.0);
@@ -91,44 +54,190 @@ float GetSpecular(vec3 lightDir, vec3 viewDir, vec3 normal, float glossiness) {
     return pow(specComp, max(1.0, glossiness));
 }
 
-void GetDiffuseAndSpecularFactors(LightSourceInfo info,
-                                  vec3 vertexPos,
-                                  vec3 vertexNormal,
-                                  vec3 eyePos,
-                                  out float diffuseFactor,
-                                  out float specularFactor) {
-    if (info.type == LIGHT_TYPE_DIRECTIONAL) {
-        diffuseFactor = GetDiffuse(info.dir, vertexNormal);
-        specularFactor = GetSpecular(info.dir, normalize(eyePos - vertexPos),
-                                     vertexNormal, info.glossiness);
-    } else if (info.type == LIGHT_TYPE_POINT) {
-        vec3 lightDir = info.pos - vertexPos;
-        float attenuation = max(0.0, 1.0 - length(lightDir) / info.range);
-        vec3 lightDirNorm = normalize(lightDir);
-        vec3 viewDirNorm = normalize(eyePos - vertexPos);
-        diffuseFactor = attenuation * GetDiffuse(lightDirNorm, vertexNormal);
-        specularFactor = attenuation * GetSpecular(lightDirNorm, viewDirNorm,
-                                                   vertexNormal, info.glossiness);
-    } else if (info.type == LIGHT_TYPE_SPOT) {
-        vec3 spotDir = normalize(info.pos - vertexPos);
-        vec3 lightDirNorm = normalize(info.dir);
-        float cosAngle = max(0., dot(lightDirNorm, spotDir));
-	      if (cosAngle < info.spotCutoff) {
-            diffuseFactor = 0.0;
-            specularFactor = 0.0;
-        } else {
-            cosAngle = max(0.0, pow(cosAngle, info.spotFocus));
-	          float attenuation = max(0.0, 1.0 - length(spotDir) / info.range) * cosAngle;
-	          vec3 viewDirNorm = normalize(eyePos - vertexPos);
-            diffuseFactor = attenuation * GetDiffuse(lightDirNorm, vertexNormal);
-            specularFactor = attenuation * GetSpecular(lightDirNorm, viewDirNorm,
-                                                       vertexNormal, info.glossiness);
-        }
-    } else {
-        diffuseFactor = 0.0;
-        specularFactor = 0.0;
+// ============================================================
+// Spot Light
+// ============================================================
+
+struct SpotLightInfo {
+    vec3 pos;      // for spot and point
+    vec3 dir;      // for spot and dir light
+    vec3 diffuseColor;
+    vec3 specularColor;
+    float range;        // for spot and point
+    float spotCutoff;   // for spot
+    float spotFocus;    // for spot
+    float glossiness;   // Oddball: this comes from the material
+};
+
+SpotLightInfo UnpackSpotLightInfo(mat4 m) {
+    SpotLightInfo info;
+    info.pos = m[0].xyz;
+    info.dir = normalize(m[1].xyz);
+    info.diffuseColor = m[2].xyz;
+    info.specularColor = m[3].xyz;
+    info.glossiness = m[0].a;
+    info.range = m[1].a;
+    info.spotCutoff = m[2].a;
+    info.spotFocus = m[3].a;
+    return info;
+}
+
+void SpotLightGetDiffuseAndSpecular(SpotLightInfo info,
+                                    vec3 vertexPos,
+                                    vec3 vertexNormal,
+                                    vec3 eyePos,
+                                    out vec3 diffuse,
+                                    out vec3 specular) {
+    vec3 spotDir = normalize(info.pos - vertexPos);
+    vec3 lightDirNorm = normalize(info.dir);
+    float cosAngle = max(0., dot(lightDirNorm, spotDir));
+	  if (cosAngle < info.spotCutoff) {
+        diffuse = vec3(0.0);
+        specular = vec3(0.0);
+        return;
+    }
+
+    cosAngle = max(0.0, pow(cosAngle, info.spotFocus));
+	  float attenuation = max(0.0, 1.0 - length(spotDir) / info.range) * cosAngle;
+	  vec3 viewDirNorm = normalize(eyePos - vertexPos);
+    diffuse = attenuation *
+              GetDiffuse(lightDirNorm, vertexNormal) *
+              info.diffuseColor;
+    specular = attenuation *
+               GetSpecular(lightDirNorm, viewDirNorm, vertexNormal, info.glossiness) *
+               info.specularColor;
+}
+
+// ============================================================
+// Point Light
+// ============================================================
+
+struct PointLightInfo {
+    vec3 pos;
+    vec3 diffuseColor;
+    vec3 specularColor;
+    float range;
+    float glossiness;
+};
+
+PointLightInfo UnpackPointLightInfo(mat4 m) {
+    PointLightInfo info;
+    info.pos = m[0].xyz;
+    info.diffuseColor = m[2].xyz;
+    info.specularColor = m[3].xyz;
+    info.range = m[1].a;
+    info.glossiness = m[0].a;
+    return info;
+}
+
+void PointLightGetDiffuseAndSpecular(PointLightInfo info,
+                                    vec3 vertexPos,
+                                    vec3 vertexNormal,
+                                    vec3 eyePos,
+                                    out vec3 diffuse,
+                                    out vec3 specular) {
+    vec3 lightDir = info.pos - vertexPos;
+    float attenuation = max(0.0, 1.0 - length(lightDir) / info.range);
+    vec3 lightDirNorm = normalize(lightDir);
+    vec3 viewDirNorm = normalize(eyePos - vertexPos);
+    diffuse = attenuation *
+              GetDiffuse(lightDirNorm, vertexNormal) *
+              info.diffuseColor;
+    specular = attenuation *
+               GetSpecular(lightDirNorm, viewDirNorm, vertexNormal, info.glossiness) *
+               info.specularColor;
+}
+
+// ============================================================
+// Directional Light
+// ============================================================
+
+struct DirectionalLightInfo {
+    vec3 dir;      // for spot and dir light
+    vec3 diffuseColor;
+    vec3 specularColor;
+    float glossiness;   // Oddball: this comes from the material
+};
+
+DirectionalLightInfo UnpackDirectionalLightInfo(mat4 m) {
+    DirectionalLightInfo info;
+    info.dir = normalize(m[1].xyz);
+    info.diffuseColor = m[2].xyz;
+    info.specularColor = m[3].xyz;
+    info.glossiness = m[0].a;
+    return info;
+}
+
+void DirectionalLightGetDiffuseAndSpecular(DirectionalLightInfo info,
+                                           vec3 vertexPos,
+                                           vec3 vertexNormal,
+                                           vec3 eyePos,
+                                           out vec3 diffuse,
+                                           out vec3 specular) {
+    diffuse = GetDiffuse(info.dir, vertexNormal) *
+              info.diffuseColor;
+    specular = GetSpecular(info.dir, normalize(eyePos - vertexPos),
+                            vertexNormal, info.glossiness) *
+               info.specularColor;
+}
+
+// ============================================================
+// Combined Light
+// ============================================================
+void CombinedLight(vec3 vVertexPosition,
+                   vec3 vNormal,
+                   vec3 uEyePosition,
+                   mat4 uSpotLights[${kMaxLightsPerType}],
+                   mat4 uPointLights[${kMaxLightsPerType}],
+                   mat4 uDirectionalLights[${kMaxLightsPerType}],
+                   out vec3 diffuseAccumulator,
+                   out vec3 specularAccumulator) {
+    diffuseAccumulator = vec3(0.0);
+    specularAccumulator = vec3(0.0);
+
+    for (int i = 0; i < ${kMaxLightsPerType}; ++i) {
+        SpotLightInfo info = UnpackSpotLightInfo(uSpotLights[i]);
+        if (info.range == 0.0) continue;
+        vec3 diffuse;
+        vec3 specular;
+        SpotLightGetDiffuseAndSpecular(info,
+                                       vVertexPosition,
+                                       vNormal,
+                                       uEyePosition,
+                                       diffuse, specular);
+        diffuseAccumulator = diffuseAccumulator + diffuse;
+        specularAccumulator = specularAccumulator + specular;
+    }
+
+    for (int i = 0; i < ${kMaxLightsPerType}; ++i) {
+        PointLightInfo info = UnpackPointLightInfo(uPointLights[i]);
+        if (info.range == 0.0) continue;
+        vec3 diffuse;
+        vec3 specular;
+        PointLightGetDiffuseAndSpecular(info,
+                                        vVertexPosition,
+                                        vNormal,
+                                        uEyePosition,
+                                        diffuse, specular);
+        diffuseAccumulator = diffuseAccumulator + diffuse;
+        specularAccumulator = specularAccumulator + specular;
+    }
+
+    for (int i = 0; i < ${kMaxLightsPerType}; ++i) {
+        DirectionalLightInfo info =  UnpackDirectionalLightInfo(uDirectionalLights[i]);
+        if (info.dir == vec3(0.0)) continue;
+        vec3 diffuse;
+        vec3 specular;
+        DirectionalLightGetDiffuseAndSpecular(info,
+                                              vVertexPosition,
+                                              vNormal,
+                                              uEyePosition,
+                                              diffuse, specular);
+        diffuseAccumulator = diffuseAccumulator + diffuse;
+        specularAccumulator = specularAccumulator + specular;
     }
 }
+
 // ============================================================
 // SHADOW
 // ============================================================
