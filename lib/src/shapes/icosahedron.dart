@@ -18,7 +18,7 @@ double getV1(double y) {
 }
 */
 
-final List<Face3> _icoFaces = [
+final List<Face3> IcosahedronFaceList = [
   // 5 faces around point 0
   new Face3(0, 11, 5),
   new Face3(0, 5, 1),
@@ -50,7 +50,7 @@ final List<Face3> _icoFaces = [
 
 final double t = (1 + Math.sqrt(5)) / 2;
 
-final List<VM.Vector3> _icoVertices = [
+final List<VM.Vector3> IcosahedronVertexList = [
   new VM.Vector3(-1.0, t, 0.0)..normalize(),
   new VM.Vector3(1.0, t, 0.0)..normalize(),
   new VM.Vector3(-1.0, -t, 0.0)..normalize(),
@@ -81,8 +81,8 @@ GeometryBuilder IcosahedronGeometry(
   List<VM.Vector3> vertices = [];
 
   // start with 12 vertices and 20 faces of a Icosahedron
-  faces.addAll(_icoFaces);
-  vertices.addAll(_icoVertices);
+  faces.addAll(IcosahedronFaceList);
+  vertices.addAll(IcosahedronVertexList);
   //print("@@@@ ${vertices.length} ${faces.length}");
 
   // subdivide faces to refine the triangles
