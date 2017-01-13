@@ -1,5 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
+import 'package:vector_math/vector_math.dart' as VM;
+
 import 'dart:async';
 
 List<ShaderObject> createNormal2ColorShader() {
@@ -55,6 +57,8 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
+  Material mat = new Material("mat");
+
   List<Future<dynamic>> futures = [
     LoadRaw(modelFile),
   ];
@@ -69,31 +73,17 @@ void main() {
       CubeGeometry(computeNormals: false)
     ];
 
-    Material mat = new Material("mat");
-    // No deduping
-    for (var i = 0; i < geos.length; i++) {
-      MeshData md = GeometryBuilderToMeshData("", chronosGL.gl, geos[i]);
-      // the logo is missing normals so we generate them here, but wait, why are the colors all wrong ?
-      Node mesh = new Node(md.name, md, mat);
-      if (geos[i] == ctLogo) {
-        mesh.rotX(3.14 / 2);
-        mesh.rotZ(3.14);
-      }
-      mesh.setPos(-5.0 + i * 7, -4.0, 0.0);
-      prg.add(mesh);
-    }
-
-    // with deduping (sorry -this is currently not necessary because we de-dup most things implicitly)
+    // with deduping (sorry -this is currently not necessary
+    // because we de-dup most things implicitly)
     for (var i = 0; i < geos.length; i++) {
       geos[i].GenerateNormalsAssumingTriangleMode();
       MeshData md = GeometryBuilderToMeshData("", chronosGL.gl, geos[i]);
       // because some vertices were reused for different faces, so we need to deduplicate the indices
-      Node mesh = new Node(md.name, md, mat);
+      Node mesh = new Node(md.name, md, mat)..setPos(-5.0 + i * 7, 4.0, 0.0);
       if (geos[i] == ctLogo) {
         mesh.rotX(3.14 / 2);
         mesh.rotZ(3.14);
       }
-      mesh.setPos(-5.0 + i * 7, 4.0, 0.0);
       prg.add(mesh);
     }
 
