@@ -24,6 +24,7 @@ void main() {
     ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0));
 
   final Material matTrans = new Material("trans")
+    ..SetUniform(uColor, new VM.Vector3(0.3, 0.3, 0.3))
     ..SetUniform(cBlend, true, true)
     ..SetUniform(cBlendEquation, new BlendEquation.Standard());
 
@@ -102,11 +103,9 @@ void main() {
   ];
 
   Future.wait(futures).then((List list) {
-    Texture gradient =
-        new WebTexture(chronosGL.gl, "../gradient.jpg", list[0]);
+    Texture gradient = new WebTexture(chronosGL.gl, "../gradient.jpg", list[0]);
     matGradient.SetUniform(uTexture, gradient);
-    Texture trans =
-        new WebTexture(chronosGL.gl, "../transparent.png", list[1]);
+    Texture trans = new WebTexture(chronosGL.gl, "../transparent.png", list[1]);
     matTrans.SetUniform(uTexture, trans);
 
     Texture wood = new WebTexture(chronosGL.gl, "../wood.jpg", list[2]);

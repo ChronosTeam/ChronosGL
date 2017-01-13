@@ -8,7 +8,8 @@ class ShaderProgram extends RenderProgram {
   WEBGL.Program _program;
   Map<String, int> _attributeLocations = {};
   Map<String, WEBGL.UniformLocation> _uniformLocations = {};
-  Set<String> _uniformInitialized = new Set<String>();
+  Set<String> _uniformsInitialized = new Set<String>();
+  Set<String> _attributesInitialized = new Set<String>();
   WEBGL.AngleInstancedArrays _extInstancedArrays;
   int _drawMode = -1;
   int _numInstances = 0;
@@ -45,6 +46,7 @@ class ShaderProgram extends RenderProgram {
 
   void _SetAttribute(String canonical, WEBGL.Buffer buffer, normalized,
       int stride, int offset) {
+    _attributesInitialized.add(canonical);
     final int index = _attributeLocations[canonical];
     _gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
@@ -95,7 +97,7 @@ class ShaderProgram extends RenderProgram {
   }
 
   void _SetUniform(String canonical, var val) {
-    _uniformInitialized.add(canonical);
+    _uniformsInitialized.add(canonical);
 
     // Note, we could make this smarter and skip
     // overwriting values with the same values;
@@ -148,17 +150,15 @@ class ShaderProgram extends RenderProgram {
     }
   }
 
-  bool AllUniformsInitialized() {
-    //LogInfo("program ${program.name}");
-    //     LogInfo("want: ${program.uniformLocations}");
-    //     LogInfo("have: ${program._uniformInitialized}");
-    return _uniformInitialized.length == _uniformLocations.length;
-  }
-
-  List<String> UniformsUninitialized() {
+  List<String> UninitializedInputs() {
+    if (_uniformsInitialized.length == _uniformLocations.length &&
+        _attributesInitialized.length == _attributeLocations.length) return [];
     List<String> out = [];
     for (String u in _uniformLocations.keys) {
-      if (!_uniformInitialized.contains(u)) out.add(u);
+      if (!_uniformsInitialized.contains(u)) out.add(u);
+    }
+    for (String u in _attributeLocations.keys) {
+      if (!_attributesInitialized.contains(u)) out.add(u);
     }
     return out;
   }
@@ -179,32 +179,44 @@ class ShaderProgram extends RenderProgram {
 
   void SetInputs(Map<String, dynamic> inputs) {
     _nextTextureUnit = 0;
+    int count = 0;
+    final DateTime start = new DateTime.now();
+
     for (String canonical in inputs.keys) {
       switch (canonical.codeUnitAt(0)) {
         case prefixUniform:
           if (_HasUniform(canonical)) {
             _SetUniform(canonical, inputs[canonical]);
+            ++count;
           }
           break;
         case prefixElement:
           _gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, inputs[canonical]);
+          ++count;
           break;
         case prefixControl:
           _SetControl(canonical, inputs[canonical]);
+          ++count;
           break;
         case prefixInstancer:
         case prefixAttribute:
           if (_HasAttribute(canonical)) {
             _SetAttribute(canonical, inputs[canonical], false, 0, 0);
+            ++count;
           }
           break;
       }
     }
+    final Duration delta = new DateTime.now().difference(start);
+    LogDebug("setting ${count} var in ${delta}");
   }
 
   @override
   void DrawOne(Map<String, dynamic> inputs, List<DrawStats> stats) {
     _numInstances = 0;
+    // TODO: put this behind a flag
+    _attributesInitialized.clear();
+    _uniformsInitialized.clear();
     SetInputs(inputs);
     if (_numItems == 0) return;
     if (stats != null) {
@@ -212,8 +224,12 @@ class ShaderProgram extends RenderProgram {
     }
     if (debug)
       print("[${name}] draw points: ${_drawMode} instances${_numInstances}");
-    if (!AllUniformsInitialized()) {
-      throw "${name}: uninitialized uniforms: ${UniformsUninitialized()}";
+    // TODO: put this behind a flag
+    List<String> uninitialized = UninitializedInputs();
+    if (uninitialized.isNotEmpty) {
+      String mesg = "${name}: uninitialized inputs: ${uninitialized}";
+      LogError(mesg);
+      throw mesg;
     }
 
     final bool useArrayBuffer = HasInput(eArray);
