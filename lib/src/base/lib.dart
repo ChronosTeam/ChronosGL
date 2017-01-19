@@ -8,7 +8,16 @@ import 'dart:math' as Math;
 import 'dart:typed_data';
 
 import 'package:vector_math/vector_math.dart' as VM;
-
+/// The base layer contains many of the fundamental abstractions
+/// like NamedEntity, RenderInputs, RenderInputProvider,
+/// RenderProgram, Spacial, Node. Illumination, Perspective,
+/// Camera, etc
+///
+/// Unlike the core layer base layer does NOT have dependencies on
+/// 'dart:web_gl' which simplifies unit testing.
+///
+/// Dependencies:
+/// (None)
 part 'shader_object.dart';
 part "abstractions.dart";
 part "spatial.dart";

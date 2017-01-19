@@ -15,11 +15,13 @@ void main() {
     print("${program}");
     program = phase.createProgram(createLightShaderBlinnPhong());
     print("${program}");
+    /*
     program = phase.createProgram(createLightShaderBlinnPhongWithShadow());
     print("${program}");
     program = phase.createProgram(createShadowShader());
     print("${program}");
     program = phase.createProgram(createCopyShader());
+*/
     print("${program}");
     program = phase.createProgram(createSSAOShader());
     print("${program}");

@@ -45,6 +45,9 @@ class Orthographic extends RenderInputProvider {
   }
 }
 
+// Perspective is a RenderInputProvider for the
+// uPerspectiveViewMatrix Uniform and requires a camera
+// to derive that matrix.
 class Perspective extends RenderInputProvider {
   Camera _camera;
   double _fov = 50.0; // horizontal fov in deg  divided by 2
