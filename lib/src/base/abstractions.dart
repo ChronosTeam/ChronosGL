@@ -1,6 +1,9 @@
 part of base;
 
-
+/// NamedEntity is the class that almost all other classed in
+/// ChronosGL inherit from.
+/// It mostly exists to help with debugging by given objects names.
+/// It also provides a simple mechanism for en-/dis-abling objects.
 abstract class NamedEntity {
   final String name;
   bool debug = false;
@@ -9,7 +12,22 @@ abstract class NamedEntity {
   NamedEntity(this.name);
 }
 
-/// RenderInputs represents a container of Inputs for a ShaderProgram.
+/// RenderInputs represents a container of Inputs for program
+/// running on the GPU.
+/// The best known input types are Uniforms and Attributes but
+/// ChronosGL goes a step further and also considers blending
+/// modes, depth-test, etc. to be inputs as well.
+///
+/// Each input has a canonical name. By convention the first
+/// letter of the canonical name signal the type of input:
+/// a: Attribute
+/// v: Uniform
+/// ...
+///
+/// A large number of those names are already registered by default.
+/// Additional ones required by custom shaders can be registered at
+/// startup.
+///
 class RenderInputs extends NamedEntity {
   // TODO: this should contain all the state, including blending, depth writing
   // and detect incompatible settings
@@ -64,17 +82,15 @@ class RenderInputs extends NamedEntity {
   Map<String, dynamic> GetInputs() =>  _inputs;
 }
 
-/// RenderInputProvider provides inputs (aks parameters) necessary for running
-/// a ShaderProgram. The primary examples for such inputs are:
-/// Uniforms, Attributes, VertexBuffers
-/// Each parameter has a canonical name, c.f. shader_object.dart.
-/// A large number of those are already registered by default.
-/// Additional ones required by custom shaders can be registered at
-/// startup.
-/// There are small number of unusual control inputs, e.g.
-/// cBlend that indirectly effect the behavior of a ShaderProgram.
-/// These are mostly related to fixed function features, like
-/// blending and depth buffers.
+/// RenderInputProvider is an abstract interface for adding/removing
+/// inputs to/from a RenderInputs object.
+///
+/// Typically the RenderInputs object will be GPU program
+/// and the RenderInputsProvider will be
+/// a Projections object to provide a perspective matrix uniform
+/// or a MeshData object to provide vertex attributes
+/// or Material object to provide color and texture uniforms
+/// or ...
 abstract class RenderInputProvider extends NamedEntity {
   RenderInputProvider(String name) : super(name);
 

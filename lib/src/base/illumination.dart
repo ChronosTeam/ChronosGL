@@ -3,6 +3,12 @@ part of base;
 final VM.Vector3 _up = new VM.Vector3(0.0, 1.0, 0.0);
 final VM.Vector3 _up2 = new VM.Vector3(0.0, 0.0, 1.0);
 
+
+/// Light represents a light source with helpers for
+/// light and shadow computation.
+/// Light is NOT a ShaderInputProvider. But several Lights
+/// can be added to an Illumination object which is
+/// a ShaderInputProvider.
 abstract class Light extends NamedEntity {
   void ExtractInfo(Float32List m, int offset);
   void ExtractShadowViewMatrix(Float32List m, int offset);
@@ -161,6 +167,7 @@ class HemisphericalLight implements Light {
 }
 */
 
+// Illumination represents a collection of Lights.
 class Illumination extends RenderInputProvider {
   final List<PointLight> _pointLights = [];
   final List<SpotLight> _spotLights = [];
