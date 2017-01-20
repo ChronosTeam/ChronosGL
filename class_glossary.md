@@ -115,16 +115,16 @@ an mesh, e.g. a sphere, cube, etc.
 MeshData objects can be populated directly but often they
 will derived from **GeometryBuilder** objects.
 
-## Shader Layer (uses Base Layer)
+# Shader Layer (uses Base Layer)
 provides many standard Vertex and Fragment shaders.
 
-## Shape Layer (uses Base Layer)
+# Shape Layer (uses Base Layer)
 contains helpers for creating **GeometryBuilder**
 objects for basic shapes like cubes and cylinders.
 Higher layers contain wrappers that generate the corresponding
 MeshData objects from them.
 
-## Animation Layer (uses nothing)
+# Animation Layer (uses nothing)
 provides abstractions for animated meshes.
 
 ## Class Bone
@@ -139,7 +139,7 @@ represents Key frame animation data for a single bone in a skeleton.
 ## Class SkeletonAnimation
 represents Key frame animation data for an entire skeleton.
 
-## Importer Layer (uses Base Layer)
+# Importer Layer (uses Base Layer)
 contains helpers reading various mesh file formats into **GeometryBuilders**
 
 # WebHelper Layer (uses Core Layer, dart:html)

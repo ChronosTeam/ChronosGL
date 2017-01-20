@@ -2,7 +2,7 @@ library chronosshader;
 
 import "../base/lib.dart";
 
-/// ## Shader Layer (uses Base Layer)
+/// # Shader Layer (uses Base Layer)
 /// provides many standard Vertex and Fragment shaders.
 
 part 'fragment.dart';
