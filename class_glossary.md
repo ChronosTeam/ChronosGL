@@ -1,4 +1,4 @@
-# Base Layer (uses nothing)
+# Layer: Base
 The **base layer** contains many of the fundamental abstractions
 like NamedEntity, RenderInputs, RenderInputProvider,
 RenderProgram, Spacial, Node. Illumination, Perspective,
@@ -7,7 +7,7 @@ Camera, etc
 It was broken out of the **core layer** because it does not have
 dependencies on dart:web_gl' which simplifies unit testing.
 
-## Concept Input
+## Concept: Input
 An **Input** is parameter to a program running on the GPU
 
 The best known input types are Uniforms and Attributes but
@@ -90,7 +90,7 @@ provides the **Input** for perspective projection, i.e.
 the uPerspectiveViewMatrix Uniform which also requires a **Camera**
 for view matrix.
 
-# Core Layer (uses Base Layer, dart:web_gl)
+# Layer: Core (uses Base Layer, dart:web_gl)
 The **core layer** adds abstractions to the *base layer**
 which require the use of  **dart:web_gl**.
 Code using the **core layer** can currently not be unit tested
@@ -115,16 +115,16 @@ an mesh, e.g. a sphere, cube, etc.
 MeshData objects can be populated directly but often they
 will derived from **GeometryBuilder** objects.
 
-# Shader Layer (uses Base Layer)
+# Layer: Shader (uses Base Layer)
 provides many standard Vertex and Fragment shaders.
 
-# Shape Layer (uses Base Layer)
+# Layer: Shape (uses Base Layer)
 contains helpers for creating **GeometryBuilder**
 objects for basic shapes like cubes and cylinders.
 Higher layers contain wrappers that generate the corresponding
 MeshData objects from them.
 
-# Animation Layer (uses nothing)
+# Layer: Animation
 provides abstractions for animated meshes.
 
 ## Class Bone
@@ -139,10 +139,10 @@ represents Key frame animation data for a single bone in a skeleton.
 ## Class SkeletonAnimation
 represents Key frame animation data for an entire skeleton.
 
-# Importer Layer (uses Base Layer)
+# Layer: Importer (uses Base Layer)
 contains helpers reading various mesh file formats into **GeometryBuilders**
 
-# WebHelper Layer (uses Core Layer, dart:html)
+# Layer: WebHelper (uses Core Layer, dart:html)
 adds helpers which require access to HTML features like
 DOM tree (elements).
 

@@ -7,7 +7,7 @@ import "dart:web_gl" as WEBGL;
 
 import '../core/lib.dart';
 
-/// # WebHelper Layer (uses Core Layer, dart:html)
+/// # Layer: WebHelper (uses Core Layer, dart:html)
 /// adds helpers which require access to HTML features like
 /// DOM tree (elements).
 

@@ -6,7 +6,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 import "../base/lib.dart";
 
-/// # Importer Layer (uses Base Layer)
+/// # Layer: Importer (uses Base Layer)
 /// contains helpers reading various mesh file formats into **GeometryBuilders**
 
 part "wavefront.dart";
