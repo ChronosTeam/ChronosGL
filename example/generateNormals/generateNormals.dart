@@ -1,6 +1,5 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
-import 'package:vector_math/vector_math.dart' as VM;
 
 import 'dart:async';
 

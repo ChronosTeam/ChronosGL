@@ -66,9 +66,9 @@ void main() {
   RenderProgram sprites = phase.createProgram(createPointSpritesShader());
   sprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
-  // Main loop body"
+  // Main loop body
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
+  void animate(num timeMs) {
     // timeMs can be both int or double - force a double.
     timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;

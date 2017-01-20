@@ -3,7 +3,6 @@ part of base;
 final VM.Vector3 _up = new VM.Vector3(0.0, 1.0, 0.0);
 final VM.Vector3 _up2 = new VM.Vector3(0.0, 0.0, 1.0);
 
-
 /// ## Class Light
 /// represents a light source with helpers for
 /// light and shadow computation.
@@ -11,9 +10,10 @@ final VM.Vector3 _up2 = new VM.Vector3(0.0, 0.0, 1.0);
 /// can be added to an **Illumination** object which is
 /// a **ShaderInputProvider**.
 abstract class Light extends NamedEntity {
+  Light(String name) : super(name);
+
   void ExtractInfo(Float32List m, int offset);
   void ExtractShadowViewMatrix(Float32List m, int offset);
-  Light(String name) : super(name);
 }
 
 class PointLight extends Light {
