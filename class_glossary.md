@@ -118,7 +118,7 @@ will derived from **GeometryBuilder** objects.
 ## Shader Layer (uses Base Layer)
 provides many standard Vertex and Fragment shaders.
 
-## Shapes Layer (uses Base Layer)
+## Shape Layer (uses Base Layer)
 contains helpers for creating **GeometryBuilder**
 objects for basic shapes like cubes and cylinders.
 Higher layers contain wrappers that generate the corresponding
@@ -141,4 +141,8 @@ represents Key frame animation data for an entire skeleton.
 
 ## Importer Layer (uses Base Layer)
 contains helpers reading various mesh file formats into **GeometryBuilders**
+
+# WebHelper Layer (uses Core Layer, dart:html)
+adds helpers which require access to HTML features like
+DOM tree (elements).
 
