@@ -1,4 +1,4 @@
-part of shapes;
+part of shape;
 
 VM.Vector3 p1 = new VM.Vector3.zero();
 VM.Vector3 p2 = new VM.Vector3.zero();

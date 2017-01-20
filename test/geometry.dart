@@ -1,6 +1,6 @@
 @TestOn("vm")
 import "package:test/test.dart";
-import '../lib/src/shapes/lib.dart';
+import '../lib/src/shape/lib.dart';
 import '../lib/src/base/lib.dart';
 
 void main() {
