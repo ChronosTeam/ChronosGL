@@ -1,6 +1,7 @@
 part of core;
 
-// ShaderProgram represents a GPU shader program
+/// ## Class ShaderProgram (is a RenderProgram)
+/// represents invocations of an actual GPU program.
 class ShaderProgram extends RenderProgram {
   WEBGL.RenderingContext _gl;
   ShaderObject _shaderObjectV;
@@ -19,8 +20,7 @@ class ShaderProgram extends RenderProgram {
   ShaderProgram(String name, this._gl, this._shaderObjectV, this._shaderObjectF)
       : super(name) {
     _extInstancedArrays = _gl.getExtension("ANGLE_instanced_arrays");
-    ShaderUtils su = new ShaderUtils(_gl);
-    _program = su.getProgram(_shaderObjectV.shader, _shaderObjectF.shader);
+    _program = CompileWholeProgram(_gl, _shaderObjectV.shader, _shaderObjectF.shader);
     for (String v in _shaderObjectV.attributeVars.keys) {
       _attributeLocations[v] = _gl.getAttribLocation(_program, v);
       if (_attributeLocations[v] < 0) {

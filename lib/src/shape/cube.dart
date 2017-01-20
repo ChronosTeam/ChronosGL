@@ -1,4 +1,4 @@
-part of shapes;
+part of shape;
 
 List<VM.Vector3> _CubeNormals = [
   // Front face

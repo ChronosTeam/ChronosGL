@@ -69,7 +69,8 @@ bool IsCubeChildTextureType(int t) {
   }
 }
 
-// Base class for all textures
+/// ## Class TextureProperties
+/// is the base class for all textures
 class Texture {
   final String _url;
   WEBGL.Texture _texture;

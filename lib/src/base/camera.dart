@@ -1,6 +1,7 @@
 part of base;
 
-/// Camera ...
+/// ## Class Camera (is a Spatial)
+/// provides helpers to set up a view matrix.
 class Camera extends Spatial {
   Camera(String name) : super(name);
   // Get the model view matrix.  This overwrites the content of parameter m.
@@ -24,5 +25,3 @@ class Camera extends Spatial {
     return new VM.Vector3(transform[12], transform[13], transform[14]);
   }
 }
-
-

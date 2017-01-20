@@ -5,7 +5,8 @@
 
 part of animation;
 
-/// Bone.
+/// ## Class Bone
+/// TBD
 class Bone {
   final String boneName;
   final VM.Matrix4 localTransform;
@@ -19,7 +20,8 @@ class Bone {
   }
 }
 
-/// Skeleton ready to be used for skinning.
+/// ## Class PosedSkeleton
+/// represents a Skeleton ready to be used for skinning.
 class PosedSkeleton {
   // one for each bone
   final List<VM.Matrix4> globalTransforms;
@@ -67,7 +69,8 @@ void PoseSkeleton(List<Bone> skeleton, VM.Matrix4 globalOffsetTransform,
   }
 }
 
-/// Key frame animation data for a single bone in a skeleton.
+/// ## Class BoneAnimation
+/// represents Key frame animation data for a single bone in a skeleton.
 class BoneAnimation {
   final int boneIndex;
 
@@ -136,7 +139,8 @@ class BoneAnimation {
   }
 }
 
-/// Key frame animation data for an entire skeleton.
+/// ## Class SkeletonAnimation
+/// represents Key frame animation data for an entire skeleton.
 class SkeletonAnimation {
   final String name;
   final List<BoneAnimation> animList;

@@ -66,12 +66,11 @@ Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data = null]) {
   return data;
 }
 
-// MeshData presents attributes and vertex buffers associated with
-// an object, e.g. a sphere, cube, etc.
-// Protocol:
-// After creation:
-// * populate the object by calling AddFaceX
-// * Call Finalize
+/// ## Class MeshData (is a RenderInputProvider)
+/// presents attributes and vertex buffers associated with
+/// an mesh, e.g. a sphere, cube, etc.
+/// MeshData objects can be populated directly but often they
+/// will derived from **GeometryBuilder** objects.
 class MeshData extends RenderInputProvider {
   final WEBGL.RenderingContext _gl;
   final _drawMode;

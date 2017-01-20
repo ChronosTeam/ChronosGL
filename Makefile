@@ -5,7 +5,7 @@ DDC=$(SDK)/bin/dartdevc
 PORT=8000
 
 documentation:
-	grep "^///" --no-filename --group-separator="" -A1 -B 1 -r lib/ | sed -e 's|/// ||g'
+	dart  tool/generate_documentation.dart > class_glossary.md
 
 examples:
 	/usr/lib/dart/bin/pub build example/

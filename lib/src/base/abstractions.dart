@@ -1,9 +1,10 @@
 part of base;
 
-/// NamedEntity is the class that almost all other classed in
-/// ChronosGL inherit from.
-/// It mostly exists to help with debugging by given objects names.
-/// It also provides a simple mechanism for en-/dis-abling objects.
+/// ## Class NamedEntity
+/// is inherited by almost all other classes in ChronosGL.
+/// It mostly exists to help with debugging by giving names to objects.
+/// It also provides a simple mechanism for en-/dis-abling objects, though
+/// what it means to be disabled will differ from class to class.
 abstract class NamedEntity {
   final String name;
   bool debug = false;
@@ -12,22 +13,11 @@ abstract class NamedEntity {
   NamedEntity(this.name);
 }
 
-/// RenderInputs represents a container of Inputs for program
-/// running on the GPU.
-/// The best known input types are Uniforms and Attributes but
-/// ChronosGL goes a step further and also considers blending
-/// modes, depth-test, etc. to be inputs as well.
-///
-/// Each input has a canonical name. By convention the first
-/// letter of the canonical name signal the type of input:
-/// a: Attribute
-/// v: Uniform
-/// ...
-///
-/// A large number of those names are already registered by default.
-/// Additional ones required by custom shaders can be registered at
-/// startup.
-///
+/// ## Class RenderInputs (is a NamedEntity)
+/// represents a collection of **Inputs**
+/// There is only one class inheriting from it: RenderProgram
+/// So it will likely go away.
+/// **RenderInputs** are populated by **RenderInputProvider**.
 class RenderInputs extends NamedEntity {
   // TODO: this should contain all the state, including blending, depth writing
   // and detect incompatible settings
@@ -82,11 +72,12 @@ class RenderInputs extends NamedEntity {
   Map<String, dynamic> GetInputs() =>  _inputs;
 }
 
-/// RenderInputProvider is an abstract interface for adding/removing
+/// ## Class RenderInputProvider (is a NamedEntity)
+/// is an abstraction for adding/removing
 /// inputs to/from a RenderInputs object.
 ///
 /// Typically the RenderInputs object will be GPU program
-/// and the RenderInputsProvider will be
+/// and the RenderInputsProvider
 /// a Projections object to provide a perspective matrix uniform
 /// or a MeshData object to provide vertex attributes
 /// or Material object to provide color and texture uniforms

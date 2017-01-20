@@ -1,4 +1,4 @@
-part of shapes;
+part of shape;
 
 GeometryBuilder QuadGeometry(num size) {
   List<VM.Vector3> vertices = [

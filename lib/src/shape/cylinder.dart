@@ -1,4 +1,4 @@
-part of shapes;
+part of shape;
 
 // single color cylinder
 // uv mapping is weird to help with debugging

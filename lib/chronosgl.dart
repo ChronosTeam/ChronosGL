@@ -12,8 +12,8 @@ export 'src/base/lib.dart';
 import 'src/core/lib.dart';
 export 'src/core/lib.dart';
 
-import 'src/shapes/lib.dart';
-export 'src/shapes/lib.dart';
+import 'src/shape/lib.dart';
+export 'src/shape/lib.dart';
 
 export "src/shader/lib.dart";
 export "src/importer/lib.dart";
