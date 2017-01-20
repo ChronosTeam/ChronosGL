@@ -10,6 +10,13 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 import "../base/lib.dart";
 
+/// # Core Layer (uses Base Layer, dart:web_gl)
+/// The **core layer** adds abstractions to the *base layer**
+/// which require the use of  **dart:web_gl**.
+/// Code using the **core layer** can currently not be unit tested
+/// but requires more elaborate browser tests.
+
+
 part "extensions.dart";
 part "shader_program.dart";
 part "mesh_data.dart";
@@ -19,4 +26,3 @@ part "shader_utils.dart";
 part "framebuffer.dart";
 part "render_phase.dart";
 part "instancer.dart";
-

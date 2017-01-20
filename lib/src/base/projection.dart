@@ -1,5 +1,7 @@
 part of base;
 
+/// ## Class Orthographic (is a RenderInputProvider)
+/// TBD
 class Orthographic extends RenderInputProvider {
   final Camera _camera;
   final VM.Matrix4 _proj = new VM.Matrix4.zero();
@@ -45,9 +47,10 @@ class Orthographic extends RenderInputProvider {
   }
 }
 
-// Perspective is a RenderInputProvider for the
-// uPerspectiveViewMatrix Uniform and requires a camera
-// to derive that matrix.
+/// ## Class Perspective (is a RenderInputProvider)
+/// provides the **Input** for perspective projection, i.e.
+/// the uPerspectiveViewMatrix Uniform which also requires a **Camera**
+/// for view matrix.
 class Perspective extends RenderInputProvider {
   Camera _camera;
   double _fov = 50.0; // horizontal fov in deg  divided by 2

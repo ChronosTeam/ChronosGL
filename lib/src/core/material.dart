@@ -25,7 +25,9 @@ class BlendEquation {
   }
 }
 
-/// Material is a light weight container for Inputs.
+/// ## Class Material (is a RenderInputProvider)
+/// is a light weight container for **Inputs**.
+/// By convention the *Inputs** pertain to mesh appearance.
 class Material extends RenderInputProvider {
   Map<String, dynamic> _uniforms = {};
 
@@ -69,6 +71,5 @@ class Material extends RenderInputProvider {
     for (String canonical in _uniforms.keys) {
       inputs.Remove(canonical);
     }
-    ;
   }
 }

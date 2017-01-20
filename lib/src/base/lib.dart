@@ -8,16 +8,35 @@ import 'dart:math' as Math;
 import 'dart:typed_data';
 
 import 'package:vector_math/vector_math.dart' as VM;
-/// The base layer contains many of the fundamental abstractions
+/// # Base Layer (uses nothing)
+/// The **base layer** contains many of the fundamental abstractions
 /// like NamedEntity, RenderInputs, RenderInputProvider,
 /// RenderProgram, Spacial, Node. Illumination, Perspective,
 /// Camera, etc
 ///
-/// Unlike the core layer base layer does NOT have dependencies on
-/// 'dart:web_gl' which simplifies unit testing.
+/// It was broken out of the **core layer** because it does not have
+/// dependencies on dart:web_gl' which simplifies unit testing.
+
+
+/// ## Concept Input
+/// An **Input** is parameter to a program running on the GPU
 ///
-/// Dependencies:
-/// (None)
+/// The best known input types are Uniforms and Attributes but
+/// ChronosGL goes a step further and also considers blending
+/// modes, depth-test, etc. to be inputs as well.
+///
+/// Each input has a **canonical name**. By convention the first
+/// letter of the name signals the type of input:
+///
+/// * a: "Attribute" (aVertexPosition, aTextureCoordinates, aNormal, ...)
+/// * u: "Uniform" (uPerspectiveViewMatrix, uTexture, ...)
+/// * c: "Controls" (cDepthWrite, cDepthTest, cBlendEquation, ...)
+/// * v: "Varying Attributes"
+/// * i: "Indexer Attributes"
+//
+/// A large number of **canonical names** are already registered by default.
+/// Additional ones required by custom shaders can be registered at startup.
+/// See lib/src/base/shader_object.dart for a list.
 part 'shader_object.dart';
 part "abstractions.dart";
 part "spatial.dart";
@@ -43,4 +62,3 @@ void LogError(String s) {
 void LogWarn(String s) {
   print("W:" + s);
 }
-

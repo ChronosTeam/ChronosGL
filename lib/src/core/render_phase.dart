@@ -1,6 +1,7 @@
 part of core;
 
-/// RenderPhase represents a sequence of RenderPrograms.
+/// ## Class RenderPhase (is a NamedEntity)
+/// represents a sequence of RenderPrograms.
 class RenderPhase extends NamedEntity {
   final WEBGL.RenderingContext _gl;
   ChronosFramebuffer _framebuffer;

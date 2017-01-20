@@ -1,62 +1,144 @@
-# ChronosGL Concepts
+# Base Layer (uses nothing)
+The **base layer** contains many of the fundamental abstractions
+like NamedEntity, RenderInputs, RenderInputProvider,
+RenderProgram, Spacial, Node. Illumination, Perspective,
+Camera, etc
 
+It was broken out of the **core layer** because it does not have
+dependencies on dart:web_gl' which simplifies unit testing.
 
-## Input
+## Concept Input
+An **Input** is parameter to a program running on the GPU
 
-An Input is a parameter for a ShaderProgram
-The primary examples of inputs are: Uniforms, Attributes, VertexBuffers
-Each Input has a canonical name, c.f. shader_object.dart.
-A large number of those are already registered by default.
-Additional ones required by custom shaders can be registered at
-startup.
-There are small number of unusual control inputs, e.g.
-cBlend that indirectly effect the behavior of a ShaderProgram.
-These are mostly related to fixed function features, like
-blending and depth buffers.
+The best known input types are Uniforms and Attributes but
+ChronosGL goes a step further and also considers blending
+modes, depth-test, etc. to be inputs as well.
 
-## abstract class RenderInputProvider extends NamedEntity
+Each input has a **canonical name**. By convention the first
+letter of the name signals the type of input:
 
-RenderInputProvider provides inputs necessary for running a ShaderProgram.
-Typically several RenderInputProvider are required to provide all the
-parameter for a ShaderProgram. In particular, Uniforms and Attrbutes
-originate in different RenderInputProviders
+* a: "Attribute" (aVertexPosition, aTextureCoordinates, aNormal, ...)
+* u: "Uniform" (uPerspectiveViewMatrix, uTexture, ...)
+* c: "Controls" (cDepthWrite, cDepthTest, cBlendEquation, ...)
+* v: "Varying Attributes"
+* i: "Indexer Attributes"
 
+A large number of **canonical names** are already registered by default.
+Additional ones required by custom shaders can be registered at startup.
+See lib/src/base/shader_object.dart for a list.
 
+## Class NamedEntity
+is inherited by almost all other classes in ChronosGL.
+It mostly exists to help with debugging by giving names to objects.
+It also provides a simple mechanism for en-/dis-abling objects, though
+what it means to be disabled will differ from class to class.
 
-## class Material extends RenderInputProvider
+## Class RenderInputs (is a NamedEntity)
+represents a collection of **Inputs**
+There is only one class inheriting from it: RenderProgram
+So it will likely go away.
+**RenderInputs** are populated by **RenderInputProvider**.
 
-Material is a light weight container for Inputs.
+## Class RenderInputProvider (is a NamedEntity)
+is an abstraction for adding/removing
+inputs to/from a RenderInputs object.
 
+Typically the RenderInputs object will be GPU program
+and the RenderInputsProvider
+a Projections object to provide a perspective matrix uniform
+or a MeshData object to provide vertex attributes
+or Material object to provide color and texture uniforms
+or ...
 
-## class Spatial extends NamedEntity
+## Class RenderProgram (is a RenderInputs)
+represents several invocations of the same program running on the GPU.
+It consists of a tree of **Nodes** which provide **Inputs** for the
+program. The program is invoked once for most **Nodes** while traversing
+the tree recursively.
 
-Spatial is a base class for object that need to be transformed, e.g.
+## Class Spatial (is a NamedEntity)
+is a base class for object that need to be transformed, e.g.
 moved, scaled, rotated.
 
-
-## class Node extends Spatial
-
-Node represents a tree hierarchy of objects that well be rendered
-with a single RenderProgram.
+## Class Node (is a Spatial)
+represents a tree hierarchy of objects that well be rendered
+by rendered RenderProgram.
 Currently, only leaf Nodes will cause draw calls by providing
-both MeshData and Material (and optionally InstancerData).
+**Inputs** for MeshData and Material (and optionally InstancerData).
 Non leaf Nodes (aka containers) currently do not support
-having a Material associated with them but we would like to change
-that.
+having a Material associated with them but we would like to change that.
 Each Node is also a Spatial so it be re-oriented with respect to its parent
 
+## Class Light
+represents a light source with helpers for
+light and shadow computation.
+**Light** is NOT a **ShaderInputProvider**. But several **Lights**
+can be added to an **Illumination** object which is
+a **ShaderInputProvider**.
 
-## class RenderInputs extends NamedEntity
+## Class Illumination (is a RenderInputProvider)
+represents a collection of Lights.
 
-RenderInputs represents a container of Inputs for a ShaderProgram.
+## Class Camera (is a Spatial)
+provides helpers to set up a view matrix.
 
+## Class Orthographic (is a RenderInputProvider)
+TBD
 
-## class RenderProgram extends RenderInputs
+## Class Perspective (is a RenderInputProvider)
+provides the **Input** for perspective projection, i.e.
+the uPerspectiveViewMatrix Uniform which also requires a **Camera**
+for view matrix.
 
-RenderProgram combines a ShaderProgram with a collection of Nodes
-to be rendered by it keeping track of the Inputs along the way.
+# Core Layer (uses Base Layer, dart:web_gl)
+The **core layer** adds abstractions to the *base layer**
+which require the use of  **dart:web_gl**.
+Code using the **core layer** can currently not be unit tested
+but requires more elaborate browser tests.
 
+## Class Material (is a RenderInputProvider)
+is a light weight container for **Inputs**.
+By convention the *Inputs** pertain to mesh appearance.
 
-## class RenderPhase extends NamedEntity
+## Class RenderPhase (is a NamedEntity)
+represents a sequence of RenderPrograms.
 
-RenderPhase represents a sequence of RenderPrograms.
+## Class ShaderProgram (is a RenderProgram)
+represents invocations of an actual GPU program.
+
+## Class TextureProperties
+is the base class for all textures
+
+## Class MeshData (is a RenderInputProvider)
+presents attributes and vertex buffers associated with
+an mesh, e.g. a sphere, cube, etc.
+MeshData objects can be populated directly but often they
+will derived from **GeometryBuilder** objects.
+
+## Shader Layer (uses Base Layer)
+provides many standard Vertex and Fragment shaders.
+
+## Shapes Layer (uses Base Layer)
+contains helpers for creating **GeometryBuilder**
+objects for basic shapes like cubes and cylinders.
+Higher layers contain wrappers that generate the corresponding
+MeshData objects from them.
+
+## Animation Layer (uses nothing)
+provides abstractions for animated meshes.
+
+## Class Bone
+TBD
+
+## Class PosedSkeleton
+represents a Skeleton ready to be used for skinning.
+
+## Class BoneAnimation
+represents Key frame animation data for a single bone in a skeleton.
+
+## Class SkeletonAnimation
+represents Key frame animation data for an entire skeleton.
+
+## Importer Layer (uses Base Layer)
+contains helpers reading various mesh file formats into **GeometryBuilders**
+

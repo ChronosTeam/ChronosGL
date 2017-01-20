@@ -1,6 +1,7 @@
 part of core;
 
-// ShaderProgram represents a GPU shader program
+/// ## Class ShaderProgram (is a RenderProgram)
+/// represents invocations of an actual GPU program.
 class ShaderProgram extends RenderProgram {
   WEBGL.RenderingContext _gl;
   ShaderObject _shaderObjectV;
