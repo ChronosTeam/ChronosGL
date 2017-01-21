@@ -1,6 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
+import 'dart:web_gl' as WEBGL;
 import 'dart:async';
 import 'dart:typed_data';
 
@@ -229,6 +230,7 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
+  chronosGL.gl.enable(WEBGL.CULL_FACE);
   //UseElementIndexUint(chronosGL.gl);
   OrbitCamera orbit = new OrbitCamera(300.0);
   Perspective perspective = new Perspective(orbit);
@@ -318,8 +320,7 @@ void main() {
       PoseSkeleton(skeleton, globalOffsetTransform, anim, posedSkeleton, 0.0);
       mdWire = LineEndPointsToMeshData("wire", chronosGL.gl,
           BonePosFromPosedSkeleton(skeleton, posedSkeleton));
-      Node mesh = new Node(mdWire.name, mdWire, matWire)
-        ..rotX(3.14 / 4);
+      Node mesh = new Node(mdWire.name, mdWire, matWire)..rotX(3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
       prgWire.add(n);
