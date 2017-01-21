@@ -1,0 +1,28 @@
+#webgl-canvas {
+  border: none;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+  width: 100%;
+  height: 100%;
+  display:block;
+}
+
+html, body {
+  font-family:	Helvetica, sans-serif;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: black
+}
+
+#stats {
+	z-index: 10; 
+	position: absolute; 
+	right: 5%; 
+	top: 5%;
+	color: "yellow";
+	background: "white";
+}

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>light</title>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <div id="stats"></div>
+    <div style="position:absolute; color: white">
+        <select id="phase">
+            <option>Blinn/Phong</option>
+            <option>Gourad</option>
+        </select>
+        <input type="checkbox" id="idSpot" checked>Spot
+        <input type="checkbox" id="idPoint">Point
+        <input type="checkbox" id="idDirectional">Directional
+    </div>
+
+    <canvas id="webgl-canvas"></canvas>
+    <script type="application/dart" src="light.dart"></script>
+    <script src="packages/browser/dart.js"></script>
+  </body>
+</html>
