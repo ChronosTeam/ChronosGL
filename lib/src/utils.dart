@@ -377,7 +377,6 @@ MeshData PointLightVisualizer(
     faces.add(f.a);
   }
 
-  GeometryBuilder gb = new GeometryBuilder();
   MeshData md = new MeshData("pointlight", gl, WEBGL.LINES);
   md.AddVertices(FlattenVector3List(points));
   md.AddFaces(faces);

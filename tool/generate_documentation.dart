@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:convert';
 
 List<String> kDirs = [
     "lib/src/base/lib.dart",
@@ -60,7 +59,7 @@ void main(List<String> args) {
                 dir.listSync(recursive: true, followLinks: false);
             for (FileSystemEntity f in content) {
                 if (f is File) {
-                    ExtractDoc(f as File);
+                    ExtractDoc(f);
                 }
             }
         } else if (FileSystemEntity.isFileSync(d)) {

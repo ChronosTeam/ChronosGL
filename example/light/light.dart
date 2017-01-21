@@ -1,6 +1,6 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
-//import 'dart:web_gl' as WEBGL;
+import 'dart:web_gl' as WEBGL;
 import 'dart:html' as HTML;
 import 'package:vector_math/vector_math.dart' as VM;
 import "dart:math" as MATH;
@@ -20,7 +20,8 @@ final VM.Vector3 colLiteGreen = new VM.Vector3(0.0, 0.5, 0.0);
 final VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
 
 final VM.Vector3 posLight = new VM.Vector3(11.0, 20.0, 0.0);
-final VM.Vector3 dirLight = new VM.Vector3(0.0, 50.0, 0.0);
+final VM.Vector3 dirLight = new VM.Vector3(0.0, -50.0, 0.0);
+final VM.Vector3 spotDirLight = new VM.Vector3(-11.0, -30.0, 0.0);
 
 final double range = 50.0;
 final double cutoff = 0.95;
@@ -36,8 +37,8 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  //chronosGL.gl.enable(WEBGL.CULL_FACE);
-  OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
+  chronosGL.gl.enable(WEBGL.CULL_FACE);
+  OrbitCamera orbit = new OrbitCamera(50.0, 10.0);
   orbit.setPos(0.0, 0.0, 56.0);
   Perspective perspective = new Perspective(orbit, 0.1, 10000.0);
   RenderPhase phaseBlinnPhong = new RenderPhase("blinn-phong", chronosGL.gl);
@@ -57,7 +58,7 @@ void main() {
         new DirectionalLight("dir", dirLight, colLiteRed, colRed, glossiness),
     idPoint: new PointLight(
         "point", posLight, colLiteBlue, colBlue, range, glossiness),
-    idSpot: new SpotLight("spot", posLight, posLight, colLiteGreen, colGreen,
+    idSpot: new SpotLight("spot", posLight, spotDirLight, colLiteGreen, colGreen,
         range, cutoff, 2.0, glossiness)
   };
 
@@ -72,7 +73,7 @@ void main() {
   Map<String, Node> lightVisualizers = {
     idDirectional: new Node(
         "DirLightViz",
-        DirectionalLightVisualizer(chronosGL.gl, 80.0, 30.0, dirLight),
+        DirectionalLightVisualizer(chronosGL.gl, 80.0, 30.0, -dirLight),
         lightSourceMat),
     idPoint: new Node(
         "PointLightViz",
@@ -80,7 +81,7 @@ void main() {
         lightSourceMat),
     idSpot: new Node(
         "SpotLightViz",
-        SpotLightVisualizer(chronosGL.gl, posLight, -posLight, range, cutoff),
+        SpotLightVisualizer(chronosGL.gl, posLight, spotDirLight, range, cutoff),
         lightSourceMat)
   };
 

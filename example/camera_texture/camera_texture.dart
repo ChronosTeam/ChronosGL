@@ -74,6 +74,9 @@ void main() {
 
   Future.wait(futures).then((List list) {
     video = list[0];
+    if (video == null) {
+      HTML.window.alert("could not access camera");
+    }
     texture = new WebTexture(chronosGL.gl, "video", video);
     texture.properties.minFilter = WEBGL.LINEAR;
     texture.properties.clamp = true;

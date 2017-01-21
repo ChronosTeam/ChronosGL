@@ -16,6 +16,6 @@ void main(List<String> args) {
   switch (args[0]) {
   }
 
-  List<ShaderObject> shaders = createLightShaderBlinnPhongWithShadow();
+  List<ShaderObject> shaders = createLightShaderBlinnPhong();
   print (shaders[1].shader);
 }

@@ -89,7 +89,7 @@ void SpotLightGetDiffuseAndSpecular(SpotLightInfo info,
                                     out vec3 diffuse,
                                     out vec3 specular) {
     vec3 spotDir = normalize(info.pos - vertexPos);
-    vec3 lightDirNorm = normalize(info.dir);
+    vec3 lightDirNorm = -normalize(info.dir);
     float cosAngle = max(0., dot(lightDirNorm, spotDir));
 	  if (cosAngle < info.spotCutoff) {
         diffuse = vec3(0.0);
@@ -174,10 +174,10 @@ void DirectionalLightGetDiffuseAndSpecular(DirectionalLightInfo info,
                                            vec3 eyePos,
                                            out vec3 diffuse,
                                            out vec3 specular) {
-    diffuse = GetDiffuse(info.dir, vertexNormal) *
+    diffuse = GetDiffuse(-info.dir, vertexNormal) *
               info.diffuseColor;
-    specular = GetSpecular(info.dir, normalize(eyePos - vertexPos),
-                            vertexNormal, info.glossiness) *
+    vec3 viewDirNorm = normalize(eyePos - vertexPos);
+    specular = GetSpecular(-info.dir, viewDirNorm, vertexNormal, info.glossiness) *
                info.specularColor;
 }
 
@@ -224,7 +224,7 @@ void CombinedLight(vec3 vVertexPosition,
     }
 
     for (int i = 0; i < ${kMaxLightsPerType}; ++i) {
-        DirectionalLightInfo info =  UnpackDirectionalLightInfo(uDirectionalLights[i]);
+        DirectionalLightInfo info = UnpackDirectionalLightInfo(uDirectionalLights[i]);
         if (info.dir == vec3(0.0)) continue;
         vec3 diffuse;
         vec3 specular;

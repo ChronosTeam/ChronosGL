@@ -8,6 +8,15 @@ class TextureProperties {
   int minFilter = WEBGL.LINEAR;
   int magFilter = WEBGL.LINEAR;
 
+  TextureProperties();
+
+  TextureProperties.forFramebuffer() {
+    flipY = false;
+    clamp = true;
+    mipmap = false;
+    SetFilterNearest();
+  }
+
   void SetFilterNearest() {
     minFilter = WEBGL.NEAREST;
     magFilter = WEBGL.NEAREST;
@@ -43,15 +52,6 @@ class TextureProperties {
     if (mipmap) {
       gl.generateMipmap(type);
     }
-  }
-
-  TextureProperties();
-
-  TextureProperties.forFramebuffer() {
-    flipY = false;
-    clamp = true;
-    mipmap = false;
-    SetFilterNearest();
   }
 }
 

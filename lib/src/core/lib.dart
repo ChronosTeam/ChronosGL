@@ -10,7 +10,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 import "../base/lib.dart";
 
-/// # Core Layer (uses Base Layer, dart:web_gl)
+/// # Layer: Core (uses Base Layer, dart:web_gl)
 /// The **core layer** adds abstractions to the *base layer**
 /// which require the use of  **dart:web_gl**.
 /// Code using the **core layer** can currently not be unit tested
