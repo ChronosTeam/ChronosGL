@@ -2,13 +2,14 @@ part of webhelper;
 
 Future<HTML.VideoElement> MakeVideoElementFromCamera() {
   Completer c = new Completer();
+  // TODO: come up with better error handling signaling
   HTML.window.navigator
       .getUserMedia(video: true)
       .then((HTML.MediaStream stream) {
     HTML.VideoElement video = new HTML.VideoElement()..autoplay = true;
     video.onPlaying.first.then((_) => c.complete(video));
     video.src = HTML.Url.createObjectUrl(stream);
-  });
+  }).catchError((error) { c.complete(null); });
   return c.future as Future<HTML.VideoElement>;
 }
 
