@@ -1,10 +1,15 @@
 <html>
 <head>
-<title>Animation</title>
+<title>Animation 2 (three.js format)</title>
 <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 	<div id="stats"></div>
+	  <div style="position:absolute; color: white">
+        <input type="checkbox" id="idSkeleton" checked>Skeleton
+        <input type="checkbox" id="idStatic">Static
+        <input type="checkbox" id="idAnimation" checked>Animation
+    </div>
 	<canvas id="webgl-canvas" style="cursor: crosshair"></canvas>
 	<script type="application/dart" src="animation.dart"></script>
 	<script src="packages/browser/dart.js"></script>

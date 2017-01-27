@@ -90,9 +90,6 @@ List<ShaderObject> demoShader() {
   ];
 }
 
-
-
-
 VM.Vector3 MakeVector3(List<num> lst) {
   return new VM.Vector3(
       lst[0].toDouble(), lst[1].toDouble(), lst[2].toDouble());
@@ -163,7 +160,6 @@ SkeletonAnimation ReadAnimation(Map json) {
         sValues.add(MakeScaleVector3(m["scl"]));
       }
 
-
       if (m.containsKey("rot")) {
         rTimes.add(t);
         rValues.add(MakeQuaternion(m["rot"]));
@@ -182,14 +178,16 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
+  UseElementIndexUint(chronosGL.gl);
+
   OrbitCamera orbit = new OrbitCamera(20.0);
   Perspective perspective = new Perspective(orbit);
 
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
-  //RenderProgram prg = phase.createProgram(createDemoShader());
-  RenderProgram prg = phase.createProgram(createAnimationShader());
+  RenderProgram prgSimple = phase.createProgram(createDemoShader());
+  RenderProgram prgAnim = phase.createProgram(createAnimationShader());
 
-  final RenderProgram prgWire = phase.createProgram(createSolidColorShader());
+  final RenderProgram prgBone = phase.createProgram(createSolidColorShader());
   final Material matWire = new Material("wire")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
 
@@ -220,6 +218,25 @@ void main() {
   PosedSkeleton posedSkeleton;
   VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
   MeshData mdWire;
+
+  Map<String, RenderProgram> programMap = {
+    "idSkeleton": prgBone,
+    "idStatic": prgSimple,
+    "idAnimation": prgAnim,
+  };
+
+  for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
+    input.onChange.listen((HTML.Event e) {
+      HTML.InputElement input = e.target as HTML.InputElement;
+      print("${input.id} toggle ${input.checked}");
+      programMap[input.id].enabled = input.checked;
+    });
+  }
+
+  for (HTML.Element e in HTML.document.getElementsByTagName("input")) {
+    print("initialize inputs ${e.id}");
+    e.dispatchEvent(new HTML.Event("change"));
+  }
 
   double _lastTimeMs = 0.0;
 
@@ -252,14 +269,17 @@ void main() {
     skeleton = ReadBones(list[0]);
     anim = ReadAnimation(list[0]);
     posedSkeleton = new PosedSkeleton(skeleton.length);
+    // skin mesh
     {
       MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL.gl, gb[0]);
       Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
-      //prg.add(n);
+      prgSimple.add(n);
+      prgAnim.add(n);
     }
 
+    // bone wire mesh
     {
       PoseSkeleton(skeleton, globalOffsetTransform, anim, posedSkeleton, 0.0);
       mdWire = LineEndPointsToMeshData("wire", chronosGL.gl,
@@ -267,7 +287,7 @@ void main() {
       Node mesh = new Node(mdWire.name, mdWire, matWire)..rotX(3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
-      prgWire.add(n);
+      prgBone.add(n);
     }
 
     // Start
