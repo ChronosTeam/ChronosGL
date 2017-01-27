@@ -51,7 +51,7 @@ void main() {
   }
 
   {
-    GeometryBuilder gb = CylinderGeometryWireframeFriendly(3.0, 4.0, 2.0, 16);
+    GeometryBuilder gb = CylinderGeometry(3.0, 4.0, 2.0, 16, false);
     Node cyl = new Node(
         "cylinder",
         GeometryBuilderToMeshDataLines("cylinder", chronosGL.gl, gb),
