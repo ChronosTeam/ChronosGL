@@ -36,6 +36,8 @@ class Node extends Spatial {
 
   RenderInputProvider get instancerData => _instancerData;
 
+  void set meshData(RenderInputProvider md)  { _meshData = md; }
+
   void add(Node node) {
     children.add(node);
   }

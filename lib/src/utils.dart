@@ -235,9 +235,9 @@ MeshData ShapeWedge(WEBGL.RenderingContext gl,
 }
 
 MeshData ShapeCylinder(WEBGL.RenderingContext gl, double radTop, double radBot,
-    double height, int radialSubdivisions) {
+    double height, int radialSubdivisions, [bool computeNormals = true]) {
   GeometryBuilder gb =
-      CylinderGeometry(radTop, radBot, height, radialSubdivisions);
+      CylinderGeometry(radTop, radBot, height, radialSubdivisions, computeNormals);
   return GeometryBuilderToMeshData("cylinder-${radialSubdivisions}", gl, gb);
 }
 

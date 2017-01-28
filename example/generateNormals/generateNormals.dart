@@ -68,7 +68,7 @@ void main() {
 
     List<GeometryBuilder> geos = [
       ctLogo,
-      CylinderGeometry(1.0, 1.0, 2.0, 16),
+      CylinderGeometry(1.0, 1.0, 2.0, 16, false),
       CubeGeometry(computeNormals: false)
     ];
 

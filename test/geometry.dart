@@ -21,7 +21,7 @@ void main() {
     }
 
     for (int i = 2; i < 16; i++) {
-      GeometryBuilder gb = CylinderGeometry(3.0, 6.0, 2.0, i);
+      GeometryBuilder gb = CylinderGeometry(3.0, 6.0, 2.0, i, true);
       expect(gb.GenerateFaceIndices().length, equals(3 * i * 4));
     }
 

@@ -1,7 +1,17 @@
 part of base;
 
-const int kMaxLightsPerType = 2;
+const int kMaxLights = 4;
 const int kMaxBones = 128;
+
+const int lightTypeInvalid = 0;
+const int lightTypeDirectional = 1;
+const int lightTypeSpot = 2;
+const int lightTypePoint = 3;
+
+const double lightTypeInvalidFloat = lightTypeInvalid + 0.0;
+const double lightTypeDirectionalFloat = lightTypeDirectional + 0.0;
+const double lightTypeSpotFloat = lightTypeSpot + 0.0;
+const double lightTypePointFloat = lightTypePoint + 0.0;
 
 class ShaderVarDesc {
   final String type;
@@ -92,7 +102,7 @@ const String vLightWeighting = "vLightWeighting";
 const String vNormal = "vNormal";
 const String vVertexPosition = "vVertexPosition";
 const String vCenter = "vCenter";
-const String vPositionFromLight0 = "vPositionFromLight0";
+const String vPositionFromLight = "vPositionFromLight";
 
 // ===========================================================
 // Uniform
@@ -106,7 +116,6 @@ const String uNormalMatrix = "uNormalMatrix";
 
 const String uPerspectiveViewMatrix = "uPerspectiveViewMatrix";
 const String uLightPerspectiveViewMatrix = "uLightPerspectiveViewMatrix";
-const String uLightPerspectiveViewMatrix0 = uLightPerspectiveViewMatrix + "0";
 
 const String uModelMatrix = "uModelMatrix";
 
@@ -139,12 +148,9 @@ const String uNormalScale = "uNormalScale";
 
 const String uMaterial = "uMaterial";
 
-const String uSpotLights = "uSpotLights";
-const String uSpotLightsCount = "uSpotLightsCount";
-const String uPointLights = "uPointLights";
-const String uPointLightsCount = "uPointLightsCount";
-const String uDirectionalLights = "uDirectionalLights";
-const String uDirectionalLightsCount = "uDirectionalLightsCount";
+const String uLightDescs = "uLightDescs";
+const String uLightCount = "uLightCount";
+const String uLightTypes = "uLightTypes";
 
 Map<String, ShaderVarDesc> _VarsDb = {
   eArray: new ShaderVarDesc("index", ""),
@@ -181,7 +187,7 @@ Map<String, ShaderVarDesc> _VarsDb = {
   vLightWeighting: new ShaderVarDesc("vec3", ""),
   vNormal: new ShaderVarDesc("vec3", ""),
   vVertexPosition: new ShaderVarDesc("vec3", "vertex coordinates"),
-  vPositionFromLight0: new ShaderVarDesc("vec4", "delta from light"),
+  vPositionFromLight: new ShaderVarDesc("vec4", "delta from light"),
   vCenter: new ShaderVarDesc("vec4", "for wireframe"),
 
   // uniform vars
@@ -192,7 +198,7 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uNormalMatrix: new ShaderVarDesc("mat3", ""),
   //uPerspectiveMatrix: new ShaderVarDesc("mat4", ""),
   uPerspectiveViewMatrix: new ShaderVarDesc("mat4", ""),
-  uLightPerspectiveViewMatrix0: new ShaderVarDesc("mat4", ""),
+  uLightPerspectiveViewMatrix: new ShaderVarDesc("mat4", ""),
 
   uShadowMap: new ShaderVarDesc("sampler2D", ""),
 
@@ -220,9 +226,9 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uMaterial: new ShaderVarDesc("mat4", ""),
   uBoneMatrices: new ShaderVarDesc("mat4", "", arraySize: kMaxBones),
 
-  uSpotLights: new ShaderVarDesc("mat4", "", arraySize: kMaxLightsPerType),
-  uPointLights: new ShaderVarDesc("mat4", "", arraySize: kMaxLightsPerType),
-  uDirectionalLights: new ShaderVarDesc("mat4", "", arraySize: kMaxLightsPerType),
+  uLightDescs: new ShaderVarDesc("mat4", "", arraySize: kMaxLights),
+  uLightCount: new ShaderVarDesc("float", ""),
+  uLightTypes: new ShaderVarDesc("float", "", arraySize: kMaxLights),
 
   uBumpScale: new ShaderVarDesc("float", "for bump maps"),
   uNormalScale: new ShaderVarDesc("float", "for normal maps"),

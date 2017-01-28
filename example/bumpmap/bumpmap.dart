@@ -25,7 +25,7 @@ List<ShaderObject> createShader() {
       ]),
     new ShaderObject("LightBlinnPhongF")
       ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
-      ..AddUniformVars([uSpotLights, uPointLights, uDirectionalLights])
+      ..AddUniformVars([uLightDescs, uLightTypes])
       ..AddUniformVars([uEyePosition, uColor])
       ..AddUniformVars([uBumpScale, uBumpMap])
       ..SetBodyWithMain([
@@ -37,9 +37,8 @@ vec3 normal = perturbNormalArb(${uEyePosition} - ${vVertexPosition}, vNormal, uv
 vec3 diffuseAccumulator;
 vec3 specularAccumulator;
 CombinedLight(${vVertexPosition}, normal, ${uEyePosition},
-              ${uSpotLights},
-              ${uPointLights},
-              ${uDirectionalLights},
+              ${uLightDescs},
+              ${uLightTypes},
               diffuseAccumulator, specularAccumulator);
 
 
