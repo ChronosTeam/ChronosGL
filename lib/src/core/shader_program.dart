@@ -107,7 +107,11 @@ class ShaderProgram extends RenderProgram {
     WEBGL.UniformLocation l = _uniformLocations[canonical];
     switch (desc.type) {
       case "float":
-        _gl.uniform1f(l, val);
+        if (desc.arraySize == 0) {
+          _gl.uniform1f(l, val);
+        } else if (val is Float32List) {
+           _gl.uniform1fv(l, val);
+        }
         break;
       case "mat4":
         if (desc.arraySize == 0) {

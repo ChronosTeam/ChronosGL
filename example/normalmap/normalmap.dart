@@ -27,7 +27,7 @@ List<ShaderObject> createShader() {
       ]),
     new ShaderObject("LightBlinnPhongF")
       ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
-      ..AddUniformVars([uSpotLights, uPointLights, uDirectionalLights])
+      ..AddUniformVars([uLightDescs, uLightTypes])
       ..AddUniformVars([uEyePosition, uColor, uTexture])
       ..SetBodyWithMain([
         """
@@ -35,9 +35,8 @@ vec3 diffuseAccumulator;
 vec3 specularAccumulator;
 
 CombinedLight(${vVertexPosition}, ${vNormal}, ${uEyePosition},
-              ${uSpotLights},
-              ${uPointLights},
-              ${uDirectionalLights},
+              ${uLightDescs},
+              ${uLightTypes},
               diffuseAccumulator, specularAccumulator);
 
 vec4 diffuseMap = texture2D(${uTexture}, ${vTextureCoordinates} );

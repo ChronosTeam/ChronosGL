@@ -187,52 +187,41 @@ void DirectionalLightGetDiffuseAndSpecular(DirectionalLightInfo info,
 void CombinedLight(vec3 vVertexPosition,
                    vec3 vNormal,
                    vec3 uEyePosition,
-                   mat4 uSpotLights[${kMaxLightsPerType}],
-                   mat4 uPointLights[${kMaxLightsPerType}],
-                   mat4 uDirectionalLights[${kMaxLightsPerType}],
+                   mat4 uLightDescs[${kMaxLights}],
+                   float uLightTypes[${kMaxLights}],
                    out vec3 diffuseAccumulator,
                    out vec3 specularAccumulator) {
     diffuseAccumulator = vec3(0.0);
     specularAccumulator = vec3(0.0);
 
-    for (int i = 0; i < ${kMaxLightsPerType}; ++i) {
-        SpotLightInfo info = UnpackSpotLightInfo(uSpotLights[i]);
-        if (info.range == 0.0) continue;
+    for (int i = 0; i < ${kMaxLights}; ++i) {
         vec3 diffuse;
         vec3 specular;
-        SpotLightGetDiffuseAndSpecular(info,
-                                       vVertexPosition,
-                                       vNormal,
-                                       uEyePosition,
-                                       diffuse, specular);
-        diffuseAccumulator = diffuseAccumulator + diffuse;
-        specularAccumulator = specularAccumulator + specular;
-    }
-
-    for (int i = 0; i < ${kMaxLightsPerType}; ++i) {
-        PointLightInfo info = UnpackPointLightInfo(uPointLights[i]);
-        if (info.range == 0.0) continue;
-        vec3 diffuse;
-        vec3 specular;
-        PointLightGetDiffuseAndSpecular(info,
-                                        vVertexPosition,
-                                        vNormal,
-                                        uEyePosition,
-                                        diffuse, specular);
-        diffuseAccumulator = diffuseAccumulator + diffuse;
-        specularAccumulator = specularAccumulator + specular;
-    }
-
-    for (int i = 0; i < ${kMaxLightsPerType}; ++i) {
-        DirectionalLightInfo info = UnpackDirectionalLightInfo(uDirectionalLights[i]);
-        if (info.dir == vec3(0.0)) continue;
-        vec3 diffuse;
-        vec3 specular;
-        DirectionalLightGetDiffuseAndSpecular(info,
-                                              vVertexPosition,
-                                              vNormal,
-                                              uEyePosition,
-                                              diffuse, specular);
+        float type = ${uLightTypes}[i];
+        if (type == ${lightTypeSpotFloat}) {
+            SpotLightInfo info = UnpackSpotLightInfo(uLightDescs[i]);
+            SpotLightGetDiffuseAndSpecular(info,
+                                           vVertexPosition,
+                                           vNormal,
+                                           uEyePosition,
+                                           diffuse, specular);
+        } else if (type == ${lightTypePointFloat}) {
+            PointLightInfo info = UnpackPointLightInfo(uLightDescs[i]);
+            PointLightGetDiffuseAndSpecular(info,
+                                            vVertexPosition,
+                                            vNormal,
+                                            uEyePosition,
+                                            diffuse, specular);
+        } else if (type == ${lightTypeDirectionalFloat}) {
+            DirectionalLightInfo info = UnpackDirectionalLightInfo(uLightDescs[i]);
+            DirectionalLightGetDiffuseAndSpecular(info,
+                                                  vVertexPosition,
+                                                  vNormal,
+                                                  uEyePosition,
+                                                  diffuse, specular);
+        } else {
+            continue;
+        }
         diffuseAccumulator = diffuseAccumulator + diffuse;
         specularAccumulator = specularAccumulator + specular;
     }

@@ -10,10 +10,12 @@ final VM.Vector3 _up2 = new VM.Vector3(0.0, 0.0, 1.0);
 /// can be added to an **Illumination** object which is
 /// a **ShaderInputProvider**.
 abstract class Light extends NamedEntity {
-  Light(String name) : super(name);
+  final int type;
+  Light(String name, this.type) : super(name);
 
   void ExtractInfo(Float32List m, int offset);
-  void ExtractShadowViewMatrix(Float32List m, int offset);
+
+  VM.Matrix4 ExtractShadowProjViewMatrix();
 }
 
 class PointLight extends Light {
@@ -25,7 +27,7 @@ class PointLight extends Light {
 
   PointLight(String name, this._pos, this._colDiffuse, this._colSpecular,
       this._range, this._glossiness)
-      : super(name);
+      : super(name, lightTypePoint);
 
   // Must be in sync with UnpackPointLightInfo
   @override
@@ -47,27 +49,37 @@ class PointLight extends Light {
   }
 
   @override
-  void ExtractShadowViewMatrix(Float32List m, int offset) {
+  VM.Matrix4 ExtractShadowProjViewMatrix() {
     assert(false, "NYI");
+    return new VM.Matrix4.zero();
   }
 }
 
 class DirectionalLight extends Light {
-  VM.Vector3 _dir;
+  VM.Vector3 dir;
   VM.Vector3 _colDiffuse;
   VM.Vector3 _colSpecular;
   double _glossiness;
+  double aspect = 1.0;
+  double _l = -30.0;
+  double _r = 30.0;
+  double _d = -30.0;
+  double _f = 0.0;
+  double _b = 100.0;
 
-  DirectionalLight(String name, VM.Vector3 this._dir, this._colDiffuse,
+  VM.Matrix4 _projViewMat = new VM.Matrix4.zero();
+  VM.Matrix4 _tmpMat = new VM.Matrix4.zero();
+
+  DirectionalLight(String name, VM.Vector3 this.dir, this._colDiffuse,
       this._colSpecular, this._glossiness)
-      : super(name);
+      : super(name, lightTypeDirectional);
 
   // Must be in sync with UnpackDirectionalLightInfo
   @override
   void ExtractInfo(Float32List m, int o) {
-    m[o + 4] = _dir.x;
-    m[o + 5] = _dir.y;
-    m[o + 6] = _dir.z;
+    m[o + 4] = dir.x;
+    m[o + 5] = dir.y;
+    m[o + 6] = dir.z;
     //
     m[o + 8] = _colDiffuse.x;
     m[o + 9] = _colDiffuse.y;
@@ -81,11 +93,16 @@ class DirectionalLight extends Light {
   }
 
   @override
-  void ExtractShadowViewMatrix(Float32List m, offset) {
-    VM.Vector3 up = (_dir.x == 0.0 && _dir.z == 0.0) ? _up2 : _up;
-    VM.Matrix4 mat = new VM.Matrix4.zero();
-    VM.setViewMatrix(mat, new VM.Vector3.zero(), _dir, up);
-    m.insertAll(offset, mat.storage);
+  VM.Matrix4 ExtractShadowProjViewMatrix() {
+    double w = _r - _l;
+    double h = w / aspect;
+
+    VM.setOrthographicMatrix(_projViewMat, _l, _r, _d, _d + h, _f, _b);
+
+    VM.Vector3 up = (dir.x == 0.0 && dir.z == 0.0) ? _up2 : _up;
+    VM.setViewMatrix(_tmpMat, new VM.Vector3.zero(), dir, up);
+    _projViewMat.multiply(_tmpMat);
+    return _projViewMat;
   }
 }
 
@@ -109,7 +126,7 @@ class SpotLight extends Light {
       this._spotCutoff,
       this._spotFocus,
       this._glossiness)
-      : super(name);
+      : super(name, lightTypeSpot);
 
   // Must be in sync with UnpackSpotLightInfo
   @override
@@ -137,11 +154,11 @@ class SpotLight extends Light {
   }
 
   @override
-  void ExtractShadowViewMatrix(Float32List m, int offset) {
+  VM.Matrix4 ExtractShadowProjViewMatrix() {
     VM.Vector3 up = (_dir.x == 0.0 && _dir.z == 0.0) ? _up2 : _up;
     VM.Matrix4 mat = new VM.Matrix4.zero();
     VM.setViewMatrix(mat, _pos, _pos - _dir, up);
-    m.insertAll(offset, mat.storage);
+    return mat;
   }
 }
 
@@ -171,61 +188,47 @@ class HemisphericalLight implements Light {
 /// ## Class Illumination (is a RenderInputProvider)
 /// represents a collection of Lights.
 class Illumination extends RenderInputProvider {
-  final List<PointLight> _pointLights = [];
-  final List<SpotLight> _spotLights = [];
-  final List<DirectionalLight> _directionalLights = [];
-  final Float32List _pointLightsInfo = new Float32List(16 * kMaxLightsPerType);
-  final Float32List _spotLightsInfo = new Float32List(16 * kMaxLightsPerType);
-  final Float32List _directionalLightsInfo =
-      new Float32List(16 * kMaxLightsPerType);
+  final List<Light> _lights = [];
+  final Float32List _lightDescs = new Float32List(16 * kMaxLights);
+  final Float32List _lightTypes = new Float32List(kMaxLights);
 
   Illumination() : super("illumination");
 
   void AddLight(Light l) {
-    if (l is PointLight) {
-      _pointLights.add(l);
-    } else if (l is SpotLight) {
-      _spotLights.add(l);
-    } else if (l is DirectionalLight) {
-      _directionalLights.add(l);
-    } else {
-      assert(false, "known light $l");
-    }
+    _lights.add(l);
   }
 
-  static void _SetLightInfo(Float32List data, List<Light> lights) {
-    data.fillRange(0, data.length, 0.0);
-    int offset = 0;
+  static void _SetLightInfo(
+      Float32List descs, Float32List types, List<Light> lights) {
+    // maybe only do this as needed
+    descs.fillRange(0, descs.length, 0.0);
+    types.fillRange(0, types.length, lightTypeInvalid + 0.0);
+    int n = 0;
     for (Light l in lights) {
       if (l.enabled) {
-        l.ExtractInfo(data, offset);
-        offset += 16;
+        l.ExtractInfo(descs, n * 16);
+        types[n] = l.type + 0.0;
+        n++;
       }
     }
   }
 
   @override
   void AddRenderInputs(RenderInputs inputs) {
-    _SetLightInfo(_spotLightsInfo, _spotLights);
-    inputs.SetInputWithOrigin(this, uSpotLights, _spotLightsInfo);
-
-    _SetLightInfo(_pointLightsInfo, _pointLights);
-    inputs.SetInputWithOrigin(this, uPointLights, _pointLightsInfo);
-
-    _SetLightInfo(_directionalLightsInfo, _directionalLights);
-    inputs.SetInputWithOrigin(this, uDirectionalLights, _directionalLightsInfo);
+    _SetLightInfo(_lightDescs, _lightTypes, _lights);
+    inputs.SetInputWithOrigin(this, uLightDescs, _lightDescs);
+    inputs.SetInputWithOrigin(this, uLightTypes, _lightTypes);
   }
 
   @override
   void RemoveRenderInputs(RenderInputs inputs) {
-    inputs.Remove(uSpotLights);
-    inputs.Remove(uPointLights);
-    inputs.Remove(uDirectionalLights);
+    inputs.Remove(uLightDescs);
+    inputs.Remove(uLightTypes);
   }
 }
 
-/*
 // very much like a orthographic
+/*
 class ShadowProjection extends RenderInputProvider {
   final Light _light;
   final VM.Matrix4 _proj = new VM.Matrix4.zero();
@@ -246,7 +249,7 @@ class ShadowProjection extends RenderInputProvider {
 
   @override
   void AddRenderInputs(RenderInputs inputs) {
-    _light.getViewMatrixForShadow(_viewMatrix);
+    _light.ExtractShadowViewMatrix(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
     _projViewMatrix.multiply(_viewMatrix);
     //print("lightmat: ${_projViewMatrix}");
@@ -269,16 +272,13 @@ class ShadowProjection extends RenderInputProvider {
   void Update() {
     double w = _r - _l;
     double h = w / _aspect;
-    switch (_light.type) {
-      case typeLightDir:
-        VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + h, _f, _b);
-        break;
-      case typeLightSpot:
-        // FIXME - fix the hardcoded constant
-        VM.setPerspectiveMatrix(_proj, 90.0 * Math.PI / 180.0, _aspect, .1, _b);
-        break;
-      default:
-        assert(false);
+    if (_light is DirectionalLight) {
+      VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + h, _f, _b);
+    } else if (_light is SpotLight) {
+      // FIXME - fix the hardcoded constant
+      VM.setPerspectiveMatrix(_proj, 90.0 * Math.PI / 180.0, _aspect, .1, _b);
+    } else {
+      assert(false);
     }
   }
 }
