@@ -42,10 +42,14 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(5.0, 10.0);
   Perspective perspective = new Perspective(orbit);
   RenderPhase phase = new RenderPhase("main", chronosGL.gl);
-  // Note, moving the camera does not have an effect
+
+  RenderProgram sprites = phase.createProgram(createPointSpritesShader());
+  sprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
   RenderProgram shaderSpheres = phase.createProgram(sphereShader());
-  Material mat = new Material("sphere");
+  Material mat =
+      new Material.Transparent("sphere", new BlendEquation.Mix());
+
   MeshData md = ShapeIcosahedron(chronosGL.gl, 3);
   Node m = new Node("sphere", md, mat)..setPos(0.0, 0.0, 0.0);
 
