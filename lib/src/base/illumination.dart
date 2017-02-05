@@ -19,22 +19,22 @@ abstract class Light extends NamedEntity {
 }
 
 class PointLight extends Light {
-  VM.Vector3 _pos;
+  VM.Vector3 pos;
   VM.Vector3 _colDiffuse;
   VM.Vector3 _colSpecular;
   double _range;
   double _glossiness;
 
-  PointLight(String name, this._pos, this._colDiffuse, this._colSpecular,
+  PointLight(String name, this.pos, this._colDiffuse, this._colSpecular,
       this._range, this._glossiness)
       : super(name, lightTypePoint);
 
   // Must be in sync with UnpackPointLightInfo
   @override
   void ExtractInfo(Float32List m, int o) {
-    m[o + 0] = _pos.x;
-    m[o + 1] = _pos.y;
-    m[o + 2] = _pos.z;
+    m[o + 0] = pos.x;
+    m[o + 1] = pos.y;
+    m[o + 2] = pos.z;
     //
     m[o + 8] = _colDiffuse.x;
     m[o + 9] = _colDiffuse.y;
@@ -107,7 +107,7 @@ class DirectionalLight extends Light {
 }
 
 class SpotLight extends Light {
-  VM.Vector3 _pos;
+  VM.Vector3 pos;
   VM.Vector3 dir;
   VM.Vector3 _colDiffuse;
   VM.Vector3 _colSpecular;
@@ -118,7 +118,7 @@ class SpotLight extends Light {
 
   SpotLight(
       String name,
-      VM.Vector3 this._pos,
+      VM.Vector3 this.pos,
       VM.Vector3 this.dir,
       this._colDiffuse,
       this._colSpecular,
@@ -131,9 +131,9 @@ class SpotLight extends Light {
   // Must be in sync with UnpackSpotLightInfo
   @override
   void ExtractInfo(Float32List m, int o) {
-    m[o + 0] = _pos.x;
-    m[o + 1] = _pos.y;
-    m[o + 2] = _pos.z;
+    m[o + 0] = pos.x;
+    m[o + 1] = pos.y;
+    m[o + 2] = pos.z;
     //
     m[o + 4] = dir.x;
     m[o + 5] = dir.y;
@@ -168,7 +168,7 @@ class SpotLight extends Light {
   VM.Matrix4 ExtractShadowProjViewMatrix() {
     VM.Vector3 up = (dir.x == 0.0 && dir.z == 0.0) ? _up2 : _up;
     VM.Matrix4 mat = new VM.Matrix4.zero();
-    VM.setViewMatrix(mat, _pos, _pos - dir, up);
+    VM.setViewMatrix(mat, pos, pos - dir, up);
     return mat;
   }
 }
