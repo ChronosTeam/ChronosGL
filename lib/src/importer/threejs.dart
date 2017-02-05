@@ -20,12 +20,12 @@ List<VM.Vector2> ConvertToVector2List(List<double> lst) {
 
 List<VM.Vector4> ConvertToVector4List(int nFill, List<double> lst) {
   List<VM.Vector4> out = new List<VM.Vector4>(lst.length ~/ nFill);
-  for (int i = 0; i < lst.length; i += nFill) {
+  for (int i = 0, pos = 0; i < lst.length; i += nFill, pos++) {
     VM.Vector4 v = new VM.Vector4.zero();
     for (int x = 0; x < nFill; ++x) {
       v[x] = lst[i + x].toDouble();
     }
-    out[i ~/ nFill] = v;
+    out[pos] = v;
   }
   return out;
 }
@@ -49,6 +49,7 @@ List<GeometryBuilder> ReadThreeJsMeshes(Map json) {
   //
   final int skinMultiplier = _FindSkinMultiplier(json);
   final List<int> Faces = json["faces"];
+  print("faces: ${Faces.length}");
 
   final List<VM.Vector3> Vertices = ConvertToVector3List(json["vertices"]);
   final List<VM.Vector3> Normals = ConvertToVector3List(json["normals"]);
@@ -59,6 +60,14 @@ List<GeometryBuilder> ReadThreeJsMeshes(Map json) {
   final List<VM.Vector4> SkinWeight = skinMultiplier == 0
       ? null
       : ConvertToVector4List(skinMultiplier, json["skinWeights"]);
+  if (SkinWeight != null) {
+    for (VM.Vector4 v in SkinWeight) {
+      final double d = v.x + v.y + v.z + v.w;
+      if (d < 0.98 || d > 1.02) {
+        print("bad vector: $v");
+      }
+    }
+  }
   // TODO: support for more than one
   final List<VM.Vector2> Uvs = ConvertToVector2List(json["uvs"][0]);
   // TODO: support incomplete
@@ -167,5 +176,6 @@ List<GeometryBuilder> ReadThreeJsMeshes(Map json) {
     }
   }
 
+  print("out: ${out.length} ${out[0]}");
   return out;
 }

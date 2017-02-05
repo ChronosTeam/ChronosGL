@@ -58,6 +58,14 @@ dynamic UseElementIndexUint(WEBGL.RenderingContext gl) {
   return ext;
 }
 
+dynamic GetGlExtensionDepthTexture(WEBGL.RenderingContext gl) {
+  var ext = gl.getExtension("WEBGL_depth_texture");
+  if (ext == null) {
+    LogWarn("ExtensionDepthTexture NOT SUPPORTED");
+  }
+  return ext;
+}
+
 List GetSupportedExtensions(WEBGL.RenderingContext gl) {
   return gl.getSupportedExtensions();
 }
