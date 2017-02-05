@@ -135,6 +135,9 @@ const String uTime = "uTime";
 const String uColor = "uColor";
 const String uColorAlpha2 = "uColorAlpha2";
 const String uColorAlpha = "uColorAlpha";
+const String uColorEmissive = "uColorEmissive";
+const String uColorDiffuse = "uColorDiffuse";
+const String uColorSpecular = "uColorSpecular";
 const String uCameraNear = "uCameraNear";
 const String uCameraFar = "uCameraFar";
 const String uCanvasSize = "uCanvasSize";
@@ -145,6 +148,10 @@ const String uEyePosition = "uEyePosition";
 const String uBoneMatrices = "uBoneMatrices";
 const String uBumpScale = "uBumpScale";
 const String uNormalScale = "uNormalScale";
+const String uCutOff = "uCutOff";
+const String uShininess = "uShininess";
+const String uOpacity = "uOpacity";
+const String uShadowBias = "uShadowBias";
 
 const String uMaterial = "uMaterial";
 
@@ -152,7 +159,7 @@ const String uLightDescs = "uLightDescs";
 const String uLightCount = "uLightCount";
 const String uLightTypes = "uLightTypes";
 
-Map<String, ShaderVarDesc> _VarsDb = {
+final Map<String, ShaderVarDesc> _VarsDb = {
   eArray: new ShaderVarDesc("index", ""),
 
   //
@@ -219,7 +226,14 @@ Map<String, ShaderVarDesc> _VarsDb = {
   uFogFar: new ShaderVarDesc("float", ""),
   uPointSize: new ShaderVarDesc("float", ""),
   uCanvasSize: new ShaderVarDesc("vec2", ""),
+  uCutOff: new ShaderVarDesc("float", ""),
+  uShininess: new ShaderVarDesc("float", ""),
+  uShadowBias: new ShaderVarDesc("float", ""),
+  uOpacity: new ShaderVarDesc("float", ""),
   uColor: new ShaderVarDesc("vec3", ""),
+  uColorEmissive: new ShaderVarDesc("vec3", ""),
+  uColorSpecular: new ShaderVarDesc("vec3", ""),
+  uColorDiffuse: new ShaderVarDesc("vec3", ""),
   uColorAlpha: new ShaderVarDesc("vec4", ""),
   uColorAlpha2: new ShaderVarDesc("vec4", ""),
   uEyePosition: new ShaderVarDesc("vec3", ""),
