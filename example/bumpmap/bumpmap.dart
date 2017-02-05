@@ -3,6 +3,7 @@ import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
 import 'dart:async';
 import 'package:vector_math/vector_math.dart' as VM;
+import "dart:math" as MATH;
 
 const String dir = "../asset/leeperrysmith/";
 const String modelFile = dir + "LeePerrySmith.js";
@@ -10,7 +11,7 @@ const String bumpmapFile = dir + "Infinite-Level_02_Disp_NoSmoothUV-4096.jpg";
 
 List<ShaderObject> createShader() {
   return [
-    new ShaderObject("LightBlinnPhongV")
+    new ShaderObject("LightBlinnPhongFancyV")
       ..AddAttributeVars([aVertexPosition, aNormal, aTextureCoordinates])
       ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
@@ -23,7 +24,7 @@ List<ShaderObject> createShader() {
         ${vNormal} = ${uNormalMatrix} * ${aNormal};
         """
       ]),
-    new ShaderObject("LightBlinnPhongF")
+    new ShaderObject("LightBlinnPhongFancyF")
       ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
       ..AddUniformVars([uLightDescs, uLightTypes])
       ..AddUniformVars([uEyePosition, uColor])
@@ -31,20 +32,16 @@ List<ShaderObject> createShader() {
       ..SetBodyWithMain([
         """
 
+
 vec2 uv = dHdxy_fwd(${vTextureCoordinates}, ${uBumpScale}, ${uBumpMap});
-vec3 normal = perturbNormalArb(${uEyePosition} - ${vVertexPosition}, vNormal, uv);
+vec3 normal = perturbNormalArb(${vVertexPosition}, vNormal, uv);
 
-vec3 diffuseAccumulator;
-vec3 specularAccumulator;
-CombinedLight(${vVertexPosition}, normal, ${uEyePosition},
-              ${uLightDescs},
-              ${uLightTypes},
-              diffuseAccumulator, specularAccumulator);
-
-
-gl_FragColor.rgb = diffuseAccumulator +
-                   specularAccumulator +
-                   uColor;
+ColorComponents acc = CombinedLight(${vVertexPosition} - ${uEyePosition},
+                                    normal,
+                                    ${uEyePosition},
+                                    ${uLightDescs},
+                                    ${uLightTypes});
+gl_FragColor.rgb = acc.diffuse + acc.specular + uColor;
 gl_FragColor.a = 1.0;
 
 """
@@ -55,13 +52,17 @@ gl_FragColor.a = 1.0;
   ];
 }
 
-VM.Vector3 colSkin = new VM.Vector3(0.333, 0.157, 0.067);
-//VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
-VM.Vector3 posLight = new VM.Vector3(0.5, 1.0, 0.0);
-VM.Vector3 dirLight = new VM.Vector3(0.0, 10.0, 0.0);
-VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
-VM.Vector3 colDiffuse = new VM.Vector3.all(0.5);
-VM.Vector3 colSpecular = new VM.Vector3.all(0.133);
+final VM.Vector3 colSkin = new VM.Vector3(0.333, 0.157, 0.067);
+//const VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
+final VM.Vector3 posLight = new VM.Vector3(0.5, 0.5, 0.0);
+final VM.Vector3 dirLight = new VM.Vector3(-1.0, -1.0, 0.0);
+final VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
+final VM.Vector3 colDiffuse = new VM.Vector3.all(0.3);
+final VM.Vector3 colSpecular = new VM.Vector3.all(0.133);
+
+final double glossiness = 2.0;
+final double range = 50.0;
+final double angle = MATH.PI / 5.0;
 
 void main() {
   StatsFps fps =
@@ -80,9 +81,13 @@ void main() {
   RenderProgram prg = phase.createProgram(createShader());
 
   Illumination illumination = new Illumination();
-  illumination.AddLight(new SpotLight("spot", posLight, posLight, colDiffuse,
-      colSpecular, 50.0, 0.95, 2.0, 25.0));
-
+  if (false) {
+    illumination.AddLight(new SpotLight("spot", posLight, dirLight, colDiffuse,
+        colSpecular, range, angle, 2.0, glossiness));
+  } else {
+    illumination.AddLight(new DirectionalLight(
+        "dir", dirLight, colDiffuse, colSpecular, glossiness));
+  }
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, colYellow);
   Node shapePointLight = new Node(
