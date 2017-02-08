@@ -9,13 +9,15 @@ DART_JS = ~/.pub-cache/hosted/pub.dartlang.org/browser-*/lib/dart.js
 
 DDC = time -f "\t%E real,\t%U user,\t%S sys" /usr/lib/dart/bin/dartdevc --modules=legacy --no-source-map
 
+# PACKAGE LIBS
 
 gen/pub_vector_math.js:
 	$(DDC) -o $@ package:vector_math/vector_math.dart
 
 gen/pub_vector_math.sum: gen/pub_vector_math.js
 
-#
+# SUB LIBS
+
 gen/lib_base.js: gen/pub_vector_math.sum  lib/src/base/*
 	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
 
@@ -63,7 +65,7 @@ gen/lib_webhelper.js: gen/pub_vector_math.sum  gen/lib_core.sum  lib/src/webhelp
 
 gen/lib_webhelper.sum: gen/lib_webhelper.js
 
-#
+# MAIN LIB
 
 SUBLIBS = gen/lib_base.sum gen/lib_core.sum gen/lib_shape.sum gen/lib_shader.sum gen/lib_importer.sum gen/lib_animation.sum gen/lib_webhelper.sum
 
@@ -72,7 +74,7 @@ gen/lib_chronosgl.js:  gen/pub_vector_math.sum $(SUBLIBS) lib/chronosgl.dart
 
 gen/lib_chronosgl.sum: gen/lib_chronosgl.js
 
-#
+# AUX LIB
 
 gen/lib_chronosutil.js: lib/chronosutil.dart
 	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
