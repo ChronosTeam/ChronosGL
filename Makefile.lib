@@ -6,6 +6,8 @@
 .PHONY = clean example
 
 DART_JS = ~/.pub-cache/hosted/pub.dartlang.org/browser-*/lib/dart.js
+DART_SDK_JS = /usr/lib/dart/lib/dev_compiler/legacy/dart_sdk.js
+DART_LIBRARY_JS = /usr/lib/dart/lib/dev_compiler/legacy/dart_library.js
 
 DDC = time -f "\t%E real,\t%U user,\t%S sys" /usr/lib/dart/bin/dartdevc --modules=legacy --no-source-map
 
@@ -87,10 +89,8 @@ gen/simple.dart.js: gen/lib_chronosutil.sum  gen/lib_chronosgl.sum example/simpl
 	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
 
 example: gen/simple.dart.js
-	-ln -s ../example/simple/simple.html gen/
-	-ln -s /usr/lib/dart/lib/dev_compiler/legacy/dart_sdk.js gen/
-	-mkdir -p gen/packages/browser
-	-cp $(DART_JS) gen/packages/browser/
+	-cp example/simple/simple.ddc.html gen/
+	-cp $(DART_SDK_JS )$(DART_LIBRARY_JS) gen/
 
 clean:
 	rm -r gen/
