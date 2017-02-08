@@ -1,0 +1,96 @@
+# Experiments using  dartdevc
+#
+# This currently exploits this hack when compiling sub-libraries, say importer
+# we use lib/src/importer/* though we really only mean lib/src/importer/lib.dart
+
+.PHONY = clean example
+
+DART_JS = ~/.pub-cache/hosted/pub.dartlang.org/browser-*/lib/dart.js
+
+DDC = time -f "\t%E real,\t%U user,\t%S sys" /usr/lib/dart/bin/dartdevc --modules=legacy --no-source-map
+
+# PACKAGE LIBS
+
+gen/pub_vector_math.js:
+	$(DDC) -o $@ package:vector_math/vector_math.dart
+
+gen/pub_vector_math.sum: gen/pub_vector_math.js
+
+# SUB LIBS
+
+gen/lib_base.js: gen/pub_vector_math.sum  lib/src/base/*
+	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
+
+gen/lib_base.sum: gen/lib_base.js
+
+#
+
+gen/lib_animation.js: gen/pub_vector_math.sum  lib/src/animation/*
+	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
+
+gen/lib_animation.sum: gen/lib_animation.js
+
+#
+
+gen/lib_importer.js: gen/pub_vector_math.sum  gen/lib_base.sum  gen/lib_animation.sum  lib/src/importer/*
+	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
+
+gen/lib_importer.sum: gen/lib_importer.js
+
+#
+
+gen/lib_core.js: gen/pub_vector_math.sum  gen/lib_base.sum  lib/src/core/*
+	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
+
+gen/lib_core.sum: gen/lib_core.js
+
+#
+
+gen/lib_shader.js: gen/pub_vector_math.sum  gen/lib_base.sum  lib/src/shader/*
+	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
+
+gen/lib_shader.sum: gen/lib_shader.js
+
+#
+
+gen/lib_shape.js: gen/pub_vector_math.sum  gen/lib_base.sum  lib/src/shape/*
+	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
+
+gen/lib_shape.sum: gen/lib_shape.js
+
+#
+
+gen/lib_webhelper.js: gen/pub_vector_math.sum  gen/lib_core.sum  lib/src/webhelper/*
+	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
+
+gen/lib_webhelper.sum: gen/lib_webhelper.js
+
+# MAIN LIB
+
+SUBLIBS = gen/lib_base.sum gen/lib_core.sum gen/lib_shape.sum gen/lib_shader.sum gen/lib_importer.sum gen/lib_animation.sum gen/lib_webhelper.sum
+
+gen/lib_chronosgl.js:  gen/pub_vector_math.sum $(SUBLIBS) lib/chronosgl.dart
+	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
+
+gen/lib_chronosgl.sum: gen/lib_chronosgl.js
+
+# AUX LIB
+
+gen/lib_chronosutil.js: lib/chronosutil.dart
+	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
+
+gen/lib_chronosutil.sum: gen/lib_chronosutil.js
+
+# TEST EXAMPLE
+
+gen/simple.dart.js: gen/lib_chronosutil.sum  gen/lib_chronosgl.sum example/simple/simple.dart
+	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
+
+example: gen/simple.dart.js
+	-ln -s ../example/simple/simple.html gen/
+	-ln -s /usr/lib/dart/lib/dev_compiler/legacy/dart_sdk.js gen/
+	-mkdir -p gen/packages/browser
+	-cp $(DART_JS) gen/packages/browser/
+
+clean:
+	rm -r gen/

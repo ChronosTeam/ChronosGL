@@ -295,7 +295,7 @@ MeshData DirectionalLightVisualizer(
       points.add(new VM.Vector3(x, 0.0, z)..sub(dir2y));
     }
   }
-  MeshData md = new MeshData("dirlight", gl, WEBGL.LINES);
+  MeshData md = new MeshData("dirLightViz", gl, WEBGL.LINES);
   md.AddVertices(FlattenVector3List(points));
   List<int> faces = new List<int>(points.length);
   for (int i = 0; i < points.length; ++i) faces[i] = i;
@@ -316,13 +316,13 @@ VM.Vector3 GetOrthogonalVector3(VM.Vector3 dir) {
 }
 
 MeshData SpotLightVisualizer(WEBGL.RenderingContext gl, VM.Vector3 pos,
-    VM.Vector3 dir, double range, double cosAngle) {
+    VM.Vector3 dir, double range, double angle) {
   final int kSpines = 8;
-  VM.Vector3 center = pos + dir;
+  VM.Vector3 center = pos + dir.normalized() * range;
   List<VM.Vector3> points = [pos, center];
   VM.Vector3 ortho = GetOrthogonalVector3(dir)
     ..normalize()
-    ..scale(10.0);
+    ..scale(Math.tan(angle) * range);
   for (int i = 0; i < kSpines; i++) {
     VM.Vector3 p = ortho.clone()
       ..applyAxisAngle(dir, i * 2.0 * Math.PI / kSpines)
@@ -330,21 +330,23 @@ MeshData SpotLightVisualizer(WEBGL.RenderingContext gl, VM.Vector3 pos,
     points.add(p);
   }
 
-  MeshData md = new MeshData("dirlight", gl, WEBGL.LINES);
+  MeshData md = new MeshData("spotlightViz", gl, WEBGL.LINES);
   md.AddVertices(FlattenVector3List(points));
   List<int> faces = [];
   for (int i = 1; i < points.length; ++i) {
     faces.add(0);
     faces.add(i);
   }
-  //
+
+  // funnel
   for (int i = 3; i < points.length; ++i) {
     faces.add(i - 1);
     faces.add(i);
   }
   faces.add(points.length - 1);
   faces.add(2);
-  //
+
+  // cross
   for (int i = 2; i < points.length; ++i) {
     if (i % 2 == 0) {
       faces.add(1);
@@ -355,6 +357,7 @@ MeshData SpotLightVisualizer(WEBGL.RenderingContext gl, VM.Vector3 pos,
   return md;
 }
 
+/*
 MeshData PointLightVisualizer(
     WEBGL.RenderingContext gl, VM.Vector3 pos, double range) {
   List<VM.Vector3> points = [];
@@ -378,6 +381,24 @@ MeshData PointLightVisualizer(
   }
 
   MeshData md = new MeshData("pointlight", gl, WEBGL.LINES);
+  md.AddVertices(FlattenVector3List(points));
+  md.AddFaces(faces);
+  return md;
+}
+*/
+MeshData PointLightVisualizer(
+    WEBGL.RenderingContext gl, VM.Vector3 pos, double range) {
+  List<VM.Vector3> points = [];
+  List<int> faces = [];
+  // Rays from center
+  for (VM.Vector3 v in IcosahedronVertexList) {
+    faces.add(points.length);
+    faces.add(IcosahedronVertexList.length);
+    points.add(pos + (v * range));
+  }
+  points.add(pos);
+
+  MeshData md = new MeshData("pointlightViz", gl, WEBGL.LINES);
   md.AddVertices(FlattenVector3List(points));
   md.AddFaces(faces);
   return md;

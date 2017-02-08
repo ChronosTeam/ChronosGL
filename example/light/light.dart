@@ -24,7 +24,7 @@ final VM.Vector3 dirLight = new VM.Vector3(0.0, -50.0, 0.0);
 final VM.Vector3 spotDirLight = new VM.Vector3(-11.0, -30.0, 0.0);
 
 final double range = 50.0;
-final double cutoff = 0.95;
+final double angle =  MATH.PI / 7.0;
 final double glossiness = 25.0;
 
 // These must be in-sync with the .html file
@@ -59,7 +59,7 @@ void main() {
     idPoint: new PointLight(
         "point", posLight, colLiteBlue, colBlue, range, glossiness),
     idSpot: new SpotLight("spot", posLight, spotDirLight, colLiteGreen, colGreen,
-        range, cutoff, 2.0, glossiness)
+        range, angle, 2.0, glossiness)
   };
 
   Illumination illumination = new Illumination();
@@ -81,7 +81,7 @@ void main() {
         lightSourceMat),
     idSpot: new Node(
         "SpotLightViz",
-        SpotLightVisualizer(chronosGL.gl, posLight, spotDirLight, range, cutoff),
+        SpotLightVisualizer(chronosGL.gl, posLight, spotDirLight, range, angle),
         lightSourceMat)
   };
 

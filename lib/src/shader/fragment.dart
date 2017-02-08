@@ -54,6 +54,11 @@ float GetSpecular(vec3 lightDir, vec3 viewDir, vec3 normal, float glossiness) {
     return pow(specComp, max(1.0, glossiness));
 }
 
+struct ColorComponents {
+   vec3 diffuse;
+   vec3 specular;
+};
+
 // ============================================================
 // Spot Light
 // ============================================================
@@ -82,30 +87,28 @@ SpotLightInfo UnpackSpotLightInfo(mat4 m) {
     return info;
 }
 
-void SpotLightGetDiffuseAndSpecular(SpotLightInfo info,
-                                    vec3 vertexPos,
-                                    vec3 vertexNormal,
-                                    vec3 eyePos,
-                                    out vec3 diffuse,
-                                    out vec3 specular) {
-    vec3 spotDir = normalize(info.pos - vertexPos);
-    vec3 lightDirNorm = -normalize(info.dir);
+ColorComponents SpotLightGetDiffuseAndSpecular(SpotLightInfo light,
+                                               vec3 vertexPos,
+                                               vec3 vertexNormal,
+                                               vec3 eyePos) {
+    vec3 toSpot = light.pos - vertexPos;
+    vec3 spotDir = normalize(toSpot);
+    vec3 lightDirNorm = -normalize(light.dir);
     float cosAngle = max(0., dot(lightDirNorm, spotDir));
-	  if (cosAngle < info.spotCutoff) {
-        diffuse = vec3(0.0);
-        specular = vec3(0.0);
-        return;
+	  if (cosAngle < light.spotCutoff) {
+        return ColorComponents(vec3(0.0), vec3(0.0));
     }
 
-    cosAngle = max(0.0, pow(cosAngle, info.spotFocus));
-	  float attenuation = max(0.0, 1.0 - length(spotDir) / info.range) * cosAngle;
+    cosAngle = max(0.0, pow(cosAngle, light.spotFocus));
+	  float attenuation = max(0.0, 1.0 - length(toSpot) / light.range) * cosAngle;
 	  vec3 viewDirNorm = normalize(eyePos - vertexPos);
-    diffuse = attenuation *
-              GetDiffuse(lightDirNorm, vertexNormal) *
-              info.diffuseColor;
-    specular = attenuation *
-               GetSpecular(lightDirNorm, viewDirNorm, vertexNormal, info.glossiness) *
-               info.specularColor;
+	  return ColorComponents(
+	           attenuation *
+             GetDiffuse(lightDirNorm, vertexNormal) *
+             light.diffuseColor,
+             attenuation *
+             GetSpecular(lightDirNorm, viewDirNorm, vertexNormal, light.glossiness) *
+              light.specularColor);
 }
 
 // ============================================================
@@ -130,22 +133,21 @@ PointLightInfo UnpackPointLightInfo(mat4 m) {
     return info;
 }
 
-void PointLightGetDiffuseAndSpecular(PointLightInfo info,
-                                    vec3 vertexPos,
-                                    vec3 vertexNormal,
-                                    vec3 eyePos,
-                                    out vec3 diffuse,
-                                    out vec3 specular) {
+ColorComponents PointLightGetDiffuseAndSpecular(PointLightInfo info,
+                                     vec3 vertexPos,
+                                     vec3 vertexNormal,
+                                     vec3 eyePos) {
     vec3 lightDir = info.pos - vertexPos;
     float attenuation = max(0.0, 1.0 - length(lightDir) / info.range);
     vec3 lightDirNorm = normalize(lightDir);
     vec3 viewDirNorm = normalize(eyePos - vertexPos);
-    diffuse = attenuation *
+    return ColorComponents(
+              attenuation *
               GetDiffuse(lightDirNorm, vertexNormal) *
-              info.diffuseColor;
-    specular = attenuation *
+              info.diffuseColor,
+               attenuation *
                GetSpecular(lightDirNorm, viewDirNorm, vertexNormal, info.glossiness) *
-               info.specularColor;
+               info.specularColor);
 }
 
 // ============================================================
@@ -168,63 +170,56 @@ DirectionalLightInfo UnpackDirectionalLightInfo(mat4 m) {
     return info;
 }
 
-void DirectionalLightGetDiffuseAndSpecular(DirectionalLightInfo info,
+ColorComponents DirectionalLightGetDiffuseAndSpecular(DirectionalLightInfo info,
                                            vec3 vertexPos,
                                            vec3 vertexNormal,
-                                           vec3 eyePos,
-                                           out vec3 diffuse,
-                                           out vec3 specular) {
-    diffuse = GetDiffuse(-info.dir, vertexNormal) *
-              info.diffuseColor;
+                                           vec3 eyePos) {
     vec3 viewDirNorm = normalize(eyePos - vertexPos);
-    specular = GetSpecular(-info.dir, viewDirNorm, vertexNormal, info.glossiness) *
-               info.specularColor;
+    return ColorComponents(
+              GetDiffuse(-info.dir, vertexNormal) *
+              info.diffuseColor,
+              GetSpecular(-info.dir, viewDirNorm, vertexNormal, info.glossiness) *
+              info.specularColor);
 }
 
 // ============================================================
 // Combined Light
 // ============================================================
-void CombinedLight(vec3 vVertexPosition,
+ColorComponents CombinedLight(vec3 vVertexPosition,
                    vec3 vNormal,
                    vec3 uEyePosition,
-                   mat4 uLightDescs[${kMaxLights}],
-                   float uLightTypes[${kMaxLights}],
-                   out vec3 diffuseAccumulator,
-                   out vec3 specularAccumulator) {
-    diffuseAccumulator = vec3(0.0);
-    specularAccumulator = vec3(0.0);
+                   const mat4 uLightDescs[${kMaxLights}],
+                   const float uLightTypes[${kMaxLights}]) {
+    ColorComponents acc = ColorComponents(vec3(0.0), vec3(0.0));
 
     for (int i = 0; i < ${kMaxLights}; ++i) {
-        vec3 diffuse;
-        vec3 specular;
+        ColorComponents curr;
         float type = ${uLightTypes}[i];
         if (type == ${lightTypeSpotFloat}) {
             SpotLightInfo info = UnpackSpotLightInfo(uLightDescs[i]);
-            SpotLightGetDiffuseAndSpecular(info,
+            curr = SpotLightGetDiffuseAndSpecular(info,
                                            vVertexPosition,
                                            vNormal,
-                                           uEyePosition,
-                                           diffuse, specular);
+                                           uEyePosition);
         } else if (type == ${lightTypePointFloat}) {
             PointLightInfo info = UnpackPointLightInfo(uLightDescs[i]);
-            PointLightGetDiffuseAndSpecular(info,
+            curr = PointLightGetDiffuseAndSpecular(info,
                                             vVertexPosition,
                                             vNormal,
-                                            uEyePosition,
-                                            diffuse, specular);
+                                            uEyePosition);
         } else if (type == ${lightTypeDirectionalFloat}) {
             DirectionalLightInfo info = UnpackDirectionalLightInfo(uLightDescs[i]);
-            DirectionalLightGetDiffuseAndSpecular(info,
+            curr = DirectionalLightGetDiffuseAndSpecular(info,
                                                   vVertexPosition,
                                                   vNormal,
-                                                  uEyePosition,
-                                                  diffuse, specular);
+                                                  uEyePosition);
         } else {
             continue;
         }
-        diffuseAccumulator = diffuseAccumulator + diffuse;
-        specularAccumulator = specularAccumulator + specular;
+        acc.diffuse = acc.diffuse + curr.diffuse;
+        acc.specular = acc.specular + curr.specular;
     }
+    return acc;
 }
 
 // ============================================================
@@ -254,6 +249,7 @@ vec4 packDepth(float depth) {
 float unpackDepth(vec4 rgba_depth) {
 	  return dot(rgba_depth, _shiftInv);
 }
+
 
 float computeShadow(vec4 positionFromLight, sampler2D shadowMap,
                     float darkness, float bias) {

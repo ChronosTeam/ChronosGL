@@ -5,61 +5,46 @@ import 'dart:web_gl' as WEBGL;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-
 List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
   return [
-    new ShaderObject("LightBlinnPhongV")
+    new ShaderObject("LightBlinnPhongShadowV")
       ..AddAttributeVars([aVertexPosition, aNormal])
-      ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight0])
+      ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight])
       ..AddUniformVars([
         uPerspectiveViewMatrix,
-        uLightPerspectiveViewMatrix0,
+        uLightPerspectiveViewMatrix,
         uModelMatrix,
         uNormalMatrix
       ])
       ..SetBodyWithMain([
         """
         vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
-        ${vPositionFromLight0} = ${uLightPerspectiveViewMatrix0} * pos;
+        ${vPositionFromLight} = ${uLightPerspectiveViewMatrix} * pos;
         gl_Position = ${uPerspectiveViewMatrix} * pos;
         ${vVertexPosition} = pos.xyz;
         ${vNormal} = ${uNormalMatrix} * ${aNormal};
         """
       ]),
-    new ShaderObject("LightBlinnPhongF")
-      ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight0])
-      ..AddUniformVars([uLightSourceInfo0, uShadowMap, uEyePosition])
-      ..SetBody([
+    new ShaderObject("LightBlinnPhongShadowF")
+      ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight])
+      ..AddUniformVars([uLightDescs, uLightTypes])
+      ..AddUniformVars([uShadowMap, uEyePosition, uColor])
+      ..SetBodyWithMain([
         """
+    float shadow = computeShadow(${vPositionFromLight},
+                                 ${uShadowMap}, 0.1, 0.1);
 
-void foo(vec4 positionFromLight, sampler2D shadowSampler,
-                    float darkness, float bias) {
-		vec3 depth = positionFromLight.xyz / positionFromLight.w;
-		depth = 0.5 * depth + vec3(0.5);
-		vec2 uv = depth.xy;
 
-  float r = gl_FragColor.r;
-	gl_FragColor =	texture2D(shadowSampler, uv);
-   gl_FragColor.r += useValueButReturnZero(r);
-}
+    ColorComponents acc = ColorComponents(vec3(0.0), vec3(0.0));
+    if (shadow > 0.0) {
+        acc = CombinedLight(${vVertexPosition}, ${vNormal}, ${uEyePosition},
+                      ${uLightDescs}, ${uLightTypes});
+    }
 
-      void main() {
-        LightSourceInfo info = UnpackLightSourceInfo(${uLightSourceInfo0}, 10.0);
-        float diffuseFactor = 0.0;
-        float specularFactor = 0.0;
-        GetDiffuseAndSpecularFactors(info,
-                                     ${vVertexPosition},
-                                     ${vNormal},
-                                     ${uEyePosition},
-                                     diffuseFactor, specularFactor);
-
-        float shadow = computeShadow(${vPositionFromLight0},
-                                     ${uShadowMap}, 0.4, -0.1);
-        //shadow = 1.0;
-        gl_FragColor.rgb = diffuseFactor * shadow * info.diffuseColor +
-                             specularFactor * shadow * info.specularColor;
-        //foo(${vPositionFromLight0}, ${uShadowMap}, 0.4, -0.1);
-      }
+    gl_FragColor.rgb = shadow * acc.diffuse +
+                       shadow * acc.specular +
+                       uColor;
+    gl_FragColor.a = 1.0;
       """
       ], prolog: [
         StdLibShader
@@ -71,30 +56,30 @@ List<ShaderObject> createShadowShader() {
   return [
     new ShaderObject("ShadowV")
       ..AddAttributeVar(aVertexPosition)
-      ..AddVaryingVar(vPositionFromLight0)
-      ..AddUniformVar(uLightPerspectiveViewMatrix0)
+      ..AddVaryingVar(vPositionFromLight)
+      ..AddUniformVar(uLightPerspectiveViewMatrix)
       ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain([
         // Note we could just use gl_FragCoord.z in the Fragment shader
         // but this seems more logical
         """
-        gl_Position = ${uLightPerspectiveViewMatrix0} * ${uModelMatrix} *
-                      vec4(${aVertexPosition}, 1.0);
-        ${vPositionFromLight0} = gl_Position;
-        """
+    gl_Position = ${uLightPerspectiveViewMatrix} * ${uModelMatrix} *
+                  vec4(${aVertexPosition}, 1.0);
+    ${vPositionFromLight} = gl_Position;
+    """
       ]),
     new ShaderObject("ShadowF")
-      ..AddVaryingVar(vPositionFromLight0)
+      ..AddVaryingVar(vPositionFromLight)
       ..SetBodyWithMain([
         """
-// Note, this is equivalent to passing
-//   ${vPositionFromLight0} = gl_Position;
-// in the vertex shader and then computing
-// float d = ${vPositionFromLight0}.z / ${vPositionFromLight0}.w * 0.5 + 0.5;
-float d  = gl_FragCoord.z;
+    // Note, this is equivalent to passing
+    //   ${vPositionFromLight} = gl_Position;
+    // in the vertex shader and then computing
+    // float d = ${vPositionFromLight}.z / ${vPositionFromLight}.w * 0.5 + 0.5;
+    float d  = gl_FragCoord.z;
 
-// d is value between 0.0 and 1.0
-gl_FragColor = packDepth(d);
+    // d is value between 0.0 and 1.0
+    gl_FragColor = packDepth(d);
 """
       ], prolog: [
         StdLibShader
@@ -102,23 +87,6 @@ gl_FragColor = packDepth(d);
   ];
 }
 
-List<ShaderObject> createCopyShader() {
-  return [
-    new ShaderObject("copyV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aTextureCoordinates)
-      ..AddVaryingVar(vTextureCoordinates)
-      ..SetBodyWithMain(
-          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
-    new ShaderObject("copyF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTexture)
-      ..SetBodyWithMain([
-        "vec2 v = ${vTextureCoordinates}.xy;",
-        "gl_FragColor.rgb = texture2D (${uTexture}, v).rgb;"
-      ])
-  ];
-}
 
 List<ShaderObject> createCopyShaderForShadow() {
   return [
@@ -131,19 +99,18 @@ List<ShaderObject> createCopyShaderForShadow() {
     new ShaderObject("copyF")
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uTexture)
+      ..AddUniformVar(uCutOff)
       ..SetBodyWithMain([
         """
 vec2 uv = ${vTextureCoordinates}.xy;
-vec4 color = texture2D(${uTexture}, uv);
-// Commenting the next line should not make any difference
-//color = packDepth(unpackDepth(color));
-gl_FragColor = color;
+vec4 packed4 = texture2D(${uTexture}, uv);
+float depth = unpackDepth(packed4);
+if (depth <= ${uCutOff}) {
+   packed4 = vec4(0.0);
+}
 
-// necessary?
-//gl_FragColor.r = unpackDepth(color) * 0.4;
-//gl_FragColor.g = 0.0;
-//gl_FragColor.b = 0.0;
-//gl_FragColor.a = 1.0;
+gl_FragColor.rgb = packed4.rgb;
+gl_FragColor.a = 1.0;
 """
       ], prolog: [
         StdLibShader
@@ -151,6 +118,93 @@ gl_FragColor = color;
   ];
 }
 
+final VM.Vector3 colBlack = new VM.Vector3(0.0, 0.0, 0.0);
+final VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
+
+final VM.Vector3 colBlue = new VM.Vector3(0.0, 0.0, 1.0);
+final VM.Vector3 colLiteBlue = new VM.Vector3(0.0, 0.0, 0.5);
+
+final VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
+final VM.Vector3 colLiteRed = new VM.Vector3(0.5, 0.0, 0.0);
+
+final VM.Vector3 colGreen = new VM.Vector3(0.0, 1.0, 0.0);
+final VM.Vector3 colLiteGreen = new VM.Vector3(0.0, 0.5, 0.0);
+
+final VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
+
+final VM.Vector3 posLight = new VM.Vector3(11.0, 20.0, 0.0);
+final VM.Vector3 dirLight = new VM.Vector3(-11.0, -30.0, 0.0);
+
+final double range = 50.0;
+final double cutoff = 0.95;
+final double glossiness = 25.0;
+
+// These must be in-sync with the .html file
+final String idPoint = "idPoint";
+final String idSpot = "idSpot";
+final String idDirectional = "idDirectional";
+
+final Map<String, Light> lightSources = {
+  idDirectional:
+      new DirectionalLight("dir", dirLight, colLiteRed, colRed, glossiness),
+  idSpot: new SpotLight("spot", posLight, dirLight, colLiteGreen, colGreen,
+      range, cutoff, 2.0, glossiness),
+  idPoint: new PointLight(
+      "point", posLight, colLiteBlue, colBlue, range, glossiness),
+};
+
+void EventRadioChanged(String name) {
+  print("${name} toggle ");
+  lightSources[name].enabled = true;
+  for (String n in lightSources.keys) {
+    if (n != name) lightSources[n].enabled = false;
+  }
+}
+
+void EventPositionChanged(String name, double value) {
+  print("EventPositionChanged ${name} ${value}");
+  switch (name) {
+    case "posx":
+      (lightSources[idSpot] as SpotLight).pos.x = value;
+      (lightSources[idPoint] as PointLight).pos.x = value;
+      break;
+    case "posy":
+      (lightSources[idSpot] as SpotLight).pos.y = value;
+      (lightSources[idPoint] as PointLight).pos.y = value;
+      break;
+    case "posz":
+      (lightSources[idSpot] as SpotLight).pos.z = value;
+      (lightSources[idPoint] as PointLight).pos.z = value;
+      break;
+  }
+}
+
+void EventDirectionChanged(String name, double value) {
+  print("EventDirectionChanged ${name} ${value}");
+  switch (name) {
+    case "dirx":
+      (lightSources[idSpot] as SpotLight).dir.x = value;
+      (lightSources[idDirectional] as DirectionalLight).dir.x = value;
+      break;
+      break;
+    case "diry":
+      (lightSources[idSpot] as SpotLight).dir.y = value;
+      (lightSources[idDirectional] as DirectionalLight).dir.y = value;
+      break;
+    case "dirz":
+      (lightSources[idSpot] as SpotLight).dir.z = value;
+      (lightSources[idDirectional] as DirectionalLight).dir.z = value;
+      break;
+  }
+}
+
+double GetInputValue(HTML.InputElement e) {
+  return double.parse(e.value);
+}
+
+void SwallowEvent(HTML.Event e) {
+  e.stopPropagation();
+}
 
 void main() {
   StatsFps fps =
@@ -159,31 +213,27 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
-  VM.Vector3 posLight = new VM.Vector3(2.0, 10.0, 5.0);
-  VM.Vector3 dirLight = new VM.Vector3(0.0, 1.0, 0.0);
 
-  VM.Vector3 colWhite = new VM.Vector3(0.0, 0.0, 1.0);
-  VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
-
-  Light light = new Light.Directional(0, dirLight, colRed, colWhite);
-  //Light light = new Light.Spot(0, posLight, dirLight, colRed, colWhite, 100.0, 0.85, 2.0);
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
 
   final int w = canvas.clientWidth ~/ 2;
   final int h = canvas.clientHeight;
 
-  Perspective perspective = new Perspective(orbit);
+  final Perspective perspective = new Perspective(orbit);
+
+  (lightSources[idDirectional] as DirectionalLight).aspect = w / h;
+
+  Illumination illumination = new Illumination();
+  for (Light l in lightSources.values) {
+    illumination.AddLight(l);
+  }
 
   // using RGBA is absolutely crucial since we store floats
   // in a 4 byte fix-point format where the most significant
   // byte ends up in the A chanel.
   ChronosFramebuffer shadowBuffer =
       new ChronosFramebuffer(chronosGL.gl, w, h, WEBGL.RGBA);
-
-  ShadowProjection shadowProjection =
-      new ShadowProjection(light, -30.0, 30.0, -30.0, 0.0, 100.0);
-  shadowProjection.AdjustAspect(w, h);
 
   RenderPhase phaseComputeShadow =
       new RenderPhase("compute-shadow", chronosGL.gl, shadowBuffer);
@@ -212,15 +262,19 @@ void main() {
       new CanvasTexture.SolidColor(chronosGL.gl, "red-solid", "red");
   final Material mat1 = new Material("mat1")
     ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
+    ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 0.4));
 
   final Material mat2 = new Material("mat2")
     ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0));
+    ..SetUniform(uColor, new VM.Vector3(0.4, 0.0, 0.0));
 
   final Material mat3 = new Material("mat3")
     ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, new VM.Vector3(0.8, 0.8, 0.8));
+    ..SetUniform(uColor, new VM.Vector3(0.0, 0.4, 0.0));
+
+  final Material mat4 = new Material("mat3")
+    ..SetUniform(uTexture, solid)
+    ..SetUniform(uColor, new VM.Vector3(0.4, 0.4, 0.4));
 
   {
     Node ico = new Node("sphere", ShapeIcosahedron(chronosGL.gl, 3), mat1)
@@ -237,7 +291,7 @@ void main() {
 
   {
     Node cyl = new Node(
-        "cylinder", ShapeCylinder(chronosGL.gl, 3.0, 6.0, 2.0, 32), mat2)
+        "cylinder", ShapeCylinder(chronosGL.gl, 3.0, 6.0, 2.0, 32), mat3)
       ..setPos(5.0, 0.0, -5.0);
     shadowMap.add(cyl);
     basic.add(cyl);
@@ -254,23 +308,45 @@ void main() {
   {
     // plane
     Node cube = new Node(
-        "cube", ShapeCube(chronosGL.gl, x: 20.0, y: 0.1, z: 20.0), mat3)
+        "cube", ShapeCube(chronosGL.gl, x: 20.0, y: 0.1, z: 20.0), mat4)
       ..setPos(0.0, -10.0, 0.0);
     shadowMap.add(cube);
     basic.add(cube);
   }
 
-  // Create sphere representing the light source
-  RenderProgram fixedShaderPrg =
-      phaseMain.createProgram(createSolidColorShader());
-  Material icoMat = new Material("sphere")
-    ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
-  Node ico1 = new Node("spehere", ShapeIcosahedron(chronosGL.gl), icoMat)
-    ..setPosFromVec(posLight);
+  // Event Handling
+  for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
+    input.onChange.listen((HTML.Event e) {
+      HTML.InputElement input = e.target as HTML.InputElement;
+      if (input.type == "radio") {
+        EventRadioChanged(input.id);
+      }
+    });
 
-  fixedShaderPrg.add(ico1);
+    input.onInput.listen((HTML.Event e) {
+      HTML.InputElement input = e.target as HTML.InputElement;
+      if (input.type == "range") {
+        String name = input.id;
+        double value = GetInputValue(input);
+        if (name.startsWith("pos")) {
+          EventPositionChanged(name, value);
+        } else if (name.startsWith("dir")) {
+          EventDirectionChanged(name, value);
+        } else if (name == "cutoff") {
+          print("set cutoff ${value}");
+          copyToScreen.ForceInput(uCutOff, value);
+        }
+      }
+    });
 
-  double _lastTimeMs = 0.0;
+    input.onMouseMove.listen(SwallowEvent);
+  }
+
+  for (HTML.Element e in HTML.document.getElementsByTagName("input")) {
+    print("initialize inputs ${e.id}");
+    e.dispatchEvent(new HTML.Event("change"));
+    e.dispatchEvent(new HTML.Event("input"));
+  }
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -287,21 +363,13 @@ void main() {
     phaseDisplayShadow.viewPortX = phaseMain.viewPortW;
   }
 
-  double GetInputValue(HTML.InputElement e) {
-    return double.parse(e.value);
-  }
-
-  void SwallowEvent(HTML.Event e) {
-    e.stopPropagation();
-  }
-
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
+
+  double _lastTimeMs = 0.0;
+
   //HTML.document.getElementById("posx").onChange.listen((HTML.Event ev) =>
   //light.pos.x = GetInputValue(ev));
-  HTML.document.getElementById("posx").onMouseMove.listen(SwallowEvent);
-  HTML.document.getElementById("posy").onMouseMove.listen(SwallowEvent);
-  HTML.document.getElementById("posz").onMouseMove.listen(SwallowEvent);
 
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
@@ -311,18 +379,21 @@ void main() {
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
 
-    double lx = GetInputValue(HTML.document.getElementById("posx"));
-    double ly = GetInputValue(HTML.document.getElementById("posy"));
-    double lz = GetInputValue(HTML.document.getElementById("posz"));
-    //  note: since we have a directional light, pos has not effect
-    light.pos.setValues(lx, ly, lz);
-    ico1.setPosFromVec(light.pos);
+    DirectionalLight dl = lightSources[idDirectional];
+    VM.Matrix4 lm = dl.ExtractShadowProjViewMatrix();
+
+    //SpotLight sl = lightSources[idSpot];
+    //VM.Matrix4 lm = sl.ExtractShadowProjViewMatrix();
+
+    shadowMap.ForceInput(uLightPerspectiveViewMatrix, lm);
+    basic.ForceInput(uLightPerspectiveViewMatrix, lm);
+
     // Compute the shadow map
-    phaseComputeShadow.draw([shadowProjection, light]);
+    phaseComputeShadow.draw([]);
     // show the shadow map
-    phaseDisplayShadow.draw([shadowProjection]);
+    phaseDisplayShadow.draw([]);
     // render scene utilizing shadow map
-    phaseMain.draw([perspective, shadowProjection, light]);
+    phaseMain.draw([perspective, illumination]);
 
     HTML.window.animationFrame.then(animate);
   }

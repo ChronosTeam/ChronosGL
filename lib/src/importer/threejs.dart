@@ -20,12 +20,12 @@ List<VM.Vector2> ConvertToVector2List(List<double> lst) {
 
 List<VM.Vector4> ConvertToVector4List(int nFill, List<double> lst) {
   List<VM.Vector4> out = new List<VM.Vector4>(lst.length ~/ nFill);
-  for (int i = 0; i < lst.length; i += nFill) {
+  for (int i = 0, pos = 0; i < lst.length; i += nFill, pos++) {
     VM.Vector4 v = new VM.Vector4.zero();
     for (int x = 0; x < nFill; ++x) {
       v[x] = lst[i + x].toDouble();
     }
-    out[i ~/ nFill] = v;
+    out[pos] = v;
   }
   return out;
 }
@@ -49,6 +49,7 @@ List<GeometryBuilder> ReadThreeJsMeshes(Map json) {
   //
   final int skinMultiplier = _FindSkinMultiplier(json);
   final List<int> Faces = json["faces"];
+  print("faces: ${Faces.length}");
 
   final List<VM.Vector3> Vertices = ConvertToVector3List(json["vertices"]);
   final List<VM.Vector3> Normals = ConvertToVector3List(json["normals"]);
@@ -59,6 +60,14 @@ List<GeometryBuilder> ReadThreeJsMeshes(Map json) {
   final List<VM.Vector4> SkinWeight = skinMultiplier == 0
       ? null
       : ConvertToVector4List(skinMultiplier, json["skinWeights"]);
+  if (SkinWeight != null) {
+    for (VM.Vector4 v in SkinWeight) {
+      final double d = v.x + v.y + v.z + v.w;
+      if (d < 0.98 || d > 1.02) {
+        print("bad vector: $v");
+      }
+    }
+  }
   // TODO: support for more than one
   final List<VM.Vector2> Uvs = ConvertToVector2List(json["uvs"][0]);
   // TODO: support incomplete
@@ -167,5 +176,89 @@ List<GeometryBuilder> ReadThreeJsMeshes(Map json) {
     }
   }
 
+  print("out: ${out.length} ${out[0]}");
   return out;
+}
+
+VM.Vector3 MakeVector3(List<num> lst) {
+  return new VM.Vector3(
+      lst[0].toDouble(), lst[1].toDouble(), lst[2].toDouble());
+}
+
+VM.Vector3 MakeTransVector3(List<num> lst) {
+  if (lst == null) return new VM.Vector3.zero();
+  return MakeVector3(lst);
+}
+
+VM.Vector3 MakeScaleVector3(List<num> lst) {
+  if (lst == null) return new VM.Vector3(1.0, 1.0, 1.0);
+  return MakeVector3(lst);
+}
+
+VM.Quaternion MakeQuaternion(List<num> lst) {
+  if (lst == null) return new VM.Quaternion.identity();
+
+  return new VM.Quaternion(lst[0].toDouble(), lst[1].toDouble(),
+      lst[2].toDouble(), lst[3].toDouble());
+}
+
+SkeletonAnimation ReadAnimation(Map json) {
+  final Map animation = json["animation"];
+  final List<Map> hierarchy = animation["hierarchy"];
+  SkeletonAnimation s = new SkeletonAnimation(
+      animation["name"], animation["length"], hierarchy.length);
+  assert(hierarchy.length == json["bones"].length);
+  for (int i = 0; i < hierarchy.length; ++i) {
+    List<double> pTimes = [];
+    List<VM.Vector3> pValues = [];
+    List<double> rTimes = [];
+    List<VM.Quaternion> rValues = [];
+    List<double> sTimes = [];
+    List<VM.Vector3> sValues = [];
+    for (Map m in hierarchy[i]["keys"]) {
+      double t = m["time"].toDouble();
+
+      if (m.containsKey("pos")) {
+        pTimes.add(t);
+        pValues.add(MakeTransVector3(m["pos"]));
+      }
+
+      if (m.containsKey("scale")) {
+        sTimes.add(t);
+        sValues.add(MakeScaleVector3(m["scl"]));
+      }
+
+      if (m.containsKey("rot")) {
+        rTimes.add(t);
+        rValues.add(MakeQuaternion(m["rot"]));
+      }
+    }
+    BoneAnimation ba =
+        new BoneAnimation(i, pTimes, pValues, rTimes, rValues, sTimes, sValues);
+    s.InsertBone(ba);
+  }
+  print("anim-bones: ${s.animList.length}");
+  return s;
+}
+
+List<Bone> ReadBones(Map json) {
+  final Map metadata = json["metadata"];
+  final List<Map> Bones = json["bones"];
+  List<Bone> bones = new List<Bone>(metadata["bones"]);
+  for (int i = 0; i < Bones.length; i++) {
+    Map m = Bones[i];
+    String name = m["name"];
+    int parent = m["parent"];
+    final VM.Vector3 s = MakeScaleVector3(m["scl"]);
+    final VM.Vector3 t = MakeTransVector3(m["pos"]);
+    final VM.Quaternion r = MakeQuaternion(m["qrot"]);
+    VM.Matrix4 mat = new VM.Matrix4.zero()
+      ..setFromTranslationRotationScale(t, r, s);
+    if (i != 0 && parent < 0) {
+      print("found unusal root node ${i} ${parent}");
+    }
+    bones[i] = new Bone(name, i, parent, new VM.Matrix4.identity(), mat);
+  }
+  print("bones: ${bones.length}");
+  return bones;
 }

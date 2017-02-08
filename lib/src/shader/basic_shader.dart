@@ -16,17 +16,11 @@ List<ShaderObject> createLightShaderGourad() {
     gl_Position = ${uPerspectiveViewMatrix} * pos;
     vec3 normal = ${uNormalMatrix} * ${aNormal};
 
-    vec3 diffuseAccumulator;
-    vec3 specularAccumulator;
-
-    CombinedLight(pos.xyz, normal, ${uEyePosition},
+    ColorComponents acc = CombinedLight(pos.xyz, normal, ${uEyePosition},
                   ${uLightDescs},
-                  ${uLightTypes},
-                  diffuseAccumulator, specularAccumulator);
+                  ${uLightTypes});
 
-     ${vColor} = diffuseAccumulator +
-                 specularAccumulator +
-                 uColor;
+     ${vColor} = acc.diffuse + acc.specular + uColor;
     }
         """
       ], prolog: [
@@ -62,16 +56,12 @@ List<ShaderObject> createLightShaderBlinnPhong() {
       ..AddUniformVars([uEyePosition, uColor])
       ..SetBodyWithMain([
         """
-    vec3 diffuseAccumulator;
-    vec3 specularAccumulator;
+    ColorComponents acc = CombinedLight(${vVertexPosition},
+                                        ${vNormal},
+                                        ${uEyePosition},
+                                        ${uLightDescs}, ${uLightTypes});
 
-    CombinedLight(${vVertexPosition}, ${vNormal}, ${uEyePosition},
-                  ${uLightDescs}, ${uLightTypes},
-                  diffuseAccumulator, specularAccumulator);
-
-    gl_FragColor.rgb = diffuseAccumulator +
-                       specularAccumulator +
-                       uColor;
+    gl_FragColor.rgb = acc.diffuse + acc.specular + uColor;
     gl_FragColor.a = 1.0;
 """
       ], prolog: [

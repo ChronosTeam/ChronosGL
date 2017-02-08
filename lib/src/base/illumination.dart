@@ -19,22 +19,22 @@ abstract class Light extends NamedEntity {
 }
 
 class PointLight extends Light {
-  VM.Vector3 _pos;
+  VM.Vector3 pos;
   VM.Vector3 _colDiffuse;
   VM.Vector3 _colSpecular;
   double _range;
   double _glossiness;
 
-  PointLight(String name, this._pos, this._colDiffuse, this._colSpecular,
+  PointLight(String name, this.pos, this._colDiffuse, this._colSpecular,
       this._range, this._glossiness)
       : super(name, lightTypePoint);
 
   // Must be in sync with UnpackPointLightInfo
   @override
   void ExtractInfo(Float32List m, int o) {
-    m[o + 0] = _pos.x;
-    m[o + 1] = _pos.y;
-    m[o + 2] = _pos.z;
+    m[o + 0] = pos.x;
+    m[o + 1] = pos.y;
+    m[o + 2] = pos.z;
     //
     m[o + 8] = _colDiffuse.x;
     m[o + 9] = _colDiffuse.y;
@@ -107,23 +107,23 @@ class DirectionalLight extends Light {
 }
 
 class SpotLight extends Light {
-  VM.Vector3 _pos;
-  VM.Vector3 _dir;
+  VM.Vector3 pos;
+  VM.Vector3 dir;
   VM.Vector3 _colDiffuse;
   VM.Vector3 _colSpecular;
   double _range;
-  double _spotCutoff;
+  double _angle;
   double _spotFocus;
   double _glossiness;
 
   SpotLight(
       String name,
-      VM.Vector3 this._pos,
-      VM.Vector3 this._dir,
+      VM.Vector3 this.pos,
+      VM.Vector3 this.dir,
       this._colDiffuse,
       this._colSpecular,
       this._range,
-      this._spotCutoff,
+      this._angle,
       this._spotFocus,
       this._glossiness)
       : super(name, lightTypeSpot);
@@ -131,13 +131,13 @@ class SpotLight extends Light {
   // Must be in sync with UnpackSpotLightInfo
   @override
   void ExtractInfo(Float32List m, int o) {
-    m[o + 0] = _pos.x;
-    m[o + 1] = _pos.y;
-    m[o + 2] = _pos.z;
+    m[o + 0] = pos.x;
+    m[o + 1] = pos.y;
+    m[o + 2] = pos.z;
     //
-    m[o + 4] = _dir.x;
-    m[o + 5] = _dir.y;
-    m[o + 6] = _dir.z;
+    m[o + 4] = dir.x;
+    m[o + 5] = dir.y;
+    m[o + 6] = dir.z;
     //
     m[o + 8] = _colDiffuse.x;
     m[o + 9] = _colDiffuse.y;
@@ -149,15 +149,26 @@ class SpotLight extends Light {
     //
     m[o + 3] = _glossiness;
     m[o + 7] = _range;
-    m[o + 11] = _spotCutoff;
+    m[o + 11] = Math.cos(_angle);
     m[o + 15] = _spotFocus;
   }
 
+  /*
   @override
   VM.Matrix4 ExtractShadowProjViewMatrix() {
-    VM.Vector3 up = (_dir.x == 0.0 && _dir.z == 0.0) ? _up2 : _up;
+    VM.Vector3 up = (dir.x == 0.0 && dir.z == 0.0) ? _up2 : _up;
     VM.Matrix4 mat = new VM.Matrix4.zero();
-    VM.setViewMatrix(mat, _pos, _pos - _dir, up);
+    VM.setViewMatrix(mat, _pos, _dir - _pos, up);
+    return mat;
+  }
+}
+*/
+
+  @override
+  VM.Matrix4 ExtractShadowProjViewMatrix() {
+    VM.Vector3 up = (dir.x == 0.0 && dir.z == 0.0) ? _up2 : _up;
+    VM.Matrix4 mat = new VM.Matrix4.zero();
+    VM.setViewMatrix(mat, pos, pos - dir, up);
     return mat;
   }
 }
