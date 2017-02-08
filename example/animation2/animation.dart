@@ -11,10 +11,11 @@ String meshFile = "../asset/knight/knight.js";
 String skinningVertexShader = """
 
 mat4 adjustMatrix() {
-    return aBoneWeight.x * uBoneMatrices[int(aBoneIndex.x)] +
-           aBoneWeight.y * uBoneMatrices[int(aBoneIndex.y)] +
-           aBoneWeight.z * uBoneMatrices[int(aBoneIndex.z)] +
-           aBoneWeight.w * uBoneMatrices[int(aBoneIndex.w)];
+   mat4 res = aBoneWeight.x * uBoneMatrices[int(aBoneIndex.x)]
+            + aBoneWeight.y * uBoneMatrices[int(aBoneIndex.y)]
+            + aBoneWeight.z * uBoneMatrices[int(aBoneIndex.z)]
+            + aBoneWeight.w * uBoneMatrices[int(aBoneIndex.w)];
+   return res;
 }
 
 void main() {
@@ -90,88 +91,9 @@ List<ShaderObject> demoShader() {
   ];
 }
 
-VM.Vector3 MakeVector3(List<num> lst) {
-  return new VM.Vector3(
-      lst[0].toDouble(), lst[1].toDouble(), lst[2].toDouble());
-}
 
-VM.Vector3 MakeTransVector3(List<num> lst) {
-  if (lst == null) return new VM.Vector3.zero();
-  return MakeVector3(lst);
-}
 
-VM.Vector3 MakeScaleVector3(List<num> lst) {
-  if (lst == null) return new VM.Vector3(1.0, 1.0, 1.0);
-  return MakeVector3(lst);
-}
 
-VM.Quaternion MakeQuaternion(List<num> lst) {
-  if (lst == null) return new VM.Quaternion.identity();
-
-  return new VM.Quaternion(lst[0].toDouble(), lst[1].toDouble(),
-      lst[2].toDouble(), lst[3].toDouble());
-}
-
-List<Bone> ReadBones(Map json) {
-  final Map metadata = json["metadata"];
-  final List<Map> Bones = json["bones"];
-  List<Bone> bones = new List<Bone>(metadata["bones"]);
-  for (int i = 0; i < Bones.length; i++) {
-    Map m = Bones[i];
-    String name = m["name"];
-    int parent = m["parent"];
-    final VM.Vector3 s = MakeScaleVector3(m["scl"]);
-    final VM.Vector3 t = MakeTransVector3(m["pos"]);
-    final VM.Quaternion r = MakeQuaternion(m["qrot"]);
-    VM.Matrix4 mat = new VM.Matrix4.zero()
-      ..setFromTranslationRotationScale(t, r, s);
-    if (i != 0 && parent < 0) {
-      print("found unusal root node ${i} ${parent}");
-    }
-    bones[i] = new Bone(name, i, parent, new VM.Matrix4.identity(), mat);
-  }
-  print("bones: ${bones.length}");
-  return bones;
-}
-
-SkeletonAnimation ReadAnimation(Map json) {
-  final Map animation = json["animation"];
-  final List<Map> hierarchy = animation["hierarchy"];
-  SkeletonAnimation s = new SkeletonAnimation(
-      animation["name"], animation["length"], hierarchy.length);
-  assert(hierarchy.length == json["bones"].length);
-  for (int i = 0; i < hierarchy.length; ++i) {
-    List<double> pTimes = [];
-    List<VM.Vector3> pValues = [];
-    List<double> rTimes = [];
-    List<VM.Quaternion> rValues = [];
-    List<double> sTimes = [];
-    List<VM.Vector3> sValues = [];
-    for (Map m in hierarchy[i]["keys"]) {
-      double t = m["time"].toDouble();
-
-      if (m.containsKey("pos")) {
-        pTimes.add(t);
-        pValues.add(MakeTransVector3(m["pos"]));
-      }
-
-      if (m.containsKey("scale")) {
-        sTimes.add(t);
-        sValues.add(MakeScaleVector3(m["scl"]));
-      }
-
-      if (m.containsKey("rot")) {
-        rTimes.add(t);
-        rValues.add(MakeQuaternion(m["rot"]));
-      }
-    }
-    BoneAnimation ba =
-        new BoneAnimation(i, pTimes, pValues, rTimes, rValues, sTimes, sValues);
-    s.InsertBone(ba);
-  }
-  print("anim-bones: ${s.animList.length}");
-  return s;
-}
 
 void main() {
   StatsFps fps =
@@ -253,7 +175,11 @@ void main() {
     final double relTime = (timeMs / 1000.0) % anim.duration;
     //print("${relTime}");
     PoseSkeleton(skeleton, globalOffsetTransform, anim, posedSkeleton, relTime);
-    FlattenMatrix4List(posedSkeleton.skinningTransforms, matrices);
+    //for (int i = 0; i < posedSkeleton.globalTransforms.length; i++ ) {
+    //   posedSkeleton.globalTransforms[i].setIdentity();
+    //}
+    FlattenMatrix4List(posedSkeleton.globalTransforms, matrices);
+    //FlattenMatrix4List(posedSkeleton.skinningTransforms, matrices);
     List<VM.Vector3> bonePos =
         BonePosFromPosedSkeleton(skeleton, posedSkeleton);
     mdWire.ChangeVertices(FlattenVector3List(bonePos));
