@@ -7,13 +7,13 @@ import 'dart:typed_data';
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-String meshFile = "../asset/hellknight/hellknight.mesh";
-String animFile = "../asset/hellknight/walk7.anim";
+const String meshFile = "../asset/hellknight/hellknight.mesh";
+const String animFile = "../asset/hellknight/walk7.anim";
 //String animFile = "../asset/hellknight/stand.anim";
 
-String textureFile = "../asset/hellknight/body_diffuse.png";
+const String textureFile = "../asset/hellknight/body_diffuse.png";
 
-String skinningVertexShader = """
+const String skinningVertexShader = """
 
 mat4 adjustMatrix() {
     return aBoneWeight.x * uBoneMatrices[int(aBoneIndex.x)] +
@@ -39,7 +39,7 @@ void main() {
 
 """;
 
-String skinningFragmentShader = """
+const String skinningFragmentShader = """
 void main() {
   gl_FragColor = texture2D(${uTexture}, ${vTextureCoordinates});
 }
@@ -155,6 +155,7 @@ List<Bone> ReadSkeleton(Map data, Map<String, int> nameToPos) {
     skeleton[index] = b;
   }
   print("sleleton with ${skeleton.length} bones");
+  //RecomputeLocalOffsets(skeleton);
   return skeleton;
 }
 
@@ -184,14 +185,14 @@ List<VM.Quaternion> extractValueQuaternion(List<Map> data) {
   return out;
 }
 
-SkeletonAnimation ReadAnim(
+SkeletalAnimation ReadAnim(
     Map data, List<Bone> skeleton, Map<String, int> nameToPos) {
   String animName = data["name"];
   final int duration = data["duration"];
   final int ticksPerSec = data["ticksPerSecond"];
 
-  SkeletonAnimation sa =
-      new SkeletonAnimation(animName, duration / ticksPerSec, skeleton.length);
+  SkeletalAnimation sa =
+      new SkeletalAnimation(animName, duration / ticksPerSec, skeleton.length);
   var anims = data["boneAnimations"];
   for (Map a in anims) {
     String name = a["name"];
@@ -231,7 +232,7 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
   chronosGL.gl.enable(WEBGL.CULL_FACE);
-  //UseElementIndexUint(chronosGL.gl);
+  UseElementIndexUint(chronosGL.gl);
   OrbitCamera orbit = new OrbitCamera(300.0);
   Perspective perspective = new Perspective(orbit);
 
@@ -265,8 +266,8 @@ void main() {
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
   List<Bone> skeleton;
-  SkeletonAnimation anim;
-  PosedSkeleton posedSkeleton;
+  SkeletalAnimation anim;
+  AnimatedSkeleton animatedSkeleton;
   double _lastTimeMs = 0.0;
   VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
 
@@ -282,11 +283,11 @@ void main() {
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
     final double relTime = (timeMs / 1000.0) % anim.duration;
-    PoseSkeleton(skeleton, globalOffsetTransform, anim, posedSkeleton, relTime);
-    FlattenMatrix4List(posedSkeleton.skinningTransforms, matrices);
+    UpdateAnimatedSkeleton(skeleton, globalOffsetTransform, anim, animatedSkeleton, relTime);
+    FlattenMatrix4List(animatedSkeleton.skinningTransforms, matrices);
 
     List<VM.Vector3> bonePos =
-        BonePosFromPosedSkeleton(skeleton, posedSkeleton);
+        BonePosFromPosedSkeleton(skeleton, animatedSkeleton);
     mdWire.ChangeVertices(FlattenVector3List(bonePos));
   }
 
@@ -314,12 +315,12 @@ void main() {
     Map<String, int> nameToPos = {};
     skeleton = ReadSkeleton(list[0], nameToPos);
     anim = ReadAnim(list[1][0], skeleton, nameToPos);
-    posedSkeleton = new PosedSkeleton(skeleton.length);
+    animatedSkeleton = new AnimatedSkeleton(skeleton.length);
 
     {
-      PoseSkeleton(skeleton, globalOffsetTransform, anim, posedSkeleton, 0.0);
+      UpdateAnimatedSkeleton(skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
       mdWire = LineEndPointsToMeshData("wire", chronosGL.gl,
-          BonePosFromPosedSkeleton(skeleton, posedSkeleton));
+          BonePosFromPosedSkeleton(skeleton, animatedSkeleton));
       Node mesh = new Node(mdWire.name, mdWire, matWire)..rotX(3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
