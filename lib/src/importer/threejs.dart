@@ -202,10 +202,10 @@ VM.Quaternion MakeQuaternion(List<num> lst) {
       lst[2].toDouble(), lst[3].toDouble());
 }
 
-SkeletonAnimation ReadAnimation(Map json) {
+SkeletalAnimation ReadAnimation(Map json) {
   final Map animation = json["animation"];
   final List<Map> hierarchy = animation["hierarchy"];
-  SkeletonAnimation s = new SkeletonAnimation(
+  SkeletalAnimation s = new SkeletalAnimation(
       animation["name"], animation["length"], hierarchy.length);
   assert(hierarchy.length == json["bones"].length);
   for (int i = 0; i < hierarchy.length; ++i) {
