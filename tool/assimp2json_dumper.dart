@@ -19,8 +19,6 @@ void ShowInfo(Map json) {
   }
 }
 
-
-
 void main(List<String> arguments) {
   final parser = new ArgParser()..addFlag("faces", negatable: false, abbr: 'f');
 
@@ -31,8 +29,19 @@ void main(List<String> arguments) {
 
     print("reading mesh from: ${p}");
     var meshData = new File(p).readAsStringSync();
-    Map json = JSON.decode(meshData);
-    List<GeometryBuilder> meshes = ReadAssimp2JsonMeshes(json);
+    Map<String, dynamic> json = JSON.decode(meshData);
+
+    List<Bone> skeleton = ReadAssimp2JsonSkeleton(json);
+
+    print("Bones: ${skeleton.length}");
+    GeometryBuilder mesh = ReadAssimp2JsonMesh(json["meshes"][0], skeleton);
+
+    SkeletalAnimation anim =
+        ReadAssimp2JsonAnimation(json["animations"][0], skeleton);
+
+    for (Bone b in skeleton) {
+      print (b);
+    }
   }
   return;
 }

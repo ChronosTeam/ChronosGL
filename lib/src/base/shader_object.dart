@@ -76,6 +76,9 @@ const String aVertexPosition = "aVertexPosition";
 const String aTextureCoordinates = "aTextureCoordinates";
 const String aNormal = "aNormal";
 const String aBinormal = "aBinormal";
+const String aTangent = "aTangent";
+const String aBitangent = "aBitangent";
+
 //
 const String aCenter = "aCenter";
 // For point sprites
@@ -183,7 +186,8 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   aPointSize: new ShaderVarDesc("float", ""),
   aBoneIndex: new ShaderVarDesc("vec4", ""),
   aBoneWeight: new ShaderVarDesc("vec4", ""),
-
+  aTangent: new ShaderVarDesc("vec3", "vertex tangents"),
+  aBitangent: new ShaderVarDesc("vec3", "vertex btangents"),
   iaRotation: new ShaderVarDesc("vec4", ""),
   iaTranslation: new ShaderVarDesc("vec3", ""),
   iaScale: new ShaderVarDesc("vec3", ""),

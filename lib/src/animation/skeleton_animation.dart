@@ -6,6 +6,9 @@
   Skinned Mesh Animation Using Matrices
   by Bruce J. Veazie |
   https://www.gamedev.net/resources/_/technical/graphics-programming-and-theory/skinned-mesh-animation-using-matrices-r3577
+
+  https://research.ncl.ac.uk/game/mastersdegree/graphicsforgames/skeletalanimation/Tutorial%209%20-%20Skeletal%20Animation.pdf
+
 */
 
 part of animation;
@@ -22,6 +25,13 @@ class Bone {
   Bone(this.boneName, this.boneIndex, this.parentNum, this.localTransform,
       this.offsetTransform) {
     assert(boneIndex > parentNum);
+  }
+
+  @override
+  String toString() {
+    return "BONE[${boneIndex}] (${parentNum}) ${boneName}\n"
+        "trans:\n${localTransform}"
+        "offset:\n${offsetTransform}";
   }
 }
 
@@ -194,14 +204,14 @@ List<VM.Vector3> BonePosFromSkeleton(List<Bone> bones) {
 }
 
 List<VM.Vector3> BonePosFromPosedSkeleton(
-    List<Bone> bones, AnimatedSkeleton posed) {
+    List<Bone> bones, AnimatedSkeleton posed, {double scale = 1.0}) {
   List<VM.Vector3> out = [];
 
   for (int i = 0; i < bones.length; ++i) {
     final int parent = bones[i].parentNum;
     if (parent == -1) continue;
-    out.add(posed.globalTransforms[i].getTranslation());
-    out.add(posed.globalTransforms[parent].getTranslation());
+    out.add(posed.globalTransforms[i].getTranslation() * scale);
+    out.add(posed.globalTransforms[parent].getTranslation() * scale);
   }
   //print("skeleton bone ${out.length}");
   return out;
