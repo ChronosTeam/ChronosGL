@@ -104,15 +104,21 @@ List<Bone> ReadAssimp2JsonSkeleton(Map<String, dynamic> json) {
     }
   }
 
-  dfs(json["rootnode"], -1);
+  // We do not represent the root node as a node as it seems to have
+  // a bad transform matrix
+  // dfs(json["rootnode"], -1);
+  Map<String, dynamic> root = json["rootnode"];
+  for (Map<String, dynamic> child in root["children"]) {
+    dfs(child, -1);
+  }
 
   return out;
 }
 
 SkeletalAnimation ReadAssimp2JsonAnimation(
     Map<String, dynamic> json, List<Bone> skeleton) {
-  Map<String, int> name2bone = new Map<String, int>();
-  skeleton.forEach((b) => name2bone[b.boneName] = b.boneIndex);
+  Map<String, Bone> name2bone = new Map<String, Bone>();
+  skeleton.forEach((b) => name2bone[b.boneName] = b);
 
   String name = json["name"];
   double tickspersecond = json["tickspersecond"].toDouble();
@@ -124,7 +130,7 @@ SkeletalAnimation ReadAssimp2JsonAnimation(
   print("animated bones: ${channels.length}");
   for (Map<String, dynamic> c in channels) {
     assert(name2bone.containsKey(c["name"]));
-    final int boneIndex = name2bone[c["name"]];
+    final Bone bone = name2bone[c["name"]];
 
     List<double> positionTimes = [];
     List<VM.Vector3> positionValues = [];
@@ -138,7 +144,7 @@ SkeletalAnimation ReadAssimp2JsonAnimation(
     for (List rot in c["rotationkeys"]) {
       rotationTimes.add(rot[0] / tickspersecond);
       List<double> q = _Floatify(rot[1]);
-      rotationValues.add(new VM.Quaternion(q[0], q[1], q[2], q[3]));
+      rotationValues.add(new VM.Quaternion(q[1], q[2], q[3], q[0]));
     }
 
     List<double> scaleTimes = [];
@@ -148,7 +154,7 @@ SkeletalAnimation ReadAssimp2JsonAnimation(
       scaleValues.add(new VM.Vector3.array(_Floatify(sca[1])));
     }
 
-    anim.InsertBone(new BoneAnimation(boneIndex, positionTimes, positionValues,
+    anim.InsertBone(new BoneAnimation(bone, positionTimes, positionValues,
         rotationTimes, rotationValues, scaleTimes, scaleValues));
   }
 

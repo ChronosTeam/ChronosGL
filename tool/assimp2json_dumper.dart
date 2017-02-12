@@ -3,6 +3,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:args/args.dart';
+import 'package:vector_math/vector_math.dart' as VM;
 
 import '../lib/src/base/lib.dart';
 import '../lib/src/importer/lib.dart';
@@ -38,9 +39,35 @@ void main(List<String> arguments) {
 
     SkeletalAnimation anim =
         ReadAssimp2JsonAnimation(json["animations"][0], skeleton);
-
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    print(">>>>>>>>>> SYNC");
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     for (Bone b in skeleton) {
-      print (b);
+      print(b);
+    }
+
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    print(">>>>>>>>>> SYNC");
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    for (BoneAnimation ba in anim.animList) {
+      print(ba);
+    }
+
+    VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
+
+    AnimatedSkeleton animatedSkeleton = new AnimatedSkeleton(skeleton.length);
+    UpdateAnimatedSkeleton(
+        skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
+
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    print(">>>>>>>>>> SYNC");
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    for (int i = 0; i < skeleton.length; i++) {
+      print(skeleton[i].boneName);
+      print("global");
+      print(animatedSkeleton.globalTransforms[i]);
+      print("skinning");
+      print(animatedSkeleton.skinningTransforms[i]);
     }
   }
   return;
