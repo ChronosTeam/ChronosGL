@@ -5,6 +5,11 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:args/args.dart';
 
+import '../lib/src/base/lib.dart';
+import '../lib/src/importer/lib.dart';
+import '../lib/src/animation/lib.dart';
+
+// Note this is similar to lib/src/importer/threejs.dart
 void DumpFaces(Map json, bool verbose) {
   final List<int> faces = json["faces"];
   int i = 0;
@@ -131,13 +136,12 @@ void ShowInfo(Map json) {
   print("skinWeigths: ${skinWeights.length}");
   print("animation: ${animation['name']}");
   for (Map m in morphTargets) {
-     print("morphTarget: ${m['name']} ${m['vertices'].length}");
+    print("morphTarget: ${m['name']} ${m['vertices'].length}");
   }
 }
 
 void main(List<String> arguments) {
-  final parser = new ArgParser()
-    ..addFlag("verbose", negatable: false, abbr: 'v');
+  final parser = new ArgParser()..addFlag("faces", negatable: false, abbr: 'f');
 
   ArgResults argResults = parser.parse(arguments);
   List<String> paths = argResults.rest;
@@ -148,7 +152,35 @@ void main(List<String> arguments) {
     var meshData = new File(p).readAsStringSync();
     var json = JSON.decode(meshData);
     ShowInfo(json);
-    DumpFaces(json, argResults['verbose']);
+    DumpFaces(json, argResults['faces']);
+
+    List<GeometryBuilder> gb = ReadThreeJsMeshes(json);
+    List<Bone> skeleton = ReadBones(json);
+    SkeletalAnimation anim = ReadAnimation(json);
+    AnimatedSkeleton animatedSkeleton = new AnimatedSkeleton(skeleton.length);
+
+    /*
+    // skin mesh
+    {
+      MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL.gl, gb[0]);
+      Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
+      Node n = new Node.Container("wrapper", mesh);
+      n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+      prgSimple.add(n);
+      prgAnim.add(n);
+    }
+
+    // bone wire mesh
+    {
+      PoseSkeleton(skeleton, globalOffsetTransform, anim, posedSkeleton, 0.0);
+      mdWire = LineEndPointsToMeshData("wire", chronosGL.gl,
+          BonePosFromPosedSkeleton(skeleton, posedSkeleton));
+      Node mesh = new Node(mdWire.name, mdWire, matWire)..rotX(3.14 / 4);
+      Node n = new Node.Container("wrapper", mesh);
+      n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+      prgBone.add(n);
+    }
+    */
   }
   return;
 }

@@ -194,7 +194,7 @@ void main() {
     List<GeometryBuilder> gb = ReadThreeJsMeshes(list[0]);
     skeleton = ReadBones(list[0]);
     RecomputeLocalOffsets(skeleton);
-    anim = ReadAnimation(list[0]);
+    anim = ReadAnimation(list[0], skeleton);
     animatedSkeleton = new AnimatedSkeleton(skeleton.length);
     // skin mesh
     {

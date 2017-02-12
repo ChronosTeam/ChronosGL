@@ -153,7 +153,7 @@ List<GeometryBuilder> ReadThreeJsMeshes(Map json) {
 
 
 
-SkeletalAnimation ReadAnimation(Map json) {
+SkeletalAnimation ReadAnimation(Map json, List<Bone> skeleton) {
   final Map animation = json["animation"];
   final List<Map> hierarchy = animation["hierarchy"];
   SkeletalAnimation s = new SkeletalAnimation(
@@ -185,7 +185,7 @@ SkeletalAnimation ReadAnimation(Map json) {
       }
     }
     BoneAnimation ba =
-        new BoneAnimation(i, pTimes, pValues, rTimes, rValues, sTimes, sValues);
+        new BoneAnimation(skeleton[i], pTimes, pValues, rTimes, rValues, sTimes, sValues);
     s.InsertBone(ba);
   }
   print("anim-bones: ${s.animList.length}");
