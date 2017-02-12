@@ -10,6 +10,7 @@ List<double> _Floatify(List<num> lst) {
   return lst;
 }
 
+//Also fills in the offsets for skeleton
 GeometryBuilder ReadAssimp2JsonMesh(
     Map<String, dynamic> mesh, List<Bone> skeleton) {
   GeometryBuilder gb = new GeometryBuilder();
@@ -57,6 +58,7 @@ GeometryBuilder ReadAssimp2JsonMesh(
       assert(name2bone.containsKey(b["name"]));
       final Bone bone = name2bone[b["name"]];
       List<num> tnum = b["offsetmatrix"];
+      // Note: Surprising side-effect
       bone.offsetTransform.copyFromArray(_Floatify(tnum));
       bone.offsetTransform.transpose();
       if (b.containsKey("weights")) {

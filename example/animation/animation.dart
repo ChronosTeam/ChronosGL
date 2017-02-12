@@ -153,7 +153,7 @@ void main() {
     FlattenMatrix4List(animatedSkeleton.skinningTransforms, matrices);
 
     List<VM.Vector3> bonePos =
-        BonePosFromPosedSkeleton(skeleton, animatedSkeleton);
+        BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton);
     mdWire.ChangeVertices(FlattenVector3List(bonePos));
   }
 
@@ -187,7 +187,7 @@ void main() {
       UpdateAnimatedSkeleton(
           skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
       mdWire = LineEndPointsToMeshData("wire", chronosGL.gl,
-          BonePosFromPosedSkeleton(skeleton, animatedSkeleton));
+          BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton));
       Node mesh = new Node(mdWire.name, mdWire, matWire)..rotX(3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));

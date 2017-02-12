@@ -219,7 +219,7 @@ List<VM.Vector3> BonePosFromSkeleton(List<Bone> bones) {
   return out;
 }
 
-List<VM.Vector3> BonePosFromPosedSkeleton(
+List<VM.Vector3> BonePosFromAnimatedSkeleton(
     List<Bone> bones, AnimatedSkeleton posed,
     {double scale = 1.0}) {
   List<VM.Vector3> out = [];

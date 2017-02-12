@@ -157,8 +157,7 @@ void main(List<String> arguments) {
 
     List<GeometryBuilder> gb = ReadThreeJsMeshes(json);
     print(gb);
-    List<Bone> skeleton = ReadBones(json);
-    SkeletalAnimation anim = ReadAnimation(json, skeleton);
+    List<Bone> skeleton = ReadThreeJsBones(json);
 
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(">>>>>>>>>> Bones");
@@ -166,6 +165,7 @@ void main(List<String> arguments) {
     for (Bone b in skeleton) {
       print(b);
     }
+    SkeletalAnimation anim = ReadThreeJsAnimation(json, skeleton);
 
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(">>>>>>>>>> BoneAnims");

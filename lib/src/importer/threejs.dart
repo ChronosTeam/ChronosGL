@@ -1,6 +1,5 @@
 part of importer;
 
-
 int _FindSkinMultiplier(Map json) {
   final List<int> SkinIndex = json["skinIndices"];
   final List<int> SkinWeight = json["skinWeights"];
@@ -151,9 +150,7 @@ List<GeometryBuilder> ReadThreeJsMeshes(Map json) {
   return out;
 }
 
-
-
-SkeletalAnimation ReadAnimation(Map json, List<Bone> skeleton) {
+SkeletalAnimation ReadThreeJsAnimation(Map json, List<Bone> skeleton) {
   final Map animation = json["animation"];
   final List<Map> hierarchy = animation["hierarchy"];
   SkeletalAnimation s = new SkeletalAnimation(
@@ -184,15 +181,15 @@ SkeletalAnimation ReadAnimation(Map json, List<Bone> skeleton) {
         rValues.add(MakeQuaternion(m["rot"]));
       }
     }
-    BoneAnimation ba =
-        new BoneAnimation(skeleton[i], pTimes, pValues, rTimes, rValues, sTimes, sValues);
+    BoneAnimation ba = new BoneAnimation(
+        skeleton[i], pTimes, pValues, rTimes, rValues, sTimes, sValues);
     s.InsertBone(ba);
   }
   print("anim-bones: ${s.animList.length}");
   return s;
 }
 
-List<Bone> ReadBones(Map json) {
+List<Bone> ReadThreeJsBones(Map json) {
   final Map metadata = json["metadata"];
   final List<Map> Bones = json["bones"];
   List<Bone> bones = new List<Bone>(metadata["bones"]);
@@ -208,8 +205,9 @@ List<Bone> ReadBones(Map json) {
     if (i != 0 && parent < 0) {
       print("found unusal root node ${i} ${parent}");
     }
-    bones[i] = new Bone(name, i, parent, new VM.Matrix4.identity(), mat);
+    bones[i] = new Bone(name, i, parent, mat, new VM.Matrix4.identity());
   }
   print("bones: ${bones.length}");
+  RecomputeLocalOffsets(bones);
   return bones;
 }
