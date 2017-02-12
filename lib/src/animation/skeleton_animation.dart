@@ -82,14 +82,19 @@ void UpdateAnimatedSkeleton(
     } else {
       t.setFrom(posedSkeleton.globalTransforms[bone.parentNum]);
     }
-
+    // if (i < 10) print("UPDATE1 ${bone.boneName}\n${t}");
     BoneAnimation a = animation.animList[i];
     if (a != null) {
       a.setBoneMatrixAtTick(time, tmp);
       t.multiply(tmp);
+      // if (i < 10) print("UPDATE2a ${bone.boneName}\n${tmp}");
+
     } else {
       t.multiply(bone.localTransform);
+      // if (i < 10) print("UPDATE2b ${bone.boneName}\n${bone.localTransform}");
+
     }
+    //if (i < 10) print("UPDATE3 ${bone.boneName}\n${t}");
   }
 
   for (int i = 0; i < skeleton.length; i++) {
@@ -106,7 +111,7 @@ void UpdateAnimatedSkeleton(
 /// ## Class BoneAnimation
 /// represents Key frame animation data for a single bone in a skeleton.
 class BoneAnimation {
-  final int boneIndex;
+  final Bone bone;
 
   List<double> _positionTimes;
   List<VM.Vector3> _positionValues;
@@ -118,7 +123,7 @@ class BoneAnimation {
   /// Construct bone animation with [boneName]. Animation key frames
   /// will be loaded from [positions], [rotations], and [scales].
   BoneAnimation(
-      this.boneIndex,
+      this.bone,
       this._positionTimes,
       this._positionValues,
       this._rotationTimes,
@@ -171,6 +176,17 @@ class BoneAnimation {
     VM.Quaternion r = _rotationValues[rotationIndex];
     boneMatrix.setFromTranslationRotationScale(t, r, s);
   }
+
+  @override
+  String toString() {
+    List<String> s = [];
+    //s.add("${bone.boneName} [${bone.boneIndex}]");
+    s.add("${bone.boneName}");
+    s.add("${_positionTimes.length}: ${_positionValues}");
+    s.add("${_rotationTimes.length}: ${_rotationValues}");
+    s.add("${_scaleTimes.length}: ${_scaleValues}");
+    return s.join("\n");
+  }
 }
 
 /// ## Class SkeletalAnimation
@@ -184,8 +200,8 @@ class SkeletalAnimation {
       : animList = new List<BoneAnimation>(length);
 
   void InsertBone(BoneAnimation ba) {
-    assert(animList[ba.boneIndex] == null);
-    animList[ba.boneIndex] = ba;
+    assert(animList[ba.bone.boneIndex] == null);
+    animList[ba.bone.boneIndex] = ba;
   }
 }
 
@@ -204,7 +220,8 @@ List<VM.Vector3> BonePosFromSkeleton(List<Bone> bones) {
 }
 
 List<VM.Vector3> BonePosFromPosedSkeleton(
-    List<Bone> bones, AnimatedSkeleton posed, {double scale = 1.0}) {
+    List<Bone> bones, AnimatedSkeleton posed,
+    {double scale = 1.0}) {
   List<VM.Vector3> out = [];
 
   for (int i = 0; i < bones.length; ++i) {
