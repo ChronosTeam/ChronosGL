@@ -35,19 +35,20 @@ void main(List<String> arguments) {
     List<Bone> skeleton = ReadAssimp2JsonSkeleton(json);
 
     print("Bones: ${skeleton.length}");
-    GeometryBuilder mesh = ReadAssimp2JsonMesh(json["meshes"][0], skeleton);
+    GeometryBuilder gb = ReadAssimp2JsonMesh(json["meshes"][0], skeleton);
+    print(gb);
 
     SkeletalAnimation anim =
         ReadAssimp2JsonAnimation(json["animations"][0], skeleton);
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-    print(">>>>>>>>>> SYNC");
+    print(">>>>>>>>>> Bones");
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     for (Bone b in skeleton) {
       print(b);
     }
 
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-    print(">>>>>>>>>> SYNC");
+    print(">>>>>>>>>> BoneAnims");
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     for (BoneAnimation ba in anim.animList) {
       print(ba);
@@ -60,7 +61,7 @@ void main(List<String> arguments) {
         skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
 
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-    print(">>>>>>>>>> SYNC");
+    print(">>>>>>>>>> Animated");
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     for (int i = 0; i < skeleton.length; i++) {
       print(skeleton[i].boneName);

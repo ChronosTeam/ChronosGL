@@ -4,6 +4,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:args/args.dart';
+import 'package:vector_math/vector_math.dart' as VM;
 
 import '../lib/src/base/lib.dart';
 import '../lib/src/importer/lib.dart';
@@ -155,32 +156,40 @@ void main(List<String> arguments) {
     DumpFaces(json, argResults['faces']);
 
     List<GeometryBuilder> gb = ReadThreeJsMeshes(json);
+    print(gb);
     List<Bone> skeleton = ReadBones(json);
-    SkeletalAnimation anim = ReadAnimation(json);
+    SkeletalAnimation anim = ReadAnimation(json, skeleton);
+
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    print(">>>>>>>>>> Bones");
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    for (Bone b in skeleton) {
+      print(b);
+    }
+
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    print(">>>>>>>>>> BoneAnims");
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    for (BoneAnimation ba in anim.animList) {
+      print(ba);
+    }
+
+    VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
+
     AnimatedSkeleton animatedSkeleton = new AnimatedSkeleton(skeleton.length);
+    UpdateAnimatedSkeleton(
+        skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
 
-    /*
-    // skin mesh
-    {
-      MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL.gl, gb[0]);
-      Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
-      Node n = new Node.Container("wrapper", mesh);
-      n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
-      prgSimple.add(n);
-      prgAnim.add(n);
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    print(">>>>>>>>>> Animated");
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    for (int i = 0; i < skeleton.length; i++) {
+      print(skeleton[i].boneName);
+      print("global");
+      print(animatedSkeleton.globalTransforms[i]);
+      print("skinning");
+      print(animatedSkeleton.skinningTransforms[i]);
     }
-
-    // bone wire mesh
-    {
-      PoseSkeleton(skeleton, globalOffsetTransform, anim, posedSkeleton, 0.0);
-      mdWire = LineEndPointsToMeshData("wire", chronosGL.gl,
-          BonePosFromPosedSkeleton(skeleton, posedSkeleton));
-      Node mesh = new Node(mdWire.name, mdWire, matWire)..rotX(3.14 / 4);
-      Node n = new Node.Container("wrapper", mesh);
-      n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
-      prgBone.add(n);
-    }
-    */
   }
   return;
 }
