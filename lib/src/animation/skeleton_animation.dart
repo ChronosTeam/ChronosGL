@@ -58,7 +58,7 @@ void RecomputeLocalOffsets(List<Bone> skeleton) {
   for (int i = 0; i < skeleton.length; i++) {
     Bone bone = skeleton[i];
     if (bone.parentNum < 0) {
-      toRoot[i] = new VM.Matrix4.identity();
+      toRoot[i] = new VM.Matrix4.identity()* bone.localTransform;
     } else {
       toRoot[i] = toRoot[bone.parentNum] * bone.localTransform;
     }
@@ -82,19 +82,13 @@ void UpdateAnimatedSkeleton(
     } else {
       t.setFrom(posedSkeleton.globalTransforms[bone.parentNum]);
     }
-    // if (i < 10) print("UPDATE1 ${bone.boneName}\n${t}");
     BoneAnimation a = animation.animList[i];
     if (a != null) {
       a.setBoneMatrixAtTick(time, tmp);
       t.multiply(tmp);
-      // if (i < 10) print("UPDATE2a ${bone.boneName}\n${tmp}");
-
     } else {
       t.multiply(bone.localTransform);
-      // if (i < 10) print("UPDATE2b ${bone.boneName}\n${bone.localTransform}");
-
     }
-    //if (i < 10) print("UPDATE3 ${bone.boneName}\n${t}");
   }
 
   for (int i = 0; i < skeleton.length; i++) {

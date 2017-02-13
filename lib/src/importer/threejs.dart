@@ -199,7 +199,7 @@ List<Bone> ReadThreeJsBones(Map json) {
     int parent = m["parent"];
     final VM.Vector3 s = MakeScaleVector3(m["scl"]);
     final VM.Vector3 t = MakeTransVector3(m["pos"]);
-    final VM.Quaternion r = MakeQuaternion(m["qrot"]);
+    final VM.Quaternion r = MakeQuaternion(m["rotq"]);
     VM.Matrix4 mat = new VM.Matrix4.zero()
       ..setFromTranslationRotationScale(t, r, s);
     if (i != 0 && parent < 0) {

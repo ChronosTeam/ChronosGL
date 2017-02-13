@@ -169,17 +169,9 @@ void main() {
     HTML.window.animationFrame.then(animate);
 
     double relTime = (timeMs / 1000.0) % anim.duration;
-    //print("${relTime}");
-    //relTime = 0.0;
     UpdateAnimatedSkeleton(
         skeleton, globalOffsetTransform, anim, animatedSkeleton, relTime);
-    /*
-    for (int i = 20; i < animatedSkeleton.globalTransforms.length; i++) {
-      animatedSkeleton.globalTransforms[i].setIdentity();
-      animatedSkeleton.skinningTransforms[i].setIdentity();
-    }
-    */
-    //FlattenMatrix4List(animatedSkeleton.globalTransforms, matrices);
+
     FlattenMatrix4List(animatedSkeleton.skinningTransforms, matrices);
     List<VM.Vector3> bonePos =
         BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton);
