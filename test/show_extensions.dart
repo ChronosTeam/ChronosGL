@@ -15,6 +15,7 @@ void main() {
     }
     WEBGL.DebugRendererInfo di =
         chronosGL.gl.getExtension('WEBGL_debug_renderer_info');
+    print(di);
     print(chronosGL.gl
         .getParameter(WEBGL.DebugRendererInfo.UNMASKED_VENDOR_WEBGL));
     print(chronosGL.gl
