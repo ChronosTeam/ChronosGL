@@ -91,10 +91,6 @@ List<ShaderObject> demoShader() {
   ];
 }
 
-
-
-
-
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -136,8 +132,8 @@ void main() {
   HTML.window.onResize.listen(resolutionChange);
 
   List<Bone> skeleton;
-  SkeletonAnimation anim;
-  PosedSkeleton posedSkeleton;
+  SkeletalAnimation anim;
+  AnimatedSkeleton animatedSkeleton;
   VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
   MeshData mdWire;
 
@@ -172,16 +168,13 @@ void main() {
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
 
-    final double relTime = (timeMs / 1000.0) % anim.duration;
-    //print("${relTime}");
-    PoseSkeleton(skeleton, globalOffsetTransform, anim, posedSkeleton, relTime);
-    //for (int i = 0; i < posedSkeleton.globalTransforms.length; i++ ) {
-    //   posedSkeleton.globalTransforms[i].setIdentity();
-    //}
-    FlattenMatrix4List(posedSkeleton.globalTransforms, matrices);
-    //FlattenMatrix4List(posedSkeleton.skinningTransforms, matrices);
+    double relTime = (timeMs / 1000.0) % anim.duration;
+    UpdateAnimatedSkeleton(
+        skeleton, globalOffsetTransform, anim, animatedSkeleton, relTime);
+
+    FlattenMatrix4List(animatedSkeleton.skinningTransforms, matrices);
     List<VM.Vector3> bonePos =
-        BonePosFromPosedSkeleton(skeleton, posedSkeleton);
+        BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton);
     mdWire.ChangeVertices(FlattenVector3List(bonePos));
   }
 
@@ -192,9 +185,9 @@ void main() {
   Future.wait(futures).then((List list) {
     // Setup Mesh
     List<GeometryBuilder> gb = ReadThreeJsMeshes(list[0]);
-    skeleton = ReadBones(list[0]);
-    anim = ReadAnimation(list[0]);
-    posedSkeleton = new PosedSkeleton(skeleton.length);
+    skeleton = ReadThreeJsBones(list[0]);
+    anim = ReadThreeJsAnimation(list[0], skeleton);
+    animatedSkeleton = new AnimatedSkeleton(skeleton.length);
     // skin mesh
     {
       MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL.gl, gb[0]);
@@ -207,9 +200,10 @@ void main() {
 
     // bone wire mesh
     {
-      PoseSkeleton(skeleton, globalOffsetTransform, anim, posedSkeleton, 0.0);
+      UpdateAnimatedSkeleton(
+          skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
       mdWire = LineEndPointsToMeshData("wire", chronosGL.gl,
-          BonePosFromPosedSkeleton(skeleton, posedSkeleton));
+          BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton));
       Node mesh = new Node(mdWire.name, mdWire, matWire)..rotX(3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));

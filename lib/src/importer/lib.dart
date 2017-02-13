@@ -10,5 +10,8 @@ import "../animation/lib.dart";
 /// # Layer: Importer (uses Base Layer)
 /// contains helpers reading various mesh file formats into **GeometryBuilders**
 
+part "util.dart";
 part "wavefront.dart";
 part "threejs.dart";
+part "assimp2json.dart";
+

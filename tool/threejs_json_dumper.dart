@@ -4,7 +4,13 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:args/args.dart';
+import 'package:vector_math/vector_math.dart' as VM;
 
+import '../lib/src/base/lib.dart';
+import '../lib/src/importer/lib.dart';
+import '../lib/src/animation/lib.dart';
+
+// Note this is similar to lib/src/importer/threejs.dart
 void DumpFaces(Map json, bool verbose) {
   final List<int> faces = json["faces"];
   int i = 0;
@@ -131,13 +137,12 @@ void ShowInfo(Map json) {
   print("skinWeigths: ${skinWeights.length}");
   print("animation: ${animation['name']}");
   for (Map m in morphTargets) {
-     print("morphTarget: ${m['name']} ${m['vertices'].length}");
+    print("morphTarget: ${m['name']} ${m['vertices'].length}");
   }
 }
 
 void main(List<String> arguments) {
-  final parser = new ArgParser()
-    ..addFlag("verbose", negatable: false, abbr: 'v');
+  final parser = new ArgParser()..addFlag("faces", negatable: false, abbr: 'f');
 
   ArgResults argResults = parser.parse(arguments);
   List<String> paths = argResults.rest;
@@ -148,7 +153,43 @@ void main(List<String> arguments) {
     var meshData = new File(p).readAsStringSync();
     var json = JSON.decode(meshData);
     ShowInfo(json);
-    DumpFaces(json, argResults['verbose']);
+    DumpFaces(json, argResults['faces']);
+
+    List<GeometryBuilder> gb = ReadThreeJsMeshes(json);
+    print(gb);
+    List<Bone> skeleton = ReadThreeJsBones(json);
+
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    print(">>>>>>>>>> Bones");
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    for (Bone b in skeleton) {
+      print(b);
+    }
+    SkeletalAnimation anim = ReadThreeJsAnimation(json, skeleton);
+
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    print(">>>>>>>>>> BoneAnims");
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    for (BoneAnimation ba in anim.animList) {
+      print(ba);
+    }
+
+    VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
+
+    AnimatedSkeleton animatedSkeleton = new AnimatedSkeleton(skeleton.length);
+    UpdateAnimatedSkeleton(
+        skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
+
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    print(">>>>>>>>>> Animated");
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    for (int i = 0; i < skeleton.length; i++) {
+      print(skeleton[i].boneName);
+      print("global");
+      print(animatedSkeleton.globalTransforms[i]);
+      print("skinning");
+      print(animatedSkeleton.skinningTransforms[i]);
+    }
   }
   return;
 }

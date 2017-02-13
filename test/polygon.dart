@@ -4,7 +4,7 @@ import "package:test/test.dart";
 import 'package:vector_math/vector_math.dart' as VM;
 import 'polygon_data.dart' as DATA;
 
-import '../lib/src/polygon/polygon.dart';
+import '../lib/src/polygon/lib.dart';
 
 double getTrianguatedArea(
     final List<int> triangles, final List<VM.Vector2> data) {

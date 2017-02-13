@@ -1,35 +1,5 @@
 part of importer;
 
-List<VM.Vector3> ConvertToVector3List(List<double> lst) {
-  List<VM.Vector3> out = new List<VM.Vector3>(lst.length ~/ 3);
-  for (int i = 0; i < lst.length; i += 3) {
-    //print("${lst[i + 0]}  ${lst[i + 1]}  ${lst[i + 2]}");
-    out[i ~/ 3] = new VM.Vector3(
-        lst[i + 0].toDouble(), lst[i + 1].toDouble(), lst[i + 2].toDouble());
-  }
-  return out;
-}
-
-List<VM.Vector2> ConvertToVector2List(List<double> lst) {
-  List<VM.Vector2> out = new List<VM.Vector2>(lst.length ~/ 2);
-  for (int i = 0; i < lst.length; i += 2) {
-    out[i ~/ 2] = new VM.Vector2(lst[i + 0].toDouble(), lst[i + 1].toDouble());
-  }
-  return out;
-}
-
-List<VM.Vector4> ConvertToVector4List(int nFill, List<double> lst) {
-  List<VM.Vector4> out = new List<VM.Vector4>(lst.length ~/ nFill);
-  for (int i = 0, pos = 0; i < lst.length; i += nFill, pos++) {
-    VM.Vector4 v = new VM.Vector4.zero();
-    for (int x = 0; x < nFill; ++x) {
-      v[x] = lst[i + x].toDouble();
-    }
-    out[pos] = v;
-  }
-  return out;
-}
-
 int _FindSkinMultiplier(Map json) {
   final List<int> SkinIndex = json["skinIndices"];
   final List<int> SkinWeight = json["skinWeights"];
@@ -180,32 +150,10 @@ List<GeometryBuilder> ReadThreeJsMeshes(Map json) {
   return out;
 }
 
-VM.Vector3 MakeVector3(List<num> lst) {
-  return new VM.Vector3(
-      lst[0].toDouble(), lst[1].toDouble(), lst[2].toDouble());
-}
-
-VM.Vector3 MakeTransVector3(List<num> lst) {
-  if (lst == null) return new VM.Vector3.zero();
-  return MakeVector3(lst);
-}
-
-VM.Vector3 MakeScaleVector3(List<num> lst) {
-  if (lst == null) return new VM.Vector3(1.0, 1.0, 1.0);
-  return MakeVector3(lst);
-}
-
-VM.Quaternion MakeQuaternion(List<num> lst) {
-  if (lst == null) return new VM.Quaternion.identity();
-
-  return new VM.Quaternion(lst[0].toDouble(), lst[1].toDouble(),
-      lst[2].toDouble(), lst[3].toDouble());
-}
-
-SkeletonAnimation ReadAnimation(Map json) {
+SkeletalAnimation ReadThreeJsAnimation(Map json, List<Bone> skeleton) {
   final Map animation = json["animation"];
   final List<Map> hierarchy = animation["hierarchy"];
-  SkeletonAnimation s = new SkeletonAnimation(
+  SkeletalAnimation s = new SkeletalAnimation(
       animation["name"], animation["length"], hierarchy.length);
   assert(hierarchy.length == json["bones"].length);
   for (int i = 0; i < hierarchy.length; ++i) {
@@ -233,15 +181,15 @@ SkeletonAnimation ReadAnimation(Map json) {
         rValues.add(MakeQuaternion(m["rot"]));
       }
     }
-    BoneAnimation ba =
-        new BoneAnimation(i, pTimes, pValues, rTimes, rValues, sTimes, sValues);
+    BoneAnimation ba = new BoneAnimation(
+        skeleton[i], pTimes, pValues, rTimes, rValues, sTimes, sValues);
     s.InsertBone(ba);
   }
   print("anim-bones: ${s.animList.length}");
   return s;
 }
 
-List<Bone> ReadBones(Map json) {
+List<Bone> ReadThreeJsBones(Map json) {
   final Map metadata = json["metadata"];
   final List<Map> Bones = json["bones"];
   List<Bone> bones = new List<Bone>(metadata["bones"]);
@@ -251,14 +199,15 @@ List<Bone> ReadBones(Map json) {
     int parent = m["parent"];
     final VM.Vector3 s = MakeScaleVector3(m["scl"]);
     final VM.Vector3 t = MakeTransVector3(m["pos"]);
-    final VM.Quaternion r = MakeQuaternion(m["qrot"]);
+    final VM.Quaternion r = MakeQuaternion(m["rotq"]);
     VM.Matrix4 mat = new VM.Matrix4.zero()
       ..setFromTranslationRotationScale(t, r, s);
     if (i != 0 && parent < 0) {
       print("found unusal root node ${i} ${parent}");
     }
-    bones[i] = new Bone(name, i, parent, new VM.Matrix4.identity(), mat);
+    bones[i] = new Bone(name, i, parent, mat, new VM.Matrix4.identity());
   }
   print("bones: ${bones.length}");
+  RecomputeLocalOffsets(bones);
   return bones;
 }
