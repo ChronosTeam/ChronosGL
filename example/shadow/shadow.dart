@@ -28,11 +28,11 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
     new ShaderObject("LightBlinnPhongShadowF")
       ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight])
       ..AddUniformVars([uLightDescs, uLightTypes])
-      ..AddUniformVars([uShadowMap, uEyePosition, uColor])
+      ..AddUniformVars([uShadowMap, uEyePosition, uColor, uShadowBias])
       ..SetBodyWithMain([
         """
     float shadow = computeShadow(${vPositionFromLight},
-                                 ${uShadowMap}, 0.1, 0.1);
+                                 ${uShadowMap}, 0.1, ${uShadowBias});
 
 
     ColorComponents acc = ColorComponents(vec3(0.0), vec3(0.0));
@@ -56,7 +56,6 @@ List<ShaderObject> createShadowShader() {
   return [
     new ShaderObject("ShadowV")
       ..AddAttributeVar(aVertexPosition)
-      ..AddVaryingVar(vPositionFromLight)
       ..AddUniformVar(uLightPerspectiveViewMatrix)
       ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain([
@@ -65,19 +64,18 @@ List<ShaderObject> createShadowShader() {
         """
     gl_Position = ${uLightPerspectiveViewMatrix} * ${uModelMatrix} *
                   vec4(${aVertexPosition}, 1.0);
-    ${vPositionFromLight} = gl_Position;
+    //${vPositionFromLight} = gl_Position;
     """
       ]),
     new ShaderObject("ShadowF")
-      ..AddVaryingVar(vPositionFromLight)
       ..SetBodyWithMain([
         """
     // Note, this is equivalent to passing
-    //   ${vPositionFromLight} = gl_Position;
+    // ${vPositionFromLight}
     // in the vertex shader and then computing
-    // float d = ${vPositionFromLight}.z / ${vPositionFromLight}.w * 0.5 + 0.5;
-    float d  = gl_FragCoord.z;
+    // d = ${vPositionFromLight}.z / ${vPositionFromLight}.w * 0.5 + 0.5;
 
+    float d  = gl_FragCoord.z;
     // d is value between 0.0 and 1.0
     gl_FragColor = packDepth(d);
 """
@@ -86,7 +84,6 @@ List<ShaderObject> createShadowShader() {
       ])
   ];
 }
-
 
 List<ShaderObject> createCopyShaderForShadow() {
   return [
@@ -133,7 +130,7 @@ final VM.Vector3 colLiteGreen = new VM.Vector3(0.0, 0.5, 0.0);
 final VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
 
 final VM.Vector3 posLight = new VM.Vector3(11.0, 20.0, 0.0);
-final VM.Vector3 dirLight = new VM.Vector3(-11.0, -30.0, 0.0);
+final VM.Vector3 dirLight = new VM.Vector3(0.0, -30.0, 0.0);
 
 final double range = 50.0;
 final double cutoff = 0.95;
@@ -146,7 +143,7 @@ final String idDirectional = "idDirectional";
 
 final Map<String, Light> lightSources = {
   idDirectional:
-      new DirectionalLight("dir", dirLight, colLiteRed, colRed, glossiness),
+      new DirectionalLight("dir", dirLight, colBlue, colBlack, glossiness),
   idSpot: new SpotLight("spot", posLight, dirLight, colLiteGreen, colGreen,
       range, cutoff, 2.0, glossiness),
   idPoint: new PointLight(
@@ -206,11 +203,25 @@ void SwallowEvent(HTML.Event e) {
   e.stopPropagation();
 }
 
+final Material mat1 = new Material("mat1")
+  ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 0.4));
+
+final Material mat2 = new Material("mat2")
+  ..SetUniform(uColor, new VM.Vector3(0.4, 0.0, 0.0));
+
+final Material mat3 = new Material("mat3")
+  ..SetUniform(uColor, new VM.Vector3(0.0, 0.4, 0.0));
+
+final Material mat4 = new Material("mat3")
+  ..SetUniform(uColor, new VM.Vector3(0.4, 0.4, 0.4));
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
+
+  var ext_depth_texture = GetGlExtensionDepthTexture(chronosGL.gl);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
 
@@ -258,32 +269,14 @@ void main() {
 
   basic.SetInput(uShadowMap, shadowBuffer.colorTexture);
 
-  Texture solid =
-      new CanvasTexture.SolidColor(chronosGL.gl, "red-solid", "red");
-  final Material mat1 = new Material("mat1")
-    ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 0.4));
-
-  final Material mat2 = new Material("mat2")
-    ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, new VM.Vector3(0.4, 0.0, 0.0));
-
-  final Material mat3 = new Material("mat3")
-    ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, new VM.Vector3(0.0, 0.4, 0.0));
-
-  final Material mat4 = new Material("mat3")
-    ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, new VM.Vector3(0.4, 0.4, 0.4));
-
   {
-    Node ico = new Node("sphere", ShapeIcosahedron(chronosGL.gl, 3), mat1)
+    Node ico = new Node("sphere", ShapeIcosahedron(chronosGL.gl, 3), mat3)
       ..setPos(0.0, 0.0, 0.0);
     shadowMap.add(ico);
     basic.add(ico);
   }
   {
-    Node cube = new Node("cube", ShapeCube(chronosGL.gl), mat2)
+    Node cube = new Node("cube", ShapeCube(chronosGL.gl), mat3)
       ..setPos(-5.0, 0.0, -5.0);
     shadowMap.add(cube);
     basic.add(cube);
@@ -299,16 +292,17 @@ void main() {
 
   /*
   {
-    Mesh torus = new Mesh(Shapes.TorusKnot(radius: 1.0, tube: 0.4)..generateNormalsAssumingTriangleMode(), mat2)
+    Mesh torus = new Mesh(Shapes.TorusKnot(radius: 1.0, tube: 0.4)..generateNormalsAssumingTriangleMode(), mat3)
       ..setPos(5.0, 0.0, 5.0);
-    program.add(torus);
+    shadowMap.add(torus);
     basic.add(torus);
   }
 */
+
   {
     // plane
     Node cube = new Node(
-        "cube", ShapeCube(chronosGL.gl, x: 20.0, y: 0.1, z: 20.0), mat4)
+        "cube", ShapeCube(chronosGL.gl, x: 20.0, y: 0.1, z: 20.0), mat3)
       ..setPos(0.0, -10.0, 0.0);
     shadowMap.add(cube);
     basic.add(cube);
@@ -387,7 +381,7 @@ void main() {
 
     shadowMap.ForceInput(uLightPerspectiveViewMatrix, lm);
     basic.ForceInput(uLightPerspectiveViewMatrix, lm);
-
+    basic.ForceInput(uShadowBias, 0.0);
     // Compute the shadow map
     phaseComputeShadow.draw([]);
     // show the shadow map
