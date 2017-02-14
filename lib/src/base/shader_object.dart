@@ -8,10 +8,10 @@ const int lightTypeDirectional = 1;
 const int lightTypeSpot = 2;
 const int lightTypePoint = 3;
 
-const double lightTypeInvalidFloat = lightTypeInvalid + 0.0;
-const double lightTypeDirectionalFloat = lightTypeDirectional + 0.0;
-const double lightTypeSpotFloat = lightTypeSpot + 0.0;
-const double lightTypePointFloat = lightTypePoint + 0.0;
+const String lightTypeInvalidFloat = "${lightTypeInvalid}.0";
+const String lightTypeDirectionalFloat = "${lightTypeDirectional}.0";
+const String lightTypeSpotFloat = "${lightTypeSpot}.0";
+const String lightTypePointFloat = "${lightTypePoint}.0";
 
 class ShaderVarDesc {
   final String type;
