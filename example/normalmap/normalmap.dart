@@ -31,24 +31,16 @@ List<ShaderObject> createShader() {
       ..AddUniformVars([uEyePosition, uColor, uTexture])
       ..SetBodyWithMain([
         """
-vec3 diffuseAccumulator;
-vec3 specularAccumulator;
-
-CombinedLight(${vVertexPosition}, ${vNormal}, ${uEyePosition},
-              ${uLightDescs},
-              ${uLightTypes},
-              diffuseAccumulator, specularAccumulator);
+ColorComponents acc = CombinedLight(${vVertexPosition} - ${uEyePosition},
+                                    ${vNormal},
+                                    ${uEyePosition},
+                                    ${uLightDescs},
+                                    ${uLightTypes});
 
 vec4 diffuseMap = texture2D(${uTexture}, ${vTextureCoordinates} );
 
-gl_FragColor = vec4(diffuseMap.rgb * diffuseAccumulator +
-                    specularAccumulator +
-                    uColor,
-                    1.0);
-
-if (diffuseMap.r != 666.0) {
- // gl_FragColor = diffuseMap;
-}
+gl_FragColor.rgb = diffuseMap.rgb + acc.diffuse + acc.specular + uColor;
+gl_FragColor.a = 1.0;
 
 """
       ], prolog: [
