@@ -25,10 +25,13 @@ class Face4 {
 }
 
 class GeometryBuilder {
+  final bool pointsOnly;
   List<Face3> _faces3 = [];
   List<Face4> _faces4 = [];
   List<VM.Vector3> vertices = [];
   Map<String, List> attributes = {};
+
+  GeometryBuilder([this.pointsOnly = false]);
 
   void EnableAttribute(String canonical) {
     assert(!attributes.containsKey(canonical));
@@ -36,7 +39,16 @@ class GeometryBuilder {
     attributes[canonical] = [];
   }
 
+  bool HasAttribute(String canonical) {
+    return attributes.containsKey(canonical);
+  }
+
   void SanityCheck() {
+    if (pointsOnly) {
+      assert(_faces3.length == 0);
+      assert(_faces4.length == 0);
+      return;
+    }
     int maxIndexFace3 = -1;
     for (Face3 f in _faces3) {
       if (f.a > maxIndexFace3) maxIndexFace3 = f.a;
@@ -64,14 +76,17 @@ class GeometryBuilder {
   }
 
   void AddFace3(int a, int b, int c) {
+    assert(pointsOnly == false);
     _faces3.add(new Face3(a, b, c));
   }
 
   void AddFace4(int a, int b, int c, int d) {
+    assert(pointsOnly == false);
     _faces4.add(new Face4(a, b, c, d));
   }
 
   void AddFaces3(int n) {
+    assert(pointsOnly == false);
     int v = vertices.length;
     for (int i = 0; i < n; i++, v += 3) {
       _faces3.add(new Face3(v + 0, v + 1, v + 2));
@@ -79,6 +94,7 @@ class GeometryBuilder {
   }
 
   void AddFaces4(int n) {
+    assert(pointsOnly == false);
     int v = vertices.length;
     for (int i = 0; i < n; i++, v += 4) {
       _faces4.add(new Face4(v + 0, v + 1, v + 2, v + 3));
@@ -90,6 +106,10 @@ class GeometryBuilder {
     for (VM.Vector3 v in vs) {
       vertices.add(v.clone());
     }
+  }
+
+  void AddVertex(VM.Vector3 v) {
+    vertices.add(v.clone());
   }
 
   void AddVerticesFace3(List<VM.Vector3> vs) {
