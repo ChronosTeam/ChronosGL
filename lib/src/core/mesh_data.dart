@@ -195,9 +195,10 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
 
 MeshData GeometryBuilderToMeshData(
     String name, WEBGL.RenderingContext gl, GeometryBuilder gb) {
-  MeshData md = new MeshData(name, gl, WEBGL.TRIANGLES);
+  MeshData md =
+      new MeshData(name, gl, gb.pointsOnly ? WEBGL.POINTS : WEBGL.TRIANGLES);
   md.AddVertices(FlattenVector3List(gb.vertices));
-  md.AddFaces(gb.GenerateFaceIndices());
+  if (!gb.pointsOnly) md.AddFaces(gb.GenerateFaceIndices());
   _GeometryBuilderAttributesToMeshData(gb, md);
   return md;
 }

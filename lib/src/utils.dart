@@ -165,34 +165,26 @@ class Utils {
   }
    */
 
-  static Node MakeParticles(WEBGL.RenderingContext gl, int numPoints,
-      [int dimension = 100]) {
-    return MakePointSprites(
-        gl, numPoints, createParticleTexture(gl), dimension);
-  }
-
   static int id = 1;
 
-  static Node MakePointSprites(
-      WEBGL.RenderingContext gl, int numPoints, Texture texture,
-      [int dimension = 500]) {
-    // TODO: make this asynchronous (async/await?)
-    Math.Random rand = new Math.Random();
-    List<VM.Vector3> vertices = new List<VM.Vector3>(numPoints);
-    for (var i = 0; i < numPoints; i++) {
-      vertices[i] = new VM.Vector3(
-          (rand.nextDouble() - 0.5) * dimension,
-          (rand.nextDouble() - 0.5) * dimension,
-          (rand.nextDouble() - 0.5) * dimension);
-    }
-    MeshData md = new MeshData("stars", gl, WEBGL.POINTS);
-    md.AddVertices(FlattenVector3List(vertices));
-
+  static Node MakeParticles(WEBGL.RenderingContext gl, int numPoints,
+      [int dimension = 100]) {
     Material mat = new Material.Transparent("stars", new BlendEquation.Mix())
-      ..SetUniform(uTexture, texture)
+      ..SetUniform(uTexture, createParticleTexture(gl))
       ..SetUniform(uPointSize, 1000);
+
+    Math.Random rand = new Math.Random();
+    GeometryBuilder gb = new GeometryBuilder(true);
+    for (var i = 0; i < numPoints; i++) {
+      gb.AddVertex(new VM.Vector3(
+          (rand.nextDouble() - 0.5) * dimension,
+          (rand.nextDouble() - 0.5) * dimension,
+          (rand.nextDouble() - 0.5) * dimension));
+    }
+
     id++;
-    return new Node('point_sprites_mesh_' + id.toString(), md, mat);
+    final String name = 'point_sprites_mesh_' + id.toString();
+    return new Node(name, GeometryBuilderToMeshData(name, gl, gb), mat);
   }
 
   static String getQueryVariable(String name) {
@@ -235,9 +227,10 @@ MeshData ShapeWedge(WEBGL.RenderingContext gl,
 }
 
 MeshData ShapeCylinder(WEBGL.RenderingContext gl, double radTop, double radBot,
-    double height, int radialSubdivisions, [bool computeNormals = true]) {
-  GeometryBuilder gb =
-      CylinderGeometry(radTop, radBot, height, radialSubdivisions, computeNormals);
+    double height, int radialSubdivisions,
+    [bool computeNormals = true]) {
+  GeometryBuilder gb = CylinderGeometry(
+      radTop, radBot, height, radialSubdivisions, computeNormals);
   return GeometryBuilderToMeshData("cylinder-${radialSubdivisions}", gl, gb);
 }
 
