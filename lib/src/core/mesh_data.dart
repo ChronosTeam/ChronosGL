@@ -117,6 +117,10 @@ class MeshData extends RenderInputProvider {
     return _vertices.length ~/ 3;
   }
 
+  Float32List GetAttribute(String canonical) {
+    return _attributes[canonical];
+  }
+
   void AddAttribute(String canonical, Float32List data, int width) {
     assert(data.length ~/ width == _vertices.length ~/ 3);
     _addBuffer(canonical, data);
@@ -124,7 +128,9 @@ class MeshData extends RenderInputProvider {
   }
 
   void AddVertices(Float32List data) {
-    _addBuffer(aVertexPosition, data);
+    final String canonical = aVertexPosition;
+    _addBuffer(canonical, data);
+    _attributes[canonical] = data;
     _vertices = data;
   }
 
@@ -166,16 +172,15 @@ class MeshData extends RenderInputProvider {
     return _attributes.keys;
   }
 
-  /*
   @override
   String toString() {
-    final int f = _faces.length;
-    final int f3 = _faces3.length;
-    final int f4 = _faces4.length;
-    final int v = _vertices.length;
-    return "MESH[${name}] F:${f} F3:${f3} F4:${f4} V:${v}";
+    List<String> lst = ["Faces:${_faces.length}"];
+    for (String c in _attributes.keys) {
+      lst.add("${c}:${_attributes[c].length}");
+    }
+
+    return "MESH[${name}] " + lst.join("  ");
   }
-  */
 }
 
 void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
@@ -187,8 +192,11 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
       md.AddAttribute(canonical, FlattenVector3List(lst), 3);
     } else if (lst[0].runtimeType == VM.Vector4) {
       md.AddAttribute(canonical, FlattenVector4List(lst), 4);
+    } else if (lst[0].runtimeType == double) {
+      md.AddAttribute(canonical, new Float32List.fromList(lst), 1);
     } else {
-      assert(false);
+      assert(false,
+          "unknown type for ${canonical} ${lst} [${lst[0].runtimeType}]");
     }
   }
 }
@@ -220,4 +228,51 @@ MeshData LineEndPointsToMeshData(
   for (int i = 0; i < points.length; ++i) faces[i] = i;
   md.AddFaces(faces);
   return md;
+}
+
+MeshData ExtractWireframeNormals(WEBGL.RenderingContext gl, MeshData md,
+    [scale = 1.0]) {
+  assert(md._drawMode == WEBGL.TRIANGLES);
+  MeshData out = new MeshData(md.name, gl, WEBGL.LINES);
+  final Float32List vertices = md.GetAttribute(aVertexPosition);
+  final Float32List normals = md.GetAttribute(aNormal);
+  assert(vertices.length == normals.length);
+  Float32List v = new Float32List(2 * vertices.length);
+  for (int i = 0; i < vertices.length; i += 3) {
+    v[2 * i + 0] = vertices[i + 0];
+    v[2 * i + 1] = vertices[i + 1];
+    v[2 * i + 2] = vertices[i + 2];
+    v[2 * i + 3] = vertices[i + 0] + scale * normals[i + 0];
+    v[2 * i + 4] = vertices[i + 1] + scale * normals[i + 1];
+    v[2 * i + 5] = vertices[i + 2] + scale * normals[i + 2];
+  }
+  out.AddVertices(v);
+
+  final int n = 2 * vertices.length ~/ 3;
+  List<int> lines = new List<int>(n);
+  for (int i = 0; i < n; i++) {
+    lines[i] = i;
+  }
+
+  out.AddFaces(lines);
+  return out;
+}
+
+MeshData ExtractWireframe(WEBGL.RenderingContext gl, MeshData md) {
+  assert(md._drawMode == WEBGL.TRIANGLES);
+  MeshData out = new MeshData(md.name, gl, WEBGL.LINES);
+  out.AddVertices(md._vertices);
+  final List<int> faces = md._faces;
+  List<int> lines = new List<int>(faces.length * 2);
+  for (int i = 0; i < faces.length; i += 3) {
+    lines[i * 2 + 0] = faces[i + 0];
+    lines[i * 2 + 1] = faces[i + 1];
+    lines[i * 2 + 2] = faces[i + 1];
+    lines[i * 2 + 3] = faces[i + 2];
+    lines[i * 2 + 4] = faces[i + 2];
+    lines[i * 2 + 5] = faces[i + 0];
+  }
+
+  out.AddFaces(lines);
+  return out;
 }

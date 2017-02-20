@@ -34,8 +34,11 @@ void setUpEventCapture(HTML.CanvasElement canvas) {
     mouseDownX = e.client.x - (HTML.window.innerWidth ~/ 2);
     mouseDownY = -(e.client.y - (HTML.window.innerHeight ~/ 2));
     bool rightclick = e.button == 2;
-    if (rightclick) currentlyPressedMouseButtons['right'] = true;
-    else currentlyPressedMouseButtons['left'] = true;
+    if (rightclick) {
+      currentlyPressedMouseButtons['right'] = true;
+    } else {
+      currentlyPressedMouseButtons['left'] = true;
+    }
   });
 
   canvas.onContextMenu.listen((HTML.MouseEvent e) {
@@ -47,47 +50,68 @@ void setUpEventCapture(HTML.CanvasElement canvas) {
   HTML.document.onMouseUp.listen((HTML.MouseEvent e) {
     //e.preventDefault();
     bool rightclick = e.button == 2;
-    if (rightclick) currentlyPressedMouseButtons['right'] = null;
-    else currentlyPressedMouseButtons['left'] = null;
+    if (rightclick) {
+      currentlyPressedMouseButtons['right'] = null;
+    } else {
+      currentlyPressedMouseButtons['left'] = null;
+    }
   });
 }
 
+// See http://keycode.info/
 abstract class Key {
-  static int LEFT = 37;
-  static int RIGHT = 39;
-  static int UP = 38;
-  static int DOWN = 40;
-  static int SPACE = 32;
-  static int SHIFT = 16;
-  static int CTRL = 17;
-  static int ALT = 18;
-  static int TAB = 9;
-  static int A = 65;
-  static int B = 66;
-  static int C = 67;
-  static int D = 68;
-  static int E = 69;
-  static int F = 70;
-  static int G = 71;
-  static int H = 72;
-  static int I = 73;
-  static int J = 74;
-  static int K = 75;
-  static int L = 76;
-  static int M = 77;
-  static int N = 78;
-  static int O = 79;
-  static int P = 80;
-  static int Q = 81;
-  static int R = 82;
-  static int S = 83;
-  static int T = 84;
-  static int U = 85;
-  static int V = 86;
-  static int W = 87;
-  static int X = 88;
-  static int Y = 89;
-  static int Z = 90;
+  static const int PAGEUP = 33;
+  static const int PAGEDOWN = 34;
+  static const int END = 35;
+  static const int HOME = 36;
+  static const int LEFT = 37;
+  static const int RIGHT = 39;
+  static const int UP = 38;
+  static const int DOWN = 40;
+  static const int SPACE = 32;
+  static const int SHIFT = 16;
+  static const int CTRL = 17;
+  static const int ALT = 18;
+  static const int TAB = 9;
+  static const int A = 65;
+  static const int B = 66;
+  static const int C = 67;
+  static const int D = 68;
+  static const int E = 69;
+  static const int F = 70;
+  static const int G = 71;
+  static const int H = 72;
+  static const int I = 73;
+  static const int J = 74;
+  static const int K = 75;
+  static const int L = 76;
+  static const int M = 77;
+  static const int N = 78;
+  static const int O = 79;
+  static const int P = 80;
+  static const int Q = 81;
+  static const int R = 82;
+  static const int S = 83;
+  static const int T = 84;
+  static const int U = 85;
+  static const int V = 86;
+  static const int W = 87;
+  static const int X = 88;
+  static const int Y = 89;
+  static const int Z = 90;
+  //
+  static const int F1 = 112;
+  static const int F2 = 113;
+  static const int F3 = 114;
+  static const int F4 = 115;
+  static const int F5 = 116;
+  static const int F6 = 117;
+  static const int F7 = 118;
+  static const int F8 = 119;
+  static const int F9 = 120;
+  static const int F10 = 121;
+  static const int F11 = 122;
+  static const int F12 = 123;
 }
 
 class OrbitCamera extends Camera {
@@ -96,7 +120,7 @@ class OrbitCamera extends Camera {
   double polar;
   double roll = 0.0;
   final VM.Vector3 _lookAtPos = new VM.Vector3.zero();
-  num mouseWheelFactor = -0.01;
+  num mouseWheelFactor = -0.02;
 
   Map<int, bool> _cpk = currentlyPressedKeys;
   Map<String, bool> _cpmb = currentlyPressedMouseButtons;
@@ -105,6 +129,7 @@ class OrbitCamera extends Camera {
       [this.azimuth = 0.0, this.polar = 0.0, HTML.Element eventElement = null])
       : super("camera:orbit") {
     if (eventElement == null) eventElement = HTML.document.body;
+
     eventElement.onMouseWheel.listen((HTML.WheelEvent e) {
       try {
         double d = e.deltaY * mouseWheelFactor;
@@ -113,6 +138,7 @@ class OrbitCamera extends Camera {
         print(e);
       }
     });
+
     eventElement.onMouseMove.listen((HTML.MouseEvent e) {
       e.preventDefault();
       if (_cpmb['left'] != null) {
@@ -124,10 +150,12 @@ class OrbitCamera extends Camera {
         mouseDownY = mouseY;
       }
     });
+
     eventElement.onTouchStart.listen((HTML.TouchEvent e) {
       mouseDownX = e.touches[0].client.x;
       mouseDownY = e.touches[0].client.y;
     });
+
     eventElement.onTouchMove.listen((HTML.TouchEvent e) {
       //azimuth += e.movement.x*0.01;
       //polar += e.movement.y*0.01;
@@ -153,11 +181,19 @@ class OrbitCamera extends Camera {
     } else if (_cpk[Key.RIGHT] != null) {
       azimuth -= (0.03);
     }
+
     if (_cpk[Key.UP] != null) {
       polar += (0.03);
     } else if (_cpk[Key.DOWN] != null) {
       polar -= (0.03);
     }
+
+    if (_cpk[Key.PAGEUP] != null) {
+      _radius *= 0.99;
+    } else if (_cpk[Key.PAGEDOWN] != null) {
+      _radius *= 1.01;
+    }
+
     if (_cpk[Key.SPACE] != null) {
       azimuth = 0.0;
       polar = 0.0;
