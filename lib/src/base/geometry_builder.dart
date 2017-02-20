@@ -121,6 +121,13 @@ class GeometryBuilder {
     }
   }
 
+  void AddAttributesDouble(String canonical, List<double> lst) {
+    List ts = attributes[canonical];
+    for (double v in lst) {
+      ts.add(v);
+    }
+  }
+
   void AddAttributesVector2(String canonical, List<VM.Vector2> lst) {
     List ts = attributes[canonical];
     for (VM.Vector2 v in lst) {
