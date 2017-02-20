@@ -34,6 +34,9 @@ List<ShaderObject> sphereShader() {
   ];
 }
 
+Material matSphere =
+    new Material.Transparent("sphere", new BlendEquation.Mix());
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -47,13 +50,10 @@ void main() {
   sprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
 
   RenderProgram shaderSpheres = phase.createProgram(sphereShader());
-  Material mat =
-      new Material.Transparent("sphere", new BlendEquation.Mix());
 
   MeshData md = ShapeIcosahedron(chronosGL.gl, 3);
-  Node m = new Node("sphere", md, mat)..setPos(0.0, 0.0, 0.0);
-
-  shaderSpheres.add(m);
+  shaderSpheres.add(new Node("sphere", md, matSphere)..setPos(0.0, 0.0, 0.0));
+  shaderSpheres.add(new Node("sphere", md, matSphere)..setPos(1.5, 0.0, 0.0));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -86,7 +86,7 @@ void main() {
   ];
   Future.wait(futures).then((List list) {
     Texture bubble = new WebTexture(chronosGL.gl, textureFile, list[0]);
-    mat..SetUniform(uTexture, bubble);
+    matSphere..SetUniform(uTexture, bubble);
     animate(0.0);
   });
 }
