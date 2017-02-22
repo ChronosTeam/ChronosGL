@@ -221,8 +221,6 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
 
-  var ext_depth_texture = GetGlExtensionDepthTexture(chronosGL.gl);
-
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
 
   canvas.width = canvas.clientWidth;

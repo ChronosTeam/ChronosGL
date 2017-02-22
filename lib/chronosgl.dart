@@ -58,6 +58,15 @@ class ChronosGL {
       throw new Exception(NO_WEBGL_MESSAGE);
     }
 
+    var ext_OES_element_index_uint = gl.getExtension("OES_element_index_uint");
+    if (ext_OES_element_index_uint == null) {
+      throw "Error";
+    }
+    var ext_WEBGL_depth_texture = gl.getExtension("WEBGL_depth_texture");
+    if (ext_WEBGL_depth_texture == null) {
+      throw "Error";
+    }
+
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(WEBGL.DEPTH_TEST);
     // fix a bug in current chrome v.27

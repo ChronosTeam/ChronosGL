@@ -20,7 +20,8 @@ class ShaderProgram extends RenderProgram {
   ShaderProgram(String name, this._gl, this._shaderObjectV, this._shaderObjectF)
       : super(name) {
     _extInstancedArrays = _gl.getExtension("ANGLE_instanced_arrays");
-    _program = CompileWholeProgram(_gl, _shaderObjectV.shader, _shaderObjectF.shader);
+    _program =
+        CompileWholeProgram(_gl, _shaderObjectV.shader, _shaderObjectF.shader);
     for (String v in _shaderObjectV.attributeVars.keys) {
       _attributeLocations[v] = _gl.getAttribLocation(_program, v);
       if (_attributeLocations[v] < 0) {
@@ -110,7 +111,7 @@ class ShaderProgram extends RenderProgram {
         if (desc.arraySize == 0) {
           _gl.uniform1f(l, val);
         } else if (val is Float32List) {
-           _gl.uniform1fv(l, val);
+          _gl.uniform1fv(l, val);
         }
         break;
       case "mat4":
@@ -181,7 +182,8 @@ class ShaderProgram extends RenderProgram {
     }
   }
 
-  void SetInputs(Map<String, dynamic> inputs) {
+  int SetInputs(Map<String, dynamic> inputs) {
+    int indexType = 0;
     _nextTextureUnit = 0;
     int count = 0;
     final DateTime start = new DateTime.now();
@@ -195,8 +197,12 @@ class ShaderProgram extends RenderProgram {
           }
           break;
         case prefixElement:
-          _gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, inputs[canonical]);
-          ++count;
+          if (canonical == eArray) {
+            _gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, inputs[canonical]);
+            ++count;
+          } else if (canonical == eArrayType) {
+            indexType = inputs[canonical];
+          }
           break;
         case prefixControl:
           _SetControl(canonical, inputs[canonical]);
@@ -213,6 +219,7 @@ class ShaderProgram extends RenderProgram {
     }
     final Duration delta = new DateTime.now().difference(start);
     LogDebug("setting ${count} var in ${delta}");
+    return indexType;
   }
 
   @override
@@ -221,7 +228,7 @@ class ShaderProgram extends RenderProgram {
     // TODO: put this behind a flag
     _attributesInitialized.clear();
     _uniformsInitialized.clear();
-    SetInputs(inputs);
+    final int indexType = SetInputs(inputs);
     if (_numItems == 0) return;
     if (stats != null) {
       stats.add(new DrawStats(name, _numInstances, _numItems, _drawMode));
@@ -236,30 +243,17 @@ class ShaderProgram extends RenderProgram {
       throw mesg;
     }
 
-    final bool useArrayBuffer = HasInput(eArray);
     if (_numInstances > 0) {
-      if (useArrayBuffer) {
+      if (indexType != 0) {
         _extInstancedArrays.drawElementsInstancedAngle(
-            _drawMode,
-            _numItems,
-            globalUseElementIndexUint
-                ? WEBGL.UNSIGNED_INT
-                : WEBGL.UNSIGNED_SHORT,
-            0,
-            _numInstances);
+            _drawMode, _numItems, indexType, 0, _numInstances);
       } else {
         _extInstancedArrays.drawArraysInstancedAngle(
             _drawMode, 0, _numItems, _numInstances);
       }
     } else {
-      if (useArrayBuffer) {
-        _gl.drawElements(
-            _drawMode,
-            _numItems,
-            globalUseElementIndexUint
-                ? WEBGL.UNSIGNED_INT
-                : WEBGL.UNSIGNED_SHORT,
-            0);
+      if (indexType != 0) {
+        _gl.drawElements(_drawMode, _numItems, indexType, 0);
       } else {
         _gl.drawArrays(_drawMode, 0, _numItems);
       }

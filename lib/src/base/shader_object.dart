@@ -53,6 +53,7 @@ class ShaderVarDesc {
 // of syntax checking inside shader programs.
 const int prefixElement = 0x65; // 'e';
 const String eArray = "eArray"; // element array
+const String eArrayType = "eArrayType"; // element array
 // ===========================================================
 // Misc Controls
 // ===========================================================
@@ -164,6 +165,7 @@ const String uLightTypes = "uLightTypes";
 
 final Map<String, ShaderVarDesc> _VarsDb = {
   eArray: new ShaderVarDesc("index", ""),
+  eArrayType: new ShaderVarDesc("int", ""),
 
   //
   cBlend: new ShaderVarDesc("", ""),
