@@ -76,7 +76,6 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
   chronosGL.gl.enable(WEBGL.CULL_FACE);
-  UseElementIndexUint(chronosGL.gl);
   OrbitCamera orbit = new OrbitCamera(5000.0);
   Perspective perspective = new Perspective(orbit, 1.0, 10000.0);
 

@@ -96,7 +96,7 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  UseElementIndexUint(chronosGL.gl);
+
 
   OrbitCamera orbit = new OrbitCamera(20.0);
   Perspective perspective = new Perspective(orbit);
