@@ -10,12 +10,6 @@ class ChronosFramebuffer {
   var depthTextureExt;
 
   ChronosFramebuffer(this.gl, width, height, [colorFormat = WEBGL.RGB]) {
-    var depthTextureExt = GetGlExtensionDepth(gl);
-    // http://blog.tojicode.com/2012/07/using-webgldepthtexture.html
-    if (depthTextureExt == null) {
-      throw "Error";
-    }
-
     framebuffer = gl.createFramebuffer();
 
     colorTexture = new TypedTexture(

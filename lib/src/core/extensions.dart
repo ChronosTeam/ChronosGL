@@ -1,19 +1,6 @@
 part of core;
 
 // TODO: use proper return type
-dynamic GetGlExtensionDepth(WEBGL.RenderingContext gl) {
-  var ext;
-  for (String prefix in ["", "MOZ_", "WEBKIT_"]) {
-    ext = gl.getExtension(prefix + "WEBGL_depth_texture");
-    if (ext != null) break;
-  }
-  if (ext == null) {
-    LogWarn("ExtensionDepth NOT SUPPORTED");
-  }
-  return ext;
-}
-
-// TODO: use proper return type
 dynamic GetGlExtensionAnisotropic(WEBGL.RenderingContext gl) {
   var ext;
   for (String prefix in ["", "MOZ_", "WEBKIT_"]) {
@@ -46,25 +33,6 @@ int MaxAnisotropicFilterLevel(WEBGL.RenderingContext gl) {
       WEBGL.ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
 }
 
-bool globalUseElementIndexUint = false;
-
-// TODO: use proper return type
-dynamic UseElementIndexUint(WEBGL.RenderingContext gl) {
-  var ext = gl.getExtension("OES_element_index_uint");
-  if (ext == null) {
-    throw "Error: OES_element_index_uint is not supported";
-  }
-  globalUseElementIndexUint = true;
-  return ext;
-}
-
-dynamic GetGlExtensionDepthTexture(WEBGL.RenderingContext gl) {
-  var ext = gl.getExtension("WEBGL_depth_texture");
-  if (ext == null) {
-    LogWarn("ExtensionDepthTexture NOT SUPPORTED");
-  }
-  return ext;
-}
 
 List GetSupportedExtensions(WEBGL.RenderingContext gl) {
   return gl.getSupportedExtensions();

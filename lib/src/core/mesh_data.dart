@@ -21,7 +21,7 @@ void ChangeElementArrayBuffer(
 
 WEBGL.Buffer CreateAndInitializeElementArrayBuffer(
     WEBGL.RenderingContext gl, TypedData data) {
-  assert((data is Uint16List) || (data is Uint32List));
+  assert((data is Uint16List) || (data is Uint32List) || (data is Uint8List));
   WEBGL.Buffer b = gl.createBuffer();
   ChangeElementArrayBuffer(gl, b, data);
   return b;
@@ -76,8 +76,9 @@ class MeshData extends RenderInputProvider {
   final _drawMode;
   final Map<String, WEBGL.Buffer> _buffers = {};
   WEBGL.Buffer _indexBuffer;
+  int _indexBufferType = -1;
 
-  Float32List _vertices;
+  Float32List _vertices = null;
   List<int> _faces;
   Map<String, Float32List> _attributes = {};
 
@@ -135,10 +136,16 @@ class MeshData extends RenderInputProvider {
   }
 
   void AddFaces(List<int> faces) {
-    if (globalUseElementIndexUint) {
-      _faces = new Uint32List.fromList(faces);
-    } else {
+    assert(_vertices != null);
+    if (_vertices.length < 3 * 256) {
+      _faces = new Uint8List.fromList(faces);
+      _indexBufferType = WEBGL.UNSIGNED_BYTE;
+    } else if (_vertices.length < 3 * 65536) {
       _faces = new Uint16List.fromList(faces);
+      _indexBufferType = WEBGL.UNSIGNED_SHORT;
+    } else {
+      _faces = new Uint32List.fromList(faces);
+      _indexBufferType = WEBGL.UNSIGNED_INT;
     }
     _indexBuffer =
         CreateAndInitializeElementArrayBuffer(_gl, _faces as TypedData);
@@ -153,6 +160,7 @@ class MeshData extends RenderInputProvider {
     // should this really be here - interaction with indexer
     if (_indexBuffer != null) {
       program.SetInputWithOrigin(this, eArray, _indexBuffer);
+      program.SetInputWithOrigin(this, eArrayType, _indexBufferType);
     }
     program.SetInputWithOrigin(this, cDrawMode, _drawMode);
     program.SetInputWithOrigin(this, cNumItems, GetNumItems());
@@ -163,7 +171,10 @@ class MeshData extends RenderInputProvider {
     for (String canonical in _buffers.keys) {
       program.Remove(canonical);
     }
-    if (_indexBuffer != null) program.Remove(eArray);
+    if (_indexBuffer != null) {
+      program.Remove(eArray);
+      program.Remove(eArrayType);
+    }
     program.Remove(cDrawMode);
     program.Remove(cNumItems);
   }
