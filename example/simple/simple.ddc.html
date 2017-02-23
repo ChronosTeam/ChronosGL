@@ -21,5 +21,12 @@
     <script src="dart_library.js"></script>
     <script src="dart_sdk.js"></script>
     <script src="simple.dart.js"></script>
+    <script>
+function init() {
+    console.log("!!!!!!!");
+    dart_library.start("simple.dart", "example__simple__simple");
+}
+window.onload=init;
+    </script>
   </body>
 </html>
