@@ -90,7 +90,7 @@ gen/simple.dart.js: gen/lib_chronosutil.sum  gen/lib_chronosgl.sum example/simpl
 
 example: gen/simple.dart.js
 	-cp example/simple/simple.ddc.html gen/
-	-cp $(DART_SDK_JS )$(DART_LIBRARY_JS) gen/
+	-cp $(DART_SDK_JS) $(DART_LIBRARY_JS) gen/
 
 clean:
 	rm -r gen/

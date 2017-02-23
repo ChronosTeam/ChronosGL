@@ -11,7 +11,9 @@ class ShaderProgram extends RenderProgram {
   Map<String, WEBGL.UniformLocation> _uniformLocations = {};
   Set<String> _uniformsInitialized = new Set<String>();
   Set<String> _attributesInitialized = new Set<String>();
-  WEBGL.AngleInstancedArrays _extInstancedArrays;
+  // WEBGL.AngleInstancedArrays  for Dartium
+  // WEBGL.ANGLEInstancedArrays for DDC
+  dynamic _extInstancedArrays;
   int _drawMode = -1;
   int _numInstances = 0;
   int _numItems = 0;
