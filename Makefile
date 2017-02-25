@@ -1,7 +1,6 @@
 .PHONY=documentation examples tests presubmit buildall
 
 SDK=/usr/lib/dart
-DDC=$(SDK)/bin/dartdevc
 PORT=8000
 
 documentation:
@@ -32,10 +31,3 @@ webserver:
 	@echo Launching webserver on port $(PORT)
 	python -m SimpleHTTPServer $(PORT)
 
-
-buildalldev:
-	$(DDC) example/wireframe/wireframe.dart --verbose --out=build/wireframe.js
-	$(DDC) example/shadow/shadow.dart --verbose --out=build/shadow.js
-	$(DDC) example/obj/obj.dart --verbose --out=build/obj.js
-
-#		$(DDC) test/geometry.dart --out=geometry.js
