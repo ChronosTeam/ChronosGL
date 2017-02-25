@@ -36,21 +36,21 @@ class TextureProperties {
     }
 
     if (anisotropicFilterLevel != kNoAnisotropicFilterLevel) {
-      cgl.gl.texParameterf(
+      cgl.texParameterf(
           type,
           WEBGL.ExtTextureFilterAnisotropic.TEXTURE_MAX_ANISOTROPY_EXT,
-          anisotropicFilterLevel);
+          anisotropicFilterLevel + 0.0);
     }
-    cgl.gl.texParameteri(type, WEBGL.TEXTURE_MAG_FILTER, magFilter);
-    cgl.gl.texParameteri(type, WEBGL.TEXTURE_MIN_FILTER, minFilter);
+    cgl.texParameteri(type, WEBGL.TEXTURE_MAG_FILTER, magFilter);
+    cgl.texParameteri(type, WEBGL.TEXTURE_MIN_FILTER, minFilter);
 
     if (clamp) {
       // this fixes glitches on skybox seams
-      cgl.gl.texParameteri(type, WEBGL.TEXTURE_WRAP_S, WEBGL.CLAMP_TO_EDGE);
-      cgl.gl.texParameteri(type, WEBGL.TEXTURE_WRAP_T, WEBGL.CLAMP_TO_EDGE);
+      cgl.texParameteri(type, WEBGL.TEXTURE_WRAP_S, WEBGL.CLAMP_TO_EDGE);
+      cgl.texParameteri(type, WEBGL.TEXTURE_WRAP_T, WEBGL.CLAMP_TO_EDGE);
     }
     if (mipmap) {
-      cgl.gl.generateMipmap(type);
+      cgl.generateMipmap(type);
     }
   }
 }
@@ -85,7 +85,7 @@ class Texture {
       _texture = _cgl.gl.createTexture();
     }
 
-    _cgl.gl.bindTexture(_textureType, _texture);
+    _cgl.bindTexture(_textureType, _texture);
 
     if (initTime) {
       properties.Install(_cgl, _textureType);
@@ -95,7 +95,7 @@ class Texture {
   }
 
   void UnBind([bool initTime = false]) {
-    _cgl.gl.bindTexture(_textureType, null);
+    _cgl.bindTexture(_textureType, null);
   }
 
   void SetImageData(var data) {

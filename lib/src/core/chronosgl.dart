@@ -74,6 +74,10 @@ class ChronosGL {
     gl.bindFramebuffer(kind, framebuffer);
   }
 
+  void bindTexture(int kind, dynamic texture) {
+    gl.bindTexture(kind, texture);
+  }
+
   void enable(int kind) {
     gl.enable(kind);
   }
@@ -89,5 +93,18 @@ class ChronosGL {
   void setLineWidth(int w) {
     gl.lineWidth(w);
   }
+
+  void generateMipmap(int kind) {
+    gl.generateMipmap(kind);
+  }
+
+  void texParameteri(int kind1, int kind2, int val) {
+    gl.texParameteri(kind1, kind2, val);
+  }
+
+  void texParameterf(int kind1, int kind2, double val) {
+    gl.texParameterf(kind1, kind2, val);
+  }
+
 
 }

@@ -138,14 +138,14 @@ class ShaderProgram extends RenderProgram {
         break;
       case "sampler2D":
         _cgl.gl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
-        _cgl.gl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
+        _cgl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
         _cgl.gl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
         break;
       case "samplerCube":
         assert(canonical == uCubeTexture);
         _cgl.gl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
-        _cgl.gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, val.GetTexture());
+        _cgl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, val.GetTexture());
         _cgl.gl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
         break;

@@ -25,7 +25,7 @@ class ChronosFramebuffer {
     _cgl.gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.DEPTH_ATTACHMENT,
         WEBGL.TEXTURE_2D, depthTexture.GetTexture(), 0);
 
-    _cgl.gl.bindTexture(WEBGL.TEXTURE_2D, null);
+    _cgl.bindTexture(WEBGL.TEXTURE_2D, null);
     _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
   }
 
