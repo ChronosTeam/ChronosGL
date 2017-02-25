@@ -206,10 +206,10 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL);
 
   RenderProgram program = phase.createProgram(createSphericalGyroidShader());
-  program.add(UnitNode(chronosGL.gl));
+  program.add(UnitNode(chronosGL));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

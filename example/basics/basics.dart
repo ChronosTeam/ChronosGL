@@ -14,7 +14,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram basic = phase.createProgram(createTexturedShader());
 
   final Material matWood = new Material("wood")
@@ -29,24 +29,24 @@ void main() {
     ..SetUniform(cBlendEquation, new BlendEquation.Standard());
 
   {
-    Node ico = new Node("sphere", ShapeIcosahedron(chronosGL.gl, 3), matWood)
+    Node ico = new Node("sphere", ShapeIcosahedron(chronosGL, 3), matWood)
       ..setPos(0.0, 0.0, 0.0);
     basic.add(ico);
   }
   {
-    Node cube = new Node("cube", ShapeCube(chronosGL.gl), matGradient)
+    Node cube = new Node("cube", ShapeCube(chronosGL), matGradient)
       ..setPos(-5.0, 0.0, -5.0);
     basic.add(cube);
   }
 
   {
     Node cyl = new Node(
-        "cylinder", ShapeCylinder(chronosGL.gl, 3.0, 6.0, 2.0, 32), matTrans)
+        "cylinder", ShapeCylinder(chronosGL, 3.0, 6.0, 2.0, 32), matTrans)
       ..setPos(5.0, 0.0, -5.0);
     basic.add(cyl);
   }
   {
-    Node quad = new Node("quad", ShapeQuad(chronosGL.gl, 2), matTrans)
+    Node quad = new Node("quad", ShapeQuad(chronosGL, 2), matTrans)
       //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
       ..setPos(-5.0, 0.0, 5.0);
     basic.add(quad);
@@ -54,13 +54,13 @@ void main() {
   {
     Node torus = new Node(
         "torus",
-        ShapeTorusKnot(chronosGL.gl, radius: 1.0, tube: 0.4),
+        ShapeTorusKnot(chronosGL, radius: 1.0, tube: 0.4),
         matGradient)..setPos(5.0, 0.0, 5.0);
     basic.add(torus);
   }
 
   RenderProgram sprites = phase.createProgram(createPointSpritesShader());
-  sprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
+  sprites.add(Utils.MakeParticles(chronosGL, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -103,12 +103,12 @@ void main() {
   ];
 
   Future.wait(futures).then((List list) {
-    Texture gradient = new WebTexture(chronosGL.gl, "../gradient.jpg", list[0]);
+    Texture gradient = new WebTexture(chronosGL, "../gradient.jpg", list[0]);
     matGradient.SetUniform(uTexture, gradient);
-    Texture trans = new WebTexture(chronosGL.gl, "../transparent.png", list[1]);
+    Texture trans = new WebTexture(chronosGL, "../transparent.png", list[1]);
     matTrans.SetUniform(uTexture, trans);
 
-    Texture wood = new WebTexture(chronosGL.gl, "../wood.jpg", list[2]);
+    Texture wood = new WebTexture(chronosGL, "../wood.jpg", list[2]);
     matWood.SetUniform(uTexture, wood);
     animate(0.0);
   });

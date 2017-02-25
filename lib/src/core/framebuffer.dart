@@ -1,7 +1,7 @@
 part of core;
 
 class ChronosFramebuffer {
-  WEBGL.RenderingContext gl;
+  ChronosGL _cgl;
 
   WEBGL.Framebuffer framebuffer;
   //WEBGL.Renderbuffer renderbuffer;
@@ -9,31 +9,31 @@ class ChronosFramebuffer {
   TypedTexture depthTexture;
   var depthTextureExt;
 
-  ChronosFramebuffer(this.gl, width, height, [colorFormat = WEBGL.RGB]) {
-    framebuffer = gl.createFramebuffer();
+  ChronosFramebuffer(this._cgl, width, height, [colorFormat = WEBGL.RGB]) {
+    framebuffer = _cgl.gl.createFramebuffer();
 
     colorTexture = new TypedTexture(
-        gl, "frame::color", width, height, colorFormat, WEBGL.UNSIGNED_BYTE);
+        _cgl, "frame::color", width, height, colorFormat, WEBGL.UNSIGNED_BYTE);
     //colorTexture.Install();
-    depthTexture = new TypedTexture(gl, "frame::depth", width, height,
+    depthTexture = new TypedTexture(_cgl, "frame::depth", width, height,
         WEBGL.DEPTH_COMPONENT, WEBGL.UNSIGNED_SHORT);
     //depthTexture.Install();
 
-    gl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
-    gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.COLOR_ATTACHMENT0,
+    _cgl.gl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
+    _cgl.gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.COLOR_ATTACHMENT0,
         WEBGL.TEXTURE_2D, colorTexture.GetTexture(), 0);
-    gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.DEPTH_ATTACHMENT,
+    _cgl.gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.DEPTH_ATTACHMENT,
         WEBGL.TEXTURE_2D, depthTexture.GetTexture(), 0);
 
-    gl.bindTexture(WEBGL.TEXTURE_2D, null);
-    gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
+    _cgl.gl.bindTexture(WEBGL.TEXTURE_2D, null);
+    _cgl.gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
   }
 
-  ChronosFramebuffer.FromTexture(this.gl, this.colorTexture) {
-    framebuffer = gl.createFramebuffer();
+  ChronosFramebuffer.FromTexture(this._cgl, this.colorTexture) {
+    framebuffer = _cgl.gl.createFramebuffer();
 
-    gl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
-    gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.COLOR_ATTACHMENT0,
+    _cgl.gl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
+    _cgl.gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.COLOR_ATTACHMENT0,
         WEBGL.TEXTURE_2D, colorTexture.GetTexture(), 0);
 
     //depthTexture = new TypedTexture("frame::depth", width, height,
@@ -43,16 +43,16 @@ class ChronosFramebuffer {
     //    WEBGL.TEXTURE_2D, null, 0);
 
     //gl.bindTexture(WEBGL.TEXTURE_2D, null);
-    int err = gl.checkFramebufferStatus(WEBGL.FRAMEBUFFER);
+    int err = _cgl.gl.checkFramebufferStatus(WEBGL.FRAMEBUFFER);
     assert(err == WEBGL.FRAMEBUFFER_COMPLETE);
     if (err != WEBGL.FRAMEBUFFER_COMPLETE) {
       throw "Error Incomplete Framebuffer: ${err}";
     }
-    gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
+    _cgl.gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
   }
 
   bool ready() {
-    bool result = gl.checkFramebufferStatus(WEBGL.FRAMEBUFFER) ==
+    bool result = _cgl.gl.checkFramebufferStatus(WEBGL.FRAMEBUFFER) ==
         WEBGL.FRAMEBUFFER_COMPLETE;
     if (!result) {
       print("FRAMEBUFFER_INCOMPLETE");
@@ -63,18 +63,18 @@ class ChronosFramebuffer {
   // e.g. into Float32List
   // BROKEN: https://github.com/dart-lang/sdk/issues/11614
   void ExtractData(var buf, int x, int y, int w, int h) {
-    gl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
+    _cgl.gl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
     // RGB (3 values per pixel), RGBA (4 values per pixel)
     // see TypeToNumChannels
-    int implFormat = gl
+    int implFormat = _cgl.gl
         .getParameter(WEBGL.RenderingContext.IMPLEMENTATION_COLOR_READ_FORMAT);
-    print ("impl format: ${implFormat}");
+    print("impl format: ${implFormat}");
     // FLOAT, UNSIGNED BYTE
-    int implType =
-        gl.getParameter(WEBGL.RenderingContext.IMPLEMENTATION_COLOR_READ_TYPE);
-    print ("impl type: ${implType}");
-    gl.readPixels(x, y, w, h, implFormat, implType, buf);
-    gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
+    int implType = _cgl.gl
+        .getParameter(WEBGL.RenderingContext.IMPLEMENTATION_COLOR_READ_TYPE);
+    print("impl type: ${implType}");
+    _cgl.gl.readPixels(x, y, w, h, implFormat, implType, buf);
+    _cgl.gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
   }
 }
 

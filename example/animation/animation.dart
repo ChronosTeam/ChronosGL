@@ -79,7 +79,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(5000.0);
   Perspective perspective = new Perspective(orbit, 1.0, 10000.0);
 
-  final RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  final RenderPhase phase = new RenderPhase("main", chronosGL);
   //RenderProgram prg = phase.createProgram(createDemoShader());
   final RenderProgram prgAnim = phase.createProgram(createAnimationShader());
   final RenderProgram prgSimple = phase.createProgram(createDemoShader());
@@ -163,7 +163,7 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Texture
-    Texture tex = new WebTexture(chronosGL.gl, textureFile, list[1]);
+    Texture tex = new WebTexture(chronosGL, textureFile, list[1]);
     mat..SetUniform(uTexture, tex);
 
     final Map<String, dynamic> meshJson = list[0]["meshes"][0];
@@ -172,7 +172,7 @@ void main() {
     final GeometryBuilder gb = ReadAssimp2JsonMesh(meshJson, skeleton);
     anim = ReadAssimp2JsonAnimation(animJson, skeleton);
     {
-      MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL.gl, gb);
+      MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb);
       Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
@@ -185,7 +185,7 @@ void main() {
     {
       UpdateAnimatedSkeleton(
           skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
-      mdWire = LineEndPointsToMeshData("wire", chronosGL.gl,
+      mdWire = LineEndPointsToMeshData("wire", chronosGL,
           BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton));
       Node mesh = new Node(mdWire.name, mdWire, matWire)..rotX(3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);

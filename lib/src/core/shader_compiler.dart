@@ -9,15 +9,15 @@ String AddLineNumbers(String text) {
 }
 
 WEBGL.Shader CompileOneShader(
-    WEBGL.RenderingContext gl, int type, String text) {
-  WEBGL.Shader shader = gl.createShader(type);
+    ChronosGL cgl, int type, String text) {
+  WEBGL.Shader shader = cgl.gl.createShader(type);
 
-  gl.shaderSource(shader, text);
-  gl.compileShader(shader);
+  cgl.gl.shaderSource(shader, text);
+  cgl.gl.compileShader(shader);
 
-  var result = gl.getShaderParameter(shader, WEBGL.COMPILE_STATUS);
+  var result = cgl.gl.getShaderParameter(shader, WEBGL.COMPILE_STATUS);
   if (result != null && result == false) {
-    String error = gl.getShaderInfoLog(shader);
+    String error = cgl.gl.getShaderInfoLog(shader);
     LogInfo("Compilation failed:");
     LogInfo(AddLineNumbers(text));
     LogInfo("Failure:");
@@ -27,17 +27,17 @@ WEBGL.Shader CompileOneShader(
   return shader;
 }
 
-WEBGL.Program CompileWholeProgram(WEBGL.RenderingContext gl,
+WEBGL.Program CompileWholeProgram(ChronosGL cgl,
     String vertexShaderText, String fragmentShaderText) {
-  WEBGL.Program program = gl.createProgram();
-  gl.attachShader(
-      program, CompileOneShader(gl, WEBGL.VERTEX_SHADER, vertexShaderText));
-  gl.attachShader(
-      program, CompileOneShader(gl, WEBGL.FRAGMENT_SHADER, fragmentShaderText));
-  gl.linkProgram(program);
+  WEBGL.Program program = cgl.gl.createProgram();
+  cgl.gl.attachShader(
+      program, CompileOneShader(cgl, WEBGL.VERTEX_SHADER, vertexShaderText));
+  cgl.gl.attachShader(
+      program, CompileOneShader(cgl, WEBGL.FRAGMENT_SHADER, fragmentShaderText));
+  cgl.gl.linkProgram(program);
 
-  if (!gl.getProgramParameter(program, WEBGL.LINK_STATUS)) {
-    throw gl.getProgramInfoLog(program);
+  if (!cgl.gl.getProgramParameter(program, WEBGL.LINK_STATUS)) {
+    throw cgl.gl.getProgramInfoLog(program);
   }
 
   return program;

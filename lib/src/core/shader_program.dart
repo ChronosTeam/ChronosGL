@@ -3,7 +3,7 @@ part of core;
 /// ## Class ShaderProgram (is a RenderProgram)
 /// represents invocations of an actual GPU program.
 class ShaderProgram extends RenderProgram {
-  WEBGL.RenderingContext _gl;
+  ChronosGL _cgl;
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
   WEBGL.Program _program;
@@ -13,19 +13,17 @@ class ShaderProgram extends RenderProgram {
   Set<String> _attributesInitialized = new Set<String>();
   // WEBGL.AngleInstancedArrays  for Dartium
   // WEBGL.ANGLEInstancedArrays for DDC
-  dynamic _extInstancedArrays;
   int _drawMode = -1;
   int _numInstances = 0;
   int _numItems = 0;
   int _nextTextureUnit = 0;
 
-  ShaderProgram(String name, this._gl, this._shaderObjectV, this._shaderObjectF)
+  ShaderProgram(String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
       : super(name) {
-    _extInstancedArrays = _gl.getExtension("ANGLE_instanced_arrays");
     _program =
-        CompileWholeProgram(_gl, _shaderObjectV.shader, _shaderObjectF.shader);
+        CompileWholeProgram(_cgl, _shaderObjectV.shader, _shaderObjectF.shader);
     for (String v in _shaderObjectV.attributeVars.keys) {
-      _attributeLocations[v] = _gl.getAttribLocation(_program, v);
+      _attributeLocations[v] = _cgl.gl.getAttribLocation(_program, v);
       if (_attributeLocations[v] < 0) {
         LogError("cannot get location for  attribute $v");
         assert(false);
@@ -33,13 +31,13 @@ class ShaderProgram extends RenderProgram {
     }
 
     for (String v in _shaderObjectV.uniformVars.keys) {
-      _uniformLocations[v] = _gl.getUniformLocation(_program, v);
+      _uniformLocations[v] = _cgl.gl.getUniformLocation(_program, v);
     }
 
     for (String v in _shaderObjectF.uniformVars.keys) {
       // This can happen! Example both shaders use uTime.
       // assert(!uniformLocations.containsKey(v));
-      _uniformLocations[v] = _gl.getUniformLocation(_program, v);
+      _uniformLocations[v] = _cgl.gl.getUniformLocation(_program, v);
     }
   }
 
@@ -51,11 +49,11 @@ class ShaderProgram extends RenderProgram {
       int stride, int offset) {
     _attributesInitialized.add(canonical);
     final int index = _attributeLocations[canonical];
-    _gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
+    _cgl.gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "Unknown canonical ${canonical}";
     if (!desc.IsScalarTypeFloat()) throw "type ${canonical} is not float";
-    _gl.vertexAttribPointer(
+    _cgl.gl.vertexAttribPointer(
         index, desc.GetSize(), WEBGL.FLOAT, normalized, stride, offset);
   }
 
@@ -76,25 +74,25 @@ class ShaderProgram extends RenderProgram {
         break;
       case cDepthTest:
         if (val == true) {
-          _gl.enable(WEBGL.DEPTH_TEST);
+          _cgl.gl.enable(WEBGL.DEPTH_TEST);
         } else {
-          _gl.disable(WEBGL.DEPTH_TEST);
+          _cgl.gl.disable(WEBGL.DEPTH_TEST);
         }
         break;
       case cDepthWrite:
-        _gl.depthMask(val);
+        _cgl.gl.depthMask(val);
         break;
       case cBlend:
         if (val == true) {
-          _gl.enable(WEBGL.BLEND);
+          _cgl.gl.enable(WEBGL.BLEND);
         } else {
-          _gl.disable(WEBGL.BLEND);
+          _cgl.gl.disable(WEBGL.BLEND);
         }
         break;
       case cBlendEquation:
         BlendEquation beq = val as BlendEquation;
-        _gl.blendFunc(beq.srcFactor, beq.dstFactor);
-        _gl.blendEquation(beq.equation);
+        _cgl.gl.blendFunc(beq.srcFactor, beq.dstFactor);
+        _cgl.gl.blendEquation(beq.equation);
         break;
     }
   }
@@ -111,44 +109,44 @@ class ShaderProgram extends RenderProgram {
     switch (desc.type) {
       case "float":
         if (desc.arraySize == 0) {
-          _gl.uniform1f(l, val);
+          _cgl.gl.uniform1f(l, val);
         } else if (val is Float32List) {
-          _gl.uniform1fv(l, val);
+          _cgl.gl.uniform1fv(l, val);
         }
         break;
       case "mat4":
         if (desc.arraySize == 0) {
-          _gl.uniformMatrix4fv(l, false, val.storage);
+          _cgl.gl.uniformMatrix4fv(l, false, val.storage);
         } else if (val is Float32List) {
-          _gl.uniformMatrix4fv(l, false, val);
+          _cgl.gl.uniformMatrix4fv(l, false, val);
         }
         break;
       case "mat3":
-        _gl.uniformMatrix3fv(l, false, val.storage);
+        _cgl.gl.uniformMatrix3fv(l, false, val.storage);
         break;
       case "vec4":
         assert(val.storage.length == 4);
-        _gl.uniform4fv(l, val.storage);
+        _cgl.gl.uniform4fv(l, val.storage);
         break;
       case "vec3":
         assert(val.storage.length == 3);
-        _gl.uniform3fv(l, val.storage);
+        _cgl.gl.uniform3fv(l, val.storage);
         break;
       case "vec2":
         assert(val.storage.length == 2);
-        _gl.uniform2fv(l, val.storage);
+        _cgl.gl.uniform2fv(l, val.storage);
         break;
       case "sampler2D":
-        _gl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
-        _gl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
-        _gl.uniform1i(l, _nextTextureUnit);
+        _cgl.gl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
+        _cgl.gl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
+        _cgl.gl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
         break;
       case "samplerCube":
         assert(canonical == uCubeTexture);
-        _gl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
-        _gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, val.GetTexture());
-        _gl.uniform1i(l, _nextTextureUnit);
+        _cgl.gl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
+        _cgl.gl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, val.GetTexture());
+        _cgl.gl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
         break;
       default:
@@ -173,13 +171,13 @@ class ShaderProgram extends RenderProgram {
   @override
   void DrawSetUp() {
     if (debug) print("[${name} setting attributes");
-    _gl.useProgram(_program);
+    _cgl.gl.useProgram(_program);
     for (String a in _attributeLocations.keys) {
       final index = _attributeLocations[a];
       if (debug) print("[${name}] $a $index");
-      _gl.enableVertexAttribArray(index);
+      _cgl.gl.enableVertexAttribArray(index);
       if (a.codeUnitAt(0) == prefixInstancer) {
-        _extInstancedArrays.vertexAttribDivisorAngle(index, 1);
+        _cgl.ext_ANGLE_instanced_arrays.vertexAttribDivisorAngle(index, 1);
       }
     }
   }
@@ -200,7 +198,7 @@ class ShaderProgram extends RenderProgram {
           break;
         case prefixElement:
           if (canonical == eArray) {
-            _gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, inputs[canonical]);
+            _cgl.gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, inputs[canonical]);
             ++count;
           } else if (canonical == eArrayType) {
             indexType = inputs[canonical];
@@ -247,20 +245,20 @@ class ShaderProgram extends RenderProgram {
 
     if (_numInstances > 0) {
       if (indexType != 0) {
-        _extInstancedArrays.drawElementsInstancedAngle(
+        _cgl.ext_ANGLE_instanced_arrays.drawElementsInstancedAngle(
             _drawMode, _numItems, indexType, 0, _numInstances);
       } else {
-        _extInstancedArrays.drawArraysInstancedAngle(
+        _cgl.ext_ANGLE_instanced_arrays.drawArraysInstancedAngle(
             _drawMode, 0, _numItems, _numInstances);
       }
     } else {
       if (indexType != 0) {
-        _gl.drawElements(_drawMode, _numItems, indexType, 0);
+        _cgl.gl.drawElements(_drawMode, _numItems, indexType, 0);
       } else {
-        _gl.drawArrays(_drawMode, 0, _numItems);
+        _cgl.gl.drawArrays(_drawMode, 0, _numItems);
       }
     }
-    if (debug) print(_gl.getProgramInfoLog(_program));
+    if (debug) print(_cgl.gl.getProgramInfoLog(_program));
   }
 
   @override
@@ -269,9 +267,9 @@ class ShaderProgram extends RenderProgram {
     for (String canonical in _attributeLocations.keys) {
       int index = _attributeLocations[canonical];
       if (canonical.startsWith("ia")) {
-        _extInstancedArrays.vertexAttribDivisorAngle(index, 0);
+        _cgl.ext_ANGLE_instanced_arrays.vertexAttribDivisorAngle(index, 0);
       }
-      _gl.disableVertexAttribArray(index);
+      _cgl.gl.disableVertexAttribArray(index);
     }
   }
 }

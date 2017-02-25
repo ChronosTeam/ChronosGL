@@ -41,13 +41,13 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(50.0, 10.0);
   orbit.setPos(0.0, 0.0, 56.0);
   Perspective perspective = new Perspective(orbit, 0.1, 10000.0);
-  RenderPhase phaseBlinnPhong = new RenderPhase("blinn-phong", chronosGL.gl);
+  RenderPhase phaseBlinnPhong = new RenderPhase("blinn-phong", chronosGL);
   RenderProgram lightBlinnPhong =
       phaseBlinnPhong.createProgram(createLightShaderBlinnPhong());
   RenderProgram fixedBlinnPhong =
       phaseBlinnPhong.createProgram(createSolidColorShader());
 
-  RenderPhase phaseGourad = new RenderPhase("gourad", chronosGL.gl);
+  RenderPhase phaseGourad = new RenderPhase("gourad", chronosGL);
   RenderProgram lightGourad =
       phaseGourad.createProgram(createLightShaderGourad());
   RenderProgram fixedGourad =
@@ -73,15 +73,15 @@ void main() {
   Map<String, Node> lightVisualizers = {
     idDirectional: new Node(
         "DirLightViz",
-        DirectionalLightVisualizer(chronosGL.gl, 80.0, 30.0, -dirLight),
+        DirectionalLightVisualizer(chronosGL, 80.0, 30.0, -dirLight),
         lightSourceMat),
     idPoint: new Node(
         "PointLightViz",
-        PointLightVisualizer(chronosGL.gl, posLight, range),
+        PointLightVisualizer(chronosGL, posLight, range),
         lightSourceMat),
     idSpot: new Node(
         "SpotLightViz",
-        SpotLightVisualizer(chronosGL.gl, posLight, spotDirLight, range, angle),
+        SpotLightVisualizer(chronosGL, posLight, spotDirLight, range, angle),
         lightSourceMat)
   };
 
@@ -90,8 +90,8 @@ void main() {
     fixedGourad.add(n);
   }
 
-  MeshData cubeMeshData = ShapeCube(chronosGL.gl, x: 2.0, y: 2.0, z: 2.0);
-  MeshData sphereMeshData = ShapeIcosahedron(chronosGL.gl);
+  MeshData cubeMeshData = ShapeCube(chronosGL, x: 2.0, y: 2.0, z: 2.0);
+  MeshData sphereMeshData = ShapeIcosahedron(chronosGL);
 
   Material cubeMat = new Material("mat")..SetUniform(uColor, colGray);
   List<Node> meshes = [];
@@ -113,7 +113,7 @@ void main() {
 
   // Subdivide plane to show Gourad shading issues
   Node grid =
-      new Node("grid", ShapeGrid(chronosGL.gl, 20, 20, 80.0, 80.0), cubeMat);
+      new Node("grid", ShapeGrid(chronosGL, 20, 20, 80.0, 80.0), cubeMat);
   grid.rotX(-MATH.PI * 0.48);
   grid.setPos(0.0, -20.0, 20.0);
   lightGourad.add(grid);

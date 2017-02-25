@@ -24,7 +24,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL);
   phase.clearDepthBuffer = true;
   phase.clearColorBuffer = false;
 
@@ -32,11 +32,11 @@ void main() {
   RenderProgram shaderProgramBlur = phase.createProgram(blurdShader());
   Material matBlur = new Material.Transparent("blur", new BlendEquation.Standard())
     ..SetUniform(uColorAlpha, new VM.Vector4(0.0, 0.0, 0.0, 0.04));
-  shaderProgramBlur.add(new Node("", ShapeQuad(chronosGL.gl, 1), matBlur));
+  shaderProgramBlur.add(new Node("", ShapeQuad(chronosGL, 1), matBlur));
 
   // stars
   RenderProgram sprites = phase.createProgram(createPointSpritesShader());
-  sprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
+  sprites.add(Utils.MakeParticles(chronosGL, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

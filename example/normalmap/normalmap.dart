@@ -65,13 +65,13 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
   // Required for bump mapping unparametrized surfaces a la Morten Mikkelsen
-  var ext = GetGlExtensionStandardDerivatives(chronosGL.gl);
+  var ext = GetGlExtensionStandardDerivatives(chronosGL);
   if (ext == null) HTML.window.alert("OES_standard_derivatives not supported");
 
   OrbitCamera orbit = new OrbitCamera(0.5);
   Perspective perspective = new Perspective(orbit);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram fixed = phase.createProgram(createSolidColorShader());
   RenderProgram prg = phase.createProgram(createShader());
 
@@ -82,7 +82,7 @@ void main() {
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, colYellow);
   Node shapePointLight = new Node(
-      "pointLight", ShapeIcosahedron(chronosGL.gl, 4, 0.1), lightSourceMat)
+      "pointLight", ShapeIcosahedron(chronosGL, 4, 0.1), lightSourceMat)
     ..setPosFromVec(posLight);
   fixed.add(shapePointLight);
 
@@ -123,12 +123,12 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Maps
-    WebTexture texture = new WebTexture(chronosGL.gl, textureFile, list[1]);
+    WebTexture texture = new WebTexture(chronosGL, textureFile, list[1]);
     texture.Install();
     /*
     Texture specularmap =
-        new ImageTexture(chronosGL.gl, specularmapFile, list[2]);
-    Texture normalmap = new ImageTexture(chronosGL.gl, normalmapFile, list[3]);
+        new ImageTexture(chronosGL, specularmapFile, list[2]);
+    Texture normalmap = new ImageTexture(chronosGL, normalmapFile, list[3]);
     */
     mat.SetUniform(uTexture, texture);
     //mat.SetUniform(uNormalMap, normalmap);
@@ -138,7 +138,7 @@ void main() {
     // Setup Mesh
     List<GeometryBuilder> gbs = ReadThreeJsMeshes(list[0]);
     print(gbs[0]);
-    MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL.gl, gbs[0]);
+    MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL, gbs[0]);
 
     Node mesh = new Node(md.name, md, mat);
     Node n = new Node.Container("wrapper", mesh);

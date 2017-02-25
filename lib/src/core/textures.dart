@@ -29,28 +29,28 @@ class TextureProperties {
   }
 
   // This assumes a texture is already bound
-  void Install(WEBGL.RenderingContext gl, int type) {
+  void Install(ChronosGL cgl, int type) {
     LogInfo("Setup texture ${flipY}  ${anisotropicFilterLevel}");
     if (flipY) {
-      gl.pixelStorei(WEBGL.UNPACK_FLIP_Y_WEBGL, 1);
+      cgl.gl.pixelStorei(WEBGL.UNPACK_FLIP_Y_WEBGL, 1);
     }
 
     if (anisotropicFilterLevel != kNoAnisotropicFilterLevel) {
-      gl.texParameterf(
+      cgl.gl.texParameterf(
           type,
           WEBGL.ExtTextureFilterAnisotropic.TEXTURE_MAX_ANISOTROPY_EXT,
           anisotropicFilterLevel);
     }
-    gl.texParameteri(type, WEBGL.TEXTURE_MAG_FILTER, magFilter);
-    gl.texParameteri(type, WEBGL.TEXTURE_MIN_FILTER, minFilter);
+    cgl.gl.texParameteri(type, WEBGL.TEXTURE_MAG_FILTER, magFilter);
+    cgl.gl.texParameteri(type, WEBGL.TEXTURE_MIN_FILTER, minFilter);
 
     if (clamp) {
       // this fixes glitches on skybox seams
-      gl.texParameteri(type, WEBGL.TEXTURE_WRAP_S, WEBGL.CLAMP_TO_EDGE);
-      gl.texParameteri(type, WEBGL.TEXTURE_WRAP_T, WEBGL.CLAMP_TO_EDGE);
+      cgl.gl.texParameteri(type, WEBGL.TEXTURE_WRAP_S, WEBGL.CLAMP_TO_EDGE);
+      cgl.gl.texParameteri(type, WEBGL.TEXTURE_WRAP_T, WEBGL.CLAMP_TO_EDGE);
     }
     if (mipmap) {
-      gl.generateMipmap(type);
+      cgl.gl.generateMipmap(type);
     }
   }
 }
@@ -75,31 +75,31 @@ class Texture {
   final String _url;
   WEBGL.Texture _texture;
   final int _textureType;
-  final WEBGL.RenderingContext _gl;
+  final ChronosGL _cgl;
   final TextureProperties properties;
 
-  Texture(this._gl, this._textureType, this._url, this.properties);
+  Texture(this._cgl, this._textureType, this._url, this.properties);
 
   void Bind([bool initTime = false]) {
     if (initTime) {
-      _texture = _gl.createTexture();
+      _texture = _cgl.gl.createTexture();
     }
 
-    _gl.bindTexture(_textureType, _texture);
+    _cgl.gl.bindTexture(_textureType, _texture);
 
     if (initTime) {
-      properties.Install(_gl, _textureType);
-      int err = _gl.getError();
+      properties.Install(_cgl, _textureType);
+      int err = _cgl.gl.getError();
       assert(err == WEBGL.NO_ERROR);
     }
   }
 
   void UnBind([bool initTime = false]) {
-    _gl.bindTexture(_textureType, null);
+    _cgl.gl.bindTexture(_textureType, null);
   }
 
   void SetImageData(var data) {
-    _gl.texImage2D(
+    _cgl.gl.texImage2D(
         _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, data);
   }
 
@@ -128,10 +128,10 @@ class TypedTexture extends Texture {
   // sdk: https://github.com/dart-lang/sdk/issues/23517
   var _data;
 
-  TypedTexture(WEBGL.RenderingContext gl, String url, this._width, this._height,
+  TypedTexture(ChronosGL cgl, String url, this._width, this._height,
       this._formatType, this._dataType, [this._data = null])
       : super(
-            gl, WEBGL.TEXTURE_2D, url, new TextureProperties.forFramebuffer()) {
+            cgl, WEBGL.TEXTURE_2D, url, new TextureProperties.forFramebuffer()) {
     _Install();
   }
 
@@ -140,14 +140,14 @@ class TypedTexture extends Texture {
     _width = w;
     _height = h;
     Bind();
-    _gl.texImage2D(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
+    _cgl.gl.texImage2D(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
         _formatType, _dataType, _data);
     UnBind();
   }
 
   void _Install() {
     Bind(true);
-    _gl.texImage2D(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
+    _cgl.gl.texImage2D(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
         _formatType, _dataType, _data);
     UnBind(true);
   }
@@ -169,9 +169,9 @@ class TypedTexture extends Texture {
 class WebTexture extends Texture {
   dynamic _element; // CanvasElement, ImageElement, VideoElement
 
-  WebTexture(WEBGL.RenderingContext gl, String url, this._element,
+  WebTexture(ChronosGL cgl, String url, this._element,
       [delayInstall=false, TextureProperties tp = null, textureType = WEBGL.TEXTURE_2D])
-      : super(gl, textureType, url, tp == null ? new TextureProperties() : tp) {
+      : super(cgl, textureType, url, tp == null ? new TextureProperties() : tp) {
     if (!delayInstall) {
       Install();
     }
@@ -200,12 +200,12 @@ final List<int> _kCubeModifier = [
 ];
 
 class CubeTexture extends Texture {
-  CubeTexture(WEBGL.RenderingContext gl, String url, List images)
-      : super(gl, WEBGL.TEXTURE_CUBE_MAP, url, new TextureProperties()) {
+  CubeTexture(ChronosGL cgl, String url, List images)
+      : super(cgl, WEBGL.TEXTURE_CUBE_MAP, url, new TextureProperties()) {
     assert(images.length == _kCubeModifier.length);
     Bind(true);
     for (int i = 0; i < _kCubeModifier.length; ++i) {
-      _gl.texImage2D(_kCubeModifier[i], 0, WEBGL.RGBA, WEBGL.RGBA,
+      _cgl.gl.texImage2D(_kCubeModifier[i], 0, WEBGL.RGBA, WEBGL.RGBA,
           WEBGL.UNSIGNED_BYTE, images[i]);
     }
     UnBind(true);

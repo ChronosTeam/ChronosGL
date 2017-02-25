@@ -242,25 +242,25 @@ void main() {
   // in a 4 byte fix-point format where the most significant
   // byte ends up in the A chanel.
   ChronosFramebuffer shadowBuffer =
-      new ChronosFramebuffer(chronosGL.gl, w, h, WEBGL.RGBA);
+      new ChronosFramebuffer(chronosGL, w, h, WEBGL.RGBA);
 
   RenderPhase phaseComputeShadow =
-      new RenderPhase("compute-shadow", chronosGL.gl, shadowBuffer);
+      new RenderPhase("compute-shadow", chronosGL, shadowBuffer);
   phaseComputeShadow.viewPortW = w;
   phaseComputeShadow.viewPortH = h;
   RenderProgram shadowMap =
       phaseComputeShadow.createProgram(createShadowShader());
 
   RenderPhase phaseDisplayShadow =
-      new RenderPhase("display-shadow", chronosGL.gl);
+      new RenderPhase("display-shadow", chronosGL);
 
   RenderProgram copyToScreen =
       phaseDisplayShadow.createProgram(createCopyShaderForShadow());
 
   copyToScreen.SetInput(uTexture, shadowBuffer.colorTexture);
-  copyToScreen.add(UnitNode(chronosGL.gl));
+  copyToScreen.add(UnitNode(chronosGL));
 
-  RenderPhase phaseMain = new RenderPhase("main", chronosGL.gl);
+  RenderPhase phaseMain = new RenderPhase("main", chronosGL);
   phaseMain.clearColorBuffer = false;
   RenderProgram basic =
       phaseMain.createProgram(createLightShaderBlinnPhongWithShadow());
@@ -268,13 +268,13 @@ void main() {
   basic.SetInput(uShadowMap, shadowBuffer.colorTexture);
 
   {
-    Node ico = new Node("sphere", ShapeIcosahedron(chronosGL.gl, 3), mat3)
+    Node ico = new Node("sphere", ShapeIcosahedron(chronosGL, 3), mat3)
       ..setPos(0.0, 0.0, 0.0);
     shadowMap.add(ico);
     basic.add(ico);
   }
   {
-    Node cube = new Node("cube", ShapeCube(chronosGL.gl), mat3)
+    Node cube = new Node("cube", ShapeCube(chronosGL), mat3)
       ..setPos(-5.0, 0.0, -5.0);
     shadowMap.add(cube);
     basic.add(cube);
@@ -282,7 +282,7 @@ void main() {
 
   {
     Node cyl = new Node(
-        "cylinder", ShapeCylinder(chronosGL.gl, 3.0, 6.0, 2.0, 32), mat3)
+        "cylinder", ShapeCylinder(chronosGL, 3.0, 6.0, 2.0, 32), mat3)
       ..setPos(5.0, 0.0, -5.0);
     shadowMap.add(cyl);
     basic.add(cyl);
@@ -300,7 +300,7 @@ void main() {
   {
     // plane
     Node cube = new Node(
-        "cube", ShapeCube(chronosGL.gl, x: 20.0, y: 0.1, z: 20.0), mat3)
+        "cube", ShapeCube(chronosGL, x: 20.0, y: 0.1, z: 20.0), mat3)
       ..setPos(0.0, -10.0, 0.0);
     shadowMap.add(cube);
     basic.add(cube);

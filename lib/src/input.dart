@@ -41,11 +41,17 @@ void setUpEventCapture(HTML.CanvasElement canvas) {
     }
   });
 
+  /*
   canvas.onContextMenu.listen((HTML.MouseEvent e) {
     e.preventDefault();
     //e.stopPropagation();
     //e.cancelBubble = true;
   });
+
+    canvas.onDragStart.listen((HTML.MouseEvent event) {
+      event.preventDefault();
+    });
+    */
 
   HTML.document.onMouseUp.listen((HTML.MouseEvent e) {
     //e.preventDefault();
@@ -165,6 +171,8 @@ class OrbitCamera extends Camera {
       mouseDownX = p.x;
       mouseDownY = p.y;
     });
+
+    setUpEventCapture(null);
   }
 
   void setLookAt(VM.Vector3 v) {

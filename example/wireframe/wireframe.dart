@@ -14,11 +14,11 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
 
-  var ext = GetGlExtensionStandardDerivatives(chronosGL.gl);
+  var ext = GetGlExtensionStandardDerivatives(chronosGL);
   if (ext == null) HTML.window.alert("OES_standard_derivatives not supported");
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   Perspective perspective = new Perspective(orbit);
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram program = phase.createProgram(createWireframeShader());
   final Material matWireframe = new Material("wire")
     ..SetUniform(uColorAlpha, new VM.Vector4(1.0, 1.0, 0.0, 1.0))
@@ -30,7 +30,7 @@ void main() {
     GeometryBuilder gb = IcosahedronGeometry(2)..GenerateWireframeCenters();
     Node ico = new Node(
         "sphere",
-        GeometryBuilderToMeshData("icosahedron", chronosGL.gl, gb),
+        GeometryBuilderToMeshData("icosahedron", chronosGL, gb),
         matWireframe)..setPos(0.0, 0.0, 0.0);
     program.add(ico);
   }
@@ -39,7 +39,7 @@ void main() {
     GeometryBuilder gb = CubeGeometry()..GenerateWireframeCenters();
     Node cube = new Node(
         "cube",
-        GeometryBuilderToMeshData("cube", chronosGL.gl, gb),
+        GeometryBuilderToMeshData("cube", chronosGL, gb),
         matWireframe)..setPos(-5.0, 0.0, -5.0);
     program.add(cube);
   }
@@ -48,7 +48,7 @@ void main() {
     GeometryBuilder gb = WedgeGeometry()..GenerateWireframeCenters();
     Node wedge = new Node(
         "wedge",
-        GeometryBuilderToMeshData("wedge", chronosGL.gl, gb),
+        GeometryBuilderToMeshData("wedge", chronosGL, gb),
         matWireframe)..setPos(0.0, -5.0, 0.0);
     program.add(wedge);
   }
@@ -58,7 +58,7 @@ void main() {
       ..GenerateWireframeCenters();
     Node cyl = new Node(
         "cylinder",
-        GeometryBuilderToMeshData("cylinder", chronosGL.gl, gb),
+        GeometryBuilderToMeshData("cylinder", chronosGL, gb),
         matWireframe)..setPos(5.0, 0.0, -5.0);
     program.add(cyl);
   }
@@ -67,7 +67,7 @@ void main() {
     GeometryBuilder gb = QuadGeometry(2)..GenerateWireframeCenters();
     Node quad = new Node(
         "quad",
-        GeometryBuilderToMeshData("quad", chronosGL.gl, gb),
+        GeometryBuilderToMeshData("quad", chronosGL, gb),
         matWireframe)..setPos(-5.0, 0.0, 5.0);
     program.add(quad);
   }
@@ -77,7 +77,7 @@ void main() {
       ..GenerateWireframeCenters();
     Node torus = new Node(
         "torus",
-        GeometryBuilderToMeshData("torus", chronosGL.gl, gb),
+        GeometryBuilderToMeshData("torus", chronosGL, gb),
         matWireframe)..setPos(5.0, 0.0, 5.0);
     program.add(torus);
   }

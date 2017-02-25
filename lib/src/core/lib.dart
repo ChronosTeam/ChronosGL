@@ -26,3 +26,4 @@ part "shader_compiler.dart";
 part "framebuffer.dart";
 part "render_phase.dart";
 part "instancer.dart";
+part "chronosgl.dart";

@@ -51,8 +51,8 @@ class Utils {
     });
   }
 
-  static Texture createParticleTexture(gl, [String name = "Utils::Particles"]) {
-    return new WebTexture(gl, name, createParticleCanvas())..Install();
+  static Texture createParticleTexture(ChronosGL cgl, [String name = "Utils::Particles"]) {
+    return new WebTexture(cgl, name, createParticleCanvas())..Install();
   }
 
   static HTML.CanvasElement createParticleCanvas() {
@@ -167,10 +167,10 @@ class Utils {
 
   static int id = 1;
 
-  static Node MakeParticles(WEBGL.RenderingContext gl, int numPoints,
+  static Node MakeParticles(ChronosGL cgl, int numPoints,
       [int dimension = 100]) {
     Material mat = new Material.Transparent("stars", new BlendEquation.Mix())
-      ..SetUniform(uTexture, createParticleTexture(gl))
+      ..SetUniform(uTexture, createParticleTexture(cgl))
       ..SetUniform(uPointSize, 1000);
 
     Math.Random rand = new Math.Random();
@@ -184,7 +184,7 @@ class Utils {
 
     id++;
     final String name = 'point_sprites_mesh_' + id.toString();
-    return new Node(name, GeometryBuilderToMeshData(name, gl, gb), mat);
+    return new Node(name, GeometryBuilderToMeshData(name, cgl, gb), mat);
   }
 
   static String getQueryVariable(String name) {
@@ -200,7 +200,7 @@ class Utils {
   }
 }
 
-MeshData ShapeCube(WEBGL.RenderingContext gl,
+MeshData ShapeCube(ChronosGL cgl,
     {double x: 1.0,
     double y: 1.0,
     double z: 1.0,
@@ -210,10 +210,10 @@ MeshData ShapeCube(WEBGL.RenderingContext gl,
     double vMax: 1.0}) {
   GeometryBuilder gb = CubeGeometry(
       x: x, y: y, z: z, uMin: uMin, uMax: uMax, vMin: vMin, vMax: vMax);
-  return GeometryBuilderToMeshData("cube", gl, gb);
+  return GeometryBuilderToMeshData("cube", cgl, gb);
 }
 
-MeshData ShapeWedge(WEBGL.RenderingContext gl,
+MeshData ShapeWedge(ChronosGL cgl,
     {double x: 1.0,
     double y: 1.0,
     double z: 1.0,
@@ -223,24 +223,24 @@ MeshData ShapeWedge(WEBGL.RenderingContext gl,
     double vMax: 1.0}) {
   GeometryBuilder gb = WedgeGeometry(
       x: x, y: y, z: z, uMin: uMin, uMax: uMax, vMin: vMin, vMax: vMax);
-  return GeometryBuilderToMeshData("wedge", gl, gb);
+  return GeometryBuilderToMeshData("wedge", cgl, gb);
 }
 
-MeshData ShapeCylinder(WEBGL.RenderingContext gl, double radTop, double radBot,
+MeshData ShapeCylinder(ChronosGL cgl, double radTop, double radBot,
     double height, int radialSubdivisions,
     [bool computeNormals = true]) {
   GeometryBuilder gb = CylinderGeometry(
       radTop, radBot, height, radialSubdivisions, computeNormals);
-  return GeometryBuilderToMeshData("cylinder-${radialSubdivisions}", gl, gb);
+  return GeometryBuilderToMeshData("cylinder-${radialSubdivisions}", cgl, gb);
 }
 
-MeshData ShapeIcosahedron(WEBGL.RenderingContext gl,
+MeshData ShapeIcosahedron(ChronosGL cgl,
     [int subdivisions = 4, double scale = 1.0, bool computeNormals = true]) {
   GeometryBuilder gb = IcosahedronGeometry(subdivisions, scale, computeNormals);
-  return GeometryBuilderToMeshData("icosahedron-${subdivisions}", gl, gb);
+  return GeometryBuilderToMeshData("icosahedron-${subdivisions}", cgl, gb);
 }
 
-MeshData ShapeTorusKnot(WEBGL.RenderingContext gl,
+MeshData ShapeTorusKnot(ChronosGL cgl,
     {double radius: 20.0,
     double tube: 4.0,
     int segmentsR: 128,
@@ -258,22 +258,22 @@ MeshData ShapeTorusKnot(WEBGL.RenderingContext gl,
       q: q,
       heightScale: heightScale,
       useQuads: useQuads);
-  return GeometryBuilderToMeshData("torusknot", gl, gb);
+  return GeometryBuilderToMeshData("torusknot", cgl, gb);
 }
 
-MeshData ShapeQuad(WEBGL.RenderingContext gl, int size) {
+MeshData ShapeQuad(ChronosGL cgl, int size) {
   GeometryBuilder gb = QuadGeometry(size);
-  return GeometryBuilderToMeshData("quad", gl, gb);
+  return GeometryBuilderToMeshData("quad", cgl, gb);
 }
 
-MeshData ShapeGrid(WEBGL.RenderingContext gl, int xstrips, int ystrips,
+MeshData ShapeGrid(ChronosGL cgl, int xstrips, int ystrips,
     double xlen, double ylen) {
   GeometryBuilder gb = GridGeometry(xstrips, ystrips, xlen, ylen);
-  return GeometryBuilderToMeshData("strips", gl, gb);
+  return GeometryBuilderToMeshData("strips", cgl, gb);
 }
 
 MeshData DirectionalLightVisualizer(
-    WEBGL.RenderingContext gl, double cubeLen, double delta, VM.Vector3 dir) {
+    ChronosGL cgl, double cubeLen, double delta, VM.Vector3 dir) {
   assert(dir.y != 0.0);
   final double d = cubeLen * 0.5;
   final double end = delta * (d / delta).floor();
@@ -288,7 +288,7 @@ MeshData DirectionalLightVisualizer(
       points.add(new VM.Vector3(x, 0.0, z)..sub(dir2y));
     }
   }
-  MeshData md = new MeshData("dirLightViz", gl, WEBGL.LINES);
+  MeshData md = new MeshData("dirLightViz", cgl, WEBGL.LINES);
   md.AddVertices(FlattenVector3List(points));
   List<int> faces = new List<int>(points.length);
   for (int i = 0; i < points.length; ++i) faces[i] = i;
@@ -308,7 +308,7 @@ VM.Vector3 GetOrthogonalVector3(VM.Vector3 dir) {
   }
 }
 
-MeshData SpotLightVisualizer(WEBGL.RenderingContext gl, VM.Vector3 pos,
+MeshData SpotLightVisualizer(ChronosGL cgl, VM.Vector3 pos,
     VM.Vector3 dir, double range, double angle) {
   final int kSpines = 8;
   VM.Vector3 center = pos + dir.normalized() * range;
@@ -323,7 +323,7 @@ MeshData SpotLightVisualizer(WEBGL.RenderingContext gl, VM.Vector3 pos,
     points.add(p);
   }
 
-  MeshData md = new MeshData("spotlightViz", gl, WEBGL.LINES);
+  MeshData md = new MeshData("spotlightViz", cgl, WEBGL.LINES);
   md.AddVertices(FlattenVector3List(points));
   List<int> faces = [];
   for (int i = 1; i < points.length; ++i) {
@@ -380,7 +380,7 @@ MeshData PointLightVisualizer(
 }
 */
 MeshData PointLightVisualizer(
-    WEBGL.RenderingContext gl, VM.Vector3 pos, double range) {
+    ChronosGL cgl, VM.Vector3 pos, double range) {
   List<VM.Vector3> points = [];
   List<int> faces = [];
   // Rays from center
@@ -391,7 +391,7 @@ MeshData PointLightVisualizer(
   }
   points.add(pos);
 
-  MeshData md = new MeshData("pointlightViz", gl, WEBGL.LINES);
+  MeshData md = new MeshData("pointlightViz", cgl, WEBGL.LINES);
   md.AddVertices(FlattenVector3List(points));
   md.AddFaces(faces);
   return md;
