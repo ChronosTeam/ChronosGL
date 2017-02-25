@@ -68,13 +68,13 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(265.0);
   Perspective perspective = new Perspective(orbit);
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL);
 
   Material mat = new Material("mat");
   Node m = new Node.WithInstances(
       "torus",
-      ShapeTorusKnot(chronosGL.gl, radius: 12.0),
-      MakeInstances(chronosGL.gl),
+      ShapeTorusKnot(chronosGL, radius: 12.0),
+      MakeInstances(chronosGL),
       mat);
 
   RenderProgram prg = phase.createProgram(createInstancedShader());
@@ -82,7 +82,7 @@ void main() {
 
   RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
+  programSprites.add(Utils.MakeParticles(chronosGL, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

@@ -1,31 +1,5 @@
 part of core;
 
-void ChangeArrayBuffer(
-    WEBGL.RenderingContext gl, WEBGL.Buffer buffer, Float32List data) {
-  gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
-  gl.bufferData(WEBGL.ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
-}
-
-WEBGL.Buffer CreateAndInitializeArrayBuffer(
-    WEBGL.RenderingContext gl, Float32List data) {
-  WEBGL.Buffer b = gl.createBuffer();
-  ChangeArrayBuffer(gl, b, data);
-  return b;
-}
-
-void ChangeElementArrayBuffer(
-    WEBGL.RenderingContext gl, WEBGL.Buffer buffer, TypedData data) {
-  gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, buffer);
-  gl.bufferData(WEBGL.ELEMENT_ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
-}
-
-WEBGL.Buffer CreateAndInitializeElementArrayBuffer(
-    WEBGL.RenderingContext gl, TypedData data) {
-  assert((data is Uint16List) || (data is Uint32List) || (data is Uint8List));
-  WEBGL.Buffer b = gl.createBuffer();
-  ChangeElementArrayBuffer(gl, b, data);
-  return b;
-}
 
 Float32List FlattenVector3List(List<VM.Vector3> v, [Float32List data = null]) {
   if (data == null) data = new Float32List(v.length * 3);
@@ -72,7 +46,7 @@ Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data = null]) {
 /// MeshData objects can be populated directly but often they
 /// will derived from **GeometryBuilder** objects.
 class MeshData extends RenderInputProvider {
-  final WEBGL.RenderingContext _gl;
+  final ChronosGL _cgl;
   final _drawMode;
   final Map<String, WEBGL.Buffer> _buffers = {};
   WEBGL.Buffer _indexBuffer;
@@ -82,33 +56,33 @@ class MeshData extends RenderInputProvider {
   List<int> _faces;
   Map<String, Float32List> _attributes = {};
 
-  MeshData(String name, this._gl, this._drawMode) : super("meshdata:" + name);
+  MeshData(String name, this._cgl, this._drawMode) : super("meshdata:" + name);
 
   void clearData() {
     for (String canonical in _buffers.keys) {
-      _gl.deleteBuffer(_buffers[canonical]);
+      _cgl.gl.deleteBuffer(_buffers[canonical]);
     }
     if (_indexBuffer != null) {
-      _gl.deleteBuffer(_indexBuffer);
+      _cgl.gl.deleteBuffer(_indexBuffer);
     }
   }
 
   void _addBuffer(String canonical, Float32List data) {
     if (debug) print("AddBuffer ${canonical} ${data.length}");
-    _buffers[canonical] = CreateAndInitializeArrayBuffer(_gl, data);
+    _buffers[canonical] = _cgl.CreateAndInitializeArrayBuffer(data);
   }
 
   void ChangeAttribute(String canonical, Float32List data, int width) {
     if (debug) print("ChangeBuffer ${canonical} ${data.length}");
     assert(data.length ~/ width == _vertices.length ~/ 3);
     _attributes[canonical] = data;
-    ChangeArrayBuffer(_gl, _buffers[canonical], data);
+    _cgl.ChangeArrayBuffer(_buffers[canonical], data);
   }
 
   void ChangeVertices(Float32List data) {
     final String canonical = aVertexPosition;
     _attributes[canonical] = data;
-    ChangeArrayBuffer(_gl, _buffers[canonical], data);
+    _cgl.ChangeArrayBuffer(_buffers[canonical], data);
   }
 
   int GetNumItems() {
@@ -148,7 +122,7 @@ class MeshData extends RenderInputProvider {
       _indexBufferType = WEBGL.UNSIGNED_INT;
     }
     _indexBuffer =
-        CreateAndInitializeElementArrayBuffer(_gl, _faces as TypedData);
+        _cgl.CreateAndInitializeElementArrayBuffer(_faces as TypedData);
   }
 
   @override
@@ -213,9 +187,9 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
 }
 
 MeshData GeometryBuilderToMeshData(
-    String name, WEBGL.RenderingContext gl, GeometryBuilder gb) {
+    String name, ChronosGL cgl, GeometryBuilder gb) {
   MeshData md =
-      new MeshData(name, gl, gb.pointsOnly ? WEBGL.POINTS : WEBGL.TRIANGLES);
+      new MeshData(name, cgl, gb.pointsOnly ? WEBGL.POINTS : WEBGL.TRIANGLES);
   md.AddVertices(FlattenVector3List(gb.vertices));
   if (!gb.pointsOnly) md.AddFaces(gb.GenerateFaceIndices());
   _GeometryBuilderAttributesToMeshData(gb, md);
@@ -223,8 +197,8 @@ MeshData GeometryBuilderToMeshData(
 }
 
 MeshData GeometryBuilderToMeshDataLines(
-    String name, WEBGL.RenderingContext gl, GeometryBuilder gb) {
-  MeshData md = new MeshData(name, gl, WEBGL.LINES);
+    String name, ChronosGL cgl, GeometryBuilder gb) {
+  MeshData md = new MeshData(name, cgl, WEBGL.LINES);
   md.AddVertices(FlattenVector3List(gb.vertices));
   md.AddFaces(gb.GenerateLineIndices());
   _GeometryBuilderAttributesToMeshData(gb, md);
@@ -232,8 +206,8 @@ MeshData GeometryBuilderToMeshDataLines(
 }
 
 MeshData LineEndPointsToMeshData(
-    String name, WEBGL.RenderingContext gl, List<VM.Vector3> points) {
-  MeshData md = new MeshData(name, gl, WEBGL.LINES);
+    String name, ChronosGL cgl, List<VM.Vector3> points) {
+  MeshData md = new MeshData(name, cgl, WEBGL.LINES);
   md.AddVertices(FlattenVector3List(points));
   List<int> faces = new List<int>(points.length);
   for (int i = 0; i < points.length; ++i) faces[i] = i;
@@ -241,10 +215,9 @@ MeshData LineEndPointsToMeshData(
   return md;
 }
 
-MeshData ExtractWireframeNormals(WEBGL.RenderingContext gl, MeshData md,
-    [scale = 1.0]) {
+MeshData ExtractWireframeNormals(ChronosGL cgl, MeshData md, [scale = 1.0]) {
   assert(md._drawMode == WEBGL.TRIANGLES);
-  MeshData out = new MeshData(md.name, gl, WEBGL.LINES);
+  MeshData out = new MeshData(md.name, cgl, WEBGL.LINES);
   final Float32List vertices = md.GetAttribute(aVertexPosition);
   final Float32List normals = md.GetAttribute(aNormal);
   assert(vertices.length == normals.length);
@@ -269,9 +242,9 @@ MeshData ExtractWireframeNormals(WEBGL.RenderingContext gl, MeshData md,
   return out;
 }
 
-MeshData ExtractWireframe(WEBGL.RenderingContext gl, MeshData md) {
+MeshData ExtractWireframe(ChronosGL cgl, MeshData md) {
   assert(md._drawMode == WEBGL.TRIANGLES);
-  MeshData out = new MeshData(md.name, gl, WEBGL.LINES);
+  MeshData out = new MeshData(md.name, cgl, WEBGL.LINES);
   out.AddVertices(md._vertices);
   final List<int> faces = md._faces;
   List<int> lines = new List<int>(faces.length * 2);

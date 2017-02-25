@@ -13,10 +13,11 @@ void main() {
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
+  chronosGL.enable(WEBGL.CULL_FACE);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   Perspective perspective = new Perspective(orbit);
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram program = phase.createProgram(createSolidColorShader());
   final Material matWireframe = new Material("wire")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0))
@@ -27,7 +28,7 @@ void main() {
     GeometryBuilder gb = IcosahedronGeometry(2);
     Node ico = new Node(
         "sphere",
-        GeometryBuilderToMeshDataLines("icosahedron", chronosGL.gl, gb),
+        GeometryBuilderToMeshDataLines("icosahedron", chronosGL, gb),
         matWireframe)..setPos(0.0, 0.0, 0.0);
     program.add(ico);
   }
@@ -36,7 +37,7 @@ void main() {
     GeometryBuilder gb = CubeGeometry();
     Node cube = new Node(
         "cube",
-        GeometryBuilderToMeshDataLines("cube", chronosGL.gl, gb),
+        GeometryBuilderToMeshDataLines("cube", chronosGL, gb),
         matWireframe)..setPos(-5.0, 0.0, -5.0);
     program.add(cube);
   }
@@ -45,7 +46,7 @@ void main() {
     GeometryBuilder gb = WedgeGeometry();
     Node wedge = new Node(
         "wedge",
-        GeometryBuilderToMeshDataLines("wedge", chronosGL.gl, gb),
+        GeometryBuilderToMeshDataLines("wedge", chronosGL, gb),
         matWireframe)..setPos(0.0, -5.0, 0.0);
     program.add(wedge);
   }
@@ -54,7 +55,7 @@ void main() {
     GeometryBuilder gb = CylinderGeometry(3.0, 4.0, 2.0, 16, false);
     Node cyl = new Node(
         "cylinder",
-        GeometryBuilderToMeshDataLines("cylinder", chronosGL.gl, gb),
+        GeometryBuilderToMeshDataLines("cylinder", chronosGL, gb),
         matWireframe)..setPos(5.0, 0.0, -5.0);
     program.add(cyl);
   }
@@ -63,7 +64,7 @@ void main() {
     GeometryBuilder gb = QuadGeometry(2);
     Node quad = new Node(
         "quad",
-        GeometryBuilderToMeshDataLines("quad", chronosGL.gl, gb),
+        GeometryBuilderToMeshDataLines("quad", chronosGL, gb),
         matWireframe)..setPos(-5.0, 0.0, 5.0);
     program.add(quad);
   }
@@ -72,7 +73,7 @@ void main() {
     GeometryBuilder gb = ShapeTorusKnotGeometry(radius: 1.0, tube: 0.4);
     Node torus = new Node(
         "torus",
-        GeometryBuilderToMeshDataLines("torus", chronosGL.gl, gb),
+        GeometryBuilderToMeshDataLines("torus", chronosGL, gb),
         matWireframe)..setPos(5.0, 0.0, 5.0);
     program.add(torus);
   }
@@ -90,8 +91,6 @@ void main() {
 
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
-
-  chronosGL.gl.enable(WEBGL.CULL_FACE);
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {

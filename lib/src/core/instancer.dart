@@ -3,19 +3,19 @@ part of core;
 // InstancerData presents attributes and vertex buffers associated with
 // instancing.
 class InstancerData extends RenderInputProvider {
-  final WEBGL.RenderingContext _gl;
+  final ChronosGL _cgl;
 
   final Map<String, WEBGL.Buffer> _buffers = {};
   int numInstances;
 
-  InstancerData(String name, this._gl, this.numInstances) : super(name);
+  InstancerData(String name, this._cgl, this.numInstances) : super(name);
 
   void AddBuffer(String canonical, Float32List data) {
-    _buffers[canonical] = CreateAndInitializeArrayBuffer(_gl, data);
+    _buffers[canonical] = _cgl.CreateAndInitializeArrayBuffer(data);
   }
 
   void ChangeBufferCanonical(String canonical, Float32List data) {
-    ChangeArrayBuffer(_gl, _buffers[canonical], data);
+    _cgl.ChangeArrayBuffer(_buffers[canonical], data);
   }
 
   @override

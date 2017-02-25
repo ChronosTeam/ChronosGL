@@ -7,7 +7,7 @@ void main() {
   test("shader_syntax", () {
     HTML.CanvasElement canvas = new HTML.CanvasElement(width: 200, height: 200);
     ChronosGL chronosGL = new ChronosGL(canvas);
-    RenderPhase phase = new RenderPhase("test", chronosGL.gl);
+    RenderPhase phase = new RenderPhase("test", chronosGL);
     RenderProgram program;
     program = phase.createProgram(createTexturedShader());
     print("${program}");

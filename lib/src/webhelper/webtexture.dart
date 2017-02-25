@@ -25,16 +25,16 @@ HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {
 class CanvasTexture extends Texture {
   HTML.CanvasElement _canvas;
 
-  CanvasTexture(WEBGL.RenderingContext gl, String url, this._canvas,
+  CanvasTexture(ChronosGL cgl, String url, this._canvas,
       [textureType = WEBGL.TEXTURE_2D])
-      : super(gl, textureType, url, new TextureProperties()) {
+      : super(cgl, textureType, url, new TextureProperties()) {
     _Install();
   }
 
   CanvasTexture.SolidColor(
-      WEBGL.RenderingContext gl, String url, String fillStyle,
+      ChronosGL cgl, String url, String fillStyle,
       [textureType = WEBGL.TEXTURE_2D])
-      : super(gl, textureType, url, new TextureProperties()) {
+      : super(cgl, textureType, url, new TextureProperties()) {
     _canvas = MakeSolidColorCanvas(fillStyle);
     _Install();
   }
@@ -45,7 +45,7 @@ class CanvasTexture extends Texture {
     UnBind(true);
   }
 
-  void UpdateFromCanvas(WEBGL.RenderingContext gl) {
+  void UpdateFromCanvas() {
     Bind();
     SetImageData(_canvas);
     UnBind();

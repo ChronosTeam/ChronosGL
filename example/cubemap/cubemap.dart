@@ -8,16 +8,16 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(15.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram programCM = phase.createProgram(createCubeMapShader());
 
   Material mat = new Material("cubemap");
-  MeshData md = ShapeCube(chronosGL.gl, x: 2.0, y: 2.0, z: 2.0);
+  MeshData md = ShapeCube(chronosGL, x: 2.0, y: 2.0, z: 2.0);
   programCM.add(new Node("cube", md, mat));
 
   RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
+  programSprites.add(Utils.MakeParticles(chronosGL, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -47,9 +47,9 @@ void main() {
   List<Future<dynamic>> futures = LoadCubeImages("skybox_", ".png");
 
   Future.wait(futures).then((List list) {
-    Texture cubeTex = new CubeTexture(chronosGL.gl, "stars", list);
+    Texture cubeTex = new CubeTexture(chronosGL, "stars", list);
     mat.SetUniform(uCubeTexture, cubeTex);
-    Node sky = Utils.MakeSkycube(chronosGL.gl, cubeTex);
+    Node sky = Utils.MakeSkycube(chronosGL, cubeTex);
     programCM.add(sky);
     animate(0.0);
   });

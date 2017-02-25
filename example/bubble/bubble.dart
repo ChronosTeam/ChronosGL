@@ -2,6 +2,7 @@ import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
 import "dart:async";
+import 'dart:web_gl' as WEBGL;
 
 String textureFile = "sphere.png";
 // https://cycling74.com/forums/topic/shader-help-recreating-gl_sphere_map/
@@ -42,16 +43,18 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
+  chronosGL.enable(WEBGL.CULL_FACE);
+
   OrbitCamera orbit = new OrbitCamera(5.0, 10.0);
   Perspective perspective = new Perspective(orbit);
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL);
 
   RenderProgram sprites = phase.createProgram(createPointSpritesShader());
-  sprites.add(Utils.MakeParticles(chronosGL.gl, 2000));
+  sprites.add(Utils.MakeParticles(chronosGL, 2000));
 
   RenderProgram shaderSpheres = phase.createProgram(sphereShader());
 
-  MeshData md = ShapeIcosahedron(chronosGL.gl, 3);
+  MeshData md = ShapeIcosahedron(chronosGL, 3);
   shaderSpheres.add(new Node("sphere", md, matSphere)..setPos(0.0, 0.0, 0.0));
   shaderSpheres.add(new Node("sphere", md, matSphere)..setPos(1.5, 0.0, 0.0));
 
@@ -85,7 +88,7 @@ void main() {
     LoadImage(textureFile),
   ];
   Future.wait(futures).then((List list) {
-    Texture bubble = new WebTexture(chronosGL.gl, textureFile, list[0]);
+    Texture bubble = new WebTexture(chronosGL, textureFile, list[0]);
     matSphere..SetUniform(uTexture, bubble);
     animate(0.0);
   });

@@ -11,11 +11,11 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  //UseElementIndexUint(chronosGL.gl);
+  //UseElementIndexUint(chronosGL);
   OrbitCamera orbit = new OrbitCamera(25.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram prg = phase.createProgram(createDemoShader());
 
   void resolutionChange(HTML.Event ev) {
@@ -51,7 +51,7 @@ void main() {
   Future.wait(futures).then((List list) {
     // Setup Mesh
     GeometryBuilder gb = GeometryFromWavefront(list[0]);
-    MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL.gl, gb);
+    MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL, gb);
 
     Material mat = new Material("mat");
     Node mesh = new Node(md.name, md, mat)..rotX(3.14 / 2);

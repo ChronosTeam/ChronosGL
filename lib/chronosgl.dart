@@ -25,69 +25,11 @@ part "src/input.dart";
 
 part "src/utils.dart";
 
-const String NO_WEBGL_MESSAGE = """
-Calling canvas.getContext("experimental-webgl") failed,
-make sure you run on a computer that supports WebGL.
-Test here: http://get.webgl.org/
-""";
 
 final Material EmptyMaterial = new Material("empty-mat");
 
-Node UnitNode(WEBGL.RenderingContext gl) {
-  final MeshData UnitQuad = ShapeQuad(gl, 1);
+Node UnitNode(ChronosGL cgl) {
+  final MeshData UnitQuad = ShapeQuad(cgl, 1);
   return new Node("unit-mesh", UnitQuad, EmptyMaterial);
 }
 
-class ChronosGL {
-  WEBGL.RenderingContext gl;
-
-  final HTML.CanvasElement _canvas;
-
-  ChronosGL(this._canvas, {bool preserveDrawingBuffer: false}) {
-    Map attributes = {
-      "alpha": false,
-      "depth": true,
-      "stencil": true,
-      "antialias": false,
-      "premultipliedAlpha": true,
-      "preserveDrawingBuffer": preserveDrawingBuffer,
-    };
-
-    gl = _canvas.getContext("webgl", attributes);
-    if (gl == null) {
-      throw new Exception(NO_WEBGL_MESSAGE);
-    }
-
-    var ext_OES_element_index_uint = gl.getExtension("OES_element_index_uint");
-    if (ext_OES_element_index_uint == null) {
-      throw "Error";
-    }
-    var ext_WEBGL_depth_texture = gl.getExtension("WEBGL_depth_texture");
-    if (ext_WEBGL_depth_texture == null) {
-      throw "Error";
-    }
-
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(WEBGL.DEPTH_TEST);
-    // fix a bug in current chrome v.27
-
-    // Event setup
-    _canvas.onDragStart.listen((HTML.MouseEvent event) {
-      event.preventDefault();
-    });
-
-    setUpEventCapture(_canvas);
-  }
-
-  WEBGL.RenderingContext getRenderingContext() {
-    return gl;
-  }
-
-  HTML.CanvasElement getCanvas() {
-    return _canvas;
-  }
-
-  void setLineWidth(int w) {
-    gl.lineWidth(w);
-  }
-}

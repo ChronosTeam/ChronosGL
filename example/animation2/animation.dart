@@ -101,7 +101,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(20.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram prgSimple = phase.createProgram(createDemoShader());
   RenderProgram prgAnim = phase.createProgram(createAnimationShader());
 
@@ -190,7 +190,7 @@ void main() {
     animatedSkeleton = new AnimatedSkeleton(skeleton.length);
     // skin mesh
     {
-      MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL.gl, gb[0]);
+      MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb[0]);
       Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
@@ -202,7 +202,7 @@ void main() {
     {
       UpdateAnimatedSkeleton(
           skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
-      mdWire = LineEndPointsToMeshData("wire", chronosGL.gl,
+      mdWire = LineEndPointsToMeshData("wire", chronosGL,
           BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton));
       Node mesh = new Node(mdWire.name, mdWire, matWire)..rotX(3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);

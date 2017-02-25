@@ -51,18 +51,18 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   double d = 20.0;
   Orthographic orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
-  RenderPhase phaseOrthograhic = new RenderPhase("shadow", chronosGL.gl);
+  RenderPhase phaseOrthograhic = new RenderPhase("shadow", chronosGL);
   RenderProgram prgOrthographic =
       phaseOrthograhic.createProgram(createTexturedShader());
 
   Perspective perspective = new Perspective(orbit);
-  RenderPhase phasePerspective = new RenderPhase("perspective", chronosGL.gl);
+  RenderPhase phasePerspective = new RenderPhase("perspective", chronosGL);
   phasePerspective.clearColorBuffer = false;
   RenderProgram prgPerspective =
       phasePerspective.createProgram(createTexturedShader());
 
   Texture solid =
-      new CanvasTexture.SolidColor(chronosGL.gl, "red-solid", "red");
+      new CanvasTexture.SolidColor(chronosGL, "red-solid", "red");
   final Material mat1 = new Material("mat1")
     ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
@@ -79,14 +79,14 @@ void main() {
     ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(0.8, 0.8, 0.8));
 
-  Node ico = new Node("sphere", ShapeIcosahedron(chronosGL.gl, 3), mat1)
+  Node ico = new Node("sphere", ShapeIcosahedron(chronosGL, 3), mat1)
     ..setPos(0.0, 0.0, 0.0);
 
-  Node cube = new Node("cube", ShapeCube(chronosGL.gl), mat2)
+  Node cube = new Node("cube", ShapeCube(chronosGL), mat2)
     ..setPos(-5.0, 0.0, -5.0);
 
   Node cyl =
-      new Node("cylinder", ShapeCylinder(chronosGL.gl, 3.0, 6.0, 2.0, 32), mat3)
+      new Node("cylinder", ShapeCylinder(chronosGL, 3.0, 6.0, 2.0, 32), mat3)
         ..setPos(5.0, 0.0, -5.0);
 
   /*
@@ -97,7 +97,7 @@ void main() {
   }*/
 
   Node plane = new Node(
-      "cube", ShapeCube(chronosGL.gl, x: 20.0, y: 0.1, z: 20.0), matPlane)
+      "cube", ShapeCube(chronosGL, x: 20.0, y: 0.1, z: 20.0), matPlane)
     ..setPos(0.0, -10.0, 0.0);
 
   for (Node m in [ico, cube, cyl, plane]) {

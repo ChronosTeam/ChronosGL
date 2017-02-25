@@ -1,10 +1,10 @@
 part of core;
 
 // TODO: use proper return type
-dynamic GetGlExtensionAnisotropic(WEBGL.RenderingContext gl) {
+dynamic GetGlExtensionAnisotropic(ChronosGL cgl) {
   var ext;
   for (String prefix in ["", "MOZ_", "WEBKIT_"]) {
-    ext = gl.getExtension(prefix + "EXT_texture_filter_anisotropic");
+    ext = cgl.gl.getExtension(prefix + "EXT_texture_filter_anisotropic");
     if (ext != null) break;
   }
   if (ext == null) {
@@ -14,8 +14,8 @@ dynamic GetGlExtensionAnisotropic(WEBGL.RenderingContext gl) {
 }
 
 // TODO: use proper return type
-dynamic GetGlExtensionStandardDerivatives(WEBGL.RenderingContext gl) {
-  var ext = gl.getExtension("OES_standard_derivatives");
+dynamic GetGlExtensionStandardDerivatives(ChronosGL cgl) {
+  var ext = cgl.gl.getExtension("OES_standard_derivatives");
   if (ext == null) {
     LogWarn("ExtensionStandardDerivative NOT SUPPORTED");
   }
@@ -24,16 +24,16 @@ dynamic GetGlExtensionStandardDerivatives(WEBGL.RenderingContext gl) {
 
 const int kNoAnisotropicFilterLevel = 1;
 
-int MaxAnisotropicFilterLevel(WEBGL.RenderingContext gl) {
-  var ext = GetGlExtensionAnisotropic(gl);
+int MaxAnisotropicFilterLevel(ChronosGL cgl) {
+  var ext = GetGlExtensionAnisotropic(cgl);
   if (ext == null) {
     return kNoAnisotropicFilterLevel;
   }
-  return gl.getParameter(
+  return cgl.gl.getParameter(
       WEBGL.ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
 }
 
 
-List GetSupportedExtensions(WEBGL.RenderingContext gl) {
-  return gl.getSupportedExtensions();
+List GetSupportedExtensions(ChronosGL cgl) {
+  return cgl.gl.getSupportedExtensions();
 }

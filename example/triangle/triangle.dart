@@ -52,12 +52,12 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(20.0);
   double d = 40.0;
   Orthographic orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
-  RenderPhase phaseOrthograhic = new RenderPhase("shadow", chronosGL.gl);
+  RenderPhase phaseOrthograhic = new RenderPhase("shadow", chronosGL);
   RenderProgram prgOrthographic =
       phaseOrthograhic.createProgram(createTexturedShader());
 
   Texture solid =
-      new CanvasTexture.SolidColor(chronosGL.gl, "red-solid", "red");
+      new CanvasTexture.SolidColor(chronosGL, "red-solid", "red");
   final Material mat1 = new Material("mat1")
     ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
@@ -75,22 +75,22 @@ void main() {
 
   Node side1 = new Node(
       "side1",
-      ShapeCube(chronosGL.gl, x: length, y: thickness, z: thickness),
+      ShapeCube(chronosGL, x: length, y: thickness, z: thickness),
       mat1)..setPos(-thickness, 0.0, 0.0);
 
   Node side2 = new Node(
       "side2",
-      ShapeCube(chronosGL.gl, x: thickness, y: thickness, z: length),
+      ShapeCube(chronosGL, x: thickness, y: thickness, z: length),
       mat2)..setPos(-length, 0.0, length + thickness);
 
   double length3 = length - thickness;
   Node side3a = new Node(
       "side3a",
-      ShapeCube(chronosGL.gl, x: thickness, y: length3, z: thickness),
+      ShapeCube(chronosGL, x: thickness, y: length3, z: thickness),
       mat3)..setPos(length, length3 - 1 * thickness, 0.0);
 
   Node side3b = new Node("side3b",
-      ShapeWedge(chronosGL.gl, x: thickness, y: thickness, z: thickness), mat3)
+      ShapeWedge(chronosGL, x: thickness, y: thickness, z: thickness), mat3)
     ..rotY(Math.PI)
     ..setPos(length, length + length3 - thickness, 0.0);
 
@@ -101,7 +101,7 @@ void main() {
   triangle.add(side3b);
   /*
   Node plane = new Node(
-      "cube", ShapeCube(chronosGL.gl, x: 20.0, y: 0.1, z: 20.0), matPlane)
+      "cube", ShapeCube(chronosGL, x: 20.0, y: 0.1, z: 20.0), matPlane)
     ..setPos(0.0, -1.5, 0.0);
 
   for (Node m in [triangle, plane]) {

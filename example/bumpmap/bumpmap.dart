@@ -70,13 +70,13 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
   // Required for bump mapping unparametrized surfaces a la Morten Mikkelsen
-  var ext = GetGlExtensionStandardDerivatives(chronosGL.gl);
+  var ext = GetGlExtensionStandardDerivatives(chronosGL);
   if (ext == null) HTML.window.alert("OES_standard_derivatives not supported");
 
   OrbitCamera orbit = new OrbitCamera(0.5);
   Perspective perspective = new Perspective(orbit);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram fixed = phase.createProgram(createSolidColorShader());
   RenderProgram prg = phase.createProgram(createShader());
 
@@ -91,7 +91,7 @@ void main() {
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, colYellow);
   Node shapePointLight = new Node(
-      "pointLight", ShapeIcosahedron(chronosGL.gl, 4, 0.1), lightSourceMat)
+      "pointLight", ShapeIcosahedron(chronosGL, 4, 0.1), lightSourceMat)
     ..setPosFromVec(posLight);
   fixed.add(shapePointLight);
 
@@ -130,13 +130,13 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Bumpmap
-    Texture bumpmap = new WebTexture(chronosGL.gl, bumpmapFile, list[1]);
+    Texture bumpmap = new WebTexture(chronosGL, bumpmapFile, list[1]);
     mat.SetUniform(uBumpMap, bumpmap);
     mat.SetUniform(uBumpScale, 12.0);
     // Setup Mesh
     List<GeometryBuilder> gbs = ReadThreeJsMeshes(list[0]);
     print(gbs[0]);
-    MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL.gl, gbs[0]);
+    MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL, gbs[0]);
 
     Node mesh = new Node(md.name, md, mat);
     Node n = new Node.Container("wrapper", mesh);

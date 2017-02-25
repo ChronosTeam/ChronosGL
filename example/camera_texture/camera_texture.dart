@@ -14,15 +14,15 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(15.0, 10.0);
   Perspective perspective = new Perspective(orbit);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL.gl);
+  RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram basic = phase.createProgram(createTexturedShader());
 
-  //Texture texture = new ImageTexture(chronosGL.gl, "../gradient.jpg");
+  //Texture texture = new ImageTexture(chronosGL, "../gradient.jpg");
 
   final Material matGradient = new Material("gradient")
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 0.0));
 
-  Node cube = new Node("cube", ShapeCube(chronosGL.gl), matGradient)
+  Node cube = new Node("cube", ShapeCube(chronosGL), matGradient)
     ..setPos(-5.0, 0.0, -5.0);
   basic.add(cube);
 
@@ -77,7 +77,7 @@ void main() {
     if (video == null) {
       HTML.window.alert("could not access camera");
     }
-    texture = new WebTexture(chronosGL.gl, "video", video);
+    texture = new WebTexture(chronosGL, "video", video);
     texture.properties.minFilter = WEBGL.LINEAR;
     texture.properties.clamp = true;
     // Figure out why moving this into the WebTexture contructor does not work.

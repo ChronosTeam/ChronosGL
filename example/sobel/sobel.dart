@@ -22,14 +22,14 @@ void main() {
   canvas.height = height;
   perspective.AdjustAspect(width, height);
 
-  ChronosFramebuffer fb = new ChronosFramebuffer(chronosGL.gl, width, height);
-  RenderPhase phase1 = new RenderPhase("phase1", chronosGL.gl, fb);
+  ChronosFramebuffer fb = new ChronosFramebuffer(chronosGL, width, height);
+  RenderPhase phase1 = new RenderPhase("phase1", chronosGL, fb);
   phase1.viewPortW = width;
   phase1.viewPortH = height;
 
   RenderProgram prg1 = phase1.createProgram(createPlane2GreyShader());
 
-  RenderPhase phase2 = new RenderPhase("phase2", chronosGL.gl, null);
+  RenderPhase phase2 = new RenderPhase("phase2", chronosGL, null);
   phase2.viewPortW = width;
   phase2.viewPortH = height;
 
@@ -38,9 +38,9 @@ void main() {
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetInput(uDepthMap, fb.depthTexture)
     ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL.gl));
+    ..add(UnitNode(chronosGL));
 
-  RenderPhase phase1only = new RenderPhase("phase1only", chronosGL.gl, null);
+  RenderPhase phase1only = new RenderPhase("phase1only", chronosGL, null);
   phase1only.viewPortW = width;
   phase1only.viewPortH = height;
   phase1only.AddRenderProgram(prg1);
@@ -78,7 +78,7 @@ void main() {
     // Setup Mesh
     GeometryBuilder ctLogo = GeometryFromWavefront(list[0]);
 
-    MeshData md = GeometryBuilderToMeshData("", chronosGL.gl, ctLogo);
+    MeshData md = GeometryBuilderToMeshData("", chronosGL, ctLogo);
     Material mat = new Material("mat");
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
