@@ -74,9 +74,9 @@ class ShaderProgram extends RenderProgram {
         break;
       case cDepthTest:
         if (val == true) {
-          _cgl.gl.enable(WEBGL.DEPTH_TEST);
+          _cgl.enable(WEBGL.DEPTH_TEST);
         } else {
-          _cgl.gl.disable(WEBGL.DEPTH_TEST);
+          _cgl.disable(WEBGL.DEPTH_TEST);
         }
         break;
       case cDepthWrite:
@@ -84,9 +84,9 @@ class ShaderProgram extends RenderProgram {
         break;
       case cBlend:
         if (val == true) {
-          _cgl.gl.enable(WEBGL.BLEND);
+          _cgl.enable(WEBGL.BLEND);
         } else {
-          _cgl.gl.disable(WEBGL.BLEND);
+          _cgl.disable(WEBGL.BLEND);
         }
         break;
       case cBlendEquation:

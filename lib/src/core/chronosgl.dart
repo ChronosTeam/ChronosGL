@@ -70,7 +70,24 @@ class ChronosGL {
     return b;
   }
 
+  void bindFramebuffer(int kind, dynamic framebuffer) {
+    gl.bindFramebuffer(kind, framebuffer);
+  }
+
+  void enable(int kind) {
+    gl.enable(kind);
+  }
+
+  void disable(int kind) {
+    gl.disable(kind);
+  }
+
+  void clear(int kind) {
+    gl.clear(kind);
+  }
+
   void setLineWidth(int w) {
     gl.lineWidth(w);
   }
+
 }

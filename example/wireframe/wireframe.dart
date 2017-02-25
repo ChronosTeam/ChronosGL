@@ -13,6 +13,7 @@ void main() {
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
+  chronosGL.enable(WEBGL.CULL_FACE);
 
   var ext = GetGlExtensionStandardDerivatives(chronosGL);
   if (ext == null) HTML.window.alert("OES_standard_derivatives not supported");
@@ -95,8 +96,6 @@ void main() {
 
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
-
-  chronosGL.gl.enable(WEBGL.CULL_FACE);
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {

@@ -22,9 +22,9 @@ class RenderPhase extends NamedEntity {
 
   void draw(List<RenderInputProvider> inputs, [List<DrawStats> stats = null]) {
     if (_framebuffer == null) {
-      _cgl.gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
+      _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
     } else {
-      _cgl.gl.bindFramebuffer(WEBGL.FRAMEBUFFER, _framebuffer.framebuffer);
+      _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, _framebuffer.framebuffer);
     }
     assert(viewPortW > 0 && viewPortH > 0);
     _cgl.gl.viewport(viewPortX, viewPortY, viewPortW, viewPortH);
@@ -33,7 +33,7 @@ class RenderPhase extends NamedEntity {
       int mode = 0;
       if (clearColorBuffer) mode |= WEBGL.COLOR_BUFFER_BIT;
       if (clearDepthBuffer) mode |= WEBGL.DEPTH_BUFFER_BIT;
-      _cgl.gl.clear(mode);
+      _cgl.clear(mode);
     }
 
     for (RenderProgram prg in _programs) {

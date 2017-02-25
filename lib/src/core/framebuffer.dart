@@ -19,20 +19,20 @@ class ChronosFramebuffer {
         WEBGL.DEPTH_COMPONENT, WEBGL.UNSIGNED_SHORT);
     //depthTexture.Install();
 
-    _cgl.gl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
+    _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
     _cgl.gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.COLOR_ATTACHMENT0,
         WEBGL.TEXTURE_2D, colorTexture.GetTexture(), 0);
     _cgl.gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.DEPTH_ATTACHMENT,
         WEBGL.TEXTURE_2D, depthTexture.GetTexture(), 0);
 
     _cgl.gl.bindTexture(WEBGL.TEXTURE_2D, null);
-    _cgl.gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
+    _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
   }
 
   ChronosFramebuffer.FromTexture(this._cgl, this.colorTexture) {
     framebuffer = _cgl.gl.createFramebuffer();
 
-    _cgl.gl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
+    _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
     _cgl.gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.COLOR_ATTACHMENT0,
         WEBGL.TEXTURE_2D, colorTexture.GetTexture(), 0);
 
@@ -48,7 +48,7 @@ class ChronosFramebuffer {
     if (err != WEBGL.FRAMEBUFFER_COMPLETE) {
       throw "Error Incomplete Framebuffer: ${err}";
     }
-    _cgl.gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
+    _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
   }
 
   bool ready() {
@@ -63,7 +63,7 @@ class ChronosFramebuffer {
   // e.g. into Float32List
   // BROKEN: https://github.com/dart-lang/sdk/issues/11614
   void ExtractData(var buf, int x, int y, int w, int h) {
-    _cgl.gl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
+    _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
     // RGB (3 values per pixel), RGBA (4 values per pixel)
     // see TypeToNumChannels
     int implFormat = _cgl.gl
@@ -74,7 +74,7 @@ class ChronosFramebuffer {
         .getParameter(WEBGL.RenderingContext.IMPLEMENTATION_COLOR_READ_TYPE);
     print("impl type: ${implType}");
     _cgl.gl.readPixels(x, y, w, h, implFormat, implType, buf);
-    _cgl.gl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
+    _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
   }
 }
 
