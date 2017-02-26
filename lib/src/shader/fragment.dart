@@ -273,7 +273,6 @@ float computeShadow(vec4 positionFromLight, sampler2D shadowMap,
 
 """;
 
-
 // ============================================================
 // STUFF WITH DERIVATIVE
 // ============================================================

@@ -1,6 +1,5 @@
 part of core;
 
-
 Float32List FlattenVector3List(List<VM.Vector3> v, [Float32List data = null]) {
   if (data == null) data = new Float32List(v.length * 3);
   for (int i = 0; i < v.length; ++i) {
@@ -52,7 +51,7 @@ class MeshData extends RenderInputProvider {
   WEBGL.Buffer _indexBuffer;
   int _indexBufferType = -1;
 
-  Float32List _vertices = null;
+  Float32List _vertices;
   List<int> _faces;
   Map<String, Float32List> _attributes = {};
 

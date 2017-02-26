@@ -1,10 +1,9 @@
 @TestOn("vm")
-
+import 'package:chronosgl/src/polygon/lib.dart';
 import "package:test/test.dart";
 import 'package:vector_math/vector_math.dart' as VM;
-import 'polygon_data.dart' as DATA;
 
-import '../lib/src/polygon/lib.dart';
+import 'polygon_data.dart' as DATA;
 
 double getTrianguatedArea(
     final List<int> triangles, final List<VM.Vector2> data) {

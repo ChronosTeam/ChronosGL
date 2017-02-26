@@ -8,6 +8,7 @@ import 'dart:math' as Math;
 import 'dart:typed_data';
 
 import 'package:vector_math/vector_math.dart' as VM;
+
 /// # Layer: Base
 /// The **base layer** contains many of the fundamental abstractions
 /// like NamedEntity, RenderInputs, RenderInputProvider,
@@ -16,7 +17,6 @@ import 'package:vector_math/vector_math.dart' as VM;
 ///
 /// It was broken out of the **core layer** because it does not have
 /// dependencies on dart:web_gl' which simplifies unit testing.
-
 
 /// ## Concept: Input
 /// An **Input** is parameter to a program running on the GPU

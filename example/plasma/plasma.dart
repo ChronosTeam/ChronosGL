@@ -13,10 +13,8 @@ List<ShaderObject> createPlasmaShader() {
       ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..AddVaryingVar(vTextureCoordinates)
-      ..SetBodyWithMain([
-        StdVertexBody,
-        "${vTextureCoordinates} = ${aTextureCoordinates};"
-      ]),
+      ..SetBodyWithMain(
+          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("Plasma1F")
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uTime)
@@ -49,10 +47,8 @@ List<ShaderObject> createPlasmaShader2() {
       ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..AddVaryingVar(vTextureCoordinates)
-      ..SetBodyWithMain([
-        StdVertexBody,
-        "${vTextureCoordinates} = ${aTextureCoordinates};"
-      ]),
+      ..SetBodyWithMain(
+          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("Plasma2F")
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uTime)
@@ -75,10 +71,8 @@ List<ShaderObject> createPlasmaShader3() {
       ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..AddVaryingVar(vTextureCoordinates)
-      ..SetBodyWithMain([
-        StdVertexBody,
-        "${vTextureCoordinates} = ${aTextureCoordinates};"
-      ]),
+      ..SetBodyWithMain(
+          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("Plasma3F")
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uTime)

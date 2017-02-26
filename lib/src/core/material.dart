@@ -1,6 +1,5 @@
 part of core;
 
-
 class BlendEquation {
   int equation;
   int srcFactor;

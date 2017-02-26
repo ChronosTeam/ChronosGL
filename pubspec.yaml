@@ -4,9 +4,10 @@ author: rhulha <java4life@gmail.com>
 description: A simple, minimal and elegant scene graph for WebGL written in Dart
 homepage: https://github.com/rhulha/ChronosGL
 dependencies:
-  browser: any
-  vector_math: any
-  test: any
+  vector_math: ^2.0.4
+dev_dependencies:
+  browser: ^0.10.0+2
+  test: ^0.12.20
 transformers:
 - $dart2js:
     checked: true

@@ -9,7 +9,9 @@ Future<HTML.VideoElement> MakeVideoElementFromCamera() {
     HTML.VideoElement video = new HTML.VideoElement()..autoplay = true;
     video.onPlaying.first.then((_) => c.complete(video));
     video.src = HTML.Url.createObjectUrl(stream);
-  }).catchError((error) { c.complete(null); });
+  }).catchError((error) {
+    c.complete(null);
+  });
   return c.future as Future<HTML.VideoElement>;
 }
 
@@ -31,8 +33,7 @@ class CanvasTexture extends Texture {
     _Install();
   }
 
-  CanvasTexture.SolidColor(
-      ChronosGL cgl, String url, String fillStyle,
+  CanvasTexture.SolidColor(ChronosGL cgl, String url, String fillStyle,
       [textureType = WEBGL.TEXTURE_2D])
       : super(cgl, textureType, url, new TextureProperties()) {
     _canvas = MakeSolidColorCanvas(fillStyle);
@@ -51,6 +52,3 @@ class CanvasTexture extends Texture {
     UnBind();
   }
 }
-
-
-

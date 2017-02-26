@@ -61,8 +61,7 @@ void main() {
   RenderProgram prgPerspective =
       phasePerspective.createProgram(createTexturedShader());
 
-  Texture solid =
-      new CanvasTexture.SolidColor(chronosGL, "red-solid", "red");
+  Texture solid = new CanvasTexture.SolidColor(chronosGL, "red-solid", "red");
   final Material mat1 = new Material("mat1")
     ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
@@ -96,9 +95,9 @@ void main() {
     basic.add(torus);
   }*/
 
-  Node plane = new Node(
-      "cube", ShapeCube(chronosGL, x: 20.0, y: 0.1, z: 20.0), matPlane)
-    ..setPos(0.0, -10.0, 0.0);
+  Node plane =
+      new Node("cube", ShapeCube(chronosGL, x: 20.0, y: 0.1, z: 20.0), matPlane)
+        ..setPos(0.0, -10.0, 0.0);
 
   for (Node m in [ico, cube, cyl, plane]) {
     prgOrthographic.add(m);

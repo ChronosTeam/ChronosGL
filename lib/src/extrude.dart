@@ -29,9 +29,6 @@ class ExtrudeOptions {
           |
  */
 
-
-
-
 double EasingCos(double t) {
   return Math.cos(t * Math.PI / 2);
 }
@@ -51,7 +48,6 @@ List<double> BevelLayerOffsets(double thickness, int segments) {
   }
   return out;
 }
-
 
 List<VM.Vector2> BevelMovement(final List<VM.Vector2> contour) {
   final int cl = contour.length;

@@ -1,9 +1,11 @@
 // This is not really a test
 @TestOn("dartium")
-import "package:test/test.dart";
-import 'package:chronosgl/chronosgl.dart';
+
 import 'dart:html' as HTML;
 import 'dart:web_gl' as WEBGL;
+
+import 'package:chronosgl/chronosgl.dart';
+import "package:test/test.dart";
 
 void main() {
   test("show_extensions", () {

@@ -39,9 +39,8 @@ void main() {
   {
     GeometryBuilder gb = CubeGeometry()..GenerateWireframeCenters();
     Node cube = new Node(
-        "cube",
-        GeometryBuilderToMeshData("cube", chronosGL, gb),
-        matWireframe)..setPos(-5.0, 0.0, -5.0);
+        "cube", GeometryBuilderToMeshData("cube", chronosGL, gb), matWireframe)
+      ..setPos(-5.0, 0.0, -5.0);
     program.add(cube);
   }
 
@@ -67,9 +66,8 @@ void main() {
   {
     GeometryBuilder gb = QuadGeometry(2)..GenerateWireframeCenters();
     Node quad = new Node(
-        "quad",
-        GeometryBuilderToMeshData("quad", chronosGL, gb),
-        matWireframe)..setPos(-5.0, 0.0, 5.0);
+        "quad", GeometryBuilderToMeshData("quad", chronosGL, gb), matWireframe)
+      ..setPos(-5.0, 0.0, 5.0);
     program.add(quad);
   }
 

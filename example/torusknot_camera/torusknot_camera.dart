@@ -23,8 +23,7 @@ void main() {
   Material mat = new Material.Transparent("torus", new BlendEquation.Standard())
     ..SetUniform(uTexture, generatedTexture)
     ..SetUniform(uColor, new VM.Vector3.zero());
-  Node m =
-      new Node("torus", ShapeTorusKnot(chronosGL, useQuads: false), mat);
+  Node m = new Node("torus", ShapeTorusKnot(chronosGL, useQuads: false), mat);
 
   programBasic.add(m);
 

@@ -1,7 +1,8 @@
 @TestOn("dartium")
-import "package:test/test.dart";
-import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
+
+import 'package:chronosgl/chronosgl.dart';
+import "package:test/test.dart";
 
 void main() {
   test("shader_syntax", () {

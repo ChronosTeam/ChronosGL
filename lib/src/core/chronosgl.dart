@@ -105,6 +105,4 @@ class ChronosGL {
   void texParameterf(int kind1, int kind2, double val) {
     gl.texParameterf(kind1, kind2, val);
   }
-
-
 }

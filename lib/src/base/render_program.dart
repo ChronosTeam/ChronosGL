@@ -12,7 +12,6 @@ class DrawStats {
   String toString() => "[${name}] ${numInstances} ${numItems} ${drawMode}";
 }
 
-
 /// ## Class RenderProgram (is a RenderInputs)
 /// represents several invocations of the same program running on the GPU.
 /// It consists of a tree of **Nodes** which provide **Inputs** for the
@@ -37,7 +36,7 @@ abstract class RenderProgram extends RenderInputs {
     return objects.clear();
   }
 
-  void DrawOne( Map<String, dynamic>  inputs, List<DrawStats> stats);
+  void DrawOne(Map<String, dynamic> inputs, List<DrawStats> stats);
 
   void DrawSetUp();
 

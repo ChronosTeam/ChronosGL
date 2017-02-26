@@ -6,8 +6,7 @@ List<ShaderObject> createSobelShader() {
       ..AddAttributeVar(aVertexPosition)
       ..AddAttributeVar(aTextureCoordinates)
       ..AddVaryingVar(vTextureCoordinates)
-      ..SetBodyWithMain(
-          [NullVertexBody, StdVertexTextureForward]),
+      ..SetBodyWithMain([NullVertexBody, StdVertexTextureForward]),
     new ShaderObject("SobelF")
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uTexture)

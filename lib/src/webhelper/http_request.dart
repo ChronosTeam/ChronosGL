@@ -55,5 +55,3 @@ List<Future<HTML.ImageElement>> LoadCubeImages(
   }
   return out;
 }
-
-

@@ -251,8 +251,7 @@ void main() {
   RenderProgram shadowMap =
       phaseComputeShadow.createProgram(createShadowShader());
 
-  RenderPhase phaseDisplayShadow =
-      new RenderPhase("display-shadow", chronosGL);
+  RenderPhase phaseDisplayShadow = new RenderPhase("display-shadow", chronosGL);
 
   RenderProgram copyToScreen =
       phaseDisplayShadow.createProgram(createCopyShaderForShadow());
@@ -281,9 +280,9 @@ void main() {
   }
 
   {
-    Node cyl = new Node(
-        "cylinder", ShapeCylinder(chronosGL, 3.0, 6.0, 2.0, 32), mat3)
-      ..setPos(5.0, 0.0, -5.0);
+    Node cyl =
+        new Node("cylinder", ShapeCylinder(chronosGL, 3.0, 6.0, 2.0, 32), mat3)
+          ..setPos(5.0, 0.0, -5.0);
     shadowMap.add(cyl);
     basic.add(cyl);
   }
@@ -299,9 +298,9 @@ void main() {
 
   {
     // plane
-    Node cube = new Node(
-        "cube", ShapeCube(chronosGL, x: 20.0, y: 0.1, z: 20.0), mat3)
-      ..setPos(0.0, -10.0, 0.0);
+    Node cube =
+        new Node("cube", ShapeCube(chronosGL, x: 20.0, y: 0.1, z: 20.0), mat3)
+          ..setPos(0.0, -10.0, 0.0);
     shadowMap.add(cube);
     basic.add(cube);
   }

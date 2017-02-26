@@ -36,7 +36,9 @@ class Node extends Spatial {
 
   RenderInputProvider get instancerData => _instancerData;
 
-  void set meshData(RenderInputProvider md)  { _meshData = md; }
+  void set meshData(RenderInputProvider md) {
+    _meshData = md;
+  }
 
   void add(Node node) {
     children.add(node);
@@ -55,7 +57,7 @@ class Node extends Spatial {
   }
 
   void RemoveShaderInputs(RenderInputs program) {
-     if (_instancerData != null) _instancerData.RemoveRenderInputs(program);
+    if (_instancerData != null) _instancerData.RemoveRenderInputs(program);
     _meshData.RemoveRenderInputs(program);
     _material.RemoveRenderInputs(program);
 

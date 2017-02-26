@@ -71,12 +71,12 @@ final List<VM.Vector3> IcosahedronVertexList = [
 // For every increase in subdivisions the number of faces is quadrupled:
 //  #subdivisions  #faces  #vertices:
 //   0             20           12
-//   1             80           72  
-//   2            320          312  
+//   1             80           72
+//   2            320          312
 //   3           1280         1272
 //   4           5120         5112
 GeometryBuilder IcosahedronGeometry(
-    [int subdivisions = 4, double scale = 1.0, bool computeNormals=true]) {
+    [int subdivisions = 4, double scale = 1.0, bool computeNormals = true]) {
   List<Face3> faces = [];
   List<VM.Vector3> vertices = [];
 
@@ -130,11 +130,11 @@ GeometryBuilder IcosahedronGeometry(
   // create final vertices and uvs of a Icosahedron
   for (Face3 f in faces) {
     VM.Vector3 v1 = vertices[f.a];
-    assert (v1.length < 1.01 && v1.length > 0.99);
+    assert(v1.length < 1.01 && v1.length > 0.99);
     VM.Vector3 v2 = vertices[f.b];
-    assert (v2.length < 1.01 && v2.length > 0.99);
+    assert(v2.length < 1.01 && v2.length > 0.99);
     VM.Vector3 v3 = vertices[f.c];
-    assert (v3.length < 1.01 && v3.length > 0.99);
+    assert(v3.length < 1.01 && v3.length > 0.99);
 
     //print ("@ ${v1.subtract(v2).length()}");
     //print ("@ ${v2.subtract(v3).length()}");
@@ -150,4 +150,3 @@ GeometryBuilder IcosahedronGeometry(
   }
   return gb;
 }
-
