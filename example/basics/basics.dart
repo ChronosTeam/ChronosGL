@@ -53,9 +53,8 @@ void main() {
   }
   {
     Node torus = new Node(
-        "torus",
-        ShapeTorusKnot(chronosGL, radius: 1.0, tube: 0.4),
-        matGradient)..setPos(5.0, 0.0, 5.0);
+        "torus", ShapeTorusKnot(chronosGL, radius: 1.0, tube: 0.4), matGradient)
+      ..setPos(5.0, 0.0, 5.0);
     basic.add(torus);
   }
 

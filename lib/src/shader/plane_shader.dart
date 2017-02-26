@@ -16,10 +16,8 @@ List<ShaderObject> createPlane2GreyShader() {
     new ShaderObject("Plane2GreyF")
       ..AddVaryingVar(vColor)
       ..SetBodyWithMain(["gl_FragColor = vec4(${vColor}, 1.0);"])
-       
   ];
 }
-
 
 // by patapom at stackoverflow.com
 const String _VertexShaderPlane2ColorV = """
@@ -62,4 +60,3 @@ List<ShaderObject> createPlane2ColorShader() {
       ..SetBodyWithMain(["gl_FragColor = vec4( vColor, 1.0 );"])
   ];
 }
- 

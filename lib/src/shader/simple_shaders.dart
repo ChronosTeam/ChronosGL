@@ -81,7 +81,9 @@ List<ShaderObject> createDemoShader() {
       ..SetBodyWithMain([
         StdVertexBody,
         "${vColor} = ColorFromPosition(${aVertexPosition});",
-      ], prolog: [StdLibShader]),
+      ], prolog: [
+        StdLibShader
+      ]),
     new ShaderObject("FixedVertexColorF")
       ..AddVaryingVar(vColor)
       ..SetBodyWithMain(["gl_FragColor = vec4( ${vColor}, 1.0 );"])

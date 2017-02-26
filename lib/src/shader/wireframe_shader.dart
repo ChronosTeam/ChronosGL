@@ -1,8 +1,8 @@
 part of chronosshader;
 
-//  GL_OES_standard_derivatives 
+//  GL_OES_standard_derivatives
 //  dFdx()
-//  dFdy()  
+//  dFdy()
 //  fwidth()
 
 String _WireframeF = """

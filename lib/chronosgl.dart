@@ -25,11 +25,9 @@ part "src/input.dart";
 
 part "src/utils.dart";
 
-
 final Material EmptyMaterial = new Material("empty-mat");
 
 Node UnitNode(ChronosGL cgl) {
   final MeshData UnitQuad = ShapeQuad(cgl, 1);
   return new Node("unit-mesh", UnitQuad, EmptyMaterial);
 }
-

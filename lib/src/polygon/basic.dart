@@ -173,7 +173,7 @@ List<VM.Vector2> GetContourMovement(final List<VM.Vector2> contour) {
 
     VM.Vector2 v = _getMovement(contour[im1], contour[i], contour[ip1]);
 
-    print ("${i}: ${contour[i]} -> ${v*0.2+contour[i]}");
+    print("${i}: ${contour[i]} -> ${v*0.2+contour[i]}");
 
     out.add(v * 0.1 + contour[i]);
   }

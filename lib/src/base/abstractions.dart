@@ -33,7 +33,7 @@ class RenderInputs extends NamedEntity {
   }
 
   void SetInputWithOrigin(NamedEntity origin, String canonical, var val) {
-    if(_inputs.containsKey(canonical)) {
+    if (_inputs.containsKey(canonical)) {
       LogError("canonical already present: ${canonical}");
       assert(false);
     }
@@ -64,12 +64,12 @@ class RenderInputs extends NamedEntity {
   }
 
   void Remove(String canonical) {
-    assert (_inputs.containsKey(canonical));
+    assert(_inputs.containsKey(canonical));
     _inputs.remove(canonical);
     _origin.remove(canonical);
   }
 
-  Map<String, dynamic> GetInputs() =>  _inputs;
+  Map<String, dynamic> GetInputs() => _inputs;
 }
 
 /// ## Class RenderInputProvider (is a NamedEntity)

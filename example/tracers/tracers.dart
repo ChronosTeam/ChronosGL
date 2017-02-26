@@ -30,8 +30,9 @@ void main() {
 
   // Every frame 4% of the screen will be blurred
   RenderProgram shaderProgramBlur = phase.createProgram(blurdShader());
-  Material matBlur = new Material.Transparent("blur", new BlendEquation.Standard())
-    ..SetUniform(uColorAlpha, new VM.Vector4(0.0, 0.0, 0.0, 0.04));
+  Material matBlur =
+      new Material.Transparent("blur", new BlendEquation.Standard())
+        ..SetUniform(uColorAlpha, new VM.Vector4(0.0, 0.0, 0.0, 0.04));
   shaderProgramBlur.add(new Node("", ShapeQuad(chronosGL, 1), matBlur));
 
   // stars

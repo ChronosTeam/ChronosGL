@@ -57,8 +57,8 @@ void main() {
 
   // Make a torus and add it to the first program,
   Material mat = new Material("torus-mat");
-  Node torus = new Node(
-      "torus", ShapeTorusKnot(chronosGL, radius: 1.0, tube: 0.4), mat);
+  Node torus =
+      new Node("torus", ShapeTorusKnot(chronosGL, radius: 1.0, tube: 0.4), mat);
   basic.add(torus);
 
   // Create the second program and the point sprites. The details are
@@ -86,4 +86,3 @@ void main() {
 
   animate(0.0);
 }
- 

@@ -130,8 +130,8 @@ class TypedTexture extends Texture {
 
   TypedTexture(ChronosGL cgl, String url, this._width, this._height,
       this._formatType, this._dataType, [this._data = null])
-      : super(
-            cgl, WEBGL.TEXTURE_2D, url, new TextureProperties.forFramebuffer()) {
+      : super(cgl, WEBGL.TEXTURE_2D, url,
+            new TextureProperties.forFramebuffer()) {
     _Install();
   }
 
@@ -170,8 +170,11 @@ class WebTexture extends Texture {
   dynamic _element; // CanvasElement, ImageElement, VideoElement
 
   WebTexture(ChronosGL cgl, String url, this._element,
-      [delayInstall=false, TextureProperties tp = null, textureType = WEBGL.TEXTURE_2D])
-      : super(cgl, textureType, url, tp == null ? new TextureProperties() : tp) {
+      [delayInstall = false,
+      TextureProperties tp = null,
+      textureType = WEBGL.TEXTURE_2D])
+      : super(
+            cgl, textureType, url, tp == null ? new TextureProperties() : tp) {
     if (!delayInstall) {
       Install();
     }

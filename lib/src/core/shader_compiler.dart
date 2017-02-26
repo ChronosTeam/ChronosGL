@@ -8,8 +8,7 @@ String AddLineNumbers(String text) {
   return out.join("\n");
 }
 
-WEBGL.Shader CompileOneShader(
-    ChronosGL cgl, int type, String text) {
+WEBGL.Shader CompileOneShader(ChronosGL cgl, int type, String text) {
   WEBGL.Shader shader = cgl.gl.createShader(type);
 
   cgl.gl.shaderSource(shader, text);
@@ -27,13 +26,13 @@ WEBGL.Shader CompileOneShader(
   return shader;
 }
 
-WEBGL.Program CompileWholeProgram(ChronosGL cgl,
-    String vertexShaderText, String fragmentShaderText) {
+WEBGL.Program CompileWholeProgram(
+    ChronosGL cgl, String vertexShaderText, String fragmentShaderText) {
   WEBGL.Program program = cgl.gl.createProgram();
   cgl.gl.attachShader(
       program, CompileOneShader(cgl, WEBGL.VERTEX_SHADER, vertexShaderText));
-  cgl.gl.attachShader(
-      program, CompileOneShader(cgl, WEBGL.FRAGMENT_SHADER, fragmentShaderText));
+  cgl.gl.attachShader(program,
+      CompileOneShader(cgl, WEBGL.FRAGMENT_SHADER, fragmentShaderText));
   cgl.gl.linkProgram(program);
 
   if (!cgl.gl.getProgramParameter(program, WEBGL.LINK_STATUS)) {

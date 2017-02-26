@@ -58,7 +58,7 @@ void RecomputeLocalOffsets(List<Bone> skeleton) {
   for (int i = 0; i < skeleton.length; i++) {
     Bone bone = skeleton[i];
     if (bone.parentNum < 0) {
-      toRoot[i] = new VM.Matrix4.identity()* bone.localTransform;
+      toRoot[i] = new VM.Matrix4.identity() * bone.localTransform;
     } else {
       toRoot[i] = toRoot[bone.parentNum] * bone.localTransform;
     }

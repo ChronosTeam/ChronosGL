@@ -49,7 +49,6 @@ List<ShaderObject> createPerlinNoiseVertexColorShader() {
 }
  */
 
-
 // this shader is build for use with an icosahedron
 List<ShaderObject> createPerlinNoiseColorShader(bool blackVariant) {
   String define = "";

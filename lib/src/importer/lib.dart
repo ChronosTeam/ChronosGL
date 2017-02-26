@@ -14,4 +14,3 @@ part "util.dart";
 part "wavefront.dart";
 part "threejs.dart";
 part "assimp2json.dart";
-

@@ -33,7 +33,6 @@ int MaxAnisotropicFilterLevel(ChronosGL cgl) {
       WEBGL.ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
 }
 
-
 List GetSupportedExtensions(ChronosGL cgl) {
   return cgl.gl.getSupportedExtensions();
 }

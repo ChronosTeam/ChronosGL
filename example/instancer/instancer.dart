@@ -71,11 +71,8 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL);
 
   Material mat = new Material("mat");
-  Node m = new Node.WithInstances(
-      "torus",
-      ShapeTorusKnot(chronosGL, radius: 12.0),
-      MakeInstances(chronosGL),
-      mat);
+  Node m = new Node.WithInstances("torus",
+      ShapeTorusKnot(chronosGL, radius: 12.0), MakeInstances(chronosGL), mat);
 
   RenderProgram prg = phase.createProgram(createInstancedShader());
   prg.add(m);

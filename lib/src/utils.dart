@@ -51,7 +51,8 @@ class Utils {
     });
   }
 
-  static Texture createParticleTexture(ChronosGL cgl, [String name = "Utils::Particles"]) {
+  static Texture createParticleTexture(ChronosGL cgl,
+      [String name = "Utils::Particles"]) {
     return new WebTexture(cgl, name, createParticleCanvas())..Install();
   }
 
@@ -266,8 +267,8 @@ MeshData ShapeQuad(ChronosGL cgl, int size) {
   return GeometryBuilderToMeshData("quad", cgl, gb);
 }
 
-MeshData ShapeGrid(ChronosGL cgl, int xstrips, int ystrips,
-    double xlen, double ylen) {
+MeshData ShapeGrid(
+    ChronosGL cgl, int xstrips, int ystrips, double xlen, double ylen) {
   GeometryBuilder gb = GridGeometry(xstrips, ystrips, xlen, ylen);
   return GeometryBuilderToMeshData("strips", cgl, gb);
 }
@@ -308,8 +309,8 @@ VM.Vector3 GetOrthogonalVector3(VM.Vector3 dir) {
   }
 }
 
-MeshData SpotLightVisualizer(ChronosGL cgl, VM.Vector3 pos,
-    VM.Vector3 dir, double range, double angle) {
+MeshData SpotLightVisualizer(
+    ChronosGL cgl, VM.Vector3 pos, VM.Vector3 dir, double range, double angle) {
   final int kSpines = 8;
   VM.Vector3 center = pos + dir.normalized() * range;
   List<VM.Vector3> points = [pos, center];
@@ -379,8 +380,7 @@ MeshData PointLightVisualizer(
   return md;
 }
 */
-MeshData PointLightVisualizer(
-    ChronosGL cgl, VM.Vector3 pos, double range) {
+MeshData PointLightVisualizer(ChronosGL cgl, VM.Vector3 pos, double range) {
   List<VM.Vector3> points = [];
   List<int> faces = [];
   // Rays from center

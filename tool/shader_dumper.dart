@@ -8,7 +8,6 @@
 import '../lib/src/shader/lib.dart';
 import '../lib/src/base/lib.dart';
 
-
 void main(List<String> args) {
   if (args.length != 1) {
     throw "no args give";
@@ -17,5 +16,5 @@ void main(List<String> args) {
   }
 
   List<ShaderObject> shaders = createLightShaderBlinnPhong();
-  print (shaders[1].shader);
+  print(shaders[1].shader);
 }

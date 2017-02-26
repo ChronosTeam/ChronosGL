@@ -55,7 +55,7 @@ GeometryBuilder GridGeometry(int xstrips, ystrips, double xlen, double ylen) {
   for (int x = 0; x < xstrips; ++x) {
     for (int y = 0; y < ystrips; ++y) {
       gb.AddFace4(
-          index(x, y), index(x+1, y), index(x + 1, y + 1), index(x, y+1));
+          index(x, y), index(x + 1, y), index(x + 1, y + 1), index(x, y + 1));
     }
   }
   // TODO: add uv support

@@ -18,7 +18,8 @@ class ShaderProgram extends RenderProgram {
   int _numItems = 0;
   int _nextTextureUnit = 0;
 
-  ShaderProgram(String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
+  ShaderProgram(
+      String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
       : super(name) {
     _program =
         CompileWholeProgram(_cgl, _shaderObjectV.shader, _shaderObjectF.shader);
@@ -248,8 +249,8 @@ class ShaderProgram extends RenderProgram {
         _cgl.ext_ANGLE_instanced_arrays.drawElementsInstancedAngle(
             _drawMode, _numItems, indexType, 0, _numInstances);
       } else {
-        _cgl.ext_ANGLE_instanced_arrays.drawArraysInstancedAngle(
-            _drawMode, 0, _numItems, _numInstances);
+        _cgl.ext_ANGLE_instanced_arrays
+            .drawArraysInstancedAngle(_drawMode, 0, _numItems, _numInstances);
       }
     } else {
       if (indexType != 0) {

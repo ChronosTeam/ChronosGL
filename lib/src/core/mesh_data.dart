@@ -1,6 +1,5 @@
 part of core;
 
-
 Float32List FlattenVector3List(List<VM.Vector3> v, [Float32List data = null]) {
   if (data == null) data = new Float32List(v.length * 3);
   for (int i = 0; i < v.length; ++i) {
