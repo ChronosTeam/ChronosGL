@@ -5,8 +5,8 @@
 // Note, that for simple verification we also have
 // test/shader_syntax.dart
 
-import '../lib/src/shader/lib.dart';
-import '../lib/src/base/lib.dart';
+import 'package:chronosgl/src/shader/lib.dart';
+import 'package:chronosgl/src/base/lib.dart';
 
 void main(List<String> args) {
   if (args.length != 1) {

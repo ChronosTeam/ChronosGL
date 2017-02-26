@@ -6,9 +6,9 @@ import 'dart:convert';
 import 'package:args/args.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
-import '../lib/src/base/lib.dart';
-import '../lib/src/importer/lib.dart';
-import '../lib/src/animation/lib.dart';
+import 'package:chronosgl/src/base/lib.dart';
+import 'package:chronosgl/src/importer/lib.dart';
+import 'package:chronosgl/src/animation/lib.dart';
 
 // Note this is similar to lib/src/importer/threejs.dart
 void DumpFaces(Map json, bool verbose) {
