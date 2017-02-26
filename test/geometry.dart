@@ -1,7 +1,7 @@
 @TestOn("vm")
+import 'package:chronosgl/src/base/lib.dart';
+import 'package:chronosgl/src/shape/lib.dart';
 import "package:test/test.dart";
-import '../lib/src/shape/lib.dart';
-import '../lib/src/base/lib.dart';
 
 void main() {
   test("basic", () {
