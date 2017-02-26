@@ -51,7 +51,7 @@ class MeshData extends RenderInputProvider {
   WEBGL.Buffer _indexBuffer;
   int _indexBufferType = -1;
 
-  Float32List _vertices = null;
+  Float32List _vertices;
   List<int> _faces;
   Map<String, Float32List> _attributes = {};
 
