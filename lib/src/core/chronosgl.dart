@@ -70,12 +70,35 @@ class ChronosGL {
     return b;
   }
 
+  // Why all these shims?
+  // They are useful for instrumentation and may allow us some day
+  // to interface with dart-gl
+  void deleteBuffer(dynamic buffer) {
+    gl.deleteBuffer(buffer);
+  }
+
+  WEBGL.Framebuffer createFramebuffer() {
+    return gl.createFramebuffer();
+  }
+
   void bindFramebuffer(int kind, dynamic framebuffer) {
     gl.bindFramebuffer(kind, framebuffer);
   }
 
+  int checkFramebufferStatus(int kind) {
+    return checkFramebufferStatus(kind);
+  }
+
+  WEBGL.Texture createTexture() {
+    return gl.createTexture();
+  }
+
   void bindTexture(int kind, dynamic texture) {
     gl.bindTexture(kind, texture);
+  }
+
+  void viewport(int x, int y, int w, int h) {
+    gl.viewport(x, y, w, h);
   }
 
   void enable(int kind) {
@@ -104,5 +127,29 @@ class ChronosGL {
 
   void texParameterf(int kind1, int kind2, double val) {
     gl.texParameterf(kind1, kind2, val);
+  }
+
+  dynamic getParameter(int kind) {
+    return gl.getParameter(kind);
+  }
+
+  dynamic createProgram() {
+    return gl.createProgram();
+  }
+
+  void linkProgram(dynamic obj) {
+    return gl.linkProgram(obj);
+  }
+
+  void useProgram(dynamic obj) {
+    return gl.useProgram(obj);
+  }
+
+  dynamic createShader(int kind) {
+    return gl.createShader(kind);
+  }
+
+  int getError() {
+    return gl.getError();
   }
 }

@@ -59,10 +59,10 @@ class MeshData extends RenderInputProvider {
 
   void clearData() {
     for (String canonical in _buffers.keys) {
-      _cgl.gl.deleteBuffer(_buffers[canonical]);
+      _cgl.deleteBuffer(_buffers[canonical]);
     }
     if (_indexBuffer != null) {
-      _cgl.gl.deleteBuffer(_indexBuffer);
+      _cgl.deleteBuffer(_indexBuffer);
     }
   }
 

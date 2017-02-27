@@ -10,7 +10,7 @@ class ChronosFramebuffer {
   var depthTextureExt;
 
   ChronosFramebuffer(this._cgl, width, height, [colorFormat = WEBGL.RGB]) {
-    framebuffer = _cgl.gl.createFramebuffer();
+    framebuffer = _cgl.createFramebuffer();
 
     colorTexture = new TypedTexture(
         _cgl, "frame::color", width, height, colorFormat, WEBGL.UNSIGNED_BYTE);
@@ -30,7 +30,7 @@ class ChronosFramebuffer {
   }
 
   ChronosFramebuffer.FromTexture(this._cgl, this.colorTexture) {
-    framebuffer = _cgl.gl.createFramebuffer();
+    framebuffer = _cgl.createFramebuffer();
 
     _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
     _cgl.gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.COLOR_ATTACHMENT0,
@@ -43,7 +43,7 @@ class ChronosFramebuffer {
     //    WEBGL.TEXTURE_2D, null, 0);
 
     //gl.bindTexture(WEBGL.TEXTURE_2D, null);
-    int err = _cgl.gl.checkFramebufferStatus(WEBGL.FRAMEBUFFER);
+    int err = _cgl.checkFramebufferStatus(WEBGL.FRAMEBUFFER);
     assert(err == WEBGL.FRAMEBUFFER_COMPLETE);
     if (err != WEBGL.FRAMEBUFFER_COMPLETE) {
       throw "Error Incomplete Framebuffer: ${err}";
@@ -52,7 +52,7 @@ class ChronosFramebuffer {
   }
 
   bool ready() {
-    bool result = _cgl.gl.checkFramebufferStatus(WEBGL.FRAMEBUFFER) ==
+    bool result = _cgl.checkFramebufferStatus(WEBGL.FRAMEBUFFER) ==
         WEBGL.FRAMEBUFFER_COMPLETE;
     if (!result) {
       print("FRAMEBUFFER_INCOMPLETE");

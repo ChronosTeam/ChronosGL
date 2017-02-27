@@ -27,7 +27,7 @@ class RenderPhase extends NamedEntity {
       _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, _framebuffer.framebuffer);
     }
     assert(viewPortW > 0 && viewPortH > 0);
-    _cgl.gl.viewport(viewPortX, viewPortY, viewPortW, viewPortH);
+    _cgl.viewport(viewPortX, viewPortY, viewPortW, viewPortH);
 
     if (clearColorBuffer || clearDepthBuffer) {
       int mode = 0;

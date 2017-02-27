@@ -82,14 +82,14 @@ class Texture {
 
   void Bind([bool initTime = false]) {
     if (initTime) {
-      _texture = _cgl.gl.createTexture();
+      _texture = _cgl.createTexture();
     }
 
     _cgl.bindTexture(_textureType, _texture);
 
     if (initTime) {
       properties.Install(_cgl, _textureType);
-      int err = _cgl.gl.getError();
+      int err = _cgl.getError();
       assert(err == WEBGL.NO_ERROR);
     }
   }

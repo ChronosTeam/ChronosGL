@@ -29,7 +29,7 @@ int MaxAnisotropicFilterLevel(ChronosGL cgl) {
   if (ext == null) {
     return kNoAnisotropicFilterLevel;
   }
-  return cgl.gl.getParameter(
+  return cgl.getParameter(
       WEBGL.ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
 }
 
