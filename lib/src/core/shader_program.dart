@@ -172,7 +172,7 @@ class ShaderProgram extends RenderProgram {
   @override
   void DrawSetUp() {
     if (debug) print("[${name} setting attributes");
-    _cgl.gl.useProgram(_program);
+    _cgl.useProgram(_program);
     for (String a in _attributeLocations.keys) {
       final index = _attributeLocations[a];
       if (debug) print("[${name}] $a $index");
