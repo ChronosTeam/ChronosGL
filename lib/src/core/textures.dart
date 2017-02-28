@@ -87,14 +87,15 @@ class Texture {
 
     _cgl.bindTexture(_textureType, _texture);
 
-    if (initTime) {
+
+  }
+
+  void UnBind([bool initTime = false]) {
+     if (initTime) {
       properties.Install(_cgl, _textureType);
       int err = _cgl.getError();
       assert(err == WEBGL.NO_ERROR);
     }
-  }
-
-  void UnBind([bool initTime = false]) {
     _cgl.bindTexture(_textureType, null);
   }
 
@@ -166,10 +167,10 @@ class TypedTexture extends Texture {
 // it.
 // TODO: We want to call  Install() in the constructor but this does not
 // seem to work for video elements.
-class WebTexture extends Texture {
+class ImageTexture extends Texture {
   dynamic _element; // CanvasElement, ImageElement, VideoElement
 
-  WebTexture(ChronosGL cgl, String url, this._element,
+  ImageTexture(ChronosGL cgl, String url, this._element,
       [delayInstall = false,
       TextureProperties tp = null,
       textureType = WEBGL.TEXTURE_2D])

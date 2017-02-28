@@ -62,7 +62,7 @@ void main() {
   ];
 
   Future.wait(futures).then((List list) {
-    Texture tex = new WebTexture(chronosGL, textureFile, list[0]);
+    Texture tex = new ImageTexture(chronosGL, textureFile, list[0]);
     mat..SetUniform(uTexture, tex);
     animate(0.0);
   });

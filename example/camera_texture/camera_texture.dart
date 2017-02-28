@@ -41,7 +41,7 @@ void main() {
   HTML.window.onResize.listen(resolutionChange);
 
   HTML.VideoElement video;
-  WebTexture texture;
+  ImageTexture texture;
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
@@ -77,7 +77,7 @@ void main() {
     if (video == null) {
       HTML.window.alert("could not access camera");
     }
-    texture = new WebTexture(chronosGL, "video", video);
+    texture = new ImageTexture(chronosGL, "video", video);
     texture.properties.minFilter = WEBGL.LINEAR;
     texture.properties.clamp = true;
     // Figure out why moving this into the WebTexture contructor does not work.

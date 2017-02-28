@@ -53,7 +53,7 @@ class Utils {
 
   static Texture createParticleTexture(ChronosGL cgl,
       [String name = "Utils::Particles"]) {
-    return new WebTexture(cgl, name, createParticleCanvas())..Install();
+    return new ImageTexture(cgl, name, createParticleCanvas());
   }
 
   static HTML.CanvasElement createParticleCanvas() {

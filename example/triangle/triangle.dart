@@ -56,7 +56,7 @@ void main() {
   RenderProgram prgOrthographic =
       phaseOrthograhic.createProgram(createTexturedShader());
 
-  Texture solid = new CanvasTexture.SolidColor(chronosGL, "red-solid", "red");
+  Texture solid = MakeSolidColorTexture(chronosGL, "red-solid", "red");
   final Material mat1 = new Material("mat1")
     ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));

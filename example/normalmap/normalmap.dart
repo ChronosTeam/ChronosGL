@@ -123,7 +123,7 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Maps
-    WebTexture texture = new WebTexture(chronosGL, textureFile, list[1]);
+    ImageTexture texture = new ImageTexture(chronosGL, textureFile, list[1]);
     texture.Install();
     /*
     Texture specularmap =

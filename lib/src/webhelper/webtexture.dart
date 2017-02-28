@@ -24,31 +24,6 @@ HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {
 }
 
 // TODO: deprecated, use WebTexture instead
-class CanvasTexture extends Texture {
-  HTML.CanvasElement _canvas;
-
-  CanvasTexture(ChronosGL cgl, String url, this._canvas,
-      [textureType = WEBGL.TEXTURE_2D])
-      : super(cgl, textureType, url, new TextureProperties()) {
-    _Install();
-  }
-
-  CanvasTexture.SolidColor(ChronosGL cgl, String url, String fillStyle,
-      [textureType = WEBGL.TEXTURE_2D])
-      : super(cgl, textureType, url, new TextureProperties()) {
-    _canvas = MakeSolidColorCanvas(fillStyle);
-    _Install();
-  }
-
-  void _Install() {
-    Bind(true);
-    SetImageData(_canvas);
-    UnBind(true);
-  }
-
-  void UpdateFromCanvas() {
-    Bind();
-    SetImageData(_canvas);
-    UnBind();
-  }
+Texture MakeSolidColorTexture(ChronosGL cgl, String url, String fillStyle) {
+  return new ImageTexture(cgl, url, MakeSolidColorCanvas(fillStyle));
 }

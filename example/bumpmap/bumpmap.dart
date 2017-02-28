@@ -130,7 +130,7 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Bumpmap
-    Texture bumpmap = new WebTexture(chronosGL, bumpmapFile, list[1]);
+    Texture bumpmap = new ImageTexture(chronosGL, bumpmapFile, list[1]);
     mat.SetUniform(uBumpMap, bumpmap);
     mat.SetUniform(uBumpScale, 12.0);
     // Setup Mesh
