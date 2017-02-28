@@ -163,7 +163,7 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Texture
-    Texture tex = new WebTexture(chronosGL, textureFile, list[1]);
+    Texture tex = new ImageTexture(chronosGL, textureFile, list[1]);
     mat..SetUniform(uTexture, tex);
 
     final Map<String, dynamic> meshJson = list[0]["meshes"][0];

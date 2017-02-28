@@ -88,7 +88,7 @@ void main() {
     LoadImage(textureFile),
   ];
   Future.wait(futures).then((List list) {
-    Texture bubble = new WebTexture(chronosGL, textureFile, list[0]);
+    Texture bubble = new ImageTexture(chronosGL, textureFile, list[0]);
     matSphere..SetUniform(uTexture, bubble);
     animate(0.0);
   });

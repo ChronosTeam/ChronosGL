@@ -102,12 +102,12 @@ void main() {
   ];
 
   Future.wait(futures).then((List list) {
-    Texture gradient = new WebTexture(chronosGL, "../gradient.jpg", list[0]);
+    Texture gradient = new ImageTexture(chronosGL, "../gradient.jpg", list[0]);
     matGradient.SetUniform(uTexture, gradient);
-    Texture trans = new WebTexture(chronosGL, "../transparent.png", list[1]);
+    Texture trans = new ImageTexture(chronosGL, "../transparent.png", list[1]);
     matTrans.SetUniform(uTexture, trans);
 
-    Texture wood = new WebTexture(chronosGL, "../wood.jpg", list[2]);
+    Texture wood = new ImageTexture(chronosGL, "../wood.jpg", list[2]);
     matWood.SetUniform(uTexture, wood);
     animate(0.0);
   });
