@@ -161,6 +161,7 @@ class GeometryBuilder {
   // generateFaces is usually only called once to initialize _faces.
   // Its main purpose is to convert Face4 into two triangles
   List<int> GenerateFaceIndices() {
+    assert (_faces3.length > 0 || _faces4.length > 0);
     List<int> faces = new List<int>(_faces3.length * 3 + _faces4.length * 6);
     int i = 0;
     for (Face3 f3 in _faces3) {

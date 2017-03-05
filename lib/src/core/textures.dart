@@ -30,7 +30,7 @@ class TextureProperties {
 
   // This assumes a texture is already bound
   void Install(ChronosGL cgl, int type) {
-    LogInfo("Setup texture ${flipY}  ${anisotropicFilterLevel}");
+    //LogInfo("Setup texture ${flipY}  ${anisotropicFilterLevel}");
     if (flipY) {
       cgl.gl.pixelStorei(WEBGL.UNPACK_FLIP_Y_WEBGL, 1);
     }
