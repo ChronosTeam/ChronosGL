@@ -4,6 +4,7 @@ import 'dart:web_gl' as WEBGL;
 import 'dart:html' as HTML;
 import 'package:vector_math/vector_math.dart' as VM;
 import "dart:math" as MATH;
+import 'dart:async';
 
 final VM.Vector3 colBlack = new VM.Vector3(0.0, 0.0, 0.0);
 final VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
@@ -28,9 +29,55 @@ final double angle = MATH.PI / 7.0;
 final double glossiness = 25.0;
 
 // These must be in-sync with the .html file
-final String idPoint = "idPoint";
-final String idSpot = "idSpot";
-final String idDirectional = "idDirectional";
+const String idPoint = "idPoint";
+const String idSpot = "idSpot";
+const String idDirectional = "idDirectional";
+
+const String meshFile = "../asset/dragon/dragon.json";
+const String textureFile = "../asset/dragon/dragon.png";
+
+final Map<String, Light> gLightSources = {
+  idDirectional:
+      new DirectionalLight("dir", dirLight, colLiteRed, colRed, glossiness),
+  idPoint: new PointLight(
+      "point", posLight, colLiteBlue, colBlue, range, glossiness),
+  idSpot: new SpotLight("spot", posLight, spotDirLight, colLiteGreen, colGreen,
+      range, angle, 2.0, glossiness)
+};
+
+Node gCubeSphere = new Node.Container("scene");
+Node gDragon = new Node.Container("dragon");
+
+final Map<String, Node> gScenes = {
+  "Scene": gCubeSphere,
+  "Dragon": gDragon,
+};
+
+void MakeSceneCubeSphere(ChronosGL chronosGL, Node container) {
+  MeshData cubeMeshData = ShapeCube(chronosGL, x: 2.0, y: 2.0, z: 2.0);
+  MeshData sphereMeshData = ShapeIcosahedron(chronosGL);
+  Material cubeMat = new Material("cubMat")
+    ..SetUniform(
+        uTexture, MakeSolidColorTextureRGB(chronosGL, "gray", colGray));
+  List<Node> meshes = [];
+  for (int i = 0; i < 8; i++) {
+    double x = i & 1 == 0 ? -10.0 : 10.0;
+    double y = i & 2 == 0 ? -10.0 : 10.0;
+    double z = i & 4 == 0 ? -10.0 : 10.0;
+    container.add(
+        new Node("mesh", i % 2 == 0 ? cubeMeshData : sphereMeshData, cubeMat)
+          ..setPos(x, y, z)
+          ..lookUp(1.0)
+          ..lookLeft(0.7));
+  }
+
+  // Subdivide plane to show Gourad shading issues
+  Node grid =
+      new Node("grid", ShapeGrid(chronosGL, 20, 20, 80.0, 80.0), cubeMat);
+  grid.rotX(-MATH.PI * 0.48);
+  grid.setPos(0.0, -20.0, 20.0);
+  container.add(grid);
+}
 
 void main() {
   StatsFps fps =
@@ -54,17 +101,8 @@ void main() {
   RenderProgram fixedGourad =
       phaseGourad.createProgram(createSolidColorShader());
 
-  Map<String, Light> lightSources = {
-    idDirectional:
-        new DirectionalLight("dir", dirLight, colLiteRed, colRed, glossiness),
-    idPoint: new PointLight(
-        "point", posLight, colLiteBlue, colBlue, range, glossiness),
-    idSpot: new SpotLight("spot", posLight, spotDirLight, colLiteGreen,
-        colGreen, range, angle, 2.0, glossiness)
-  };
-
   Illumination illumination = new Illumination();
-  for (Light l in lightSources.values) {
+  for (Light l in gLightSources.values) {
     illumination.AddLight(l);
   }
 
@@ -89,34 +127,12 @@ void main() {
     fixedGourad.add(n);
   }
 
-  MeshData cubeMeshData = ShapeCube(chronosGL, x: 2.0, y: 2.0, z: 2.0);
-  MeshData sphereMeshData = ShapeIcosahedron(chronosGL);
-
-  Material cubeMat = new Material("mat")..SetUniform(uColor, colGray);
-  List<Node> meshes = [];
-  for (int i = 0; i < 8; i++) {
-    double x = i & 1 == 0 ? -10.0 : 10.0;
-    double y = i & 2 == 0 ? -10.0 : 10.0;
-    double z = i & 4 == 0 ? -10.0 : 10.0;
-    meshes.add(
-        new Node("mesh", i % 2 == 0 ? cubeMeshData : sphereMeshData, cubeMat)
-          ..setPos(x, y, z)
-          ..lookUp(1.0)
-          ..lookLeft(0.7));
+  for (Node n in gScenes.values) {
+    lightGourad.add(n);
+    lightBlinnPhong.add(n);
   }
 
-  for (Node m in meshes) {
-    lightGourad.add(m);
-    lightBlinnPhong.add(m);
-  }
-
-  // Subdivide plane to show Gourad shading issues
-  Node grid =
-      new Node("grid", ShapeGrid(chronosGL, 20, 20, 80.0, 80.0), cubeMat);
-  grid.rotX(-MATH.PI * 0.48);
-  grid.setPos(0.0, -20.0, 20.0);
-  lightGourad.add(grid);
-  lightBlinnPhong.add(grid);
+  MakeSceneCubeSphere(chronosGL, gCubeSphere);
 
   HTML.SelectElement selectPhase =
       HTML.document.querySelector('#phase') as HTML.SelectElement;
@@ -127,7 +143,7 @@ void main() {
     input.onChange.listen((HTML.Event e) {
       HTML.InputElement input = e.target as HTML.InputElement;
       print("${input.id} toggle ${input.checked}");
-      lightSources[input.id].enabled = input.checked;
+      gLightSources[input.id].enabled = input.checked;
       lightVisualizers[input.id].enabled = input.checked;
     });
   }
@@ -136,6 +152,22 @@ void main() {
     print("initialize inputs ${e.id}");
     e.dispatchEvent(new HTML.Event("change"));
   }
+
+  HTML.SelectElement selectScene =
+      HTML.document.querySelector('#scene') as HTML.SelectElement;
+  assert(selectScene != null);
+  for (String o in gScenes.keys) {
+    selectScene.appendHtml("<option>$o</option>");
+  }
+
+  selectScene.onChange.listen((HTML.Event e) {
+    String selected = selectScene.value;
+    for (String key in gScenes.keys) {
+      gScenes[key].enabled = key == selected;
+    }
+    e.preventDefault();
+  });
+  selectScene.dispatchEvent(new HTML.Event("change"));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -163,9 +195,11 @@ void main() {
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
 
-    for (Node m in meshes) {
-      m.rollLeft(elapsed * 0.0003);
-      m.lookLeft(elapsed * 0.0003);
+    for (Node m in gCubeSphere.children) {
+      if (m.name != "grid") {
+        m.rollLeft(elapsed * 0.0003);
+        m.lookLeft(elapsed * 0.0003);
+      }
     }
 
     RenderPhase phase =
@@ -174,5 +208,27 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  animate(0.0);
+  List<Future<dynamic>> futures = [
+    LoadJson(meshFile),
+    LoadImage(textureFile),
+  ];
+
+  Future.wait(futures).then((List list) {
+    // Setup Texture
+    Material mat = new Material("matDragon");
+    Texture tex = new ImageTexture(chronosGL, textureFile, list[1]);
+    mat..SetUniform(uTexture, tex);
+
+    List<GeometryBuilder> gb = ReadThreeJsMeshes(list[0]);
+
+    MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb[0]);
+    Node mesh = new Node(md.name, md, mat);
+    //..rotX(-3.14 / 4);
+    Node n = new Node.Container("wrapper", mesh);
+    n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+
+    gDragon.add(n);
+    // Start
+    animate(0.0);
+  });
 }
