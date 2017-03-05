@@ -4,11 +4,11 @@ part of chronosshader;
 List<ShaderObject> createLightShaderGourad() {
   return [
     new ShaderObject("LightGouradV")
-      ..AddAttributeVars([aVertexPosition, aNormal])
+      ..AddAttributeVars([aVertexPosition, aNormal, aTextureCoordinates])
       ..AddVaryingVars([vColor])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
       ..AddUniformVars([uLightDescs, uLightTypes])
-      ..AddUniformVars([uEyePosition, uColor])
+      ..AddUniformVars([uEyePosition, uTexture])
       ..SetBody([
         """
     void main() {
@@ -20,7 +20,9 @@ List<ShaderObject> createLightShaderGourad() {
                   ${uLightDescs},
                   ${uLightTypes});
 
-     ${vColor} = acc.diffuse + acc.specular + uColor;
+     ${vColor} = acc.diffuse +
+                 acc.specular +
+                 texture2D(${uTexture}, ${aTextureCoordinates}).rgb;
     }
         """
       ], prolog: [
@@ -39,21 +41,22 @@ List<ShaderObject> createLightShaderGourad() {
 List<ShaderObject> createLightShaderBlinnPhong() {
   return [
     new ShaderObject("LightBlinnPhongV")
-      ..AddAttributeVars([aVertexPosition, aNormal])
-      ..AddVaryingVars([vVertexPosition, vNormal])
+      ..AddAttributeVars([aVertexPosition, aNormal, aTextureCoordinates])
+      ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
       ..SetBodyWithMain([
         """
         vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
         gl_Position = ${uPerspectiveViewMatrix} * pos;
         ${vVertexPosition} = pos.xyz;
+        ${vTextureCoordinates} = ${aTextureCoordinates};
         ${vNormal} = ${uNormalMatrix} * ${aNormal};
         """
       ]),
     new ShaderObject("LightBlinnPhongF")
-      ..AddVaryingVars([vVertexPosition, vNormal])
+      ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
       ..AddUniformVars([uLightDescs, uLightTypes])
-      ..AddUniformVars([uEyePosition, uColor])
+      ..AddUniformVars([uEyePosition, uTexture])
       ..SetBodyWithMain([
         """
     ColorComponents acc = CombinedLight(${vVertexPosition},
@@ -61,7 +64,9 @@ List<ShaderObject> createLightShaderBlinnPhong() {
                                         ${uEyePosition},
                                         ${uLightDescs}, ${uLightTypes});
 
-    gl_FragColor.rgb = acc.diffuse + acc.specular + uColor;
+    gl_FragColor.rgb = acc.diffuse +
+                       acc.specular +
+                       texture2D(${uTexture}, ${vTextureCoordinates}).rgb;
     gl_FragColor.a = 1.0;
 """
       ], prolog: [
