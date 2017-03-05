@@ -158,7 +158,8 @@ class MeshData extends RenderInputProvider {
 
   @override
   String toString() {
-    List<String> lst = ["Faces:${_faces.length}"];
+    int nf = _faces == null ? 0 : _faces.length;
+    List<String> lst = ["Faces:${nf}"];
     for (String c in _attributes.keys) {
       lst.add("${c}:${_attributes[c].length}");
     }
@@ -170,17 +171,24 @@ class MeshData extends RenderInputProvider {
 void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
   for (String canonical in gb.attributes.keys) {
     dynamic lst = gb.attributes[canonical];
-    if (lst[0].runtimeType == VM.Vector2) {
-      md.AddAttribute(canonical, FlattenVector2List(lst), 2);
-    } else if (lst[0].runtimeType == VM.Vector3) {
-      md.AddAttribute(canonical, FlattenVector3List(lst), 3);
-    } else if (lst[0].runtimeType == VM.Vector4) {
-      md.AddAttribute(canonical, FlattenVector4List(lst), 4);
-    } else if (lst[0].runtimeType == double) {
-      md.AddAttribute(canonical, new Float32List.fromList(lst), 1);
-    } else {
-      assert(false,
-          "unknown type for ${canonical} ${lst} [${lst[0].runtimeType}]");
+    ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
+
+    switch (desc.type) {
+      case "vec2":
+        md.AddAttribute(canonical, FlattenVector2List(lst), 2);
+        break;
+      case "vec3":
+        md.AddAttribute(canonical, FlattenVector3List(lst), 3);
+        break;
+      case "vec4":
+        md.AddAttribute(canonical, FlattenVector4List(lst), 4);
+        break;
+      case "float":
+        md.AddAttribute(canonical, new Float32List.fromList(lst), 1);
+        break;
+      default:
+        assert(false,
+            "unknown type for ${canonical} [${lst[0].runtimeType}] [${lst.runtimeType}] ${lst}");
     }
   }
 }
