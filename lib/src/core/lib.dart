@@ -21,7 +21,6 @@ part "shader_program.dart";
 part "mesh_data.dart";
 part "textures.dart";
 part "material.dart";
-part "shader_compiler.dart";
 part "framebuffer.dart";
 part "render_phase.dart";
 part "instancer.dart";
