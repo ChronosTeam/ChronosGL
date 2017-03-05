@@ -38,6 +38,7 @@ GeometryBuilder GridGeometry(int xstrips, ystrips, double xlen, double ylen) {
       new List<VM.Vector3>((xstrips + 1) * (ystrips + 1));
   List<VM.Vector3> normals =
       new List<VM.Vector3>((xstrips + 1) * (ystrips + 1));
+  List<VM.Vector2> uvs = new List<VM.Vector2>((xstrips + 1) * (ystrips + 1));
 
   int index(int x, int y) {
     return x * (xstrips + 1) + y;
@@ -45,9 +46,11 @@ GeometryBuilder GridGeometry(int xstrips, ystrips, double xlen, double ylen) {
 
   for (int x = 0; x <= xstrips; ++x) {
     for (int y = 0; y <= ystrips; ++y) {
-      vertices[index(x, y)] =
+      final int ii = index(x, y);
+      vertices[ii] =
           new VM.Vector3(x * xdelta - xoffset, y * ydelta - yoffset, 0.0);
-      normals[index(x, y)] = normal;
+      normals[ii] = normal;
+      uvs[ii] = new VM.Vector2(x / xstrips, y / ystrips);
     }
   }
   GeometryBuilder gb = new GeometryBuilder();
@@ -58,9 +61,8 @@ GeometryBuilder GridGeometry(int xstrips, ystrips, double xlen, double ylen) {
           index(x, y), index(x + 1, y), index(x + 1, y + 1), index(x, y + 1));
     }
   }
-  // TODO: add uv support
-  //gb.EnableAttribute(aTextureCoordinates);
-  //gb.AddAttributesVector2(aTextureCoordinates, uvs);
+  gb.EnableAttribute(aTextureCoordinates);
+  gb.AddAttributesVector2(aTextureCoordinates, uvs);
   gb.EnableAttribute(aNormal);
   gb.AddAttributesVector3(aNormal, normals);
   return gb;
