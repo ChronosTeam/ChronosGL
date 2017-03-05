@@ -90,6 +90,10 @@ class ChronosGL {
     return program;
   }
 
+  void bindBuffer(int kind, WEBGL.Buffer buffer) {
+    gl.bindBuffer(kind, buffer);
+  }
+
   void ChangeArrayBuffer(WEBGL.Buffer buffer, Float32List data) {
     gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
     gl.bufferData(WEBGL.ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
@@ -150,6 +154,14 @@ class ChronosGL {
 
   void disable(int kind) {
     gl.disable(kind);
+  }
+
+  void enableVertexAttribArray(int index) {
+    gl.enableVertexAttribArray(index);
+  }
+
+  void disableVertexAttribArray(int index) {
+    gl.disableVertexAttribArray(index);
   }
 
   void clear(int kind) {
