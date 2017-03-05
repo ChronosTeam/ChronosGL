@@ -22,7 +22,7 @@ class ShaderProgram extends RenderProgram {
       String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
       : super(name) {
     _program =
-        CompileWholeProgram(_cgl, _shaderObjectV.shader, _shaderObjectF.shader);
+        _cgl.CompileWholeProgram(_shaderObjectV.shader, _shaderObjectF.shader);
     for (String v in _shaderObjectV.attributeVars.keys) {
       _attributeLocations[v] = _cgl.gl.getAttribLocation(_program, v);
       if (_attributeLocations[v] < 0) {

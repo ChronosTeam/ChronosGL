@@ -25,7 +25,7 @@ WEBGL.Shader _CompileOneShader(
   if (result != null && result == false) {
     String error = gl.getShaderInfoLog(shader);
     LogInfo("Compilation failed:");
-    LogInfo(AddLineNumbers(text));
+    LogInfo(_AddLineNumbers(text));
     LogInfo("Failure:");
     LogInfo(error);
     throw error;
