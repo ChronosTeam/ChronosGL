@@ -59,7 +59,6 @@ void MakeSceneCubeSphere(ChronosGL chronosGL, Node container) {
   Material cubeMat = new Material("cubMat")
     ..SetUniform(
         uTexture, MakeSolidColorTextureRGB(chronosGL, "gray", colGray));
-  List<Node> meshes = [];
   for (int i = 0; i < 8; i++) {
     double x = i & 1 == 0 ? -10.0 : 10.0;
     double y = i & 2 == 0 ? -10.0 : 10.0;
@@ -220,7 +219,7 @@ void main() {
     mat..SetUniform(uTexture, tex);
 
     List<GeometryBuilder> gb = ReadThreeJsMeshes(list[0]);
-
+    gb[0].GenerateNormalsAssumingTriangleMode();
     MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb[0]);
     Node mesh = new Node(md.name, md, mat);
     //..rotX(-3.14 / 4);

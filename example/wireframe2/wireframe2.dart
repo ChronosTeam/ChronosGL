@@ -6,6 +6,15 @@ import 'package:chronosgl/chronosutil.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 import 'dart:web_gl' as WEBGL;
+import 'dart:async';
+
+const String meshFile = "../asset/dragon/dragon.json";
+
+HTML.InputElement gShowNormals =
+    HTML.document.querySelector('#normals') as HTML.InputElement;
+
+HTML.InputElement gShowWires =
+    HTML.document.querySelector('#wires') as HTML.InputElement;
 
 void main() {
   StatsFps fps =
@@ -19,64 +28,13 @@ void main() {
   Perspective perspective = new Perspective(orbit);
   RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram program = phase.createProgram(createSolidColorShader());
-  final Material matWireframe = new Material("wire")
-    ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0))
-    ..SetUniform(cBlend, true, true)
-    ..SetUniform(cBlendEquation, new BlendEquation.Standard());
+  final Material matWire = new Material("wire")
+    ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
+  final Material matNorm = new Material("normal")
+    ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
 
-  {
-    GeometryBuilder gb = IcosahedronGeometry(2);
-    Node ico = new Node(
-        "sphere",
-        GeometryBuilderToMeshDataLines("icosahedron", chronosGL, gb),
-        matWireframe)..setPos(0.0, 0.0, 0.0);
-    program.add(ico);
-  }
-
-  {
-    GeometryBuilder gb = CubeGeometry();
-    Node cube = new Node(
-        "cube",
-        GeometryBuilderToMeshDataLines("cube", chronosGL, gb),
-        matWireframe)..setPos(-5.0, 0.0, -5.0);
-    program.add(cube);
-  }
-
-  {
-    GeometryBuilder gb = WedgeGeometry();
-    Node wedge = new Node(
-        "wedge",
-        GeometryBuilderToMeshDataLines("wedge", chronosGL, gb),
-        matWireframe)..setPos(0.0, -5.0, 0.0);
-    program.add(wedge);
-  }
-
-  {
-    GeometryBuilder gb = CylinderGeometry(3.0, 4.0, 2.0, 16, false);
-    Node cyl = new Node(
-        "cylinder",
-        GeometryBuilderToMeshDataLines("cylinder", chronosGL, gb),
-        matWireframe)..setPos(5.0, 0.0, -5.0);
-    program.add(cyl);
-  }
-
-  {
-    GeometryBuilder gb = QuadGeometry(2);
-    Node quad = new Node(
-        "quad",
-        GeometryBuilderToMeshDataLines("quad", chronosGL, gb),
-        matWireframe)..setPos(-5.0, 0.0, 5.0);
-    program.add(quad);
-  }
-
-  {
-    GeometryBuilder gb = ShapeTorusKnotGeometry(radius: 1.0, tube: 0.4);
-    Node torus = new Node(
-        "torus",
-        GeometryBuilderToMeshDataLines("torus", chronosGL, gb),
-        matWireframe)..setPos(5.0, 0.0, 5.0);
-    program.add(torus);
-  }
+  Node nodeWire;
+  Node nodeNorm;
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -100,9 +58,33 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
+    nodeNorm.enabled = gShowNormals.checked;
+    nodeWire.enabled = gShowWires.checked;
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }
 
-  animate(0.0);
+  List<Future<dynamic>> futures = [
+    LoadJson(meshFile),
+  ];
+
+  Future.wait(futures).then((List list) {
+    List<GeometryBuilder> gb = ReadThreeJsMeshes(list[0]);
+
+    MeshData mdWire =
+        GeometryBuilderToMeshDataLines(meshFile, chronosGL, gb[0]);
+    gb[0].GenerateNormalsAssumingTriangleMode();
+
+    nodeWire = new Node(mdWire.name, mdWire, matWire);
+    nodeWire.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+    program.add(nodeWire);
+
+    MeshData mdNorm = GeometryBuilderToWireframeNormals(chronosGL, gb[0], 0.05);
+    nodeNorm = new Node(mdNorm.name, mdNorm, matNorm);
+    nodeNorm.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+    program.add(nodeNorm);
+
+    // Start
+    animate(0.0);
+  });
 }
