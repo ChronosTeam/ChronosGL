@@ -5,7 +5,10 @@ import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
-String modelFile = "../ct_logo.obj";
+const String modelFile = "../ct_logo.obj";
+
+final HTML.InputElement gSobel =
+    HTML.document.querySelector('#activate') as HTML.InputElement;
 
 void main() {
   StatsFps fps =
@@ -45,14 +48,6 @@ void main() {
   phase1only.viewPortH = height;
   phase1only.AddRenderProgram(prg1);
 
-  bool useSobel = true;
-
-  HTML.InputElement myselect =
-      HTML.document.querySelector('#activate') as HTML.InputElement;
-  myselect.onChange.listen((HTML.Event e) {
-    useSobel = myselect.checked;
-  });
-
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
@@ -61,7 +56,7 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    if (useSobel) {
+    if (gSobel.checked) {
       phase1.draw([perspective]);
       phase2.draw([perspective]);
     } else {
