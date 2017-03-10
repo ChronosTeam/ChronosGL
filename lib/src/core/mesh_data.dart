@@ -203,6 +203,37 @@ MeshData GeometryBuilderToMeshData(
   return md;
 }
 
+MeshData _ExtractWireframeNormals(
+    MeshData out, List<double> vertices, List<double> normals, scale) {
+  assert(vertices.length == normals.length);
+  Float32List v = new Float32List(2 * vertices.length);
+  for (int i = 0; i < vertices.length; i += 3) {
+    v[2 * i + 0] = vertices[i + 0];
+    v[2 * i + 1] = vertices[i + 1];
+    v[2 * i + 2] = vertices[i + 2];
+    v[2 * i + 3] = vertices[i + 0] + scale * normals[i + 0];
+    v[2 * i + 4] = vertices[i + 1] + scale * normals[i + 1];
+    v[2 * i + 5] = vertices[i + 2] + scale * normals[i + 2];
+  }
+  out.AddVertices(v);
+
+  final int n = 2 * vertices.length ~/ 3;
+  List<int> lines = new List<int>(n);
+  for (int i = 0; i < n; i++) {
+    lines[i] = i;
+  }
+
+  out.AddFaces(lines);
+  return out;
+}
+
+MeshData GeometryBuilderToWireframeNormals(ChronosGL cgl, GeometryBuilder gb,
+    [scale = 1.0]) {
+  MeshData out = new MeshData("norm", cgl, WEBGL.LINES);
+  return _ExtractWireframeNormals(out, FlattenVector3List(gb.vertices),
+      FlattenVector3List(gb.attributes[aNormal] as List<VM.Vector3>), scale);
+}
+
 MeshData GeometryBuilderToMeshDataLines(
     String name, ChronosGL cgl, GeometryBuilder gb) {
   MeshData md = new MeshData(name, cgl, WEBGL.LINES);
@@ -227,26 +258,7 @@ MeshData ExtractWireframeNormals(ChronosGL cgl, MeshData md, [scale = 1.0]) {
   MeshData out = new MeshData(md.name, cgl, WEBGL.LINES);
   final Float32List vertices = md.GetAttribute(aVertexPosition);
   final Float32List normals = md.GetAttribute(aNormal);
-  assert(vertices.length == normals.length);
-  Float32List v = new Float32List(2 * vertices.length);
-  for (int i = 0; i < vertices.length; i += 3) {
-    v[2 * i + 0] = vertices[i + 0];
-    v[2 * i + 1] = vertices[i + 1];
-    v[2 * i + 2] = vertices[i + 2];
-    v[2 * i + 3] = vertices[i + 0] + scale * normals[i + 0];
-    v[2 * i + 4] = vertices[i + 1] + scale * normals[i + 1];
-    v[2 * i + 5] = vertices[i + 2] + scale * normals[i + 2];
-  }
-  out.AddVertices(v);
-
-  final int n = 2 * vertices.length ~/ 3;
-  List<int> lines = new List<int>(n);
-  for (int i = 0; i < n; i++) {
-    lines[i] = i;
-  }
-
-  out.AddFaces(lines);
-  return out;
+  return _ExtractWireframeNormals(out, vertices, normals, scale);
 }
 
 MeshData ExtractWireframe(ChronosGL cgl, MeshData md) {

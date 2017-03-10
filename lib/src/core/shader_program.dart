@@ -22,7 +22,7 @@ class ShaderProgram extends RenderProgram {
       String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
       : super(name) {
     _program =
-        CompileWholeProgram(_cgl, _shaderObjectV.shader, _shaderObjectF.shader);
+        _cgl.CompileWholeProgram(_shaderObjectV.shader, _shaderObjectF.shader);
     for (String v in _shaderObjectV.attributeVars.keys) {
       _attributeLocations[v] = _cgl.gl.getAttribLocation(_program, v);
       if (_attributeLocations[v] < 0) {
@@ -50,7 +50,7 @@ class ShaderProgram extends RenderProgram {
       int stride, int offset) {
     _attributesInitialized.add(canonical);
     final int index = _attributeLocations[canonical];
-    _cgl.gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
+    _cgl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "Unknown canonical ${canonical}";
     if (!desc.IsScalarTypeFloat()) throw "type ${canonical} is not float";
@@ -176,7 +176,7 @@ class ShaderProgram extends RenderProgram {
     for (String a in _attributeLocations.keys) {
       final index = _attributeLocations[a];
       if (debug) print("[${name}] $a $index");
-      _cgl.gl.enableVertexAttribArray(index);
+      _cgl.enableVertexAttribArray(index);
       if (a.codeUnitAt(0) == prefixInstancer) {
         _cgl.ext_ANGLE_instanced_arrays.vertexAttribDivisorAngle(index, 1);
       }
@@ -199,7 +199,7 @@ class ShaderProgram extends RenderProgram {
           break;
         case prefixElement:
           if (canonical == eArray) {
-            _cgl.gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, inputs[canonical]);
+            _cgl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, inputs[canonical]);
             ++count;
           } else if (canonical == eArrayType) {
             indexType = inputs[canonical];
@@ -270,7 +270,7 @@ class ShaderProgram extends RenderProgram {
       if (canonical.startsWith("ia")) {
         _cgl.ext_ANGLE_instanced_arrays.vertexAttribDivisorAngle(index, 0);
       }
-      _cgl.gl.disableVertexAttribArray(index);
+      _cgl.disableVertexAttribArray(index);
     }
   }
 }
