@@ -1,4 +1,4 @@
-part of chronosgl;
+part of polygon;
 
 class ExtrudeOptions {
   int curveSegments; //  number of points on the curves
@@ -49,18 +49,6 @@ List<double> BevelLayerOffsets(double thickness, int segments) {
   return out;
 }
 
-List<VM.Vector2> BevelMovement(final List<VM.Vector2> contour) {
-  final int cl = contour.length;
-  List<VM.Vector2> out = [];
-  for (int i = 0; i < cl; ++i) {
-    int prev = i - 1;
-    if (prev < 0) prev += cl;
-    int next = i + 1;
-    if (next >= cl) next -= cl;
-    out.add(_getBevelVec(contour[prev], contour[i], contour[next]));
-  }
-  return out;
-}
 
 List<List<VM.Vector2>> BevelLayerContours(
     final List<VM.Vector2> contour, int segments) {}

@@ -1,4 +1,4 @@
-part of chronospolygon;
+part of polygon;
 
 /*
 References:
@@ -140,18 +140,15 @@ bool IsConvex(final List<VM.Vector2> contour) {
 VM.Vector2 _getMovement(VM.Vector2 prev, VM.Vector2 curr, VM.Vector2 next) {
   VM.Vector2 cp = curr - prev;
   VM.Vector2 nc = next - curr;
-  double det = cp.cross(nc);
-  if (det == 0.0) {
-    print(prev);
-    print(curr);
-    print(next);
-  }
-  assert(det != 0);
-  // we want to move the adjacent edges further to the inside
+
+  // we want to move the adjacent edges further to the outside
   // and then use  their new intersection point as the place for
   // curr to go to.
-  VM.Vector2 cp_ortho = new VM.Vector2(-cp.y, cp.x)..normalize();
-  VM.Vector2 nc_ortho = new VM.Vector2(-nc.y, nc.x)..normalize();
+  VM.Vector2 cp_ortho = new VM.Vector2(cp.y, -cp.x)..normalize();
+  VM.Vector2 nc_ortho = new VM.Vector2(nc.y, -nc.x)..normalize();
+
+  assert(nc.dot(cp_ortho) != 0.0 , "possibly colinear points in contour? use FilterDupsAndColinear");
+
   VM.Vector2 prev_shifted = prev + cp_ortho;
   VM.Vector2 next_shifted = next + nc_ortho;
 
@@ -159,10 +156,10 @@ VM.Vector2 _getMovement(VM.Vector2 prev, VM.Vector2 curr, VM.Vector2 next) {
   return x - curr;
 }
 
-// GetContourMovement is to shrink or expand a contour.
+// GetContourGradient is to shrink or expand a contour.
 // The output contains a direction Vector2 for each input point.
 // The input must be free of colinear data.
-List<VM.Vector2> GetContourMovement(final List<VM.Vector2> contour) {
+List<VM.Vector2> GetContourGradient(final List<VM.Vector2> contour) {
   List<VM.Vector2> out = new List<VM.Vector2>();
   final cl = contour.length;
   for (int i = 0; i < contour.length; i++) {
@@ -175,7 +172,7 @@ List<VM.Vector2> GetContourMovement(final List<VM.Vector2> contour) {
 
     print("${i}: ${contour[i]} -> ${v*0.2+contour[i]}");
 
-    out.add(v * 0.1 + contour[i]);
+    out.add(v);
   }
   return out;
 }
