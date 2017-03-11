@@ -1,10 +1,11 @@
-import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
-import 'dart:web_gl' as WEBGL;
 import 'dart:html' as HTML;
-import 'package:vector_math/vector_math.dart' as VM;
 import "dart:math" as MATH;
 import 'dart:async';
+
+import 'package:vector_math/vector_math.dart' as VM;
+
+import 'package:chronosgl/chronosgl.dart';
+import 'package:chronosgl/chronosutil.dart';
 
 final VM.Vector3 colBlack = new VM.Vector3(0.0, 0.0, 0.0);
 final VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
@@ -82,8 +83,7 @@ void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
-  chronosGL.enable(WEBGL.CULL_FACE);
+  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
 
   OrbitCamera orbit = new OrbitCamera(50.0, 10.0);
   orbit.setPos(0.0, 0.0, 56.0);
