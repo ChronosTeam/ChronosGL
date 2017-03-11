@@ -147,7 +147,8 @@ VM.Vector2 _getMovement(VM.Vector2 prev, VM.Vector2 curr, VM.Vector2 next) {
   VM.Vector2 cp_ortho = new VM.Vector2(cp.y, -cp.x)..normalize();
   VM.Vector2 nc_ortho = new VM.Vector2(nc.y, -nc.x)..normalize();
 
-  assert(nc.dot(cp_ortho) != 0.0 , "possibly colinear points in contour? use FilterDupsAndColinear");
+  assert(nc.dot(cp_ortho) != 0.0,
+      "possibly colinear points in contour? use FilterDupsAndColinear");
 
   VM.Vector2 prev_shifted = prev + cp_ortho;
   VM.Vector2 next_shifted = next + nc_ortho;
@@ -175,4 +176,32 @@ List<VM.Vector2> GetContourGradient(final List<VM.Vector2> contour) {
     out.add(v);
   }
   return out;
+}
+
+List<VM.Vector2> ContourCircle(int nSegmemts, double radius,
+    [bool ccw = true]) {
+  List<VM.Vector2> out = new List<VM.Vector2>(nSegmemts);
+  for (int i = 0; i < nSegmemts; ++i) {
+    double angle = Math.PI * 2 * i / nSegmemts * (ccw ? 1.0 : -1.0);
+    out[i] = new VM.Vector2(radius * Math.cos(angle), radius * Math.sin(angle));
+  }
+  return out;
+}
+
+List<VM.Vector3> GeneralProjection(List<VM.Vector2> contour, VM.Matrix3 mat) {
+  VM.Vector3 t = new VM.Vector3.zero();
+  t.z = 1.0;
+  List<VM.Vector3> out = new List<VM.Vector3>(contour.length);
+  for (int i = 0; i < contour.length; ++i) {
+    t.x = contour[i].x;
+    t.y =  contour[i].y;
+    out[i] = mat * t;
+  }
+  return out;
+}
+
+List<VM.Vector3> SimpleExtrusionAxisZ(List<VM.Vector2> contour, double z) {
+  VM.Matrix3 m = new VM.Matrix3.identity();
+  m[8] = z;
+  return GeneralProjection(contour, m);
 }

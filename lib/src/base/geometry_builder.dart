@@ -158,10 +158,21 @@ class GeometryBuilder {
     }
   }
 
+  void AddFaces4Strip(List<VM.Vector3> top, List<VM.Vector3> bot, bool closed) {
+    assert(top.length == bot.length);
+    final n = top.length - 1;
+    for (int i = 0; i < n; ++i) {
+      AddVerticesFace4([bot[i], bot[i + 1], top[i + 1], top[i]]);
+    }
+    if (closed) {
+      AddVerticesFace4([bot[n], bot[0], top[0], top[n]]);
+    }
+  }
+
   // generateFaces is usually only called once to initialize _faces.
   // Its main purpose is to convert Face4 into two triangles
   List<int> GenerateFaceIndices() {
-    assert (_faces3.length > 0 || _faces4.length > 0);
+    assert(_faces3.length > 0 || _faces4.length > 0);
     List<int> faces = new List<int>(_faces3.length * 3 + _faces4.length * 6);
     int i = 0;
     for (Face3 f3 in _faces3) {
