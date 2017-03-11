@@ -72,7 +72,7 @@ void main() {
     List<GeometryBuilder> gb = ReadThreeJsMeshes(list[0]);
 
     MeshData mdWire =
-        GeometryBuilderToMeshDataLines(meshFile, chronosGL, gb[0]);
+        GeometryBuilderToMeshDataWireframe(meshFile, chronosGL, gb[0]);
     gb[0].GenerateNormalsAssumingTriangleMode();
 
     nodeWire = new Node(mdWire.name, mdWire, matWire);
