@@ -74,7 +74,7 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
-  OrbitCamera orbit = new OrbitCamera(5000.0);
+  OrbitCamera orbit = new OrbitCamera(5000.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 1.0, 10000.0);
 
   final RenderPhase phase = new RenderPhase("main", chronosGL);

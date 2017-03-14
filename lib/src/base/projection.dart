@@ -62,7 +62,7 @@ class Perspective extends RenderInputProvider {
   final VM.Matrix4 _mat = new VM.Matrix4.zero();
 
   Perspective(this._camera,
-      [this._near = 0.1, this._far = 1000.0, String name = "perspective"])
+      this._near, this._far, [String name = "perspective"])
       : super(name) {
     Update();
   }

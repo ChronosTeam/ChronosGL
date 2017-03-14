@@ -44,7 +44,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(5.0, 0.0, 0.0, HTML.document.body);
   // Create a perspective. We use a combined view+perspective matrix,
   // so the camera is part of the perspective.
-  Perspective perspective = new Perspective(orbit);
+  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   perspective.AdjustAspect(w, h);
 
   // Create a phase to run our two shader programs.

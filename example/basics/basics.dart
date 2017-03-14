@@ -11,8 +11,8 @@ void main() {
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
-  Perspective perspective = new Perspective(orbit);
+  OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
+  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram basic = phase.createProgram(createTexturedShader());
