@@ -160,7 +160,7 @@ VM.Vector2 _getMovement(VM.Vector2 prev, VM.Vector2 curr, VM.Vector2 next) {
 // GetContourGradient is to shrink or expand a contour.
 // The output contains a direction Vector2 for each input point.
 // The input must be free of colinear data.
-List<VM.Vector2> GetContourGradient(final List<VM.Vector2> contour) {
+List<VM.Vector2> GetContourGradient(List<VM.Vector2> contour) {
   List<VM.Vector2> out = new List<VM.Vector2>();
   final cl = contour.length;
   for (int i = 0; i < contour.length; i++) {
@@ -170,8 +170,6 @@ List<VM.Vector2> GetContourGradient(final List<VM.Vector2> contour) {
     if (ip1 >= cl) ip1 -= cl;
 
     VM.Vector2 v = _getMovement(contour[im1], contour[i], contour[ip1]);
-
-    print("${i}: ${contour[i]} -> ${v*0.2+contour[i]}");
 
     out.add(v);
   }

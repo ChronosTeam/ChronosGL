@@ -169,6 +169,12 @@ class GeometryBuilder {
     }
   }
 
+  void AddFaces4Strips(List<List<VM.Vector3>> strips, bool closed) {
+    for (int i = 0; i < strips.length - 1; ++i) {
+      AddFaces4Strip(strips[i + 1], strips[i], closed);
+    }
+  }
+
   // generateFaces is usually only called once to initialize _faces.
   // Its main purpose is to convert Face4 into two triangles
   List<int> GenerateFaceIndices() {

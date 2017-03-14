@@ -1,54 +1,70 @@
 part of polygon;
 
-class ExtrudeOptions {
-  int curveSegments; //  number of points on the curves
-  int steps; // number of points used for subdividing segements of extrude spline
-  int amount; //  — int. Depth to extrude the shape
-  bool bevelEnabled; //  bool. turn on bevel
-
-  double bevelThickness; // float. how deep into the original shape bevel goes
-  double bevelSize; // float. how far from shape outline is bevel
-  int bevelSegments; // number of bevel layers
-  // extrudePath — THREE.Curve. curve to extrude shape along
-  // frames — Object. containing arrays of tangents, normals, binormals
-  // material — int. material index for front and back faces
-  // extrudeMaterial — int. material index for extrusion and beveled faces
-  // UVGenerator — Object. object that provides UV generator functions
-}
 /*
-  Bevel:
+  Bevel Cut-View:
 
-               beveled contour
-  -----
-       \
-        \
-         \    original countour
-          |
-          |
-          |
-          |
+xxxxxxxxx             |
+xxxxxxxxxxx           |
+xxxxxxxxxxxxx         |
+xxxxxxxxxxxxxxx       |
+xxxxxxxxxxxxxxxx      |
+xxxxxxxxxxxxxxxxx     |  y
+xxxxxxxxxxxxxxxxxx    |
+xxxxxxxxxxxxxxxxxxx   |
+xxxxxxxxxxxxxxxxxxxx  |
+xxxxxxxxxxxxxxxxxxxxx |
+xxxxxxxxxxxxxxxxxxxxx |
+---------------------------
+                       x
+
  */
 
-double EasingCos(double t) {
-  return Math.cos(t * Math.PI / 2);
-}
+double EasingCosine(double t) => 1.0 - Math.cos(t * Math.PI / 2);
 
-double EasingSin(double t) {
-  return Math.sin(t * Math.PI / 2);
-}
+double EasingSine(double t) => Math.sin(t * Math.PI / 2);
+
+double EasingLinear(double t) => t;
+
+double EasingQuadratic(double t) => t * t;
+
+double EasingCubic(double t) => t * t * t;
 
 typedef double Easing(double t);
 
-List<double> BevelLayerOffsets(double thickness, int segments) {
+
+final Map<String, Easing> MapStringToEasing = {
+  "Cosine": EasingCosine,
+  "Sine": EasingSine,
+  "Quadratic": EasingQuadratic,
+  "Cubic": EasingCubic,
+  "Linear": EasingLinear,
+};
+
+List<VM.Vector2> BevelSupportPoints(double width, double height, int nSupports,
+    {Easing widthEasing = EasingCosine, Easing heightEasing = EasingSine}) {
   // out[0]
-  List<double> out = [];
-  for (int seg = 0; seg < segments; ++seg) {
-    double t = seg / segments;
-    out.add(thickness * Math.cos(t * Math.PI / 2));
+  List<VM.Vector2> out = new List<VM.Vector2>(nSupports);
+  for (int i = 0; i < nSupports; ++i) {
+    double t = i / nSupports;
+    out[i] = new VM.Vector2(-width * widthEasing(t), height * heightEasing(t));
   }
   return out;
 }
 
-
-List<List<VM.Vector2>> BevelLayerContours(
-    final List<VM.Vector2> contour, int segments) {}
+List<List<VM.Vector3>> BevelStrips(List<VM.Vector2> contour,
+    List<VM.Vector2> gradient, List<VM.Vector2> supports, VM.Matrix3 m) {
+  assert(contour.length == gradient.length);
+  List<List<VM.Vector3>> out = [];
+  VM.Vector3 v = new VM.Vector3.zero();
+  for (VM.Vector2 s in supports) {
+    List<VM.Vector3> c = new List<VM.Vector3>(contour.length);
+    for (int i = 0; i < c.length; ++i) {
+      v.x = contour[i].x + gradient[i].x * s.x;
+      v.y = contour[i].y + gradient[i].y * s.x;
+      v.z = s.y;
+      c[i] = m * v;
+    }
+    out.add(c);
+  }
+  return out;
+}
