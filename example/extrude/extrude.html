@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Extrude</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div id="stats"></div>
+<div style="color: gray;">
+    EaseingH:
+    <select id="easingHeight">
+        <option selected>Sine</option>
+        <option>Cosine</option>
+        <option>Quadratic</option>
+        <option>Cubic</option>
+        <option>Linear</option>
+    </select>
+    Width:
+    <input id="width" type="range" min="-10" max="10" value="5"/>
+    EasyingW:
+    <select id="easingWidth">
+        <option>Sine</option>
+        <option selected>Cosine</option>
+        <option>Quadratic</option>
+        <option>Cubic</option>
+        <option>Linear</option>
+    </select>
+    Height:
+    <input id="height" type="range" min="-10" max="10" value="5"/>
+    Segments:
+    <input id="segments" type="number" min="2" max="100"  step="1" value="10"/>
+</div>
+<hr>
+<canvas id="webgl-canvas"></canvas>
+<script type="application/dart" src="extrude.dart"></script>
+<script src="packages/browser/dart.js"></script>
+</body>
+</html>

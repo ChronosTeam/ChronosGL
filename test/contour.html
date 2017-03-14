@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>ChronosGL: Contour Test</title>
+
+      <style>
+      #webgl-canvas {
+        width: 100%;
+        height: 100%;
+        display:block;
+      }
+      body {
+        height: 100%;
+        margin: 0;
+        background-color: black
+      }
+    </style>
+  </head>
+  <body>
+    <input id="scale" type="range" min="-100.0" max="200.0" value="0.0"/> <br/>
+    <canvas id="canvas" width="1000" height="1000"></canvas>
+    <script type="application/dart" src="contour.dart"></script>
+    <script src="packages/browser/dart.js"></script>
+  </body>
+</html>

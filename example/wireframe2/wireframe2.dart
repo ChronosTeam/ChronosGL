@@ -1,12 +1,12 @@
 import 'dart:html' as HTML;
+import 'dart:async';
+
+import 'package:vector_math/vector_math.dart' as VM;
 
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 
-import 'package:vector_math/vector_math.dart' as VM;
 
-import 'dart:web_gl' as WEBGL;
-import 'dart:async';
 
 const String meshFile = "../asset/dragon/dragon.json";
 
@@ -21,8 +21,7 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
-  chronosGL.enable(WEBGL.CULL_FACE);
+  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
   Perspective perspective = new Perspective(orbit);
@@ -72,7 +71,7 @@ void main() {
     List<GeometryBuilder> gb = ReadThreeJsMeshes(list[0]);
 
     MeshData mdWire =
-        GeometryBuilderToMeshDataLines(meshFile, chronosGL, gb[0]);
+        GeometryBuilderToMeshDataWireframe(meshFile, chronosGL, gb[0]);
     gb[0].GenerateNormalsAssumingTriangleMode();
 
     nodeWire = new Node(mdWire.name, mdWire, matWire);

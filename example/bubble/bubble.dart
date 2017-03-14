@@ -2,7 +2,6 @@ import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
 import "dart:async";
-import 'dart:web_gl' as WEBGL;
 
 String textureFile = "sphere.png";
 // https://cycling74.com/forums/topic/shader-help-recreating-gl_sphere_map/
@@ -42,8 +41,7 @@ void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
-  chronosGL.enable(WEBGL.CULL_FACE);
+  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
 
   OrbitCamera orbit = new OrbitCamera(5.0, 10.0);
   Perspective perspective = new Perspective(orbit);

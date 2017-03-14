@@ -234,7 +234,8 @@ MeshData GeometryBuilderToWireframeNormals(ChronosGL cgl, GeometryBuilder gb,
       FlattenVector3List(gb.attributes[aNormal] as List<VM.Vector3>), scale);
 }
 
-MeshData GeometryBuilderToMeshDataLines(
+//Extract Wireframe MeshData
+MeshData GeometryBuilderToMeshDataWireframe(
     String name, ChronosGL cgl, GeometryBuilder gb) {
   MeshData md = new MeshData(name, cgl, WEBGL.LINES);
   md.AddVertices(FlattenVector3List(gb.vertices));

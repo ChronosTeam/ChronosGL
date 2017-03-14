@@ -1,19 +1,17 @@
 import 'dart:html' as HTML;
 
+import 'package:vector_math/vector_math.dart' as VM;
+
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 
-import 'package:vector_math/vector_math.dart' as VM;
-
-import 'dart:web_gl' as WEBGL;
 
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
-  chronosGL.enable(WEBGL.CULL_FACE);
+  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
 
   var ext = GetGlExtensionStandardDerivatives(chronosGL);
   if (ext == null) HTML.window.alert("OES_standard_derivatives not supported");

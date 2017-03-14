@@ -1,4 +1,4 @@
-part of chronospolygon;
+part of polygon;
 
 /*
 Simple Triangulation based on Ear clipping
