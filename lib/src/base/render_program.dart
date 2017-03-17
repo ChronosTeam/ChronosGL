@@ -12,12 +12,12 @@ class DrawStats {
   String toString() => "[${name}] ${numInstances} ${numItems} ${drawMode}";
 }
 
-/// ## Class RenderProgram (is a RenderInputs)
+/// ## Class RenderProgram (is a RenderInputSink)
 /// represents several invocations of the same program running on the GPU.
 /// It consists of a tree of **Nodes** which provide **Inputs** for the
 /// program. The program is invoked once for most **Nodes** while traversing
 /// the tree recursively.
-abstract class RenderProgram extends RenderInputs {
+abstract class RenderProgram extends RenderInputSink {
   // these are the identity by default
   final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
   final List<Node> objects = new List<Node>();

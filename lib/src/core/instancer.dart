@@ -2,7 +2,7 @@ part of core;
 
 // InstancerData presents attributes and vertex buffers associated with
 // instancing.
-class InstancerData extends RenderInputProvider {
+class InstancerData extends RenderInputSource {
   final ChronosGL _cgl;
 
   final Map<String, WEBGL.Buffer> _buffers = {};
@@ -19,15 +19,15 @@ class InstancerData extends RenderInputProvider {
   }
 
   @override
-  void AddRenderInputs(RenderInputs program) {
+  void AddToSink(RenderInputSink program) {
     for (String canonical in _buffers.keys) {
-      program.SetInputWithOrigin(this, canonical, _buffers[canonical]);
+      program.SetInput(canonical, _buffers[canonical], this);
     }
-    program.SetInputWithOrigin(this, cNumInstances, numInstances);
+    program.SetInput(cNumInstances, numInstances, this);
   }
 
   @override
-  void RemoveRenderInputs(RenderInputs program) {
+  void RemoveFromSink(RenderInputSink program) {
     for (String canonical in _buffers.keys) {
       program.Remove(canonical);
     }

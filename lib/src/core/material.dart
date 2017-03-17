@@ -24,10 +24,10 @@ class BlendEquation {
   }
 }
 
-/// ## Class Material (is a RenderInputProvider)
+/// ## Class Material (is a RenderInputSource)
 /// is a light weight container for **Inputs**.
 /// By convention the *Inputs** pertain to mesh appearance.
-class Material extends RenderInputProvider {
+class Material extends RenderInputSource {
   Map<String, dynamic> _uniforms = {};
 
   Material(String name) : super(name) {
@@ -45,12 +45,12 @@ class Material extends RenderInputProvider {
 
   Material.BlendAndDepthNeutral(String name) : super(name);
 
-  void SetUniform(String canonical, val, [bool allowOverride = false]) {
-    assert(allowOverride || !_uniforms.containsKey(canonical));
-    _uniforms[canonical] = val;
+  void SetUniform(String canonical, dynamic val) {
+    assert(!_uniforms.containsKey(canonical));
+    ForceUniform(canonical, val);
   }
 
-  void ForceUniform(String canonical, val) {
+  void ForceUniform(String canonical, dynamic val) {
     _uniforms[canonical] = val;
   }
 
@@ -59,14 +59,14 @@ class Material extends RenderInputProvider {
   }
 
   @override
-  void AddRenderInputs(RenderInputs inputs) {
+  void AddToSink(RenderInputSink inputs) {
     _uniforms.forEach((String k, v) {
-      inputs.SetInputWithOrigin(this, k, v);
+      inputs.SetInput(k, v, this);
     });
   }
 
   @override
-  void RemoveRenderInputs(RenderInputs inputs) {
+  void RemoveFromSink(RenderInputSink inputs) {
     for (String canonical in _uniforms.keys) {
       inputs.Remove(canonical);
     }

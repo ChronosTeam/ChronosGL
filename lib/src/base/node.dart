@@ -9,9 +9,9 @@ part of base;
 /// having a Material associated with them but we would like to change that.
 /// Each Node is also a Spatial so it be re-oriented with respect to its parent
 class Node extends Spatial {
-  RenderInputProvider _material;
-  RenderInputProvider _meshData;
-  RenderInputProvider _instancerData;
+  RenderInputSource _material;
+  RenderInputSource _meshData;
+  RenderInputSource _instancerData;
 
   // children inherent the parent matrix for its rotation and position
   final List<Node> children = [];
@@ -30,13 +30,13 @@ class Node extends Spatial {
       String name, this._meshData, this._instancerData, this._material)
       : super(name);
 
-  RenderInputProvider get material => _material;
+  RenderInputSource get material => _material;
 
-  RenderInputProvider get meshData => _meshData;
+  RenderInputSource get meshData => _meshData;
 
-  RenderInputProvider get instancerData => _instancerData;
+  RenderInputSource get instancerData => _instancerData;
 
-  void set meshData(RenderInputProvider md) {
+  void set meshData(RenderInputSource md) {
     _meshData = md;
   }
 
@@ -44,22 +44,22 @@ class Node extends Spatial {
     children.add(node);
   }
 
-  void AddShaderInputs(RenderInputs program) {
+  void AddShaderInputs(RenderInputSink program) {
     // TODO: computing the normal matrix like this is wrong
     _normMatrix.copyNormalMatrix(_modelMatrix);
-    program.SetInputWithOrigin(this, uTransformationMatrix, transform);
-    program.SetInputWithOrigin(this, uModelMatrix, _modelMatrix);
-    program.SetInputWithOrigin(this, uNormalMatrix, _normMatrix);
+    program.SetInput(uTransformationMatrix, transform, this);
+    program.SetInput(uModelMatrix, _modelMatrix, this);
+    program.SetInput(uNormalMatrix, _normMatrix, this);
 
-    _material.AddRenderInputs(program);
-    _meshData.AddRenderInputs(program);
-    if (_instancerData != null) _instancerData.AddRenderInputs(program);
+    _material.AddToSink(program);
+    _meshData.AddToSink(program);
+    if (_instancerData != null) _instancerData.AddToSink(program);
   }
 
-  void RemoveShaderInputs(RenderInputs program) {
-    if (_instancerData != null) _instancerData.RemoveRenderInputs(program);
-    _meshData.RemoveRenderInputs(program);
-    _material.RemoveRenderInputs(program);
+  void RemoveShaderInputs(RenderInputSink program) {
+    if (_instancerData != null) _instancerData.RemoveFromSink(program);
+    _meshData.RemoveFromSink(program);
+    _material.RemoveFromSink(program);
 
     program.Remove(uTransformationMatrix);
     program.Remove(uModelMatrix);

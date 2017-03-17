@@ -22,7 +22,7 @@ void main() {
   final Material matWireframe = new Material("wire")
     ..SetUniform(uColorAlpha, new VM.Vector4(1.0, 1.0, 0.0, 1.0))
     ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5))
-    ..SetUniform(cBlend, true, true)
+    ..ForceUniform(cBlend, true)
     ..SetUniform(cBlendEquation, new BlendEquation.Standard());
 
   {

@@ -25,7 +25,7 @@ void main() {
 
   final Material matTrans = new Material("trans")
     ..SetUniform(uColor, new VM.Vector3(0.3, 0.3, 0.3))
-    ..SetUniform(cBlend, true, true)
+    ..ForceUniform(cBlend, true)
     ..SetUniform(cBlendEquation, new BlendEquation.Standard());
 
   {
