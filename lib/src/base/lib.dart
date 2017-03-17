@@ -11,7 +11,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 /// # Layer: Base
 /// The **base layer** contains many of the fundamental abstractions
-/// like NamedEntity, RenderInputs, RenderInputProvider,
+/// like NamedEntity, RenderInputSink, RenderInputSource,
 /// RenderProgram, Spacial, Node. Illumination, Perspective,
 /// Camera, etc
 ///
@@ -22,7 +22,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 /// An **Input** is parameter to a program running on the GPU
 ///
 /// The best known input types are Uniforms and Attributes but
-/// ChronosGL goes a step further and also considers blending
+/// ChronosGL goes a step further and considers blending
 /// modes, depth-test, etc. to be inputs as well.
 ///
 /// Each input has a **canonical name**. By convention the first

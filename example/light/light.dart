@@ -85,7 +85,7 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
 
-  OrbitCamera orbit = new OrbitCamera(50.0, 10.0);
+  OrbitCamera orbit = new OrbitCamera(50.0, 10.0, 0.0, canvas);
   orbit.setPos(0.0, 0.0, 56.0);
   Perspective perspective = new Perspective(orbit, 0.1, 10000.0);
   RenderPhase phaseBlinnPhong = new RenderPhase("blinn-phong", chronosGL);

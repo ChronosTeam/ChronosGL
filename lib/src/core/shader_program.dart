@@ -239,7 +239,7 @@ class ShaderProgram extends RenderProgram {
     // TODO: put this behind a flag
     List<String> uninitialized = UninitializedInputs();
     if (uninitialized.isNotEmpty) {
-      String mesg = "${name}: uninitialized inputs: ${uninitialized}";
+      String mesg = "${name} ${_drawMode}: uninitialized inputs: ${uninitialized}";
       LogError(mesg);
       throw mesg;
     }

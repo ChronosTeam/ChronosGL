@@ -198,7 +198,7 @@ class HemisphericalLight implements Light {
 
 /// ## Class Illumination (is a RenderInputProvider)
 /// represents a collection of Lights.
-class Illumination extends RenderInputProvider {
+class Illumination extends RenderInputSource {
   final List<Light> _lights = [];
   final Float32List _lightDescs = new Float32List(16 * kMaxLights);
   final Float32List _lightTypes = new Float32List(kMaxLights);
@@ -225,14 +225,14 @@ class Illumination extends RenderInputProvider {
   }
 
   @override
-  void AddRenderInputs(RenderInputs inputs) {
+  void AddToSink(RenderInputSink inputs) {
     _SetLightInfo(_lightDescs, _lightTypes, _lights);
-    inputs.SetInputWithOrigin(this, uLightDescs, _lightDescs);
-    inputs.SetInputWithOrigin(this, uLightTypes, _lightTypes);
+    inputs.SetInput(uLightDescs, _lightDescs, this);
+    inputs.SetInput(uLightTypes, _lightTypes, this);
   }
 
   @override
-  void RemoveRenderInputs(RenderInputs inputs) {
+  void RemoveFromSink(RenderInputSink inputs) {
     inputs.Remove(uLightDescs);
     inputs.Remove(uLightTypes);
   }

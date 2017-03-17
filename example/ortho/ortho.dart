@@ -48,14 +48,14 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
 
-  OrbitCamera orbit = new OrbitCamera(25.0, 10.0);
+  OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
   double d = 20.0;
   Orthographic orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
   RenderPhase phaseOrthograhic = new RenderPhase("shadow", chronosGL);
   RenderProgram prgOrthographic =
       phaseOrthograhic.createProgram(createTexturedShader());
 
-  Perspective perspective = new Perspective(orbit);
+  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phasePerspective = new RenderPhase("perspective", chronosGL);
   phasePerspective.clearColorBuffer = false;
   RenderProgram prgPerspective =

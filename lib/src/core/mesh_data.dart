@@ -39,12 +39,12 @@ Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data = null]) {
   return data;
 }
 
-/// ## Class MeshData (is a RenderInputProvider)
+/// ## Class MeshData (is a RenderInputSource)
 /// presents attributes and vertex buffers associated with
 /// an mesh, e.g. a sphere, cube, etc.
 /// MeshData objects can be populated directly but often they
 /// will derived from **GeometryBuilder** objects.
-class MeshData extends RenderInputProvider {
+class MeshData extends RenderInputSource {
   final ChronosGL _cgl;
   final _drawMode;
   final Map<String, WEBGL.Buffer> _buffers = {};
@@ -125,22 +125,22 @@ class MeshData extends RenderInputProvider {
   }
 
   @override
-  void AddRenderInputs(RenderInputs program) {
+  void AddToSink(RenderInputSink program) {
     for (String canonical in _buffers.keys) {
-      program.SetInputWithOrigin(this, canonical, _buffers[canonical]);
+      program.SetInput(canonical, _buffers[canonical], this);
     }
 
     // should this really be here - interaction with indexer
     if (_indexBuffer != null) {
-      program.SetInputWithOrigin(this, eArray, _indexBuffer);
-      program.SetInputWithOrigin(this, eArrayType, _indexBufferType);
+      program.SetInput(eArray, _indexBuffer, this);
+      program.SetInput(eArrayType, _indexBufferType, this);
     }
-    program.SetInputWithOrigin(this, cDrawMode, _drawMode);
-    program.SetInputWithOrigin(this, cNumItems, GetNumItems());
+    program.SetInput(cDrawMode, _drawMode, this);
+    program.SetInput(cNumItems, GetNumItems(), this);
   }
 
   @override
-  void RemoveRenderInputs(RenderInputs program) {
+  void RemoveFromSink(RenderInputSink program) {
     for (String canonical in _buffers.keys) {
       program.Remove(canonical);
     }
@@ -172,7 +172,7 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
   for (String canonical in gb.attributes.keys) {
     dynamic lst = gb.attributes[canonical];
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
-
+    //print("${md.name} ${canonical} ${lst}");
     switch (desc.type) {
       case "vec2":
         md.AddAttribute(canonical, FlattenVector2List(lst), 2);

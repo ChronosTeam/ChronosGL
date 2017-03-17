@@ -22,7 +22,7 @@ void main() {
   ChronosGL chronosGL = new ChronosGL(canvas);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit);
+  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram program = phase.createProgram(createSolidColorShader());
   final Material matWire = new Material("wire")

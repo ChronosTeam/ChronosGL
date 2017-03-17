@@ -131,11 +131,8 @@ class OrbitCamera extends Camera {
   Map<int, bool> _cpk = currentlyPressedKeys;
   Map<String, bool> _cpmb = currentlyPressedMouseButtons;
 
-  OrbitCamera(this._radius,
-      [this.azimuth = 0.0, this.polar = 0.0, HTML.Element eventElement = null])
+  OrbitCamera(this._radius, this.azimuth, this.polar, HTML.Element eventElement)
       : super("camera:orbit") {
-    if (eventElement == null) eventElement = HTML.document.body;
-
     eventElement.onMouseWheel.listen((HTML.WheelEvent e) {
       try {
         double d = e.deltaY * mouseWheelFactor;

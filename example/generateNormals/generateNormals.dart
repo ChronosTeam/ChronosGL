@@ -26,7 +26,7 @@ String modelFile = "../ct_logo.obj";
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(25.0, -45.0, 0.3);
+  OrbitCamera orbit = new OrbitCamera(25.0, -45.0, 0.3, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 2520.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram prg = phase.createProgram(createNormal2ColorShader());

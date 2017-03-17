@@ -49,7 +49,7 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
 
-  OrbitCamera orbit = new OrbitCamera(20.0);
+  OrbitCamera orbit = new OrbitCamera(20.0, 0.0, 0.0, canvas);
   double d = 40.0;
   Orthographic orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
   RenderPhase phaseOrthograhic = new RenderPhase("shadow", chronosGL);

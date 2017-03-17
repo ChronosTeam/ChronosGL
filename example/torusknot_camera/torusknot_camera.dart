@@ -11,7 +11,7 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
   TorusKnotCamera tkc = new TorusKnotCamera();
-  Perspective perspective = new Perspective(tkc);
+  Perspective perspective = new Perspective(tkc, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
 
   RenderProgram programBasic = phase.createProgram(createTexturedShader());

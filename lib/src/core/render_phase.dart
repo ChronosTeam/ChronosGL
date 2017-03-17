@@ -20,7 +20,7 @@ class RenderPhase extends NamedEntity {
     _framebuffer = fb;
   }
 
-  void draw(List<RenderInputProvider> inputs, [List<DrawStats> stats = null]) {
+  void draw(List<RenderInputSource> inputs, [List<DrawStats> stats = null]) {
     if (_framebuffer == null) {
       _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
     } else {
@@ -38,12 +38,12 @@ class RenderPhase extends NamedEntity {
 
     for (RenderProgram prg in _programs) {
       if (!prg.enabled) continue;
-      for (RenderInputProvider p in inputs) {
-        p.AddRenderInputs(prg);
+      for (RenderInputSource p in inputs) {
+        p.AddToSink(prg);
       }
       prg.draw(stats);
-      for (RenderInputProvider p in inputs) {
-        p.RemoveRenderInputs(prg);
+      for (RenderInputSource p in inputs) {
+        p.RemoveFromSink(prg);
       }
     }
   }

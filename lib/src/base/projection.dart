@@ -1,8 +1,8 @@
 part of base;
 
-/// ## Class Orthographic (is a RenderInputProvider)
+/// ## Class Orthographic (is a RenderInputSource)
 /// TBD
-class Orthographic extends RenderInputProvider {
+class Orthographic extends RenderInputSource {
   final Camera _camera;
   final VM.Matrix4 _proj = new VM.Matrix4.zero();
   final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
@@ -21,15 +21,15 @@ class Orthographic extends RenderInputProvider {
   }
 
   @override
-  void AddRenderInputs(RenderInputs inputs) {
+  void AddToSink(RenderInputSink inputs) {
     _camera.getViewMatrix(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
     _projViewMatrix.multiply(_viewMatrix);
-    inputs.SetInputWithOrigin(this, uPerspectiveViewMatrix, _projViewMatrix);
+    inputs.SetInput(uPerspectiveViewMatrix, _projViewMatrix, this);
   }
 
   @override
-  void RemoveRenderInputs(RenderInputs inputs) {
+  void RemoveFromSink(RenderInputSink inputs) {
     inputs.Remove(uPerspectiveViewMatrix);
   }
 
@@ -47,11 +47,11 @@ class Orthographic extends RenderInputProvider {
   }
 }
 
-/// ## Class Perspective (is a RenderInputProvider)
+/// ## Class Perspective (is a RenderInputSource)
 /// provides the **Input** for perspective projection, i.e.
 /// the uPerspectiveViewMatrix Uniform which also requires a **Camera**
 /// for view matrix.
-class Perspective extends RenderInputProvider {
+class Perspective extends RenderInputSource {
   Camera _camera;
   double _fov = 50.0; // horizontal fov in deg  divided by 2
   double _aspect = 1.0;
@@ -61,8 +61,8 @@ class Perspective extends RenderInputProvider {
   final VM.Matrix4 _viewMatrix = new VM.Matrix4.identity();
   final VM.Matrix4 _mat = new VM.Matrix4.zero();
 
-  Perspective(this._camera,
-      [this._near = 0.1, this._far = 1000.0, String name = "perspective"])
+  Perspective(this._camera, this._near, this._far,
+      [String name = "perspective"])
       : super(name) {
     Update();
   }
@@ -90,17 +90,16 @@ class Perspective extends RenderInputProvider {
   }
 
   @override
-  void AddRenderInputs(RenderInputs inputs) {
-    inputs.SetInputWithOrigin(this, uEyePosition, _camera.getEyePosition());
+  void AddToSink(RenderInputSink inputs) {
+    inputs.SetInput(uEyePosition, _camera.getEyePosition(), this);
     _camera.getViewMatrix(_viewMatrix);
     _perspectiveViewMatrix.setFrom(_mat);
     _perspectiveViewMatrix.multiply(_viewMatrix);
-    inputs.SetInputWithOrigin(
-        this, uPerspectiveViewMatrix, _perspectiveViewMatrix);
+    inputs.SetInput(uPerspectiveViewMatrix, _perspectiveViewMatrix, this);
   }
 
   @override
-  void RemoveRenderInputs(RenderInputs inputs) {
+  void RemoveFromSink(RenderInputSink inputs) {
     inputs.Remove(uEyePosition);
     inputs.Remove(uPerspectiveViewMatrix);
   }

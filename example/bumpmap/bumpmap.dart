@@ -73,8 +73,8 @@ void main() {
   var ext = GetGlExtensionStandardDerivatives(chronosGL);
   if (ext == null) HTML.window.alert("OES_standard_derivatives not supported");
 
-  OrbitCamera orbit = new OrbitCamera(0.5);
-  Perspective perspective = new Perspective(orbit);
+  OrbitCamera orbit = new OrbitCamera(0.5, 0.0, 0.0, canvas);
+  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram fixed = phase.createProgram(createSolidColorShader());
