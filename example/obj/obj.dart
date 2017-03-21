@@ -50,7 +50,7 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Mesh
-    GeometryBuilder gb = GeometryFromWavefront(list[0]);
+    GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
     MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL, gb);
 
     Material mat = new Material("mat");

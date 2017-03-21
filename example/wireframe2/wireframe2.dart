@@ -6,9 +6,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
 
-
-
-const String meshFile = "../asset/dragon/dragon.json";
+const String meshFile = "../asset/dragon/dragon.obj";
 
 HTML.InputElement gShowNormals =
     HTML.document.querySelector('#normals') as HTML.InputElement;
@@ -64,21 +62,21 @@ void main() {
   }
 
   List<Future<dynamic>> futures = [
-    LoadJson(meshFile),
+    LoadRaw(meshFile),
   ];
 
   Future.wait(futures).then((List list) {
-    List<GeometryBuilder> gb = ReadThreeJsMeshes(list[0]);
+    GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
 
     MeshData mdWire =
-        GeometryBuilderToMeshDataWireframe(meshFile, chronosGL, gb[0]);
-    gb[0].GenerateNormalsAssumingTriangleMode();
+        GeometryBuilderToMeshDataWireframe(meshFile, chronosGL, gb);
+    gb.GenerateNormalsAssumingTriangleMode();
 
     nodeWire = new Node(mdWire.name, mdWire, matWire);
     nodeWire.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
     program.add(nodeWire);
 
-    MeshData mdNorm = GeometryBuilderToWireframeNormals(chronosGL, gb[0], 0.05);
+    MeshData mdNorm = GeometryBuilderToWireframeNormals(chronosGL, gb, 0.05);
     nodeNorm = new Node(mdNorm.name, mdNorm, matNorm);
     nodeNorm.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
     program.add(nodeNorm);

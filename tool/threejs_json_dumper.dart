@@ -155,9 +155,9 @@ void main(List<String> arguments) {
     ShowInfo(json);
     DumpFaces(json, argResults['faces']);
 
-    List<GeometryBuilder> gb = ReadThreeJsMeshes(json);
+    List<GeometryBuilder> gb = ImportGeometryFromThreeJsJson(json);
     print(gb);
-    List<Bone> skeleton = ReadThreeJsBones(json);
+    List<Bone> skeleton = ImportSkeletonFromThreeJsJson(json);
 
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(">>>>>>>>>> Bones");
@@ -165,7 +165,7 @@ void main(List<String> arguments) {
     for (Bone b in skeleton) {
       print(b);
     }
-    SkeletalAnimation anim = ReadThreeJsAnimation(json, skeleton);
+    SkeletalAnimation anim = ImportAnimationFromThreeJsJson(json, skeleton);
 
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(">>>>>>>>>> BoneAnims");

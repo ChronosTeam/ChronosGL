@@ -73,7 +73,7 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Mesh
-    GeometryBuilder ctLogo = GeometryFromWavefront(list[0]);
+    GeometryBuilder ctLogo = ImportGeometryFromWavefront(list[0]);
     MeshData md = GeometryBuilderToMeshData("", chronosGL, ctLogo);
     Material mat = new Material("mat")
       ..SetUniform(uColor, new VM.Vector3(0.9, 0.9, 0.9));

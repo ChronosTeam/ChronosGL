@@ -34,7 +34,7 @@ const String idPoint = "idPoint";
 const String idSpot = "idSpot";
 const String idDirectional = "idDirectional";
 
-const String meshFile = "../asset/dragon/dragon.json";
+const String meshFile = "../asset/dragon/dragon.obj";
 const String textureFile = "../asset/dragon/dragon.png";
 
 final Map<String, Light> gLightSources = {
@@ -208,7 +208,7 @@ void main() {
   }
 
   List<Future<dynamic>> futures = [
-    LoadJson(meshFile),
+    LoadRaw(meshFile),
     LoadImage(textureFile),
   ];
 
@@ -217,10 +217,9 @@ void main() {
     Material mat = new Material("matDragon");
     Texture tex = new ImageTexture(chronosGL, textureFile, list[1]);
     mat..SetUniform(uTexture, tex);
-
-    List<GeometryBuilder> gb = ReadThreeJsMeshes(list[0]);
-    gb[0].GenerateNormalsAssumingTriangleMode();
-    MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb[0]);
+    GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
+    gb.GenerateNormalsAssumingTriangleMode();
+    MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb);
     Node mesh = new Node(md.name, md, mat);
     //..rotX(-3.14 / 4);
     Node n = new Node.Container("wrapper", mesh);

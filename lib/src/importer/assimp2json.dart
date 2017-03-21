@@ -11,7 +11,7 @@ List<double> _Floatify(List<num> lst) {
 }
 
 //Also fills in the offsets for skeleton
-GeometryBuilder ReadAssimp2JsonMesh(
+GeometryBuilder ImportGeometryFromAssimp2JsonMesh(
     Map<String, dynamic> mesh, List<Bone> skeleton) {
   GeometryBuilder gb = new GeometryBuilder();
   String name = mesh['name'];
@@ -86,7 +86,7 @@ GeometryBuilder ReadAssimp2JsonMesh(
   return gb;
 }
 
-List<Bone> ReadAssimp2JsonSkeleton(Map<String, dynamic> json) {
+List<Bone> ImportSkeletonFromAssimp2Json(Map<String, dynamic> json) {
   List<Bone> out = new List<Bone>();
   int count = 0;
 
@@ -117,7 +117,7 @@ List<Bone> ReadAssimp2JsonSkeleton(Map<String, dynamic> json) {
   return out;
 }
 
-SkeletalAnimation ReadAssimp2JsonAnimation(
+SkeletalAnimation ImportAnimationFromAssimp2Json(
     Map<String, dynamic> json, List<Bone> skeleton) {
   Map<String, Bone> name2bone = new Map<String, Bone>();
   skeleton.forEach((b) => name2bone[b.boneName] = b);

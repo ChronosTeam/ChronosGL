@@ -1,6 +1,6 @@
 part of importer;
 
-GeometryBuilder GeometryFromWavefront(String text) {
+GeometryBuilder ImportGeometryFromWavefront(String text) {
   GeometryBuilder gb = new GeometryBuilder();
   gb.EnableAttribute(aTextureCoordinates);
   gb.EnableAttribute(aNormal);
@@ -21,12 +21,15 @@ GeometryBuilder GeometryFromWavefront(String text) {
 
   final DateTime start = new DateTime.now();
 
+  final dynamic sep = new RegExp(r"\s+");
+  final dynamic trail = new RegExp(r'\s\s*\$');
   for (String line2 in lines) {
-    String line = line2.replaceAll("[ \t]+", " ").replaceFirst('\s\s*\$', "");
+    String line = line2.replaceAll(sep, " ").replaceFirst(trail, "");
     // ignore comments
     if (line.length == 0 || line[0] == "#") continue;
-
     List<String> array = line.split(" ");
+    //print("### ${array}");
+
     if (array[0] == "g") {
       groups[array[1]] = vertices.length;
     } else if (array[0] == "v") {

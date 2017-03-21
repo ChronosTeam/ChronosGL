@@ -70,7 +70,7 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Mesh
-    GeometryBuilder ctLogo = GeometryFromWavefront(list[0]);
+    GeometryBuilder ctLogo = ImportGeometryFromWavefront(list[0]);
     MeshData md = GeometryBuilderToMeshData("", chronosGL, ctLogo);
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)

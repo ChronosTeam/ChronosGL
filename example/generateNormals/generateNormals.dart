@@ -64,7 +64,7 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Mesh
-    GeometryBuilder ctLogo = GeometryFromWavefront(list[0]);
+    GeometryBuilder ctLogo = ImportGeometryFromWavefront(list[0]);
 
     List<GeometryBuilder> geos = [
       ctLogo,
