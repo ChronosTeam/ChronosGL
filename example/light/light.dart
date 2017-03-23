@@ -218,7 +218,7 @@ void main() {
     Texture tex = new ImageTexture(chronosGL, textureFile, list[1]);
     mat..SetUniform(uTexture, tex);
     GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
-    gb.GenerateNormalsAssumingTriangleMode();
+    print(gb);
     MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb);
     Node mesh = new Node(md.name, md, mat);
     //..rotX(-3.14 / 4);

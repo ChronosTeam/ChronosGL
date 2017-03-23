@@ -67,10 +67,10 @@ void main() {
 
   Future.wait(futures).then((List list) {
     GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
-
+    print (gb);
     MeshData mdWire =
         GeometryBuilderToMeshDataWireframe(meshFile, chronosGL, gb);
-    gb.GenerateNormalsAssumingTriangleMode();
+    print (mdWire);
 
     nodeWire = new Node(mdWire.name, mdWire, matWire);
     nodeWire.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
