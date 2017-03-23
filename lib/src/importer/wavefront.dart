@@ -1,6 +1,8 @@
 part of importer;
 
-GeometryBuilder GeometryFromWavefront(String text) {
+// https://en.wikipedia.org/wiki/Wavefront_.obj_file
+
+GeometryBuilder ImportGeometryFromWavefront(String text) {
   GeometryBuilder gb = new GeometryBuilder();
   gb.EnableAttribute(aTextureCoordinates);
   gb.EnableAttribute(aNormal);
@@ -21,12 +23,15 @@ GeometryBuilder GeometryFromWavefront(String text) {
 
   final DateTime start = new DateTime.now();
 
+  final dynamic sep = new RegExp(r"\s+");
+  final dynamic trail = new RegExp(r'\s\s*\$');
   for (String line2 in lines) {
-    String line = line2.replaceAll("[ \t]+", " ").replaceFirst('\s\s*\$', "");
+    String line = line2.replaceAll(sep, " ").replaceFirst(trail, "");
     // ignore comments
     if (line.length == 0 || line[0] == "#") continue;
-
     List<String> array = line.split(" ");
+    //print("### ${array}");
+
     if (array[0] == "g") {
       groups[array[1]] = vertices.length;
     } else if (array[0] == "v") {
@@ -44,18 +49,19 @@ GeometryBuilder GeometryFromWavefront(String text) {
         continue;
       }
 
-      List<VM.Vector3> faceVertices = [];
-      List<VM.Vector3> faceNormal = [];
-      List<VM.Vector2> faceUvs = [];
+      final List<VM.Vector3> faceVertices = [];
+      final List<VM.Vector3> faceNormal = [];
+      final List<VM.Vector2> faceUvs = [];
       for (int i = 1; i < array.length; ++i) {
         // add a new entry to the map and arrays
         List<String> f = array[i].split("/");
         assert(f.length > 0);
         while (f.length < 3) f.add("");
 
-        int vtx = int.parse(f[0]) - 1;
-        int tex = f[1] == "" ? -1 : int.parse(f[1]) - 1;
-        int nor = f[2] == "" ? -1 : int.parse(f[2]) - 1;
+        // TODO: support negative indices
+        final int vtx = int.parse(f[0]) - 1;
+        final int tex = f[1] == "" ? -1 : int.parse(f[1]) - 1;
+        final int nor = f[2] == "" ? -1 : int.parse(f[2]) - 1;
 
         if (vtx < vertices.length) {
           faceVertices.add(vertices[vtx]);
@@ -66,13 +72,13 @@ GeometryBuilder GeometryFromWavefront(String text) {
         if (tex != -1 && tex < uvs.length) {
           faceUvs.add(uvs[tex]);
         } else {
-          //print("problem uv $i ${tex}");
+          print("problem uv $i ${tex}");
           faceUvs.add(new VM.Vector2.zero());
         }
         if (nor != -1 && nor < normals.length) {
           faceNormal.add(normals[nor]);
         } else {
-          //print("problem normals $i ${nor}");
+          print("problem normals $i ${nor}");
           faceNormal.add(new VM.Vector3.zero());
         }
       }

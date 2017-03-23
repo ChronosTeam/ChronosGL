@@ -166,9 +166,9 @@ void main() {
 
     final Map<String, dynamic> meshJson = list[0]["meshes"][0];
     final Map<String, dynamic> animJson = list[0]["animations"][0];
-    skeleton = ReadAssimp2JsonSkeleton(list[0]);
-    final GeometryBuilder gb = ReadAssimp2JsonMesh(meshJson, skeleton);
-    anim = ReadAssimp2JsonAnimation(animJson, skeleton);
+    skeleton = ImportSkeletonFromAssimp2Json(list[0]);
+    final GeometryBuilder gb = ImportGeometryFromAssimp2JsonMesh(meshJson, skeleton);
+    anim = ImportAnimationFromAssimp2Json(animJson, skeleton);
     {
       MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb);
       Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);

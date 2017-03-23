@@ -32,14 +32,14 @@ void main(List<String> arguments) {
     var meshData = new File(p).readAsStringSync();
     Map<String, dynamic> json = JSON.decode(meshData);
 
-    List<Bone> skeleton = ReadAssimp2JsonSkeleton(json);
+    List<Bone> skeleton = ImportSkeletonFromAssimp2Json(json);
 
     print("Bones: ${skeleton.length}");
-    GeometryBuilder gb = ReadAssimp2JsonMesh(json["meshes"][0], skeleton);
+    GeometryBuilder gb = ImportGeometryFromAssimp2JsonMesh(json["meshes"][0], skeleton);
     print(gb);
 
     SkeletalAnimation anim =
-        ReadAssimp2JsonAnimation(json["animations"][0], skeleton);
+        ImportAnimationFromAssimp2Json(json["animations"][0], skeleton);
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(">>>>>>>>>> Bones");
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");

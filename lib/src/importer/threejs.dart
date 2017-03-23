@@ -14,7 +14,7 @@ int _FindSkinMultiplier(Map json) {
   return skinMultiplier;
 }
 
-List<GeometryBuilder> ReadThreeJsMeshes(Map json) {
+List<GeometryBuilder> ImportGeometryFromThreeJsJson(Map json) {
   List<GeometryBuilder> out = [];
   //
   final int skinMultiplier = _FindSkinMultiplier(json);
@@ -150,7 +150,7 @@ List<GeometryBuilder> ReadThreeJsMeshes(Map json) {
   return out;
 }
 
-SkeletalAnimation ReadThreeJsAnimation(Map json, List<Bone> skeleton) {
+SkeletalAnimation ImportAnimationFromThreeJsJson(Map json, List<Bone> skeleton) {
   final Map animation = json["animation"];
   final List<Map> hierarchy = animation["hierarchy"];
   SkeletalAnimation s = new SkeletalAnimation(
@@ -189,7 +189,7 @@ SkeletalAnimation ReadThreeJsAnimation(Map json, List<Bone> skeleton) {
   return s;
 }
 
-List<Bone> ReadThreeJsBones(Map json) {
+List<Bone> ImportSkeletonFromThreeJsJson(Map json) {
   final Map metadata = json["metadata"];
   final List<Map> Bones = json["bones"];
   List<Bone> bones = new List<Bone>(metadata["bones"]);

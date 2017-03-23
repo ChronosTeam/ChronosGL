@@ -136,7 +136,7 @@ void main() {
     mat.SetUniform(uNormalScale, 0.8);
 
     // Setup Mesh
-    List<GeometryBuilder> gbs = ReadThreeJsMeshes(list[0]);
+    List<GeometryBuilder> gbs = ImportGeometryFromThreeJsJson(list[0]);
     print(gbs[0]);
     MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL, gbs[0]);
 

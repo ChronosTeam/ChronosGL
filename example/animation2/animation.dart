@@ -183,9 +183,9 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Mesh
-    List<GeometryBuilder> gb = ReadThreeJsMeshes(list[0]);
-    skeleton = ReadThreeJsBones(list[0]);
-    anim = ReadThreeJsAnimation(list[0], skeleton);
+    List<GeometryBuilder> gb = ImportGeometryFromThreeJsJson(list[0]);
+    skeleton = ImportSkeletonFromThreeJsJson(list[0]);
+    anim = ImportAnimationFromThreeJsJson(list[0], skeleton);
     animatedSkeleton = new AnimatedSkeleton(skeleton.length);
     // skin mesh
     {

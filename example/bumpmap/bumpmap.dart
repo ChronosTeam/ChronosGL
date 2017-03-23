@@ -134,7 +134,7 @@ void main() {
     mat.SetUniform(uBumpMap, bumpmap);
     mat.SetUniform(uBumpScale, 12.0);
     // Setup Mesh
-    List<GeometryBuilder> gbs = ReadThreeJsMeshes(list[0]);
+    List<GeometryBuilder> gbs = ImportGeometryFromThreeJsJson(list[0]);
     print(gbs[0]);
     MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL, gbs[0]);
 
