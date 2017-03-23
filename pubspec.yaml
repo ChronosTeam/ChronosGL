@@ -1,8 +1,8 @@
 name: chronosgl
-version: 1.4.1
+version: 2.0.0
 author: rhulha <java4life@gmail.com>
 description: A simple, minimal and elegant scene graph for WebGL written in Dart
-homepage: https://github.com/rhulha/ChronosGL
+homepage: https://github.com/ChronosTeam/ChronosGL
 dependencies:
   vector_math: ^2.0.4
 dev_dependencies:
