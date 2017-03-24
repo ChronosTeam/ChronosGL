@@ -273,10 +273,36 @@ List<ShaderObject> createTvDistortionShader() {
     _effectVertexShader,
     new ShaderObject("DotF")
       ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uCanvasSize)
       ..AddUniformVar(uScale)
       ..AddUniformVar(uTime)
       ..AddUniformVar(uTexture)
       ..SetBody([_tvDistortionFragment])
+  ];
+}
+
+String _kaleidoscopeFragment = """
+vec2 kaleidoscope( vec2 uv, float n) {
+   float PI = 3.1415926;
+    float angle = PI / n;
+    float r = length(uv);
+	  float a = atan( uv.y, uv.x ) / angle;
+	  a = mix( fract( a ), 1.0 - fract( a ), mod( floor( a ), 2.0 ) ) * angle;
+	return vec2( cos( a ), sin( a ) ) * r;
+}
+
+void main() {
+    vec2 uv = kaleidoscope(${vTextureCoordinates} - ${uCenter2}, ${uScale});
+    gl_FragColor = texture2D(${uTexture}, uv + ${uCenter2});
+}
+""";
+List<ShaderObject> createKaleidoscopeShader() {
+  return [
+    _effectVertexShader,
+    new ShaderObject("KaleidoscopeSF")
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uScale)
+      ..AddUniformVar(uCenter2)
+      ..AddUniformVar(uTexture)
+      ..SetBody([_kaleidoscopeFragment])
   ];
 }

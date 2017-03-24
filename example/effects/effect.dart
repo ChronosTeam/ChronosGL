@@ -86,6 +86,20 @@ void main() {
     ..SetInput(uTexture, fb.colorTexture)
     ..add(UnitNode(chronosGL));
 
+  effects["kaleidoscope8"] = phase2.createProgram(createKaleidoscopeShader())
+    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetInput(uScale, 8.0)
+    ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
+    ..SetInput(uTexture, fb.colorTexture)
+    ..add(UnitNode(chronosGL));
+
+  effects["kaleidoscope5"] = phase2.createProgram(createKaleidoscopeShader())
+    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetInput(uScale, 5.0)
+    ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
+    ..SetInput(uTexture, fb.colorTexture)
+    ..add(UnitNode(chronosGL));
+
   assert(gEffect != null);
   for (String o in effects.keys) {
     gEffect.appendHtml("<option>$o</option>");
@@ -109,6 +123,7 @@ void main() {
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
     effects["tv-distortion"].ForceInput(uTime, timeMs / 1000.0);
+    //effects["kaleidoscope5"].ForceInput(uScale, timeMs / 1000.0);
     phase1.draw([perspective]);
     phase2.draw([perspective]);
 
