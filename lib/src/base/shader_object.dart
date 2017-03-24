@@ -346,6 +346,7 @@ class ShaderObject {
   String _CreateShader(bool addWrapperForMain, List<String> body, prolog) {
     assert(shader == null);
     List<String> out = [];
+    //out.add("#version 300");
     out.add("precision highp float;");
     out.add("");
     for (String v in attributeVars.keys) {
