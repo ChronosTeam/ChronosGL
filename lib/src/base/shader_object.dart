@@ -145,7 +145,9 @@ const String uColorSpecular = "uColorSpecular";
 const String uCameraNear = "uCameraNear";
 const String uCameraFar = "uCameraFar";
 const String uCanvasSize = "uCanvasSize";
+const String uCenter2 = "uCenter2";
 const String uPointSize = "uPointSize";
+const String uScale = "uScale";
 const String uFogNear = "uFogNear";
 const String uFogFar = "uFogFar";
 const String uEyePosition = "uEyePosition";
@@ -231,7 +233,9 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   uFogNear: new ShaderVarDesc("float", ""),
   uFogFar: new ShaderVarDesc("float", ""),
   uPointSize: new ShaderVarDesc("float", ""),
+  uScale: new ShaderVarDesc("float", ""),
   uCanvasSize: new ShaderVarDesc("vec2", ""),
+  uCenter2: new ShaderVarDesc("vec2", ""),
   uCutOff: new ShaderVarDesc("float", ""),
   uShininess: new ShaderVarDesc("float", ""),
   uShadowBias: new ShaderVarDesc("float", ""),

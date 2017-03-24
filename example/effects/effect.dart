@@ -49,6 +49,13 @@ void main() {
     ..SetInput(uTexture, fb.colorTexture)
     ..add(UnitNode(chronosGL));
 
+  effects["hexalate"] = phase2.createProgram(createHexPixelateShader())
+    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
+    ..SetInput(uScale, 10.0)
+    ..SetInput(uTexture, fb.colorTexture)
+    ..add(UnitNode(chronosGL));
+
   assert(gEffect != null);
   for (String o in effects.keys) {
     gEffect.appendHtml("<option>$o</option>");
