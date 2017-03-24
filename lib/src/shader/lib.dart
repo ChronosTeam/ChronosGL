@@ -10,6 +10,7 @@ part 'simple_shaders.dart';
 part 'basic_shader.dart';
 part 'blur_shader.dart';
 
+part 'effect_shaders.dart';
 part 'plane_shader.dart';
 part 'ssao_shader.dart';
 part 'sobel_shader.dart';
