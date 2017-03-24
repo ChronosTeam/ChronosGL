@@ -295,14 +295,41 @@ void main() {
     gl_FragColor = texture2D(${uTexture}, uv + ${uCenter2});
 }
 """;
+
 List<ShaderObject> createKaleidoscopeShader() {
   return [
     _effectVertexShader,
-    new ShaderObject("KaleidoscopeSF")
+    new ShaderObject("KaleidoscopeF")
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uScale)
       ..AddUniformVar(uCenter2)
       ..AddUniformVar(uTexture)
       ..SetBody([_kaleidoscopeFragment])
+  ];
+}
+
+// Inspired by https://www.shadertoy.com/view/MtcXRB
+String _lumidotsFragment = """
+void main() {
+    float r = ${uPointSize};
+    vec2 uv = ${vTextureCoordinates} * ${uCanvasSize};
+    vec2 center = floor(uv / r / 2.0) * 2.0 * r + r;
+    vec3 col = texture2D(${uTexture}, center / ${uCanvasSize}).rgb;
+    float lum = max(0.1, dot(col, vec3(0.2125, 0.7154, 0.0721)));
+    float alpha =  smoothstep(1.0, 0.5,
+                              distance(center, uv) / lum / r);
+    gl_FragColor.rgb = col.rgb * alpha;
+}
+""";
+
+List<ShaderObject> createLumidotsShader() {
+  return [
+    _effectVertexShader,
+    new ShaderObject("LumidotsF")
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uPointSize)
+      ..AddUniformVar(uCanvasSize)
+      ..AddUniformVar(uTexture)
+      ..SetBody([_lumidotsFragment])
   ];
 }
