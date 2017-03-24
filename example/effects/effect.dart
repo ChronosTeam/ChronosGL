@@ -79,6 +79,12 @@ void main() {
     ..SetInput(uTexture, fb.colorTexture)
     ..add(UnitNode(chronosGL));
 
+  effects["tv-distortion"] = phase2.createProgram(createTvDistortionShader())
+    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetInput(uScale, 0.0009)
+    ..SetInput(uTime, 0.0)
+    ..SetInput(uTexture, fb.colorTexture)
+    ..add(UnitNode(chronosGL));
 
   assert(gEffect != null);
   for (String o in effects.keys) {
@@ -102,6 +108,7 @@ void main() {
     orbit.azimuth += 0.01;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
+    effects["tv-distortion"].ForceInput(uTime, timeMs / 1000.0);
     phase1.draw([perspective]);
     phase2.draw([perspective]);
 

@@ -233,3 +233,50 @@ List<ShaderObject> createDotShader() {
       ..SetBody([_dotFragment])
   ];
 }
+
+// Inspired by https://www.shadertoy.com/view/4dBGzK
+String _tvDistortionFragment = """
+float rand(vec2 co)  {
+    float a = 12.9898;
+    float b = 78.233;
+    float c = 43758.5453;
+    float dt = dot(co.xy, vec2(a,b));
+    float sn = mod(dt,3.14);
+    return fract(sin(sn) * c);
+}
+
+vec3 rgbDistortion(vec2 uv, float magnitude, float time) {
+    // x offset for the three color channels
+    // we do not change the y
+	  float dR = rand(vec2(time * 0.03, uv.y * 0.42)) * 0.001 +
+	             sin(rand(vec2(time * 0.2, uv.y))) * magnitude;
+	  float dG = rand(vec2(time * 0.004, uv.y * 0.002)) * 0.004 +
+               sin(time * 9.0) * magnitude;
+	  float dB = 0.0;
+    return vec3(dR, dG, dB);
+}
+
+void main() {
+      vec3 d = rgbDistortion(${vTextureCoordinates}, ${uScale}, ${uTime});
+      float x = ${vTextureCoordinates}.x;
+      float y = ${vTextureCoordinates}.y;
+
+			float r = texture2D(${uTexture}, vec2(x + d.r, y) ).r;
+			float g = texture2D(${uTexture}, vec2(x + d.g, y) ).g;
+			float b = texture2D(${uTexture}, vec2(x + d.b, y) ).b;
+			gl_FragColor = vec4( r, g, b, 1.0 );
+}
+""";
+
+List<ShaderObject> createTvDistortionShader() {
+  return [
+    _effectVertexShader,
+    new ShaderObject("DotF")
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uCanvasSize)
+      ..AddUniformVar(uScale)
+      ..AddUniformVar(uTime)
+      ..AddUniformVar(uTexture)
+      ..SetBody([_tvDistortionFragment])
+  ];
+}
