@@ -202,3 +202,34 @@ List<ShaderObject> createHexPixelateShader() {
       ..SetBody([_hexPixelateFragment])
   ];
 }
+
+// Inspired by three.js
+String _dotFragment = """
+    float pattern(vec2 tex) {
+			float s = sin( ${uAngle} );
+			float c = cos( ${uAngle} );
+			vec2 point = vec2( c * tex.x - s * tex.y, s * tex.x + c * tex.y ) * ${uScale};
+			return ( sin( point.x ) * sin( point.y ) ) * 4.0;
+    }
+
+		void main() {
+			vec4 color = texture2D(${uTexture}, ${vTextureCoordinates} );
+			float average = ( color.r + color.g + color.b ) / 3.0;
+      vec2 tex = ${vTextureCoordinates}* ${uCanvasSize} - ${uCenter2};
+			gl_FragColor = vec4( vec3( average * 10.0 - 5.0 + pattern(tex) ), color.a );
+		}
+""";
+
+List<ShaderObject> createDotShader() {
+  return [
+    _effectVertexShader,
+    new ShaderObject("DotF")
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uCanvasSize)
+      ..AddUniformVar(uCenter2)
+      ..AddUniformVar(uScale)
+      ..AddUniformVar(uAngle)
+      ..AddUniformVar(uTexture)
+      ..SetBody([_dotFragment])
+  ];
+}

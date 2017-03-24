@@ -148,6 +148,7 @@ const String uCanvasSize = "uCanvasSize";
 const String uCenter2 = "uCenter2";
 const String uPointSize = "uPointSize";
 const String uScale = "uScale";
+const String uAngle = "uAngle";
 const String uFogNear = "uFogNear";
 const String uFogFar = "uFogFar";
 const String uEyePosition = "uEyePosition";
@@ -234,6 +235,7 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   uFogFar: new ShaderVarDesc("float", ""),
   uPointSize: new ShaderVarDesc("float", ""),
   uScale: new ShaderVarDesc("float", ""),
+  uAngle: new ShaderVarDesc("float", ""),
   uCanvasSize: new ShaderVarDesc("vec2", ""),
   uCenter2: new ShaderVarDesc("vec2", ""),
   uCutOff: new ShaderVarDesc("float", ""),
@@ -349,18 +351,27 @@ class ShaderObject {
   // If you have set shader manually do not call this.
   String _CreateShader(bool addWrapperForMain, List<String> body, prolog) {
     assert(shader == null);
+    // Hack
+    //bool isFragmentShader = attributeVars.isEmpty;
     List<String> out = [];
-    //out.add("#version 300");
+    //out.add("#version 300 es");
     out.add("precision highp float;");
     out.add("");
     for (String v in attributeVars.keys) {
       ShaderVarDesc d = _VarsDb[v];
       out.add("attribute ${d.type} ${attributeVars[v]};");
     }
-    out.add("");
+    /*out.add("");
+
+    String modifier = isFragmentShader ? "in" : "out";
+    if (isFragmentShader) {
+      out.add("out vec4 oFragColor");
+    }
+    */
+    String modifier = "varying";
     for (String v in varyingVars.keys) {
       ShaderVarDesc d = _VarsDb[v];
-      out.add("varying ${d.type} ${varyingVars[v]};");
+      out.add("${modifier} ${d.type} ${varyingVars[v]};");
     }
     out.add("");
     for (String v in uniformVars.keys) {
