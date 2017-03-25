@@ -1,5 +1,6 @@
 import 'dart:html' as HTML;
 import 'dart:async';
+import 'dart:math' as Math;
 
 import 'package:chronosgl/chronosgl.dart';
 import 'package:chronosgl/chronosutil.dart';
@@ -12,6 +13,11 @@ HTML.SelectElement gEffect =
 
 HTML.SelectElement gScene =
     HTML.document.querySelector('#scene') as HTML.SelectElement;
+
+double RangeOverTime(double a, double b, double interval, double t) {
+  double s = t % interval * 2.0 * Math.PI;
+  return (b - a) * (0.5 + 0.5 * Math.cos(t)) + a;
+}
 
 void main() {
   StatsFps fps =
@@ -49,17 +55,24 @@ void main() {
     ..SetInput(uTexture, fb.colorTexture)
     ..add(UnitNode(chronosGL));
 
-  effects["hexalate"] = phase2.createProgram(createHexPixelateShader())
+  effects["hexalate-10"] = phase2.createProgram(createHexPixelateShader())
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
     ..SetInput(uScale, 10.0)
     ..SetInput(uTexture, fb.colorTexture)
     ..add(UnitNode(chronosGL));
 
-  effects["hexalate2"] = phase2.createProgram(createHexPixelateShader())
+  effects["hexalate-20"] = phase2.createProgram(createHexPixelateShader())
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
     ..SetInput(uScale, 20.0)
+    ..SetInput(uTexture, fb.colorTexture)
+    ..add(UnitNode(chronosGL));
+
+  effects["hexalate-varying"] = phase2.createProgram(createHexPixelateShader())
+    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
+    ..SetInput(uScale, 10.0)
     ..SetInput(uTexture, fb.colorTexture)
     ..add(UnitNode(chronosGL));
 
@@ -100,13 +113,37 @@ void main() {
     ..SetInput(uTexture, fb.colorTexture)
     ..add(UnitNode(chronosGL));
 
-  effects["lumidots8"] = phase2.createProgram(createLumidotsShader())
+  effects["lumidots-8"] = phase2.createProgram(createLumidotsShader())
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetInput(uPointSize, 8.0)
     ..SetInput(uTexture, fb.colorTexture)
     ..add(UnitNode(chronosGL));
 
-  effects["lumidots16"] = phase2.createProgram(createLumidotsShader())
+  effects["lumidots-16"] = phase2.createProgram(createLumidotsShader())
+    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetInput(uPointSize, 16.0)
+    ..SetInput(uTexture, fb.colorTexture)
+    ..add(UnitNode(chronosGL));
+
+  effects["lumidots-varying"] = phase2.createProgram(createLumidotsShader())
+    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetInput(uPointSize, 16.0)
+    ..SetInput(uTexture, fb.colorTexture)
+    ..add(UnitNode(chronosGL));
+
+  effects["square-8"] = phase2.createProgram(createSquarePixelateShader())
+    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetInput(uPointSize, 8.0)
+    ..SetInput(uTexture, fb.colorTexture)
+    ..add(UnitNode(chronosGL));
+
+  effects["square-16"] = phase2.createProgram(createSquarePixelateShader())
+    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetInput(uPointSize, 16.0)
+    ..SetInput(uTexture, fb.colorTexture)
+    ..add(UnitNode(chronosGL));
+
+  effects["square-varying"] = phase2.createProgram(createSquarePixelateShader())
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetInput(uPointSize, 16.0)
     ..SetInput(uTexture, fb.colorTexture)
@@ -134,8 +171,16 @@ void main() {
     orbit.azimuth += 0.01;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    effects["tv-distortion"].ForceInput(uTime, timeMs / 1000.0);
+
+    double timeSec = timeMs / 1000.0;
+    effects["tv-distortion"].ForceInput(uTime, timeSec);
     //effects["kaleidoscope5"].ForceInput(uScale, timeMs / 1000.0);
+    effects["hexalate-varying"]
+        .ForceInput(uPointSize, RangeOverTime(4.0, 20.0, 20.0, timeSec));
+    effects["square-varying"]
+        .ForceInput(uPointSize, RangeOverTime(4.0, 16.0, 20.0, timeSec));
+    effects["lumidots-varying"]
+        .ForceInput(uPointSize, RangeOverTime(4.0, 16.0, 20.0, timeSec));
     phase1.draw([perspective]);
     phase2.draw([perspective]);
 
