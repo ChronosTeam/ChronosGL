@@ -333,3 +333,24 @@ List<ShaderObject> createLumidotsShader() {
       ..SetBody([_lumidotsFragment])
   ];
 }
+
+String _squarePixelateFragment = """
+void main() {
+    float r = ${uPointSize};
+    vec2 uv = ${vTextureCoordinates} * ${uCanvasSize};
+    vec2 center = floor(uv / r / 2.0) * 2.0 * r + r;
+    gl_FragColor = texture2D(${uTexture}, center / ${uCanvasSize});
+}
+""";
+
+List<ShaderObject> createSquarePixelateShader() {
+  return [
+    _effectVertexShader,
+    new ShaderObject("SquarePixelateF")
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uPointSize)
+      ..AddUniformVar(uCanvasSize)
+      ..AddUniformVar(uTexture)
+      ..SetBody([_squarePixelateFragment])
+  ];
+}
