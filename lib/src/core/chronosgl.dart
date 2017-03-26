@@ -46,7 +46,7 @@ class ChronosGL {
       "alpha": false,
       "depth": true,
       "stencil": true,
-      "antialias": false,
+      "antialias": true,
       "premultipliedAlpha": true,
       "preserveDrawingBuffer": preserveDrawingBuffer,
     };
