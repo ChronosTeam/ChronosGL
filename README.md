@@ -23,14 +23,15 @@ A scene graph for WebGL written in Dart
 * great support for canvas based textures
 * focus on procedural content generation and textureless rendering
 
-## Basic Concepts
+## Code
 
-[See the class glossary](class_glossary.md)
+* [Github](https://github.com/ChronosTeam/ChronosGL)
+* [Classes/Basic Concepts](https://github.com/ChronosTeam/ChronosGL/tree/master/class_glossary.md)
 
 ## Example (from example/simple/)
 
-* [HTML part](example/simple/simple.html)
-* [Dart part](example/simple/simple.dart)
+* [HTML part](https://github.com/ChronosTeam/ChronosGL/tree/master/example/simple/simple.html)
+* [Dart part](https://github.com/ChronosTeam/ChronosGL/tree/master/example/simple/simple.dart)
 
 ## Usage
 
@@ -49,5 +50,3 @@ It should look like this:
 
 If you need dart:html, it is recommended to add dart:html as HTML like this, due to a naming conflict regarding Node:
 import 'dart:html' as HTML;
-
-
