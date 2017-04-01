@@ -42,12 +42,12 @@ class ChronosGL {
   dynamic ext_ANGLE_instanced_arrays;
 
   ChronosGL(this._canvas,
-      {bool preserveDrawingBuffer: false, bool faceCulling: false}) {
+      {bool preserveDrawingBuffer: false, bool faceCulling: false, bool antialiasing: true}) {
     Map attributes = {
       "alpha": false,
       "depth": true,
       "stencil": true,
-      "antialias": true,
+      "antialias": antialiasing,
       "premultipliedAlpha": true,
       "preserveDrawingBuffer": preserveDrawingBuffer,
     };
@@ -98,27 +98,20 @@ class ChronosGL {
     gl.bindBuffer(kind, buffer);
   }
 
+
   void ChangeArrayBuffer(WEBGL.Buffer buffer, Float32List data) {
     gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
     gl.bufferData(WEBGL.ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
   }
 
-  WEBGL.Buffer CreateAndInitializeArrayBuffer(Float32List data) {
-    WEBGL.Buffer b = gl.createBuffer();
-    ChangeArrayBuffer(b, data);
-    return b;
+  WEBGL.Buffer createBuffer() {
+    return gl.createBuffer();
   }
 
   void ChangeElementArrayBuffer(WEBGL.Buffer buffer, TypedData data) {
+    assert((data is Uint16List) || (data is Uint32List) || (data is Uint8List));
     gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, buffer);
     gl.bufferData(WEBGL.ELEMENT_ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
-  }
-
-  WEBGL.Buffer CreateAndInitializeElementArrayBuffer(TypedData data) {
-    assert((data is Uint16List) || (data is Uint32List) || (data is Uint8List));
-    WEBGL.Buffer b = gl.createBuffer();
-    ChangeElementArrayBuffer(b, data);
-    return b;
   }
 
   // Why all these shims?

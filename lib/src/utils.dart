@@ -275,6 +275,13 @@ MeshData ShapeGrid(
   return GeometryBuilderToMeshData("strips", cgl, gb);
 }
 
+MeshData EmptyLightVisualizer(ChronosGL cgl, String name) {
+  MeshData md = new MeshData(name, cgl, WEBGL.LINES);
+  md.AddVertices(new Float32List(3));
+  md.AddFaces([0, 0]);
+  return md;
+}
+
 MeshData DirectionalLightVisualizer(
     ChronosGL cgl, double cubeLen, double delta, VM.Vector3 dir) {
   assert(dir.y != 0.0);
@@ -291,11 +298,11 @@ MeshData DirectionalLightVisualizer(
       points.add(new VM.Vector3(x, 0.0, z)..sub(dir2y));
     }
   }
-  MeshData md = new MeshData("dirLightViz", cgl, WEBGL.LINES);
-  md.AddVertices(FlattenVector3List(points));
+  MeshData md = EmptyLightVisualizer(cgl, "dirLightViz");
+  md.ChangeVertices(FlattenVector3List(points));
   List<int> faces = new List<int>(points.length);
   for (int i = 0; i < points.length; ++i) faces[i] = i;
-  md.AddFaces(faces);
+  md.ChangeFaces(faces);
   return md;
 }
 
@@ -325,9 +332,8 @@ MeshData SpotLightVisualizer(
       ..add(center);
     points.add(p);
   }
-
-  MeshData md = new MeshData("spotlightViz", cgl, WEBGL.LINES);
-  md.AddVertices(FlattenVector3List(points));
+  MeshData md = EmptyLightVisualizer(cgl, "spotLightViz");
+  md.ChangeVertices(FlattenVector3List(points));
   List<int> faces = [];
   for (int i = 1; i < points.length; ++i) {
     faces.add(0);
@@ -349,7 +355,7 @@ MeshData SpotLightVisualizer(
       faces.add(i);
     }
   }
-  md.AddFaces(faces);
+  md.ChangeFaces(faces);
   return md;
 }
 
@@ -392,9 +398,8 @@ MeshData PointLightVisualizer(ChronosGL cgl, VM.Vector3 pos, double range) {
     points.add(pos + (v * range));
   }
   points.add(pos);
-
-  MeshData md = new MeshData("pointlightViz", cgl, WEBGL.LINES);
-  md.AddVertices(FlattenVector3List(points));
-  md.AddFaces(faces);
+  MeshData md = EmptyLightVisualizer(cgl, "pointLightViz");
+  md.ChangeVertices(FlattenVector3List(points));
+  md.ChangeFaces(faces);
   return md;
 }

@@ -66,11 +66,6 @@ class MeshData extends RenderInputSource {
     }
   }
 
-  void _addBuffer(String canonical, Float32List data) {
-    if (debug) print("AddBuffer ${canonical} ${data.length}");
-    _buffers[canonical] = _cgl.CreateAndInitializeArrayBuffer(data);
-  }
-
   void ChangeAttribute(String canonical, Float32List data, int width) {
     if (debug) print("ChangeBuffer ${canonical} ${data.length}");
     assert(data.length ~/ width == _vertices.length ~/ 3);
@@ -80,8 +75,8 @@ class MeshData extends RenderInputSource {
 
   void ChangeVertices(Float32List data) {
     final String canonical = aVertexPosition;
-    _attributes[canonical] = data;
-    _cgl.ChangeArrayBuffer(_buffers[canonical], data);
+    _vertices = data;
+    ChangeAttribute(canonical, data, 3);
   }
 
   int GetNumItems() {
@@ -96,19 +91,17 @@ class MeshData extends RenderInputSource {
   }
 
   void AddAttribute(String canonical, Float32List data, int width) {
-    assert(data.length ~/ width == _vertices.length ~/ 3);
-    _addBuffer(canonical, data);
-    _attributes[canonical] = data;
+    _buffers[canonical] = _cgl.createBuffer();
+    ChangeAttribute(canonical, data, width);
   }
 
   void AddVertices(Float32List data) {
     final String canonical = aVertexPosition;
-    _addBuffer(canonical, data);
-    _attributes[canonical] = data;
-    _vertices = data;
+    _buffers[canonical] = _cgl.createBuffer();
+    ChangeVertices(data);
   }
 
-  void AddFaces(List<int> faces) {
+  void ChangeFaces(List<int> faces) {
     assert(_vertices != null);
     if (_vertices.length < 3 * 256) {
       _faces = new Uint8List.fromList(faces);
@@ -120,8 +113,12 @@ class MeshData extends RenderInputSource {
       _faces = new Uint32List.fromList(faces);
       _indexBufferType = WEBGL.UNSIGNED_INT;
     }
-    _indexBuffer =
-        _cgl.CreateAndInitializeElementArrayBuffer(_faces as TypedData);
+    _cgl.ChangeElementArrayBuffer(_indexBuffer, _faces as TypedData);
+  }
+
+  void AddFaces(List<int> faces) {
+    _indexBuffer = _cgl.createBuffer();
+    ChangeFaces(faces);
   }
 
   @override
