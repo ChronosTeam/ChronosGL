@@ -27,7 +27,7 @@ List<ShaderObject> createShader() {
       ]),
     new ShaderObject("LightBlinnPhongF")
       ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
-      ..AddUniformVars([uLightDescs, uLightTypes])
+      ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
       ..AddUniformVars([uEyePosition, uColor, uTexture])
       ..SetBodyWithMain([
         """
@@ -35,7 +35,8 @@ ColorComponents acc = CombinedLight(${vVertexPosition} - ${uEyePosition},
                                     ${vNormal},
                                     ${uEyePosition},
                                     ${uLightDescs},
-                                    ${uLightTypes});
+                                    ${uLightTypes},
+                                    ${uShininess});
 
 vec4 diffuseMap = texture2D(${uTexture}, ${vTextureCoordinates} );
 
@@ -76,11 +77,12 @@ void main() {
   RenderProgram prg = phase.createProgram(createShader());
 
   Illumination illumination = new Illumination();
-  illumination.AddLight(new SpotLight("spot", posLight, posLight, colDiffuse,
-      colSpecular, 50.0, 0.95, 2.0, 25.0));
+  illumination.AddLight(new SpotLight(
+      "spot", posLight, posLight, colDiffuse, colSpecular, 50.0, 0.95, 2.0));
 
   Material lightSourceMat = new Material("light")
-    ..SetUniform(uColor, colYellow);
+    ..SetUniform(uColor, colYellow)
+    ..SetUniform(uShininess, 25.0);
   Node shapePointLight = new Node(
       "pointLight", ShapeIcosahedron(chronosGL, 4, 0.1), lightSourceMat)
     ..setPosFromVec(posLight);
@@ -112,7 +114,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Material mat = new Material("mat")..SetUniform(uColor, colGray);
+  Material mat = new Material("mat")..SetUniform(uColor, colGray)..SetUniform(uShininess, 25.0);
 
   List<Future<dynamic>> futures = [
     LoadJson(modelFile),

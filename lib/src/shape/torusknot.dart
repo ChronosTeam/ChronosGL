@@ -11,7 +11,8 @@ GeometryBuilder ShapeTorusKnotGeometry(
     int p: 2,
     int q: 3,
     double heightScale: 1.0,
-    useQuads: true}) {
+    bool useQuads: true,
+    bool computeNormals: true}) {
   List<VM.Vector3> vertices = [];
 
   VM.Vector3 tang = new VM.Vector3.zero();
@@ -90,6 +91,7 @@ GeometryBuilder ShapeTorusKnotGeometry(
       }
     }
   }
+  if (computeNormals) gb.GenerateNormalsAssumingTriangleMode();
   return gb;
 }
 

@@ -27,24 +27,39 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
       ]),
     new ShaderObject("LightBlinnPhongShadowF")
       ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight])
-      ..AddUniformVars([uLightDescs, uLightTypes])
+      ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
       ..AddUniformVars([uShadowMap, uEyePosition, uColor, uShadowBias])
-      ..SetBodyWithMain([
+      ..SetBody([
         """
-    float shadow = computeShadow(${vPositionFromLight},
+float GetShadow(vec4 positionFromLight,
+                    sampler2D shadowMap,
+                    float darkness,
+                    float bias) {
+		vec3 depth = positionFromLight.xyz / positionFromLight.w;
+		depth = 0.5 * depth + vec3(0.5);
+		vec2 uv = depth.xy;
+
+    float d = texture2D(shadowMap, uv).x;
+    //return 1.0 - smoothstep(bias, bias, depth.z - d);
+    return (depth.z > d + bias) ? darkness : 1.0;
+}
+
+void main() {
+    float shadow = GetShadow(${vPositionFromLight},
                                  ${uShadowMap}, 0.1, ${uShadowBias});
 
 
     ColorComponents acc = ColorComponents(vec3(0.0), vec3(0.0));
     if (shadow > 0.0) {
         acc = CombinedLight(${vVertexPosition}, ${vNormal}, ${uEyePosition},
-                      ${uLightDescs}, ${uLightTypes});
+                      ${uLightDescs}, ${uLightTypes}, ${uShininess});
     }
 
     gl_FragColor.rgb = shadow * acc.diffuse +
                        shadow * acc.specular +
                        uColor;
     gl_FragColor.a = 1.0;
+}
       """
       ], prolog: [
         StdLibShader
@@ -59,32 +74,20 @@ List<ShaderObject> createShadowShader() {
       ..AddUniformVar(uLightPerspectiveViewMatrix)
       ..AddUniformVar(uModelMatrix)
       ..SetBodyWithMain([
-        // Note we could just use gl_FragCoord.z in the Fragment shader
-        // but this seems more logical
         """
     gl_Position = ${uLightPerspectiveViewMatrix} * ${uModelMatrix} *
                   vec4(${aVertexPosition}, 1.0);
-    //${vPositionFromLight} = gl_Position;
     """
       ]),
-    new ShaderObject("ShadowF")
-      ..SetBodyWithMain([
-        """
-    // Note, this is equivalent to passing
-    // ${vPositionFromLight}
-    // in the vertex shader and then computing
-    // d = ${vPositionFromLight}.z / ${vPositionFromLight}.w * 0.5 + 0.5;
-
-    float d  = gl_FragCoord.z;
-    // d is value between 0.0 and 1.0
-    gl_FragColor = packDepth(d);
-"""
-      ], prolog: [
-        StdLibShader
-      ])
+    // What we care about here is the internal update of the depth buffer
+    new ShaderObject("ShadowF")..SetBodyWithMain(["gl_FragColor.r = 1.0;"])
   ];
 }
 
+// http://www.geeks3d.com/20091216/geexlab-how-to-visualize-the-depth-buffer-in-glsl/
+// https://www.gamedev.net/resources/_/technical/graphics-programming-and-theory/3d-basics-r673
+// http://stackoverflow.com/questions/21318471/rendering-orthographic-shadowmap-to-screen
+// http://stackoverflow.com/questions/21318471/rendering-orthographic-shadowmap-to-screen
 List<ShaderObject> createCopyShaderForShadow() {
   return [
     new ShaderObject("copyV")
@@ -96,21 +99,34 @@ List<ShaderObject> createCopyShaderForShadow() {
     new ShaderObject("copyF")
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uTexture)
-      ..AddUniformVar(uCutOff)
-      ..SetBodyWithMain([
+      ..AddUniformVars([uCutOff, uCameraFar, uCameraNear])
+      ..SetBody([
         """
-vec2 uv = ${vTextureCoordinates}.xy;
-vec4 packed4 = texture2D(${uTexture}, uv);
-float depth = unpackDepth(packed4);
-if (depth <= ${uCutOff}) {
-   packed4 = vec4(0.0);
+float perspectiveDepthToViewZ(float z, float near, float far) {
+    return near * far / ((far - near) * z - far);
 }
 
-gl_FragColor.rgb = packed4.rgb;
-gl_FragColor.a = 1.0;
+float viewZToOrthographicDepth(float z, float near, float far) {
+    return (z + near) / (near - far);
+}
+
+float orthographicDepthToViewZ(float d, float near, float far) {
+    return d * (near - far) - near;
+}
+
+float viewZToPerspectiveDepth(float z, float near, float far) {
+    return ((near + z) * far) / ((far - near) * z);
+}
+
+float LinearizeDepth(float z, float near, float far) {
+ return (2.0 * near) / (far + near - z * (far - near));
+}
+void main() {
+   float d = texture2D(${uTexture},  ${vTextureCoordinates}).x;
+   gl_FragColor.rgb = vec3(LinearizeDepth(d, ${uCameraNear}, ${uCameraFar}));
+
+}
 """
-      ], prolog: [
-        StdLibShader
       ])
   ];
 }
@@ -134,7 +150,7 @@ final VM.Vector3 dirLight = new VM.Vector3(0.0, -30.0, 0.0);
 
 final double range = 50.0;
 final double cutoff = 0.95;
-final double glossiness = 25.0;
+final double glossiness = 10.0;
 
 // These must be in-sync with the .html file
 final String idPoint = "idPoint";
@@ -142,12 +158,10 @@ final String idSpot = "idSpot";
 final String idDirectional = "idDirectional";
 
 final Map<String, Light> lightSources = {
-  idDirectional:
-      new DirectionalLight("dir", dirLight, colBlue, colBlack, glossiness),
-  idSpot: new SpotLight("spot", posLight, dirLight, colLiteGreen, colGreen,
-      range, cutoff, 2.0, glossiness),
-  idPoint: new PointLight(
-      "point", posLight, colLiteBlue, colBlue, range, glossiness),
+  idDirectional: new DirectionalLight("dir", dirLight, colBlue, colRed),
+  idSpot: new SpotLight(
+      "spot", posLight, dirLight, colLiteGreen, colGreen, range, cutoff, 2.0),
+  idPoint: new PointLight("point", posLight, colLiteBlue, colBlue, range),
 };
 
 void EventRadioChanged(String name) {
@@ -204,16 +218,20 @@ void SwallowEvent(HTML.Event e) {
 }
 
 final Material mat1 = new Material("mat1")
-  ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 0.4));
+  ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 0.4))
+  ..SetUniform(uShininess, glossiness);
 
 final Material mat2 = new Material("mat2")
-  ..SetUniform(uColor, new VM.Vector3(0.4, 0.0, 0.0));
+  ..SetUniform(uColor, new VM.Vector3(0.4, 0.0, 0.0))
+  ..SetUniform(uShininess, glossiness);
 
 final Material mat3 = new Material("mat3")
-  ..SetUniform(uColor, new VM.Vector3(0.0, 0.4, 0.0));
+  ..SetUniform(uColor, new VM.Vector3(0.0, 0.4, 0.0))
+  ..SetUniform(uShininess, glossiness);
 
 final Material mat4 = new Material("mat3")
-  ..SetUniform(uColor, new VM.Vector3(0.4, 0.4, 0.4));
+  ..SetUniform(uColor, new VM.Vector3(0.4, 0.4, 0.4))
+  ..SetUniform(uShininess, glossiness);
 
 void main() {
   StatsFps fps =
@@ -238,12 +256,9 @@ void main() {
     illumination.AddLight(l);
   }
 
-  // using RGBA is absolutely crucial since we store floats
-  // in a 4 byte fix-point format where the most significant
-  // byte ends up in the A chanel.
-  ChronosFramebuffer shadowBuffer =
-      new ChronosFramebuffer(chronosGL, w, h, WEBGL.RGBA);
+  ChronosFramebuffer shadowBuffer = new ChronosFramebuffer(chronosGL, w, h);
 
+  // fills the depthbuffer
   RenderPhase phaseComputeShadow =
       new RenderPhase("compute-shadow", chronosGL, shadowBuffer);
   phaseComputeShadow.viewPortW = w;
@@ -251,20 +266,23 @@ void main() {
   RenderProgram shadowMap =
       phaseComputeShadow.createProgram(createShadowShader());
 
+  // display depth buffer on right half of screen
   RenderPhase phaseDisplayShadow = new RenderPhase("display-shadow", chronosGL);
-
-  RenderProgram copyToScreen =
-      phaseDisplayShadow.createProgram(createCopyShaderForShadow());
-
+  RenderProgram copyToScreen = phaseDisplayShadow
+      .createProgram(createCopyShaderForShadow())
+        ..SetInput(uCameraNear, 1.0)
+        ..SetInput(uCameraFar, 100.0);
   copyToScreen.SetInput(uTexture, shadowBuffer.colorTexture);
   copyToScreen.add(UnitNode(chronosGL));
 
+  // display scene with shadow on left part of screen.
   RenderPhase phaseMain = new RenderPhase("main", chronosGL);
+  // We already have stuff in the viewPort - do not clear it
   phaseMain.clearColorBuffer = false;
-  RenderProgram basic =
-      phaseMain.createProgram(createLightShaderBlinnPhongWithShadow());
-
-  basic.SetInput(uShadowMap, shadowBuffer.colorTexture);
+  RenderProgram basic = phaseMain
+      .createProgram(createLightShaderBlinnPhongWithShadow())
+        ..SetInput(uShadowMap, shadowBuffer.depthTexture)
+        ..SetInput(uShadowBias, 0.03);
 
   {
     Node ico = new Node("sphere", ShapeIcosahedron(chronosGL, 3), mat3)
@@ -287,14 +305,13 @@ void main() {
     basic.add(cyl);
   }
 
-  /*
   {
-    Mesh torus = new Mesh(Shapes.TorusKnot(radius: 1.0, tube: 0.4)..generateNormalsAssumingTriangleMode(), mat3)
+    Node torus = new Node(
+        "torusknot", ShapeTorusKnot(chronosGL, radius: 1.0, tube: 0.4), mat3)
       ..setPos(5.0, 0.0, 5.0);
     shadowMap.add(torus);
     basic.add(torus);
   }
-*/
 
   {
     // plane
@@ -369,8 +386,8 @@ void main() {
     //orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-
     DirectionalLight dl = lightSources[idDirectional];
+    fps.ChangeExtra("${dl.dir}");
     VM.Matrix4 lm = dl.ExtractShadowProjViewMatrix();
 
     //SpotLight sl = lightSources[idSpot];
@@ -378,7 +395,6 @@ void main() {
 
     shadowMap.ForceInput(uLightPerspectiveViewMatrix, lm);
     basic.ForceInput(uLightPerspectiveViewMatrix, lm);
-    basic.ForceInput(uShadowBias, 0.0);
     // Compute the shadow map
     phaseComputeShadow.draw([]);
     // show the shadow map

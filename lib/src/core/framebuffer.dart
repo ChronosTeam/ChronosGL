@@ -4,20 +4,17 @@ class ChronosFramebuffer {
   ChronosGL _cgl;
 
   WEBGL.Framebuffer framebuffer;
-  //WEBGL.Renderbuffer renderbuffer;
   TypedTexture colorTexture;
   TypedTexture depthTexture;
-  var depthTextureExt;
 
   ChronosFramebuffer(this._cgl, width, height, [colorFormat = WEBGL.RGB]) {
     framebuffer = _cgl.createFramebuffer();
 
     colorTexture = new TypedTexture(
         _cgl, "frame::color", width, height, colorFormat, WEBGL.UNSIGNED_BYTE);
-    //colorTexture.Install();
+
     depthTexture = new TypedTexture(_cgl, "frame::depth", width, height,
         WEBGL.DEPTH_COMPONENT, WEBGL.UNSIGNED_SHORT);
-    //depthTexture.Install();
 
     _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
     _cgl.gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.COLOR_ATTACHMENT0,

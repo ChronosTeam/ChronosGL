@@ -86,12 +86,10 @@ class Texture {
     }
 
     _cgl.bindTexture(_textureType, _texture);
-
-
   }
 
   void UnBind([bool initTime = false]) {
-     if (initTime) {
+    if (initTime) {
       properties.Install(_cgl, _textureType);
       int err = _cgl.getError();
       assert(err == WEBGL.NO_ERROR);

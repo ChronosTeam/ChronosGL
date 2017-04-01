@@ -41,7 +41,8 @@ class ChronosGL {
   dynamic ext_WEBGL_depth_texture;
   dynamic ext_ANGLE_instanced_arrays;
 
-  ChronosGL(this._canvas, {bool preserveDrawingBuffer: false, bool faceCulling: false}) {
+  ChronosGL(this._canvas,
+      {bool preserveDrawingBuffer: false, bool faceCulling: false}) {
     Map attributes = {
       "alpha": false,
       "depth": true,

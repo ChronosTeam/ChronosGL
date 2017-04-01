@@ -249,7 +249,8 @@ MeshData ShapeTorusKnot(ChronosGL cgl,
     int p: 2,
     int q: 3,
     double heightScale: 1.0,
-    useQuads: true}) {
+    bool useQuads: true,
+    bool computeNormals = true}) {
   GeometryBuilder gb = ShapeTorusKnotGeometry(
       radius: radius,
       tube: tube,
@@ -258,7 +259,8 @@ MeshData ShapeTorusKnot(ChronosGL cgl,
       p: p,
       q: q,
       heightScale: heightScale,
-      useQuads: useQuads);
+      useQuads: useQuads,
+      computeNormals: computeNormals);
   return GeometryBuilderToMeshData("torusknot", cgl, gb);
 }
 

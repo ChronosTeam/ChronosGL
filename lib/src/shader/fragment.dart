@@ -90,7 +90,8 @@ SpotLightInfo UnpackSpotLightInfo(mat4 m) {
 ColorComponents SpotLightGetDiffuseAndSpecular(SpotLightInfo light,
                                                vec3 vertexPos,
                                                vec3 vertexNormal,
-                                               vec3 eyePos) {
+                                               vec3 eyePos,
+                                               float uShininess) {
     vec3 toSpot = light.pos - vertexPos;
     vec3 spotDir = normalize(toSpot);
     vec3 lightDirNorm = -normalize(light.dir);
@@ -107,8 +108,8 @@ ColorComponents SpotLightGetDiffuseAndSpecular(SpotLightInfo light,
              GetDiffuse(lightDirNorm, vertexNormal) *
              light.diffuseColor,
              attenuation *
-             GetSpecular(lightDirNorm, viewDirNorm, vertexNormal, light.glossiness) *
-              light.specularColor);
+             GetSpecular(lightDirNorm, viewDirNorm, vertexNormal, uShininess) *
+             light.specularColor);
 }
 
 // ============================================================
@@ -136,7 +137,8 @@ PointLightInfo UnpackPointLightInfo(mat4 m) {
 ColorComponents PointLightGetDiffuseAndSpecular(PointLightInfo info,
                                      vec3 vertexPos,
                                      vec3 vertexNormal,
-                                     vec3 eyePos) {
+                                     vec3 eyePos,
+                                     float uShininess) {
     vec3 lightDir = info.pos - vertexPos;
     float attenuation = max(0.0, 1.0 - length(lightDir) / info.range);
     vec3 lightDirNorm = normalize(lightDir);
@@ -146,7 +148,7 @@ ColorComponents PointLightGetDiffuseAndSpecular(PointLightInfo info,
               GetDiffuse(lightDirNorm, vertexNormal) *
               info.diffuseColor,
                attenuation *
-               GetSpecular(lightDirNorm, viewDirNorm, vertexNormal, info.glossiness) *
+               GetSpecular(lightDirNorm, viewDirNorm, vertexNormal, uShininess) *
                info.specularColor);
 }
 
@@ -171,14 +173,15 @@ DirectionalLightInfo UnpackDirectionalLightInfo(mat4 m) {
 }
 
 ColorComponents DirectionalLightGetDiffuseAndSpecular(DirectionalLightInfo info,
-                                           vec3 vertexPos,
-                                           vec3 vertexNormal,
-                                           vec3 eyePos) {
+                                                      vec3 vertexPos,
+                                                      vec3 vertexNormal,
+                                                      vec3 eyePos,
+                                                      float uShininess) {
     vec3 viewDirNorm = normalize(eyePos - vertexPos);
     return ColorComponents(
               GetDiffuse(-info.dir, vertexNormal) *
               info.diffuseColor,
-              GetSpecular(-info.dir, viewDirNorm, vertexNormal, info.glossiness) *
+              GetSpecular(-info.dir, viewDirNorm, vertexNormal, uShininess) *
               info.specularColor);
 }
 
@@ -189,7 +192,8 @@ ColorComponents CombinedLight(vec3 vVertexPosition,
                    vec3 vNormal,
                    vec3 uEyePosition,
                    const mat4 uLightDescs[${kMaxLights}],
-                   const float uLightTypes[${kMaxLights}]) {
+                   const float uLightTypes[${kMaxLights}],
+                   float uShininess) {
     ColorComponents acc = ColorComponents(vec3(0.0), vec3(0.0));
 
     for (int i = 0; i < ${kMaxLights}; ++i) {
@@ -200,19 +204,22 @@ ColorComponents CombinedLight(vec3 vVertexPosition,
             curr = SpotLightGetDiffuseAndSpecular(info,
                                            vVertexPosition,
                                            vNormal,
-                                           uEyePosition);
+                                           uEyePosition,
+                                           uShininess);
         } else if (type == ${lightTypePointFloat}) {
             PointLightInfo info = UnpackPointLightInfo(uLightDescs[i]);
             curr = PointLightGetDiffuseAndSpecular(info,
                                             vVertexPosition,
                                             vNormal,
-                                            uEyePosition);
+                                            uEyePosition,
+                                            uShininess);
         } else if (type == ${lightTypeDirectionalFloat}) {
             DirectionalLightInfo info = UnpackDirectionalLightInfo(uLightDescs[i]);
             curr = DirectionalLightGetDiffuseAndSpecular(info,
                                                   vVertexPosition,
                                                   vNormal,
-                                                  uEyePosition);
+                                                  uEyePosition,
+                                                  uShininess);
         } else {
             continue;
         }
@@ -249,7 +256,6 @@ vec4 packDepth(float depth) {
 float unpackDepth(vec4 rgba_depth) {
 	  return dot(rgba_depth, _shiftInv);
 }
-
 
 float computeShadow(vec4 positionFromLight, sampler2D shadowMap,
                     float darkness, float bias) {

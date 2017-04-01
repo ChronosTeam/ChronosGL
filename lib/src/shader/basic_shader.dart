@@ -7,7 +7,7 @@ List<ShaderObject> createLightShaderGourad() {
       ..AddAttributeVars([aVertexPosition, aNormal, aTextureCoordinates])
       ..AddVaryingVars([vColor])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
-      ..AddUniformVars([uLightDescs, uLightTypes])
+      ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
       ..AddUniformVars([uEyePosition, uTexture])
       ..SetBody([
         """
@@ -18,7 +18,8 @@ List<ShaderObject> createLightShaderGourad() {
 
     ColorComponents acc = CombinedLight(pos.xyz, normal, ${uEyePosition},
                   ${uLightDescs},
-                  ${uLightTypes});
+                  ${uLightTypes},
+                  ${uShininess});
 
      ${vColor} = acc.diffuse +
                  acc.specular +
@@ -55,14 +56,16 @@ List<ShaderObject> createLightShaderBlinnPhong() {
       ]),
     new ShaderObject("LightBlinnPhongF")
       ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
-      ..AddUniformVars([uLightDescs, uLightTypes])
+      ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
       ..AddUniformVars([uEyePosition, uTexture])
       ..SetBodyWithMain([
         """
     ColorComponents acc = CombinedLight(${vVertexPosition},
                                         ${vNormal},
                                         ${uEyePosition},
-                                        ${uLightDescs}, ${uLightTypes});
+                                        ${uLightDescs},
+                                        ${uLightTypes},
+                                        ${uShininess});
 
     gl_FragColor.rgb = acc.diffuse +
                        acc.specular +

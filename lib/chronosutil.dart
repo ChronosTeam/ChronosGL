@@ -62,6 +62,10 @@ class Stats {
     return graph;
   }
 
+  void ChangeExtra(String s) {
+    _extra.innerHtml = s;
+  }
+
   void AddRawValue(int v) {
     if (v < 0) v = 0;
     if (v > _graphHeight) v = _graphHeight;
