@@ -26,7 +26,7 @@ List<ShaderObject> createShader() {
       ]),
     new ShaderObject("LightBlinnPhongFancyF")
       ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
-      ..AddUniformVars([uLightDescs, uLightTypes])
+      ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
       ..AddUniformVars([uEyePosition, uColor])
       ..AddUniformVars([uBumpScale, uBumpMap])
       ..SetBodyWithMain([
@@ -40,7 +40,8 @@ ColorComponents acc = CombinedLight(${vVertexPosition} - ${uEyePosition},
                                     normal,
                                     ${uEyePosition},
                                     ${uLightDescs},
-                                    ${uLightTypes});
+                                    ${uLightTypes},
+                                    ${uShininess});
 gl_FragColor.rgb = acc.diffuse + acc.specular + uColor;
 gl_FragColor.a = 1.0;
 
@@ -83,10 +84,10 @@ void main() {
   Illumination illumination = new Illumination();
   if (false) {
     illumination.AddLight(new SpotLight("spot", posLight, dirLight, colDiffuse,
-        colSpecular, range, angle, 2.0, glossiness));
+        colSpecular, range, angle, 2.0));
   } else {
-    illumination.AddLight(new DirectionalLight(
-        "dir", dirLight, colDiffuse, colSpecular, glossiness));
+    illumination.AddLight(
+        new DirectionalLight("dir", dirLight, colDiffuse, colSpecular));
   }
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, colYellow);
@@ -121,7 +122,9 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Material mat = new Material("mat")..SetUniform(uColor, colSkin);
+  Material mat = new Material("mat")
+    ..SetUniform(uColor, colSkin)
+    ..SetUniform(uShininess, glossiness);
 
   List<Future<dynamic>> futures = [
     LoadJson(modelFile),

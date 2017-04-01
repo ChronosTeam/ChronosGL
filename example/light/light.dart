@@ -230,9 +230,11 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Texture
-    Material mat = new Material("matDragon");
     Texture tex = new ImageTexture(chronosGL, textureFile, list[1]);
-    mat..SetUniform(uTexture, tex);
+
+    Material mat = new Material("matDragon")
+      ..SetUniform(uTexture, tex)
+      ..SetUniform(uShininess, glossiness);
     GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
     print(gb);
     MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb);
