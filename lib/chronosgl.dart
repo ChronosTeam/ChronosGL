@@ -1,9 +1,7 @@
 library chronosgl;
 
 import 'dart:html' as HTML;
-import 'dart:web_gl' as WEBGL;
 import 'dart:math' as Math;
-import 'dart:typed_data';
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -22,6 +20,7 @@ export "src/shader/lib.dart";
 export "src/importer/lib.dart";
 export 'src/animation/lib.dart';
 export 'src/webhelper/lib.dart';
+export 'src/misc/lib.dart';
 
 part "src/pickray.dart";
 part "src/input.dart";

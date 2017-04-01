@@ -67,9 +67,16 @@ gen/lib_webhelper.js: gen/pub_vector_math.sum  gen/lib_core.sum  lib/src/webhelp
 
 gen/lib_webhelper.sum: gen/lib_webhelper.js
 
+#
+
+gen/lib_misc.js: gen/pub_vector_math.sum  gen/lib_core.sum  gen/lib_shape.sum lib/src/misc/*
+	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
+
+gen/lib_misc.sum: gen/lib_misc.js
+
 # MAIN LIB
 
-SUBLIBS = gen/lib_base.sum gen/lib_core.sum gen/lib_shape.sum gen/lib_shader.sum gen/lib_importer.sum gen/lib_animation.sum gen/lib_webhelper.sum
+SUBLIBS = gen/lib_base.sum gen/lib_core.sum gen/lib_shape.sum gen/lib_shader.sum gen/lib_importer.sum gen/lib_animation.sum gen/lib_webhelper.sum gen/lib_misc.sum
 
 gen/lib_chronosgl.js:  gen/pub_vector_math.sum $(SUBLIBS) lib/chronosgl.dart
 	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
