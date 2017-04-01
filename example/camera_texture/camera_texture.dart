@@ -2,7 +2,6 @@ import 'dart:html' as HTML;
 import 'dart:async';
 import 'dart:web_gl' as WEBGL;
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 void main() {
@@ -20,7 +19,7 @@ void main() {
   //Texture texture = new ImageTexture(chronosGL, "../gradient.jpg");
 
   final Material matGradient = new Material("gradient")
-    ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 0.0));
+    ..SetUniform(uColor, ColorBlack);
 
   Node cube = new Node("cube", ShapeCube(chronosGL), matGradient)
     ..setPos(-5.0, 0.0, -5.0);

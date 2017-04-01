@@ -1,4 +1,4 @@
-part of chronosgl;
+part of misc;
 
 class Utils {
 /*
@@ -275,4 +275,34 @@ MeshData ShapeGrid(
   return GeometryBuilderToMeshData("strips", cgl, gb);
 }
 
+final Material EmptyMaterial = new Material("empty-mat");
 
+Node UnitNode(ChronosGL cgl) {
+  final MeshData UnitQuad = ShapeQuad(cgl, 1);
+  return new Node("unit-mesh", UnitQuad, EmptyMaterial);
+}
+
+final VM.Vector3 ColorWhite = new VM.Vector3(1.0, 1.0, 1.0);
+final VM.Vector3 ColorGray8 = new VM.Vector3(0.8, 0.8, 0.8);
+final VM.Vector3 ColorGray6 = new VM.Vector3(0.6, 0.6, 0.6);
+final VM.Vector3 ColorGray4 = new VM.Vector3(0.4, 0.4, 0.4);
+final VM.Vector3 ColorGray2 = new VM.Vector3(0.2, 0.2, 0.2);
+final VM.Vector3 ColorBlack = new VM.Vector3(0.0, 0.0, 0.0);
+
+final VM.Vector3 ColorBlue = new VM.Vector3(0.0, 0.0, 1.0);
+final VM.Vector3 ColorLiteBlue = new VM.Vector3(0.0, 0.0, 0.5);
+
+final VM.Vector3 ColorRed = new VM.Vector3(1.0, 0.0, 0.0);
+final VM.Vector3 ColorLiteRed = new VM.Vector3(0.5, 0.0, 0.0);
+
+final VM.Vector3 ColorGreen = new VM.Vector3(0.0, 1.0, 0.0);
+final VM.Vector3 ColorLiteGreen = new VM.Vector3(0.0, 0.5, 0.0);
+
+final VM.Vector3 ColorYellow = new VM.Vector3(1.0, 1.0, 0.0);
+final VM.Vector3 ColorLiteYellow = new VM.Vector3(0.5, 0.5, 0.0);
+
+final VM.Vector3 ColorMagenta = new VM.Vector3(1.0, 0.0, 1.0);
+final VM.Vector3 ColorLiteMagenta = new VM.Vector3(0.5, 0.0, 0.5);
+
+final VM.Vector3 ColorCyan = new VM.Vector3(0.0, 1.0, 1.0);
+final VM.Vector3 ColorLiteCyan = new VM.Vector3(0.0, 0.5, 0.5);

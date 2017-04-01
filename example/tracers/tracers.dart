@@ -1,7 +1,6 @@
 import 'dart:html' as HTML;
 
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 List<ShaderObject> blurdShader() {

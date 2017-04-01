@@ -1,7 +1,6 @@
 import 'dart:html' as HTML;
 
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -26,7 +25,7 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram program = phase.createProgram(createSolidColorShader());
   final Material matWire = new Material("wire")
-    ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
+    ..SetUniform(uColor, ColorYellow);
 
   List<VM.Vector2> base = ContourCircle(20, 10.0);
   List<VM.Vector2> grad = GetContourGradient(base);

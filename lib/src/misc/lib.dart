@@ -6,13 +6,17 @@ library misc;
 import 'dart:typed_data';
 import 'dart:web_gl' as WEBGL;
 import 'dart:math' as Math;
+import 'dart:html' as HTML;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
+import "../base/lib.dart";
 import "../core/lib.dart";
 import "../shape/lib.dart";
 
-/// # Layer: Misc (uses Base Layer, Core Layer, Shape Layerr, dart:web_gl)
+/// # Layer: Misc (uses Base Layer, Core Layer, Shape Layer, dart:web_gl)
 /// The **misc layer** contains miscellaneous helpers
 
 part "light_visualizer.dart";
+part "fps_meter.dart";
+part "example_helper.dart";

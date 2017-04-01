@@ -2,7 +2,6 @@ import 'dart:html' as HTML;
 import 'dart:async';
 
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 const String modelFile = "../ct_logo.obj";

@@ -1,6 +1,4 @@
-library chronosutil;
-
-import 'dart:html' as HTML;
+part of misc;
 
 const int _numBars = 90;
 const int _graphHeight = 30;

@@ -5,22 +5,6 @@ import 'dart:async';
 import 'package:vector_math/vector_math.dart' as VM;
 
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
-
-final VM.Vector3 colBlack = new VM.Vector3(0.0, 0.0, 0.0);
-final VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
-
-final VM.Vector3 colBlue = new VM.Vector3(0.0, 0.0, 1.0);
-final VM.Vector3 colLiteBlue = new VM.Vector3(0.0, 0.0, 0.5);
-
-final VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
-final VM.Vector3 colLiteRed = new VM.Vector3(0.5, 0.0, 0.0);
-
-final VM.Vector3 colGreen = new VM.Vector3(0.0, 1.0, 0.0);
-final VM.Vector3 colLiteGreen = new VM.Vector3(0.0, 0.5, 0.0);
-
-final VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
-final VM.Vector3 colWhite = new VM.Vector3(1.0, 1.0, 1.0);
 
 final VM.Vector3 posLight = new VM.Vector3(11.0, 20.0, 0.0);
 final VM.Vector3 dirLight = new VM.Vector3(0.0, -50.0, 0.0);
@@ -39,10 +23,10 @@ const String meshFile = "../asset/dragon/dragon.obj";
 const String textureFile = "../asset/dragon/dragon.png";
 
 final Map<String, Light> gLightSources = {
-  idDirectional: new DirectionalLight("dir", dirLight, colBlack, colWhite),
-  idPoint: new PointLight("point", posLight, colLiteBlue, colWhite, range),
-  idSpot: new SpotLight(
-      "spot", posLight, spotDirLight, colLiteGreen, colWhite, range, angle, 2.0)
+  idDirectional: new DirectionalLight("dir", dirLight, ColorBlack, ColorWhite),
+  idPoint: new PointLight("point", posLight, ColorLiteBlue, ColorWhite, range),
+  idSpot: new SpotLight("spot", posLight, spotDirLight, ColorLiteGreen,
+      ColorWhite, range, angle, 2.0)
 };
 
 Node gCubeSphere = new Node.Container("scene");
@@ -60,18 +44,19 @@ void MakeSceneCubeSphere(ChronosGL chronosGL, Node container) {
   List<Material> mats = [
     new Material("mat0")
       ..SetUniform(
-          uTexture, MakeSolidColorTextureRGB(chronosGL, "gray", colGray))
+          uTexture, MakeSolidColorTextureRGB(chronosGL, "gray", ColorGray4))
       ..SetUniform(uShininess, glossiness),
     new Material("mat1")
-      ..SetUniform(uTexture, MakeSolidColorTextureRGB(chronosGL, "red", colRed))
+      ..SetUniform(
+          uTexture, MakeSolidColorTextureRGB(chronosGL, "red", ColorRed))
       ..SetUniform(uShininess, glossiness),
     new Material("mat2")
       ..SetUniform(
-          uTexture, MakeSolidColorTextureRGB(chronosGL, "red", colBlue))
+          uTexture, MakeSolidColorTextureRGB(chronosGL, "red", ColorBlue))
       ..SetUniform(uShininess, glossiness),
     new Material("mat3")
       ..SetUniform(
-          uTexture, MakeSolidColorTextureRGB(chronosGL, "red", colGreen))
+          uTexture, MakeSolidColorTextureRGB(chronosGL, "red", ColorGreen))
       ..SetUniform(uShininess, glossiness),
   ];
 
@@ -123,7 +108,7 @@ void main() {
 
   // Same order as lightSources
   Material lightSourceMat = new Material("light")
-    ..SetUniform(uColor, colYellow);
+    ..SetUniform(uColor, ColorYellow);
   Map<String, Node> lightVisualizers = {
     idDirectional: new Node(
         "DirLightViz",

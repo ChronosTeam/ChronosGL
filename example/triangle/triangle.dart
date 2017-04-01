@@ -1,5 +1,4 @@
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
 import 'dart:math' as Math;
 
@@ -59,15 +58,15 @@ void main() {
   Texture solid = MakeSolidColorTexture(chronosGL, "red-solid", "red");
   final Material mat1 = new Material("mat1")
     ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
+    ..SetUniform(uColor, ColorBlue);
 
   final Material mat2 = new Material("mat2")
     ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0));
+    ..SetUniform(uColor, ColorRed);
 
   final Material mat3 = new Material("mat3")
     ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, new VM.Vector3(0.0, 1.0, 0.0));
+    ..SetUniform(uColor, ColorGreen);
 
   double thickness = 3.0;
   double length = 5.0 * thickness;
