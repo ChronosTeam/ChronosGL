@@ -1,8 +1,6 @@
 import 'dart:html' as HTML;
 
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
-import 'package:vector_math/vector_math.dart' as VM;
 import "dart:async";
 
 void main() {
@@ -10,7 +8,7 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
@@ -18,13 +16,13 @@ void main() {
   RenderProgram basic = phase.createProgram(createTexturedShader());
 
   final Material matWood = new Material("wood")
-    ..SetUniform(uColor, new VM.Vector3(1.0, 0.9, 0.0));
+    ..SetUniform(uColor, ColorYellow);
 
   final Material matGradient = new Material("gradient")
-    ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0));
+    ..SetUniform(uColor, ColorRed);
 
   final Material matTrans = new Material("trans")
-    ..SetUniform(uColor, new VM.Vector3(0.3, 0.3, 0.3))
+    ..SetUniform(uColor, ColorGray4)
     ..ForceUniform(cBlend, true)
     ..SetUniform(cBlendEquation, new BlendEquation.Standard());
 

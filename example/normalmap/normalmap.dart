@@ -1,5 +1,4 @@
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
 import 'dart:async';
 import 'package:vector_math/vector_math.dart' as VM;
@@ -27,7 +26,7 @@ List<ShaderObject> createShader() {
       ]),
     new ShaderObject("LightBlinnPhongF")
       ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
-      ..AddUniformVars([uLightDescs, uLightTypes])
+      ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
       ..AddUniformVars([uEyePosition, uColor, uTexture])
       ..SetBodyWithMain([
         """
@@ -35,7 +34,8 @@ ColorComponents acc = CombinedLight(${vVertexPosition} - ${uEyePosition},
                                     ${vNormal},
                                     ${uEyePosition},
                                     ${uLightDescs},
-                                    ${uLightTypes});
+                                    ${uLightTypes},
+                                    ${uShininess});
 
 vec4 diffuseMap = texture2D(${uTexture}, ${vTextureCoordinates} );
 
@@ -49,13 +49,8 @@ gl_FragColor.a = 1.0;
   ];
 }
 
-//VM.Vector3 colBlue = new VM.Vector3(0.0, 0.0, 1.0);
-//VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
-//VM.Vector3 colWhite = new VM.Vector3(1.0, 1.0, 1.0);
-VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
 VM.Vector3 posLight = new VM.Vector3(0.5, 1.0, 0.0);
 VM.Vector3 dirLight = new VM.Vector3(0.0, 10.0, 0.0);
-VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
 VM.Vector3 colDiffuse = new VM.Vector3.all(0.866);
 VM.Vector3 colSpecular = new VM.Vector3.all(0.133);
 
@@ -76,11 +71,12 @@ void main() {
   RenderProgram prg = phase.createProgram(createShader());
 
   Illumination illumination = new Illumination();
-  illumination.AddLight(new SpotLight("spot", posLight, posLight, colDiffuse,
-      colSpecular, 50.0, 0.95, 2.0, 25.0));
+  illumination.AddLight(new SpotLight(
+      "spot", posLight, posLight, colDiffuse, colSpecular, 50.0, 0.95, 2.0));
 
   Material lightSourceMat = new Material("light")
-    ..SetUniform(uColor, colYellow);
+    ..SetUniform(uColor, ColorYellow)
+    ..SetUniform(uShininess, 25.0);
   Node shapePointLight = new Node(
       "pointLight", ShapeIcosahedron(chronosGL, 4, 0.1), lightSourceMat)
     ..setPosFromVec(posLight);
@@ -112,7 +108,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Material mat = new Material("mat")..SetUniform(uColor, colGray);
+  Material mat = new Material("mat")..SetUniform(uColor, ColorGray4)..SetUniform(uShininess, 25.0);
 
   List<Future<dynamic>> futures = [
     LoadJson(modelFile),

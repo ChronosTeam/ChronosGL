@@ -1,6 +1,4 @@
-library chronosutil;
-
-import 'dart:html' as HTML;
+part of misc;
 
 const int _numBars = 90;
 const int _graphHeight = 30;
@@ -60,6 +58,10 @@ class Stats {
       graph.append(e);
     }
     return graph;
+  }
+
+  void ChangeExtra(String s) {
+    _extra.innerHtml = s;
   }
 
   void AddRawValue(int v) {

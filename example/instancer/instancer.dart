@@ -1,5 +1,4 @@
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
 import 'dart:typed_data';
 import 'package:vector_math/vector_math.dart' as VM;
@@ -65,7 +64,7 @@ void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(265.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);

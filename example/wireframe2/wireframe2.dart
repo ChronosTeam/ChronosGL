@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:vector_math/vector_math.dart' as VM;
 
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
 
 const String meshFile = "../asset/dragon/dragon.obj";
 
@@ -26,9 +25,9 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL);
   RenderProgram program = phase.createProgram(createSolidColorShader());
   final Material matWire = new Material("wire")
-    ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
+    ..SetUniform(uColor, ColorYellow);
   final Material matNorm = new Material("normal")
-    ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
+    ..SetUniform(uColor, ColorBlue);
 
   Node nodeWire;
   Node nodeNorm;
@@ -67,10 +66,10 @@ void main() {
 
   Future.wait(futures).then((List list) {
     GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
-    print (gb);
+    print(gb);
     MeshData mdWire =
         GeometryBuilderToMeshDataWireframe(meshFile, chronosGL, gb);
-    print (mdWire);
+    print(mdWire);
 
     nodeWire = new Node(mdWire.name, mdWire, matWire);
     nodeWire.lookAt(new VM.Vector3(100.0, 0.0, 0.0));

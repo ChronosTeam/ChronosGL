@@ -1,8 +1,6 @@
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
 
-import 'package:vector_math/vector_math.dart' as VM;
 
 // r,g,b,a  are in the range of [0, 255]
 // float = r / (256^4) + g / (256^3) + b / 256^2 + a / 256^1
@@ -64,19 +62,19 @@ void main() {
   Texture solid = MakeSolidColorTexture(chronosGL, "red-solid", "red");
   final Material mat1 = new Material("mat1")
     ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
+    ..SetUniform(uColor, ColorBlue);
 
   final Material mat2 = new Material("mat2")
     ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0));
+    ..SetUniform(uColor, ColorRed);
 
   final Material mat3 = new Material("mat3")
     ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, new VM.Vector3(0.0, 1.0, 0.0));
+    ..SetUniform(uColor, ColorGreen);
 
   final Material matPlane = new Material("plane")
     ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, new VM.Vector3(0.8, 0.8, 0.8));
+    ..SetUniform(uColor, ColorGray8);
 
   Node ico = new Node("sphere", ShapeIcosahedron(chronosGL, 3), mat1)
     ..setPos(0.0, 0.0, 0.0);

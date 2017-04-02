@@ -65,7 +65,7 @@ Node getRocket(dynamic gl, Texture tw) {
 
   Material mat = new Material.Transparent("mat", new BlendEquation.Mix())
     ..SetUniform(uTexture, tw)
-    ..SetUniform(uColor, new VM.Vector3(1.0, 0.0, 0.0));
+    ..SetUniform(uColor, ColorRed);
   return new Node(md.name, md, mat);
 }
 

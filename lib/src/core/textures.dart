@@ -29,12 +29,15 @@ class TextureProperties {
   }
 
   // This assumes a texture is already bound
-  void Install(ChronosGL cgl, int type) {
+  void InstallEarly(ChronosGL cgl, int type) {
     //LogInfo("Setup texture ${flipY}  ${anisotropicFilterLevel}");
     if (flipY) {
       cgl.gl.pixelStorei(WEBGL.UNPACK_FLIP_Y_WEBGL, 1);
     }
+  }
 
+  // This assumes a texture is already bound
+  void InstallLate(ChronosGL cgl, int type) {
     if (anisotropicFilterLevel != kNoAnisotropicFilterLevel) {
       cgl.texParameterf(
           type,
@@ -83,16 +86,15 @@ class Texture {
   void Bind([bool initTime = false]) {
     if (initTime) {
       _texture = _cgl.createTexture();
+       properties.InstallEarly(_cgl, _textureType);
     }
 
     _cgl.bindTexture(_textureType, _texture);
-
-
   }
 
   void UnBind([bool initTime = false]) {
-     if (initTime) {
-      properties.Install(_cgl, _textureType);
+    if (initTime) {
+      properties.InstallLate(_cgl, _textureType);
       int err = _cgl.getError();
       assert(err == WEBGL.NO_ERROR);
     }

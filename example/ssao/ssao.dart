@@ -2,7 +2,6 @@ import 'dart:html' as HTML;
 import 'dart:async';
 
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 const String modelFile = "../ct_logo.obj";
@@ -76,7 +75,7 @@ void main() {
     GeometryBuilder ctLogo = ImportGeometryFromWavefront(list[0]);
     MeshData md = GeometryBuilderToMeshData("", chronosGL, ctLogo);
     Material mat = new Material("mat")
-      ..SetUniform(uColor, new VM.Vector3(0.9, 0.9, 0.9));
+      ..SetUniform(uColor, ColorGray8);
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);

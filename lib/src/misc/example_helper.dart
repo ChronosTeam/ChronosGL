@@ -1,4 +1,4 @@
-part of chronosgl;
+part of misc;
 
 class Utils {
 /*
@@ -249,7 +249,8 @@ MeshData ShapeTorusKnot(ChronosGL cgl,
     int p: 2,
     int q: 3,
     double heightScale: 1.0,
-    useQuads: true}) {
+    bool useQuads: true,
+    bool computeNormals = true}) {
   GeometryBuilder gb = ShapeTorusKnotGeometry(
       radius: radius,
       tube: tube,
@@ -258,7 +259,8 @@ MeshData ShapeTorusKnot(ChronosGL cgl,
       p: p,
       q: q,
       heightScale: heightScale,
-      useQuads: useQuads);
+      useQuads: useQuads,
+      computeNormals: computeNormals);
   return GeometryBuilderToMeshData("torusknot", cgl, gb);
 }
 
@@ -273,126 +275,34 @@ MeshData ShapeGrid(
   return GeometryBuilderToMeshData("strips", cgl, gb);
 }
 
-MeshData DirectionalLightVisualizer(
-    ChronosGL cgl, double cubeLen, double delta, VM.Vector3 dir) {
-  assert(dir.y != 0.0);
-  final double d = cubeLen * 0.5;
-  final double end = delta * (d / delta).floor();
-  final double start = -end;
-  final VM.Vector3 dir2y = dir * d / dir.y;
-  List<VM.Vector3> points = [];
-  for (double x = start; x <= end; x += delta) {
-    for (double z = start; z <= end; z += delta) {
-      // we have an intersection  point with xz plane, now get the
-      // intersection with the top and bottom face of the cube
-      points.add(new VM.Vector3(x, 0.0, z)..add(dir2y));
-      points.add(new VM.Vector3(x, 0.0, z)..sub(dir2y));
-    }
-  }
-  MeshData md = new MeshData("dirLightViz", cgl, WEBGL.LINES);
-  md.AddVertices(FlattenVector3List(points));
-  List<int> faces = new List<int>(points.length);
-  for (int i = 0; i < points.length; ++i) faces[i] = i;
-  md.AddFaces(faces);
-  return md;
+final Material EmptyMaterial = new Material("empty-mat");
+
+Node UnitNode(ChronosGL cgl) {
+  final MeshData UnitQuad = ShapeQuad(cgl, 1);
+  return new Node("unit-mesh", UnitQuad, EmptyMaterial);
 }
 
-VM.Vector3 GetOrthogonalVector3(VM.Vector3 dir) {
-  if (dir.x != 0.0) {
-    if (dir.y != 0.0) return new VM.Vector3(-dir.y, dir.x, 0.0);
-    if (dir.z != 0.0) return new VM.Vector3(-dir.z, 0.0, dir.x);
-    return new VM.Vector3(0.0, 1.0, 1.0);
-  } else {
-    if (dir.y == 0.0) return new VM.Vector3(1.0, 1.0, 0.0);
-    if (dir.z == 0.0) return new VM.Vector3(1.0, 0.0, 1.0);
-    return new VM.Vector3(0.0, -dir.z, dir.y);
-  }
-}
+final VM.Vector3 ColorWhite = new VM.Vector3(1.0, 1.0, 1.0);
+final VM.Vector3 ColorGray8 = new VM.Vector3(0.8, 0.8, 0.8);
+final VM.Vector3 ColorGray6 = new VM.Vector3(0.6, 0.6, 0.6);
+final VM.Vector3 ColorGray4 = new VM.Vector3(0.4, 0.4, 0.4);
+final VM.Vector3 ColorGray2 = new VM.Vector3(0.2, 0.2, 0.2);
+final VM.Vector3 ColorBlack = new VM.Vector3(0.0, 0.0, 0.0);
 
-MeshData SpotLightVisualizer(
-    ChronosGL cgl, VM.Vector3 pos, VM.Vector3 dir, double range, double angle) {
-  final int kSpines = 8;
-  VM.Vector3 center = pos + dir.normalized() * range;
-  List<VM.Vector3> points = [pos, center];
-  VM.Vector3 ortho = GetOrthogonalVector3(dir)
-    ..normalize()
-    ..scale(Math.tan(angle) * range);
-  for (int i = 0; i < kSpines; i++) {
-    VM.Vector3 p = ortho.clone()
-      ..applyAxisAngle(dir, i * 2.0 * Math.PI / kSpines)
-      ..add(center);
-    points.add(p);
-  }
+final VM.Vector3 ColorBlue = new VM.Vector3(0.0, 0.0, 1.0);
+final VM.Vector3 ColorLiteBlue = new VM.Vector3(0.0, 0.0, 0.5);
 
-  MeshData md = new MeshData("spotlightViz", cgl, WEBGL.LINES);
-  md.AddVertices(FlattenVector3List(points));
-  List<int> faces = [];
-  for (int i = 1; i < points.length; ++i) {
-    faces.add(0);
-    faces.add(i);
-  }
+final VM.Vector3 ColorRed = new VM.Vector3(1.0, 0.0, 0.0);
+final VM.Vector3 ColorLiteRed = new VM.Vector3(0.5, 0.0, 0.0);
 
-  // funnel
-  for (int i = 3; i < points.length; ++i) {
-    faces.add(i - 1);
-    faces.add(i);
-  }
-  faces.add(points.length - 1);
-  faces.add(2);
+final VM.Vector3 ColorGreen = new VM.Vector3(0.0, 1.0, 0.0);
+final VM.Vector3 ColorLiteGreen = new VM.Vector3(0.0, 0.5, 0.0);
 
-  // cross
-  for (int i = 2; i < points.length; ++i) {
-    if (i % 2 == 0) {
-      faces.add(1);
-      faces.add(i);
-    }
-  }
-  md.AddFaces(faces);
-  return md;
-}
+final VM.Vector3 ColorYellow = new VM.Vector3(1.0, 1.0, 0.0);
+final VM.Vector3 ColorLiteYellow = new VM.Vector3(0.5, 0.5, 0.0);
 
-/*
-MeshData PointLightVisualizer(
-    WEBGL.RenderingContext gl, VM.Vector3 pos, double range) {
-  List<VM.Vector3> points = [];
-  List<int> faces = [];
-  // Rays from center
-  for (VM.Vector3 v in IcosahedronVertexList) {
-    faces.add(points.length);
-    faces.add(IcosahedronVertexList.length);
-    points.add(pos + (v * range));
-  }
-  points.add(pos);
+final VM.Vector3 ColorMagenta = new VM.Vector3(1.0, 0.0, 1.0);
+final VM.Vector3 ColorLiteMagenta = new VM.Vector3(0.5, 0.0, 0.5);
 
-  // Faces
-  for (Face3 f in IcosahedronFaceList) {
-    faces.add(f.a);
-    faces.add(f.b);
-    faces.add(f.b);
-    faces.add(f.c);
-    faces.add(f.c);
-    faces.add(f.a);
-  }
-
-  MeshData md = new MeshData("pointlight", gl, WEBGL.LINES);
-  md.AddVertices(FlattenVector3List(points));
-  md.AddFaces(faces);
-  return md;
-}
-*/
-MeshData PointLightVisualizer(ChronosGL cgl, VM.Vector3 pos, double range) {
-  List<VM.Vector3> points = [];
-  List<int> faces = [];
-  // Rays from center
-  for (VM.Vector3 v in IcosahedronVertexList) {
-    faces.add(points.length);
-    faces.add(IcosahedronVertexList.length);
-    points.add(pos + (v * range));
-  }
-  points.add(pos);
-
-  MeshData md = new MeshData("pointlightViz", cgl, WEBGL.LINES);
-  md.AddVertices(FlattenVector3List(points));
-  md.AddFaces(faces);
-  return md;
-}
+final VM.Vector3 ColorCyan = new VM.Vector3(0.0, 1.0, 1.0);
+final VM.Vector3 ColorLiteCyan = new VM.Vector3(0.0, 0.5, 0.5);

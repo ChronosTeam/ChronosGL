@@ -17,7 +17,7 @@ void main() {
   Node head = new Node("head", sphere, headMat);
 
   Material eyeMat = new Material("eye")
-    ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 1.0));
+    ..SetUniform(uColor, ColorBlue);
   Node leftEye = new Node("leftEye", sphere, eyeMat)
     ..setPos(-0.2, 0.4, -0.8)
     ..transform.scale(0.2);

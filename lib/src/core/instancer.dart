@@ -11,7 +11,9 @@ class InstancerData extends RenderInputSource {
   InstancerData(String name, this._cgl, this.numInstances) : super(name);
 
   void AddBuffer(String canonical, Float32List data) {
-    _buffers[canonical] = _cgl.CreateAndInitializeArrayBuffer(data);
+     WEBGL.Buffer b = _cgl.createBuffer();
+     _cgl.ChangeArrayBuffer(b, data);
+    _buffers[canonical] = b;
   }
 
   void ChangeBufferCanonical(String canonical, Float32List data) {

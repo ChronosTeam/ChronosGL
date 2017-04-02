@@ -24,6 +24,27 @@ class Face4 {
   Face4(this.a, this.b, this.c, this.d);
 }
 
+bool NormalFromPoints(VM.Vector3 a, VM.Vector3 b, VM.Vector3 c, VM.Vector3 temp,
+    VM.Vector3 normal) {
+  temp
+    ..setFrom(b)
+    ..sub(a);
+  normal
+    ..setFrom(c)
+    ..sub(a);
+
+  normal.crossInto(temp, normal);
+
+  double len = normal.length;
+  if (len == 0) {
+    return false;
+  }
+
+  normal.scale(-1 /
+      len); // normalize // added the minus to make it the correct normal compared to the base cube
+  return true;
+}
+
 class GeometryBuilder {
   final bool pointsOnly;
   List<Face3> _faces3 = [];
@@ -228,33 +249,12 @@ class GeometryBuilder {
     return lines;
   }
 
-  static bool normalFromPoints(VM.Vector3 a, VM.Vector3 b, VM.Vector3 c,
-      VM.Vector3 temp, VM.Vector3 normal) {
-    temp
-      ..setFrom(b)
-      ..sub(a);
-    normal
-      ..setFrom(c)
-      ..sub(a);
-
-    normal.crossInto(temp, normal);
-
-    double len = normal.length;
-    if (len == 0) {
-      return false;
-    }
-
-    normal.scale(-1 /
-        len); // normalize // added the minus to make it the correct normal compared to the base cube
-    return true;
-  }
-
   void GenerateNormalsAssumingTriangleMode() {
     List<VM.Vector3> normals = new List<VM.Vector3>(vertices.length);
     VM.Vector3 temp = new VM.Vector3.zero();
     VM.Vector3 norm = new VM.Vector3.zero();
     for (Face3 f3 in _faces3) {
-      normalFromPoints(
+      NormalFromPoints(
           vertices[f3.a], vertices[f3.b], vertices[f3.c], temp, norm);
       normals[f3.a] = norm.clone();
       normals[f3.b] = norm.clone();
@@ -262,7 +262,7 @@ class GeometryBuilder {
     }
 
     for (Face4 f4 in _faces4) {
-      normalFromPoints(
+      NormalFromPoints(
           vertices[f4.a], vertices[f4.b], vertices[f4.c], temp, norm);
       normals[f4.a] = norm.clone();
       normals[f4.b] = norm.clone();

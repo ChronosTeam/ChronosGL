@@ -5,21 +5,6 @@ import 'dart:async';
 import 'package:vector_math/vector_math.dart' as VM;
 
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
-
-final VM.Vector3 colBlack = new VM.Vector3(0.0, 0.0, 0.0);
-final VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
-
-final VM.Vector3 colBlue = new VM.Vector3(0.0, 0.0, 1.0);
-final VM.Vector3 colLiteBlue = new VM.Vector3(0.0, 0.0, 0.5);
-
-final VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
-final VM.Vector3 colLiteRed = new VM.Vector3(0.5, 0.0, 0.0);
-
-final VM.Vector3 colGreen = new VM.Vector3(0.0, 1.0, 0.0);
-final VM.Vector3 colLiteGreen = new VM.Vector3(0.0, 0.5, 0.0);
-
-final VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
 
 final VM.Vector3 posLight = new VM.Vector3(11.0, 20.0, 0.0);
 final VM.Vector3 dirLight = new VM.Vector3(0.0, -50.0, 0.0);
@@ -27,7 +12,7 @@ final VM.Vector3 spotDirLight = new VM.Vector3(-11.0, -30.0, 0.0);
 
 final double range = 50.0;
 final double angle = MATH.PI / 7.0;
-final double glossiness = 25.0;
+final double glossiness = 10.0;
 
 // These must be in-sync with the .html file
 const String idPoint = "idPoint";
@@ -38,12 +23,10 @@ const String meshFile = "../asset/dragon/dragon.obj";
 const String textureFile = "../asset/dragon/dragon.png";
 
 final Map<String, Light> gLightSources = {
-  idDirectional:
-      new DirectionalLight("dir", dirLight, colLiteRed, colRed, glossiness),
-  idPoint: new PointLight(
-      "point", posLight, colLiteBlue, colBlue, range, glossiness),
-  idSpot: new SpotLight("spot", posLight, spotDirLight, colLiteGreen, colGreen,
-      range, angle, 2.0, glossiness)
+  idDirectional: new DirectionalLight("dir", dirLight, ColorBlack, ColorWhite),
+  idPoint: new PointLight("point", posLight, ColorLiteBlue, ColorWhite, range),
+  idSpot: new SpotLight("spot", posLight, spotDirLight, ColorLiteGreen,
+      ColorWhite, range, angle, 2.0)
 };
 
 Node gCubeSphere = new Node.Container("scene");
@@ -57,23 +40,41 @@ final Map<String, Node> gScenes = {
 void MakeSceneCubeSphere(ChronosGL chronosGL, Node container) {
   MeshData cubeMeshData = ShapeCube(chronosGL, x: 2.0, y: 2.0, z: 2.0);
   MeshData sphereMeshData = ShapeIcosahedron(chronosGL);
-  Material cubeMat = new Material("cubMat")
-    ..SetUniform(
-        uTexture, MakeSolidColorTextureRGB(chronosGL, "gray", colGray));
+
+  List<Material> mats = [
+    new Material("mat0")
+      ..SetUniform(
+          uTexture, MakeSolidColorTextureRGB(chronosGL, "gray", ColorGray4))
+      ..SetUniform(uShininess, glossiness),
+    new Material("mat1")
+      ..SetUniform(
+          uTexture, MakeSolidColorTextureRGB(chronosGL, "red", ColorRed))
+      ..SetUniform(uShininess, glossiness),
+    new Material("mat2")
+      ..SetUniform(
+          uTexture, MakeSolidColorTextureRGB(chronosGL, "red", ColorBlue))
+      ..SetUniform(uShininess, glossiness),
+    new Material("mat3")
+      ..SetUniform(
+          uTexture, MakeSolidColorTextureRGB(chronosGL, "red", ColorGreen))
+      ..SetUniform(uShininess, glossiness),
+  ];
+
   for (int i = 0; i < 8; i++) {
     double x = i & 1 == 0 ? -10.0 : 10.0;
     double y = i & 2 == 0 ? -10.0 : 10.0;
     double z = i & 4 == 0 ? -10.0 : 10.0;
-    container.add(
-        new Node("mesh", i % 2 == 0 ? cubeMeshData : sphereMeshData, cubeMat)
-          ..setPos(x, y, z)
-          ..lookUp(1.0)
-          ..lookLeft(0.7));
+
+    container.add(new Node(
+        "mesh", i % 2 == 0 ? cubeMeshData : sphereMeshData, mats[i % 4])
+      ..setPos(x, y, z)
+      ..lookUp(1.0)
+      ..lookLeft(0.7));
   }
 
   // Subdivide plane to show Gourad shading issues
   Node grid =
-      new Node("grid", ShapeGrid(chronosGL, 20, 20, 80.0, 80.0), cubeMat);
+      new Node("grid", ShapeGrid(chronosGL, 20, 20, 80.0, 80.0), mats[0]);
   grid.rotX(-MATH.PI * 0.48);
   grid.setPos(0.0, -20.0, 20.0);
   container.add(grid);
@@ -105,19 +106,20 @@ void main() {
     illumination.AddLight(l);
   }
 
-  // Same order as lightSources
   Material lightSourceMat = new Material("light")
-    ..SetUniform(uColor, colYellow);
+    ..SetUniform(uColor, ColorYellow);
   Map<String, Node> lightVisualizers = {
     idDirectional: new Node(
         "DirLightViz",
-        DirectionalLightVisualizer(chronosGL, 80.0, 30.0, -dirLight),
+        LightVisualizer(chronosGL, gLightSources[idDirectional], 80.0, 30.0),
         lightSourceMat),
-    idPoint: new Node("PointLightViz",
-        PointLightVisualizer(chronosGL, posLight, range), lightSourceMat),
+    idPoint: new Node(
+        "PointLightViz",
+        LightVisualizer(chronosGL, gLightSources[idPoint], 80.0, 30.0),
+        lightSourceMat),
     idSpot: new Node(
         "SpotLightViz",
-        SpotLightVisualizer(chronosGL, posLight, spotDirLight, range, angle),
+        LightVisualizer(chronosGL, gLightSources[idSpot], 80.0, 30.0),
         lightSourceMat)
   };
 
@@ -214,9 +216,11 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Texture
-    Material mat = new Material("matDragon");
     Texture tex = new ImageTexture(chronosGL, textureFile, list[1]);
-    mat..SetUniform(uTexture, tex);
+
+    Material mat = new Material("matDragon")
+      ..SetUniform(uTexture, tex)
+      ..SetUniform(uShininess, glossiness);
     GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
     print(gb);
     MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb);

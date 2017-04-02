@@ -1,5 +1,4 @@
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
 import 'dart:async';
 import 'dart:typed_data';
@@ -84,7 +83,7 @@ void main() {
 
   final RenderProgram prgBone = phase.createProgram(createSolidColorShader());
   final Material matWire = new Material("wire")
-    ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
+    ..SetUniform(uColor, ColorYellow);
 
   final Material mat = new Material("mat");
   VM.Matrix4 identity = new VM.Matrix4.identity();
