@@ -57,16 +57,19 @@ class PointLight extends Light {
   }
 }
 
+const double _orthoDim = 50.0;
+
 class DirectionalLight extends Light {
   VM.Vector3 dir;
   VM.Vector3 _colDiffuse;
   VM.Vector3 _colSpecular;
   double aspect = 1.0;
-  double _l = -100.0;
-  double _r = 100.0;
-  double _d = -100.0;
-  double _f = 0.0;
-  double _b = 100.0;
+  // TODO: make this configurable
+  double _l = -_orthoDim;
+  double _r = _orthoDim;
+  double _d = -_orthoDim;
+  double _f = -100.0;
+  double _b = _orthoDim;
 
   VM.Matrix4 _projViewMat = new VM.Matrix4.zero();
   VM.Matrix4 _tmpMat = new VM.Matrix4.zero();
