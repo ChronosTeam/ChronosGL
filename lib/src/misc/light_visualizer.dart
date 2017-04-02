@@ -7,9 +7,11 @@ MeshData EmptyLightVisualizer(ChronosGL cgl, String name) {
   return md;
 }
 
-MeshData DirectionalLightVisualizer(
-    ChronosGL cgl, double cubeLen, double delta, VM.Vector3 dir) {
-  assert(dir.y != 0.0);
+void UpdateDirectionalLightVisualizer(
+    MeshData md, double cubeLen, double delta, VM.Vector3 dir) {
+  if (dir.y == 0.0) {
+    return;
+  }
   final double d = cubeLen * 0.5;
   final double end = delta * (d / delta).floor();
   final double start = -end;
@@ -23,11 +25,16 @@ MeshData DirectionalLightVisualizer(
       points.add(new VM.Vector3(x, 0.0, z)..sub(dir2y));
     }
   }
-  MeshData md = EmptyLightVisualizer(cgl, "dirLightViz");
   md.ChangeVertices(FlattenVector3List(points));
   List<int> faces = new List<int>(points.length);
   for (int i = 0; i < points.length; ++i) faces[i] = i;
   md.ChangeFaces(faces);
+}
+
+MeshData DirectionalLightVisualizer(
+    ChronosGL cgl, double cubeLen, double delta, VM.Vector3 dir) {
+  MeshData md = EmptyLightVisualizer(cgl, "dirLightViz");
+  UpdateDirectionalLightVisualizer(md, cubeLen, delta, dir);
   return md;
 }
 
