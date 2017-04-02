@@ -40,9 +40,13 @@ class ChronosGL {
   dynamic ext_OES_element_index_uint;
   dynamic ext_WEBGL_depth_texture;
   dynamic ext_ANGLE_instanced_arrays;
+  dynamic ext_OES_texture_float;
+  dynamic ext_OES_texture_float_linear;
 
   ChronosGL(this._canvas,
-      {bool preserveDrawingBuffer: false, bool faceCulling: false, bool antialiasing: true}) {
+      {bool preserveDrawingBuffer: false,
+      bool faceCulling: false,
+      bool antialiasing: true}) {
     Map attributes = {
       "alpha": false,
       "depth": true,
@@ -68,6 +72,16 @@ class ChronosGL {
 
     ext_ANGLE_instanced_arrays = gl.getExtension("ANGLE_instanced_arrays");
     if (ext_ANGLE_instanced_arrays == null) {
+      throw "Error";
+    }
+
+    ext_OES_texture_float = gl.getExtension("OES_texture_float");
+    if (ext_OES_texture_float == null) {
+      throw "Error";
+    }
+
+    ext_OES_texture_float_linear = gl.getExtension("OES_texture_float_linear");
+    if (ext_OES_texture_float_linear == null) {
       throw "Error";
     }
 
@@ -97,7 +111,6 @@ class ChronosGL {
   void bindBuffer(int kind, WEBGL.Buffer buffer) {
     gl.bindBuffer(kind, buffer);
   }
-
 
   void ChangeArrayBuffer(WEBGL.Buffer buffer, Float32List data) {
     gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
