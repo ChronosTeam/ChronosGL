@@ -35,21 +35,24 @@ GeometryBuilder CylinderGeometry(double radTop, double radBot, double height,
   }
 
   if (computeNormals) {
+    assert(vertices.length == 2 + 2 * radialSubdivisions);
+    assert(uvs.length == 2 + 2 * radialSubdivisions);
     // Second set of vertices for walls with different normals
-    for (int i = 0; i < radialSubdivisions; i++) {
-      double u = i / radialSubdivisions;
-
-      double x = Math.sin(u * Math.PI * 2);
-      double z = Math.cos(u * Math.PI * 2);
-
-      vertices.add(new VM.Vector3(x * radTop, halfHeight, z * radTop));
-      uvs.add(new VM.Vector2(u, 1.0));
-      // TODO: these are off
-      normal.add(new VM.Vector3(x, 0.0, z));
-      vertices.add(new VM.Vector3(x * radBot, -halfHeight, z * radBot));
-      uvs.add(new VM.Vector2(u, 0.0));
-      // TODO: these are off
-      normal.add(new VM.Vector3(x, 0.0, z));
+    for (int i = 0; i < 2 * radialSubdivisions; i += 2) {
+      vertices.add(vertices[i + 2]);
+      vertices.add(vertices[i + 3]);
+      uvs.add(uvs[i + 2]);
+      uvs.add(uvs[i + 3]);
+      // Now compute normals
+      VM.Vector3 a = vertices[i + 2];
+      VM.Vector3 b = vertices[i + 3];
+      // note: we added vertices so we will not access out  of bounds
+      VM.Vector3 c = vertices[i + 4];
+      VM.Vector3 temp = new VM.Vector3.zero();
+      VM.Vector3 norm = new VM.Vector3.zero();
+      NormalFromPoints(a, b, c, temp, norm);
+      normal.add(norm);
+      normal.add(norm);
     }
     assert(vertices.length == 2 + 4 * radialSubdivisions);
   } else {
