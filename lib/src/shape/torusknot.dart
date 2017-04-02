@@ -78,7 +78,7 @@ GeometryBuilder ShapeTorusKnotGeometry(
       VM.Vector2 uvd = new VM.Vector2(0.0, jp1 / segmentsT);
       if (useQuads) {
         gb.AddFaces4(1);
-        gb.AddVertices([vertices[a], vertices[b], vertices[c], vertices[d]]);
+        gb.AddVertices([vertices[d], vertices[c], vertices[b], vertices[a]]);
         gb.AddAttributesVector2(aTextureCoordinates, [uva, uvb, uvc, uvd]);
       } else {
         gb.AddFaces3(2);

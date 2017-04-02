@@ -77,7 +77,7 @@ GeometryBuilder CylinderGeometry(double radTop, double radBot, double height,
     // triangle in top circle
     gb.AddFace3(0, t, tnext);
     // triangle in bottom circle
-    gb.AddFace3(1, b, bnext);
+    gb.AddFace3(1, bnext, b);
 
     // Wall
     int o = computeNormals ? radialSubdivisions * 2 : 0;
