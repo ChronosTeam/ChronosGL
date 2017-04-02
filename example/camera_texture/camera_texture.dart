@@ -2,7 +2,6 @@ import 'dart:html' as HTML;
 import 'dart:async';
 import 'dart:web_gl' as WEBGL;
 import 'package:chronosgl/chronosgl.dart';
-import 'package:vector_math/vector_math.dart' as VM;
 
 void main() {
   StatsFps fps =

@@ -7,7 +7,7 @@ String textureFile = "../gradient.jpg";
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(165.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);

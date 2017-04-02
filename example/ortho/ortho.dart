@@ -1,7 +1,6 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 
-import 'package:vector_math/vector_math.dart' as VM;
 
 // r,g,b,a  are in the range of [0, 255]
 // float = r / (256^4) + g / (256^3) + b / 256^2 + a / 256^1
