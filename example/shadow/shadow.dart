@@ -228,7 +228,7 @@ List<Node> MakeScene(ChronosGL chronosGL) {
     new Node("torusknot", ShapeTorusKnot(chronosGL, radius: 1.0, tube: 0.4),
         matObjects)
       ..setPos(5.0, 0.0, 5.0),
-    new Node("cube", ShapeCube(chronosGL, x: 20.0, y: 0.1, z: 20.0), matGray)
+    new Node("plane", ShapeCube(chronosGL, x: 30.0, y: 0.1, z: 30.0), matGray)
       ..setPos(0.0, -10.0, 0.0),
   ];
 }
