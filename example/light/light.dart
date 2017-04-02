@@ -106,19 +106,20 @@ void main() {
     illumination.AddLight(l);
   }
 
-  // Same order as lightSources
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, ColorYellow);
   Map<String, Node> lightVisualizers = {
     idDirectional: new Node(
         "DirLightViz",
-        DirectionalLightVisualizer(chronosGL, 80.0, 30.0, -dirLight),
+        LightVisualizer(chronosGL, gLightSources[idDirectional], 80.0, 30.0),
         lightSourceMat),
-    idPoint: new Node("PointLightViz",
-        PointLightVisualizer(chronosGL, posLight, range), lightSourceMat),
+    idPoint: new Node(
+        "PointLightViz",
+        LightVisualizer(chronosGL, gLightSources[idPoint], 80.0, 30.0),
+        lightSourceMat),
     idSpot: new Node(
         "SpotLightViz",
-        SpotLightVisualizer(chronosGL, posLight, spotDirLight, range, angle),
+        LightVisualizer(chronosGL, gLightSources[idSpot], 80.0, 30.0),
         lightSourceMat)
   };
 

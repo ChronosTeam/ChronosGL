@@ -22,10 +22,10 @@ class PointLight extends Light {
   VM.Vector3 pos;
   VM.Vector3 _colDiffuse;
   VM.Vector3 _colSpecular;
-  double _range;
+  double range;
 
-  PointLight(String name, this.pos, this._colDiffuse, this._colSpecular,
-      this._range)
+  PointLight(
+      String name, this.pos, this._colDiffuse, this._colSpecular, this.range)
       : super(name, lightTypePoint);
 
   // Must be in sync with UnpackPointLightInfo
@@ -43,13 +43,17 @@ class PointLight extends Light {
     m[o + 13] = _colSpecular.y;
     m[o + 14] = _colSpecular.z;
     //
-    m[o + 7] = _range;
+    m[o + 7] = range;
   }
 
   @override
   VM.Matrix4 ExtractShadowProjViewMatrix() {
     assert(false, "NYI");
     return new VM.Matrix4.zero();
+  }
+
+  String toString() {
+    return "PL: p:${pos}  r:${range}";
   }
 }
 
@@ -67,8 +71,8 @@ class DirectionalLight extends Light {
   VM.Matrix4 _projViewMat = new VM.Matrix4.zero();
   VM.Matrix4 _tmpMat = new VM.Matrix4.zero();
 
-  DirectionalLight(String name, VM.Vector3 this.dir, this._colDiffuse,
-      this._colSpecular)
+  DirectionalLight(
+      String name, VM.Vector3 this.dir, this._colDiffuse, this._colSpecular)
       : super(name, lightTypeDirectional);
 
   // Must be in sync with UnpackDirectionalLightInfo
@@ -99,6 +103,10 @@ class DirectionalLight extends Light {
     _projViewMat.multiply(_tmpMat);
     return _projViewMat;
   }
+
+  String toString() {
+    return "DL: p:${dir}";
+  }
 }
 
 class SpotLight extends Light {
@@ -106,8 +114,8 @@ class SpotLight extends Light {
   VM.Vector3 dir;
   VM.Vector3 _colDiffuse;
   VM.Vector3 _colSpecular;
-  double _range;
-  double _angle;
+  double range;
+  double angle;
   double _spotFocus;
 
   SpotLight(
@@ -116,8 +124,8 @@ class SpotLight extends Light {
       VM.Vector3 this.dir,
       this._colDiffuse,
       this._colSpecular,
-      this._range,
-      this._angle,
+      this.range,
+      this.angle,
       this._spotFocus)
       : super(name, lightTypeSpot);
 
@@ -140,21 +148,10 @@ class SpotLight extends Light {
     m[o + 13] = _colSpecular.y;
     m[o + 14] = _colSpecular.z;
     //
-    m[o + 7] = _range;
-    m[o + 11] = Math.cos(_angle);
+    m[o + 7] = range;
+    m[o + 11] = Math.cos(angle);
     m[o + 15] = _spotFocus;
   }
-
-  /*
-  @override
-  VM.Matrix4 ExtractShadowProjViewMatrix() {
-    VM.Vector3 up = (dir.x == 0.0 && dir.z == 0.0) ? _up2 : _up;
-    VM.Matrix4 mat = new VM.Matrix4.zero();
-    VM.setViewMatrix(mat, _pos, _dir - _pos, up);
-    return mat;
-  }
-}
-*/
 
   @override
   VM.Matrix4 ExtractShadowProjViewMatrix() {
@@ -162,6 +159,10 @@ class SpotLight extends Light {
     VM.Matrix4 mat = new VM.Matrix4.zero();
     VM.setViewMatrix(mat, pos, pos - dir, up);
     return mat;
+  }
+
+  String toString() {
+    return "SL: p:${pos}  d:${dir}  r:${range}  a:${angle}";
   }
 }
 

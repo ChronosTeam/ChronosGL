@@ -31,13 +31,6 @@ void UpdateDirectionalLightVisualizer(
   md.ChangeFaces(faces);
 }
 
-MeshData DirectionalLightVisualizer(
-    ChronosGL cgl, double cubeLen, double delta, VM.Vector3 dir) {
-  MeshData md = EmptyLightVisualizer(cgl, "dirLightViz");
-  UpdateDirectionalLightVisualizer(md, cubeLen, delta, dir);
-  return md;
-}
-
 VM.Vector3 GetOrthogonalVector3(VM.Vector3 dir) {
   if (dir.x != 0.0) {
     if (dir.y != 0.0) return new VM.Vector3(-dir.y, dir.x, 0.0);
@@ -50,8 +43,8 @@ VM.Vector3 GetOrthogonalVector3(VM.Vector3 dir) {
   }
 }
 
-MeshData SpotLightVisualizer(
-    ChronosGL cgl, VM.Vector3 pos, VM.Vector3 dir, double range, double angle) {
+void UpdateSpotLightVisualizer(
+    MeshData md, VM.Vector3 pos, VM.Vector3 dir, double range, double angle) {
   final int kSpines = 8;
   VM.Vector3 center = pos + dir.normalized() * range;
   List<VM.Vector3> points = [pos, center];
@@ -64,8 +57,6 @@ MeshData SpotLightVisualizer(
       ..add(center);
     points.add(p);
   }
-  MeshData md = EmptyLightVisualizer(cgl, "spotLightViz");
-  md.ChangeVertices(FlattenVector3List(points));
   List<int> faces = [];
   for (int i = 1; i < points.length; ++i) {
     faces.add(0);
@@ -87,13 +78,11 @@ MeshData SpotLightVisualizer(
       faces.add(i);
     }
   }
+  md.ChangeVertices(FlattenVector3List(points));
   md.ChangeFaces(faces);
-  return md;
 }
 
-/*
-MeshData PointLightVisualizer(
-    WEBGL.RenderingContext gl, VM.Vector3 pos, double range) {
+void UpdatePointLightVisualizer2(MeshData md, VM.Vector3 pos, double range) {
   List<VM.Vector3> points = [];
   List<int> faces = [];
   // Rays from center
@@ -114,13 +103,11 @@ MeshData PointLightVisualizer(
     faces.add(f.a);
   }
 
-  MeshData md = new MeshData("pointlight", gl, WEBGL.LINES);
   md.AddVertices(FlattenVector3List(points));
-  md.AddFaces(faces);
-  return md;
+  md.ChangeFaces(faces);
 }
-*/
-MeshData PointLightVisualizer(ChronosGL cgl, VM.Vector3 pos, double range) {
+
+UpdatePointLightVisualizer(MeshData md, VM.Vector3 pos, double range) {
   List<VM.Vector3> points = [];
   List<int> faces = [];
   // Rays from center
@@ -130,8 +117,33 @@ MeshData PointLightVisualizer(ChronosGL cgl, VM.Vector3 pos, double range) {
     points.add(pos + (v * range));
   }
   points.add(pos);
-  MeshData md = EmptyLightVisualizer(cgl, "pointLightViz");
   md.ChangeVertices(FlattenVector3List(points));
   md.ChangeFaces(faces);
+}
+
+void UpdateLightVisualizer(
+    MeshData md, Light light, double cubeLen, double delta) {
+  switch (light.runtimeType) {
+    case DirectionalLight:
+      DirectionalLight dl = light as DirectionalLight;
+      UpdateDirectionalLightVisualizer(md, cubeLen, delta, dl.dir);
+      break;
+    case SpotLight:
+      SpotLight sl = light as SpotLight;
+      UpdateSpotLightVisualizer(md, sl.pos, sl.dir, sl.range, sl.angle);
+      break;
+    case PointLight:
+      PointLight pl = light as PointLight;
+      UpdatePointLightVisualizer(md, pl.pos, pl.range);
+      break;
+    default:
+      assert(false, "unknown light: ${light.runtimeType}");
+  }
+}
+
+MeshData LightVisualizer(
+    ChronosGL cgl, Light light, double cubeLen, double delta) {
+  MeshData md = EmptyLightVisualizer(cgl, "dirLightViz");
+  UpdateLightVisualizer(md, light, cubeLen, delta);
   return md;
 }

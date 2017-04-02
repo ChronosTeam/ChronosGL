@@ -1,5 +1,4 @@
 import 'package:chronosgl/chronosgl.dart';
-import 'package:chronosgl/chronosutil.dart';
 import 'dart:html' as HTML;
 import 'dart:web_gl' as WEBGL;
 
@@ -131,25 +130,11 @@ void main() {
   ];
 }
 
-final VM.Vector3 colBlack = new VM.Vector3(0.0, 0.0, 0.0);
-final VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
-
-final VM.Vector3 colBlue = new VM.Vector3(0.0, 0.0, 1.0);
-final VM.Vector3 colLiteBlue = new VM.Vector3(0.0, 0.0, 0.5);
-
-final VM.Vector3 colRed = new VM.Vector3(1.0, 0.0, 0.0);
-final VM.Vector3 colLiteRed = new VM.Vector3(0.5, 0.0, 0.0);
-
-final VM.Vector3 colGreen = new VM.Vector3(0.0, 1.0, 0.0);
-final VM.Vector3 colLiteGreen = new VM.Vector3(0.0, 0.5, 0.0);
-
-final VM.Vector3 colYellow = new VM.Vector3(1.0, 1.0, 0.0);
-
 final VM.Vector3 posLight = new VM.Vector3(11.0, 20.0, 0.0);
 final VM.Vector3 dirLight = new VM.Vector3(0.0, -30.0, 0.0);
 
-final double range = 50.0;
-final double cutoff = 0.95;
+final double range = 30.0;
+final double cutoff = 0.5;
 final double glossiness = 10.0;
 
 // These must be in-sync with the .html file
@@ -158,10 +143,10 @@ final String idSpot = "idSpot";
 final String idDirectional = "idDirectional";
 
 final Map<String, Light> lightSources = {
-  idDirectional: new DirectionalLight("dir", dirLight, colBlue, colRed),
-  idSpot: new SpotLight(
-      "spot", posLight, dirLight, colLiteGreen, colGreen, range, cutoff, 2.0),
-  idPoint: new PointLight("point", posLight, colLiteBlue, colBlue, range),
+  idDirectional: new DirectionalLight("dir", dirLight, ColorBlue, ColorBlack),
+  idSpot: new SpotLight("spot", posLight, dirLight, ColorLiteGreen, ColorGreen,
+      range, cutoff, 0.5),
+  idPoint: new PointLight("point", posLight, ColorLiteBlue, ColorBlue, range),
 };
 
 void EventRadioChanged(String name) {
@@ -217,27 +202,42 @@ void SwallowEvent(HTML.Event e) {
   e.stopPropagation();
 }
 
-final Material mat1 = new Material("mat1")
-  ..SetUniform(uColor, new VM.Vector3(0.0, 0.0, 0.4))
+final Material matGray = new Material("matGray")
+  ..SetUniform(uColor, ColorGray4)
   ..SetUniform(uShininess, glossiness);
 
-final Material mat2 = new Material("mat2")
-  ..SetUniform(uColor, new VM.Vector3(0.4, 0.0, 0.0))
+final Material matObjects = new Material("objects")
+  ..SetUniform(uColor, ColorGray2)
   ..SetUniform(uShininess, glossiness);
 
-final Material mat3 = new Material("mat3")
-  ..SetUniform(uColor, new VM.Vector3(0.0, 0.4, 0.0))
+final Material matNormals = new Material("normals")
+  ..SetUniform(uColor, ColorRed)
   ..SetUniform(uShininess, glossiness);
 
-final Material mat4 = new Material("mat3")
-  ..SetUniform(uColor, new VM.Vector3(0.4, 0.4, 0.4))
-  ..SetUniform(uShininess, glossiness);
+final Material lightSourceMat = new Material("light")
+  ..SetUniform(uColor, ColorYellow);
+
+List<Node> MakeScene(ChronosGL chronosGL) {
+  return [
+    new Node("sphere", ShapeIcosahedron(chronosGL, 3), matObjects)
+      ..setPos(0.0, 0.0, 0.0),
+    new Node("cube", ShapeCube(chronosGL), matObjects)..setPos(-5.0, 0.0, -5.0),
+    new Node(
+        "cylinder", ShapeCylinder(chronosGL, 3.0, 6.0, 2.0, 32), matObjects)
+      ..setPos(5.0, 0.0, -5.0),
+    new Node("torusknot", ShapeTorusKnot(chronosGL, radius: 1.0, tube: 0.4),
+        matObjects)
+      ..setPos(5.0, 0.0, 5.0),
+    new Node("cube", ShapeCube(chronosGL, x: 20.0, y: 0.1, z: 20.0), matGray)
+      ..setPos(0.0, -10.0, 0.0),
+  ];
+}
 
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: false);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
 
@@ -283,44 +283,19 @@ void main() {
       .createProgram(createLightShaderBlinnPhongWithShadow())
         ..SetInput(uShadowMap, shadowBuffer.depthTexture)
         ..SetInput(uShadowBias, 0.03);
+  RenderProgram fixed = phaseMain.createProgram(createSolidColorShader());
 
-  {
-    Node ico = new Node("sphere", ShapeIcosahedron(chronosGL, 3), mat3)
-      ..setPos(0.0, 0.0, 0.0);
-    shadowMap.add(ico);
-    basic.add(ico);
-  }
-  {
-    Node cube = new Node("cube", ShapeCube(chronosGL), mat3)
-      ..setPos(-5.0, 0.0, -5.0);
-    shadowMap.add(cube);
-    basic.add(cube);
+  for (Node n in MakeScene(chronosGL)) {
+    basic.add(n);
+    shadowMap.add(n);
+
+    MeshData norm = ExtractWireframeNormals(chronosGL, n.meshData);
+    //fixed.add(new Node("x", norm, matNormals));
   }
 
-  {
-    Node cyl =
-        new Node("cylinder", ShapeCylinder(chronosGL, 3.0, 6.0, 2.0, 32), mat3)
-          ..setPos(5.0, 0.0, -5.0);
-    shadowMap.add(cyl);
-    basic.add(cyl);
-  }
-
-  {
-    Node torus = new Node(
-        "torusknot", ShapeTorusKnot(chronosGL, radius: 1.0, tube: 0.4), mat3)
-      ..setPos(5.0, 0.0, 5.0);
-    shadowMap.add(torus);
-    basic.add(torus);
-  }
-
-  {
-    // plane
-    Node cube =
-        new Node("cube", ShapeCube(chronosGL, x: 20.0, y: 0.1, z: 20.0), mat3)
-          ..setPos(0.0, -10.0, 0.0);
-    shadowMap.add(cube);
-    basic.add(cube);
-  }
+  // Same order as lightSources
+  MeshData mdLight = EmptyLightVisualizer(chronosGL, "light");
+  fixed.add(new Node("light", mdLight, lightSourceMat));
 
   // Event Handling
   for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
@@ -386,12 +361,13 @@ void main() {
     //orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    DirectionalLight dl = lightSources[idDirectional];
-    fps.ChangeExtra("${dl.dir}");
-    VM.Matrix4 lm = dl.ExtractShadowProjViewMatrix();
 
-    //SpotLight sl = lightSources[idSpot];
-    //VM.Matrix4 lm = sl.ExtractShadowProjViewMatrix();
+    Light light = lightSources[idDirectional];
+    //Light light = lightSources[idSpot];
+
+    VM.Matrix4 lm = light.ExtractShadowProjViewMatrix();
+    UpdateLightVisualizer(mdLight, light, 20.0, 5.0);
+    fps.ChangeExtra("${light}");
 
     shadowMap.ForceInput(uLightPerspectiveViewMatrix, lm);
     basic.ForceInput(uLightPerspectiveViewMatrix, lm);
