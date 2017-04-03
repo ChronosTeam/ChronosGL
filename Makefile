@@ -31,3 +31,7 @@ webserver:
 	@echo Launching webserver on port $(PORT)
 	python -m SimpleHTTPServer $(PORT)
 
+
+publish:
+	/usr/lib/dart/bin/pub publish
+
