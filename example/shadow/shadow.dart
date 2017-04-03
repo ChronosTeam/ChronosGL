@@ -27,13 +27,16 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
     new ShaderObject("LightBlinnPhongShadowF")
       ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
-      ..AddUniformVars([uShadowMap, uEyePosition, uColor, uShadowBias])
+      ..AddUniformVars(
+          [uShadowMap, uCanvasSize, uEyePosition, uColor, uShadowBias])
       ..SetBody([
         """
+
+
 float GetShadow(vec4 positionFromLight,
-                    sampler2D shadowMap,
-                    float darkness,
-                    float bias) {
+                sampler2D shadowMap,
+                float darkness,
+                float bias) {
 		vec3 depth = positionFromLight.xyz / positionFromLight.w;
 		depth = 0.5 * depth + vec3(0.5);
 		vec2 uv = depth.xy;
@@ -43,9 +46,29 @@ float GetShadow(vec4 positionFromLight,
     return (depth.z > d + bias) ? darkness : 1.0;
 }
 
+float GetShadowPCF(vec4 positionFromLight,
+                   sampler2D shadowMap,
+                   vec2 mapSize,
+                   float darkness,
+                   float bias) {
+		vec3 depth = positionFromLight.xyz / positionFromLight.w;
+		depth = 0.5 * depth + vec3(0.5);
+		vec2 uv = depth.xy;
+    float d = 0.0;
+    for(float dx = -1.5; dx <= 1.5; dx += 1.0) {
+        for(float dy =-1.5; dy <= 1.5; dy += 1.0) {
+            d += texture2D(shadowMap, uv + vec2(dx, dy) / mapSize).x;
+        }
+    }
+    d /= 16.0;
+    //return 1.0 - smoothstep(bias, bias, depth.z - d);
+    return (depth.z > d + bias) ? darkness : 1.0;
+}
+
 void main() {
-    float shadow = GetShadow(${vPositionFromLight},
-                                 ${uShadowMap}, 0.1, ${uShadowBias});
+    float shadow = GetShadowPCF(${vPositionFromLight},
+                                 ${uShadowMap}, ${uCanvasSize},
+                                 0.1, ${uShadowBias});
 
 
     ColorComponents acc = ColorComponents(vec3(0.0), vec3(0.0));
@@ -61,6 +84,7 @@ void main() {
 }
       """
       ], prolog: [
+        "",
         StdLibShader
       ])
   ];
@@ -282,6 +306,7 @@ void main() {
   RenderProgram basic = phaseMain
       .createProgram(createLightShaderBlinnPhongWithShadow())
         ..SetInput(uShadowMap, shadowBuffer.depthTexture)
+        ..SetInput(uCanvasSize, new VM.Vector2(w + 0.0, h + 0.0))
         ..SetInput(uShadowBias, 0.03);
   RenderProgram fixed = phaseMain.createProgram(createSolidColorShader());
 
