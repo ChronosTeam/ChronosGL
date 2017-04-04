@@ -123,22 +123,18 @@ UpdatePointLightVisualizer(MeshData md, VM.Vector3 pos, double range) {
 
 void UpdateLightVisualizer(
     MeshData md, Light light, double cubeLen, double delta) {
-  switch (light.runtimeType) {
-    case DirectionalLight:
+    if (light is DirectionalLight) {
       DirectionalLight dl = light as DirectionalLight;
       UpdateDirectionalLightVisualizer(md, cubeLen, delta, dl.dir);
-      break;
-    case SpotLight:
+    } else if (light is SpotLight) {
       SpotLight sl = light as SpotLight;
       UpdateSpotLightVisualizer(md, sl.pos, sl.dir, sl.range, sl.angle);
-      break;
-    case PointLight:
+    } else if (light is PointLight) {
       PointLight pl = light as PointLight;
       UpdatePointLightVisualizer(md, pl.pos, pl.range);
-      break;
-    default:
+    } else {
       assert(false, "unknown light: ${light.runtimeType}");
-  }
+    }
 }
 
 MeshData LightVisualizer(
