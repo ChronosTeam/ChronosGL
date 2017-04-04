@@ -57,7 +57,7 @@ class PointLight extends Light {
   }
 }
 
-const double _orthoDim = 50.0;
+const double _orthoDim = 40.0;
 
 class DirectionalLight extends Light {
   VM.Vector3 dir;
@@ -119,7 +119,15 @@ class SpotLight extends Light {
   VM.Vector3 _colSpecular;
   double range;
   double angle;
+  //
   double _spotFocus;
+  //
+  double _fov = 100.0;
+  double _aspect = 1.0;
+  double _near = 0.1;
+  double _far = 100.0;
+  VM.Matrix4 _m1 = new VM.Matrix4.zero();
+  VM.Matrix4 _m2 = new VM.Matrix4.zero();
 
   SpotLight(
       String name,
@@ -159,9 +167,12 @@ class SpotLight extends Light {
   @override
   VM.Matrix4 ExtractShadowProjViewMatrix() {
     VM.Vector3 up = (dir.x == 0.0 && dir.z == 0.0) ? _up2 : _up;
-    VM.Matrix4 mat = new VM.Matrix4.zero();
-    VM.setViewMatrix(mat, pos, pos - dir, up);
-    return mat;
+
+    VM.setViewMatrix(_m1, pos, dir - pos, up);
+
+    VM.setPerspectiveMatrix(_m2, _fov * Math.PI / 180.0, _aspect, _near, _far);
+    _m2.multiply(_m1);
+    return _m2;
   }
 
   String toString() {
@@ -233,60 +244,3 @@ class Illumination extends RenderInputSource {
     inputs.Remove(uLightTypes);
   }
 }
-
-// very much like a orthographic
-/*
-class ShadowProjection extends RenderInputProvider {
-  final Light _light;
-  final VM.Matrix4 _proj = new VM.Matrix4.zero();
-  final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
-  final VM.Matrix4 _projViewMatrix = new VM.Matrix4.identity();
-  double _aspect = 1.0;
-  double _l;
-  double _r;
-  double _d;
-  double _f;
-  double _b;
-
-  // d = "down", up is computed dynamically based on height & width
-  ShadowProjection(this._light, this._l, this._r, this._d, this._f, this._b)
-      : super("shadow-projection") {
-    Update();
-  }
-
-  @override
-  void AddRenderInputs(RenderInputs inputs) {
-    _light.ExtractShadowViewMatrix(_viewMatrix);
-    _projViewMatrix.setFrom(_proj);
-    _projViewMatrix.multiply(_viewMatrix);
-    //print("lightmat: ${_projViewMatrix}");
-    inputs.SetInputWithOrigin(
-        this, uLightPerspectiveViewMatrix + "${_light.no}", _projViewMatrix);
-  }
-
-  @override
-  void RemoveRenderInputs(RenderInputs inputs) {
-    inputs.Remove(uLightPerspectiveViewMatrix + "${_light.no}");
-  }
-
-  void AdjustAspect(int w, int h) {
-    double a = w / h;
-    if (_aspect == a) return;
-    _aspect = a;
-    Update();
-  }
-
-  void Update() {
-    double w = _r - _l;
-    double h = w / _aspect;
-    if (_light is DirectionalLight) {
-      VM.setOrthographicMatrix(_proj, _l, _r, _d, _d + h, _f, _b);
-    } else if (_light is SpotLight) {
-      // FIXME - fix the hardcoded constant
-      VM.setPerspectiveMatrix(_proj, 90.0 * Math.PI / 180.0, _aspect, .1, _b);
-    } else {
-      assert(false);
-    }
-  }
-}
-*/

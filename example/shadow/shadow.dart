@@ -32,7 +32,7 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
       ..SetBody([
         """
 
-
+#if 0
 float GetShadow(vec4 positionFromLight,
                 sampler2D shadowMap,
                 float darkness,
@@ -45,6 +45,7 @@ float GetShadow(vec4 positionFromLight,
     //return 1.0 - smoothstep(bias, bias, depth.z - d);
     return (depth.z > d + bias) ? darkness : 1.0;
 }
+#endif
 
 float GetShadowPCF(vec4 positionFromLight,
                    sampler2D shadowMap,
@@ -61,15 +62,20 @@ float GetShadowPCF(vec4 positionFromLight,
         }
     }
     d /= 16.0;
-    //return 1.0 - smoothstep(bias, bias, depth.z - d);
-    return (depth.z > d + bias) ? darkness : 1.0;
+    return 1.0 - smoothstep(0.001, 0.04, depth.z - d);
+    //return (depth.z > d + bias) ? darkness : 1.0;
 }
 
 void main() {
+#if 1
     float shadow = GetShadowPCF(${vPositionFromLight},
                                  ${uShadowMap}, ${uCanvasSize},
                                  0.1, ${uShadowBias});
-
+#else
+    float shadow = GetShadow(${vPositionFromLight},
+                                 ${uShadowMap},
+                                 0.1, ${uShadowBias});
+#endif
 
     ColorComponents acc = ColorComponents(vec3(0.0), vec3(0.0));
     if (shadow > 0.0) {
@@ -144,10 +150,11 @@ float viewZToPerspectiveDepth(float z, float near, float far) {
 float LinearizeDepth(float z, float near, float far) {
  return (2.0 * near) / (far + near - z * (far - near));
 }
+
 void main() {
    float d = texture2D(${uTexture},  ${vTextureCoordinates}).x;
-   gl_FragColor.rgb = vec3(LinearizeDepth(d, ${uCameraNear}, ${uCameraFar}));
-
+   //gl_FragColor.rgb = vec3(LinearizeDepth(d, ${uCameraNear}, ${uCameraFar}));
+   gl_FragColor.rgb = vec3(d > ${uCutOff} ? d : 0.0);
 }
 """
       ])
@@ -168,13 +175,17 @@ final String idDirectional = "idDirectional";
 
 final Map<String, Light> lightSources = {
   idDirectional: new DirectionalLight("dir", dirLight, ColorBlue, ColorBlack),
-  idSpot: new SpotLight("spot", posLight, dirLight, ColorLiteGreen, ColorGreen,
+  idSpot: new SpotLight("spot", posLight, dirLight, ColorBlue, ColorGreen,
       range, cutoff, 0.5),
   idPoint: new PointLight("point", posLight, ColorLiteBlue, ColorBlue, range),
 };
 
+
+Light gActiveLight;
+
 void EventRadioChanged(String name) {
   print("${name} toggle ");
+  gActiveLight =  lightSources[name];
   lightSources[name].enabled = true;
   for (String n in lightSources.keys) {
     if (n != name) lightSources[n].enabled = false;
@@ -387,12 +398,9 @@ void main() {
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
 
-    Light light = lightSources[idDirectional];
-    //Light light = lightSources[idSpot];
-
-    VM.Matrix4 lm = light.ExtractShadowProjViewMatrix();
-    UpdateLightVisualizer(mdLight, light, 20.0, 5.0);
-    fps.ChangeExtra("${light}");
+    VM.Matrix4 lm = gActiveLight.ExtractShadowProjViewMatrix();
+    UpdateLightVisualizer(mdLight, gActiveLight, 20.0, 5.0);
+    fps.ChangeExtra("${gActiveLight}");
 
     shadowMap.ForceInput(uLightPerspectiveViewMatrix, lm);
     basic.ForceInput(uLightPerspectiveViewMatrix, lm);
