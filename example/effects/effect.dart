@@ -40,9 +40,9 @@ void main() {
 
   RenderProgram prg1 = phase1.createProgram(createDemoShader());
 
-  RenderPhase phase2 = new RenderPhase("effect", chronosGL, null);
-  phase2.viewPortW = width;
-  phase2.viewPortH = height;
+  RenderPhase phase2 = new RenderPhase("effect", chronosGL, null)
+  ..viewPortW = width
+  ..viewPortH = height;
   Map<String, RenderProgram> effects = {};
   effects["none"] = phase2.createProgram(createCopyShader())
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
