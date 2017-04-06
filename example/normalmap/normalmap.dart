@@ -59,9 +59,6 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
-  // Required for bump mapping unparametrized surfaces a la Morten Mikkelsen
-  var ext = GetGlExtensionStandardDerivatives(chronosGL);
-  if (ext == null) HTML.window.alert("OES_standard_derivatives not supported");
 
   OrbitCamera orbit = new OrbitCamera(0.5, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 100.0);

@@ -27,13 +27,16 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
     new ShaderObject("LightBlinnPhongShadowF")
       ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
-      ..AddUniformVars([uShadowMap, uEyePosition, uColor, uShadowBias])
+      ..AddUniformVars(
+          [uShadowMap, uCanvasSize, uEyePosition, uColor, uShadowBias])
       ..SetBody([
         """
+
+#if 0
 float GetShadow(vec4 positionFromLight,
-                    sampler2D shadowMap,
-                    float darkness,
-                    float bias) {
+                sampler2D shadowMap,
+                float darkness,
+                float bias) {
 		vec3 depth = positionFromLight.xyz / positionFromLight.w;
 		depth = 0.5 * depth + vec3(0.5);
 		vec2 uv = depth.xy;
@@ -42,11 +45,37 @@ float GetShadow(vec4 positionFromLight,
     //return 1.0 - smoothstep(bias, bias, depth.z - d);
     return (depth.z > d + bias) ? darkness : 1.0;
 }
+#endif
+
+float GetShadowPCF(vec4 positionFromLight,
+                   sampler2D shadowMap,
+                   vec2 mapSize,
+                   float darkness,
+                   float bias) {
+		vec3 depth = positionFromLight.xyz / positionFromLight.w;
+		depth = 0.5 * depth + vec3(0.5);
+		vec2 uv = depth.xy;
+    float d = 0.0;
+    for(float dx = -1.5; dx <= 1.5; dx += 1.0) {
+        for(float dy =-1.5; dy <= 1.5; dy += 1.0) {
+            d += texture2D(shadowMap, uv + vec2(dx, dy) / mapSize).x;
+        }
+    }
+    d /= 16.0;
+    return 1.0 - smoothstep(0.001, 0.04, depth.z - d);
+    //return (depth.z > d + bias) ? darkness : 1.0;
+}
 
 void main() {
+#if 1
+    float shadow = GetShadowPCF(${vPositionFromLight},
+                                 ${uShadowMap}, ${uCanvasSize},
+                                 0.1, ${uShadowBias});
+#else
     float shadow = GetShadow(${vPositionFromLight},
-                                 ${uShadowMap}, 0.1, ${uShadowBias});
-
+                                 ${uShadowMap},
+                                 0.1, ${uShadowBias});
+#endif
 
     ColorComponents acc = ColorComponents(vec3(0.0), vec3(0.0));
     if (shadow > 0.0) {
@@ -61,6 +90,7 @@ void main() {
 }
       """
       ], prolog: [
+        "",
         StdLibShader
       ])
   ];
@@ -120,10 +150,11 @@ float viewZToPerspectiveDepth(float z, float near, float far) {
 float LinearizeDepth(float z, float near, float far) {
  return (2.0 * near) / (far + near - z * (far - near));
 }
+
 void main() {
    float d = texture2D(${uTexture},  ${vTextureCoordinates}).x;
-   gl_FragColor.rgb = vec3(LinearizeDepth(d, ${uCameraNear}, ${uCameraFar}));
-
+   //gl_FragColor.rgb = vec3(LinearizeDepth(d, ${uCameraNear}, ${uCameraFar}));
+   gl_FragColor.rgb = vec3(d > ${uCutOff} ? d : 0.0);
 }
 """
       ])
@@ -143,14 +174,18 @@ final String idSpot = "idSpot";
 final String idDirectional = "idDirectional";
 
 final Map<String, Light> lightSources = {
-  idDirectional: new DirectionalLight("dir", dirLight, ColorBlue, ColorBlack),
-  idSpot: new SpotLight("spot", posLight, dirLight, ColorLiteGreen, ColorGreen,
+  idDirectional: new DirectionalLight("dir", dirLight, ColorBlue, ColorBlack, 40.0),
+  idSpot: new SpotLight("spot", posLight, dirLight, ColorBlue, ColorGreen,
       range, cutoff, 0.5),
   idPoint: new PointLight("point", posLight, ColorLiteBlue, ColorBlue, range),
 };
 
+
+Light gActiveLight;
+
 void EventRadioChanged(String name) {
   print("${name} toggle ");
+  gActiveLight =  lightSources[name];
   lightSources[name].enabled = true;
   for (String n in lightSources.keys) {
     if (n != name) lightSources[n].enabled = false;
@@ -228,7 +263,7 @@ List<Node> MakeScene(ChronosGL chronosGL) {
     new Node("torusknot", ShapeTorusKnot(chronosGL, radius: 1.0, tube: 0.4),
         matObjects)
       ..setPos(5.0, 0.0, 5.0),
-    new Node("cube", ShapeCube(chronosGL, x: 20.0, y: 0.1, z: 20.0), matGray)
+    new Node("plane", ShapeCube(chronosGL, x: 30.0, y: 0.1, z: 30.0), matGray)
       ..setPos(0.0, -10.0, 0.0),
   ];
 }
@@ -248,8 +283,6 @@ void main() {
   final int h = canvas.clientHeight;
 
   final Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-
-  (lightSources[idDirectional] as DirectionalLight).aspect = w / h;
 
   Illumination illumination = new Illumination();
   for (Light l in lightSources.values) {
@@ -282,6 +315,7 @@ void main() {
   RenderProgram basic = phaseMain
       .createProgram(createLightShaderBlinnPhongWithShadow())
         ..SetInput(uShadowMap, shadowBuffer.depthTexture)
+        ..SetInput(uCanvasSize, new VM.Vector2(w + 0.0, h + 0.0))
         ..SetInput(uShadowBias, 0.03);
   RenderProgram fixed = phaseMain.createProgram(createSolidColorShader());
 
@@ -362,12 +396,9 @@ void main() {
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
 
-    Light light = lightSources[idDirectional];
-    //Light light = lightSources[idSpot];
-
-    VM.Matrix4 lm = light.ExtractShadowProjViewMatrix();
-    UpdateLightVisualizer(mdLight, light, 20.0, 5.0);
-    fps.ChangeExtra("${light}");
+    VM.Matrix4 lm = gActiveLight.ExtractShadowProjViewMatrix();
+    UpdateLightVisualizer(mdLight, gActiveLight, 20.0, 5.0);
+    fps.ChangeExtra("${gActiveLight}");
 
     shadowMap.ForceInput(uLightPerspectiveViewMatrix, lm);
     basic.ForceInput(uLightPerspectiveViewMatrix, lm);

@@ -9,6 +9,9 @@ documentation:
 examples:
 	/usr/lib/dart/bin/pub build example/
 
+examples_debug:
+	/usr/lib/dart/bin/pub build --mode=debug example/
+
 buildall:
 	/usr/lib/dart/bin/pub build example/
 	/usr/lib/dart/bin/pub build tool/
@@ -30,4 +33,8 @@ presubmit: tests buildall
 webserver:
 	@echo Launching webserver on port $(PORT)
 	python -m SimpleHTTPServer $(PORT)
+
+
+publish:
+	/usr/lib/dart/bin/pub publish
 

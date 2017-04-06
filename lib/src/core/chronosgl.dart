@@ -40,9 +40,14 @@ class ChronosGL {
   dynamic ext_OES_element_index_uint;
   dynamic ext_WEBGL_depth_texture;
   dynamic ext_ANGLE_instanced_arrays;
+  dynamic ext_OES_texture_float;
+  dynamic ext_OES_texture_float_linear;
+  dynamic ext_OES_standard_derivatives;
 
   ChronosGL(this._canvas,
-      {bool preserveDrawingBuffer: false, bool faceCulling: false, bool antialiasing: true}) {
+      {bool preserveDrawingBuffer: false,
+      bool faceCulling: false,
+      bool antialiasing: true}) {
     Map attributes = {
       "alpha": false,
       "depth": true,
@@ -58,18 +63,22 @@ class ChronosGL {
     }
 
     ext_OES_element_index_uint = gl.getExtension("OES_element_index_uint");
-    if (ext_OES_element_index_uint == null) {
-      throw "Error";
-    }
+    if (ext_OES_element_index_uint == null) throw "Error";
+
     ext_WEBGL_depth_texture = gl.getExtension("WEBGL_depth_texture");
-    if (ext_WEBGL_depth_texture == null) {
-      throw "Error";
-    }
+    if (ext_WEBGL_depth_texture == null) throw "Error";
 
     ext_ANGLE_instanced_arrays = gl.getExtension("ANGLE_instanced_arrays");
-    if (ext_ANGLE_instanced_arrays == null) {
-      throw "Error";
-    }
+    if (ext_ANGLE_instanced_arrays == null) throw "Error";
+
+    ext_OES_texture_float = gl.getExtension("OES_texture_float");
+    if (ext_OES_texture_float == null) throw "Error";
+
+    ext_OES_texture_float_linear = gl.getExtension("OES_texture_float_linear");
+    if (ext_OES_texture_float_linear == null) throw "Error";
+
+    ext_OES_standard_derivatives = gl.getExtension("OES_standard_derivatives");
+    if (ext_OES_standard_derivatives == null) throw "Error";
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(WEBGL.DEPTH_TEST);
@@ -97,7 +106,6 @@ class ChronosGL {
   void bindBuffer(int kind, WEBGL.Buffer buffer) {
     gl.bindBuffer(kind, buffer);
   }
-
 
   void ChangeArrayBuffer(WEBGL.Buffer buffer, Float32List data) {
     gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);

@@ -13,15 +13,6 @@ dynamic GetGlExtensionAnisotropic(ChronosGL cgl) {
   return ext;
 }
 
-// TODO: use proper return type
-dynamic GetGlExtensionStandardDerivatives(ChronosGL cgl) {
-  var ext = cgl.gl.getExtension("OES_standard_derivatives");
-  if (ext == null) {
-    LogWarn("ExtensionStandardDerivative NOT SUPPORTED");
-  }
-  return ext;
-}
-
 const int kNoAnisotropicFilterLevel = 1;
 
 int MaxAnisotropicFilterLevel(ChronosGL cgl) {
