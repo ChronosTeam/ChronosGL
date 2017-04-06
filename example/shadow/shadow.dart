@@ -87,6 +87,7 @@ void main() {
                        shadow * acc.specular +
                        uColor;
     gl_FragColor.a = 1.0;
+    // if ( gl_FragColor.r != 66.0)  gl_FragColor.rgb = vec3(shadow);
 }
       """
       ], prolog: [
@@ -153,7 +154,6 @@ float LinearizeDepth(float z, float near, float far) {
 
 void main() {
    float d = texture2D(${uTexture},  ${vTextureCoordinates}).x;
-   //gl_FragColor.rgb = vec3(LinearizeDepth(d, ${uCameraNear}, ${uCameraFar}));
    gl_FragColor.rgb = vec3(d > ${uCutOff} ? d : 0.0);
 }
 """
@@ -268,6 +268,9 @@ List<Node> MakeScene(ChronosGL chronosGL) {
   ];
 }
 
+const int gShadowMapW = 512;
+const int gShadowMapH = 512;
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -294,8 +297,8 @@ void main() {
   // fills the depthbuffer
   RenderPhase phaseComputeShadow =
       new RenderPhase("compute-shadow", chronosGL, shadowBuffer);
-  phaseComputeShadow.viewPortW = w;
-  phaseComputeShadow.viewPortH = h;
+  phaseComputeShadow.viewPortW = gShadowMapW;
+  phaseComputeShadow.viewPortH = gShadowMapH;
   RenderProgram shadowMap =
       phaseComputeShadow.createProgram(createShadowShader());
 
@@ -305,7 +308,7 @@ void main() {
       .createProgram(createCopyShaderForShadow())
         ..SetInput(uCameraNear, 1.0)
         ..SetInput(uCameraFar, 100.0);
-  copyToScreen.SetInput(uTexture, shadowBuffer.colorTexture);
+  copyToScreen.SetInput(uTexture, shadowBuffer.depthTexture);
   copyToScreen.add(UnitNode(chronosGL));
 
   // display scene with shadow on left part of screen.
@@ -315,7 +318,7 @@ void main() {
   RenderProgram basic = phaseMain
       .createProgram(createLightShaderBlinnPhongWithShadow())
         ..SetInput(uShadowMap, shadowBuffer.depthTexture)
-        ..SetInput(uCanvasSize, new VM.Vector2(w + 0.0, h + 0.0))
+        ..SetInput(uCanvasSize, new VM.Vector2(gShadowMapW + 0.0, gShadowMapH + 0.0))
         ..SetInput(uShadowBias, 0.03);
   RenderProgram fixed = phaseMain.createProgram(createSolidColorShader());
 
