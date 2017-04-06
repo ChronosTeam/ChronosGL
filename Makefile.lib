@@ -83,16 +83,11 @@ gen/lib_chronosgl.js:  gen/pub_vector_math.sum $(SUBLIBS) lib/chronosgl.dart
 
 gen/lib_chronosgl.sum: gen/lib_chronosgl.js
 
-# AUX LIB
 
-gen/lib_chronosutil.js: lib/chronosutil.dart
-	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
-
-gen/lib_chronosutil.sum: gen/lib_chronosutil.js
 
 # TEST EXAMPLE
 
-gen/simple.dart.js: gen/lib_chronosutil.sum  gen/lib_chronosgl.sum example/simple/simple.dart
+gen/simple.dart.js: gen/lib_chronosgl.sum example/simple/simple.dart
 	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
 
 example: gen/simple.dart.js
