@@ -174,7 +174,7 @@ final String idSpot = "idSpot";
 final String idDirectional = "idDirectional";
 
 final Map<String, Light> lightSources = {
-  idDirectional: new DirectionalLight("dir", dirLight, ColorBlue, ColorBlack),
+  idDirectional: new DirectionalLight("dir", dirLight, ColorBlue, ColorBlack, 40.0),
   idSpot: new SpotLight("spot", posLight, dirLight, ColorBlue, ColorGreen,
       range, cutoff, 0.5),
   idPoint: new PointLight("point", posLight, ColorLiteBlue, ColorBlue, range),
@@ -283,8 +283,6 @@ void main() {
   final int h = canvas.clientHeight;
 
   final Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-
-  (lightSources[idDirectional] as DirectionalLight).aspect = w / h;
 
   Illumination illumination = new Illumination();
   for (Light l in lightSources.values) {

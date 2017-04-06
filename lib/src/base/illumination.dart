@@ -61,21 +61,16 @@ const double _orthoDim = 40.0;
 
 class DirectionalLight extends Light {
   VM.Vector3 dir;
-  VM.Vector3 _colDiffuse;
-  VM.Vector3 _colSpecular;
-  double aspect = 1.0;
-  // TODO: make this configurable
-  double _l = -_orthoDim;
-  double _r = _orthoDim;
-  double _d = -_orthoDim;
-  double _f = -100.0;
-  double _b = _orthoDim;
+  final VM.Vector3 _colDiffuse;
+  final VM.Vector3 _colSpecular;
+  final double _dim;
+
 
   VM.Matrix4 _projViewMat = new VM.Matrix4.zero();
   VM.Matrix4 _tmpMat = new VM.Matrix4.zero();
 
   DirectionalLight(
-      String name, VM.Vector3 this.dir, this._colDiffuse, this._colSpecular)
+      String name, VM.Vector3 this.dir, this._colDiffuse, this._colSpecular, this._dim)
       : super(name, lightTypeDirectional);
 
   // Must be in sync with UnpackDirectionalLightInfo
@@ -96,10 +91,7 @@ class DirectionalLight extends Light {
 
   @override
   VM.Matrix4 ExtractShadowProjViewMatrix() {
-    double w = _r - _l;
-    double h = w / aspect;
-
-    VM.setOrthographicMatrix(_projViewMat, _l, _r, _d, _d + h, _f, _b);
+    VM.setOrthographicMatrix(_projViewMat, -_dim, _dim, -_dim, _dim, -_dim, _dim);
 
     VM.Vector3 up = (dir.x == 0.0 && dir.z == 0.0) ? _up2 : _up;
     VM.setViewMatrix(_tmpMat, new VM.Vector3.zero(), dir, up);
@@ -115,8 +107,8 @@ class DirectionalLight extends Light {
 class SpotLight extends Light {
   VM.Vector3 pos;
   VM.Vector3 dir;
-  VM.Vector3 _colDiffuse;
-  VM.Vector3 _colSpecular;
+  final VM.Vector3 _colDiffuse;
+  final VM.Vector3 _colSpecular;
   double range;
   double angle;
   //
