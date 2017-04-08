@@ -400,7 +400,7 @@ void main() {
     fps.UpdateFrameCount(timeMs);
 
     VM.Matrix4 lm = gActiveLight.ExtractShadowProjViewMatrix();
-    UpdateLightVisualizer(mdLight, gActiveLight, 20.0, 5.0);
+    UpdateLightVisualizer(mdLight, gActiveLight);
     fps.ChangeExtra("${gActiveLight}");
 
     shadowMap.ForceInput(uLightPerspectiveViewMatrix, lm);

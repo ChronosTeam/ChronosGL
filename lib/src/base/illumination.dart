@@ -63,14 +63,14 @@ class DirectionalLight extends Light {
   VM.Vector3 dir;
   final VM.Vector3 _colDiffuse;
   final VM.Vector3 _colSpecular;
-  final double _dim;
+  final double dim;
 
 
   VM.Matrix4 _projViewMat = new VM.Matrix4.zero();
   VM.Matrix4 _tmpMat = new VM.Matrix4.zero();
 
   DirectionalLight(
-      String name, VM.Vector3 this.dir, this._colDiffuse, this._colSpecular, this._dim)
+      String name, VM.Vector3 this.dir, this._colDiffuse, this._colSpecular, this.dim)
       : super(name, lightTypeDirectional);
 
   // Must be in sync with UnpackDirectionalLightInfo
@@ -91,7 +91,7 @@ class DirectionalLight extends Light {
 
   @override
   VM.Matrix4 ExtractShadowProjViewMatrix() {
-    VM.setOrthographicMatrix(_projViewMat, -_dim, _dim, -_dim, _dim, -_dim, _dim);
+    VM.setOrthographicMatrix(_projViewMat, -dim, dim, -dim, dim, -dim, dim);
 
     VM.Vector3 up = (dir.x == 0.0 && dir.z == 0.0) ? _up2 : _up;
     VM.setViewMatrix(_tmpMat, new VM.Vector3.zero(), dir, up);

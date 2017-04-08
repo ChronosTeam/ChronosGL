@@ -111,15 +111,15 @@ void main() {
   Map<String, Node> lightVisualizers = {
     idDirectional: new Node(
         "DirLightViz",
-        LightVisualizer(chronosGL, gLightSources[idDirectional], 80.0, 30.0),
+        LightVisualizer(chronosGL, gLightSources[idDirectional]),
         lightSourceMat),
     idPoint: new Node(
         "PointLightViz",
-        LightVisualizer(chronosGL, gLightSources[idPoint], 80.0, 30.0),
+        LightVisualizer(chronosGL, gLightSources[idPoint]),
         lightSourceMat),
     idSpot: new Node(
         "SpotLightViz",
-        LightVisualizer(chronosGL, gLightSources[idSpot], 80.0, 30.0),
+        LightVisualizer(chronosGL, gLightSources[idSpot]),
         lightSourceMat)
   };
 

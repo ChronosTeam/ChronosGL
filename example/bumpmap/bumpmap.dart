@@ -85,7 +85,7 @@ void main() {
   Material lightMat = new Material("light")
     ..SetUniform(uColor, ColorYellow);
   fixed.add(new Node(
-      "pointLight", LightVisualizer(chronosGL, light, 2.0, 0.5), lightMat));
+      "pointLight", LightVisualizer(chronosGL, light), lightMat));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
