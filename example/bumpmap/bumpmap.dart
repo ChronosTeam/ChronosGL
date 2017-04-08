@@ -76,7 +76,7 @@ void main() {
   RenderProgram fixed = phase.createProgram(createSolidColorShader());
   RenderProgram prg = phase.createProgram(createShader());
 
-  DirectionalLight dl = new DirectionalLight("dir", dirLight, colDiffuse, colSpecular);
+  DirectionalLight dl = new DirectionalLight("dir", dirLight, colDiffuse, colSpecular, 40.0);
   SpotLight sl = new SpotLight("spot", posLight, dirLight, colDiffuse,
         colSpecular, range, angle, 2.0);
   Light light = dl;

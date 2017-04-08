@@ -86,7 +86,7 @@ class Texture {
   void Bind([bool initTime = false]) {
     if (initTime) {
       _texture = _cgl.createTexture();
-       properties.InstallEarly(_cgl, _textureType);
+      properties.InstallEarly(_cgl, _textureType);
     }
 
     _cgl.bindTexture(_textureType, _texture);
@@ -118,9 +118,11 @@ class Texture {
   }
 }
 
+// https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml
 class TypedTexture extends Texture {
   int _width;
   int _height;
+  final int _internalFormatType;
   // e.g. WEBGL.DEPTH_COMPONENT, WEBGL.RGB, WEBGL.RGBA
   final int _formatType;
   // e.g.  WEBGL.UNSIGNED_SHORT, WEBGL.UNSIGNED_BYTE. WEBGL.FLOAT
@@ -132,7 +134,8 @@ class TypedTexture extends Texture {
   var _data;
 
   TypedTexture(ChronosGL cgl, String url, this._width, this._height,
-      this._formatType, this._dataType, [this._data = null])
+      this._internalFormatType, this._formatType, this._dataType,
+      [this._data = null])
       : super(cgl, WEBGL.TEXTURE_2D, url,
             new TextureProperties.forFramebuffer()) {
     _Install();
@@ -143,8 +146,8 @@ class TypedTexture extends Texture {
     _width = w;
     _height = h;
     Bind();
-    _cgl.gl.texImage2D(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
-        _formatType, _dataType, _data);
+    _cgl.gl.texImage2D(WEBGL.TEXTURE_2D, 0, _internalFormatType, _width,
+        _height, 0, _formatType, _dataType, _data);
     UnBind();
   }
 

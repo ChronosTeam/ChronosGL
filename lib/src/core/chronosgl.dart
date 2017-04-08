@@ -1,9 +1,13 @@
 part of core;
 
 const String NO_WEBGL_MESSAGE = """
-Calling canvas.getContext("experimental-webgl") failed,
-make sure you run on a computer that supports WebGL.
-Test here: http://get.webgl.org/
+Calling canvas.getContext("webgl2") failed,
+make sure you run on a computer that supports WebGL2.
+
+You can test your browser's compatibility here: http://webglreport.com/
+
+(If you are using Dartium make sure you start it with the
+option: --enable-unsafe-es3-apis)
 """;
 
 String _AddLineNumbers(String text) {
@@ -14,8 +18,7 @@ String _AddLineNumbers(String text) {
   return out.join("\n");
 }
 
-WEBGL.Shader _CompileOneShader(
-    WEBGL.RenderingContext gl, int type, String text) {
+WEBGL.Shader _CompileOneShader(dynamic gl, int type, String text) {
   WEBGL.Shader shader = gl.createShader(type);
 
   gl.shaderSource(shader, text);
@@ -34,15 +37,10 @@ WEBGL.Shader _CompileOneShader(
 }
 
 class ChronosGL {
-  WEBGL.RenderingContext gl;
+  // either WebGL2RenderingContext' or 'RenderingContext2'
+  dynamic gl;
 
   final dynamic _canvas;
-  dynamic ext_OES_element_index_uint;
-  dynamic ext_WEBGL_depth_texture;
-  dynamic ext_ANGLE_instanced_arrays;
-  dynamic ext_OES_texture_float;
-  dynamic ext_OES_texture_float_linear;
-  dynamic ext_OES_standard_derivatives;
 
   ChronosGL(this._canvas,
       {bool preserveDrawingBuffer: false,
@@ -57,28 +55,10 @@ class ChronosGL {
       "preserveDrawingBuffer": preserveDrawingBuffer,
     };
 
-    gl = _canvas.getContext("webgl", attributes);
+    gl = _canvas.getContext("webgl2", attributes);
     if (gl == null) {
       throw new Exception(NO_WEBGL_MESSAGE);
     }
-
-    ext_OES_element_index_uint = gl.getExtension("OES_element_index_uint");
-    if (ext_OES_element_index_uint == null) throw "Error";
-
-    ext_WEBGL_depth_texture = gl.getExtension("WEBGL_depth_texture");
-    if (ext_WEBGL_depth_texture == null) throw "Error";
-
-    ext_ANGLE_instanced_arrays = gl.getExtension("ANGLE_instanced_arrays");
-    if (ext_ANGLE_instanced_arrays == null) throw "Error";
-
-    ext_OES_texture_float = gl.getExtension("OES_texture_float");
-    if (ext_OES_texture_float == null) throw "Error";
-
-    ext_OES_texture_float_linear = gl.getExtension("OES_texture_float_linear");
-    if (ext_OES_texture_float_linear == null) throw "Error";
-
-    ext_OES_standard_derivatives = gl.getExtension("OES_standard_derivatives");
-    if (ext_OES_standard_derivatives == null) throw "Error";
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(WEBGL.DEPTH_TEST);

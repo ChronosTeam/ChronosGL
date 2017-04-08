@@ -178,7 +178,7 @@ class ShaderProgram extends RenderProgram {
       if (debug) print("[${name}] $a $index");
       _cgl.enableVertexAttribArray(index);
       if (a.codeUnitAt(0) == prefixInstancer) {
-        _cgl.ext_ANGLE_instanced_arrays.vertexAttribDivisorAngle(index, 1);
+        _cgl.gl.vertexAttribDivisor(index, 1);
       }
     }
   }
@@ -246,11 +246,10 @@ class ShaderProgram extends RenderProgram {
 
     if (_numInstances > 0) {
       if (indexType != 0) {
-        _cgl.ext_ANGLE_instanced_arrays.drawElementsInstancedAngle(
+        _cgl.gl.drawElementsInstanced(
             _drawMode, _numItems, indexType, 0, _numInstances);
       } else {
-        _cgl.ext_ANGLE_instanced_arrays
-            .drawArraysInstancedAngle(_drawMode, 0, _numItems, _numInstances);
+        _cgl.gl.drawArraysInstanced(_drawMode, 0, _numItems, _numInstances);
       }
     } else {
       if (indexType != 0) {
@@ -268,7 +267,7 @@ class ShaderProgram extends RenderProgram {
     for (String canonical in _attributeLocations.keys) {
       int index = _attributeLocations[canonical];
       if (canonical.startsWith("ia")) {
-        _cgl.ext_ANGLE_instanced_arrays.vertexAttribDivisorAngle(index, 0);
+        _cgl.gl.vertexAttribDivisor(index, 0);
       }
       _cgl.disableVertexAttribArray(index);
     }
