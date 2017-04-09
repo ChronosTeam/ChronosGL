@@ -217,9 +217,6 @@ List<Node> MakeScene(ChronosGL chronosGL) {
   ];
 }
 
-int gShadowMapW = 512;
-int gShadowMapH = 512;
-
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -230,9 +227,6 @@ void main() {
 
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
-
-  final int w = canvas.clientWidth ~/ 2;
-  final int h = canvas.clientHeight;
 
   final Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
@@ -257,9 +251,6 @@ void main() {
   for (Node n in MakeScene(chronosGL)) {
     basic.add(n);
     shadowMap.AddShadowCaster(n);
-
-    MeshData norm = ExtractWireframeNormals(chronosGL, n.meshData);
-    //fixed.add(new Node("x", norm, matNormals));
   }
 
   // Same order as lightSources

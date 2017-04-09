@@ -52,6 +52,7 @@ class PointLight extends Light {
     return new VM.Matrix4.zero();
   }
 
+  @override
   String toString() {
     return "PL: p:${pos}  r:${range}";
   }
@@ -98,6 +99,7 @@ class DirectionalLight extends Light {
     return _projViewMat;
   }
 
+  @override
   String toString() {
     return "DL: p:${dir}";
   }
@@ -168,6 +170,7 @@ class SpotLight extends Light {
     return _m2;
   }
 
+  @override
   String toString() {
     return "SL: p:${pos}  d:${dir}  r:${range}  a:${angle}";
   }

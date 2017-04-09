@@ -125,7 +125,7 @@ void UpdatePointLightVisualizer2(MeshData md, VM.Vector3 pos, double range) {
   md.ChangeFaces(faces);
 }
 
-UpdatePointLightVisualizer(MeshData md, VM.Vector3 pos, double range) {
+void UpdatePointLightVisualizer(MeshData md, VM.Vector3 pos, double range) {
   List<VM.Vector3> points = [];
   List<int> faces = [];
   // Rays from center
@@ -141,13 +141,13 @@ UpdatePointLightVisualizer(MeshData md, VM.Vector3 pos, double range) {
 
 void UpdateLightVisualizer(MeshData md, Light light) {
   if (light is DirectionalLight) {
-    DirectionalLight dl = light as DirectionalLight;
+    DirectionalLight dl = light;
     UpdateDirectionalLightVisualizer(md, dl.dim, dl.dim / 4, dl.dir);
   } else if (light is SpotLight) {
-    SpotLight sl = light as SpotLight;
+    SpotLight sl = light;
     UpdateSpotLightVisualizer(md, sl.pos, sl.dir, sl.range, sl.angle);
   } else if (light is PointLight) {
-    PointLight pl = light as PointLight;
+    PointLight pl = light;
     UpdatePointLightVisualizer(md, pl.pos, pl.range);
   } else {
     assert(false, "unknown light: ${light.runtimeType}");
