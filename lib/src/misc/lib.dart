@@ -12,9 +12,10 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 import "../base/lib.dart";
 import "../core/lib.dart";
+import "../shader/lib.dart";
 import "../shape/lib.dart";
 
-/// # Layer: Misc (uses Base Layer, Core Layer, Shape Layer, dart:web_gl)
+/// # Layer: Misc (uses Base Layer, Core Layer, Shape Layer, Shader Layer, dart:web_gl)
 /// The **misc layer** contains miscellaneous helpers
 
 part "light_visualizer.dart";

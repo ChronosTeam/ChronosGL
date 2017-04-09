@@ -233,8 +233,7 @@ void main() {
 
   final int w = canvas.clientWidth ~/ 2;
   final int h = canvas.clientHeight;
-  gShadowMapH = h;
-  gShadowMapW = w;
+
   final Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   Illumination illumination = new Illumination();
@@ -242,16 +241,7 @@ void main() {
     illumination.AddLight(l);
   }
 
-  ShadowMap shadowMap = new ShadowMap(chronosGL, gShadowMapW, gShadowMapH);
-
-  // display depth buffer on right half of screen
-  RenderPhase phaseDisplayShadow = new RenderPhase("display-shadow", chronosGL);
-  RenderProgram copyToScreen = phaseDisplayShadow
-      .createProgram(createCopyShaderForShadow())
-        ..SetInput(uCameraNear, 1.0)
-        ..SetInput(uCameraFar, 100.0);
-  copyToScreen.SetInput(uTexture, shadowMap.GetMapTexture());
-  copyToScreen.add(UnitNode(chronosGL));
+  ShadowMap shadowMap = new ShadowMap(chronosGL, 512, 512);
 
   // display scene with shadow on left part of screen.
   RenderPhase phaseMain = new RenderPhase("main", chronosGL);
@@ -260,8 +250,7 @@ void main() {
   RenderProgram basic = phaseMain
       .createProgram(createLightShaderBlinnPhongWithShadow())
         ..SetInput(uShadowMap, shadowMap.GetMapTexture())
-        ..SetInput(
-            uCanvasSize, new VM.Vector2(gShadowMapW + 0.0, gShadowMapH + 0.0))
+        ..SetInput(uCanvasSize, shadowMap.GetMapSize())
         ..SetInput(uShadowBias, 0.03);
   RenderProgram fixed = phaseMain.createProgram(createSolidColorShader());
 
@@ -297,7 +286,7 @@ void main() {
           EventDirectionChanged(name, value);
         } else if (name == "cutoff") {
           print("set cutoff ${value}");
-          copyToScreen.ForceInput(uCutOff, value);
+          //copyToScreen.ForceInput(uCutOff, value);
         }
       }
     });
@@ -321,9 +310,7 @@ void main() {
     perspective.AdjustAspect(w, h);
     phaseMain.viewPortW = w;
     phaseMain.viewPortH = h;
-    phaseDisplayShadow.viewPortW = w;
-    phaseDisplayShadow.viewPortH = h;
-    phaseDisplayShadow.viewPortX = phaseMain.viewPortW;
+    shadowMap.SetVisualizationViewPort(phaseMain.viewPortW, 0, w, h);
   }
 
   resolutionChange(null);
@@ -347,10 +334,8 @@ void main() {
     fps.ChangeExtra("${gActiveLight}");
 
     shadowMap.Compute(lm);
+    shadowMap.Visualize();
     basic.ForceInput(uLightPerspectiveViewMatrix, lm);
-
-    // show the shadow map
-    phaseDisplayShadow.draw([]);
     // render scene utilizing shadow map
     phaseMain.draw([perspective, illumination]);
 

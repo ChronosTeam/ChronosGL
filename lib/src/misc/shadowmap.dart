@@ -17,8 +17,6 @@ List<ShaderObject> _createShadowShader() {
   ];
 }
 
-
-
 // Suitable biases are: bias1: 0.0001 bias2: 0.04
 // It is also ok to set both biases to the same value, e.g. 0.0001
 const String ShadowMapShaderLib = """
@@ -27,6 +25,7 @@ float GetShadow(vec4 positionFromLight,
                 float bias1,
                 float bias2) {
 		vec3 depth = positionFromLight.xyz / positionFromLight.w;
+		// depth is in [-1, 1] but we want [0, 1] for the texture lookup
 		depth = 0.5 * depth + vec3(0.5);
 		vec2 uv = depth.xy;
 
@@ -40,6 +39,7 @@ float GetShadowPCF16(vec4 positionFromLight,
                      float bias1,
                      float bias2) {
 		vec3 depth = positionFromLight.xyz / positionFromLight.w;
+		// depth is in [-1, 1] but we want [0, 1] for the texture lookup
 		depth = 0.5 * depth + vec3(0.5);
 		vec2 uv = depth.xy;
     float d = 0.0;
@@ -58,6 +58,7 @@ float GetShadowPCF9(vec4 positionFromLight,
                     float bias1,
                     float bias2) {
 		vec3 depth = positionFromLight.xyz / positionFromLight.w;
+		// depth is in [-1, 1] but we want [0, 1] for the texture lookup
 		depth = 0.5 * depth + vec3(0.5);
 		vec2 uv = depth.xy;
     float d = 0.0;
@@ -71,30 +72,102 @@ float GetShadowPCF9(vec4 positionFromLight,
 }
 """;
 
+List<ShaderObject> _createShaderVisualizeShadowmapLinear() {
+  return [
+    new ShaderObject("copyV")
+      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVar(aTextureCoordinates)
+      ..AddVaryingVar(vTextureCoordinates)
+      ..SetBodyWithMain(
+          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+    new ShaderObject("copyF")
+      ..AddVaryingVar(vTextureCoordinates)
+      ..AddUniformVar(uTexture)
+      ..AddUniformVars([uCutOff, uCameraFar, uCameraNear])
+      ..SetBody([
+        """
+#if 0
+float perspectiveDepthToViewZ(float z, float near, float far) {
+    return near * far / ((far - near) * z - far);
+}
 
+float viewZToOrthographicDepth(float z, float near, float far) {
+    return (z + near) / (near - far);
+}
+
+float orthographicDepthToViewZ(float d, float near, float far) {
+    return d * (near - far) - near;
+}
+
+float viewZToPerspectiveDepth(float z, float near, float far) {
+    return ((near + z) * far) / ((far - near) * z);
+}
+
+float LinearizeDepth(float z, float near, float far) {
+ return (2.0 * near) / (far + near - z * (far - near));
+}
+#endif
+void main() {
+   float d = texture2D(${uTexture},  ${vTextureCoordinates}).x;
+   gl_FragColor.rgb = vec3(d >= ${uCutOff} ? d : 0.0);
+}
+"""
+      ])
+  ];
+}
 
 class ShadowMap {
   ChronosFramebuffer _shadowBuffer;
-  RenderPhase _phase;
-  RenderProgram _program;
+  VM.Vector2 _mapSize;
 
-  ShadowMap(ChronosGL cgl, int w, int h) {
+  RenderPhase _phaseCompute;
+  RenderProgram _programCompute;
+
+  RenderPhase _phaseVisualize;
+  RenderProgram _programVisualize;
+
+  ShadowMap(ChronosGL cgl, int w, int h)
+      : _mapSize = new VM.Vector2(w + 0.0, h + 0.0) {
     _shadowBuffer = new ChronosFramebuffer(cgl, w, h);
-    _phase = new RenderPhase("compute-shadow", cgl, _shadowBuffer);
-    _phase.viewPortW = w;
-    _phase.viewPortH = h;
-    _program = _phase.createProgram(_createShadowShader());
+    _phaseCompute = new RenderPhase("compute-shadow", cgl, _shadowBuffer)
+      ..viewPortW = w
+      ..viewPortH = h;
+    _programCompute = _phaseCompute.createProgram(_createShadowShader());
+
+    _phaseVisualize = new RenderPhase("visualize-shadow", cgl);
+    _phaseVisualize.viewPortW = w;
+    _phaseVisualize.viewPortH = h;
+    _programVisualize =
+        _phaseVisualize.createProgram(_createShaderVisualizeShadowmapLinear())
+          ..SetInput(uTexture, GetMapTexture())
+          ..SetInput(uCutOff, 0.0)
+          ..SetInput(uCameraNear, 0.0)
+          ..SetInput(uCameraFar, 0.0)
+          ..add(UnitNode(cgl));
+  }
+
+  void SetVisualizationViewPort(int x, int y, int w, int h) {
+    _phaseVisualize
+      ..viewPortX = x
+      ..viewPortY = y
+      ..viewPortW = w
+      ..viewPortH = h;
   }
 
   void AddShadowCaster(Node node) {
-    _program.add(node);
+    _programCompute.add(node);
   }
 
   // TODO: this should take a Illumination instance as an argument eventually
   void Compute(VM.Matrix4 lightMatrix) {
-    _program.ForceInput(uLightPerspectiveViewMatrix, lightMatrix);
-    _phase.draw([]);
+    _programCompute.ForceInput(uLightPerspectiveViewMatrix, lightMatrix);
+    _phaseCompute.draw([]);
   }
 
+  void Visualize() {
+    _phaseVisualize.draw([]);
+  }
+
+  VM.Vector2 GetMapSize() => _mapSize;
   Texture GetMapTexture() => _shadowBuffer.depthTexture;
 }
