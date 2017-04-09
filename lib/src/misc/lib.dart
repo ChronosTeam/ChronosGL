@@ -20,3 +20,4 @@ import "../shape/lib.dart";
 part "light_visualizer.dart";
 part "fps_meter.dart";
 part "example_helper.dart";
+part "shadowmap.dart";

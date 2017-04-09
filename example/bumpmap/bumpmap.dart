@@ -78,7 +78,7 @@ void main() {
 
   DirectionalLight dl = new DirectionalLight("dir", dirLight, colDiffuse, colSpecular, 40.0);
   SpotLight sl = new SpotLight("spot", posLight, dirLight, colDiffuse,
-        colSpecular, range, angle, 2.0);
+        colSpecular, range, angle, 2.0, 1.0, 40.0);
   Light light = dl;
   Illumination illumination = new Illumination();
   illumination.AddLight(light);

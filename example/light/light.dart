@@ -26,7 +26,7 @@ final Map<String, Light> gLightSources = {
   idDirectional: new DirectionalLight("dir", dirLight, ColorBlack, ColorWhite, 40.0),
   idPoint: new PointLight("point", posLight, ColorLiteBlue, ColorWhite, range),
   idSpot: new SpotLight("spot", posLight, spotDirLight, ColorLiteGreen,
-      ColorWhite, range, angle, 2.0)
+      ColorWhite, range, angle, 2.0, 1.0, 40.0)
 };
 
 Node gCubeSphere = new Node.Container("scene");
