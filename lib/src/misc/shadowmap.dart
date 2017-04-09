@@ -134,9 +134,10 @@ class ShadowMap {
       ..viewPortH = h;
     _programCompute = _phaseCompute.createProgram(_createShadowShader());
 
-    _phaseVisualize = new RenderPhase("visualize-shadow", cgl);
-    _phaseVisualize.viewPortW = w;
-    _phaseVisualize.viewPortH = h;
+    // We do not clear the color buffer for visualization, so Visualize
+    // should be called as the last thing touching the framebuffer.
+    _phaseVisualize = new RenderPhase("visualize-shadow", cgl)
+    ..clearColorBuffer = false;
     _programVisualize =
         _phaseVisualize.createProgram(_createShaderVisualizeShadowmapLinear())
           ..SetInput(uTexture, GetMapTexture())
@@ -156,6 +157,10 @@ class ShadowMap {
 
   void AddShadowCaster(Node node) {
     _programCompute.add(node);
+  }
+
+  void ClearShadowCasters() {
+    _programCompute.removeAll();
   }
 
   // TODO: this should take a Illumination instance as an argument eventually

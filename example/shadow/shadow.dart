@@ -239,8 +239,6 @@ void main() {
 
   // display scene with shadow on left part of screen.
   RenderPhase phaseMain = new RenderPhase("main", chronosGL);
-  // We already have stuff in the viewPort - do not clear it
-  phaseMain.clearColorBuffer = false;
   RenderProgram basic = phaseMain
       .createProgram(createLightShaderBlinnPhongWithShadow())
         ..SetInput(uShadowMap, shadowMap.GetMapTexture())
@@ -301,6 +299,7 @@ void main() {
     perspective.AdjustAspect(w, h);
     phaseMain.viewPortW = w;
     phaseMain.viewPortH = h;
+    // display shadowmap on right part of screen.
     shadowMap.SetVisualizationViewPort(phaseMain.viewPortW, 0, w, h);
   }
 
@@ -325,10 +324,10 @@ void main() {
     fps.ChangeExtra("${gActiveLight}");
 
     shadowMap.Compute(lm);
-    shadowMap.Visualize();
     basic.ForceInput(uLightPerspectiveViewMatrix, lm);
     // render scene utilizing shadow map
     phaseMain.draw([perspective, illumination]);
+    shadowMap.Visualize();
 
     HTML.window.animationFrame.then(animate);
   }
