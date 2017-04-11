@@ -36,7 +36,7 @@ void main() {
 
 String skinningFragmentShader = """
 void main() {
-  gl_FragColor.rgb = ${vColor};
+  ${oFragColor}.rgb = ${vColor};
 }
 """;
 

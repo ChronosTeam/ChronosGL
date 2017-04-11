@@ -35,7 +35,7 @@ List<ShaderObject> createPlasmaShader() {
     vec3 col1 = vec3(1.0, sin(PI*v), cos(PI*v));
     vec3 col2 = vec3(sin(PI*v), cos(PI*v), -1.0);
     vec3 col = mix(col1, col2, sin(u_time)*.5+.5);
-    gl_FragColor = vec4(col*.5 + .5, 1.0);
+    ${oFragColor} = vec4(col*.5 + .5, 1.0);
 """
       ])
   ];
@@ -59,7 +59,7 @@ List<ShaderObject> createPlasmaShader2() {
     float v = sin(x * cos(${uTime}/15.0) * 120.0) +
               cos(y * sin(${uTime}/10.0) * 120.0) +
               sin(sqrt(y * y + x * x) * 40.0);
-    gl_FragColor = vec4(1, v,1,1);
+    ${oFragColor} = vec4(1, v,1,1);
   """
       ])
   ];
@@ -87,7 +87,7 @@ List<ShaderObject> createPlasmaShader3() {
     float c1 = abs(sin(mov1+time)/2.+mov2/2.-mov1-mov2+time);
     float c2 = abs(sin(c1+sin(mov0/1000.+time)+sin(y/40.+time)+sin((x+y)/100.)*3.));
     float c3 = abs(sin(c2+cos(mov1+mov2+c2)+cos(mov2)+sin(x/1000.)));
-    gl_FragColor = vec4( c1,c2,c3,1.0);
+    ${oFragColor} = vec4( c1,c2,c3,1.0);
   """
       ])
   ];

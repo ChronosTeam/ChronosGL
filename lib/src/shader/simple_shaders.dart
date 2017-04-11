@@ -14,7 +14,7 @@ List<ShaderObject> createTexturedShader() {
       ..AddUniformVar(uColor)
       ..AddUniformVar(uTexture)
       ..SetBodyWithMain([
-        "gl_FragColor = texture2D(${uTexture}, ${vTextureCoordinates}) + vec4( ${uColor}, 0.0 );"
+        "${oFragColor} = texture(${uTexture}, ${vTextureCoordinates}) + vec4( ${uColor}, 0.0 );"
       ])
   ];
 }
@@ -28,7 +28,7 @@ List<ShaderObject> createSolidColorShader() {
       ..SetBodyWithMain([StdVertexBody]),
     new ShaderObject("SolidColorF")
       ..AddUniformVar(uColor)
-      ..SetBodyWithMain(["gl_FragColor = vec4( ${uColor}, 1.0 );"])
+      ..SetBodyWithMain(["${oFragColor} = vec4( ${uColor}, 1.0 );"])
   ];
 }
 
@@ -50,7 +50,7 @@ List<ShaderObject> createCubeMapShader() {
       ..AddVaryingVar(vVertexPosition)
       ..AddUniformVar(uCubeTexture)
       ..SetBodyWithMain([
-        "gl_FragColor = textureCube( ${uCubeTexture}, ${vVertexPosition} );"
+        "${oFragColor} = textureCube( ${uCubeTexture}, ${vVertexPosition} );"
       ]),
   ];
 }
@@ -67,7 +67,7 @@ List<ShaderObject> createPointSpritesShader() {
     new ShaderObject("PointSpritesF")
       ..AddUniformVar(uTexture)
       ..SetBodyWithMain(
-          ["gl_FragColor = texture2D( ${uTexture},  gl_PointCoord);"])
+          ["${oFragColor} = texture( ${uTexture},  gl_PointCoord);"])
   ];
 }
 
@@ -86,6 +86,6 @@ List<ShaderObject> createDemoShader() {
       ]),
     new ShaderObject("FixedVertexColorF")
       ..AddVaryingVar(vColor)
-      ..SetBodyWithMain(["gl_FragColor = vec4( ${vColor}, 1.0 );"])
+      ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1.0 );"])
   ];
 }

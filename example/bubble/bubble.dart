@@ -29,7 +29,7 @@ List<ShaderObject> sphereShader() {
       ..AddVaryingVar(vTextureCoordinates)
       ..AddUniformVar(uTexture)
       ..SetBodyWithMain(
-          ["gl_FragColor = texture2D(${uTexture}, ${vTextureCoordinates});"])
+          ["${oFragColor} = texture(${uTexture}, ${vTextureCoordinates});"])
   ];
 }
 

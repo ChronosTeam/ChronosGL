@@ -40,7 +40,7 @@ void main() {
 
 const String skinningFragmentShader = """
 void main() {
-  gl_FragColor = texture2D(${uTexture}, ${vTextureCoordinates});
+  ${oFragColor} = texture(${uTexture}, ${vTextureCoordinates});
 }
 """;
 

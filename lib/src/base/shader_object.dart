@@ -54,6 +54,7 @@ class ShaderVarDesc {
 const int prefixElement = 0x65; // 'e';
 const String eArray = "eArray"; // element array
 const String eArrayType = "eArrayType"; // element array
+const String oFragColor = "oFragColor";
 // ===========================================================
 // Misc Controls
 // ===========================================================
@@ -352,23 +353,22 @@ class ShaderObject {
   String _CreateShader(bool addWrapperForMain, List<String> body, prolog) {
     assert(shader == null);
     // Hack
-    //bool isFragmentShader = attributeVars.isEmpty;
+    bool isFragmentShader = attributeVars.isEmpty;
     List<String> out = [];
-    //out.add("#version 300 es");
+    out.add("#version 300 es");
     out.add("precision highp float;");
     out.add("");
     for (String v in attributeVars.keys) {
       ShaderVarDesc d = _VarsDb[v];
-      out.add("attribute ${d.type} ${attributeVars[v]};");
+      out.add("in ${d.type} ${attributeVars[v]};");
     }
-    /*out.add("");
+    out.add("");
 
     String modifier = isFragmentShader ? "in" : "out";
     if (isFragmentShader) {
-      out.add("out vec4 oFragColor");
+      out.add("out vec4 ${oFragColor};");
     }
-    */
-    String modifier = "varying";
+
     for (String v in varyingVars.keys) {
       ShaderVarDesc d = _VarsDb[v];
       out.add("${modifier} ${d.type} ${varyingVars[v]};");

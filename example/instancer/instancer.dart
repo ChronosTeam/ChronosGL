@@ -30,7 +30,7 @@ List<ShaderObject> createInstancedShader() {
       ]),
     new ShaderObject("InstancedF")
       ..AddVaryingVar(vColor)
-      ..SetBodyWithMain([" gl_FragColor = vec4( ${vColor}, 1. );"])
+      ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1. );"])
   ];
 }
 

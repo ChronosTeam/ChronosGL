@@ -10,7 +10,7 @@ List<ShaderObject> blurdShader() {
       ..SetBodyWithMain([NullVertexBody]),
     new ShaderObject("bluredF")
       ..AddUniformVar(uColorAlpha)
-      ..SetBodyWithMain(["gl_FragColor = ${uColorAlpha};"])
+      ..SetBodyWithMain(["${oFragColor} = ${uColorAlpha};"])
   ];
 }
 

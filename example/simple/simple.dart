@@ -24,7 +24,7 @@ List<ShaderObject> demoShader() {
       ]),
     new ShaderObject("demoFragmentShader")
       ..AddVaryingVar(vColor)
-      ..SetBodyWithMain(["gl_FragColor.rgb = ${vColor};"])
+      ..SetBodyWithMain(["${oFragColor}.rgb = ${vColor};"])
   ];
 }
 

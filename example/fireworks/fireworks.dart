@@ -33,13 +33,13 @@ List<ShaderObject> createFireWorksShader() {
       ..AddUniformVar(uTexture)
       ..SetBodyWithMain([
         """
-      gl_FragColor = texture2D(${uTexture}, gl_PointCoord);
+      ${oFragColor} = texture(${uTexture}, gl_PointCoord);
       float t = mod(${uTime}, 5.0);
       if( t < 3.0) {
          //gl_FragColor.x = 1.0;
       } else {
          //gl_FragColor.rgb = ${uColor};
-         gl_FragColor.a -= (t-3.0);
+         ${oFragColor}.a -= (t-3.0);
       }
 """
       ])

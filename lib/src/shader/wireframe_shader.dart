@@ -1,14 +1,7 @@
 part of chronosshader;
 
-//  GL_OES_standard_derivatives
-//  dFdx()
-//  dFdy()
-//  fwidth()
 
 String _WireframeF = """
-#extension GL_OES_standard_derivatives : enable
-
-
 // the 3 vertices of a Face3 (w == 0) have the centers:
 // (1, 0, 0, 0)) 
 // (0, 1, 0, 0)
@@ -40,7 +33,7 @@ void main() {
                     min(edgeFactorFace4(${vCenter}.xy), 
                         edgeFactorFace4(1.0 - ${vCenter}.xy)));
     }
-    gl_FragColor = color;
+    ${oFragColor} = color;
 }
 """;
 

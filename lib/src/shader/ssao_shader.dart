@@ -65,7 +65,7 @@ String _SSAOShaderImpl = """
 */  
 
     float readDepth( const in vec2 coord ) {
-      return cameraCoef / ( cameraFarPlusNear - unpackDepth( texture2D(${uDepthMap}, coord ) ) * cameraFarMinusNear );
+      return cameraCoef / ( cameraFarPlusNear - unpackDepth( texture(${uDepthMap}, coord ) ) * cameraFarMinusNear );
     }
     
     float compareDepths( const in float depth1, const in float depth2, inout int far ) {
@@ -138,7 +138,7 @@ String _SSAOShaderImpl = """
       if ( onlyAO ) {
         final = onlyAOColor * vec3( mix( vec3( ao ), vec3( 1.0 ), luminance * lumInfluence ) );
       }
-      gl_FragColor = vec4( final, 1.0 );
+      ${oFragColor} = vec4( final, 1.0 );
       //gl_FragColor = vec4( color, 1.0 );
     }
     
