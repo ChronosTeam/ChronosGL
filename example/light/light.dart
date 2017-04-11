@@ -26,7 +26,7 @@ final Map<String, Light> gLightSources = {
   idDirectional: new DirectionalLight("dir", dirLight, ColorBlack, ColorWhite, 40.0),
   idPoint: new PointLight("point", posLight, ColorLiteBlue, ColorWhite, range),
   idSpot: new SpotLight("spot", posLight, spotDirLight, ColorLiteGreen,
-      ColorWhite, range, angle, 2.0)
+      ColorWhite, range, angle, 2.0, 1.0, 40.0)
 };
 
 Node gCubeSphere = new Node.Container("scene");
@@ -111,15 +111,15 @@ void main() {
   Map<String, Node> lightVisualizers = {
     idDirectional: new Node(
         "DirLightViz",
-        LightVisualizer(chronosGL, gLightSources[idDirectional], 80.0, 30.0),
+        LightVisualizer(chronosGL, gLightSources[idDirectional]),
         lightSourceMat),
     idPoint: new Node(
         "PointLightViz",
-        LightVisualizer(chronosGL, gLightSources[idPoint], 80.0, 30.0),
+        LightVisualizer(chronosGL, gLightSources[idPoint]),
         lightSourceMat),
     idSpot: new Node(
         "SpotLightViz",
-        LightVisualizer(chronosGL, gLightSources[idSpot], 80.0, 30.0),
+        LightVisualizer(chronosGL, gLightSources[idSpot]),
         lightSourceMat)
   };
 

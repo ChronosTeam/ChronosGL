@@ -52,6 +52,7 @@ class PointLight extends Light {
     return new VM.Matrix4.zero();
   }
 
+  @override
   String toString() {
     return "PL: p:${pos}  r:${range}";
   }
@@ -63,14 +64,13 @@ class DirectionalLight extends Light {
   VM.Vector3 dir;
   final VM.Vector3 _colDiffuse;
   final VM.Vector3 _colSpecular;
-  final double _dim;
-
+  final double dim;
 
   VM.Matrix4 _projViewMat = new VM.Matrix4.zero();
   VM.Matrix4 _tmpMat = new VM.Matrix4.zero();
 
-  DirectionalLight(
-      String name, VM.Vector3 this.dir, this._colDiffuse, this._colSpecular, this._dim)
+  DirectionalLight(String name, VM.Vector3 this.dir, this._colDiffuse,
+      this._colSpecular, this.dim)
       : super(name, lightTypeDirectional);
 
   // Must be in sync with UnpackDirectionalLightInfo
@@ -91,7 +91,7 @@ class DirectionalLight extends Light {
 
   @override
   VM.Matrix4 ExtractShadowProjViewMatrix() {
-    VM.setOrthographicMatrix(_projViewMat, -_dim, _dim, -_dim, _dim, -_dim, _dim);
+    VM.setOrthographicMatrix(_projViewMat, -dim, dim, -dim, dim, -dim, dim);
 
     VM.Vector3 up = (dir.x == 0.0 && dir.z == 0.0) ? _up2 : _up;
     VM.setViewMatrix(_tmpMat, new VM.Vector3.zero(), dir, up);
@@ -99,6 +99,7 @@ class DirectionalLight extends Light {
     return _projViewMat;
   }
 
+  @override
   String toString() {
     return "DL: p:${dir}";
   }
@@ -114,22 +115,24 @@ class SpotLight extends Light {
   //
   double _spotFocus;
   //
-  double _fov = 100.0;
   double _aspect = 1.0;
-  double _near = 0.1;
-  double _far = 100.0;
+  double _near;
+  double _far;
   VM.Matrix4 _m1 = new VM.Matrix4.zero();
   VM.Matrix4 _m2 = new VM.Matrix4.zero();
 
   SpotLight(
-      String name,
-      VM.Vector3 this.pos,
-      VM.Vector3 this.dir,
-      this._colDiffuse,
-      this._colSpecular,
-      this.range,
-      this.angle,
-      this._spotFocus)
+    String name,
+    VM.Vector3 this.pos,
+    VM.Vector3 this.dir,
+    this._colDiffuse,
+    this._colSpecular,
+    this.range,
+    this.angle,
+    this._spotFocus,
+    this._near,
+    this._far,
+  )
       : super(name, lightTypeSpot);
 
   // Must be in sync with UnpackSpotLightInfo
@@ -160,13 +163,14 @@ class SpotLight extends Light {
   VM.Matrix4 ExtractShadowProjViewMatrix() {
     VM.Vector3 up = (dir.x == 0.0 && dir.z == 0.0) ? _up2 : _up;
 
-    VM.setViewMatrix(_m1, pos, dir - pos, up);
-
-    VM.setPerspectiveMatrix(_m2, _fov * Math.PI / 180.0, _aspect, _near, _far);
+    VM.setViewMatrix(_m1, pos, dir + pos, up);
+    // 2.1 = 2.0 + epsilon
+    VM.setPerspectiveMatrix(_m2, 2.1 * angle, _aspect, _near, _far);
     _m2.multiply(_m1);
     return _m2;
   }
 
+  @override
   String toString() {
     return "SL: p:${pos}  d:${dir}  r:${range}  a:${angle}";
   }

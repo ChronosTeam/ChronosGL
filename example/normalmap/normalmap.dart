@@ -69,7 +69,7 @@ void main() {
 
   Illumination illumination = new Illumination();
   illumination.AddLight(new SpotLight(
-      "spot", posLight, posLight, colDiffuse, colSpecular, 50.0, 0.95, 2.0));
+      "spot", posLight, posLight, colDiffuse, colSpecular, 50.0, 0.95, 2.0, 1.0, 50.0));
 
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, ColorYellow)

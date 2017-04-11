@@ -8,11 +8,11 @@ MeshData EmptyLightVisualizer(ChronosGL cgl, String name) {
 }
 
 void UpdateDirectionalLightVisualizer(
-    MeshData md, double cubeLen, double delta, VM.Vector3 dir) {
+    MeshData md, double dim, double delta, VM.Vector3 dir) {
   if (dir.y == 0.0) {
     return;
   }
-  final double d = cubeLen * 0.5;
+  final double d = dim * 0.5;
   final double end = delta * (d / delta).floor();
   final double start = -end;
   final VM.Vector3 dir2y = dir * d / dir.y;
@@ -25,6 +25,24 @@ void UpdateDirectionalLightVisualizer(
       points.add(new VM.Vector3(x, 0.0, z)..sub(dir2y));
     }
   }
+  for (int i = 0; i < 8; ++i) {
+    int x = ((i & 1) == 1) ? 1 : -1;
+    int y = ((i & 2) == 2) ? 1 : -1;
+    int z = ((i & 4) == 4) ? 1 : -1;
+    if (x > 0) {
+      points.add(new VM.Vector3(x * d, y * d, z * d));
+      points.add(new VM.Vector3(-x * d, y * d, z * d));
+    }
+    if (y > 0) {
+      points.add(new VM.Vector3(x * d, y * d, z * d));
+      points.add(new VM.Vector3(x * d, -y * d, z * d));
+    }
+    if (z > 0) {
+      points.add(new VM.Vector3(x * d, y * d, z * d));
+      points.add(new VM.Vector3(x * d, y * d, -z * d));
+    }
+  }
+
   md.ChangeVertices(FlattenVector3List(points));
   List<int> faces = new List<int>(points.length);
   for (int i = 0; i < points.length; ++i) faces[i] = i;
@@ -107,7 +125,7 @@ void UpdatePointLightVisualizer2(MeshData md, VM.Vector3 pos, double range) {
   md.ChangeFaces(faces);
 }
 
-UpdatePointLightVisualizer(MeshData md, VM.Vector3 pos, double range) {
+void UpdatePointLightVisualizer(MeshData md, VM.Vector3 pos, double range) {
   List<VM.Vector3> points = [];
   List<int> faces = [];
   // Rays from center
@@ -121,25 +139,23 @@ UpdatePointLightVisualizer(MeshData md, VM.Vector3 pos, double range) {
   md.ChangeFaces(faces);
 }
 
-void UpdateLightVisualizer(
-    MeshData md, Light light, double cubeLen, double delta) {
-    if (light is DirectionalLight) {
-      DirectionalLight dl = light as DirectionalLight;
-      UpdateDirectionalLightVisualizer(md, cubeLen, delta, dl.dir);
-    } else if (light is SpotLight) {
-      SpotLight sl = light as SpotLight;
-      UpdateSpotLightVisualizer(md, sl.pos, sl.dir, sl.range, sl.angle);
-    } else if (light is PointLight) {
-      PointLight pl = light as PointLight;
-      UpdatePointLightVisualizer(md, pl.pos, pl.range);
-    } else {
-      assert(false, "unknown light: ${light.runtimeType}");
-    }
+void UpdateLightVisualizer(MeshData md, Light light) {
+  if (light is DirectionalLight) {
+    DirectionalLight dl = light;
+    UpdateDirectionalLightVisualizer(md, dl.dim, dl.dim / 4, dl.dir);
+  } else if (light is SpotLight) {
+    SpotLight sl = light;
+    UpdateSpotLightVisualizer(md, sl.pos, sl.dir, sl.range, sl.angle);
+  } else if (light is PointLight) {
+    PointLight pl = light;
+    UpdatePointLightVisualizer(md, pl.pos, pl.range);
+  } else {
+    assert(false, "unknown light: ${light.runtimeType}");
+  }
 }
 
-MeshData LightVisualizer(
-    ChronosGL cgl, Light light, double cubeLen, double delta) {
+MeshData LightVisualizer(ChronosGL cgl, Light light) {
   MeshData md = EmptyLightVisualizer(cgl, "dirLightViz");
-  UpdateLightVisualizer(md, light, cubeLen, delta);
+  UpdateLightVisualizer(md, light);
   return md;
 }
