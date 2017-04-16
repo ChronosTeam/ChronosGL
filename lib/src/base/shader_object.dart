@@ -298,14 +298,6 @@ class ShaderObject {
 
   ShaderObject(this.name);
 
-  void AddAttributeVar(String canonicalName, [String actualName = null]) {
-    assert(shader == null);
-    assert(_VarsDb.containsKey(canonicalName));
-    assert(!attributeVars.containsKey(canonicalName));
-    if (actualName == null) actualName = canonicalName;
-    attributeVars[canonicalName] = actualName;
-  }
-
   void AddAttributeVars(List<String> names) {
     assert(shader == null);
 
@@ -316,14 +308,6 @@ class ShaderObject {
     }
   }
 
-  void AddUniformVar(String canonicalName, [String actualName = null]) {
-    assert(shader == null);
-    assert(_VarsDb.containsKey(canonicalName));
-    assert(!uniformVars.containsKey(canonicalName));
-    if (actualName == null) actualName = canonicalName;
-    uniformVars[canonicalName] = actualName;
-  }
-
   void AddUniformVars(List<String> names) {
     assert(shader == null);
 
@@ -332,14 +316,6 @@ class ShaderObject {
       assert(!uniformVars.containsKey(n));
       uniformVars[n] = n;
     }
-  }
-
-  void AddVaryingVar(String canonicalName, [String actualName = null]) {
-    assert(shader == null);
-    assert(_VarsDb.containsKey(canonicalName));
-    assert(!varyingVars.containsKey(canonicalName));
-    if (actualName == null) actualName = canonicalName;
-    varyingVars[canonicalName] = actualName;
   }
 
   void AddVaryingVars(List<String> names) {

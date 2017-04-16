@@ -128,18 +128,16 @@ float GetShadowMapValue(sampler2D shadowMap,	vec2 uv) {
 List<ShaderObject> _createShaderVisualizeShadowmapLinearDepth16() {
   return [
     new ShaderObject("copyV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aTextureCoordinates)
-      ..AddVaryingVar(vTextureCoordinates)
+      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain(
           [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("copyF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTexture)
-      ..AddUniformVars([uCutOff, uCameraFar, uCameraNear])
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uShadowMap, uCutOff, uCameraFar, uCameraNear])
       ..SetBodyWithMain([
         """
-   float d = texture2D(${uTexture},  ${vTextureCoordinates}).x;
+   float d = texture2D(${uShadowMap},  ${vTextureCoordinates}).x;
    gl_FragColor.rgb = vec3(d >= ${uCutOff} ? d : 0.0);
 """
       ])
@@ -166,7 +164,7 @@ class ShadowMapDepth16 extends ShadowMap {
       ..clearColorBuffer = false;
     _programVisualize = _phaseVisualize
         .createProgram(_createShaderVisualizeShadowmapLinearDepth16())
-          ..SetInput(uTexture, GetMapTexture())
+          ..SetInput(uShadowMap, GetMapTexture())
           ..SetInput(uCutOff, 0.0)
           ..SetInput(uCameraNear, 0.0)
           ..SetInput(uCameraFar, 0.0)
@@ -241,19 +239,17 @@ void main() {
 List<ShaderObject> _createShaderVisualizeShadowmapLinearPackedRGBA() {
   return [
     new ShaderObject("copyV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aTextureCoordinates)
-      ..AddVaryingVar(vTextureCoordinates)
+      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain(
           [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("copyF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTexture)
-      ..AddUniformVars([uCutOff, uCameraFar, uCameraNear])
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uShadowMap, uCutOff, uCameraFar, uCameraNear])
       ..SetBody([_PackedRGBALib,
       """
 void main() {
-    float d = unpackDepth(texture2D(${uTexture},  ${vTextureCoordinates}));
+    float d = unpackDepth(texture2D(${uShadowMap},  ${vTextureCoordinates}));
     gl_FragColor.rgb = vec3(d >= ${uCutOff} ? d : 0.0);
 }
 """
@@ -281,7 +277,7 @@ class ShadowMapPackedRGBA extends ShadowMap {
       ..clearColorBuffer = false;
     _programVisualize = _phaseVisualize
         .createProgram(_createShaderVisualizeShadowmapLinearPackedRGBA())
-          ..SetInput(uTexture, GetMapTexture())
+          ..SetInput(uShadowMap, GetMapTexture())
           ..SetInput(uCutOff, 0.0)
           ..SetInput(uCameraNear, 0.0)
           ..SetInput(uCameraFar, 0.0)
