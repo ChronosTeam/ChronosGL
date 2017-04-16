@@ -32,12 +32,17 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
           [uShadowMap, uCanvasSize, uEyePosition, uColor, uShadowBias])
       ..SetBodyWithMain([
         """
+
+    vec3 depth = ${vPositionFromLight}.xyz / ${vPositionFromLight}.w;
+		// depth is in [-1, 1] but we want [0, 1] for the texture lookup
+		depth = 0.5 * depth + vec3(0.5);
+
 #if 1
-    float shadow = GetShadowPCF16(${vPositionFromLight},
+    float shadow = GetShadowPCF16(depth,
                                   ${uShadowMap}, ${uCanvasSize},
                                   0.001, 0.01);
 #else
-    float shadow = GetShadow(${vPositionFromLight},
+    float shadow = GetShadow(depth,
                              ${uShadowMap},
                              0.001, 0.001);
 #endif
@@ -57,58 +62,14 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
       """
       ], prolog: [
         "",
+        ShadowMapDepth16.GetShadowMapValueLib(),
         StdLibShader,
         ShadowMapShaderLib,
       ])
   ];
 }
 
-// http://www.geeks3d.com/20091216/geexlab-how-to-visualize-the-depth-buffer-in-glsl/
-// https://www.gamedev.net/resources/_/technical/graphics-programming-and-theory/3d-basics-r673
-// http://stackoverflow.com/questions/21318471/rendering-orthographic-shadowmap-to-screen
-// http://stackoverflow.com/questions/21318471/rendering-orthographic-shadowmap-to-screen
-List<ShaderObject> createCopyShaderForShadow() {
-  return [
-    new ShaderObject("copyV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aTextureCoordinates)
-      ..AddVaryingVar(vTextureCoordinates)
-      ..SetBodyWithMain(
-          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
-    new ShaderObject("copyF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTexture)
-      ..AddUniformVars([uCutOff, uCameraFar, uCameraNear])
-      ..SetBody([
-        """
-float perspectiveDepthToViewZ(float z, float near, float far) {
-    return near * far / ((far - near) * z - far);
-}
 
-float viewZToOrthographicDepth(float z, float near, float far) {
-    return (z + near) / (near - far);
-}
-
-float orthographicDepthToViewZ(float d, float near, float far) {
-    return d * (near - far) - near;
-}
-
-float viewZToPerspectiveDepth(float z, float near, float far) {
-    return ((near + z) * far) / ((far - near) * z);
-}
-
-float LinearizeDepth(float z, float near, float far) {
- return (2.0 * near) / (far + near - z * (far - near));
-}
-
-void main() {
-   float d = texture2D(${uTexture},  ${vTextureCoordinates}).x;
-   gl_FragColor.rgb = vec3(d > ${uCutOff} ? d : 0.0);
-}
-"""
-      ])
-  ];
-}
 
 final VM.Vector3 posLight = new VM.Vector3(11.0, 20.0, 0.0);
 final VM.Vector3 dirLight = new VM.Vector3(0.0, -30.0, 0.0);
@@ -235,7 +196,7 @@ void main() {
     illumination.AddLight(l);
   }
 
-  ShadowMap shadowMap = new ShadowMap(chronosGL, 512, 512);
+  ShadowMap shadowMap = new ShadowMapDepth16(chronosGL, 512, 512);
 
   // display scene with shadow on left part of screen.
   RenderPhase phaseMain = new RenderPhase("main", chronosGL);

@@ -229,54 +229,6 @@ ColorComponents CombinedLight(vec3 vVertexPosition,
     return acc;
 }
 
-// ============================================================
-// SHADOW
-// ============================================================
-// r,g,b,a  are in the range of [0, 254]
-// float = r / 255^1 + g / 255^2 + b / 255^3 + a / 255^4
-// float is assumed to be in [0, 1]
-// Not that the conversion from bytes to floats introduces a 1/255 factor
-// Inspired by http://spidergl.org/example.php?id=6
-
-// 256.0 does not work quite as well.
-const float _b = 255.0;
-const vec4 _shift = vec4(1.0, _b, _b * _b, _b * _b * _b);
-const vec4 _shiftInv = vec4(1.0, 1.0 / _b, 1.0 / (_b * _b), 1.0 / (_b * _b * _b));
-
-vec4 packDepth(float depth) {
-	  vec4 res = fract(depth * _shift);
-    // the next three correction terms can probably be omitted if we
-    // know for sure that we are dealing with 8 bits per color component
-    res.r -= res.g / _b;
-    res.g -= res.b / _b;
-    res.b -= res.a / _b;
-	  return res;
-}
-
-float unpackDepth(vec4 rgba_depth) {
-	  return dot(rgba_depth, _shiftInv);
-}
-
-float computeShadow(vec4 positionFromLight, sampler2D shadowMap,
-                    float darkness, float bias) {
-		vec3 depth = positionFromLight.xyz / positionFromLight.w;
-		depth = 0.5 * depth + vec3(0.5);
-		vec2 uv = depth.xy;
-
-		if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
-			// no shadow
-			return 1.0;
-		}
-
-		float shadow = unpackDepth(texture2D(shadowMap, uv));
-
-
-		if (depth.z > shadow + bias) {
-			return darkness;
-		}
-		return 1.0;
-}
-
 """;
 
 // ============================================================
