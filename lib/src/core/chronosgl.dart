@@ -63,22 +63,24 @@ class ChronosGL {
     }
 
     ext_OES_element_index_uint = gl.getExtension("OES_element_index_uint");
-    if (ext_OES_element_index_uint == null) throw "Error";
+    if (ext_OES_element_index_uint == null) throw "Error OES_element_index_uint";
 
     ext_WEBGL_depth_texture = gl.getExtension("WEBGL_depth_texture");
-    if (ext_WEBGL_depth_texture == null) throw "Error";
+    if (ext_WEBGL_depth_texture == null) throw "Error WEBGL_depth_texture";
 
     ext_ANGLE_instanced_arrays = gl.getExtension("ANGLE_instanced_arrays");
-    if (ext_ANGLE_instanced_arrays == null) throw "Error";
+    if (ext_ANGLE_instanced_arrays == null) throw "Error ANGLE_instanced_arrays";
 
+    /*
     ext_OES_texture_float = gl.getExtension("OES_texture_float");
-    if (ext_OES_texture_float == null) throw "Error";
+    if (ext_OES_texture_float == null) throw "Error OES_texture_float";
 
     ext_OES_texture_float_linear = gl.getExtension("OES_texture_float_linear");
-    if (ext_OES_texture_float_linear == null) throw "Error";
+    if (ext_OES_texture_float_linear == null) throw "Error OES_texture_float_linear";
+    */
 
     ext_OES_standard_derivatives = gl.getExtension("OES_standard_derivatives");
-    if (ext_OES_standard_derivatives == null) throw "Error";
+    if (ext_OES_standard_derivatives == null) throw "Error OES_standard_derivatives";
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(WEBGL.DEPTH_TEST);
