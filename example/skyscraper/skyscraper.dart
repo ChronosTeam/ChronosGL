@@ -6,20 +6,16 @@ import 'package:vector_math/vector_math.dart' as VM;
 List<ShaderObject> createSkyScraperShader() {
   return [
     new ShaderObject("SkyScraperV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aTextureCoordinates)
-      ..AddVaryingVar(vVertexPosition)
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
+      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddVaryingVars([vVertexPosition, vTextureCoordinates])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([
         StdVertexBody,
         "${vVertexPosition} = ${aVertexPosition};",
         "${vTextureCoordinates} = ${aTextureCoordinates};",
       ]),
     new ShaderObject("SkyScraperF")
-      ..AddVaryingVar(vVertexPosition)
-      ..AddVaryingVar(vTextureCoordinates)
+      ..AddVaryingVars([vVertexPosition, vTextureCoordinates])
       ..SetBodyWithMain([
         """
       // the step finds the windows

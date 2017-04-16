@@ -57,21 +57,21 @@ void main() {
   effects["hexalate-10"] = phase2.createProgram(createHexPixelateShader())
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
-    ..SetInput(uScale, 10.0)
+    ..SetInput(uPointSize, 10.0)
     ..SetInput(uTexture, fb.colorTexture)
     ..add(UnitNode(chronosGL));
 
   effects["hexalate-20"] = phase2.createProgram(createHexPixelateShader())
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
-    ..SetInput(uScale, 20.0)
+    ..SetInput(uPointSize, 20.0)
     ..SetInput(uTexture, fb.colorTexture)
     ..add(UnitNode(chronosGL));
 
   effects["hexalate-varying"] = phase2.createProgram(createHexPixelateShader())
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
-    ..SetInput(uScale, 10.0)
+    ..SetInput(uPointSize, 10.0)
     ..SetInput(uTexture, fb.colorTexture)
     ..add(UnitNode(chronosGL));
 
@@ -175,11 +175,11 @@ void main() {
     effects["tv-distortion"].ForceInput(uTime, timeSec);
     //effects["kaleidoscope5"].ForceInput(uScale, timeMs / 1000.0);
     effects["hexalate-varying"]
-        .ForceInput(uPointSize, RangeOverTime(4.0, 20.0, 20.0, timeSec));
+        .ForceInput(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
     effects["square-varying"]
-        .ForceInput(uPointSize, RangeOverTime(4.0, 16.0, 20.0, timeSec));
+        .ForceInput(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
     effects["lumidots-varying"]
-        .ForceInput(uPointSize, RangeOverTime(4.0, 16.0, 20.0, timeSec));
+        .ForceInput(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
     phase1.draw([perspective]);
     phase2.draw([perspective]);
 
