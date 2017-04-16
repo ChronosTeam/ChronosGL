@@ -4,19 +4,14 @@ part of chronosshader;
 List<ShaderObject> createBlurShader() {
   return [
     new ShaderObject("BlurV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aTextureCoordinates)
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
+      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain(
           [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("BlurF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uCameraFar)
-      ..AddUniformVar(uCameraNear)
-      ..AddUniformVar(uCanvasSize)
-      ..AddUniformVar(uTexture)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uCameraFar, uCameraNear, uCanvasSize, uTexture])
       ..SetBodyWithMain([
         """
       float offset[3];
@@ -42,6 +37,7 @@ List<ShaderObject> createBlurShader() {
   ];
 }
 
+/*
 // https://www.shadertoy.com/view/XdfGDH
 
 const String Blur2FragShader = """
@@ -97,9 +93,8 @@ const String Blur2FragShader = """
 List<ShaderObject> createBlurShader2() {
   return [
     new ShaderObject("Blur2V")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
+      ..AddAttributeVars([aVertexPosition])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([StdVertexBody]),
     new ShaderObject("Blur2F")
       ..AddUniformVar(uCameraFar, "cameraFar")
@@ -109,3 +104,4 @@ List<ShaderObject> createBlurShader2() {
       ..SetBody([Blur2FragShader])
   ];
 }
+*/

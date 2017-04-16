@@ -59,11 +59,9 @@ List<ShaderObject> createPerlinNoiseColorShader(bool blackVariant) {
   }
   return [
     new ShaderObject(name + "V")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddVaryingVar(vNormal)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
-      ..AddUniformVar(uTime)
+      ..AddAttributeVars([aVertexPosition])
+      ..AddVaryingVars([vNormal])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uTime])
       ..SetBody([
         perlinNoisefunctions,
         """
@@ -78,9 +76,8 @@ void main() {
       """
       ]),
     new ShaderObject(name + " F")
-      ..AddVaryingVar(vNormal)
-      ..AddUniformVar(uTime)
-      ..AddUniformVar(uTransformationMatrix)
+      ..AddVaryingVars([vNormal])
+      ..AddUniformVars([uTime, uTransformationMatrix])
       ..SetBody([
         define,
         perlinNoisefunctions,
