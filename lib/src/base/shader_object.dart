@@ -13,6 +13,18 @@ const String lightTypeDirectionalFloat = "${lightTypeDirectional}.0";
 const String lightTypeSpotFloat = "${lightTypeSpot}.0";
 const String lightTypePointFloat = "${lightTypePoint}.0";
 
+const String VarTypeFloat = "float";
+const String VarTypeVec2 = "vec2";
+const String VarTypeVec3 = "vec3";
+const String VarTypeVec4 = "vec4";
+const String VarTypeMat3 = "mat3";
+const String VarTypeMat4 = "mat4";
+const String VarTypeSampler2D = "sampler2D";
+const String VarTypeSamplerCube = "samplerCube";
+const String VarTypeInt = "int";
+const String VarTypeIndex = "index";
+
+
 class ShaderVarDesc {
   final String type;
   final String purpose;
@@ -22,13 +34,13 @@ class ShaderVarDesc {
 
   int GetSize() {
     switch (type) {
-      case "float":
+      case VarTypeFloat:
         return 1;
-      case "vec2":
+      case VarTypeVec2:
         return 2;
-      case "vec3":
+      case VarTypeVec3:
         return 3;
-      case "vec4":
+      case VarTypeVec4:
         return 4;
       default:
         assert(false);
@@ -38,10 +50,10 @@ class ShaderVarDesc {
 
   bool IsScalarTypeFloat() {
     switch (type) {
-      case "float":
-      case "vec2":
-      case "vec3":
-      case "vec4":
+      case VarTypeFloat:
+      case VarTypeVec2:
+      case VarTypeVec3:
+      case VarTypeVec4:
         return true;
       default:
         return false;
@@ -106,6 +118,8 @@ const String vLightWeighting = "vLightWeighting";
 const String vNormal = "vNormal";
 const String vVertexPosition = "vVertexPosition";
 const String vCenter = "vCenter";
+const String vDepth = "vDepth";
+
 const String vPositionFromLight = "vPositionFromLight";
 
 // ===========================================================
@@ -167,8 +181,8 @@ const String uLightCount = "uLightCount";
 const String uLightTypes = "uLightTypes";
 
 final Map<String, ShaderVarDesc> _VarsDb = {
-  eArray: new ShaderVarDesc("index", ""),
-  eArrayType: new ShaderVarDesc("int", ""),
+  eArray: new ShaderVarDesc(VarTypeIndex, ""),
+  eArrayType: new ShaderVarDesc(VarTypeInt, ""),
 
   //
   cBlend: new ShaderVarDesc("", ""),
@@ -181,83 +195,84 @@ final Map<String, ShaderVarDesc> _VarsDb = {
 
   // attribute vars
   // This should also contain an alpha channel
-  aColor: new ShaderVarDesc("vec3", "per vertex color"),
-  aColorAlpha: new ShaderVarDesc("vec4", "per vertex color"),
-  aVertexPosition: new ShaderVarDesc("vec3", "vertex coordinates"),
-  aTextureCoordinates: new ShaderVarDesc("vec2", "texture uvs"),
-  aNormal: new ShaderVarDesc("vec3", "vertex normals"),
-  aBinormal: new ShaderVarDesc("vec3", "vertex binormals"),
-  aCenter: new ShaderVarDesc("vec4", "for wireframe"),
-  aPointSize: new ShaderVarDesc("float", ""),
-  aBoneIndex: new ShaderVarDesc("vec4", ""),
-  aBoneWeight: new ShaderVarDesc("vec4", ""),
-  aTangent: new ShaderVarDesc("vec3", "vertex tangents"),
-  aBitangent: new ShaderVarDesc("vec3", "vertex btangents"),
-  iaRotation: new ShaderVarDesc("vec4", ""),
-  iaTranslation: new ShaderVarDesc("vec3", ""),
-  iaScale: new ShaderVarDesc("vec3", ""),
+  aColor: new ShaderVarDesc(VarTypeVec3, "per vertex color"),
+  aColorAlpha: new ShaderVarDesc(VarTypeVec4, "per vertex color"),
+  aVertexPosition: new ShaderVarDesc(VarTypeVec3, "vertex coordinates"),
+  aTextureCoordinates: new ShaderVarDesc(VarTypeVec2, "texture uvs"),
+  aNormal: new ShaderVarDesc(VarTypeVec3, "vertex normals"),
+  aBinormal: new ShaderVarDesc(VarTypeVec3, "vertex binormals"),
+  aCenter: new ShaderVarDesc(VarTypeVec4, "for wireframe"),
+  aPointSize: new ShaderVarDesc(VarTypeFloat, ""),
+  aBoneIndex: new ShaderVarDesc(VarTypeVec4, ""),
+  aBoneWeight: new ShaderVarDesc(VarTypeVec4, ""),
+  aTangent: new ShaderVarDesc(VarTypeVec3, "vertex tangents"),
+  aBitangent: new ShaderVarDesc(VarTypeVec3, "vertex btangents"),
+  iaRotation: new ShaderVarDesc(VarTypeVec4, ""),
+  iaTranslation: new ShaderVarDesc(VarTypeVec3, ""),
+  iaScale: new ShaderVarDesc(VarTypeVec3, ""),
 
   // Varying
-  vColor: new ShaderVarDesc("vec3", "per vertex color"),
-  vTextureCoordinates: new ShaderVarDesc("vec2", ""),
-  vLightWeighting: new ShaderVarDesc("vec3", ""),
-  vNormal: new ShaderVarDesc("vec3", ""),
-  vVertexPosition: new ShaderVarDesc("vec3", "vertex coordinates"),
-  vPositionFromLight: new ShaderVarDesc("vec4", "delta from light"),
-  vCenter: new ShaderVarDesc("vec4", "for wireframe"),
+  vColor: new ShaderVarDesc(VarTypeVec3, "per vertex color"),
+  vTextureCoordinates: new ShaderVarDesc(VarTypeVec2, ""),
+  vLightWeighting: new ShaderVarDesc(VarTypeVec3, ""),
+  vNormal: new ShaderVarDesc(VarTypeVec3, ""),
+  vVertexPosition: new ShaderVarDesc(VarTypeVec3, "vertex coordinates"),
+  vPositionFromLight: new ShaderVarDesc(VarTypeVec4, "delta from light"),
+  vCenter: new ShaderVarDesc(VarTypeVec4, "for wireframe"),
+  vDepth: new ShaderVarDesc(VarTypeFloat, "depth for shadowmaps"),
 
   // uniform vars
-  uTransformationMatrix: new ShaderVarDesc("mat4", ""),
-  //uModelViewMatrix: new ShaderVarDesc("mat4", ""),
-  uModelMatrix: new ShaderVarDesc("mat4", ""),
-  //uViewMatrix: new ShaderVarDesc("mat4", ""),
-  uNormalMatrix: new ShaderVarDesc("mat3", ""),
-  //uPerspectiveMatrix: new ShaderVarDesc("mat4", ""),
-  uPerspectiveViewMatrix: new ShaderVarDesc("mat4", ""),
-  uLightPerspectiveViewMatrix: new ShaderVarDesc("mat4", ""),
+  uTransformationMatrix: new ShaderVarDesc(VarTypeMat4, ""),
+  //uModelViewMatrix: new ShaderVarDesc(VarTypeMat4, ""),
+  uModelMatrix: new ShaderVarDesc(VarTypeMat4, ""),
+  //uViewMatrix: new ShaderVarDesc(VarTypeMat4, ""),
+  uNormalMatrix: new ShaderVarDesc(VarTypeMat3, ""),
+  //uPerspectiveMatrix: new ShaderVarDesc(VarTypeMat4, ""),
+  uPerspectiveViewMatrix: new ShaderVarDesc(VarTypeMat4, ""),
+  uLightPerspectiveViewMatrix: new ShaderVarDesc(VarTypeMat4, ""),
 
-  uShadowMap: new ShaderVarDesc("sampler2D", ""),
+  uShadowMap: new ShaderVarDesc(VarTypeSampler2D, ""),
 
-  uTexture: new ShaderVarDesc("sampler2D", ""),
-  uTexture2: new ShaderVarDesc("sampler2D", ""),
-  uTexture3: new ShaderVarDesc("sampler2D", ""),
-  uTexture4: new ShaderVarDesc("sampler2D", ""),
-  uSpecularMap: new ShaderVarDesc("sampler2D", ""),
-  uNormalMap: new ShaderVarDesc("sampler2D", ""),
-  uBumpMap: new ShaderVarDesc("sampler2D", ""),
-  uDepthMap: new ShaderVarDesc("sampler2D", ""),
-  uCubeTexture: new ShaderVarDesc("samplerCube", ""),
+  uTexture: new ShaderVarDesc(VarTypeSampler2D, ""),
+  uTexture2: new ShaderVarDesc(VarTypeSampler2D, ""),
+  uTexture3: new ShaderVarDesc(VarTypeSampler2D, ""),
+  uTexture4: new ShaderVarDesc(VarTypeSampler2D, ""),
+  uSpecularMap: new ShaderVarDesc(VarTypeSampler2D, ""),
+  uNormalMap: new ShaderVarDesc(VarTypeSampler2D, ""),
+  uBumpMap: new ShaderVarDesc(VarTypeSampler2D, ""),
+  uDepthMap: new ShaderVarDesc(VarTypeSampler2D, ""),
+  uCubeTexture: new ShaderVarDesc(VarTypeSamplerCube, ""),
 
-  uTime: new ShaderVarDesc("float", "time since program start in sec"),
-  uCameraNear: new ShaderVarDesc("float", ""),
-  uCameraFar: new ShaderVarDesc("float", ""),
-  uFogNear: new ShaderVarDesc("float", ""),
-  uFogFar: new ShaderVarDesc("float", ""),
-  uPointSize: new ShaderVarDesc("float", ""),
-  uScale: new ShaderVarDesc("float", ""),
-  uAngle: new ShaderVarDesc("float", ""),
-  uCanvasSize: new ShaderVarDesc("vec2", ""),
-  uCenter2: new ShaderVarDesc("vec2", ""),
-  uCutOff: new ShaderVarDesc("float", ""),
-  uShininess: new ShaderVarDesc("float", ""),
-  uShadowBias: new ShaderVarDesc("float", ""),
-  uOpacity: new ShaderVarDesc("float", ""),
-  uColor: new ShaderVarDesc("vec3", ""),
-  uColorEmissive: new ShaderVarDesc("vec3", ""),
-  uColorSpecular: new ShaderVarDesc("vec3", ""),
-  uColorDiffuse: new ShaderVarDesc("vec3", ""),
-  uColorAlpha: new ShaderVarDesc("vec4", ""),
-  uColorAlpha2: new ShaderVarDesc("vec4", ""),
-  uEyePosition: new ShaderVarDesc("vec3", ""),
-  uMaterial: new ShaderVarDesc("mat4", ""),
-  uBoneMatrices: new ShaderVarDesc("mat4", "", arraySize: kMaxBones),
+  uTime: new ShaderVarDesc(VarTypeFloat, "time since program start in sec"),
+  uCameraNear: new ShaderVarDesc(VarTypeFloat, ""),
+  uCameraFar: new ShaderVarDesc(VarTypeFloat, ""),
+  uFogNear: new ShaderVarDesc(VarTypeFloat, ""),
+  uFogFar: new ShaderVarDesc(VarTypeFloat, ""),
+  uPointSize: new ShaderVarDesc(VarTypeFloat, ""),
+  uScale: new ShaderVarDesc(VarTypeFloat, ""),
+  uAngle: new ShaderVarDesc(VarTypeFloat, ""),
+  uCanvasSize: new ShaderVarDesc(VarTypeVec2, ""),
+  uCenter2: new ShaderVarDesc(VarTypeVec2, ""),
+  uCutOff: new ShaderVarDesc(VarTypeFloat, ""),
+  uShininess: new ShaderVarDesc(VarTypeFloat, ""),
+  uShadowBias: new ShaderVarDesc(VarTypeFloat, ""),
+  uOpacity: new ShaderVarDesc(VarTypeFloat, ""),
+  uColor: new ShaderVarDesc(VarTypeVec3, ""),
+  uColorEmissive: new ShaderVarDesc(VarTypeVec3, ""),
+  uColorSpecular: new ShaderVarDesc(VarTypeVec3, ""),
+  uColorDiffuse: new ShaderVarDesc(VarTypeVec3, ""),
+  uColorAlpha: new ShaderVarDesc(VarTypeVec4, ""),
+  uColorAlpha2: new ShaderVarDesc(VarTypeVec4, ""),
+  uEyePosition: new ShaderVarDesc(VarTypeVec3, ""),
+  uMaterial: new ShaderVarDesc(VarTypeMat4, ""),
+  uBoneMatrices: new ShaderVarDesc(VarTypeMat4, "", arraySize: kMaxBones),
 
-  uLightDescs: new ShaderVarDesc("mat4", "", arraySize: kMaxLights),
-  uLightCount: new ShaderVarDesc("float", ""),
-  uLightTypes: new ShaderVarDesc("float", "", arraySize: kMaxLights),
+  uLightDescs: new ShaderVarDesc(VarTypeMat4, "", arraySize: kMaxLights),
+  uLightCount: new ShaderVarDesc(VarTypeFloat, ""),
+  uLightTypes: new ShaderVarDesc(VarTypeFloat, "", arraySize: kMaxLights),
 
-  uBumpScale: new ShaderVarDesc("float", "for bump maps"),
-  uNormalScale: new ShaderVarDesc("float", "for normal maps"),
+  uBumpScale: new ShaderVarDesc(VarTypeFloat, "for bump maps"),
+  uNormalScale: new ShaderVarDesc(VarTypeFloat, "for normal maps"),
 };
 
 void IntroduceNewShaderVar(String canonical, ShaderVarDesc desc) {
