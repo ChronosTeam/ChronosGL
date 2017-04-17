@@ -30,8 +30,7 @@ const String _FragmentShader = """
 #define LightDir2 vec3(1.0,-0.62886,1.0)
 #define LightColor2 vec3(0.9,0.8,1.0)
 
-float time = ${uTime} + 38.0;
-float scale = 0.8+(0.1*cos(time/3.0));
+#define time  (${uTime} + 38.0)
 
 vec2 rotate(vec2 v, float a) {
   return vec2(cos(a)*v.x + sin(a)*v.y, -sin(a)*v.x + cos(a)*v.y);
@@ -65,10 +64,10 @@ vec3 getLight(in vec3 color, in vec3 normal, in vec3 dir, int mat) {
 
 
 
-vec3 offset = vec3(1.0+0.2*(cos(time/5.7)),0.3+0.1*(cos(time/1.7)),1.).xzy;
+// vec3 offset = vec3(1.0+0.2*(cos(time/5.7)),0.3+0.1*(cos(time/1.7)),1.).xzy;
 
 
-float DE2(vec3 z, out int mat) { 
+float DE2(vec3 z, out int mat, float scale) {
  float sphere = abs(length(z))-15.0;
  z*= scale;
  float base = (cos(z.x) * sin(z.y) + cos(z.y) * sin(z.z) + cos(z.z) * sin(z.x));
@@ -81,21 +80,21 @@ float DE2(vec3 z, out int mat) {
  return max(min(base,inverse),sphere);
 }
 
-float  DE(vec3 z) {
+float  DE(vec3 z, float scale) {
   int i = 0;
-  return DE2(z, i);
+  return DE2(z, i, scale);
 }
 
 
 
 // Finite difference normal
-vec3 getNormal(in vec3 pos) {
+vec3 getNormal(in vec3 pos, float scale) {
   vec3 e = vec3(0.0,normalDistance,0.0);
 
   return normalize(vec3(
-      DE(pos+e.yxx)-DE(pos-e.yxx),
-      DE(pos+e.xyx)-DE(pos-e.xyx),
-      DE(pos+e.xxy)-DE(pos-e.xxy)));
+      DE(pos+e.yxx, scale)-DE(pos-e.yxx, scale),
+      DE(pos+e.xyx, scale)-DE(pos-e.xyx, scale),
+      DE(pos+e.xxy, scale)-DE(pos-e.xxy, scale)));
 }
 
 // Solid color with a little bit of normal :-)
@@ -126,7 +125,7 @@ float rand(vec2 co){
   return fract(cos(dot(co,vec2(4.898,7.23))) * 23421.631);
 }
 
-vec4 rayMarch(in vec3 from, in vec3 dir) {
+vec4 rayMarch(in vec3 from, in vec3 dir, float scale) {
   // Add some noise to prevent banding
   float totalDistance = rand(gl_FragCoord.xy+vec2(time));
   
@@ -135,7 +134,7 @@ vec4 rayMarch(in vec3 from, in vec3 dir) {
   vec3 pos;
   for (int i=0; i < MaxSteps; i++) {
     pos = from + totalDistance * dir;
-    distance = DE(pos)*(0.7*scale);
+    distance = DE(pos, scale)*(0.7*scale);
     totalDistance += distance;
     if (distance < MinimumDistance) break;
     steps = i;
@@ -151,10 +150,10 @@ vec4 rayMarch(in vec3 from, in vec3 dir) {
 
   // Since our distance field is not signed,
     // backstep when calc'ing normal
-  vec3 normal = getNormal(pos-dir*normalDistance*3.0);  
+  vec3 normal = getNormal(pos-dir*normalDistance*3.0, scale);
 
   int material = 0;
-  DE2(pos, material);
+  DE2(pos, material, scale);
   
   vec3 color = getColor(normal, pos, material); 
   vec3 light = getLight(color, normal, dir, material);
@@ -168,7 +167,8 @@ float curve(float x) {
 void main(void)
 { 
   float angle = time/5.0; 
-  
+  float scale = 0.8+(0.1*cos(time/3.0));
+
   // Camera position (eye), and camera target
   vec3 camPos =  19.0*vec3(1.0,0.5*curve(time*0.2),0.5*curve(7.0+0.3*time));
   vec3 target = vec3(0.0);
@@ -185,7 +185,7 @@ void main(void)
   // Get direction for this pixel
   vec3 rayDir = normalize(camDir + (coord.x*camRight + coord.y*camUp)*FieldOfView);
   
-  gl_FragColor = rayMarch(camPos, rayDir);
+  gl_FragColor = rayMarch(camPos, rayDir, scale);
 }
 
 """;
@@ -193,11 +193,10 @@ void main(void)
 List<ShaderObject> createSphericalGyroidShader() {
   return [
     new ShaderObject("SphericalGyroid")
-      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVars([aVertexPosition])
       ..SetBodyWithMain([NullVertexBody]),
     new ShaderObject("SphericalGyroidF")
-      ..AddUniformVar(uCanvasSize)
-      ..AddUniformVar(uTime)
+      ..AddUniformVars([uCanvasSize, uTime])
       ..SetBody([_FragmentShader])
   ];
 }

@@ -43,52 +43,22 @@ void main() {
 List<ShaderObject> createAnimationShader() {
   return [
     new ShaderObject("AnimationV")
-      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVars([aVertexPosition,aBoneIndex,aBoneWeight])
       //..AddAttributeVar(aNormal)
       //..AddAttributeVar(aTextureCoordinates)
-      ..AddAttributeVar(aBoneIndex)
-      ..AddAttributeVar(aBoneWeight)
-      ..AddVaryingVar(vVertexPosition)
+      ..AddVaryingVars([vColor])
       //..AddVaryingVar(vTextureCoordinates)
       //..AddVaryingVar(vNormal)
-      ..AddVaryingVar(vColor)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
-      ..AddUniformVar(uBoneMatrices)
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uBoneMatrices])
       ..SetBody([skinningVertexShader]),
     new ShaderObject("AnimationV")
-      ..AddVaryingVar(vColor)
+      ..AddVaryingVars([vColor])
       //..AddVaryingVar(vTextureCoordinates)
       //..AddUniformVar(uTextureSampler)
       ..SetBody([skinningFragmentShader]),
   ];
 }
 
-// A very simple shaders - many other are available out of the box.
-List<ShaderObject> demoShader() {
-  return [
-    new ShaderObject("demoVertexShader")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddVaryingVar(vColor)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
-      ..SetBody([
-        """
-        void main(void) {
-          gl_Position = ${uPerspectiveViewMatrix} *
-                        ${uModelMatrix} *
-                        vec4(${aVertexPosition}, 1.0);
-          ${vColor}.r = sin(${aVertexPosition}.x)/2.0+0.5;
-          ${vColor}.g = cos(${aVertexPosition}.y)/2.0+0.5;
-          ${vColor}.b = sin(${aVertexPosition}.z)/2.0+0.5;
-        }
-        """
-      ]),
-    new ShaderObject("demoFragmentShader")
-      ..AddVaryingVar(vColor)
-      ..SetBodyWithMain(["gl_FragColor.rgb = ${vColor};"])
-  ];
-}
 
 void main() {
   StatsFps fps =

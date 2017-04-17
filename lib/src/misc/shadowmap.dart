@@ -1,0 +1,288 @@
+part of misc;
+
+// Code for dealing with ShadowMaps
+// http://www.geeks3d.com/20091216/geexlab-how-to-visualize-the-depth-buffer-in-glsl/
+// https://www.gamedev.net/resources/_/technical/graphics-programming-and-theory/3d-basics-r673
+// http://stackoverflow.com/questions/21318471/rendering-orthographic-shadowmap-to-screen
+// http://stackoverflow.com/questions/21318471/rendering-orthographic-shadowmap-to-screen
+const String ShadowMapShaderLib = """
+
+float GetShadow(vec3 depth, sampler2D shadowMap, float bias1, float bias2) {
+    float d = GetShadowMapValue(shadowMap, depth.xy);
+    return 1.0 - smoothstep(bias1, bias2, depth.z - d);
+}
+
+float GetShadowPCF16(
+    vec3 depth, sampler2D shadowMap, vec2 mapSize, float bias1, float bias2) {
+		vec2 uv = depth.xy;
+    float d = 0.0;
+    for(float dx = -1.5; dx <= 1.5; dx += 1.0) {
+        for(float dy =-1.5; dy <= 1.5; dy += 1.0) {
+            d += GetShadowMapValue(shadowMap, uv + vec2(dx, dy) / mapSize);
+        }
+    }
+    d /= 16.0;
+    return 1.0 - smoothstep(bias1, bias2, depth.z - d);
+}
+
+float GetShadowPCF9(
+    vec3 depth, sampler2D shadowMap, vec2 mapSize, float bias1, float bias2) {
+		vec2 uv = depth.xy;
+    float d = 0.0;
+    for(float dx = -1.0; dx <= 1.0; dx += 1.0) {
+        for(float dy =-1.0; dy <= 1.0; dy += 1.0) {
+            d += GetShadowMapValue(shadowMap, uv + vec2(dx, dy) / mapSize);
+        }
+    }
+    d /= 9.0;
+    return 1.0 - smoothstep(bias1, bias2, depth.z - d);
+}
+""";
+
+/*
+float perspectiveDepthToViewZ(float z, float near, float far) {
+    return near * far / ((far - near) * z - far);
+}
+
+float viewZToOrthographicDepth(float z, float near, float far) {
+    return (z + near) / (near - far);
+}
+
+float orthographicDepthToViewZ(float d, float near, float far) {
+    return d * (near - far) - near;
+}
+
+float viewZToPerspectiveDepth(float z, float near, float far) {
+    return ((near + z) * far) / ((far - near) * z);
+}
+
+float LinearizeDepth(float z, float near, float far) {
+ return (2.0 * near) / (far + near - z * (far - near));
+}
+*/
+
+
+
+abstract class ShadowMap {
+  RenderPhase _phaseCompute;
+  RenderProgram _programCompute;
+
+  RenderPhase _phaseVisualize;
+
+  VM.Vector2 _mapSize;
+  Texture _depthTexture;
+
+  void SetVisualizationViewPort(int x, int y, int w, int h) {
+    _phaseVisualize
+      ..viewPortX = x
+      ..viewPortY = y
+      ..viewPortW = w
+      ..viewPortH = h;
+  }
+
+  void AddShadowCaster(Node node) {
+    _programCompute.add(node);
+  }
+
+  void ClearShadowCasters() {
+    _programCompute.removeAll();
+  }
+
+  // TODO: this should take a Illumination instance as an argument eventually
+  void Compute(VM.Matrix4 lightMatrix) {
+    _programCompute.ForceInput(uLightPerspectiveViewMatrix, lightMatrix);
+    _phaseCompute.draw([]);
+  }
+
+  void Visualize() {
+    _phaseVisualize.draw([]);
+  }
+
+  VM.Vector2 GetMapSize() => _mapSize;
+  Texture GetMapTexture() => _depthTexture;
+}
+
+
+List<ShaderObject> _createShadowShaderDepth16() {
+  return [
+    new ShaderObject("ShadowMapV")
+      ..AddAttributeVars([aVertexPosition])
+      ..AddUniformVars([uLightPerspectiveViewMatrix, uModelMatrix])
+      ..SetBodyWithMain([
+        """
+    gl_Position = ${uLightPerspectiveViewMatrix} * ${uModelMatrix} *
+                  vec4(${aVertexPosition}, 1.0);
+    """
+      ]),
+    // What we care about here is the internal update of the depth buffer
+    new ShaderObject("ShadowMapF")..SetBodyWithMain(["gl_FragColor.r = 1.0;"])
+  ];
+}
+
+const String _GetShadowMapValueDepth16 = """
+float GetShadowMapValue(sampler2D shadowMap,	vec2 uv) {
+    return texture2D(shadowMap, uv).x;
+}
+""";
+
+List<ShaderObject> _createShaderVisualizeShadowmapLinearDepth16() {
+  return [
+    new ShaderObject("copyV")
+      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddVaryingVars([vTextureCoordinates])
+      ..SetBodyWithMain(
+          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+    new ShaderObject("copyF")
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uShadowMap, uCutOff, uCameraFar, uCameraNear])
+      ..SetBodyWithMain([
+        """
+   float d = texture2D(${uShadowMap},  ${vTextureCoordinates}).x;
+   gl_FragColor.rgb = vec3(d >= ${uCutOff} ? d : 0.0);
+"""
+      ])
+  ];
+}
+
+
+class ShadowMapDepth16 extends ShadowMap {
+  ChronosFramebuffer _shadowBuffer;
+  RenderProgram _programVisualize;
+
+  ShadowMapDepth16(ChronosGL cgl, int w, int h) {
+    _mapSize = new VM.Vector2(w + 0.0, h + 0.0);
+    _shadowBuffer = new ChronosFramebuffer(cgl, w, h);
+    _depthTexture = _shadowBuffer.depthTexture;
+    _phaseCompute = new RenderPhase("compute-shadow", cgl, _shadowBuffer)
+      ..viewPortW = w
+      ..viewPortH = h;
+    _programCompute = _phaseCompute.createProgram(_createShadowShaderDepth16());
+
+    // We do not clear the color buffer for visualization, so Visualize
+    // should be called as the last thing touching the framebuffer.
+    _phaseVisualize = new RenderPhase("visualize-shadow", cgl)
+      ..clearColorBuffer = false;
+    _programVisualize = _phaseVisualize
+        .createProgram(_createShaderVisualizeShadowmapLinearDepth16())
+          ..SetInput(uShadowMap, GetMapTexture())
+          ..SetInput(uCutOff, 0.0)
+          ..SetInput(uCameraNear, 0.0)
+          ..SetInput(uCameraFar, 0.0)
+          ..add(UnitNode(cgl));
+  }
+
+  static String GetShadowMapValueLib() => _GetShadowMapValueDepth16;
+}
+
+
+const String _PackedRGBALib = """
+// r,g,b,a  are in the range of [0, 254]
+// float = r / 255^1 + g / 255^2 + b / 255^3 + a / 255^4
+// float is assumed to be in [0, 1]
+// Not that the conversion from bytes to floats introduces a 1/255 factor
+// Inspired by http://spidergl.org/example.php?id=6
+
+// 256.0 does not work quite as well.
+const float _b = 255.0;
+const vec4 _shift = vec4(1.0, _b, _b * _b, _b * _b * _b);
+const vec4 _shiftInv = vec4(1.0, 1.0 / _b, 1.0 / (_b * _b), 1.0 / (_b * _b * _b));
+
+vec4 packDepth(float depth) {
+	  vec4 res = fract(depth * _shift);
+    // the next three correction terms can probably be omitted if we
+    // know for sure that we are dealing with 8 bits per color component
+    res.r -= res.g / _b;
+    res.g -= res.b / _b;
+    res.b -= res.a / _b;
+	  return res;
+}
+
+float unpackDepth(vec4 rgba_depth) {
+	  return dot(rgba_depth, _shiftInv);
+}
+
+""";
+
+const String _GetShadowMapValuePackedRGBA =  _PackedRGBALib + """
+float GetShadowMapValue(sampler2D shadowMap,	vec2 uv) {
+    return unpackDepth(texture2D(shadowMap, uv));
+}
+""";
+
+
+List<ShaderObject> _createShadowShaderPackedRGBA() {
+  return [
+    new ShaderObject("ShadowV")
+      ..AddAttributeVars([aVertexPosition])
+      ..AddVaryingVars([vDepth])
+      ..AddUniformVars([uLightPerspectiveViewMatrix, uModelMatrix])
+      ..SetBodyWithMain([
+        """
+    gl_Position = ${uLightPerspectiveViewMatrix} * ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
+    ${vDepth} = gl_Position.z / gl_Position.w * 0.5 + 0.5;
+"""
+      ]),
+    new ShaderObject("ShadowF")
+      ..AddVaryingVars([vDepth])
+      ..SetBody([
+        _PackedRGBALib,
+        """
+void main() {
+    gl_FragColor = packDepth(${vDepth});
+}
+"""
+      ])
+  ];
+}
+
+
+List<ShaderObject> _createShaderVisualizeShadowmapLinearPackedRGBA() {
+  return [
+    new ShaderObject("copyV")
+      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddVaryingVars([vTextureCoordinates])
+      ..SetBodyWithMain(
+          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+    new ShaderObject("copyF")
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uShadowMap, uCutOff, uCameraFar, uCameraNear])
+      ..SetBody([_PackedRGBALib,
+      """
+void main() {
+    float d = unpackDepth(texture2D(${uShadowMap},  ${vTextureCoordinates}));
+    gl_FragColor.rgb = vec3(d >= ${uCutOff} ? d : 0.0);
+}
+"""
+      ])
+  ];
+}
+
+class ShadowMapPackedRGBA extends ShadowMap {
+  ChronosFramebuffer _shadowBuffer;
+  RenderProgram _programVisualize;
+
+  ShadowMapPackedRGBA(ChronosGL cgl, int w, int h) {
+    _mapSize = new VM.Vector2(w + 0.0, h + 0.0);
+    _shadowBuffer = new ChronosFramebuffer(cgl, w, h);
+    _depthTexture = _shadowBuffer.colorTexture;
+    _phaseCompute = new RenderPhase("compute-shadow", cgl, _shadowBuffer)
+      ..viewPortW = w
+      ..viewPortH = h;
+    _programCompute =
+        _phaseCompute.createProgram(_createShadowShaderPackedRGBA());
+
+    // We do not clear the color buffer for visualization, so Visualize
+    // should be called as the last thing touching the framebuffer.
+    _phaseVisualize = new RenderPhase("visualize-shadow", cgl)
+      ..clearColorBuffer = false;
+    _programVisualize = _phaseVisualize
+        .createProgram(_createShaderVisualizeShadowmapLinearPackedRGBA())
+          ..SetInput(uShadowMap, GetMapTexture())
+          ..SetInput(uCutOff, 0.0)
+          ..SetInput(uCameraNear, 0.0)
+          ..SetInput(uCameraFar, 0.0)
+          ..add(UnitNode(cgl));
+  }
+
+   static String GetShadowMapValueLib() => _GetShadowMapValuePackedRGBA;
+}

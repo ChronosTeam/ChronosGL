@@ -6,12 +6,10 @@ import 'package:vector_math/vector_math.dart' as VM;
 List<ShaderObject> createInstancedShader() {
   return [
     new ShaderObject("InstancedV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(iaRotation)
-      ..AddAttributeVar(iaTranslation)
-      ..AddVaryingVar(vColor)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
+      ..AddAttributeVars([aVertexPosition])
+      ..AddAttributeVars([iaRotation, iaTranslation])
+      ..AddVaryingVars([vColor])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBody([
         """
         vec3 rotate_vertex_position(vec3 pos, vec4 rot) { 
@@ -29,7 +27,7 @@ List<ShaderObject> createInstancedShader() {
         """
       ]),
     new ShaderObject("InstancedF")
-      ..AddVaryingVar(vColor)
+      ..AddVaryingVars([vColor])
       ..SetBodyWithMain([" gl_FragColor = vec4( ${vColor}, 1. );"])
   ];
 }

@@ -1,9 +1,8 @@
 part of chronosshader;
 
 ShaderObject _effectVertexShader = new ShaderObject("copyV")
-  ..AddAttributeVar(aVertexPosition)
-  ..AddAttributeVar(aTextureCoordinates)
-  ..AddVaryingVar(vTextureCoordinates)
+  ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+  ..AddVaryingVars([vTextureCoordinates])
   ..SetBodyWithMain(
       [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]);
 
@@ -11,8 +10,8 @@ List<ShaderObject> createCopyShader() {
   return [
     _effectVertexShader,
     new ShaderObject("copyF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTexture)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uTexture])
       ..SetBodyWithMain(
           ["gl_FragColor = texture2D(${uTexture}, ${vTextureCoordinates});"])
   ];
@@ -133,9 +132,8 @@ List<ShaderObject> createToonShader() {
   return [
     _effectVertexShader,
     new ShaderObject("ToonF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uCanvasSize)
-      ..AddUniformVar(uTexture)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uCanvasSize, uTexture])
       ..SetBody([_libFragment, _toonFragment])
   ];
 }
@@ -172,14 +170,14 @@ vec2 GetHexCenter(vec2 p) {
 }
 
 vec2 ToPixelSpace(vec2 v) {
-    vec2 p = (v * ${uCanvasSize} - ${uCenter2}) / ${uScale};
+    vec2 p = (v * ${uCanvasSize} - ${uCenter2}) / ${uPointSize};
     float t = p.y / S;
     return vec2(p.x - 0.5 * t, t);
 }
 
 vec2 ToNormalizedSpace(vec2 v) {
    vec2 p = vec2(v.x + v.y * 0.5, v.y * S);
-   return p * ${uScale} / ${uCanvasSize} + ${uCenter2} / ${uCanvasSize};
+   return p * ${uPointSize} / ${uCanvasSize} + ${uCenter2} / ${uCanvasSize};
 }
 
 void main() {
@@ -194,11 +192,8 @@ List<ShaderObject> createHexPixelateShader() {
   return [
     _effectVertexShader,
     new ShaderObject("HexPixelateF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uCanvasSize)
-      ..AddUniformVar(uCenter2)
-      ..AddUniformVar(uScale)
-      ..AddUniformVar(uTexture)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uCanvasSize, uCenter2, uPointSize, uTexture])
       ..SetBody([_hexPixelateFragment])
   ];
 }
@@ -224,12 +219,8 @@ List<ShaderObject> createDotShader() {
   return [
     _effectVertexShader,
     new ShaderObject("DotF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uCanvasSize)
-      ..AddUniformVar(uCenter2)
-      ..AddUniformVar(uScale)
-      ..AddUniformVar(uAngle)
-      ..AddUniformVar(uTexture)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uCanvasSize, uCenter2, uScale, uAngle, uTexture])
       ..SetBody([_dotFragment])
   ];
 }
@@ -272,10 +263,8 @@ List<ShaderObject> createTvDistortionShader() {
   return [
     _effectVertexShader,
     new ShaderObject("DotF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uScale)
-      ..AddUniformVar(uTime)
-      ..AddUniformVar(uTexture)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uScale, uTime, uTexture])
       ..SetBody([_tvDistortionFragment])
   ];
 }
@@ -300,10 +289,8 @@ List<ShaderObject> createKaleidoscopeShader() {
   return [
     _effectVertexShader,
     new ShaderObject("KaleidoscopeF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uScale)
-      ..AddUniformVar(uCenter2)
-      ..AddUniformVar(uTexture)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uScale, uCenter2, uTexture])
       ..SetBody([_kaleidoscopeFragment])
   ];
 }
@@ -326,10 +313,8 @@ List<ShaderObject> createLumidotsShader() {
   return [
     _effectVertexShader,
     new ShaderObject("LumidotsF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uPointSize)
-      ..AddUniformVar(uCanvasSize)
-      ..AddUniformVar(uTexture)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uPointSize, uCanvasSize, uTexture])
       ..SetBody([_lumidotsFragment])
   ];
 }
@@ -347,10 +332,8 @@ List<ShaderObject> createSquarePixelateShader() {
   return [
     _effectVertexShader,
     new ShaderObject("SquarePixelateF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uPointSize)
-      ..AddUniformVar(uCanvasSize)
-      ..AddUniformVar(uTexture)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uPointSize, uCanvasSize, uTexture])
       ..SetBody([_squarePixelateFragment])
   ];
 }

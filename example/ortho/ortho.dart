@@ -28,9 +28,8 @@ float unpack_depth(vec4 rgba_depth) {
 List<ShaderObject> createShadowShader() {
   return [
     new ShaderObject("ShadowV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
+      ..AddAttributeVars([aVertexPosition])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([StdVertexBody]),
     new ShaderObject("ShadowF")
       ..SetBody([

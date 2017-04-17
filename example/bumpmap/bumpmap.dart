@@ -76,16 +76,16 @@ void main() {
   RenderProgram fixed = phase.createProgram(createSolidColorShader());
   RenderProgram prg = phase.createProgram(createShader());
 
-  DirectionalLight dl = new DirectionalLight("dir", dirLight, colDiffuse, colSpecular);
+  DirectionalLight dl = new DirectionalLight("dir", dirLight, colDiffuse, colSpecular, 40.0);
   SpotLight sl = new SpotLight("spot", posLight, dirLight, colDiffuse,
-        colSpecular, range, angle, 2.0);
+        colSpecular, range, angle, 2.0, 1.0, 40.0);
   Light light = dl;
   Illumination illumination = new Illumination();
   illumination.AddLight(light);
   Material lightMat = new Material("light")
     ..SetUniform(uColor, ColorYellow);
   fixed.add(new Node(
-      "pointLight", LightVisualizer(chronosGL, light, 2.0, 0.5), lightMat));
+      "pointLight", LightVisualizer(chronosGL, light), lightMat));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

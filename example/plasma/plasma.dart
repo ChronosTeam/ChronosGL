@@ -12,12 +12,12 @@ List<ShaderObject> createPlasmaShader() {
     new ShaderObject("Plasma1V")
       ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..AddVaryingVar(vTextureCoordinates)
+      ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain(
           [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("Plasma1F")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTime)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uTime])
       ..SetBodyWithMain([
         """
     #define PI 3.1415926535897932384626433832795
@@ -46,12 +46,12 @@ List<ShaderObject> createPlasmaShader2() {
     new ShaderObject("Plasma2V")
       ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..AddVaryingVar(vTextureCoordinates)
+      ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain(
           [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("Plasma2F")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTime)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uTime])
       ..SetBodyWithMain([
         """
     float x = ${vTextureCoordinates}.x;
@@ -70,12 +70,12 @@ List<ShaderObject> createPlasmaShader3() {
     new ShaderObject("Plasma3V")
       ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..AddVaryingVar(vTextureCoordinates)
+      ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain(
           [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
     new ShaderObject("Plasma3F")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTime)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uTime])
       ..SetBodyWithMain([
         """
     float x = ${vTextureCoordinates}.x*1000.0; // gl_FragCoord.x;

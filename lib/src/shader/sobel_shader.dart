@@ -3,14 +3,12 @@ part of chronosshader;
 List<ShaderObject> createSobelShader() {
   return [
     new ShaderObject("SobelV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aTextureCoordinates)
-      ..AddVaryingVar(vTextureCoordinates)
+      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain([NullVertexBody, StdVertexTextureForward]),
     new ShaderObject("SobelF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTexture)
-      ..AddUniformVar(uCanvasSize)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uTexture, uCanvasSize])
       ..SetBody([
         """
   float lum(vec4 c) {

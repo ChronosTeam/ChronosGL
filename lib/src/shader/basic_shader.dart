@@ -30,7 +30,7 @@ List<ShaderObject> createLightShaderGourad() {
         StdLibShader
       ]),
     new ShaderObject("LightGrouradV")
-      ..AddVaryingVar(vColor)
+      ..AddVaryingVars([vColor])
       ..SetBodyWithMain(["gl_FragColor = vec4(${vColor}, 1.0 );"])
   ];
 }
