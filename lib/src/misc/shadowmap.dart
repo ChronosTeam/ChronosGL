@@ -1,6 +1,7 @@
 part of misc;
 
 // Code for dealing with ShadowMaps
+// http://http.developer.nvidia.com/GPUGems/gpugems_ch12.html
 // http://www.geeks3d.com/20091216/geexlab-how-to-visualize-the-depth-buffer-in-glsl/
 // https://www.gamedev.net/resources/_/technical/graphics-programming-and-theory/3d-basics-r673
 // http://stackoverflow.com/questions/21318471/rendering-orthographic-shadowmap-to-screen
@@ -196,6 +197,7 @@ vec4 packDepth(float depth) {
     res.b -= res.a / _b;
 	  return res;
 }
+
 
 float unpackDepth(vec4 rgba_depth) {
 	  return dot(rgba_depth, _shiftInv);
