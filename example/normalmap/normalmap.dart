@@ -37,10 +37,10 @@ ColorComponents acc = CombinedLight(${vVertexPosition} - ${uEyePosition},
                                     ${uLightTypes},
                                     ${uShininess});
 
-vec4 diffuseMap = texture2D(${uTexture}, ${vTextureCoordinates} );
+vec4 diffuseMap = texture(${uTexture}, ${vTextureCoordinates} );
 
-gl_FragColor.rgb = diffuseMap.rgb + acc.diffuse + acc.specular + uColor;
-gl_FragColor.a = 1.0;
+${oFragColor}.rgb = diffuseMap.rgb + acc.diffuse + acc.specular + uColor;
+${oFragColor}.a = 1.0;
 
 """
       ], prolog: [

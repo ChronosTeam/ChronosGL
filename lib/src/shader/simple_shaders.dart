@@ -45,7 +45,7 @@ List<ShaderObject> createCubeMapShader() {
       ..AddVaryingVars([vVertexPosition])
       ..AddUniformVars([uCubeTexture])
       ..SetBodyWithMain([
-        "${oFragColor} = textureCube( ${uCubeTexture}, ${vVertexPosition} );"
+        "${oFragColor} = texture( ${uCubeTexture}, ${vVertexPosition} );"
       ]),
   ];
 }
