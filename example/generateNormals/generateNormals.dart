@@ -6,17 +6,15 @@ import 'dart:async';
 List<ShaderObject> createNormal2ColorShader() {
   return [
     new ShaderObject("Normal2Color")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aNormal)
-      ..AddVaryingVar(vColor)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
+      ..AddAttributeVars([aVertexPosition, aNormal])
+      ..AddVaryingVars([vColor])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([
         StdVertexBody,
         "${vColor} = normalize(${aNormal} / 2.0 + vec3(0.5) );"
       ]),
     new ShaderObject("Normal2ColorF")
-      ..AddVaryingVar(vColor)
+      ..AddVaryingVars([vColor])
       ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1.0 );"])
   ];
 }

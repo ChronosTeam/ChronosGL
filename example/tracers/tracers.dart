@@ -6,10 +6,10 @@ import 'package:vector_math/vector_math.dart' as VM;
 List<ShaderObject> blurdShader() {
   return [
     new ShaderObject("bluredV")
-      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVars([aVertexPosition])
       ..SetBodyWithMain([NullVertexBody]),
     new ShaderObject("bluredF")
-      ..AddUniformVar(uColorAlpha)
+      ..AddUniformVars([uColorAlpha])
       ..SetBodyWithMain(["${oFragColor} = ${uColorAlpha};"])
   ];
 }

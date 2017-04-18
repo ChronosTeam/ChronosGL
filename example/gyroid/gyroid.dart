@@ -193,11 +193,10 @@ void main(void)
 List<ShaderObject> createSphericalGyroidShader() {
   return [
     new ShaderObject("SphericalGyroid")
-      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVars([aVertexPosition])
       ..SetBodyWithMain([NullVertexBody]),
     new ShaderObject("SphericalGyroidF")
-      ..AddUniformVar(uCanvasSize)
-      ..AddUniformVar(uTime)
+      ..AddUniformVars([uCanvasSize, uTime])
       ..SetBody([_FragmentShader])
   ];
 }

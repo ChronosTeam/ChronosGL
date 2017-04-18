@@ -18,16 +18,13 @@ String _SphereV = """
 List<ShaderObject> sphereShader() {
   return [
     new ShaderObject("sphereV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aNormal)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
-      ..AddUniformVar(uNormalMatrix)
-      ..AddVaryingVar(vTextureCoordinates)
+      ..AddAttributeVars([aVertexPosition, aNormal])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
+      ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain([StdVertexBody, _SphereV]),
     new ShaderObject("sphereF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTexture)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uTexture])
       ..SetBodyWithMain(
           ["${oFragColor} = texture(${uTexture}, ${vTextureCoordinates});"])
   ];

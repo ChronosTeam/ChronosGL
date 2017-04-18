@@ -3,16 +3,13 @@ part of chronosshader;
 List<ShaderObject> createTexturedShader() {
   return [
     new ShaderObject("Textured")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
-      ..AddAttributeVar(aTextureCoordinates)
-      ..AddVaryingVar(vTextureCoordinates)
+      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
+      ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain([StdVertexBody, StdVertexTextureForward]),
     new ShaderObject("TexturedF")
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uColor)
-      ..AddUniformVar(uTexture)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uColor, uTexture])
       ..SetBodyWithMain([
         "${oFragColor} = texture(${uTexture}, ${vTextureCoordinates}) + vec4( ${uColor}, 0.0 );"
       ])
@@ -22,12 +19,11 @@ List<ShaderObject> createTexturedShader() {
 List<ShaderObject> createSolidColorShader() {
   return [
     new ShaderObject("SolidColor")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
+      ..AddAttributeVars([aVertexPosition])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([StdVertexBody]),
     new ShaderObject("SolidColorF")
-      ..AddUniformVar(uColor)
+      ..AddUniformVars([uColor])
       ..SetBodyWithMain(["${oFragColor} = vec4( ${uColor}, 1.0 );"])
   ];
 }
@@ -38,17 +34,16 @@ List<ShaderObject> createSolidColorShader() {
 List<ShaderObject> createCubeMapShader() {
   return [
     new ShaderObject("CubeMap")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddVaryingVar(vVertexPosition)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
+      ..AddAttributeVars([aVertexPosition])
+      ..AddVaryingVars([vVertexPosition])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([
         StdVertexBody,
         "${vVertexPosition} = normalize(${aVertexPosition});"
       ]),
     new ShaderObject("CubeMapF")
-      ..AddVaryingVar(vVertexPosition)
-      ..AddUniformVar(uCubeTexture)
+      ..AddVaryingVars([vVertexPosition])
+      ..AddUniformVars([uCubeTexture])
       ..SetBodyWithMain([
         "${oFragColor} = textureCube( ${uCubeTexture}, ${vVertexPosition} );"
       ]),
@@ -58,14 +53,12 @@ List<ShaderObject> createCubeMapShader() {
 List<ShaderObject> createPointSpritesShader() {
   return [
     new ShaderObject("PointSprites")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
-      ..AddUniformVar(uPointSize)
+      ..AddAttributeVars([aVertexPosition])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uPointSize])
       ..SetBodyWithMain(
           [StdVertexBody, "gl_PointSize = ${uPointSize}/gl_Position.z;"]),
     new ShaderObject("PointSpritesF")
-      ..AddUniformVar(uTexture)
+      ..AddUniformVars([uTexture])
       ..SetBodyWithMain(
           ["${oFragColor} = texture( ${uTexture},  gl_PointCoord);"])
   ];
@@ -74,10 +67,9 @@ List<ShaderObject> createPointSpritesShader() {
 List<ShaderObject> createDemoShader() {
   return [
     new ShaderObject("FixedVertexColorV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
-      ..AddVaryingVar(vColor)
+      ..AddAttributeVars([aVertexPosition])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
+      ..AddVaryingVars([vColor])
       ..SetBodyWithMain([
         StdVertexBody,
         "${vColor} = ColorFromPosition(${aVertexPosition});",
@@ -85,7 +77,7 @@ List<ShaderObject> createDemoShader() {
         StdLibShader
       ]),
     new ShaderObject("FixedVertexColorF")
-      ..AddVaryingVar(vColor)
+      ..AddVaryingVars([vColor])
       ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1.0 );"])
   ];
 }

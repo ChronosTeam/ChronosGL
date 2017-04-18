@@ -147,23 +147,19 @@ String _SSAOShaderImpl = """
 List<ShaderObject> createSSAOShader() {
   return [
     new ShaderObject("SSAOV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aTextureCoordinates)
-      ..AddVaryingVar(vTextureCoordinates)
+      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain([
         NullVertexBody,
         StdVertexTextureForward,
       ]),
     new ShaderObject("SSAOF")
-      ..AddVaryingVar(vTextureCoordinates)
+      ..AddVaryingVars([vTextureCoordinates])
       //..AddUniformVar(uFogEnabled)
       //..AddUniformVar(uFogNear)
       //..AddUniformVar(uFogFar)
-      ..AddUniformVar(uCanvasSize)
-      ..AddUniformVar(uCameraNear)
-      ..AddUniformVar(uCameraFar)
-      ..AddUniformVar(uTexture)
-      ..AddUniformVar(uDepthMap)
+      ..AddUniformVars(
+          [uCanvasSize, uCameraNear, uCameraFar, uTexture, uDepthMap])
       ..SetBody([_SSAOShaderImpl])
   ];
 }

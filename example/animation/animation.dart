@@ -30,9 +30,6 @@ void main() {
  gl_Position = uPerspectiveViewMatrix * uModelMatrix * vec4(aVertexPosition, 1.0);
 #endif
 
-   ${vColor} = vec3( sin(${aVertexPosition}.x)/2.0+0.5,
-                      cos(${aVertexPosition}.y)/2.0+0.5,
-                      sin(${aVertexPosition}.z)/2.0+0.5);
    vTextureCoordinates = aTextureCoordinates;
 }
 
@@ -47,23 +44,16 @@ void main() {
 List<ShaderObject> createAnimationShader() {
   return [
     new ShaderObject("AnimationV")
-      ..AddAttributeVar(aVertexPosition)
+      ..AddAttributeVars(
+          [aVertexPosition, aTextureCoordinates, aBoneIndex, aBoneWeight])
       //..AddAttributeVar(aNormal)
-      ..AddAttributeVar(aTextureCoordinates)
-      ..AddAttributeVar(aBoneIndex)
-      ..AddAttributeVar(aBoneWeight)
-      ..AddVaryingVar(vVertexPosition)
-      ..AddVaryingVar(vTextureCoordinates)
+      ..AddVaryingVars([vTextureCoordinates])
       //..AddVaryingVar(vNormal)
-      ..AddVaryingVar(vColor)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
-      ..AddUniformVar(uBoneMatrices)
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uBoneMatrices])
       ..SetBody([skinningVertexShader]),
     new ShaderObject("AnimationV")
-      ..AddVaryingVar(vColor)
-      ..AddVaryingVar(vTextureCoordinates)
-      ..AddUniformVar(uTexture)
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uTexture])
       ..SetBody([skinningFragmentShader]),
   ];
 }
@@ -166,7 +156,8 @@ void main() {
     final Map<String, dynamic> meshJson = list[0]["meshes"][0];
     final Map<String, dynamic> animJson = list[0]["animations"][0];
     skeleton = ImportSkeletonFromAssimp2Json(list[0]);
-    final GeometryBuilder gb = ImportGeometryFromAssimp2JsonMesh(meshJson, skeleton);
+    final GeometryBuilder gb =
+        ImportGeometryFromAssimp2JsonMesh(meshJson, skeleton);
     anim = ImportAnimationFromAssimp2Json(animJson, skeleton);
     {
       MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb);

@@ -24,32 +24,27 @@ float edgeFactorFace4(vec2 center) {
 }
 
 void main() {
-    vec4 color;
+    float q;
     if (${vCenter}.w == 0.0) {
-        color = mix(${uColorAlpha}, ${uColorAlpha2}, 
-                        edgeFactorFace3(${vCenter}.xyz));
+        q = edgeFactorFace3(${vCenter}.xyz);
     } else {
-        color = mix(${uColorAlpha}, ${uColorAlpha2},    
-                    min(edgeFactorFace4(${vCenter}.xy), 
-                        edgeFactorFace4(1.0 - ${vCenter}.xy)));
+        q = min(edgeFactorFace4(${vCenter}.xy),
+                edgeFactorFace4(1.0 - ${vCenter}.xy));
     }
-    ${oFragColor} = color;
+    ${oFragColor} = mix(${uColorAlpha}, ${uColorAlpha2}, q);
 }
 """;
 
 List<ShaderObject> createWireframeShader() {
   return [
     new ShaderObject("WireframeV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aCenter)
-      ..AddVaryingVar(vCenter)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
+      ..AddAttributeVars([aVertexPosition, aCenter])
+      ..AddVaryingVars([vCenter])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([StdVertexBody, "${vCenter} = ${aCenter};"]),
     new ShaderObject("WireframeF")
-      ..AddVaryingVar(vCenter)
-      ..AddUniformVar(uColorAlpha)
-      ..AddUniformVar(uColorAlpha2)
+      ..AddVaryingVars([vCenter])
+      ..AddUniformVars([uColorAlpha, uColorAlpha2])
       ..SetBody([_WireframeF])
   ];
 }

@@ -6,10 +6,9 @@ import 'package:chronosgl/chronosgl.dart';
 List<ShaderObject> demoShader() {
   return [
     new ShaderObject("demoVertexShader")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddVaryingVar(vColor)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
+      ..AddAttributeVars([aVertexPosition])
+      ..AddVaryingVars([vColor])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBody([
         """
         void main(void) {
@@ -23,7 +22,7 @@ List<ShaderObject> demoShader() {
         """
       ]),
     new ShaderObject("demoFragmentShader")
-      ..AddVaryingVar(vColor)
+      ..AddVaryingVars([vColor])
       ..SetBodyWithMain(["${oFragColor}.rgb = ${vColor};"])
   ];
 }

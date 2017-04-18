@@ -8,11 +8,8 @@ import 'package:vector_math/vector_math.dart' as VM;
 List<ShaderObject> createFireWorksShader() {
   return [
     new ShaderObject("FireWorksV")
-      ..AddAttributeVar(aVertexPosition)
-      ..AddAttributeVar(aNormal)
-      ..AddUniformVar(uPerspectiveViewMatrix)
-      ..AddUniformVar(uModelMatrix)
-      ..AddUniformVar(uTime, uTime)
+      ..AddAttributeVars([aVertexPosition, aNormal])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uTime])
       ..SetBodyWithMain([
         """
       float t = mod(${uTime}, 5.0);
@@ -28,9 +25,7 @@ List<ShaderObject> createFireWorksShader() {
 """
       ]),
     new ShaderObject("FireWorksF")
-      ..AddUniformVar(uTime)
-      ..AddUniformVar(uColor)
-      ..AddUniformVar(uTexture)
+      ..AddUniformVars([uTime, uColor, uTexture])
       ..SetBodyWithMain([
         """
       ${oFragColor} = texture(${uTexture}, gl_PointCoord);
