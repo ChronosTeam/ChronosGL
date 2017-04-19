@@ -13,7 +13,7 @@ List<ShaderObject> createCopyShader() {
       ..AddVaryingVars([vTextureCoordinates])
       ..AddUniformVars([uTexture])
       ..SetBodyWithMain(
-          ["gl_FragColor = texture2D(${uTexture}, ${vTextureCoordinates});"])
+          ["${oFragColor} = texture(${uTexture}, ${vTextureCoordinates});"])
   ];
 }
 
@@ -89,7 +89,7 @@ float avg3(vec3 pix) {
 }
 
 vec3 get_pixel(vec2 coords, float dx, float dy) {
- return texture2D(${uTexture}, coords + vec2(dx, dy)).rgb;
+ return texture(${uTexture}, coords + vec2(dx, dy)).rgb;
 }
 
 // returns pixel color
@@ -116,7 +116,7 @@ float IsEdge(in vec2 coords) {
 }
 
 void main() {
-    vec4 colorOrg = texture2D(${uTexture}, ${vTextureCoordinates});
+    vec4 colorOrg = texture(${uTexture}, ${vTextureCoordinates});
     vec3 vHSV =  RGBtoHSV(colorOrg.rgb);
     vHSV.x = nearestLevel(vHSV.x, 0);
     vHSV.y = nearestLevel(vHSV.y, 1);
@@ -124,7 +124,7 @@ void main() {
     float edg = IsEdge(${vTextureCoordinates});
     vec3 vRGB = (edg >= 0.3) ? vec3(0.0,0.0,0.0) : HSVtoRGB(vHSV);
     //vec3 vRGB = HSVtoRGB(vHSV);
-    gl_FragColor = vec4(vRGB, 1.0);
+    ${oFragColor} = vec4(vRGB, 1.0);
 }
 """;
 
@@ -184,7 +184,7 @@ void main() {
     vec2 p = ToPixelSpace(${vTextureCoordinates});
     vec2 c = GetHexCenter(p);
     vec2 q = ToNormalizedSpace(c);
-    gl_FragColor = texture2D(${uTexture}, q);
+    ${oFragColor} = texture(${uTexture}, q);
 }
 """;
 
@@ -208,10 +208,10 @@ String _dotFragment = """
     }
 
 		void main() {
-			vec4 color = texture2D(${uTexture}, ${vTextureCoordinates} );
+			vec4 color = texture(${uTexture}, ${vTextureCoordinates} );
 			float average = ( color.r + color.g + color.b ) / 3.0;
       vec2 tex = ${vTextureCoordinates}* ${uCanvasSize} - ${uCenter2};
-			gl_FragColor = vec4( vec3( average * 10.0 - 5.0 + pattern(tex) ), color.a );
+			${oFragColor} = vec4( vec3( average * 10.0 - 5.0 + pattern(tex) ), color.a );
 		}
 """;
 
@@ -252,10 +252,10 @@ void main() {
       float x = ${vTextureCoordinates}.x;
       float y = ${vTextureCoordinates}.y;
 
-			float r = texture2D(${uTexture}, vec2(x + d.r, y) ).r;
-			float g = texture2D(${uTexture}, vec2(x + d.g, y) ).g;
-			float b = texture2D(${uTexture}, vec2(x + d.b, y) ).b;
-			gl_FragColor = vec4( r, g, b, 1.0 );
+			float r = texture(${uTexture}, vec2(x + d.r, y) ).r;
+			float g = texture(${uTexture}, vec2(x + d.g, y) ).g;
+			float b = texture(${uTexture}, vec2(x + d.b, y) ).b;
+			${oFragColor} = vec4( r, g, b, 1.0 );
 }
 """;
 
@@ -281,7 +281,7 @@ vec2 kaleidoscope( vec2 uv, float n) {
 
 void main() {
     vec2 uv = kaleidoscope(${vTextureCoordinates} - ${uCenter2}, ${uScale});
-    gl_FragColor = texture2D(${uTexture}, uv + ${uCenter2});
+    ${oFragColor} = texture(${uTexture}, uv + ${uCenter2});
 }
 """;
 
@@ -301,11 +301,11 @@ void main() {
     float r = ${uPointSize};
     vec2 uv = ${vTextureCoordinates} * ${uCanvasSize};
     vec2 center = floor(uv / r / 2.0) * 2.0 * r + r;
-    vec3 col = texture2D(${uTexture}, center / ${uCanvasSize}).rgb;
+    vec3 col = texture(${uTexture}, center / ${uCanvasSize}).rgb;
     float lum = max(0.1, dot(col, vec3(0.2125, 0.7154, 0.0721)));
     float alpha =  smoothstep(1.0, 0.5,
                               distance(center, uv) / lum / r);
-    gl_FragColor.rgb = col.rgb * alpha;
+    ${oFragColor}.rgb = col.rgb * alpha;
 }
 """;
 
@@ -324,7 +324,7 @@ void main() {
     float r = ${uPointSize};
     vec2 uv = ${vTextureCoordinates} * ${uCanvasSize};
     vec2 center = floor(uv / r / 2.0) * 2.0 * r + r;
-    gl_FragColor = texture2D(${uTexture}, center / ${uCanvasSize});
+    ${oFragColor} = texture(${uTexture}, center / ${uCanvasSize});
 }
 """;
 

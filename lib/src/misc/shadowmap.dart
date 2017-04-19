@@ -116,13 +116,13 @@ List<ShaderObject> _createShadowShaderDepth16() {
     """
       ]),
     // What we care about here is the internal update of the depth buffer
-    new ShaderObject("ShadowMapF")..SetBodyWithMain(["gl_FragColor.r = 1.0;"])
+    new ShaderObject("ShadowMapF")..SetBodyWithMain(["${oFragColor}.r = 1.0;"])
   ];
 }
 
 const String _GetShadowMapValueDepth16 = """
 float GetShadowMapValue(sampler2D shadowMap,	vec2 uv) {
-    return texture2D(shadowMap, uv).x;
+    return texture(shadowMap, uv).x;
 }
 """;
 
@@ -138,8 +138,8 @@ List<ShaderObject> _createShaderVisualizeShadowmapLinearDepth16() {
       ..AddUniformVars([uShadowMap, uCutOff, uCameraFar, uCameraNear])
       ..SetBodyWithMain([
         """
-   float d = texture2D(${uShadowMap},  ${vTextureCoordinates}).x;
-   gl_FragColor.rgb = vec3(d >= ${uCutOff} ? d : 0.0);
+   float d = texture(${uShadowMap},  ${vTextureCoordinates}).x;
+   ${oFragColor}.rgb = vec3(d >= ${uCutOff} ? d : 0.0);
 """
       ])
   ];
@@ -207,7 +207,7 @@ float unpackDepth(vec4 rgba_depth) {
 
 const String _GetShadowMapValuePackedRGBA =  _PackedRGBALib + """
 float GetShadowMapValue(sampler2D shadowMap,	vec2 uv) {
-    return unpackDepth(texture2D(shadowMap, uv));
+    return unpackDepth(texture(shadowMap, uv));
 }
 """;
 
@@ -230,7 +230,7 @@ List<ShaderObject> _createShadowShaderPackedRGBA() {
         _PackedRGBALib,
         """
 void main() {
-    gl_FragColor = packDepth(${vDepth});
+    ${oFragColor} = packDepth(${vDepth});
 }
 """
       ])
@@ -251,8 +251,8 @@ List<ShaderObject> _createShaderVisualizeShadowmapLinearPackedRGBA() {
       ..SetBody([_PackedRGBALib,
       """
 void main() {
-    float d = unpackDepth(texture2D(${uShadowMap},  ${vTextureCoordinates}));
-    gl_FragColor.rgb = vec3(d >= ${uCutOff} ? d : 0.0);
+    float d = unpackDepth(texture(${uShadowMap},  ${vTextureCoordinates}));
+    ${oFragColor}.rgb = vec3(d >= ${uCutOff} ? d : 0.0);
 }
 """
       ])

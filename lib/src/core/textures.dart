@@ -118,6 +118,27 @@ class Texture {
   }
 }
 
+class DepthTexture extends Texture {
+  int _width;
+  int _height;
+  final int _internalFormatType;
+  // e.g.  WEBGL.UNSIGNED_SHORT, WEBGL.UNSIGNED_BYTE. WEBGL.FLOAT
+  final int _dataType;
+
+  DepthTexture(ChronosGL cgl, String url, this._width, this._height,
+      this._internalFormatType, this._dataType)
+      : super(cgl, WEBGL.TEXTURE_2D, url,
+            new TextureProperties.forFramebuffer()) {
+    _texture = _cgl.createTexture();
+    _cgl.bindTexture(_textureType, _texture);
+    _cgl.gl.texImage2D(WEBGL.TEXTURE_2D, 0, _internalFormatType, _width,
+        _height, 0, WEBGL.DEPTH_COMPONENT, _dataType, null);
+    properties.InstallLate(_cgl, _textureType);
+    int err = _cgl.getError();
+    assert(err == WEBGL.NO_ERROR);
+  }
+}
+
 // https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml
 class TypedTexture extends Texture {
   int _width;

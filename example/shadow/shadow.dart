@@ -53,11 +53,11 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
                             ${uLightDescs}, ${uLightTypes}, ${uShininess});
     }
 
-    gl_FragColor.rgb = shadow * acc.diffuse +
+    ${oFragColor}.rgb = shadow * acc.diffuse +
                        shadow * acc.specular +
                        uColor;
-    gl_FragColor.a = 1.0;
-    // if ( gl_FragColor.r != 66.0)  gl_FragColor.rgb = vec3(shadow);
+    ${oFragColor}.a = 1.0;
+    // if ( ${oFragColor}.r != 66.0)  gl_FragColor.rgb = vec3(shadow);
 
       """
       ], prolog: [
