@@ -19,12 +19,8 @@ String _SSAOShaderImpl = """
     #define DL 2.399963229728653
     #define EULER 2.718281828459045
     
-    float width = ${uCanvasSize}.x;
-    float height = ${uCanvasSize}.y;
-    float cameraFarPlusNear = ${uCameraFar} + ${uCameraNear};
-    float cameraFarMinusNear = ${uCameraFar} - ${uCameraNear};
-    float cameraCoef = 2.0 * ${uCameraNear};
-    
+
+
     const int samples = 8;
     const float radius = 5.0;
     const bool useNoise = false;
@@ -36,7 +32,8 @@ String _SSAOShaderImpl = """
     float unpackDepth( const in vec4 rgba_depth ) {
       return rgba_depth.r;
     }
-    float unpackDepth2( const in vec4 rgba_depth ) {
+
+    float unpackDepth2(vec4 rgba_depth) {
       const vec4 bit_shift = vec4( 1.0 / ( 256.0 * 256.0 * 256.0 ), 1.0 / ( 256.0 * 256.0 ), 1.0 / 256.0, 1.0 );
       float depth = dot( rgba_depth, bit_shift );
       return depth;
@@ -49,6 +46,8 @@ String _SSAOShaderImpl = """
         float ny = dot ( coord, vec2( 12.9898, 78.233 ) * 2.0 );
         noise = clamp( fract ( 43758.5453 * sin( vec2( nx, ny ) ) ), 0.0, 1.0 );
       } else {
+        float width = ${uCanvasSize}.x;
+        float height = ${uCanvasSize}.y;
         float ff = fract( 1.0 - coord.s * ( width / 2.0 ) );
         float gg = fract( coord.t * ( height / 2.0 ) );
         noise = vec2( 0.25, 0.75 ) * vec2( ff ) + vec2( 0.75, 0.25 ) * gg;
@@ -58,13 +57,16 @@ String _SSAOShaderImpl = """
     
 /*
     float doFog() {
-      float zdepth = unpackDepth( texture2D(${uDepthMap}, ${vTextureCoordinates} ) );
+      float zdepth = unpackDepth( texture(${uDepthMap}, ${vTextureCoordinates} ) );
       float depth = -cameraFar * cameraNear / ( zdepth * cameraFarMinusNear - cameraFar );
       return smoothstep( fogNear, fogFar, depth );
     }
 */  
 
-    float readDepth( const in vec2 coord ) {
+    float readDepth(vec2 coord) {
+      float cameraFarPlusNear = ${uCameraFar} + ${uCameraNear};
+      float cameraFarMinusNear = ${uCameraFar} - ${uCameraNear};
+      float cameraCoef = 2.0 * ${uCameraNear};
       return cameraCoef / ( cameraFarPlusNear - unpackDepth( texture(${uDepthMap}, coord ) ) * cameraFarMinusNear );
     }
     
@@ -99,6 +101,9 @@ String _SSAOShaderImpl = """
     }
     
     void main() {
+      float width = ${uCanvasSize}.x;
+      float height = ${uCanvasSize}.y;
+
       vec2 noise = rand( ${vTextureCoordinates} );
       float depth = readDepth( ${vTextureCoordinates} );
       float tt = clamp( depth, aoClamp, 1.0 );
@@ -129,7 +134,7 @@ String _SSAOShaderImpl = """
 */
 
       // Diffuse
-      vec3 color = texture2D(${uTexture}, ${vTextureCoordinates} ).rgb;
+      vec3 color = texture(${uTexture}, ${vTextureCoordinates} ).rgb;
       vec3 lumcoeff = vec3( 0.299, 0.587, 0.114 );
       float lum = dot( color.rgb, lumcoeff );
       vec3 luminance = vec3( lum );
@@ -139,7 +144,7 @@ String _SSAOShaderImpl = """
         final = onlyAOColor * vec3( mix( vec3( ao ), vec3( 1.0 ), luminance * lumInfluence ) );
       }
       ${oFragColor} = vec4( final, 1.0 );
-      //gl_FragColor = vec4( color, 1.0 );
+      //${oFragColor} = vec4( color, 1.0 );
     }
     
     """;
