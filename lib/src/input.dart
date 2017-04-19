@@ -13,10 +13,10 @@ bool skipDefaultMouseMoveListener = false;
 
 void setUpEventCapture(HTML.CanvasElement canvas) {
   HTML.document.onKeyDown.listen((HTML.KeyboardEvent e) {
-    currentlyPressedKeys[e.keyCode] = true;
+    currentlyPressedKeys[e.which] = true;
   });
   HTML.document.onKeyUp.listen((HTML.KeyboardEvent e) {
-    currentlyPressedKeys[e.keyCode] = null;
+    currentlyPressedKeys[e.which] = null;  // remove from map
   });
 
   if (!skipDefaultMouseMoveListener) {
@@ -57,9 +57,9 @@ void setUpEventCapture(HTML.CanvasElement canvas) {
     //e.preventDefault();
     bool rightclick = e.button == 2;
     if (rightclick) {
-      currentlyPressedMouseButtons['right'] = null;
+      currentlyPressedMouseButtons['right'] = null;  // remove from map
     } else {
-      currentlyPressedMouseButtons['left'] = null;
+      currentlyPressedMouseButtons['left'] = null;  // remove from map
     }
   });
 }
