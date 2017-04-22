@@ -2,6 +2,7 @@ import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 import 'dart:async';
 import 'dart:typed_data';
+import 'dart:web_gl' as WEBGL;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -10,11 +11,20 @@ const String textureFile = "../asset/monster/monster.jpg";
 
 const String skinningVertexShader = """
 #if 1
+mat4 GetBoneMatrix(int index) {
+    vec4 v1 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 0, 0), 0);
+    vec4 v2 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 1, 0), 0);
+    vec4 v3 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 2, 0), 0);
+    vec4 v4 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 3, 0), 0);
+    return mat4(v1, v2, v3, v4);
+    //return uBoneMatrices[index];
+}
+
 mat4 adjustMatrix() {
-    return aBoneWeight.x * uBoneMatrices[int(aBoneIndex.x)] +
-           aBoneWeight.y * uBoneMatrices[int(aBoneIndex.y)] +
-           aBoneWeight.z * uBoneMatrices[int(aBoneIndex.z)] +
-           aBoneWeight.w * uBoneMatrices[int(aBoneIndex.w)];
+    return aBoneWeight.x * GetBoneMatrix(int(aBoneIndex.x)) +
+           aBoneWeight.y * GetBoneMatrix(int(aBoneIndex.y)) +
+           aBoneWeight.z * GetBoneMatrix(int(aBoneIndex.z)) +
+           aBoneWeight.w * GetBoneMatrix(int(aBoneIndex.w));
 }
 #endif
 
@@ -49,7 +59,11 @@ List<ShaderObject> createAnimationShader() {
       //..AddAttributeVar(aNormal)
       ..AddVaryingVars([vTextureCoordinates])
       //..AddVaryingVar(vNormal)
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uBoneMatrices])
+      ..AddUniformVars([
+        uPerspectiveViewMatrix,
+        uModelMatrix,
+        uAnimationTable
+      ])
       ..SetBody([skinningVertexShader]),
     new ShaderObject("AnimationV")
       ..AddVaryingVars([vTextureCoordinates])
@@ -77,11 +91,7 @@ void main() {
 
   final Material mat = new Material("mat");
   VM.Matrix4 identity = new VM.Matrix4.identity();
-  Float32List matrices = new Float32List(16 * 128);
-  for (int i = 0; i < matrices.length; ++i) {
-    matrices[i] = identity[i % 16];
-  }
-  mat.SetUniform(uBoneMatrices, matrices);
+  TypedTexture animationTable;
 
   Map<String, RenderProgram> programMap = {
     "idSkeleton": prgBone,
@@ -134,10 +144,12 @@ void main() {
     HTML.window.animationFrame.then(animate);
 
     double relTime = (timeMs / 1000.0) % anim.duration;
-    UpdateAnimatedSkeleton(
-        skeleton, globalOffsetTransform, anim, animatedSkeleton, relTime);
-    FlattenMatrix4List(animatedSkeleton.skinningTransforms, matrices);
+    Float32List animationData =
+          CreateAnimationTable(skeleton, globalOffsetTransform, anim, [relTime]);
+    animationTable.UpdateContent(animationData);
 
+    UpdateAnimatedSkeleton(
+          skeleton, globalOffsetTransform, anim, animatedSkeleton, relTime);
     List<VM.Vector3> bonePos =
         BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton);
     mdWire.ChangeVertices(FlattenVector3List(bonePos));
@@ -159,6 +171,7 @@ void main() {
     final GeometryBuilder gb =
         ImportGeometryFromAssimp2JsonMesh(meshJson, skeleton);
     anim = ImportAnimationFromAssimp2Json(animJson, skeleton);
+    print("Imnported ${anim}");
     {
       MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb);
       Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
@@ -173,6 +186,11 @@ void main() {
     {
       UpdateAnimatedSkeleton(
           skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
+      Float32List animationData =
+          CreateAnimationTable(skeleton, globalOffsetTransform, anim, [0.0]);
+      animationTable = new TypedTexture(chronosGL, "anim", skeleton.length * 4,
+          1, GL_RGBA32F, WEBGL.RGBA, WEBGL.FLOAT, animationData);
+      mat.SetUniform(uAnimationTable, animationTable);
       mdWire = LineEndPointsToMeshData("wire", chronosGL,
           BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton));
       Node mesh = new Node(mdWire.name, mdWire, matWire)..rotX(3.14 / 4);

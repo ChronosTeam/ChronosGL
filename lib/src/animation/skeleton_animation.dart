@@ -102,6 +102,34 @@ void UpdateAnimatedSkeleton(
   }
 }
 
+Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data = null]) {
+  if (data == null) data = new Float32List(v.length * 16);
+  for (int i = 0; i < v.length; ++i) {
+    VM.Matrix4 m = v[i];
+    for (int j = 0; j < 16; ++j) data[i * 16 + j] = m[j];
+  }
+  return data;
+}
+
+Float32List CreateAnimationTable(
+    List<Bone> skeleton,
+    VM.Matrix4 globalOffsetTransform,
+    SkeletalAnimation animation,
+    List<double> time) {
+  AnimatedSkeleton posedSkeleton = new AnimatedSkeleton(skeleton.length);
+  Float32List data = new Float32List(skeleton.length * 16 * time.length);
+  int pos = 0;
+  for (double t in time) {
+    UpdateAnimatedSkeleton(
+        skeleton, globalOffsetTransform, animation, posedSkeleton, t);
+    for (VM.Matrix4 m in posedSkeleton.skinningTransforms) {
+      for (int i = 0; i < 16; ++i) data[pos +i ] = m[i];
+      pos += 16;
+    }
+  }
+  return FlattenMatrix4List(posedSkeleton.skinningTransforms);
+}
+
 /// ## Class BoneAnimation
 /// represents Key frame animation data for a single bone in a skeleton.
 class BoneAnimation {
@@ -196,6 +224,11 @@ class SkeletalAnimation {
   void InsertBone(BoneAnimation ba) {
     assert(animList[ba.bone.boneIndex] == null);
     animList[ba.bone.boneIndex] = ba;
+  }
+
+  @override
+  String toString() {
+    return "SkeletalAnimation[${name}, duration: ${duration}, frames: ${animList.length}]";
   }
 }
 
