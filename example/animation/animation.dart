@@ -10,35 +10,29 @@ const String meshFile = "../asset/monster/monster.json";
 const String textureFile = "../asset/monster/monster.jpg";
 
 const String skinningVertexShader = """
-#if 1
-mat4 GetBoneMatrix(int index) {
-    vec4 v1 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 0, 0), 0);
-    vec4 v2 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 1, 0), 0);
-    vec4 v3 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 2, 0), 0);
-    vec4 v4 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 3, 0), 0);
+mat4 GetBoneMatrix(int index, int time) {
+    vec4 v1 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 0, time), 0);
+    vec4 v2 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 1, time), 0);
+    vec4 v3 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 2, time), 0);
+    vec4 v4 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 3, time), 0);
     return mat4(v1, v2, v3, v4);
     //return uBoneMatrices[index];
 }
 
-mat4 adjustMatrix() {
-    return aBoneWeight.x * GetBoneMatrix(int(aBoneIndex.x)) +
-           aBoneWeight.y * GetBoneMatrix(int(aBoneIndex.y)) +
-           aBoneWeight.z * GetBoneMatrix(int(aBoneIndex.z)) +
-           aBoneWeight.w * GetBoneMatrix(int(aBoneIndex.w));
+mat4 adjustMatrix(int time) {
+    return aBoneWeight.x * GetBoneMatrix(int(aBoneIndex.x), time) +
+           aBoneWeight.y * GetBoneMatrix(int(aBoneIndex.y), time) +
+           aBoneWeight.z * GetBoneMatrix(int(aBoneIndex.z), time) +
+           aBoneWeight.w * GetBoneMatrix(int(aBoneIndex.w), time);
 }
-#endif
 
 void main() {
-#if 1
-   mat4 skinMat = uModelMatrix * adjustMatrix();
+   mat4 skinMat = uModelMatrix * adjustMatrix(int(${uTime}));
    vec4 pos = skinMat * vec4(aVertexPosition, 1.0);
    // vVertexPosition = pos.xyz;
    // This is not quite accurate
    //${vNormal} = normalize(mat3(skinMat) * aNormal);
    gl_Position = uPerspectiveViewMatrix * pos;
-#else
- gl_Position = uPerspectiveViewMatrix * uModelMatrix * vec4(aVertexPosition, 1.0);
-#endif
 
    vTextureCoordinates = aTextureCoordinates;
 }
@@ -62,7 +56,8 @@ List<ShaderObject> createAnimationShader() {
       ..AddUniformVars([
         uPerspectiveViewMatrix,
         uModelMatrix,
-        uAnimationTable
+        uAnimationTable,
+        uTime,
       ])
       ..SetBody([skinningVertexShader]),
     new ShaderObject("AnimationV")
@@ -71,6 +66,8 @@ List<ShaderObject> createAnimationShader() {
       ..SetBody([skinningFragmentShader]),
   ];
 }
+
+final double kAnimTimeStep = 0.0333;
 
 void main() {
   StatsFps fps =
@@ -92,6 +89,7 @@ void main() {
   final Material mat = new Material("mat");
   VM.Matrix4 identity = new VM.Matrix4.identity();
   TypedTexture animationTable;
+  List<double> animationSteps;
 
   Map<String, RenderProgram> programMap = {
     "idSkeleton": prgBone,
@@ -132,6 +130,7 @@ void main() {
   VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
 
   MeshData mdWire;
+  mat.ForceUniform(uTime, 1.0);
 
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
@@ -144,12 +143,13 @@ void main() {
     HTML.window.animationFrame.then(animate);
 
     double relTime = (timeMs / 1000.0) % anim.duration;
-    Float32List animationData =
-          CreateAnimationTable(skeleton, globalOffsetTransform, anim, [relTime]);
-    animationTable.UpdateContent(animationData);
+
+    int step =
+        ((timeMs / 1000.0) / kAnimTimeStep).floor() % animationSteps.length;
+    mat.ForceUniform(uTime, step + 0.0);
 
     UpdateAnimatedSkeleton(
-          skeleton, globalOffsetTransform, anim, animatedSkeleton, relTime);
+        skeleton, globalOffsetTransform, anim, animatedSkeleton, relTime);
     List<VM.Vector3> bonePos =
         BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton);
     mdWire.ChangeVertices(FlattenVector3List(bonePos));
@@ -180,17 +180,29 @@ void main() {
       prgSimple.add(n);
       prgAnim.add(n);
     }
+    animationSteps = [];
+    for (double t = 0.0; t < anim.duration; t += kAnimTimeStep) {
+      animationSteps.add(t);
+    }
 
     animatedSkeleton = new AnimatedSkeleton(skeleton.length);
 
     {
+      Float32List animationData = CreateAnimationTable(
+          skeleton, globalOffsetTransform, anim, animationSteps);
+      animationTable = new TypedTexture(
+          chronosGL,
+          "anim",
+          skeleton.length * 4,
+          animationSteps.length,
+          GL_RGBA32F,
+          WEBGL.RGBA,
+          WEBGL.FLOAT,
+          animationData);
+      mat.SetUniform(uAnimationTable, animationTable);
+
       UpdateAnimatedSkeleton(
           skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
-      Float32List animationData =
-          CreateAnimationTable(skeleton, globalOffsetTransform, anim, [0.0]);
-      animationTable = new TypedTexture(chronosGL, "anim", skeleton.length * 4,
-          1, GL_RGBA32F, WEBGL.RGBA, WEBGL.FLOAT, animationData);
-      mat.SetUniform(uAnimationTable, animationTable);
       mdWire = LineEndPointsToMeshData("wire", chronosGL,
           BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton));
       Node mesh = new Node(mdWire.name, mdWire, matWire)..rotX(3.14 / 4);

@@ -102,15 +102,11 @@ void UpdateAnimatedSkeleton(
   }
 }
 
-Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data = null]) {
-  if (data == null) data = new Float32List(v.length * 16);
-  for (int i = 0; i < v.length; ++i) {
-    VM.Matrix4 m = v[i];
-    for (int j = 0; j < 16; ++j) data[i * 16 + j] = m[j];
-  }
-  return data;
-}
 
+// This is meant to be put into a Texture with dimensions
+// (skeleton.length * 16) x (time.length)
+// If the texture is RGBA this reduces to
+// (skeleton.length * 4) x (time.length)
 Float32List CreateAnimationTable(
     List<Bone> skeleton,
     VM.Matrix4 globalOffsetTransform,
@@ -127,7 +123,7 @@ Float32List CreateAnimationTable(
       pos += 16;
     }
   }
-  return FlattenMatrix4List(posedSkeleton.skinningTransforms);
+  return data;
 }
 
 /// ## Class BoneAnimation
