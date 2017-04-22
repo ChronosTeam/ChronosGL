@@ -4,6 +4,10 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 import 'package:chronosgl/chronosgl.dart';
 
+// TODO: the torusknot cannot be seen through the other objects -why
+
+final HTML.InputElement gOpaque =
+    HTML.document.querySelector('#opaque') as HTML.InputElement;
 
 void main() {
   StatsFps fps =
@@ -19,7 +23,6 @@ void main() {
   final Material matWireframe = new Material("wire")
     ..SetUniform(uColorAlpha, new VM.Vector4(1.0, 1.0, 0.0, 1.0))
     ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5))
-    ..ForceUniform(cBlend, true)
     ..SetUniform(cBlendEquation, new BlendEquation.Standard());
 
   {
@@ -98,6 +101,7 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
+    matWireframe.ForceUniform(cBlend, !gOpaque.checked);
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }
