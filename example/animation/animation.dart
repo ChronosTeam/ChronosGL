@@ -10,24 +10,27 @@ const String meshFile = "../asset/monster/monster.json";
 const String textureFile = "../asset/monster/monster.jpg";
 
 const String skinningVertexShader = """
-mat4 GetBoneMatrix(int index, int time) {
-    vec4 v1 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 0, time), 0);
-    vec4 v2 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 1, time), 0);
-    vec4 v3 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 2, time), 0);
-    vec4 v4 = texelFetch(${uAnimationTable}, ivec2(index * 4 + 3, time), 0);
+mat4 GetBoneMatrix(sampler2D table, int index, int time) {
+    vec4 v1 = texelFetch(table, ivec2(index * 4 + 0, time), 0);
+    vec4 v2 = texelFetch(table, ivec2(index * 4 + 1, time), 0);
+    vec4 v3 = texelFetch(table, ivec2(index * 4 + 2, time), 0);
+    vec4 v4 = texelFetch(table, ivec2(index * 4 + 3, time), 0);
     return mat4(v1, v2, v3, v4);
     //return uBoneMatrices[index];
 }
 
-mat4 adjustMatrix(int time) {
-    return aBoneWeight.x * GetBoneMatrix(int(aBoneIndex.x), time) +
-           aBoneWeight.y * GetBoneMatrix(int(aBoneIndex.y), time) +
-           aBoneWeight.z * GetBoneMatrix(int(aBoneIndex.z), time) +
-           aBoneWeight.w * GetBoneMatrix(int(aBoneIndex.w), time);
+mat4 adjustMatrix(sampler2D table, vec4 weights, ivec4 indices, int time) {
+    return weights.x * GetBoneMatrix(table, indices.x, time) +
+           weights.y * GetBoneMatrix(table, indices.y, time) +
+           weights.z * GetBoneMatrix(table, indices.z, time) +
+           weights.w * GetBoneMatrix(table, indices.w, time);
 }
 
 void main() {
-   mat4 skinMat = uModelMatrix * adjustMatrix(int(${uTime}));
+   mat4 skinMat = uModelMatrix * adjustMatrix(${uAnimationTable},
+                                              ${aBoneWeight},
+                                              ivec4(${aBoneIndex}),
+                                              int(${uTime}));
    vec4 pos = skinMat * vec4(aVertexPosition, 1.0);
    // vVertexPosition = pos.xyz;
    // This is not quite accurate

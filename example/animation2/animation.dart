@@ -10,17 +10,27 @@ import 'package:vector_math/vector_math.dart' as VM;
 String meshFile = "../asset/knight/knight.js";
 
 String skinningVertexShader = """
+mat4 GetBoneMatrix(sampler2D table, int index, int time) {
+    vec4 v1 = texelFetch(table, ivec2(index * 4 + 0, time), 0);
+    vec4 v2 = texelFetch(table, ivec2(index * 4 + 1, time), 0);
+    vec4 v3 = texelFetch(table, ivec2(index * 4 + 2, time), 0);
+    vec4 v4 = texelFetch(table, ivec2(index * 4 + 3, time), 0);
+    return mat4(v1, v2, v3, v4);
+    //return uBoneMatrices[index];
+}
 
-mat4 adjustMatrix() {
-   mat4 res = aBoneWeight.x * uBoneMatrices[int(aBoneIndex.x)]
-            + aBoneWeight.y * uBoneMatrices[int(aBoneIndex.y)]
-            + aBoneWeight.z * uBoneMatrices[int(aBoneIndex.z)]
-            + aBoneWeight.w * uBoneMatrices[int(aBoneIndex.w)];
-   return res;
+mat4 adjustMatrix(sampler2D table, vec4 weights, ivec4 indices, int time) {
+    return weights.x * GetBoneMatrix(table, indices.x, time) +
+           weights.y * GetBoneMatrix(table, indices.y, time) +
+           weights.z * GetBoneMatrix(table, indices.z, time) +
+           weights.w * GetBoneMatrix(table, indices.w, time);
 }
 
 void main() {
-   mat4 skinMat = uModelMatrix * adjustMatrix();
+   mat4 skinMat = uModelMatrix * adjustMatrix(${uAnimationTable},
+                                              ${aBoneWeight},
+                                              ivec4(${aBoneIndex}),
+                                              int(${uTime}));
    vec4 pos = skinMat * vec4(aVertexPosition, 1.0);
    // vVertexPosition = pos.xyz;
    // This is not quite accurate
@@ -51,13 +61,8 @@ List<ShaderObject> createAnimationShader() {
       ..AddVaryingVars([vColor])
       //..AddVaryingVar(vTextureCoordinates)
       //..AddVaryingVar(vNormal)
-      ..AddUniformVars([
-        uPerspectiveViewMatrix,
-        uModelMatrix,
-        uBoneMatrices,
-        uAnimationTable,
-        uTime
-      ])
+      ..AddUniformVars(
+          [uPerspectiveViewMatrix, uModelMatrix, uAnimationTable, uTime])
       ..SetBody([skinningVertexShader]),
     new ShaderObject("AnimationV")
       ..AddVaryingVars([vColor])
@@ -92,11 +97,6 @@ void main() {
 
   Material mat = new Material("mat");
   VM.Matrix4 identity = new VM.Matrix4.identity();
-  Float32List matrices = new Float32List(16 * 128);
-  for (int i = 0; i < matrices.length; ++i) {
-    matrices[i] = identity[i % 16];
-  }
-  mat.SetUniform(uBoneMatrices, matrices);
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -111,12 +111,6 @@ void main() {
 
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
-
-  List<Bone> skeleton;
-  SkeletalAnimation anim;
-  AnimatedSkeleton animatedSkeleton;
-  VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
-  MeshData mdWire;
 
   Map<String, RenderProgram> programMap = {
     "idSkeleton": prgBone,
@@ -149,12 +143,9 @@ void main() {
     fps.UpdateFrameCount(timeMs);
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
-
-    double relTime = (timeMs / 1000.0) % anim.duration;
-    UpdateAnimatedSkeleton(
-        skeleton, globalOffsetTransform, anim, animatedSkeleton, relTime);
-
-    FlattenMatrix4List(animatedSkeleton.skinningTransforms, matrices);
+    int step =
+        ((timeMs / 1000.0) / kAnimTimeStep).floor() % animationSteps.length;
+    mat.ForceUniform(uTime, step + 0.0);
 
     boneVisualizer.Update(timeMs / 1000.0);
   }
@@ -164,11 +155,11 @@ void main() {
   ];
 
   Future.wait(futures).then((List list) {
+    VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
     // Setup Mesh
     List<GeometryBuilder> gb = ImportGeometryFromThreeJsJson(list[0]);
-    skeleton = ImportSkeletonFromThreeJsJson(list[0]);
-    anim = ImportAnimationFromThreeJsJson(list[0], skeleton);
-    animatedSkeleton = new AnimatedSkeleton(skeleton.length);
+    List<Bone> skeleton = ImportSkeletonFromThreeJsJson(list[0]);
+    SkeletalAnimation anim = ImportAnimationFromThreeJsJson(list[0], skeleton);
     // skin mesh
     {
       MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb[0]);
