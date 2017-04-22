@@ -17,13 +17,15 @@ const String VarTypeFloat = "float";
 const String VarTypeVec2 = "vec2";
 const String VarTypeVec3 = "vec3";
 const String VarTypeVec4 = "vec4";
+
 const String VarTypeMat3 = "mat3";
 const String VarTypeMat4 = "mat4";
+const String VarTypeUvec4 = "uvec4";
 const String VarTypeSampler2D = "sampler2D";
+const String VarTypeSampler2DShadow = "sampler2DShadow";
 const String VarTypeSamplerCube = "samplerCube";
 const String VarTypeInt = "int";
 const String VarTypeIndex = "index";
-
 
 class ShaderVarDesc {
   final String type;
@@ -41,6 +43,7 @@ class ShaderVarDesc {
       case VarTypeVec3:
         return 3;
       case VarTypeVec4:
+      case VarTypeUvec4:
         return 4;
       default:
         assert(false);
@@ -146,6 +149,7 @@ const String uTexture4 = "uTexture4";
 const String uBumpMap = "uBumpMap";
 const String uNormalMap = "uNormalMap";
 const String uSpecularMap = "uSpecularMap";
+const String uAnimationTable = "uAnimationTable";
 
 const String uDepthMap = "uDepthMap";
 const String uShadowMap = "uShadowMap";
@@ -232,7 +236,7 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   uPerspectiveViewMatrix: new ShaderVarDesc(VarTypeMat4, ""),
   uLightPerspectiveViewMatrix: new ShaderVarDesc(VarTypeMat4, ""),
 
-  uShadowMap: new ShaderVarDesc(VarTypeSampler2D, ""),
+  uShadowMap: new ShaderVarDesc(VarTypeSampler2DShadow, ""),
 
   uTexture: new ShaderVarDesc(VarTypeSampler2D, ""),
   uTexture2: new ShaderVarDesc(VarTypeSampler2D, ""),
@@ -243,6 +247,7 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   uBumpMap: new ShaderVarDesc(VarTypeSampler2D, ""),
   uDepthMap: new ShaderVarDesc(VarTypeSampler2D, ""),
   uCubeTexture: new ShaderVarDesc(VarTypeSamplerCube, ""),
+  uAnimationTable: new ShaderVarDesc(VarTypeSampler2D, ""),
 
   uTime: new ShaderVarDesc(VarTypeFloat, "time since program start in sec"),
   uCameraNear: new ShaderVarDesc(VarTypeFloat, ""),
@@ -345,10 +350,12 @@ class ShaderObject {
     assert(shader == null);
     // Hack
     bool isFragmentShader = attributeVars.isEmpty;
-    List<String> out = [];
-    out.add("#version 300 es");
-    out.add("precision highp float;");
-    out.add("");
+    List<String> out = [
+      "#version 300 es",
+      "precision highp float;",
+      "precision highp sampler2DShadow;",
+      ""
+    ];
     for (String v in attributeVars.keys) {
       ShaderVarDesc d = _VarsDb[v];
       out.add("in ${d.type} ${attributeVars[v]};");
