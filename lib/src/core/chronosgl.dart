@@ -10,6 +10,14 @@ You can test your browser's compatibility here: http://webglreport.com/
 option: --enable-unsafe-es3-apis)
 """;
 
+// https://www.khronos.org/registry/webgl/specs/latest/2.0/
+final int GL_TEXTURE_COMPARE_MODE = 0x884C;
+final int GL_TEXTURE_COMPARE_FUNC = 0x884D;
+final int GL_COMPARE_REF_TO_TEXTURE = 0x884E;
+final int GL_DEPTH_COMPONENT24 = 0x81A6;
+final int GL_DEPTH_COMPONENT32F =0x8CA;
+final int GL_RGBA32F = 0x8814;
+
 String _AddLineNumbers(String text) {
   List<String> out = text.split("\n");
   for (int i = 0; i < out.length; ++i) {
@@ -87,7 +95,7 @@ class ChronosGL {
     gl.bindBuffer(kind, buffer);
   }
 
-  void ChangeArrayBuffer(WEBGL.Buffer buffer, Float32List data) {
+  void ChangeArrayBuffer(WEBGL.Buffer buffer, List data) {
     gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
     gl.bufferData(WEBGL.ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
   }
