@@ -53,9 +53,25 @@ class ShaderProgram extends RenderProgram {
     _cgl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "Unknown canonical ${canonical}";
-    if (!desc.IsScalarTypeFloat()) throw "type ${canonical} is not float";
-    _cgl.gl.vertexAttribPointer(
-        index, desc.GetSize(), WEBGL.FLOAT, normalized, stride, offset);
+    switch (desc.type) {
+      case VarTypeFloat:
+      case VarTypeVec2:
+      case VarTypeVec3:
+      case VarTypeVec4:
+        _cgl.gl.vertexAttribPointer(
+            index, desc.GetSize(), WEBGL.FLOAT, normalized, stride, offset);
+        break;
+      case VarTypeUvec4:
+        assert(false);
+        /*
+         _cgl.gl.vertexAttribIPointer(
+            index, desc.GetSize(), WEBGL.UNSIGNED_INT, normalized, stride, offset);
+        */
+        break;
+      default:
+        throw "type ${canonical} - ${desc.type} not supported";
+        break;
+    }
   }
 
   bool _HasUniform(String canonical) {
@@ -108,42 +124,43 @@ class ShaderProgram extends RenderProgram {
     assert(_uniformLocations.containsKey(canonical));
     WEBGL.UniformLocation l = _uniformLocations[canonical];
     switch (desc.type) {
-      case "float":
+      case VarTypeFloat:
         if (desc.arraySize == 0) {
           _cgl.gl.uniform1f(l, val);
         } else if (val is Float32List) {
           _cgl.gl.uniform1fv(l, val);
         }
         break;
-      case "mat4":
+      case VarTypeMat4:
         if (desc.arraySize == 0) {
           _cgl.gl.uniformMatrix4fv(l, false, val.storage);
         } else if (val is Float32List) {
           _cgl.gl.uniformMatrix4fv(l, false, val);
         }
         break;
-      case "mat3":
+      case VarTypeMat3:
         _cgl.gl.uniformMatrix3fv(l, false, val.storage);
         break;
-      case "vec4":
+      case VarTypeVec4:
         assert(val.storage.length == 4);
         _cgl.gl.uniform4fv(l, val.storage);
         break;
-      case "vec3":
+      case VarTypeVec3:
         assert(val.storage.length == 3);
         _cgl.gl.uniform3fv(l, val.storage);
         break;
-      case "vec2":
+      case VarTypeVec2:
         assert(val.storage.length == 2);
         _cgl.gl.uniform2fv(l, val.storage);
         break;
-      case "sampler2D":
+      case VarTypeSampler2D:
+      case VarTypeSampler2DShadow:
         _cgl.gl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
         _cgl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
         _cgl.gl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
         break;
-      case "samplerCube":
+      case VarTypeSamplerCube:
         assert(canonical == uCubeTexture);
         _cgl.gl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
         _cgl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, val.GetTexture());
@@ -239,7 +256,8 @@ class ShaderProgram extends RenderProgram {
     // TODO: put this behind a flag
     List<String> uninitialized = UninitializedInputs();
     if (uninitialized.isNotEmpty) {
-      String mesg = "${name} ${_drawMode}: uninitialized inputs: ${uninitialized}";
+      String mesg =
+          "${name} ${_drawMode}: uninitialized inputs: ${uninitialized}";
       LogError(mesg);
       throw mesg;
     }
