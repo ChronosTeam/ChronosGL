@@ -69,6 +69,33 @@ List<ShaderObject> createAnimationShader() {
 
 final double kAnimTimeStep = 0.0333;
 
+class BoneVisualizer {
+  VM.Matrix4 _globalOffsetTransform = new VM.Matrix4.identity();
+  MeshData _mdWire;
+  List<Bone> _skeleton;
+  SkeletalAnimation _anim;
+  AnimatedSkeleton _animatedSkeleton;
+
+  Node mesh;
+
+  BoneVisualizer(ChronosGL cgl, Material mat, this._skeleton, this._anim) {
+    _animatedSkeleton = new AnimatedSkeleton(_skeleton.length);
+    UpdateAnimatedSkeleton(
+        _skeleton, _globalOffsetTransform, _anim, _animatedSkeleton, 0.0);
+    _mdWire = LineEndPointsToMeshData(
+        "wire", cgl, BonePosFromAnimatedSkeleton(_skeleton, _animatedSkeleton));
+    mesh = new Node(_mdWire.name, _mdWire, mat);
+  }
+
+  void Update(double time) {
+    UpdateAnimatedSkeleton(_skeleton, _globalOffsetTransform, _anim,
+        _animatedSkeleton, time % _anim.duration);
+    List<VM.Vector3> bonePos =
+        BonePosFromAnimatedSkeleton(_skeleton, _animatedSkeleton);
+    _mdWire.ChangeVertices(FlattenVector3List(bonePos));
+  }
+}
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -81,15 +108,14 @@ void main() {
   //RenderProgram prg = phase.createProgram(createDemoShader());
   final RenderProgram prgAnim = phase.createProgram(createAnimationShader());
   final RenderProgram prgSimple = phase.createProgram(createDemoShader());
-
   final RenderProgram prgBone = phase.createProgram(createSolidColorShader());
   final Material matWire = new Material("wire")
     ..SetUniform(uColor, ColorYellow);
 
   final Material mat = new Material("mat");
-  VM.Matrix4 identity = new VM.Matrix4.identity();
   TypedTexture animationTable;
   List<double> animationSteps;
+  BoneVisualizer boneVisualizer;
 
   Map<String, RenderProgram> programMap = {
     "idSkeleton": prgBone,
@@ -123,13 +149,8 @@ void main() {
 
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
-  List<Bone> skeleton;
-  SkeletalAnimation anim;
-  AnimatedSkeleton animatedSkeleton;
   double _lastTimeMs = 0.0;
-  VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
 
-  MeshData mdWire;
   mat.ForceUniform(uTime, 1.0);
 
   void animate(timeMs) {
@@ -142,17 +163,10 @@ void main() {
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
 
-    double relTime = (timeMs / 1000.0) % anim.duration;
-
     int step =
         ((timeMs / 1000.0) / kAnimTimeStep).floor() % animationSteps.length;
     mat.ForceUniform(uTime, step + 0.0);
-
-    UpdateAnimatedSkeleton(
-        skeleton, globalOffsetTransform, anim, animatedSkeleton, relTime);
-    List<VM.Vector3> bonePos =
-        BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton);
-    mdWire.ChangeVertices(FlattenVector3List(bonePos));
+    boneVisualizer.Update(timeMs / 1000.0);
   }
 
   List<Future<dynamic>> futures = [
@@ -167,10 +181,11 @@ void main() {
 
     final Map<String, dynamic> meshJson = list[0]["meshes"][0];
     final Map<String, dynamic> animJson = list[0]["animations"][0];
-    skeleton = ImportSkeletonFromAssimp2Json(list[0]);
+    VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
+    List<Bone> skeleton = ImportSkeletonFromAssimp2Json(list[0]);
     final GeometryBuilder gb =
         ImportGeometryFromAssimp2JsonMesh(meshJson, skeleton);
-    anim = ImportAnimationFromAssimp2Json(animJson, skeleton);
+    SkeletalAnimation anim = ImportAnimationFromAssimp2Json(animJson, skeleton);
     print("Imnported ${anim}");
     {
       MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb);
@@ -184,8 +199,6 @@ void main() {
     for (double t = 0.0; t < anim.duration; t += kAnimTimeStep) {
       animationSteps.add(t);
     }
-
-    animatedSkeleton = new AnimatedSkeleton(skeleton.length);
 
     {
       Float32List animationData = CreateAnimationTable(
@@ -201,11 +214,9 @@ void main() {
           animationData);
       mat.SetUniform(uAnimationTable, animationTable);
 
-      UpdateAnimatedSkeleton(
-          skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
-      mdWire = LineEndPointsToMeshData("wire", chronosGL,
-          BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton));
-      Node mesh = new Node(mdWire.name, mdWire, matWire)..rotX(3.14 / 4);
+      boneVisualizer = new BoneVisualizer(chronosGL, matWire, skeleton, anim);
+
+      Node mesh = boneVisualizer.mesh..rotX(3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
       prgBone.add(n);
