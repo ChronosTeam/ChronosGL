@@ -30,6 +30,17 @@ Float32List FlattenVector4List(List<VM.Vector4> v, [Float32List data = null]) {
   return data;
 }
 
+Uint32List FlattenUvec4List(List<List<int>> v, [Uint32List data = null]) {
+  if (data == null) data = new Uint32List(v.length * 4);
+  for (int i = 0; i < v.length; ++i) {
+    data[i * 4 + 0] = v[i][0];
+    data[i * 4 + 1] = v[i][1];
+    data[i * 4 + 2] = v[i][2];
+    data[i * 4 + 3] = v[i][3];
+  }
+  return data;
+}
+
 Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data = null]) {
   if (data == null) data = new Float32List(v.length * 16);
   for (int i = 0; i < v.length; ++i) {
@@ -66,7 +77,7 @@ class MeshData extends RenderInputSource {
     }
   }
 
-  void ChangeAttribute(String canonical, Float32List data, int width) {
+  void ChangeAttribute(String canonical, List data, int width) {
     if (debug) print("ChangeBuffer ${canonical} ${data.length}");
     assert(data.length ~/ width == _vertices.length ~/ 3);
     _attributes[canonical] = data;
@@ -90,7 +101,7 @@ class MeshData extends RenderInputSource {
     return _attributes[canonical];
   }
 
-  void AddAttribute(String canonical, Float32List data, int width) {
+  void AddAttribute(String canonical, List data, int width) {
     _buffers[canonical] = _cgl.createBuffer();
     ChangeAttribute(canonical, data, width);
   }
@@ -171,17 +182,20 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     //print("${md.name} ${canonical} ${lst}");
     switch (desc.type) {
-      case "vec2":
+      case VarTypeVec2:
         md.AddAttribute(canonical, FlattenVector2List(lst), 2);
         break;
-      case "vec3":
+      case VarTypeVec3:
         md.AddAttribute(canonical, FlattenVector3List(lst), 3);
         break;
-      case "vec4":
+      case VarTypeVec4:
         md.AddAttribute(canonical, FlattenVector4List(lst), 4);
         break;
-      case "float":
+      case VarTypeFloat:
         md.AddAttribute(canonical, new Float32List.fromList(lst), 1);
+        break;
+      case VarTypeUvec4:
+        md.AddAttribute(canonical, FlattenUvec4List(lst), 4);
         break;
       default:
         assert(false,
