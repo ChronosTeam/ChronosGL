@@ -227,32 +227,3 @@ class SkeletalAnimation {
     return "SkeletalAnimation[${name}, duration: ${duration}, frames: ${animList.length}]";
   }
 }
-
-List<VM.Vector3> BonePosFromSkeleton(List<Bone> bones) {
-  List<VM.Vector3> out = [];
-
-  for (int i = 1; i < bones.length; ++i) {
-    final Bone a = bones[i];
-    final Bone b = bones[a.parentNum];
-
-    out.add(a.localTransform.getTranslation());
-    out.add(b.localTransform.getTranslation());
-  }
-  print("skeleton bone ${out.length}");
-  return out;
-}
-
-List<VM.Vector3> BonePosFromAnimatedSkeleton(
-    List<Bone> bones, AnimatedSkeleton posed,
-    {double scale = 1.0}) {
-  List<VM.Vector3> out = [];
-
-  for (int i = 0; i < bones.length; ++i) {
-    final int parent = bones[i].parentNum;
-    if (parent == -1) continue;
-    out.add(posed.globalTransforms[i].getTranslation() * scale);
-    out.add(posed.globalTransforms[parent].getTranslation() * scale);
-  }
-  //print("skeleton bone ${out.length}");
-  return out;
-}

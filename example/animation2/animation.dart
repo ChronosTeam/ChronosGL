@@ -1,5 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
+import 'dart:web_gl' as WEBGL;
+
 import 'dart:async';
 import 'dart:typed_data';
 
@@ -43,13 +45,19 @@ void main() {
 List<ShaderObject> createAnimationShader() {
   return [
     new ShaderObject("AnimationV")
-      ..AddAttributeVars([aVertexPosition,aBoneIndex,aBoneWeight])
+      ..AddAttributeVars([aVertexPosition, aBoneIndex, aBoneWeight])
       //..AddAttributeVar(aNormal)
       //..AddAttributeVar(aTextureCoordinates)
       ..AddVaryingVars([vColor])
       //..AddVaryingVar(vTextureCoordinates)
       //..AddVaryingVar(vNormal)
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uBoneMatrices])
+      ..AddUniformVars([
+        uPerspectiveViewMatrix,
+        uModelMatrix,
+        uBoneMatrices,
+        uAnimationTable,
+        uTime
+      ])
       ..SetBody([skinningVertexShader]),
     new ShaderObject("AnimationV")
       ..AddVaryingVars([vColor])
@@ -59,6 +67,7 @@ List<ShaderObject> createAnimationShader() {
   ];
 }
 
+final double kAnimTimeStep = 0.0333;
 
 void main() {
   StatsFps fps =
@@ -76,6 +85,10 @@ void main() {
   final RenderProgram prgBone = phase.createProgram(createSolidColorShader());
   final Material matWire = new Material("wire")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
+
+  BoneVisualizer boneVisualizer;
+  TypedTexture animationTable;
+  List<double> animationSteps;
 
   Material mat = new Material("mat");
   VM.Matrix4 identity = new VM.Matrix4.identity();
@@ -125,6 +138,7 @@ void main() {
   }
 
   double _lastTimeMs = 0.0;
+  mat.ForceUniform(uTime, 0.0);
 
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
@@ -141,9 +155,8 @@ void main() {
         skeleton, globalOffsetTransform, anim, animatedSkeleton, relTime);
 
     FlattenMatrix4List(animatedSkeleton.skinningTransforms, matrices);
-    List<VM.Vector3> bonePos =
-        BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton);
-    mdWire.ChangeVertices(FlattenVector3List(bonePos));
+
+    boneVisualizer.Update(timeMs / 1000.0);
   }
 
   List<Future<dynamic>> futures = [
@@ -165,14 +178,28 @@ void main() {
       prgSimple.add(n);
       prgAnim.add(n);
     }
-
+    {
+      animationSteps = [];
+      for (double t = 0.0; t < anim.duration; t += kAnimTimeStep) {
+        animationSteps.add(t);
+      }
+      Float32List animationData = CreateAnimationTable(
+          skeleton, globalOffsetTransform, anim, animationSteps);
+      animationTable = new TypedTexture(
+          chronosGL,
+          "anim",
+          skeleton.length * 4,
+          animationSteps.length,
+          GL_RGBA32F,
+          WEBGL.RGBA,
+          WEBGL.FLOAT,
+          animationData);
+      mat.SetUniform(uAnimationTable, animationTable);
+    }
     // bone wire mesh
     {
-      UpdateAnimatedSkeleton(
-          skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
-      mdWire = LineEndPointsToMeshData("wire", chronosGL,
-          BonePosFromAnimatedSkeleton(skeleton, animatedSkeleton));
-      Node mesh = new Node(mdWire.name, mdWire, matWire)..rotX(3.14 / 4);
+      boneVisualizer = new BoneVisualizer(chronosGL, matWire, skeleton, anim);
+      Node mesh = boneVisualizer.mesh..rotX(3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
       prgBone.add(n);
