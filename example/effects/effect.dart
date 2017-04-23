@@ -33,7 +33,9 @@ void main() {
   canvas.height = height;
   perspective.AdjustAspect(width, height);
 
-  ChronosFramebuffer fb = new ChronosFramebuffer(chronosGL, width, height);
+  ChronosFramebuffer fb = new ChronosFramebuffer.Default(
+      chronosGL, width, height);
+
   RenderPhase phase1 = new RenderPhase("phase1", chronosGL, fb);
   phase1.viewPortW = width;
   phase1.viewPortH = height;
@@ -41,8 +43,8 @@ void main() {
   RenderProgram prg1 = phase1.createProgram(createDemoShader());
 
   RenderPhase phase2 = new RenderPhase("effect", chronosGL, null)
-  ..viewPortW = width
-  ..viewPortH = height;
+    ..viewPortW = width
+    ..viewPortH = height;
   Map<String, RenderProgram> effects = {};
   effects["none"] = phase2.createProgram(createCopyShader())
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
@@ -194,8 +196,7 @@ void main() {
     // Setup Mesh
     GeometryBuilder ctLogo = ImportGeometryFromWavefront(list[0]);
     MeshData md = GeometryBuilderToMeshData("", chronosGL, ctLogo);
-    Material mat = new Material("mat")
-      ..SetUniform(uColor, ColorGray8);
+    Material mat = new Material("mat")..SetUniform(uColor, ColorGray8);
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);

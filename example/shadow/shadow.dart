@@ -37,8 +37,8 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
 		depth = 0.5 * depth + vec3(0.5);
 
 
-    float shadow = GetShadowPCF16(depth, ${uShadowMap}, 0.001, 0.01);
-    // float shadow = GetShadow(depth, ${uShadowMap}, 0.001, 0.001);
+    // float shadow = GetShadowPCF16(depth, ${uShadowMap}, 0.001, 0.01);
+    float shadow = GetShadow(depth, ${uShadowMap}, 0.01, 0.001);
 
     ColorComponents acc = ColorComponents(vec3(0.0), vec3(0.0));
     if (shadow > 0.0) {
@@ -187,7 +187,7 @@ void main() {
     illumination.AddLight(l);
   }
 
-  ShadowMap shadowMap = new ShadowMapDepth16(chronosGL, 512, 512);
+  ShadowMap shadowMap = new ShadowMapDepth16(chronosGL, 1024, 1024);
 
   // display scene with shadow on left part of screen.
   RenderPhase phaseMain = new RenderPhase("main", chronosGL);

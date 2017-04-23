@@ -3,6 +3,7 @@ part of core;
 class TextureProperties {
   bool mipmap = false;
   bool clamp = false;
+  bool shadow = false;
   bool flipY = true;
   int anisotropicFilterLevel = kNoAnisotropicFilterLevel;
   int minFilter = WEBGL.LINEAR;
@@ -15,6 +16,14 @@ class TextureProperties {
     clamp = true;
     mipmap = false;
     SetFilterNearest();
+  }
+
+  // http://stackoverflow.com/questions/22419682/glsl-sampler2dshadow-and-shadow2d-clarification\
+  TextureProperties.forShadowMap() {
+    flipY = false;
+    clamp = false;
+    mipmap = false;
+    shadow = true;
   }
 
   void SetFilterNearest() {
@@ -54,6 +63,11 @@ class TextureProperties {
     }
     if (mipmap) {
       cgl.generateMipmap(type);
+    }
+
+    if (shadow) {
+      cgl.texParameteri(
+          type, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
     }
   }
 }
@@ -118,6 +132,10 @@ class Texture {
   }
 }
 
+// Used for depth and shadows
+// Common format combos are:
+// WEBGL.DEPTH_COMPONENT16, WEBGL.UNSIGNED_SHORT
+// GL_DEPTH_COMPONENT24, WEBGL.UNSIGNED_INT
 class DepthTexture extends Texture {
   int _width;
   int _height;
@@ -126,9 +144,14 @@ class DepthTexture extends Texture {
   final int _dataType;
 
   DepthTexture(ChronosGL cgl, String url, this._width, this._height,
-      this._internalFormatType, this._dataType)
-      : super(cgl, WEBGL.TEXTURE_2D, url,
-            new TextureProperties.forFramebuffer()) {
+      this._internalFormatType, this._dataType, bool forShadow)
+      : super(
+            cgl,
+            WEBGL.TEXTURE_2D,
+            url,
+            forShadow
+                ? new TextureProperties.forShadowMap()
+                : new TextureProperties.forFramebuffer()) {
     _texture = _cgl.createTexture();
     _cgl.bindTexture(_textureType, _texture);
     _cgl.gl.texImage2D(WEBGL.TEXTURE_2D, 0, _internalFormatType, _width,
@@ -162,10 +185,8 @@ class TypedTexture extends Texture {
     _Install();
   }
 
-  void UpdateContent(int w, int h, var data) {
+  void UpdateContent(var data) {
     _data = data;
-    _width = w;
-    _height = h;
     Bind();
     _cgl.gl.texImage2D(WEBGL.TEXTURE_2D, 0, _internalFormatType, _width,
         _height, 0, _formatType, _dataType, _data);
@@ -174,8 +195,8 @@ class TypedTexture extends Texture {
 
   void _Install() {
     Bind(true);
-    _cgl.gl.texImage2D(WEBGL.TEXTURE_2D, 0, _formatType, _width, _height, 0,
-        _formatType, _dataType, _data);
+    _cgl.gl.texImage2D(WEBGL.TEXTURE_2D, 0, _internalFormatType, _width,
+        _height, 0, _formatType, _dataType, _data);
     UnBind(true);
   }
 
