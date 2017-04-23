@@ -126,7 +126,7 @@ class ChronosGL {
   }
 
   int checkFramebufferStatus(int kind) {
-    return checkFramebufferStatus(kind);
+    return gl.checkFramebufferStatus(kind);
   }
 
   WEBGL.Texture createTexture() {
