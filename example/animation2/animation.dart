@@ -96,7 +96,6 @@ void main() {
   List<double> animationSteps;
 
   Material mat = new Material("mat");
-  VM.Matrix4 identity = new VM.Matrix4.identity();
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
