@@ -16,7 +16,6 @@ import "../base/lib.dart";
 /// Code using the **core layer** can currently not be unit tested
 /// but requires more elaborate browser tests.
 
-part "extensions.dart";
 part "shader_program.dart";
 part "mesh_data.dart";
 part "textures.dart";
