@@ -121,45 +121,53 @@ class ShaderProgram extends RenderProgram {
     switch (desc.type) {
       case VarTypeFloat:
         if (desc.arraySize == 0) {
-          _cgl.gl.uniform1f(l, val);
+          _cgl.uniform1f(l, val);
         } else if (val is Float32List) {
-          _cgl.gl.uniform1fv(l, val);
+          _cgl.uniform1fv(l, val);
         }
         break;
       case VarTypeMat4:
         if (desc.arraySize == 0) {
-          _cgl.gl.uniformMatrix4fv(l, false, val.storage);
+          _cgl.uniformMatrix4fv(l, false, val.storage);
         } else if (val is Float32List) {
-          _cgl.gl.uniformMatrix4fv(l, false, val);
+          _cgl.uniformMatrix4fv(l, false, val);
+        } else {
+          assert(false, "bad unform: ${canonical}");
         }
         break;
       case VarTypeMat3:
-        _cgl.gl.uniformMatrix3fv(l, false, val.storage);
+        if (desc.arraySize == 0) {
+          _cgl.uniformMatrix3fv(l, false, val.storage);
+        } else if (val is Float32List) {
+          _cgl.uniformMatrix3fv(l, false, val);
+        } else {
+          assert(false, "bad unform: ${canonical}");
+        }
         break;
       case VarTypeVec4:
         assert(val.storage.length == 4);
-        _cgl.gl.uniform4fv(l, val.storage);
+        _cgl.uniform4fv(l, val.storage);
         break;
       case VarTypeVec3:
         assert(val.storage.length == 3);
-        _cgl.gl.uniform3fv(l, val.storage);
+        _cgl.uniform3fv(l, val.storage);
         break;
       case VarTypeVec2:
         assert(val.storage.length == 2);
-        _cgl.gl.uniform2fv(l, val.storage);
+        _cgl.uniform2fv(l, val.storage);
         break;
       case VarTypeSampler2D:
       case VarTypeSampler2DShadow:
         _cgl.activeTexture(GL_TEXTURE0 + _nextTextureUnit);
         _cgl.bindTexture(GL_TEXTURE_2D, val.GetTexture());
-        _cgl.gl.uniform1i(l, _nextTextureUnit);
+        _cgl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
         break;
       case VarTypeSamplerCube:
         assert(canonical == uCubeTexture);
         _cgl.activeTexture(GL_TEXTURE0 + _nextTextureUnit);
         _cgl.bindTexture(GL_TEXTURE_CUBE_MAP, val.GetTexture());
-        _cgl.gl.uniform1i(l, _nextTextureUnit);
+        _cgl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
         break;
       default:
@@ -257,20 +265,13 @@ class ShaderProgram extends RenderProgram {
       throw mesg;
     }
 
-    if (_numInstances > 0) {
-      if (indexType != 0) {
-        _cgl.gl.drawElementsInstanced(
-            _drawMode, _numItems, indexType, 0, _numInstances);
-      } else {
-        _cgl.gl.drawArraysInstanced(_drawMode, 0, _numItems, _numInstances);
-      }
+    if (indexType != 0) {
+      _cgl.drawElementsInstanced(
+          _drawMode, _numItems, indexType, 0, _numInstances);
     } else {
-      if (indexType != 0) {
-        _cgl.gl.drawElements(_drawMode, _numItems, indexType, 0);
-      } else {
-        _cgl.gl.drawArrays(_drawMode, 0, _numItems);
-      }
+      _cgl.drawArraysInstanced(_drawMode, 0, _numItems, _numInstances);
     }
+
     if (debug) print(_cgl.getProgramInfoLog(_program));
   }
 

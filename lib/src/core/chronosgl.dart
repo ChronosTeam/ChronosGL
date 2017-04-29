@@ -10,7 +10,6 @@ You can test your browser's compatibility here: http://webglreport.com/
 option: --enable-unsafe-es3-apis)
 """;
 
-
 const int kNoAnisotropicFilterLevel = 1;
 
 String _AddLineNumbers(String text) {
@@ -75,8 +74,8 @@ class ChronosGL {
     WEBGL.Program program = gl.createProgram();
     gl.attachShader(
         program, _CompileOneShader(gl, GL_VERTEX_SHADER, vertexShaderText));
-    gl.attachShader(program,
-        _CompileOneShader(gl, GL_FRAGMENT_SHADER, fragmentShaderText));
+    gl.attachShader(
+        program, _CompileOneShader(gl, GL_FRAGMENT_SHADER, fragmentShaderText));
     gl.linkProgram(program);
 
     if (!gl.getProgramParameter(program, GL_LINK_STATUS)) {
@@ -245,7 +244,8 @@ class ChronosGL {
   }
 
   // reads from bound GL_FRAMEBUFFER
-  void readPixels(int x, int y, int w, int h, int implFormat, int implType, TypedData buf) {
+  void readPixels(
+      int x, int y, int w, int h, int implFormat, int implType, TypedData buf) {
     gl.readPixels(x, y, w, h, implFormat, implType, buf);
   }
 
@@ -276,5 +276,54 @@ class ChronosGL {
     }
     return getParameter(
         WEBGL.ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+  }
+
+  void drawElementsInstanced(
+      int mode, int count, int type, int offset, int instanceCount) {
+    if (instanceCount > 1) {
+      gl.drawElementsInstanced(mode, count, type, offset, instanceCount);
+    } else {
+      gl.drawElements(mode, count, type, offset);
+    }
+  }
+
+  void drawArraysInstanced(int mode, int first, int count, int instanceCount) {
+    if (instanceCount > 1) {
+      gl.drawArraysInstanced(mode, first, count, instanceCount);
+    } else {
+      gl.drawArrays(mode, first, count);
+    }
+  }
+
+  void uniform1f(dynamic location, double value) {
+    gl.uniform1f(location, value);
+  }
+
+  void uniform1i(dynamic location, int value) {
+    gl.uniform1i(location, value);
+  }
+
+  void uniform1fv(dynamic location, Float32List value) {
+    gl.uniform1fv(location, value);
+  }
+
+  void uniform2fv(dynamic location, Float32List value) {
+    gl.uniform2fv(location, value);
+  }
+
+  void uniform3fv(dynamic location, Float32List value) {
+    gl.uniform3fv(location, value);
+  }
+
+  void uniform4fv(dynamic location, Float32List value) {
+    gl.uniform4fv(location, value);
+  }
+
+  void uniformMatrix4fv(dynamic location, bool transpose, Float32List value) {
+    gl.uniformMatrix4fv(location, transpose, value);
+  }
+
+  void uniformMatrix3fv(dynamic location, bool transpose, Float32List value) {
+    gl.uniformMatrix3fv(location, transpose, value);
   }
 }
