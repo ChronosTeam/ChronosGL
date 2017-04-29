@@ -116,7 +116,7 @@ class Texture {
   }
 
   void SetImageData(var data) {
-    _cgl.gl.texImage2D(
+    _cgl.texImage2Dweb(
         _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, data);
   }
 
@@ -154,7 +154,7 @@ class DepthTexture extends Texture {
                 : new TextureProperties.forFramebuffer()) {
     _texture = _cgl.createTexture();
     _cgl.bindTexture(_textureType, _texture);
-    _cgl.gl.texImage2D(WEBGL.TEXTURE_2D, 0, _internalFormatType, _width,
+    _cgl.texImage2D(WEBGL.TEXTURE_2D, 0, _internalFormatType, _width,
         _height, 0, WEBGL.DEPTH_COMPONENT, _dataType, null);
     properties.InstallLate(_cgl, _textureType);
     int err = _cgl.getError();
@@ -188,14 +188,14 @@ class TypedTexture extends Texture {
   void UpdateContent(var data) {
     _data = data;
     Bind();
-    _cgl.gl.texImage2D(WEBGL.TEXTURE_2D, 0, _internalFormatType, _width,
+    _cgl.texImage2D(WEBGL.TEXTURE_2D, 0, _internalFormatType, _width,
         _height, 0, _formatType, _dataType, _data);
     UnBind();
   }
 
   void _Install() {
     Bind(true);
-    _cgl.gl.texImage2D(WEBGL.TEXTURE_2D, 0, _internalFormatType, _width,
+    _cgl.texImage2D(WEBGL.TEXTURE_2D, 0, _internalFormatType, _width,
         _height, 0, _formatType, _dataType, _data);
     UnBind(true);
   }
@@ -256,7 +256,7 @@ class CubeTexture extends Texture {
     assert(images.length == _kCubeModifier.length);
     Bind(true);
     for (int i = 0; i < _kCubeModifier.length; ++i) {
-      _cgl.gl.texImage2D(_kCubeModifier[i], 0, WEBGL.RGBA, WEBGL.RGBA,
+      _cgl.texImage2Dweb(_kCubeModifier[i], 0, WEBGL.RGBA, WEBGL.RGBA,
           WEBGL.UNSIGNED_BYTE, images[i]);
     }
     UnBind(true);

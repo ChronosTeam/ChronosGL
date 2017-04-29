@@ -183,6 +183,25 @@ class ChronosGL {
     return gl.getParameter(kind);
   }
 
+  void vertexAttribPointer(
+      int index, int size, int type, bool normalized, int stride, int offset) {
+    gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
+  }
+
+  void texImage2Dweb(
+      int target, int level, int iformat, int format, int type, dynamic data) {
+    gl.texImage2D(target, level, iformat, format, type, data);
+  }
+
+  void texImage2D(int target, int level, int iformat, int w, int h,
+      int border, int format, int type, dynamic data) {
+    gl.texImage2D(target, level, iformat, w, h, border, format, type, data);
+  }
+
+  void activeTexture(int target) {
+    gl.activeTexture(target);
+  }
+
   dynamic createProgram() {
     return gl.createProgram();
   }

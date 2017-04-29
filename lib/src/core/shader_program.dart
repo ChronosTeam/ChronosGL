@@ -58,7 +58,7 @@ class ShaderProgram extends RenderProgram {
       case VarTypeVec2:
       case VarTypeVec3:
       case VarTypeVec4:
-        _cgl.gl.vertexAttribPointer(
+        _cgl.vertexAttribPointer(
             index, desc.GetSize(), WEBGL.FLOAT, normalized, stride, offset);
         break;
       case VarTypeUvec4:
@@ -155,14 +155,14 @@ class ShaderProgram extends RenderProgram {
         break;
       case VarTypeSampler2D:
       case VarTypeSampler2DShadow:
-        _cgl.gl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
+        _cgl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
         _cgl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
         _cgl.gl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
         break;
       case VarTypeSamplerCube:
         assert(canonical == uCubeTexture);
-        _cgl.gl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
+        _cgl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
         _cgl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, val.GetTexture());
         _cgl.gl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
