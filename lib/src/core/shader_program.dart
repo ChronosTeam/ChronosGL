@@ -61,10 +61,7 @@ class ShaderProgram extends RenderProgram {
         break;
       case VarTypeUvec4:
         assert(false);
-        /*
-         _cgl.gl.vertexAttribIPointer(
-            index, desc.GetSize(), WEBGL.UNSIGNED_INT, normalized, stride, offset);
-        */
+        //_cgl.gl.vertexAttribIPointer(index, desc.GetSize(), WEBGL.UNSIGNED_INT, normalized, stride, offset);
         break;
       default:
         throw "type ${canonical} - ${desc.type} not supported";

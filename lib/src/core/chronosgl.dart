@@ -27,7 +27,7 @@ WEBGL.Shader _CompileOneShader(dynamic gl, int type, String text) {
   gl.shaderSource(shader, text);
   gl.compileShader(shader);
 
-  var result = gl.getShaderParameter(shader, WEBGL.COMPILE_STATUS);
+  var result = gl.getShaderParameter(shader, GL_COMPILE_STATUS);
   if (result != null && result == false) {
     String error = gl.getShaderInfoLog(shader);
     LogInfo("Compilation failed:");
@@ -64,9 +64,9 @@ class ChronosGL {
     }
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(WEBGL.DEPTH_TEST);
+    gl.enable(GL_DEPTH_TEST);
     if (faceCulling) {
-      gl.enable(WEBGL.CULL_FACE);
+      gl.enable(GL_CULL_FACE);
     }
   }
 
@@ -74,12 +74,12 @@ class ChronosGL {
       String vertexShaderText, String fragmentShaderText) {
     WEBGL.Program program = gl.createProgram();
     gl.attachShader(
-        program, _CompileOneShader(gl, WEBGL.VERTEX_SHADER, vertexShaderText));
+        program, _CompileOneShader(gl, GL_VERTEX_SHADER, vertexShaderText));
     gl.attachShader(program,
-        _CompileOneShader(gl, WEBGL.FRAGMENT_SHADER, fragmentShaderText));
+        _CompileOneShader(gl, GL_FRAGMENT_SHADER, fragmentShaderText));
     gl.linkProgram(program);
 
-    if (!gl.getProgramParameter(program, WEBGL.LINK_STATUS)) {
+    if (!gl.getProgramParameter(program, GL_LINK_STATUS)) {
       throw gl.getProgramInfoLog(program);
     }
 
@@ -91,8 +91,8 @@ class ChronosGL {
   }
 
   void ChangeArrayBuffer(WEBGL.Buffer buffer, List data) {
-    gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
-    gl.bufferData(WEBGL.ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
+    gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
+    gl.bufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW);
   }
 
   WEBGL.Buffer createBuffer() {
@@ -101,8 +101,8 @@ class ChronosGL {
 
   void ChangeElementArrayBuffer(WEBGL.Buffer buffer, TypedData data) {
     assert((data is Uint16List) || (data is Uint32List) || (data is Uint8List));
-    gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, buffer);
-    gl.bufferData(WEBGL.ELEMENT_ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
+    gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
+    gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW);
   }
 
   // Why all these shims?
@@ -233,7 +233,7 @@ class ChronosGL {
   }
 
   String getProgramInfoLog(dynamic program) {
-    gl.getProgramInfoLog(program);
+    return gl.getProgramInfoLog(program);
   }
 
   void vertexAttribDivisor(int index, int stride) {

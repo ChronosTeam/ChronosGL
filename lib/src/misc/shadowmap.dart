@@ -202,9 +202,9 @@ class ShadowMapDepth16 extends ShadowMap {
   ShadowMapDepth16(ChronosGL cgl, int w, int h) {
     _mapSize = new VM.Vector2(w + 0.0, h + 0.0);
     Texture dummy  =new TypedTexture(cgl, "frame::color", w, h,
-        WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE);
+        GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
     _depthTexture = new DepthTexture(cgl, "frame::depth", w, h,
-        GL_DEPTH_COMPONENT24, WEBGL.UNSIGNED_INT, true);
+        GL_DEPTH_COMPONENT24, GL_UNSIGNED_INT, true);
     _shadowBuffer = new ChronosFramebuffer(cgl, dummy,_depthTexture);
     _phaseCompute = new RenderPhase("compute-shadow", cgl, _shadowBuffer)
       ..viewPortW = w

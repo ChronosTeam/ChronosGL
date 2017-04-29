@@ -4,7 +4,6 @@ library misc;
 // It would be nice if we could also break the dependency on dart:web_gl
 // for easier testing.
 import 'dart:typed_data';
-import 'dart:web_gl' as WEBGL;
 import 'dart:math' as Math;
 import 'dart:html' as HTML;
 

@@ -1,7 +1,7 @@
 part of misc;
 
 MeshData EmptyLightVisualizer(ChronosGL cgl, String name) {
-  MeshData md = new MeshData(name, cgl, WEBGL.LINES);
+  MeshData md = new MeshData(name, cgl, GL_LINES);
   md.AddVertices(new Float32List(3));
   md.AddFaces([0, 0]);
   return md;
