@@ -6,8 +6,8 @@ class TextureProperties {
   bool shadow = false;
   bool flipY = true;
   int anisotropicFilterLevel = kNoAnisotropicFilterLevel;
-  int minFilter = WEBGL.LINEAR;
-  int magFilter = WEBGL.LINEAR;
+  int minFilter = GL_LINEAR;
+  int magFilter = GL_LINEAR;
 
   TextureProperties();
 
@@ -27,21 +27,21 @@ class TextureProperties {
   }
 
   void SetFilterNearest() {
-    minFilter = WEBGL.NEAREST;
-    magFilter = WEBGL.NEAREST;
+    minFilter = GL_NEAREST;
+    magFilter = GL_NEAREST;
   }
 
   // Very good but also a bit slow
   void SetMipmapLinear() {
-    minFilter = WEBGL.LINEAR_MIPMAP_LINEAR;
-    magFilter = WEBGL.LINEAR; // is this the best?
+    minFilter = GL_LINEAR_MIPMAP_LINEAR;
+    magFilter = GL_LINEAR; // is this the best?
   }
 
   // This assumes a texture is already bound
   void InstallEarly(ChronosGL cgl, int type) {
     //LogInfo("Setup texture ${flipY}  ${anisotropicFilterLevel}");
     if (flipY) {
-      cgl.gl.pixelStorei(WEBGL.UNPACK_FLIP_Y_WEBGL, 1);
+      cgl.gl.pixelStorei(GL_UNPACK_FLIP_Y_WEBGL, 1);
     }
   }
 
@@ -53,13 +53,13 @@ class TextureProperties {
           WEBGL.ExtTextureFilterAnisotropic.TEXTURE_MAX_ANISOTROPY_EXT,
           anisotropicFilterLevel + 0.0);
     }
-    cgl.texParameteri(type, WEBGL.TEXTURE_MAG_FILTER, magFilter);
-    cgl.texParameteri(type, WEBGL.TEXTURE_MIN_FILTER, minFilter);
+    cgl.texParameteri(type, GL_TEXTURE_MAG_FILTER, magFilter);
+    cgl.texParameteri(type, GL_TEXTURE_MIN_FILTER, minFilter);
 
     if (clamp) {
       // this fixes glitches on skybox seams
-      cgl.texParameteri(type, WEBGL.TEXTURE_WRAP_S, WEBGL.CLAMP_TO_EDGE);
-      cgl.texParameteri(type, WEBGL.TEXTURE_WRAP_T, WEBGL.CLAMP_TO_EDGE);
+      cgl.texParameteri(type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      cgl.texParameteri(type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
     if (mipmap) {
       cgl.generateMipmap(type);
@@ -74,12 +74,12 @@ class TextureProperties {
 
 bool IsCubeChildTextureType(int t) {
   switch (t) {
-    case WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_X:
-    case WEBGL.TEXTURE_CUBE_MAP_POSITIVE_X:
-    case WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Y:
-    case WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Y:
-    case WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Z:
-    case WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Z:
+    case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
+    case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
+    case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
+    case GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
+    case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
+    case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
       return true;
     default:
       return false;
@@ -110,14 +110,14 @@ class Texture {
     if (initTime) {
       properties.InstallLate(_cgl, _textureType);
       int err = _cgl.getError();
-      assert(err == WEBGL.NO_ERROR);
+      assert(err == GL_NO_ERROR);
     }
     _cgl.bindTexture(_textureType, null);
   }
 
   void SetImageData(var data) {
     _cgl.texImage2Dweb(
-        _textureType, 0, WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE, data);
+        _textureType, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, data);
   }
 
   int GetTextureType() => _textureType;
@@ -147,18 +147,18 @@ class DepthTexture extends Texture {
       this._internalFormatType, this._dataType, bool forShadow)
       : super(
             cgl,
-            WEBGL.TEXTURE_2D,
+            GL_TEXTURE_2D,
             url,
             forShadow
                 ? new TextureProperties.forShadowMap()
                 : new TextureProperties.forFramebuffer()) {
     _texture = _cgl.createTexture();
     _cgl.bindTexture(_textureType, _texture);
-    _cgl.texImage2D(WEBGL.TEXTURE_2D, 0, _internalFormatType, _width,
-        _height, 0, WEBGL.DEPTH_COMPONENT, _dataType, null);
+    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width,
+        _height, 0, GL_DEPTH_COMPONENT, _dataType, null);
     properties.InstallLate(_cgl, _textureType);
     int err = _cgl.getError();
-    assert(err == WEBGL.NO_ERROR);
+    assert(err == GL_NO_ERROR);
   }
 }
 
@@ -180,7 +180,7 @@ class TypedTexture extends Texture {
   TypedTexture(ChronosGL cgl, String url, this._width, this._height,
       this._internalFormatType, this._formatType, this._dataType,
       [this._data = null])
-      : super(cgl, WEBGL.TEXTURE_2D, url,
+      : super(cgl, GL_TEXTURE_2D, url,
             new TextureProperties.forFramebuffer()) {
     _Install();
   }
@@ -188,14 +188,14 @@ class TypedTexture extends Texture {
   void UpdateContent(var data) {
     _data = data;
     Bind();
-    _cgl.texImage2D(WEBGL.TEXTURE_2D, 0, _internalFormatType, _width,
+    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width,
         _height, 0, _formatType, _dataType, _data);
     UnBind();
   }
 
   void _Install() {
     Bind(true);
-    _cgl.texImage2D(WEBGL.TEXTURE_2D, 0, _internalFormatType, _width,
+    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width,
         _height, 0, _formatType, _dataType, _data);
     UnBind(true);
   }
@@ -220,7 +220,7 @@ class ImageTexture extends Texture {
   ImageTexture(ChronosGL cgl, String url, this._element,
       [delayInstall = false,
       TextureProperties tp = null,
-      textureType = WEBGL.TEXTURE_2D])
+      textureType = GL_TEXTURE_2D])
       : super(
             cgl, textureType, url, tp == null ? new TextureProperties() : tp) {
     if (!delayInstall) {
@@ -242,22 +242,22 @@ class ImageTexture extends Texture {
 }
 
 final List<int> _kCubeModifier = [
-  WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_X,
-  WEBGL.TEXTURE_CUBE_MAP_POSITIVE_X,
-  WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Y,
-  WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Y,
-  WEBGL.TEXTURE_CUBE_MAP_NEGATIVE_Z,
-  WEBGL.TEXTURE_CUBE_MAP_POSITIVE_Z,
+  GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+  GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+  GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+  GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+  GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+  GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
 ];
 
 class CubeTexture extends Texture {
   CubeTexture(ChronosGL cgl, String url, List images)
-      : super(cgl, WEBGL.TEXTURE_CUBE_MAP, url, new TextureProperties()) {
+      : super(cgl, GL_TEXTURE_CUBE_MAP, url, new TextureProperties()) {
     assert(images.length == _kCubeModifier.length);
     Bind(true);
     for (int i = 0; i < _kCubeModifier.length; ++i) {
-      _cgl.texImage2Dweb(_kCubeModifier[i], 0, WEBGL.RGBA, WEBGL.RGBA,
-          WEBGL.UNSIGNED_BYTE, images[i]);
+      _cgl.texImage2Dweb(_kCubeModifier[i], 0, GL_RGBA, GL_RGBA,
+          GL_UNSIGNED_BYTE, images[i]);
     }
     UnBind(true);
 

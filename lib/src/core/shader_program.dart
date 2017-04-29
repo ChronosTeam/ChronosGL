@@ -48,7 +48,7 @@ class ShaderProgram extends RenderProgram {
       int stride, int offset) {
     _attributesInitialized.add(canonical);
     final int index = _attributeLocations[canonical];
-    _cgl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
+    _cgl.bindBuffer(GL_ARRAY_BUFFER, buffer);
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "Unknown canonical ${canonical}";
     switch (desc.type) {
@@ -57,7 +57,7 @@ class ShaderProgram extends RenderProgram {
       case VarTypeVec3:
       case VarTypeVec4:
         _cgl.vertexAttribPointer(
-            index, desc.GetSize(), WEBGL.FLOAT, normalized, stride, offset);
+            index, desc.GetSize(), GL_FLOAT, normalized, stride, offset);
         break;
       case VarTypeUvec4:
         assert(false);
@@ -89,9 +89,9 @@ class ShaderProgram extends RenderProgram {
         break;
       case cDepthTest:
         if (val == true) {
-          _cgl.enable(WEBGL.DEPTH_TEST);
+          _cgl.enable(GL_DEPTH_TEST);
         } else {
-          _cgl.disable(WEBGL.DEPTH_TEST);
+          _cgl.disable(GL_DEPTH_TEST);
         }
         break;
       case cDepthWrite:
@@ -99,9 +99,9 @@ class ShaderProgram extends RenderProgram {
         break;
       case cBlend:
         if (val == true) {
-          _cgl.enable(WEBGL.BLEND);
+          _cgl.enable(GL_BLEND);
         } else {
-          _cgl.disable(WEBGL.BLEND);
+          _cgl.disable(GL_BLEND);
         }
         break;
       case cBlendEquation:
@@ -153,15 +153,15 @@ class ShaderProgram extends RenderProgram {
         break;
       case VarTypeSampler2D:
       case VarTypeSampler2DShadow:
-        _cgl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
-        _cgl.bindTexture(WEBGL.TEXTURE_2D, val.GetTexture());
+        _cgl.activeTexture(GL_TEXTURE0 + _nextTextureUnit);
+        _cgl.bindTexture(GL_TEXTURE_2D, val.GetTexture());
         _cgl.gl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
         break;
       case VarTypeSamplerCube:
         assert(canonical == uCubeTexture);
-        _cgl.activeTexture(WEBGL.TEXTURE0 + _nextTextureUnit);
-        _cgl.bindTexture(WEBGL.TEXTURE_CUBE_MAP, val.GetTexture());
+        _cgl.activeTexture(GL_TEXTURE0 + _nextTextureUnit);
+        _cgl.bindTexture(GL_TEXTURE_CUBE_MAP, val.GetTexture());
         _cgl.gl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
         break;
@@ -214,7 +214,7 @@ class ShaderProgram extends RenderProgram {
           break;
         case prefixElement:
           if (canonical == eArray) {
-            _cgl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, inputs[canonical]);
+            _cgl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, inputs[canonical]);
             ++count;
           } else if (canonical == eArrayType) {
             indexType = inputs[canonical];

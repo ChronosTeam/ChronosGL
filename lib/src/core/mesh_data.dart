@@ -116,13 +116,13 @@ class MeshData extends RenderInputSource {
     assert(_vertices != null);
     if (_vertices.length < 3 * 256) {
       _faces = new Uint8List.fromList(faces);
-      _indexBufferType = WEBGL.UNSIGNED_BYTE;
+      _indexBufferType = GL_UNSIGNED_BYTE;
     } else if (_vertices.length < 3 * 65536) {
       _faces = new Uint16List.fromList(faces);
-      _indexBufferType = WEBGL.UNSIGNED_SHORT;
+      _indexBufferType = GL_UNSIGNED_SHORT;
     } else {
       _faces = new Uint32List.fromList(faces);
-      _indexBufferType = WEBGL.UNSIGNED_INT;
+      _indexBufferType = GL_UNSIGNED_INT;
     }
     _cgl.ChangeElementArrayBuffer(_indexBuffer, _faces as TypedData);
   }
@@ -207,7 +207,7 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
 MeshData GeometryBuilderToMeshData(
     String name, ChronosGL cgl, GeometryBuilder gb) {
   MeshData md =
-      new MeshData(name, cgl, gb.pointsOnly ? WEBGL.POINTS : WEBGL.TRIANGLES);
+      new MeshData(name, cgl, gb.pointsOnly ? GL_POINTS : GL_TRIANGLES);
   md.AddVertices(FlattenVector3List(gb.vertices));
   if (!gb.pointsOnly) md.AddFaces(gb.GenerateFaceIndices());
   _GeometryBuilderAttributesToMeshData(gb, md);
@@ -240,7 +240,7 @@ MeshData _ExtractWireframeNormals(
 
 MeshData GeometryBuilderToWireframeNormals(ChronosGL cgl, GeometryBuilder gb,
     [scale = 1.0]) {
-  MeshData out = new MeshData("norm", cgl, WEBGL.LINES);
+  MeshData out = new MeshData("norm", cgl, GL_LINES);
   return _ExtractWireframeNormals(out, FlattenVector3List(gb.vertices),
       FlattenVector3List(gb.attributes[aNormal] as List<VM.Vector3>), scale);
 }
@@ -248,7 +248,7 @@ MeshData GeometryBuilderToWireframeNormals(ChronosGL cgl, GeometryBuilder gb,
 //Extract Wireframe MeshData
 MeshData GeometryBuilderToMeshDataWireframe(
     String name, ChronosGL cgl, GeometryBuilder gb) {
-  MeshData md = new MeshData(name, cgl, WEBGL.LINES);
+  MeshData md = new MeshData(name, cgl, GL_LINES);
   md.AddVertices(FlattenVector3List(gb.vertices));
   md.AddFaces(gb.GenerateLineIndices());
   _GeometryBuilderAttributesToMeshData(gb, md);
@@ -257,7 +257,7 @@ MeshData GeometryBuilderToMeshDataWireframe(
 
 MeshData LineEndPointsToMeshData(
     String name, ChronosGL cgl, List<VM.Vector3> points) {
-  MeshData md = new MeshData(name, cgl, WEBGL.LINES);
+  MeshData md = new MeshData(name, cgl, GL_LINES);
   md.AddVertices(FlattenVector3List(points));
   List<int> faces = new List<int>(points.length);
   for (int i = 0; i < points.length; ++i) faces[i] = i;
@@ -266,16 +266,16 @@ MeshData LineEndPointsToMeshData(
 }
 
 MeshData ExtractWireframeNormals(ChronosGL cgl, MeshData md, [scale = 1.0]) {
-  assert(md._drawMode == WEBGL.TRIANGLES);
-  MeshData out = new MeshData(md.name, cgl, WEBGL.LINES);
+  assert(md._drawMode == GL_TRIANGLES);
+  MeshData out = new MeshData(md.name, cgl, GL_LINES);
   final Float32List vertices = md.GetAttribute(aVertexPosition);
   final Float32List normals = md.GetAttribute(aNormal);
   return _ExtractWireframeNormals(out, vertices, normals, scale);
 }
 
 MeshData ExtractWireframe(ChronosGL cgl, MeshData md) {
-  assert(md._drawMode == WEBGL.TRIANGLES);
-  MeshData out = new MeshData(md.name, cgl, WEBGL.LINES);
+  assert(md._drawMode == GL_TRIANGLES);
+  MeshData out = new MeshData(md.name, cgl, GL_LINES);
   out.AddVertices(md._vertices);
   final List<int> faces = md._faces;
   List<int> lines = new List<int>(faces.length * 2);
