@@ -97,7 +97,7 @@ class ShaderProgram extends RenderProgram {
         }
         break;
       case cDepthWrite:
-        _cgl.gl.depthMask(val);
+        _cgl.depthMask(val);
         break;
       case cBlend:
         if (val == true) {
@@ -108,8 +108,8 @@ class ShaderProgram extends RenderProgram {
         break;
       case cBlendEquation:
         BlendEquation beq = val as BlendEquation;
-        _cgl.gl.blendFunc(beq.srcFactor, beq.dstFactor);
-        _cgl.gl.blendEquation(beq.equation);
+        _cgl.blendFunc(beq.srcFactor, beq.dstFactor);
+        _cgl.blendEquation(beq.equation);
         break;
     }
   }
@@ -195,7 +195,7 @@ class ShaderProgram extends RenderProgram {
       if (debug) print("[${name}] $a $index");
       _cgl.enableVertexAttribArray(index);
       if (a.codeUnitAt(0) == prefixInstancer) {
-        _cgl.gl.vertexAttribDivisor(index, 1);
+        _cgl.vertexAttribDivisor(index, 1);
       }
     }
   }
@@ -276,7 +276,7 @@ class ShaderProgram extends RenderProgram {
         _cgl.gl.drawArrays(_drawMode, 0, _numItems);
       }
     }
-    if (debug) print(_cgl.gl.getProgramInfoLog(_program));
+    if (debug) print(_cgl.getProgramInfoLog(_program));
   }
 
   @override
@@ -285,7 +285,7 @@ class ShaderProgram extends RenderProgram {
     for (String canonical in _attributeLocations.keys) {
       int index = _attributeLocations[canonical];
       if (canonical.startsWith("ia")) {
-        _cgl.gl.vertexAttribDivisor(index, 0);
+        _cgl.vertexAttribDivisor(index, 0);
       }
       _cgl.disableVertexAttribArray(index);
     }

@@ -10,13 +10,6 @@ You can test your browser's compatibility here: http://webglreport.com/
 option: --enable-unsafe-es3-apis)
 """;
 
-// https://www.khronos.org/registry/webgl/specs/latest/2.0/
-const int GL_TEXTURE_COMPARE_MODE = 0x884C;
-const int GL_TEXTURE_COMPARE_FUNC = 0x884D;
-const int GL_COMPARE_REF_TO_TEXTURE = 0x884E;
-const int GL_DEPTH_COMPONENT24 = 0x81A6;
-const int GL_DEPTH_COMPONENT32F = 0x8CA;
-const int GL_RGBA32F = 0x8814;
 
 const int kNoAnisotropicFilterLevel = 1;
 
@@ -131,6 +124,11 @@ class ChronosGL {
     return gl.checkFramebufferStatus(kind);
   }
 
+  void framebufferTexture2D(
+      int target, int attachment, int textarget, dynamic texture, int level) {
+    gl.framebufferTexture2D(target, attachment, textarget, texture, level);
+  }
+
   WEBGL.Texture createTexture() {
     return gl.createTexture();
   }
@@ -149,6 +147,18 @@ class ChronosGL {
 
   void disable(int kind) {
     gl.disable(kind);
+  }
+
+  void depthMask(bool flag) {
+    gl.depthMask(flag);
+  }
+
+  void blendFunc(int srcFactor, int dstFactor) {
+    gl.blendFunc(srcFactor, dstFactor);
+  }
+
+  void blendEquation(int equation) {
+    gl.blendEquation(equation);
   }
 
   void enableVertexAttribArray(int index) {
@@ -193,8 +203,8 @@ class ChronosGL {
     gl.texImage2D(target, level, iformat, format, type, data);
   }
 
-  void texImage2D(int target, int level, int iformat, int w, int h,
-      int border, int format, int type, dynamic data) {
+  void texImage2D(int target, int level, int iformat, int w, int h, int border,
+      int format, int type, dynamic data) {
     gl.texImage2D(target, level, iformat, w, h, border, format, type, data);
   }
 
@@ -220,6 +230,14 @@ class ChronosGL {
 
   int getError() {
     return gl.getError();
+  }
+
+  String getProgramInfoLog(dynamic program) {
+    gl.getProgramInfoLog(program);
+  }
+
+  void vertexAttribDivisor(int index, int stride) {
+    gl.vertexAttribDivisor(index, stride);
   }
 
   List GetSupportedExtensions() {

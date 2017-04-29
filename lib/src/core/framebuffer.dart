@@ -12,11 +12,11 @@ class ChronosFramebuffer {
 
     _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
     if (colorTexture != null) {
-      _cgl.gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.COLOR_ATTACHMENT0,
+      _cgl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.COLOR_ATTACHMENT0,
           WEBGL.TEXTURE_2D, colorTexture.GetTexture(), 0);
     }
     if (depthTexture != null) {
-      _cgl.gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.DEPTH_ATTACHMENT,
+      _cgl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.DEPTH_ATTACHMENT,
           WEBGL.TEXTURE_2D, depthTexture.GetTexture(), 0);
     }
 
@@ -31,10 +31,10 @@ class ChronosFramebuffer {
   ChronosFramebuffer.Default(ChronosGL cgl, int w, int h)
       : this(
             cgl,
-            new TypedTexture(cgl, "frame::color", w, h,
-                WEBGL.RGBA, WEBGL.RGBA, WEBGL.UNSIGNED_BYTE),
-            new DepthTexture(cgl, "frame::depth", w, h,
-                GL_DEPTH_COMPONENT24, WEBGL.UNSIGNED_INT, false));
+            new TypedTexture(cgl, "frame::color", w, h, WEBGL.RGBA, WEBGL.RGBA,
+                WEBGL.UNSIGNED_BYTE),
+            new DepthTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
+                WEBGL.UNSIGNED_INT, false));
 
   bool ready() {
     bool result = _cgl.checkFramebufferStatus(WEBGL.FRAMEBUFFER) ==
