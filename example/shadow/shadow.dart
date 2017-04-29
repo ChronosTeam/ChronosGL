@@ -1,6 +1,5 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
-import 'dart:web_gl' as WEBGL;
 import 'dart:math' as Math;
 
 import 'package:vector_math/vector_math.dart' as VM;

@@ -2,7 +2,6 @@ import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:web_gl' as WEBGL;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -186,8 +185,8 @@ void main() {
           skeleton.length * 4,
           animationSteps.length,
           GL_RGBA32F,
-          WEBGL.RGBA,
-          WEBGL.FLOAT,
+          GL_RGBA,
+          GL_FLOAT,
           animationData);
       mat.SetUniform(uAnimationTable, animationTable);
 
