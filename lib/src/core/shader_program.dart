@@ -22,7 +22,7 @@ class ShaderProgram extends RenderProgram {
     _program =
         _cgl.CompileWholeProgram(_shaderObjectV.shader, _shaderObjectF.shader);
     for (String v in _shaderObjectV.attributeVars) {
-      _attributeLocations[v] = _cgl.gl.getAttribLocation(_program, v);
+      _attributeLocations[v] = _cgl.getAttribLocation(_program, v);
       if (_attributeLocations[v] < 0) {
         LogError("cannot get location for  attribute $v");
         assert(false);
@@ -30,13 +30,13 @@ class ShaderProgram extends RenderProgram {
     }
 
     for (String v in _shaderObjectV.uniformVars) {
-      _uniformLocations[v] = _cgl.gl.getUniformLocation(_program, v);
+      _uniformLocations[v] = _cgl.getUniformLocation(_program, v);
     }
 
     for (String v in _shaderObjectF.uniformVars) {
       // This can happen! Example both shaders use uTime.
       // assert(!uniformLocations.containsKey(v));
-      _uniformLocations[v] = _cgl.gl.getUniformLocation(_program, v);
+      _uniformLocations[v] = _cgl.getUniformLocation(_program, v);
     }
   }
 

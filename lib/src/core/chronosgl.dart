@@ -228,16 +228,33 @@ class ChronosGL {
     return gl.createShader(kind);
   }
 
+  int getAttribLocation(dynamic program, String attribute) {
+    return gl.getAttribLocation(program, attribute);
+  }
+
+  dynamic getUniformLocation(dynamic program, String uniform) {
+    return gl.getUniformLocation(program, uniform);
+  }
+
   int getError() {
     return gl.getError();
+  }
+
+  void vertexAttribDivisor(int index, int stride) {
+    gl.vertexAttribDivisor(index, stride);
+  }
+
+  // reads from bound GL_FRAMEBUFFER
+  void readPixels(int x, int y, int w, int h, int implFormat, int implType, TypedData buf) {
+    gl.readPixels(x, y, w, h, implFormat, implType, buf);
   }
 
   String getProgramInfoLog(dynamic program) {
     return gl.getProgramInfoLog(program);
   }
 
-  void vertexAttribDivisor(int index, int stride) {
-    gl.vertexAttribDivisor(index, stride);
+  void pixelStorei(int type, int value) {
+    gl.pixelStorei(type, value);
   }
 
   List GetSupportedExtensions() {

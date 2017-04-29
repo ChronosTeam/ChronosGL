@@ -51,12 +51,12 @@ class ChronosFramebuffer {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     // RGB (3 values per pixel), RGBA (4 values per pixel)
     // see TypeToNumChannels
-    int implFormat = _cgl.gl.getParameter(GL_IMPLEMENTATION_COLOR_READ_FORMAT);
+    int implFormat = _cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_FORMAT);
     print("impl format: ${implFormat}");
     // FLOAT, UNSIGNED BYTE
-    int implType = _cgl.gl.getParameter(GL_IMPLEMENTATION_COLOR_READ_TYPE);
+    int implType = _cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_TYPE);
     print("impl type: ${implType}");
-    _cgl.gl.readPixels(x, y, w, h, implFormat, implType, buf);
+    _cgl.readPixels(x, y, w, h, implFormat, implType, buf);
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
   }
 }
