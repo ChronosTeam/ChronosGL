@@ -6,21 +6,21 @@ class BlendEquation {
   int dstFactor;
 
   BlendEquation.Standard() {
-    srcFactor = WEBGL.SRC_ALPHA;
-    dstFactor = WEBGL.ONE_MINUS_SRC_ALPHA; // This was ONE;
-    equation = WEBGL.FUNC_ADD;
+    srcFactor = GL_SRC_ALPHA;
+    dstFactor = GL_ONE_MINUS_SRC_ALPHA; // This was ONE;
+    equation = GL_FUNC_ADD;
   }
 
   BlendEquation.Mix() {
-    srcFactor = WEBGL.SRC_ALPHA;
-    dstFactor = WEBGL.ONE_MINUS_SRC_COLOR;
-    equation = WEBGL.FUNC_ADD;
+    srcFactor = GL_SRC_ALPHA;
+    dstFactor = GL_ONE_MINUS_SRC_COLOR;
+    equation = GL_FUNC_ADD;
   }
 
   BlendEquation.Add() {
-    srcFactor = WEBGL.ONE;
-    dstFactor = WEBGL.ONE;
-    equation = WEBGL.FUNC_ADD;
+    srcFactor = GL_ONE;
+    dstFactor = GL_ONE;
+    equation = GL_FUNC_ADD;
   }
 }
 
