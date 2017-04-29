@@ -11,7 +11,7 @@ void main() {
   test("show_extensions", () {
     HTML.CanvasElement canvas = new HTML.CanvasElement(width: 200, height: 200);
     ChronosGL chronosGL = new ChronosGL(canvas);
-    List exts = GetSupportedExtensions(chronosGL);
+    List exts = chronosGL.GetSupportedExtensions(g);
     for (var e in exts) {
       print(e);
     }

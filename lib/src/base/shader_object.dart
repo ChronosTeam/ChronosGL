@@ -298,9 +298,9 @@ class ShaderObject {
   String name;
   String shader;
 
-  Map<String, String> attributeVars = {};
-  Map<String, String> uniformVars = {};
-  Map<String, String> varyingVars = {};
+  List<String> attributeVars = [];
+  List<String> uniformVars = [];
+  List<String> varyingVars = [];
 
   ShaderObject(this.name);
 
@@ -309,9 +309,10 @@ class ShaderObject {
 
     for (String n in names) {
       assert(_VarsDb.containsKey(n));
-      assert(!attributeVars.containsKey(n));
-      attributeVars[n] = n;
+      assert(!attributeVars.contains(n));
+      attributeVars.add(n);
     }
+    attributeVars.sort();
   }
 
   void AddUniformVars(List<String> names) {
@@ -319,9 +320,10 @@ class ShaderObject {
 
     for (String n in names) {
       assert(_VarsDb.containsKey(n));
-      assert(!uniformVars.containsKey(n));
-      uniformVars[n] = n;
+      assert(!uniformVars.contains(n));
+      uniformVars.add(n);
     }
+    uniformVars.sort();
   }
 
   void AddVaryingVars(List<String> names) {
@@ -329,9 +331,10 @@ class ShaderObject {
 
     for (String n in names) {
       assert(_VarsDb.containsKey(n));
-      assert(!varyingVars.containsKey(n));
-      varyingVars[n] = n;
+      assert(!varyingVars.contains(n));
+      varyingVars.add(n);
     }
+    varyingVars.sort();
   }
 
   void SetBodyWithMain(List<String> body, {List<String> prolog = null}) {
@@ -346,7 +349,8 @@ class ShaderObject {
 
   // InitializeShader updates the shader field from header and body.
   // If you have set shader manually do not call this.
-  String _CreateShader(bool addWrapperForMain, List<String> body, prolog) {
+  String _CreateShader(
+      bool addWrapperForMain, List<String> body, List<String> prolog) {
     assert(shader == null);
     // Hack
     bool isFragmentShader = attributeVars.isEmpty;
@@ -356,9 +360,9 @@ class ShaderObject {
       "precision highp sampler2DShadow;",
       ""
     ];
-    for (String v in attributeVars.keys) {
+    for (String v in attributeVars) {
       ShaderVarDesc d = _VarsDb[v];
-      out.add("in ${d.type} ${attributeVars[v]};");
+      out.add("in ${d.type} ${v};");
     }
     out.add("");
 
@@ -367,15 +371,15 @@ class ShaderObject {
       out.add("out vec4 ${oFragColor};");
     }
 
-    for (String v in varyingVars.keys) {
+    for (String v in varyingVars) {
       ShaderVarDesc d = _VarsDb[v];
-      out.add("${modifier} ${d.type} ${varyingVars[v]};");
+      out.add("${modifier} ${d.type} ${v};");
     }
     out.add("");
-    for (String v in uniformVars.keys) {
+    for (String v in uniformVars) {
       ShaderVarDesc d = _VarsDb[v];
       String suffix = d.arraySize == 0 ? "" : "[${d.arraySize}]";
-      out.add("uniform ${d.type} ${uniformVars[v]}${suffix};");
+      out.add("uniform ${d.type} ${v}${suffix};");
     }
     out.add("");
 
