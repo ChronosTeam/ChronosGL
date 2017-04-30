@@ -3,7 +3,7 @@ part of core;
 class ChronosFramebuffer {
   ChronosGL _cgl;
 
-  WEBGL.Framebuffer framebuffer;
+  dynamic /* gl Framebuffer */ framebuffer;
   Texture colorTexture;
   Texture depthTexture;
 

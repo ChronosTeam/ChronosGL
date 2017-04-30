@@ -49,9 +49,7 @@ class TextureProperties {
   void InstallLate(ChronosGL cgl, int type) {
     if (anisotropicFilterLevel != kNoAnisotropicFilterLevel) {
       cgl.texParameterf(
-          type,
-          WEBGL.ExtTextureFilterAnisotropic.TEXTURE_MAX_ANISOTROPY_EXT,
-          anisotropicFilterLevel + 0.0);
+          type, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropicFilterLevel + 0.0);
     }
     cgl.texParameteri(type, GL_TEXTURE_MAG_FILTER, magFilter);
     cgl.texParameteri(type, GL_TEXTURE_MIN_FILTER, minFilter);
@@ -90,7 +88,7 @@ bool IsCubeChildTextureType(int t) {
 /// is the base class for all textures
 class Texture {
   final String _url;
-  WEBGL.Texture _texture;
+  dynamic /* GL Texture */ _texture;
   final int _textureType;
   final ChronosGL _cgl;
   final TextureProperties properties;
@@ -122,7 +120,7 @@ class Texture {
 
   int GetTextureType() => _textureType;
 
-  WEBGL.Texture GetTexture() {
+  dynamic /* gl Texture */ GetTexture() {
     return _texture;
   }
 
@@ -134,13 +132,13 @@ class Texture {
 
 // Used for depth and shadows
 // Common format combos are:
-// WEBGL.DEPTH_COMPONENT16, WEBGL.UNSIGNED_SHORT
-// GL_DEPTH_COMPONENT24, WEBGL.UNSIGNED_INT
+// GL_DEPTH_COMPONENT16, GL_UNSIGNED_SHORT
+// GL_DEPTH_COMPONENT24, GL_UNSIGNED_INT
 class DepthTexture extends Texture {
   int _width;
   int _height;
   final int _internalFormatType;
-  // e.g.  WEBGL.UNSIGNED_SHORT, WEBGL.UNSIGNED_BYTE. WEBGL.FLOAT
+  // e.g.  GL_UNSIGNED_SHORT, GL_UNSIGNED_BYTE. GL_FLOAT
   final int _dataType;
 
   DepthTexture(ChronosGL cgl, String url, this._width, this._height,
@@ -154,8 +152,8 @@ class DepthTexture extends Texture {
                 : new TextureProperties.forFramebuffer()) {
     _texture = _cgl.createTexture();
     _cgl.bindTexture(_textureType, _texture);
-    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width,
-        _height, 0, GL_DEPTH_COMPONENT, _dataType, null);
+    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width, _height, 0,
+        GL_DEPTH_COMPONENT, _dataType, null);
     properties.InstallLate(_cgl, _textureType);
     int err = _cgl.getError();
     assert(err == GL_NO_ERROR);
@@ -167,9 +165,9 @@ class TypedTexture extends Texture {
   int _width;
   int _height;
   final int _internalFormatType;
-  // e.g. WEBGL.DEPTH_COMPONENT, WEBGL.RGB, WEBGL.RGBA
+  // e.g. GL_DEPTH_COMPONENT, GL_RGB, GL_RGBA
   final int _formatType;
-  // e.g.  WEBGL.UNSIGNED_SHORT, WEBGL.UNSIGNED_BYTE. WEBGL.FLOAT
+  // e.g.  GL_UNSIGNED_SHORT, GL_UNSIGNED_BYTE, GL_FLOAT
   final int _dataType;
   // null, Float32List, etc
   // null is required by the shadow example
@@ -180,23 +178,22 @@ class TypedTexture extends Texture {
   TypedTexture(ChronosGL cgl, String url, this._width, this._height,
       this._internalFormatType, this._formatType, this._dataType,
       [this._data = null])
-      : super(cgl, GL_TEXTURE_2D, url,
-            new TextureProperties.forFramebuffer()) {
+      : super(cgl, GL_TEXTURE_2D, url, new TextureProperties.forFramebuffer()) {
     _Install();
   }
 
   void UpdateContent(var data) {
     _data = data;
     Bind();
-    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width,
-        _height, 0, _formatType, _dataType, _data);
+    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width, _height, 0,
+        _formatType, _dataType, _data);
     UnBind();
   }
 
   void _Install() {
     Bind(true);
-    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width,
-        _height, 0, _formatType, _dataType, _data);
+    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width, _height, 0,
+        _formatType, _dataType, _data);
     UnBind(true);
   }
 
@@ -256,8 +253,8 @@ class CubeTexture extends Texture {
     assert(images.length == _kCubeModifier.length);
     Bind(true);
     for (int i = 0; i < _kCubeModifier.length; ++i) {
-      _cgl.texImage2Dweb(_kCubeModifier[i], 0, GL_RGBA, GL_RGBA,
-          GL_UNSIGNED_BYTE, images[i]);
+      _cgl.texImage2Dweb(
+          _kCubeModifier[i], 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, images[i]);
     }
     UnBind(true);
 

@@ -215,23 +215,23 @@ class ChronosGL {
     return _gl.createProgram();
   }
 
-  void linkProgram(dynamic obj) {
-    return _gl.linkProgram(obj);
+  void linkProgram(WEBGL.Program obj) {
+    _gl.linkProgram(obj);
   }
 
-  void useProgram(dynamic obj) {
-    return _gl.useProgram(obj);
+  void useProgram(WEBGL.Program obj) {
+    _gl.useProgram(obj);
   }
 
   dynamic createShader(int kind) {
     return _gl.createShader(kind);
   }
 
-  int getAttribLocation(dynamic program, String attribute) {
+  int getAttribLocation(WEBGL.Program program, String attribute) {
     return _gl.getAttribLocation(program, attribute);
   }
 
-  dynamic getUniformLocation(dynamic program, String uniform) {
+  WEBGL.UniformLocation getUniformLocation(WEBGL.Program program, String uniform) {
     return _gl.getUniformLocation(program, uniform);
   }
 
@@ -249,7 +249,7 @@ class ChronosGL {
     _gl.readPixels(x, y, w, h, implFormat, implType, buf);
   }
 
-  String getProgramInfoLog(dynamic program) {
+  String getProgramInfoLog(WEBGL.Program program) {
     return _gl.getProgramInfoLog(program);
   }
 
@@ -299,35 +299,35 @@ class ChronosGL {
     }
   }
 
-  void uniform1f(dynamic location, double value) {
+  void uniform1f(WEBGL.UniformLocation location, double value) {
     _gl.uniform1f(location, value);
   }
 
-  void uniform1i(dynamic location, int value) {
+  void uniform1i(WEBGL.UniformLocation location, int value) {
     _gl.uniform1i(location, value);
   }
 
-  void uniform1fv(dynamic location, Float32List value) {
+  void uniform1fv(WEBGL.UniformLocation location, Float32List value) {
     _gl.uniform1fv(location, value);
   }
 
-  void uniform2fv(dynamic location, Float32List value) {
+  void uniform2fv(WEBGL.UniformLocation location, Float32List value) {
     _gl.uniform2fv(location, value);
   }
 
-  void uniform3fv(dynamic location, Float32List value) {
+  void uniform3fv(WEBGL.UniformLocation location, Float32List value) {
     _gl.uniform3fv(location, value);
   }
 
-  void uniform4fv(dynamic location, Float32List value) {
+  void uniform4fv(WEBGL.UniformLocation location, Float32List value) {
     _gl.uniform4fv(location, value);
   }
 
-  void uniformMatrix4fv(dynamic location, bool transpose, Float32List value) {
+  void uniformMatrix4fv(WEBGL.UniformLocation location, bool transpose, Float32List value) {
     _gl.uniformMatrix4fv(location, transpose, value);
   }
 
-  void uniformMatrix3fv(dynamic location, bool transpose, Float32List value) {
+  void uniformMatrix3fv(WEBGL.UniformLocation location, bool transpose, Float32List value) {
     _gl.uniformMatrix3fv(location, transpose, value);
   }
 }

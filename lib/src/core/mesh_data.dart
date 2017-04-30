@@ -58,8 +58,8 @@ Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data = null]) {
 class MeshData extends RenderInputSource {
   final ChronosGL _cgl;
   final _drawMode;
-  final Map<String, WEBGL.Buffer> _buffers = {};
-  WEBGL.Buffer _indexBuffer;
+  final Map<String, dynamic /* gl Buffer */> _buffers = {};
+  dynamic /* gl Buffer */ _indexBuffer;
   int _indexBufferType = -1;
 
   Float32List _vertices;

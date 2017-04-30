@@ -6,9 +6,9 @@ class ShaderProgram extends RenderProgram {
   ChronosGL _cgl;
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
-  WEBGL.Program _program;
+  dynamic /* gl  Program */ _program;
   Map<String, int> _attributeLocations = {};
-  Map<String, WEBGL.UniformLocation> _uniformLocations = {};
+  Map<String, dynamic /* gl UniformLocation */ > _uniformLocations = {};
   Set<String> _uniformsInitialized = new Set<String>();
   Set<String> _attributesInitialized = new Set<String>();
   int _drawMode = -1;
@@ -44,7 +44,7 @@ class ShaderProgram extends RenderProgram {
     return _attributeLocations.containsKey(canonical);
   }
 
-  void _SetAttribute(String canonical, WEBGL.Buffer buffer, normalized,
+  void _SetAttribute(String canonical, dynamic /* Buffer */ buffer, normalized,
       int stride, int offset) {
     _attributesInitialized.add(canonical);
     final int index = _attributeLocations[canonical];
@@ -61,7 +61,7 @@ class ShaderProgram extends RenderProgram {
         break;
       case VarTypeUvec4:
         assert(false);
-        //_cgl.gl.vertexAttribIPointer(index, desc.GetSize(), WEBGL.UNSIGNED_INT, normalized, stride, offset);
+        //_cgl.gl.vertexAttribIPointer(index, desc.GetSize(), GL_UNSIGNED_INT, normalized, stride, offset);
         break;
       default:
         throw "type ${canonical} - ${desc.type} not supported";
@@ -117,7 +117,7 @@ class ShaderProgram extends RenderProgram {
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "unknown ${canonical}";
     assert(_uniformLocations.containsKey(canonical));
-    WEBGL.UniformLocation l = _uniformLocations[canonical];
+    dynamic /* UniformLocation */ l = _uniformLocations[canonical];
     switch (desc.type) {
       case VarTypeFloat:
         if (desc.arraySize == 0) {
