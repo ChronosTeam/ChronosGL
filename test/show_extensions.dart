@@ -11,17 +11,15 @@ void main() {
   test("show_extensions", () {
     HTML.CanvasElement canvas = new HTML.CanvasElement(width: 200, height: 200);
     ChronosGL chronosGL = new ChronosGL(canvas);
-    List exts = chronosGL.GetSupportedExtensions();
+    List exts = chronosGL.getSupportedExtensions();
     for (var e in exts) {
       print(e);
     }
     WEBGL.DebugRendererInfo di =
-        chronosGL.gl.getExtension('WEBGL_debug_renderer_info');
+        chronosGL.getExtension('WEBGL_debug_renderer_info');
     print(di);
-    print(chronosGL.gl
-        .getParameter(WEBGL.DebugRendererInfo.UNMASKED_VENDOR_WEBGL));
-    print(chronosGL.gl
-        .getParameter(WEBGL.DebugRendererInfo.UNMASKED_RENDERER_WEBGL));
+    print(chronosGL.getParameter(GL_UNMASKED_VENDOR_WEBGL));
+    print(chronosGL.getParameter(GL_UNMASKED_RENDERER_WEBGL));
   });
 
   print("PASS");

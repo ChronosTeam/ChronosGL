@@ -40,7 +40,7 @@ WEBGL.Shader _CompileOneShader(dynamic gl, int type, String text) {
 
 class ChronosGL {
   // either WebGL2RenderingContext' or 'RenderingContext2'
-  dynamic gl;
+  dynamic _gl;
 
   final dynamic _canvas;
 
@@ -57,212 +57,216 @@ class ChronosGL {
       "preserveDrawingBuffer": preserveDrawingBuffer,
     };
 
-    gl = _canvas.getContext("webgl2", attributes);
-    if (gl == null) {
+    _gl = _canvas.getContext("webgl2", attributes);
+    if (_gl == null) {
       throw new Exception(NO_WEBGL_MESSAGE);
     }
 
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(GL_DEPTH_TEST);
+    _gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    _gl.enable(GL_DEPTH_TEST);
     if (faceCulling) {
-      gl.enable(GL_CULL_FACE);
+      _gl.enable(GL_CULL_FACE);
     }
   }
 
   WEBGL.Program CompileWholeProgram(
       String vertexShaderText, String fragmentShaderText) {
-    WEBGL.Program program = gl.createProgram();
-    gl.attachShader(
-        program, _CompileOneShader(gl, GL_VERTEX_SHADER, vertexShaderText));
-    gl.attachShader(
-        program, _CompileOneShader(gl, GL_FRAGMENT_SHADER, fragmentShaderText));
-    gl.linkProgram(program);
+    WEBGL.Program program = _gl.createProgram();
+    _gl.attachShader(
+        program, _CompileOneShader(_gl, GL_VERTEX_SHADER, vertexShaderText));
+    _gl.attachShader(program,
+        _CompileOneShader(_gl, GL_FRAGMENT_SHADER, fragmentShaderText));
+    _gl.linkProgram(program);
 
-    if (!gl.getProgramParameter(program, GL_LINK_STATUS)) {
-      throw gl.getProgramInfoLog(program);
+    if (!_gl.getProgramParameter(program, GL_LINK_STATUS)) {
+      throw _gl.getProgramInfoLog(program);
     }
 
     return program;
   }
 
   void bindBuffer(int kind, WEBGL.Buffer buffer) {
-    gl.bindBuffer(kind, buffer);
+    _gl.bindBuffer(kind, buffer);
   }
 
   void ChangeArrayBuffer(WEBGL.Buffer buffer, List data) {
-    gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
-    gl.bufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW);
+    _gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
+    _gl.bufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW);
   }
 
   WEBGL.Buffer createBuffer() {
-    return gl.createBuffer();
+    return _gl.createBuffer();
   }
 
   void ChangeElementArrayBuffer(WEBGL.Buffer buffer, TypedData data) {
     assert((data is Uint16List) || (data is Uint32List) || (data is Uint8List));
-    gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
-    gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW);
+    _gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
+    _gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW);
   }
 
   // Why all these shims?
   // They are useful for instrumentation and may allow us some day
   // to interface with dart-gl
   void deleteBuffer(dynamic buffer) {
-    gl.deleteBuffer(buffer);
+    _gl.deleteBuffer(buffer);
   }
 
   WEBGL.Framebuffer createFramebuffer() {
-    return gl.createFramebuffer();
+    return _gl.createFramebuffer();
   }
 
   void bindFramebuffer(int kind, dynamic framebuffer) {
-    gl.bindFramebuffer(kind, framebuffer);
+    _gl.bindFramebuffer(kind, framebuffer);
   }
 
   int checkFramebufferStatus(int kind) {
-    return gl.checkFramebufferStatus(kind);
+    return _gl.checkFramebufferStatus(kind);
   }
 
   void framebufferTexture2D(
       int target, int attachment, int textarget, dynamic texture, int level) {
-    gl.framebufferTexture2D(target, attachment, textarget, texture, level);
+    _gl.framebufferTexture2D(target, attachment, textarget, texture, level);
   }
 
   WEBGL.Texture createTexture() {
-    return gl.createTexture();
+    return _gl.createTexture();
   }
 
   void bindTexture(int kind, dynamic texture) {
-    gl.bindTexture(kind, texture);
+    _gl.bindTexture(kind, texture);
   }
 
   void viewport(int x, int y, int w, int h) {
-    gl.viewport(x, y, w, h);
+    _gl.viewport(x, y, w, h);
   }
 
   void enable(int kind) {
-    gl.enable(kind);
+    _gl.enable(kind);
   }
 
   void disable(int kind) {
-    gl.disable(kind);
+    _gl.disable(kind);
   }
 
   void depthMask(bool flag) {
-    gl.depthMask(flag);
+    _gl.depthMask(flag);
   }
 
   void blendFunc(int srcFactor, int dstFactor) {
-    gl.blendFunc(srcFactor, dstFactor);
+    _gl.blendFunc(srcFactor, dstFactor);
   }
 
   void blendEquation(int equation) {
-    gl.blendEquation(equation);
+    _gl.blendEquation(equation);
   }
 
   void enableVertexAttribArray(int index) {
-    gl.enableVertexAttribArray(index);
+    _gl.enableVertexAttribArray(index);
   }
 
   void disableVertexAttribArray(int index) {
-    gl.disableVertexAttribArray(index);
+    _gl.disableVertexAttribArray(index);
   }
 
   void clear(int kind) {
-    gl.clear(kind);
+    _gl.clear(kind);
   }
 
   void setLineWidth(int w) {
-    gl.lineWidth(w);
+    _gl.lineWidth(w);
   }
 
   void generateMipmap(int kind) {
-    gl.generateMipmap(kind);
+    _gl.generateMipmap(kind);
   }
 
   void texParameteri(int kind1, int kind2, int val) {
-    gl.texParameteri(kind1, kind2, val);
+    _gl.texParameteri(kind1, kind2, val);
   }
 
   void texParameterf(int kind1, int kind2, double val) {
-    gl.texParameterf(kind1, kind2, val);
+    _gl.texParameterf(kind1, kind2, val);
   }
 
   dynamic getParameter(int kind) {
-    return gl.getParameter(kind);
+    return _gl.getParameter(kind);
   }
 
   void vertexAttribPointer(
       int index, int size, int type, bool normalized, int stride, int offset) {
-    gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
+    _gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
   }
 
   void texImage2Dweb(
       int target, int level, int iformat, int format, int type, dynamic data) {
-    gl.texImage2D(target, level, iformat, format, type, data);
+    _gl.texImage2D(target, level, iformat, format, type, data);
   }
 
   void texImage2D(int target, int level, int iformat, int w, int h, int border,
       int format, int type, dynamic data) {
-    gl.texImage2D(target, level, iformat, w, h, border, format, type, data);
+    _gl.texImage2D(target, level, iformat, w, h, border, format, type, data);
   }
 
   void activeTexture(int target) {
-    gl.activeTexture(target);
+    _gl.activeTexture(target);
   }
 
   dynamic createProgram() {
-    return gl.createProgram();
+    return _gl.createProgram();
   }
 
   void linkProgram(dynamic obj) {
-    return gl.linkProgram(obj);
+    return _gl.linkProgram(obj);
   }
 
   void useProgram(dynamic obj) {
-    return gl.useProgram(obj);
+    return _gl.useProgram(obj);
   }
 
   dynamic createShader(int kind) {
-    return gl.createShader(kind);
+    return _gl.createShader(kind);
   }
 
   int getAttribLocation(dynamic program, String attribute) {
-    return gl.getAttribLocation(program, attribute);
+    return _gl.getAttribLocation(program, attribute);
   }
 
   dynamic getUniformLocation(dynamic program, String uniform) {
-    return gl.getUniformLocation(program, uniform);
+    return _gl.getUniformLocation(program, uniform);
   }
 
   int getError() {
-    return gl.getError();
+    return _gl.getError();
   }
 
   void vertexAttribDivisor(int index, int stride) {
-    gl.vertexAttribDivisor(index, stride);
+    _gl.vertexAttribDivisor(index, stride);
   }
 
   // reads from bound GL_FRAMEBUFFER
   void readPixels(
       int x, int y, int w, int h, int implFormat, int implType, TypedData buf) {
-    gl.readPixels(x, y, w, h, implFormat, implType, buf);
+    _gl.readPixels(x, y, w, h, implFormat, implType, buf);
   }
 
   String getProgramInfoLog(dynamic program) {
-    return gl.getProgramInfoLog(program);
+    return _gl.getProgramInfoLog(program);
   }
 
   void pixelStorei(int type, int value) {
-    gl.pixelStorei(type, value);
+    _gl.pixelStorei(type, value);
   }
 
-  List GetSupportedExtensions() {
-    return gl.getSupportedExtensions();
+  List getSupportedExtensions() {
+    return _gl.getSupportedExtensions();
+  }
+
+  dynamic getExtension(String name) {
+    return _gl.getExtension(name);
   }
 
   dynamic GetGlExtensionAnisotropic() {
-    var ext = gl.getExtension("EXT_texture_filter_anisotropic");
+    var ext = _gl.getExtension("EXT_texture_filter_anisotropic");
     if (ext == null) {
       LogWarn("ExtensionAnisotropic NOT SUPPORTED");
     }
@@ -281,49 +285,49 @@ class ChronosGL {
   void drawElementsInstanced(
       int mode, int count, int type, int offset, int instanceCount) {
     if (instanceCount > 1) {
-      gl.drawElementsInstanced(mode, count, type, offset, instanceCount);
+      _gl.drawElementsInstanced(mode, count, type, offset, instanceCount);
     } else {
-      gl.drawElements(mode, count, type, offset);
+      _gl.drawElements(mode, count, type, offset);
     }
   }
 
   void drawArraysInstanced(int mode, int first, int count, int instanceCount) {
     if (instanceCount > 1) {
-      gl.drawArraysInstanced(mode, first, count, instanceCount);
+      _gl.drawArraysInstanced(mode, first, count, instanceCount);
     } else {
-      gl.drawArrays(mode, first, count);
+      _gl.drawArrays(mode, first, count);
     }
   }
 
   void uniform1f(dynamic location, double value) {
-    gl.uniform1f(location, value);
+    _gl.uniform1f(location, value);
   }
 
   void uniform1i(dynamic location, int value) {
-    gl.uniform1i(location, value);
+    _gl.uniform1i(location, value);
   }
 
   void uniform1fv(dynamic location, Float32List value) {
-    gl.uniform1fv(location, value);
+    _gl.uniform1fv(location, value);
   }
 
   void uniform2fv(dynamic location, Float32List value) {
-    gl.uniform2fv(location, value);
+    _gl.uniform2fv(location, value);
   }
 
   void uniform3fv(dynamic location, Float32List value) {
-    gl.uniform3fv(location, value);
+    _gl.uniform3fv(location, value);
   }
 
   void uniform4fv(dynamic location, Float32List value) {
-    gl.uniform4fv(location, value);
+    _gl.uniform4fv(location, value);
   }
 
   void uniformMatrix4fv(dynamic location, bool transpose, Float32List value) {
-    gl.uniformMatrix4fv(location, transpose, value);
+    _gl.uniformMatrix4fv(location, transpose, value);
   }
 
   void uniformMatrix3fv(dynamic location, bool transpose, Float32List value) {
-    gl.uniformMatrix3fv(location, transpose, value);
+    _gl.uniformMatrix3fv(location, transpose, value);
   }
 }
