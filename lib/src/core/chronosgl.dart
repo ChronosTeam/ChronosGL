@@ -160,6 +160,10 @@ class ChronosGL {
     _gl.blendEquation(equation);
   }
 
+  void stencilFunc(int func, int value, int mask) {
+    _gl.stencilFunc(func, value, mask);
+  }
+
   void enableVertexAttribArray(int index) {
     _gl.enableVertexAttribArray(index);
   }
@@ -231,7 +235,8 @@ class ChronosGL {
     return _gl.getAttribLocation(program, attribute);
   }
 
-  WEBGL.UniformLocation getUniformLocation(WEBGL.Program program, String uniform) {
+  WEBGL.UniformLocation getUniformLocation(
+      WEBGL.Program program, String uniform) {
     return _gl.getUniformLocation(program, uniform);
   }
 
@@ -323,11 +328,13 @@ class ChronosGL {
     _gl.uniform4fv(location, value);
   }
 
-  void uniformMatrix4fv(WEBGL.UniformLocation location, bool transpose, Float32List value) {
+  void uniformMatrix4fv(
+      WEBGL.UniformLocation location, bool transpose, Float32List value) {
     _gl.uniformMatrix4fv(location, transpose, value);
   }
 
-  void uniformMatrix3fv(WEBGL.UniformLocation location, bool transpose, Float32List value) {
+  void uniformMatrix3fv(
+      WEBGL.UniformLocation location, bool transpose, Float32List value) {
     _gl.uniformMatrix3fv(location, transpose, value);
   }
 }

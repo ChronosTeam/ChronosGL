@@ -21,6 +21,8 @@ const String VarTypeVec4 = "vec4";
 const String VarTypeMat3 = "mat3";
 const String VarTypeMat4 = "mat4";
 const String VarTypeUvec4 = "uvec4";
+const String VarTypeUvec3 = "uvec3";
+const String VarTypeUvec2 = "uvec2";
 const String VarTypeSampler2D = "sampler2D";
 const String VarTypeSampler2DShadow = "sampler2DShadow";
 const String VarTypeSamplerCube = "samplerCube";
@@ -41,6 +43,7 @@ class ShaderVarDesc {
       case VarTypeVec2:
         return 2;
       case VarTypeVec3:
+      case VarTypeUvec3:
         return 3;
       case VarTypeVec4:
       case VarTypeUvec4:
@@ -77,8 +80,8 @@ const int prefixControl = 0x63; // 'c;
 
 const String cDepthTest = "cDepthTest";
 const String cDepthWrite = "cDepthWrite";
-const String cBlend = "cBlend";
 const String cBlendEquation = "cBlendEquation";
+const String cStencilFunc = "cStencilFunc";
 const String cNumItems = "cNumItems";
 const String cNumInstances = "cNumInstances";
 const String cDrawMode = "cDrawMode";
@@ -190,13 +193,13 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   eArrayType: new ShaderVarDesc(VarTypeInt, ""),
 
   //
-  cBlend: new ShaderVarDesc("", ""),
   cBlendEquation: new ShaderVarDesc("", ""),
   cDepthWrite: new ShaderVarDesc("", ""),
   cDepthTest: new ShaderVarDesc("", ""),
   cNumItems: new ShaderVarDesc("", ""),
   cNumInstances: new ShaderVarDesc("", ""),
   cDrawMode: new ShaderVarDesc("", ""),
+  cStencilFunc: new ShaderVarDesc("", ""),
 
   // attribute vars
   // This should also contain an alpha channel

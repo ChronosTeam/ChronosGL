@@ -22,15 +22,13 @@ void main() {
   RenderProgram program = phase.createProgram(createWireframeShader());
   final Material matWireframe = new Material("wire")
     ..SetUniform(uColorAlpha, new VM.Vector4(1.0, 1.0, 0.0, 1.0))
-    ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5))
-    ..SetUniform(cBlendEquation, new BlendEquation.Standard());
+    ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5));
 
   {
     GeometryBuilder gb = IcosahedronGeometry(2)..GenerateWireframeCenters();
-    Node ico = new Node(
-        "sphere",
-        GeometryBuilderToMeshData("icosahedron", chronosGL, gb),
-        matWireframe)..setPos(0.0, 0.0, 0.0);
+    Node ico = new Node("sphere",
+        GeometryBuilderToMeshData("icosahedron", chronosGL, gb), matWireframe)
+      ..setPos(0.0, 0.0, 0.0);
     program.add(ico);
   }
 
@@ -44,20 +42,18 @@ void main() {
 
   {
     GeometryBuilder gb = WedgeGeometry()..GenerateWireframeCenters();
-    Node wedge = new Node(
-        "wedge",
-        GeometryBuilderToMeshData("wedge", chronosGL, gb),
-        matWireframe)..setPos(0.0, -5.0, 0.0);
+    Node wedge = new Node("wedge",
+        GeometryBuilderToMeshData("wedge", chronosGL, gb), matWireframe)
+      ..setPos(0.0, -5.0, 0.0);
     program.add(wedge);
   }
 
   {
     GeometryBuilder gb = CylinderGeometryWireframeFriendly(3.0, 4.0, 2.0, 16)
       ..GenerateWireframeCenters();
-    Node cyl = new Node(
-        "cylinder",
-        GeometryBuilderToMeshData("cylinder", chronosGL, gb),
-        matWireframe)..setPos(5.0, 0.0, -5.0);
+    Node cyl = new Node("cylinder",
+        GeometryBuilderToMeshData("cylinder", chronosGL, gb), matWireframe)
+      ..setPos(5.0, 0.0, -5.0);
     program.add(cyl);
   }
 
@@ -72,10 +68,9 @@ void main() {
   {
     GeometryBuilder gb = ShapeTorusKnotGeometry(radius: 1.0, tube: 0.4)
       ..GenerateWireframeCenters();
-    Node torus = new Node(
-        "torus",
-        GeometryBuilderToMeshData("torus", chronosGL, gb),
-        matWireframe)..setPos(5.0, 0.0, 5.0);
+    Node torus = new Node("torus",
+        GeometryBuilderToMeshData("torus", chronosGL, gb), matWireframe)
+      ..setPos(5.0, 0.0, 5.0);
     program.add(torus);
   }
 
@@ -101,7 +96,8 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
-    matWireframe.ForceUniform(cBlend, !gOpaque.checked);
+    matWireframe.ForceUniform(cBlendEquation,
+        gOpaque.checked ? BlendEquationNone : BlendEquationStandard);
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }

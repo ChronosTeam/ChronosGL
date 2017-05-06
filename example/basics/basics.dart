@@ -23,8 +23,7 @@ void main() {
 
   final Material matTrans = new Material("trans")
     ..SetUniform(uColor, ColorGray4)
-    ..ForceUniform(cBlend, true)
-    ..SetUniform(cBlendEquation, new BlendEquation.Standard());
+    ..ForceUniform(cBlendEquation, BlendEquationStandard);
 
   {
     Node ico = new Node("sphere", ShapeIcosahedron(chronosGL, 3), matWood)

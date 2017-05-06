@@ -1,28 +1,39 @@
 part of core;
 
-class BlendEquation {
+class TheStencilFunction {
+  int func;
+  int value;
+  int mask;
+
+  TheStencilFunction(this.func, this.value, this.mask);
+}
+
+final TheStencilFunction StencilFunctionNone =
+    new TheStencilFunction(GL_INVALID_VALUE, 0, ~0);
+
+final TheStencilFunction StencilFunctionAlways =
+    new TheStencilFunction(GL_ALWAYS, 0, ~0);
+
+class TheBlendEquation {
   int equation;
   int srcFactor;
   int dstFactor;
 
-  BlendEquation.Standard() {
-    srcFactor = GL_SRC_ALPHA;
-    dstFactor = GL_ONE_MINUS_SRC_ALPHA; // This was ONE;
-    equation = GL_FUNC_ADD;
-  }
-
-  BlendEquation.Mix() {
-    srcFactor = GL_SRC_ALPHA;
-    dstFactor = GL_ONE_MINUS_SRC_COLOR;
-    equation = GL_FUNC_ADD;
-  }
-
-  BlendEquation.Add() {
-    srcFactor = GL_ONE;
-    dstFactor = GL_ONE;
-    equation = GL_FUNC_ADD;
-  }
+  TheBlendEquation(this.equation, this.srcFactor, this.dstFactor);
 }
+
+final TheBlendEquation BlendEquationNone =
+    new TheBlendEquation(GL_INVALID_VALUE, GL_INVALID_VALUE, GL_INVALID_VALUE);
+
+// dst was GL_ONE
+final TheBlendEquation BlendEquationStandard =
+    new TheBlendEquation(GL_FUNC_ADD, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+final TheBlendEquation BlendEquationMix =
+    new TheBlendEquation(GL_FUNC_ADD, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR);
+
+final TheBlendEquation BlendEquationAdd =
+    new TheBlendEquation(GL_FUNC_ADD, GL_ONE, GL_ONE);
 
 /// ## Class Material (is a RenderInputSource)
 /// is a light weight container for **Inputs**.
@@ -33,20 +44,20 @@ class Material extends RenderInputSource {
   Material(String name) : super(name) {
     SetUniform(cDepthTest, true);
     SetUniform(cDepthWrite, true);
-    SetUniform(cBlend, false);
+    SetUniform(cBlendEquation, BlendEquationNone);
+    SetUniform(cStencilFunc, StencilFunctionNone);
   }
 
-  Material.Transparent(String name, BlendEquation beq) : super(name) {
+  Material.Transparent(String name, TheBlendEquation beq) : super(name) {
     SetUniform(cDepthTest, true);
     SetUniform(cDepthWrite, false);
-    SetUniform(cBlend, true);
     SetUniform(cBlendEquation, beq);
+    SetUniform(cStencilFunc, StencilFunctionNone);
   }
 
-  Material.BlendAndDepthNeutral(String name) : super(name);
-
   void SetUniform(String canonical, dynamic val) {
-    assert(!_uniforms.containsKey(canonical));
+    assert(
+        !_uniforms.containsKey(canonical), "uniform ${canonical} already set");
     ForceUniform(canonical, val);
   }
 

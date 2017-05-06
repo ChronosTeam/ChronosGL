@@ -59,9 +59,14 @@ class ShaderProgram extends RenderProgram {
         _cgl.vertexAttribPointer(
             index, desc.GetSize(), GL_FLOAT, normalized, stride, offset);
         break;
+      case VarTypeUvec2:
+      case VarTypeUvec3:
       case VarTypeUvec4:
         assert(false);
-        //_cgl.gl.vertexAttribIPointer(index, desc.GetSize(), GL_UNSIGNED_INT, normalized, stride, offset);
+        /*
+        _cgl.gl.vertexAttribIPointer(
+            index, desc.GetSize(), GL_UNSIGNED_INT, normalized, stride, offset);
+            */
         break;
       default:
         throw "type ${canonical} - ${desc.type} not supported";
@@ -91,20 +96,27 @@ class ShaderProgram extends RenderProgram {
           _cgl.disable(GL_DEPTH_TEST);
         }
         break;
+      case cStencilFunc:
+        TheStencilFunction sfun = val as TheStencilFunction;
+        if (sfun.func == GL_INVALID_VALUE) {
+          _cgl.disable(GL_STENCIL_TEST);
+        } else {
+          _cgl.enable(GL_STENCIL_TEST);
+          _cgl.stencilFunc(sfun.func, sfun.value, sfun.mask);
+        }
+        break;
       case cDepthWrite:
         _cgl.depthMask(val);
         break;
-      case cBlend:
-        if (val == true) {
-          _cgl.enable(GL_BLEND);
-        } else {
-          _cgl.disable(GL_BLEND);
-        }
-        break;
       case cBlendEquation:
-        BlendEquation beq = val as BlendEquation;
-        _cgl.blendFunc(beq.srcFactor, beq.dstFactor);
-        _cgl.blendEquation(beq.equation);
+        TheBlendEquation beq = val as TheBlendEquation;
+        if (beq.equation == GL_INVALID_VALUE) {
+          _cgl.disable(GL_BLEND);
+        } else {
+          _cgl.enable(GL_BLEND);
+          _cgl.blendFunc(beq.srcFactor, beq.dstFactor);
+          _cgl.blendEquation(beq.equation);
+        }
         break;
     }
   }

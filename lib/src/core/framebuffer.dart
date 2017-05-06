@@ -6,8 +6,12 @@ class ChronosFramebuffer {
   dynamic /* gl Framebuffer */ framebuffer;
   Texture colorTexture;
   Texture depthTexture;
+  Texture stencilTexture;
 
-  ChronosFramebuffer(this._cgl, this.colorTexture, this.depthTexture) {
+  ChronosFramebuffer(this._cgl, this.colorTexture,
+      [this.depthTexture,
+      this.stencilTexture = null,
+      bool depthStencilCombined = false]) {
     framebuffer = _cgl.createFramebuffer();
 
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -16,8 +20,20 @@ class ChronosFramebuffer {
           GL_TEXTURE_2D, colorTexture.GetTexture(), 0);
     }
     if (depthTexture != null) {
-      _cgl.framebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-          GL_TEXTURE_2D, depthTexture.GetTexture(), 0);
+      _cgl.framebufferTexture2D(
+          GL_FRAMEBUFFER,
+          depthStencilCombined
+              ? GL_DEPTH_STENCIL_ATTACHMENT
+              : GL_DEPTH_ATTACHMENT,
+          GL_TEXTURE_2D,
+          depthTexture.GetTexture(),
+          0);
+    }
+    if (stencilTexture != null) {
+      assert(!depthStencilCombined,
+          "in combined mode - the stencil parameter must be null");
+      _cgl.framebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+          GL_TEXTURE_2D, stencilTexture.GetTexture(), 0);
     }
 
     int err = _cgl.checkFramebufferStatus(GL_FRAMEBUFFER);
@@ -35,6 +51,15 @@ class ChronosFramebuffer {
                 cgl, "frame::color", w, h, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE),
             new DepthTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
                 GL_UNSIGNED_INT, false));
+
+  ChronosFramebuffer.DefaultWithStencil(ChronosGL cgl, int w, int h)
+      : this(
+            cgl,
+            new TypedTexture(
+                cgl, "frame::color", w, h, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE),
+            new DepthStencilTexture(cgl, "frame::depth.stencil", w, h),
+            null,
+            true);
 
   bool ready() {
     bool result =

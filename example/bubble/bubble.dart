@@ -31,7 +31,7 @@ List<ShaderObject> sphereShader() {
 }
 
 Material matSphere =
-    new Material.Transparent("sphere", new BlendEquation.Mix());
+    new Material.Transparent("sphere", BlendEquationMix);
 
 void main() {
   StatsFps fps =

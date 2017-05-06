@@ -19,7 +19,7 @@ void main() {
   Texture generatedTexture = new ImageTexture(chronosGL, "gen", canvas2d);
 
   // Maybe disable depth test?
-  Material mat = new Material.Transparent("torus", new BlendEquation.Standard())
+  Material mat = new Material.Transparent("torus", BlendEquationStandard)
     ..SetUniform(uTexture, generatedTexture)
     ..SetUniform(uColor, new VM.Vector3.zero());
   Node m = new Node("torus", ShapeTorusKnot(chronosGL, useQuads: false), mat);

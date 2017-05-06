@@ -156,7 +156,30 @@ class DepthTexture extends Texture {
         GL_DEPTH_COMPONENT, _dataType, null);
     properties.InstallLate(_cgl, _textureType);
     int err = _cgl.getError();
-    assert(err == GL_NO_ERROR);
+    assert(err == GL_NO_ERROR, "problems intalling depth texture");
+  }
+}
+
+class DepthStencilTexture extends Texture {
+  int _width;
+  int _height;
+
+  DepthStencilTexture(ChronosGL cgl, String url, this._width, this._height)
+      : super(cgl, GL_TEXTURE_2D, url, new TextureProperties.forFramebuffer()) {
+    _texture = _cgl.createTexture();
+    _cgl.bindTexture(_textureType, _texture);
+    _cgl.texImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, _width, _height, 0,
+        GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, null);
+    //properties.InstallLate(_cgl, _textureType);
+    int err = _cgl.getError();
+    assert(err == GL_NO_ERROR, "problems intalling depth-stencil texture");
+  }
+
+  @override
+  void SetImageData(var data) {
+    _cgl.bindTexture(_textureType, _texture);
+    _cgl.texImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, _width, _height, 0,
+        GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, data);
   }
 }
 
