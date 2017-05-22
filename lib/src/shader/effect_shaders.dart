@@ -93,20 +93,19 @@ vec3 get_pixel(vec2 coords, float dx, float dy) {
 }
 
 // returns pixel color
-float IsEdge(in vec2 coords) {
-  float dxtex = 1.0 / ${uCanvasSize}.x ;
-  float dytex = 1.0 / ${uCanvasSize}.y ;
+float IsEdge(vec2 coords, vec2 dim) {
+  vec2 d = vec2(1.0, 1.0) / dim;
 
   // read neighboring pixel intensities
-  float pix0 = avg3(get_pixel(coords, -dxtex, -dytex));
-  float pix1 = avg3(get_pixel(coords, -dxtex, 0.0));
-  float pix2 = avg3(get_pixel(coords, -dxtex, dytex));
-  float pix3 = avg3(get_pixel(coords, 0.0, -dytex));
+  float pix0 = avg3(get_pixel(coords, -d.x, -d.y));
+  float pix1 = avg3(get_pixel(coords, -d.x, 0.0));
+  float pix2 = avg3(get_pixel(coords, -d.x, d.y));
+  float pix3 = avg3(get_pixel(coords, 0.0, -d.y));
 
-  float pix5 = avg3(get_pixel(coords, 0.0, dytex));
-  float pix6 = avg3(get_pixel(coords, dxtex, -dytex));
-  float pix7 = avg3(get_pixel(coords, dxtex, 0.0));
-  float pix8 = avg3(get_pixel(coords, dxtex, dytex));
+  float pix5 = avg3(get_pixel(coords, 0.0, d.y));
+  float pix6 = avg3(get_pixel(coords, d.x, -d.y));
+  float pix7 = avg3(get_pixel(coords, d.x, 0.0));
+  float pix8 = avg3(get_pixel(coords, d.x, d.y));
 
 
   // average color differences around neighboring pixels
@@ -116,12 +115,13 @@ float IsEdge(in vec2 coords) {
 }
 
 void main() {
+    vec2 texdim = vec2(textureSize(${uTexture}, 0));
     vec4 colorOrg = texture(${uTexture}, ${vTextureCoordinates});
     vec3 vHSV =  RGBtoHSV(colorOrg.rgb);
     vHSV.x = nearestLevel(vHSV.x, 0);
     vHSV.y = nearestLevel(vHSV.y, 1);
     vHSV.z = nearestLevel(vHSV.z, 2);
-    float edg = IsEdge(${vTextureCoordinates});
+    float edg = IsEdge(${vTextureCoordinates}, texdim);
     vec3 vRGB = (edg >= 0.3) ? vec3(0.0,0.0,0.0) : HSVtoRGB(vHSV);
     //vec3 vRGB = HSVtoRGB(vHSV);
     ${oFragColor} = vec4(vRGB, 1.0);
@@ -133,7 +133,7 @@ List<ShaderObject> createToonShader() {
     _effectVertexShader,
     new ShaderObject("ToonF")
       ..AddVaryingVars([vTextureCoordinates])
-      ..AddUniformVars([uCanvasSize, uTexture])
+      ..AddUniformVars([uTexture])
       ..SetBody([_libFragment, _toonFragment])
   ];
 }
@@ -169,21 +169,22 @@ vec2 GetHexCenter(vec2 p) {
     }
 }
 
-vec2 ToPixelSpace(vec2 v) {
-    vec2 p = (v * ${uCanvasSize} - ${uCenter2}) / ${uPointSize};
+vec2 ToPixelSpace(vec2 v, vec2 texdim) {
+    vec2 p = (v * texdim - ${uCenter2}) / ${uPointSize};
     float t = p.y / S;
     return vec2(p.x - 0.5 * t, t);
 }
 
-vec2 ToNormalizedSpace(vec2 v) {
+vec2 ToNormalizedSpace(vec2 v, vec2 texdim) {
    vec2 p = vec2(v.x + v.y * 0.5, v.y * S);
-   return p * ${uPointSize} / ${uCanvasSize} + ${uCenter2} / ${uCanvasSize};
+   return p * ${uPointSize} / texdim + ${uCenter2} / texdim;
 }
 
 void main() {
-    vec2 p = ToPixelSpace(${vTextureCoordinates});
+    vec2 texdim = vec2(textureSize(${uTexture}, 0));
+    vec2 p = ToPixelSpace(${vTextureCoordinates}, texdim);
     vec2 c = GetHexCenter(p);
-    vec2 q = ToNormalizedSpace(c);
+    vec2 q = ToNormalizedSpace(c, texdim);
     ${oFragColor} = texture(${uTexture}, q);
 }
 """;
@@ -193,26 +194,27 @@ List<ShaderObject> createHexPixelateShader() {
     _effectVertexShader,
     new ShaderObject("HexPixelateF")
       ..AddVaryingVars([vTextureCoordinates])
-      ..AddUniformVars([uCanvasSize, uCenter2, uPointSize, uTexture])
+      ..AddUniformVars([uCenter2, uPointSize, uTexture])
       ..SetBody([_hexPixelateFragment])
   ];
 }
 
 // Inspired by three.js
 String _dotFragment = """
-    float pattern(vec2 tex) {
-			float s = sin( ${uAngle} );
-			float c = cos( ${uAngle} );
-			vec2 point = vec2( c * tex.x - s * tex.y, s * tex.x + c * tex.y ) * ${uScale};
-			return ( sin( point.x ) * sin( point.y ) ) * 4.0;
-    }
+float pattern(vec2 tex) {
+		float s = sin( ${uAngle} );
+		float c = cos( ${uAngle} );
+		vec2 point = vec2( c * tex.x - s * tex.y, s * tex.x + c * tex.y ) * ${uScale};
+		return ( sin( point.x ) * sin( point.y ) ) * 4.0;
+}
 
-		void main() {
-			vec4 color = texture(${uTexture}, ${vTextureCoordinates} );
-			float average = ( color.r + color.g + color.b ) / 3.0;
-      vec2 tex = ${vTextureCoordinates}* ${uCanvasSize} - ${uCenter2};
-			${oFragColor} = vec4( vec3( average * 10.0 - 5.0 + pattern(tex) ), color.a );
-		}
+void main() {
+		vec2 texdim = vec2(textureSize(${uTexture}, 0));
+		vec4 color = texture(${uTexture}, ${vTextureCoordinates} );
+		float average = ( color.r + color.g + color.b ) / 3.0;
+     vec2 tex = ${vTextureCoordinates}* texdim - ${uCenter2};
+		${oFragColor} = vec4( vec3( average * 10.0 - 5.0 + pattern(tex) ), color.a );
+}
 """;
 
 List<ShaderObject> createDotShader() {
@@ -220,7 +222,7 @@ List<ShaderObject> createDotShader() {
     _effectVertexShader,
     new ShaderObject("DotF")
       ..AddVaryingVars([vTextureCoordinates])
-      ..AddUniformVars([uCanvasSize, uCenter2, uScale, uAngle, uTexture])
+      ..AddUniformVars([uCenter2, uScale, uAngle, uTexture])
       ..SetBody([_dotFragment])
   ];
 }
@@ -295,14 +297,24 @@ List<ShaderObject> createKaleidoscopeShader() {
   ];
 }
 
+
+
+
 // Inspired by https://www.shadertoy.com/view/MtcXRB
 String _lumidotsFragment = """
+
+// http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
+float RGB2Luma(vec3 rgb) { return dot(rgb, vec3(0.212, 0.715, 0.072)); }
+// float RGB2Luma(vec3 rgb) { return dot(rgb, vec3(0.299, 0.587, 0.114)); }
+
+
 void main() {
+	  vec2 texdim = vec2(textureSize(${uTexture}, 0));
     float r = ${uPointSize};
-    vec2 uv = ${vTextureCoordinates} * ${uCanvasSize};
+    vec2 uv = ${vTextureCoordinates} * texdim;
     vec2 center = floor(uv / r / 2.0) * 2.0 * r + r;
-    vec3 col = texture(${uTexture}, center / ${uCanvasSize}).rgb;
-    float lum = max(0.1, dot(col, vec3(0.2125, 0.7154, 0.0721)));
+    vec3 col = texture(${uTexture}, center / texdim).rgb;
+    float lum = max(0.1, RGB2Luma(col));
     float alpha =  smoothstep(1.0, 0.5,
                               distance(center, uv) / lum / r);
     ${oFragColor}.rgb = col.rgb * alpha;
@@ -314,17 +326,18 @@ List<ShaderObject> createLumidotsShader() {
     _effectVertexShader,
     new ShaderObject("LumidotsF")
       ..AddVaryingVars([vTextureCoordinates])
-      ..AddUniformVars([uPointSize, uCanvasSize, uTexture])
+      ..AddUniformVars([uPointSize, uTexture])
       ..SetBody([_lumidotsFragment])
   ];
 }
 
 String _squarePixelateFragment = """
 void main() {
+	  vec2 texdim = vec2(textureSize(${uTexture}, 0));
     float r = ${uPointSize};
-    vec2 uv = ${vTextureCoordinates} * ${uCanvasSize};
+    vec2 uv = ${vTextureCoordinates} * texdim;
     vec2 center = floor(uv / r / 2.0) * 2.0 * r + r;
-    ${oFragColor} = texture(${uTexture}, center / ${uCanvasSize});
+    ${oFragColor} = texture(${uTexture}, center / texdim);
 }
 """;
 
@@ -333,7 +346,31 @@ List<ShaderObject> createSquarePixelateShader() {
     _effectVertexShader,
     new ShaderObject("SquarePixelateF")
       ..AddVaryingVars([vTextureCoordinates])
-      ..AddUniformVars([uPointSize, uCanvasSize, uTexture])
+      ..AddUniformVars([uPointSize, uTexture])
       ..SetBody([_squarePixelateFragment])
+  ];
+}
+
+String _luminosityHighPassFragment = """
+
+// http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
+float RGB2Luma(vec3 rgb) { return dot(rgb, vec3(0.212, 0.715, 0.072)); }
+// float RGB2Luma(vec3 rgb) { return dot(rgb, vec3(0.299, 0.587, 0.114)); }
+
+void main() {
+    vec4 color = texture(${uTexture}, ${vTextureCoordinates});
+    float luma = RGB2Luma(color.rgb);
+    float alpha = smoothstep(${uThreshold1}, ${uThreshold2}, luma);
+    ${oFragColor} = mix(${uColorAlpha}, color, alpha );
+}
+""";
+
+List<ShaderObject> createLuminosityHighPassShader() {
+  return [
+    _effectVertexShader,
+    new ShaderObject("LuminosityHighPassF")
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uThreshold1, uThreshold2, uColorAlpha ,uTexture])
+      ..SetBody([_luminosityHighPassFragment])
   ];
 }
