@@ -136,8 +136,7 @@ void main() {
 
   effects["luminosity-highpass"] =
       phase2.createProgram(createLuminosityHighPassShader())
-        ..SetInput(uThreshold1, 0.85)
-        ..SetInput(uThreshold2, 0.86)
+        ..SetInput(uRange, new VM.Vector2(0.85, 0.86))
         ..SetInput(uColorAlpha, new VM.Vector4.zero())
         ..SetInput(uTexture, fb.colorTexture)
         ..add(UnitNode(chronosGL));

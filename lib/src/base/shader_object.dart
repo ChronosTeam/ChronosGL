@@ -181,8 +181,8 @@ const String uCutOff = "uCutOff";
 const String uShininess = "uShininess";
 const String uOpacity = "uOpacity";
 const String uShadowBias = "uShadowBias";
-const String uThreshold1 = "uThreshold1";
-const String uThreshold2 = "uThreshold2";
+const String uRange = "uRange";
+const String uDirection = "uDirection";
 
 const String uMaterial = "uMaterial";
 
@@ -276,8 +276,8 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   uColorAlpha2: new ShaderVarDesc(VarTypeVec4, ""),
   uEyePosition: new ShaderVarDesc(VarTypeVec3, ""),
   uMaterial: new ShaderVarDesc(VarTypeMat4, ""),
-  uThreshold1: new ShaderVarDesc(VarTypeFloat, ""),
-  uThreshold2: new ShaderVarDesc(VarTypeFloat, ""),
+  uRange: new ShaderVarDesc(VarTypeVec2, ""),
+  uDirection: new ShaderVarDesc(VarTypeVec2, ""),
 
   uBoneMatrices: new ShaderVarDesc(VarTypeMat4, "", arraySize: kMaxBones),
 

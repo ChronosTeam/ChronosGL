@@ -1,6 +1,6 @@
 part of chronosshader;
 
-ShaderObject _effectVertexShader = new ShaderObject("copyV")
+ShaderObject _effectVertexShader = new ShaderObject("uv-passthru")
   ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
   ..AddVaryingVars([vTextureCoordinates])
   ..SetBodyWithMain(
@@ -360,7 +360,7 @@ float RGB2Luma(vec3 rgb) { return dot(rgb, vec3(0.212, 0.715, 0.072)); }
 void main() {
     vec4 color = texture(${uTexture}, ${vTextureCoordinates});
     float luma = RGB2Luma(color.rgb);
-    float alpha = smoothstep(${uThreshold1}, ${uThreshold2}, luma);
+    float alpha = smoothstep(${uRange}.x, ${uRange}.y, luma);
     ${oFragColor} = mix(${uColorAlpha}, color, alpha );
 }
 """;
@@ -370,7 +370,7 @@ List<ShaderObject> createLuminosityHighPassShader() {
     _effectVertexShader,
     new ShaderObject("LuminosityHighPassF")
       ..AddVaryingVars([vTextureCoordinates])
-      ..AddUniformVars([uThreshold1, uThreshold2, uColorAlpha ,uTexture])
+      ..AddUniformVars([uRange, uColorAlpha ,uTexture])
       ..SetBody([_luminosityHighPassFragment])
   ];
 }
