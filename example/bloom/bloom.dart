@@ -2,6 +2,9 @@ import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 import 'dart:html' as HTML;
 
+final HTML.InputElement gLuminance = HTML.document.querySelector('#luminance');
+final HTML.InputElement gIntensity = HTML.document.querySelector('#intensity');
+
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
@@ -36,11 +39,13 @@ void main() {
   RenderPhase phaseHighPass = new RenderPhase("highpass", chronosGL, fb2)
     ..viewPortW = width ~/ 2
     ..viewPortH = height ~/ 2;
-  phaseHighPass.createProgram(createLuminosityHighPassShader())
-    ..SetInput(uRange, new VM.Vector2(0.65, 0.65 + 0.01))
-    ..SetInput(uColorAlpha, new VM.Vector4.zero())
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+
+  RenderProgram progHighPass =
+      phaseHighPass.createProgram(createLuminosityHighPassShader())
+        ..SetInput(uRange, new VM.Vector2(0.65, 0.65 + 0.01))
+        ..SetInput(uColorAlpha, new VM.Vector4.zero())
+        ..SetInput(uTexture, fb.colorTexture)
+        ..add(UnitNode(chronosGL));
 
   int radius = 6;
 
@@ -48,7 +53,7 @@ void main() {
     ..viewPortW = width ~/ 2
     ..viewPortH = height ~/ 2;
   phaseBloom1.createProgram(createBloomTextureShader(radius, radius * 1.0))
-    ..SetInput(uDirection, new VM.Vector2(1.0, 0.0))
+    ..SetInput(uDirection, new VM.Vector2(1.5, 0.0))
     ..SetInput(uTexture, fb2.colorTexture)
     ..add(UnitNode(chronosGL));
 
@@ -56,22 +61,23 @@ void main() {
     ..viewPortW = width ~/ 2
     ..viewPortH = height ~/ 2;
   phaseBloom2.createProgram(createBloomTextureShader(radius, radius * 1.0))
-    ..SetInput(uDirection, new VM.Vector2(0.0, 1.0))
+    ..SetInput(uDirection, new VM.Vector2(0.0, 1.5))
     ..SetInput(uTexture, fb1.colorTexture)
     ..add(UnitNode(chronosGL));
 
   RenderPhase phaseApply = new RenderPhase("apply", chronosGL, null)
     ..viewPortW = width
     ..viewPortH = height;
-  phaseApply.createProgram(createApplyBloomEffectShader())
+   RenderProgram progApply = phaseApply.createProgram(createApplyBloomEffectShader())
     ..SetInput(uTexture, fb.colorTexture)
-    ..SetInput(uScale, 0.0)
+    ..SetInput(uScale, 0.6)
     ..SetInput(uColor, ColorWhite)
     ..SetInput(uTexture2, fb2.colorTexture)
     ..add(UnitNode(chronosGL));
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
+    double v;
     timeMs = timeMs + 0.0;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
@@ -79,9 +85,13 @@ void main() {
     orbit.animate(elapsed);
     perlinNoise.ForceInput(uTime, timeMs / 1000.0);
     phaseMain.draw([perspective]);
+    v = gLuminance.valueAsNumber * 1.0;
+    progHighPass.ForceInput(uRange, new VM.Vector2(v, v + 0.01));
     phaseHighPass.draw([perspective]);
     phaseBloom1.draw([perspective]);
     phaseBloom2.draw([perspective]);
+    v = gIntensity.valueAsNumber * 1.0;
+    progApply.ForceInput(uScale, v);
     phaseApply.draw([perspective]);
 
     HTML.window.animationFrame.then(animate);

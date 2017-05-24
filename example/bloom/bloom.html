@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
     <title>Bloom</title>
     <link rel="stylesheet" href="../style.css">
-  </head>
-  <body>
-    <canvas id="webgl-canvas" style="cursor:crosshair"></canvas>
-    <script type="application/dart" src="bloom.dart"></script>
-    <script src="packages/browser/dart.js"></script>
-  </body>
+</head>
+<body>
+<div style="color: gray;">
+    Luminance cut-off:
+    <input id="luminance" type="range" min="0.0" max="1.0" value="0.85" step="0.05"/>
+    Bloom intensity:
+    <input id="intensity" type="range" min="0.0" max="2.0" value="0.60" step="0.05"/>
+</div>
+<canvas id="webgl-canvas" style="cursor:crosshair"></canvas>
+<script type="application/dart" src="bloom.dart"></script>
+<script src="packages/browser/dart.js"></script>
+</body>
 </html>
