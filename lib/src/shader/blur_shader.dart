@@ -1,5 +1,7 @@
 part of chronosshader;
 
+// https://en.wikipedia.org/wiki/Gaussian_blur
+
 double _gaussianPdf(double x, double sigma) {
   // 0.39894... =  1 / sqrt(2 * pi)
   return 0.39894 * Math.exp(-0.5 * x * x / (sigma * sigma)) / sigma;
