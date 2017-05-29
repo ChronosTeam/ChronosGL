@@ -20,7 +20,7 @@ String _AddLineNumbers(String text) {
   return out.join("\n");
 }
 
-WEBGL.Shader _CompileOneShader(dynamic gl, int type, String text) {
+WEBGL.Shader _CompileShader(dynamic gl, int type, String text) {
   WEBGL.Shader shader = gl.createShader(type);
 
   gl.shaderSource(shader, text);
@@ -69,13 +69,22 @@ class ChronosGL {
     }
   }
 
-  WEBGL.Program CompileWholeProgram(
-      String vertexShaderText, String fragmentShaderText) {
+  WEBGL.Program CompileWholeProgram(String vertShaderText,
+      String fragShaderText, List<String> transformVarying) {
     WEBGL.Program program = _gl.createProgram();
-    _gl.attachShader(
-        program, _CompileOneShader(_gl, GL_VERTEX_SHADER, vertexShaderText));
-    _gl.attachShader(program,
-        _CompileOneShader(_gl, GL_FRAGMENT_SHADER, fragmentShaderText));
+    WEBGL.Shader vs = _CompileShader(_gl, GL_VERTEX_SHADER, vertShaderText);
+    _gl.attachShader(program, vs);
+    // delete shader vs?
+
+    WEBGL.Shader fs = _CompileShader(_gl, GL_FRAGMENT_SHADER, fragShaderText);
+    _gl.attachShader(program, fs);
+    // delete shader fs?
+
+    if (transformVarying.length > 0) {
+      _gl.transformFeedbackVaryings(
+          program, transformVarying, GL_INTERLEAVED_ATTRIBS);
+    }
+
     _gl.linkProgram(program);
 
     if (!_gl.getProgramParameter(program, GL_LINK_STATUS)) {
@@ -94,14 +103,30 @@ class ChronosGL {
     _gl.bufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW);
   }
 
+  void GetArrayBuffer(WEBGL.Buffer buffer, List data) {
+    _gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
+    _gl.getBufferSubData(GL_ARRAY_BUFFER, 0, data);
+  }
+
+  void GetTransformBuffer(WEBGL.Buffer buf, TypedData data) {
+    _gl.bindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, buf);
+    _gl.getBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, data.buffer);
+  }
+
   WEBGL.Buffer createBuffer() {
     return _gl.createBuffer();
   }
 
-  void ChangeElementArrayBuffer(WEBGL.Buffer buffer, TypedData data) {
+  void ChangeElementArrayBuffer(WEBGL.Buffer buf, TypedData data) {
     assert((data is Uint16List) || (data is Uint32List) || (data is Uint8List));
-    _gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
+    _gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, buf);
     _gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW);
+  }
+
+  // Not really useful other than tesying
+  void ChangeTransformBuffer(WEBGL.Buffer buffer, List data) {
+    _gl.bindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, buffer);
+    _gl.bufferData(GL_TRANSFORM_FEEDBACK_BUFFER, data, GL_DYNAMIC_DRAW);
   }
 
   // Why all these shims?
@@ -134,6 +159,18 @@ class ChronosGL {
 
   void bindTexture(int kind, dynamic texture) {
     _gl.bindTexture(kind, texture);
+  }
+
+  WEBGL.TransformFeedback createTransformFeedback() {
+    return _gl.createTransformFeedback();
+  }
+
+  void bindTransformFeedback(dynamic transform) {
+    _gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, transform);
+  }
+
+  void bindBufferBase(int kind, int offset, var buffer) {
+    _gl.bindBufferBase(kind, offset, buffer);
   }
 
   void viewport(int x, int y, int w, int h) {
@@ -209,6 +246,11 @@ class ChronosGL {
   void texImage2D(int target, int level, int iformat, int w, int h, int border,
       int format, int type, dynamic data) {
     _gl.texImage2D(target, level, iformat, w, h, border, format, type, data);
+  }
+
+  void texSubImage2D(int target, int level, int x, int y, int w, int h,
+      int format, int type, dynamic data) {
+    _gl.texSubImage2D(target, level, x, y, w, h, format, type, data);
   }
 
   void activeTexture(int target) {
@@ -287,21 +329,26 @@ class ChronosGL {
         WEBGL.ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
   }
 
-  void drawElementsInstanced(
-      int mode, int count, int type, int offset, int instanceCount) {
+  void drawElementsInstanced(int mode, int count, int type, int offset,
+      int instanceCount, bool hasTransforms) {
+    if (hasTransforms) _gl.beginTransformFeedback(mode);
     if (instanceCount > 1) {
       _gl.drawElementsInstanced(mode, count, type, offset, instanceCount);
     } else {
       _gl.drawElements(mode, count, type, offset);
     }
+    if (hasTransforms) _gl.endTransformFeedback();
   }
 
-  void drawArraysInstanced(int mode, int first, int count, int instanceCount) {
+  void drawArraysInstanced(
+      int mode, int first, int count, int instanceCount, bool hasTransforms) {
+    if (hasTransforms) _gl.beginTransformFeedback(mode);
     if (instanceCount > 1) {
       _gl.drawArraysInstanced(mode, first, count, instanceCount);
     } else {
       _gl.drawArrays(mode, first, count);
     }
+    if (hasTransforms) _gl.endTransformFeedback();
   }
 
   void uniform1f(WEBGL.UniformLocation location, double value) {

@@ -20,7 +20,8 @@ class ShaderProgram extends RenderProgram {
       String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
       : super(name) {
     _program =
-        _cgl.CompileWholeProgram(_shaderObjectV.shader, _shaderObjectF.shader);
+        _cgl.CompileWholeProgram(_shaderObjectV.shader, _shaderObjectF.shader,
+        _shaderObjectV.transformVars);
     for (String v in _shaderObjectV.attributeVars) {
       _attributeLocations[v] = _cgl.getAttribLocation(_program, v);
       if (_attributeLocations[v] < 0) {
@@ -277,11 +278,12 @@ class ShaderProgram extends RenderProgram {
       throw mesg;
     }
 
+    bool hasTransforms = _shaderObjectV.transformVars.length > 0;
     if (indexType != 0) {
       _cgl.drawElementsInstanced(
-          _drawMode, _numItems, indexType, 0, _numInstances);
+          _drawMode, _numItems, indexType, 0, _numInstances, hasTransforms);
     } else {
-      _cgl.drawArraysInstanced(_drawMode, 0, _numItems, _numInstances);
+      _cgl.drawArraysInstanced(_drawMode, 0, _numItems, _numInstances, hasTransforms);
     }
 
     if (debug) print(_cgl.getProgramInfoLog(_program));

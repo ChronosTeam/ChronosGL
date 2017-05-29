@@ -85,6 +85,16 @@ const String cStencilFunc = "cStencilFunc";
 const String cNumItems = "cNumItems";
 const String cNumInstances = "cNumInstances";
 const String cDrawMode = "cDrawMode";
+
+// ===========================================================
+// TransformFeedback
+// ===========================================================
+
+const int prefixTransform = 0x74; // 't';
+
+const String tPosition = "tPosition";
+const String tSpeed = "tSpeed";
+const String tForce = "tForce";
 // ===========================================================
 // Attributes
 // ===========================================================
@@ -203,6 +213,11 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   cDrawMode: new ShaderVarDesc("", ""),
   cStencilFunc: new ShaderVarDesc("", ""),
 
+  // transform vars
+  tPosition: new ShaderVarDesc(VarTypeVec3, ""),
+  tSpeed: new ShaderVarDesc(VarTypeVec3, ""),
+  tForce: new ShaderVarDesc(VarTypeVec3, ""),
+
   // attribute vars
   // This should also contain an alpha channel
   aColor: new ShaderVarDesc(VarTypeVec3, "per vertex color"),
@@ -309,6 +324,7 @@ class ShaderObject {
   List<String> attributeVars = [];
   List<String> uniformVars = [];
   List<String> varyingVars = [];
+  List<String> transformVars = []; // "transformFeedbackVaryings"
 
   ShaderObject(this.name);
 
@@ -343,6 +359,17 @@ class ShaderObject {
       varyingVars.add(n);
     }
     varyingVars.sort();
+  }
+
+  void AddTransformVars(List<String> names) {
+    assert(shader == null);
+
+    for (String n in names) {
+      assert(_VarsDb.containsKey(n));
+      assert(!transformVars.contains(n));
+      transformVars.add(n);
+    }
+    transformVars.sort();
   }
 
   void SetBodyWithMain(List<String> body, {List<String> prolog = null}) {
@@ -380,6 +407,10 @@ class ShaderObject {
     }
 
     for (String v in varyingVars) {
+      ShaderVarDesc d = _VarsDb[v];
+      out.add("${modifier} ${d.type} ${v};");
+    }
+    for (String v in transformVars) {
       ShaderVarDesc d = _VarsDb[v];
       out.add("${modifier} ${d.type} ${v};");
     }
