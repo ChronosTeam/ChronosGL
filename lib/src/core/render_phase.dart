@@ -28,6 +28,7 @@ class RenderPhase extends NamedEntity {
     } else {
       _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer.framebuffer);
     }
+
     assert(viewPortW > 0 && viewPortH > 0);
     _cgl.viewport(viewPortX, viewPortY, viewPortW, viewPortH);
 
