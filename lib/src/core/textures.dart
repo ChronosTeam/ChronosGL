@@ -207,10 +207,16 @@ class TypedTexture extends Texture {
 
   void UpdateContent(var data) {
     _data = data;
-    Bind();
+    _cgl.bindTexture(_textureType, _texture);
     _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width, _height, 0,
         _formatType, _dataType, _data);
-    UnBind();
+    _cgl.bindTexture(_textureType, null);
+  }
+
+   void SetImageDataPartial( var data, int x, int y, int w, int h) {
+     _cgl.bindTexture(_textureType, _texture);
+     _cgl.texSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, _formatType, _dataType, data);
+     _cgl.bindTexture(_textureType, null);
   }
 
   void _Install() {
