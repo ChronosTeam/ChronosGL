@@ -185,7 +185,7 @@ void main(void)
   // Get direction for this pixel
   vec3 rayDir = normalize(camDir + (coord.x*camRight + coord.y*camUp)*FieldOfView);
   
-  gl_FragColor = rayMarch(camPos, rayDir, scale);
+  ${oFragColor} = rayMarch(camPos, rayDir, scale);
 }
 
 """;

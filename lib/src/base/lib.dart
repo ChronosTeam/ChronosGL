@@ -1,9 +1,7 @@
 library base;
 
-// This library does not depend on "dart:html" nor "dart:webgl"
-// It would be nice if we could also break the dependency on dart:web_gl
-// for easier testing.
-
+// This library does not depend on "dart:html" nor does
+// in use the ChronosGL object q
 import 'dart:math' as Math;
 import 'dart:typed_data';
 
@@ -15,8 +13,6 @@ import 'package:vector_math/vector_math.dart' as VM;
 /// RenderProgram, Spacial, Node. Illumination, Perspective,
 /// Camera, etc
 ///
-/// It was broken out of the **core layer** because it does not have
-/// dependencies on dart:web_gl' which simplifies unit testing.
 
 /// ## Concept: Input
 /// An **Input** is parameter to a program running on the GPU

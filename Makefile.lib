@@ -90,9 +90,12 @@ gen/lib_chronosgl.sum: gen/lib_chronosgl.js
 gen/simple.dart.js: gen/lib_chronosgl.sum example/simple/simple.dart
 	$(DDC) -o $@ $(patsubst %.sum,-s %.sum,$^)
 
-example: gen/simple.dart.js
+simple_example: gen/simple.dart.js
 	-cp example/simple/simple.ddc.html gen/
 	-cp $(DART_SDK_JS) $(DART_LIBRARY_JS) gen/
+	@echo
+	@echo example can be found in "file://${PWD}/gen/simple.ddc.html"
+	@echo
 
 clean:
 	rm -r gen/

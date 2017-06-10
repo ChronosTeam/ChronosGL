@@ -26,12 +26,12 @@ List<ShaderObject> sphereShader() {
       ..AddVaryingVars([vTextureCoordinates])
       ..AddUniformVars([uTexture])
       ..SetBodyWithMain(
-          ["gl_FragColor = texture2D(${uTexture}, ${vTextureCoordinates});"])
+          ["${oFragColor} = texture(${uTexture}, ${vTextureCoordinates});"])
   ];
 }
 
 Material matSphere =
-    new Material.Transparent("sphere", new BlendEquation.Mix());
+    new Material.Transparent("sphere", BlendEquationMix);
 
 void main() {
   StatsFps fps =

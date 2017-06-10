@@ -20,16 +20,6 @@ vec3 ColorFromPosition(vec3 pos) {
                  sin(pos.z) / 2.0 + 0.5);
 }
 
-// wandalen
-// http://stackoverflow.com/questions/9446888/best-way-to-detect-nans-in-opengl-shaders
-// important: some nVidias failed to cope with version below.
-// Probably wrong optimization.
-// return ( val <= 0.0 || 0.0 <= val ) ? false : true;
-bool isnan( float val ) {
-    return ( val < 0.0 || 0.0 < val || val == 0.0 ) ? false : true;
-}
-
-
 vec3 RangeToGray(float f, float a, float b) {
     if (f > a) return vec3(1.0);
     if (f < b) return vec3(0.0);
@@ -228,7 +218,6 @@ ColorComponents CombinedLight(vec3 vVertexPosition,
     }
     return acc;
 }
-
 """;
 
 // ============================================================
@@ -241,16 +230,13 @@ ColorComponents CombinedLight(vec3 vVertexPosition,
 // Evaluate the derivative of the height w.r.t. screen-space using forward
 // differencing (listing 2)
 const String StdLibShaderDerivative = """
-
-#extension GL_OES_standard_derivatives : enable
-
 vec2 dHdxy_fwd(vec2 uv, float scale, sampler2D map) {
     vec2 dSTdx = dFdx( uv );
     vec2 dSTdy = dFdy( uv );
 
-    float Hll = scale * texture2D(map, uv ).x;
-    float dBx = scale * texture2D(map, uv + dSTdx ).x - Hll;
-    float dBy = scale * texture2D(map, uv + dSTdy ).x - Hll;
+    float Hll = scale * texture(map, uv ).x;
+    float dBx = scale * texture(map, uv + dSTdx ).x - Hll;
+    float dBy = scale * texture(map, uv + dSTdy ).x - Hll;
 
     return vec2( dBx, dBy );
 }

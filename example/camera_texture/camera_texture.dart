@@ -1,6 +1,5 @@
 import 'dart:html' as HTML;
 import 'dart:async';
-import 'dart:web_gl' as WEBGL;
 import 'package:chronosgl/chronosgl.dart';
 
 void main() {
@@ -76,7 +75,7 @@ void main() {
       HTML.window.alert("could not access camera");
     }
     texture = new ImageTexture(chronosGL, "video", video);
-    texture.properties.minFilter = WEBGL.LINEAR;
+    texture.properties.minFilter = GL_LINEAR;
     texture.properties.clamp = true;
     // Figure out why moving this into the WebTexture contructor does not work.
     texture.Install();

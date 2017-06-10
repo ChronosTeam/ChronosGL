@@ -23,7 +23,7 @@ List<ShaderObject> createLightShaderGourad() {
 
      ${vColor} = acc.diffuse +
                  acc.specular +
-                 texture2D(${uTexture}, ${aTextureCoordinates}).rgb;
+                 texture(${uTexture}, ${aTextureCoordinates}).rgb;
     }
         """
       ], prolog: [
@@ -31,7 +31,7 @@ List<ShaderObject> createLightShaderGourad() {
       ]),
     new ShaderObject("LightGrouradV")
       ..AddVaryingVars([vColor])
-      ..SetBodyWithMain(["gl_FragColor = vec4(${vColor}, 1.0 );"])
+      ..SetBodyWithMain(["${oFragColor} = vec4(${vColor}, 1.0 );"])
   ];
 }
 
@@ -67,10 +67,10 @@ List<ShaderObject> createLightShaderBlinnPhong() {
                                         ${uLightTypes},
                                         ${uShininess});
 
-    gl_FragColor.rgb = acc.diffuse +
+    ${oFragColor}.rgb = acc.diffuse +
                        acc.specular +
-                       texture2D(${uTexture}, ${vTextureCoordinates}).rgb;
-    gl_FragColor.a = 1.0;
+                       texture(${uTexture}, ${vTextureCoordinates}).rgb;
+    ${oFragColor}.a = 1.0;
 """
       ], prolog: [
         StdLibShader

@@ -1,107 +1,80 @@
 part of chronosshader;
 
-// addapted from http://www.geeks3d.com/20100909/shader-library-gaussian-blur-post-processing-filter-in-glsl/
-List<ShaderObject> createBlurShader() {
+// https://en.wikipedia.org/wiki/Gaussian_blur
+
+double _gaussianPdf(double x, double sigma) {
+  // 0.39894... =  1 / sqrt(2 * pi)
+  return 0.39894 * Math.exp(-0.5 * x * x / (sigma * sigma)) / sigma;
+}
+
+String makeGaussianPdfKernelString(int radius, double sigma) {
+  List<double> w = [];
+  double total = 0.0;
+  for (int i = 0; i < radius; ++i) {
+    double x = _gaussianPdf(i * 1.0, sigma);
+    w.add(x);
+    total += x;
+    if (i > 0) total += x;
+  }
+
+  String lst = "";
+  String sep = "";
+  for (int i = 0; i < radius; ++i) {
+    lst += sep;
+    sep = ", ";
+    lst += "${w[i] / total}";
+  }
+
+  return "float kernel[$radius] = float[$radius]($lst);";
+}
+
+String _kernelFragment = """
+void main() {
+    vec2 invSize = 1.0 / vec2(textureSize(${uTexture}, 0));
+    vec3 sum = texture(${uTexture}, ${vTextureCoordinates}).rgb * kernel[0];
+    for (int i = 1; i < kernel.length(); i++) {
+        vec2 offset = ${uDirection} * invSize * float(i);
+        sum += texture(${uTexture}, ${vTextureCoordinates} + offset).rgb * kernel[i];
+        sum += texture(${uTexture}, ${vTextureCoordinates} - offset).rgb * kernel[i];
+    }
+    ${oFragColor} = vec4(sum, 1.0);
+}
+""";
+
+List<ShaderObject> createBloomTextureShader(int radius, double sigma) {
+  String constants = makeGaussianPdfKernelString(radius, sigma);
   return [
-    new ShaderObject("BlurV")
+    new ShaderObject("uv-passthru")
       ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
       ..AddVaryingVars([vTextureCoordinates])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain(
-          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
-    new ShaderObject("BlurF")
+          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+    new ShaderObject("BloomPassF")
       ..AddVaryingVars([vTextureCoordinates])
-      ..AddUniformVars([uCameraFar, uCameraNear, uCanvasSize, uTexture])
-      ..SetBodyWithMain([
-        """
-      float offset[3];
-      offset[0]=0.;
-      offset[1]=1.3846153846;
-      offset[2]=3.2307692308;
-      float weight[3];
-      weight[0]=0.2270270270;
-      weight[1]=0.3162162162;
-      weight[2]=0.0702702703;
-
-      //gl_FragColor = vec4(gl_FragCoord.x/size.x, gl_FragCoord.y/size.y, 0., 0.);
-      //gl_FragColor = vec4(${vTextureCoordinates}.x, ${vTextureCoordinates}.y, 0., 0.);
-
-      gl_FragColor = texture2D( ${uTexture}, ${vTextureCoordinates})* weight[0];
-      for (int i=1; i<3; i++) {
-          gl_FragColor += texture2D( ${uTexture}, ${vTextureCoordinates}+vec2(0.0, offset[i]/size.y) ) * weight[i];
-          gl_FragColor += texture2D( ${uTexture}, ${vTextureCoordinates}-vec2(0.0, offset[i]/size.y) ) * weight[i];
-      }
-
-"""
-      ])
+      ..AddUniformVars([uDirection, uTexture])
+      ..SetBody([constants, _kernelFragment])
   ];
 }
 
-/*
-// https://www.shadertoy.com/view/XdfGDH
+String _applyBloomEffectFragment = """
+void main() {
+	${oFragColor} = texture(${uTexture}, ${vTextureCoordinates}) +
+	                ${uScale} *
+	                vec4(${uColor}, 1.0) *
+	                texture(${uTexture2}, ${vTextureCoordinates});
+}
+""";
 
-const String Blur2FragShader = """
-  float normpdf(in float x, in float sigma)
-  {
-    return 0.39894*exp(-0.5*x*x/(sigma*sigma))/sigma;
-  }
-  
-  void mainImage( out vec4 fragColor, in vec2 fragCoord )
-  {
-    vec3 c = texture2D(iChannel0, fragCoord.xy / iResolution.xy).rgb;
-      
-    //declare stuff
-    const int mSize = 21;
-    const int kSize = (mSize-1)/2;
-    float kernel[mSize];
-    vec3 final_colour = vec3(0.0);
-    
-    //create the 1-D kernel
-    float sigma = 7.0;
-    float Z = 0.0;
-    for (int j = 0; j <= kSize; ++j)
-    {
-      kernel[kSize+j] = kernel[kSize-j] = normpdf(float(j), sigma);
-    }
-    
-    //get the normalization factor (as the gaussian has been clamped)
-    for (int j = 0; j < mSize; ++j)
-    {
-      Z += kernel[j];
-    }
-    
-    //read out the texels
-    for (int i=-kSize; i <= kSize; ++i)
-    {
-      for (int j=-kSize; j <= kSize; ++j)
-      {
-        final_colour += kernel[kSize+j]*kernel[kSize+i]*texture2D(iChannel0, (fragCoord.xy+vec2(float(i),float(j))) / iResolution.xy).rgb;
-  
-      }
-    }
-    
-    
-    fragColor = vec4(final_colour/(Z*Z), 1.0);
-  }
-
-  void main(void)
-  {
-    mainImage( gl_FragColor, gl_FragCoord.xy);
-  }
-  """;
-
-List<ShaderObject> createBlurShader2() {
+List<ShaderObject> createApplyBloomEffectShader() {
   return [
-    new ShaderObject("Blur2V")
-      ..AddAttributeVars([aVertexPosition])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..SetBodyWithMain([StdVertexBody]),
-    new ShaderObject("Blur2F")
-      ..AddUniformVar(uCameraFar, "cameraFar")
-      ..AddUniformVar(uCameraNear, "cameraNear")
-      ..AddUniformVar(uCanvasSize, "iResolution")
-      ..AddUniformVar(uTexture, "iChannel0")
-      ..SetBody([Blur2FragShader])
+    new ShaderObject("uv-passthru")
+      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddVaryingVars([vTextureCoordinates])
+      ..SetBodyWithMain(
+          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+    new ShaderObject("BloomPassF")
+      ..AddVaryingVars([vTextureCoordinates])
+      ..AddUniformVars([uTexture, uTexture2, uScale, uColor])
+      ..SetBody([_applyBloomEffectFragment])
   ];
 }
-*/

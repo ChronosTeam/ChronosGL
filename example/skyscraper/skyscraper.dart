@@ -26,7 +26,7 @@ List<ShaderObject> createSkyScraperShader() {
       float s2 = step(mod(${vTextureCoordinates}.y*21.+1., 2.), 1.);
       float s3 = step( s1+s2, 1.1);
 
-      gl_FragColor = vec4( 1.-s3, 1.-s3, 1.-s3, 1. );
+      ${oFragColor} = vec4( 1.-s3, 1.-s3, 1.-s3, 1. );
 
       //gl_FragColor = vec4( mod(vVertexPosition.x*10.0,2.0) ,
       //                       mod(vVertexPosition.y*20.0,2.0),

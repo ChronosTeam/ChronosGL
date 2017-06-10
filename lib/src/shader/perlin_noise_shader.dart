@@ -44,7 +44,7 @@ List<ShaderObject> createPerlinNoiseVertexColorShader() {
       ..SetBody([perlinNoisefunctions, _PerlinNoiseVertexShaderPart2]),
     new ShaderObject("PerlinNoiseVertexColorF")
       ..AddVaryingVar(vColors)
-      ..SetBodyWithMain(["gl_FragColor = ${vColors};"])
+      ..SetBodyWithMain(["${oFragColor} = ${vColors};"])
   ];
 }
  */
@@ -116,7 +116,7 @@ void main() {
 #else
   vec3 color = vec3( (r + n), (g + n), (b + n) );
 #endif
-  gl_FragColor = vec4( color, 1.0 );
+  ${oFragColor} = vec4( color, 1.0 );
 }
 """
       ])

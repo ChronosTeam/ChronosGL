@@ -1,6 +1,8 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:math' as Math;
 import 'dart:html' as HTML;
+import 'dart:web_gl' as WEBGL;
+import 'dart:typed_data';
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -9,32 +11,36 @@ List<ShaderObject> createFireWorksShader() {
     new ShaderObject("FireWorksV")
       ..AddAttributeVars([aVertexPosition, aNormal])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uTime])
+      ..AddTransformVars([tPosition])
       ..SetBodyWithMain([
         """
-      float t = mod(${uTime}, 5.0);
-      vec3 vp = ${aVertexPosition};
-      if( t < 3.0) {
-       vp.y = t;
-      } else {
-       vp.y = 3.0;
-       vp += normalize(${aNormal})*(t-3.0);
-      }
-      gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(vp, 1.0);
-      gl_PointSize = 100.0/gl_Position.z;
+float t = mod(${uTime}, 5.0);
+vec3 vp = ${aVertexPosition};
+if( t < 3.0) {
+    vp.y = t;
+} else {
+    vp.y = 3.0;
+    vp += normalize(${aNormal})*(t-3.0);
+}
+
+gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(vp, 1.0);
+gl_PointSize = 100.0/gl_Position.z;
+${tPosition} = gl_Position.xyz;
+${tPosition}.x = 666.0;
 """
       ]),
     new ShaderObject("FireWorksF")
       ..AddUniformVars([uTime, uColor, uTexture])
       ..SetBodyWithMain([
         """
-      ${oFragColor} = texture(${uTexture}, gl_PointCoord);
-      float t = mod(${uTime}, 5.0);
-      if( t < 3.0) {
-         //gl_FragColor.x = 1.0;
-      } else {
-         //gl_FragColor.rgb = ${uColor};
-         ${oFragColor}.a -= (t-3.0);
-      }
+${oFragColor} = texture(${uTexture}, gl_PointCoord);
+float t = mod(${uTime}, 5.0);
+if( t < 3.0) {
+    //gl_FragColor.x = 1.0;
+} else {
+    //gl_FragColor.rgb = ${uColor};
+    ${oFragColor}.a -= (t-3.0);
+}
 """
       ])
   ];
@@ -42,12 +48,13 @@ List<ShaderObject> createFireWorksShader() {
 
 Math.Random rand = new Math.Random();
 
-Node getRocket(dynamic gl, Texture tw) {
-  int numPoints = 200;
+const int KNumStars = 2000;
+const int kNumFireworkParticles = 200;
 
+Node getRocket(dynamic gl, Texture tw) {
   List<VM.Vector3> vertices = [];
   List<VM.Vector3> normals = [];
-  for (var i = 0; i < numPoints; i++) {
+  for (var i = 0; i < kNumFireworkParticles; i++) {
     vertices.add(new VM.Vector3(0.0, 0.0, 0.0));
     normals.add(new VM.Vector3(rand.nextDouble() - 0.5, rand.nextDouble() - 0.5,
         rand.nextDouble() - 0.5));
@@ -78,6 +85,11 @@ void main() {
   pssp.add(getRocket(
       chronosGL, Utils.createParticleTexture(chronosGL, "fireworks")));
 
+  var transform = chronosGL.createTransformFeedback();
+  chronosGL.bindTransformFeedback(transform);
+  WEBGL.Buffer buf = chronosGL.createBuffer();
+  chronosGL.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buf);
+
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
     int h = canvas.clientHeight;
@@ -92,15 +104,27 @@ void main() {
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
 
+  Float32List outDataIn = new Float32List(200 * 3);
+  Float32List outData = new Float32List(200 * 3);
+  outDataIn[2] = 111.0;
+  chronosGL.ChangeTransformBuffer(buf, outDataIn);
+  chronosGL.GetTransformBuffer(buf, outData);
+  print("${outData[0]} ${outData[1]} ${outData[2]}");
+
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
+
     orbit.animate(elapsed);
     pssp.ForceInput(uTime, timeMs / 1000.0);
+    chronosGL.bindTransformFeedback(transform);
     phase.draw([perspective]);
+    chronosGL.GetTransformBuffer(buf, outData);
+    print("${outData[0]} ${outData[1]} ${outData[2]}");
+
     HTML.window.animationFrame.then(animate);
   }
 

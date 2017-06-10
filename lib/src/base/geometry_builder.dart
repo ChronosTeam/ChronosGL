@@ -170,6 +170,13 @@ class GeometryBuilder {
     }
   }
 
+  void AddAttributesUvec4(String canonical, List<List<int>> lst) {
+    List ts = attributes[canonical];
+     for (List<int> v in lst) {
+      ts.add(v.sublist(0));
+    }
+  }
+
   void AddVerticesFace4(List<VM.Vector3> vs) {
     assert(vs.length == 4);
     int i = vertices.length;
@@ -321,7 +328,8 @@ class GeometryBuilder {
       "f4[${_faces4.length}]"
     ];
     for (String canonical in attributes.keys) {
-      s.add("${canonical}[${attributes[canonical].length}]");
+      String type = RetrieveShaderVarDesc(canonical).type;
+      s.add("${canonical}[${type},${attributes[canonical].length}]");
     }
     return s.join(" ");
   }

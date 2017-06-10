@@ -1,10 +1,16 @@
 part of core;
 
 const String NO_WEBGL_MESSAGE = """
-Calling canvas.getContext("experimental-webgl") failed,
-make sure you run on a computer that supports WebGL.
-Test here: http://get.webgl.org/
+Calling canvas.getContext("webgl2") failed,
+make sure you run on a computer that supports WebGL2.
+
+You can test your browser's compatibility here: http://webglreport.com/
+
+(If you are using Dartium make sure you start it with the
+option: --enable-unsafe-es3-apis)
 """;
+
+const int kNoAnisotropicFilterLevel = 1;
 
 String _AddLineNumbers(String text) {
   List<String> out = text.split("\n");
@@ -14,14 +20,13 @@ String _AddLineNumbers(String text) {
   return out.join("\n");
 }
 
-WEBGL.Shader _CompileOneShader(
-    WEBGL.RenderingContext gl, int type, String text) {
+WEBGL.Shader _CompileShader(dynamic gl, int type, String text) {
   WEBGL.Shader shader = gl.createShader(type);
 
   gl.shaderSource(shader, text);
   gl.compileShader(shader);
 
-  var result = gl.getShaderParameter(shader, WEBGL.COMPILE_STATUS);
+  var result = gl.getShaderParameter(shader, GL_COMPILE_STATUS);
   if (result != null && result == false) {
     String error = gl.getShaderInfoLog(shader);
     LogInfo("Compilation failed:");
@@ -34,15 +39,10 @@ WEBGL.Shader _CompileOneShader(
 }
 
 class ChronosGL {
-  WEBGL.RenderingContext gl;
+  // either WebGL2RenderingContext' or 'RenderingContext2'
+  dynamic _gl;
 
   final dynamic _canvas;
-  dynamic ext_OES_element_index_uint;
-  dynamic ext_WEBGL_depth_texture;
-  dynamic ext_ANGLE_instanced_arrays;
-  dynamic ext_OES_texture_float;
-  dynamic ext_OES_texture_float_linear;
-  dynamic ext_OES_standard_derivatives;
 
   ChronosGL(this._canvas,
       {bool preserveDrawingBuffer: false,
@@ -57,161 +57,331 @@ class ChronosGL {
       "preserveDrawingBuffer": preserveDrawingBuffer,
     };
 
-    gl = _canvas.getContext("webgl", attributes);
-    if (gl == null) {
+    _gl = _canvas.getContext("webgl2", attributes);
+    if (_gl == null) {
       throw new Exception(NO_WEBGL_MESSAGE);
     }
 
-    ext_OES_element_index_uint = gl.getExtension("OES_element_index_uint");
-    if (ext_OES_element_index_uint == null) throw "Error OES_element_index_uint";
-
-    ext_WEBGL_depth_texture = gl.getExtension("WEBGL_depth_texture");
-    if (ext_WEBGL_depth_texture == null) throw "Error WEBGL_depth_texture";
-
-    ext_ANGLE_instanced_arrays = gl.getExtension("ANGLE_instanced_arrays");
-    if (ext_ANGLE_instanced_arrays == null) throw "Error ANGLE_instanced_arrays";
-
-    /*
-    ext_OES_texture_float = gl.getExtension("OES_texture_float");
-    if (ext_OES_texture_float == null) throw "Error OES_texture_float";
-
-    ext_OES_texture_float_linear = gl.getExtension("OES_texture_float_linear");
-    if (ext_OES_texture_float_linear == null) throw "Error OES_texture_float_linear";
-    */
-
-    ext_OES_standard_derivatives = gl.getExtension("OES_standard_derivatives");
-    if (ext_OES_standard_derivatives == null) throw "Error OES_standard_derivatives";
-
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(WEBGL.DEPTH_TEST);
+    _gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    _gl.enable(GL_DEPTH_TEST);
     if (faceCulling) {
-      gl.enable(WEBGL.CULL_FACE);
+      _gl.enable(GL_CULL_FACE);
     }
   }
 
-  WEBGL.Program CompileWholeProgram(
-      String vertexShaderText, String fragmentShaderText) {
-    WEBGL.Program program = gl.createProgram();
-    gl.attachShader(
-        program, _CompileOneShader(gl, WEBGL.VERTEX_SHADER, vertexShaderText));
-    gl.attachShader(program,
-        _CompileOneShader(gl, WEBGL.FRAGMENT_SHADER, fragmentShaderText));
-    gl.linkProgram(program);
+  WEBGL.Program CompileWholeProgram(String vertShaderText,
+      String fragShaderText, List<String> transformVarying) {
+    WEBGL.Program program = _gl.createProgram();
+    WEBGL.Shader vs = _CompileShader(_gl, GL_VERTEX_SHADER, vertShaderText);
+    _gl.attachShader(program, vs);
+    // delete shader vs?
 
-    if (!gl.getProgramParameter(program, WEBGL.LINK_STATUS)) {
-      throw gl.getProgramInfoLog(program);
+    WEBGL.Shader fs = _CompileShader(_gl, GL_FRAGMENT_SHADER, fragShaderText);
+    _gl.attachShader(program, fs);
+    // delete shader fs?
+
+    if (transformVarying.length > 0) {
+      _gl.transformFeedbackVaryings(
+          program, transformVarying, GL_INTERLEAVED_ATTRIBS);
+    }
+
+    _gl.linkProgram(program);
+
+    if (!_gl.getProgramParameter(program, GL_LINK_STATUS)) {
+      throw _gl.getProgramInfoLog(program);
     }
 
     return program;
   }
 
   void bindBuffer(int kind, WEBGL.Buffer buffer) {
-    gl.bindBuffer(kind, buffer);
+    _gl.bindBuffer(kind, buffer);
   }
 
-  void ChangeArrayBuffer(WEBGL.Buffer buffer, Float32List data) {
-    gl.bindBuffer(WEBGL.ARRAY_BUFFER, buffer);
-    gl.bufferData(WEBGL.ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
+  void ChangeArrayBuffer(WEBGL.Buffer buffer, List data) {
+    _gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
+    _gl.bufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW);
+  }
+
+  void GetArrayBuffer(WEBGL.Buffer buffer, List data) {
+    _gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
+    _gl.getBufferSubData(GL_ARRAY_BUFFER, 0, data);
+  }
+
+  void GetTransformBuffer(WEBGL.Buffer buf, TypedData data) {
+    _gl.bindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, buf);
+    _gl.getBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, data.buffer);
   }
 
   WEBGL.Buffer createBuffer() {
-    return gl.createBuffer();
+    return _gl.createBuffer();
   }
 
-  void ChangeElementArrayBuffer(WEBGL.Buffer buffer, TypedData data) {
+  void ChangeElementArrayBuffer(WEBGL.Buffer buf, TypedData data) {
     assert((data is Uint16List) || (data is Uint32List) || (data is Uint8List));
-    gl.bindBuffer(WEBGL.ELEMENT_ARRAY_BUFFER, buffer);
-    gl.bufferData(WEBGL.ELEMENT_ARRAY_BUFFER, data, WEBGL.DYNAMIC_DRAW);
+    _gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, buf);
+    _gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW);
+  }
+
+  // Not really useful other than tesying
+  void ChangeTransformBuffer(WEBGL.Buffer buffer, List data) {
+    _gl.bindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, buffer);
+    _gl.bufferData(GL_TRANSFORM_FEEDBACK_BUFFER, data, GL_DYNAMIC_DRAW);
   }
 
   // Why all these shims?
   // They are useful for instrumentation and may allow us some day
   // to interface with dart-gl
   void deleteBuffer(dynamic buffer) {
-    gl.deleteBuffer(buffer);
+    _gl.deleteBuffer(buffer);
   }
 
   WEBGL.Framebuffer createFramebuffer() {
-    return gl.createFramebuffer();
+    return _gl.createFramebuffer();
   }
 
   void bindFramebuffer(int kind, dynamic framebuffer) {
-    gl.bindFramebuffer(kind, framebuffer);
+    _gl.bindFramebuffer(kind, framebuffer);
   }
 
   int checkFramebufferStatus(int kind) {
-    return checkFramebufferStatus(kind);
+    return _gl.checkFramebufferStatus(kind);
+  }
+
+  void framebufferTexture2D(
+      int target, int attachment, int textarget, dynamic texture, int level) {
+    _gl.framebufferTexture2D(target, attachment, textarget, texture, level);
   }
 
   WEBGL.Texture createTexture() {
-    return gl.createTexture();
+    return _gl.createTexture();
   }
 
   void bindTexture(int kind, dynamic texture) {
-    gl.bindTexture(kind, texture);
+    _gl.bindTexture(kind, texture);
+  }
+
+  WEBGL.TransformFeedback createTransformFeedback() {
+    return _gl.createTransformFeedback();
+  }
+
+  void bindTransformFeedback(dynamic transform) {
+    _gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, transform);
+  }
+
+  void bindBufferBase(int kind, int offset, var buffer) {
+    _gl.bindBufferBase(kind, offset, buffer);
   }
 
   void viewport(int x, int y, int w, int h) {
-    gl.viewport(x, y, w, h);
+    _gl.viewport(x, y, w, h);
   }
 
   void enable(int kind) {
-    gl.enable(kind);
+    _gl.enable(kind);
   }
 
   void disable(int kind) {
-    gl.disable(kind);
+    _gl.disable(kind);
+  }
+
+  void depthMask(bool flag) {
+    _gl.depthMask(flag);
+  }
+
+  void blendFunc(int srcFactor, int dstFactor) {
+    _gl.blendFunc(srcFactor, dstFactor);
+  }
+
+  void blendEquation(int equation) {
+    _gl.blendEquation(equation);
+  }
+
+  void stencilFunc(int func, int value, int mask) {
+    _gl.stencilFunc(func, value, mask);
   }
 
   void enableVertexAttribArray(int index) {
-    gl.enableVertexAttribArray(index);
+    _gl.enableVertexAttribArray(index);
   }
 
   void disableVertexAttribArray(int index) {
-    gl.disableVertexAttribArray(index);
+    _gl.disableVertexAttribArray(index);
   }
 
   void clear(int kind) {
-    gl.clear(kind);
+    _gl.clear(kind);
   }
 
   void setLineWidth(int w) {
-    gl.lineWidth(w);
+    _gl.lineWidth(w);
   }
 
   void generateMipmap(int kind) {
-    gl.generateMipmap(kind);
+    _gl.generateMipmap(kind);
   }
 
   void texParameteri(int kind1, int kind2, int val) {
-    gl.texParameteri(kind1, kind2, val);
+    _gl.texParameteri(kind1, kind2, val);
   }
 
   void texParameterf(int kind1, int kind2, double val) {
-    gl.texParameterf(kind1, kind2, val);
+    _gl.texParameterf(kind1, kind2, val);
   }
 
   dynamic getParameter(int kind) {
-    return gl.getParameter(kind);
+    return _gl.getParameter(kind);
+  }
+
+  void vertexAttribPointer(
+      int index, int size, int type, bool normalized, int stride, int offset) {
+    _gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
+  }
+
+  void texImage2Dweb(
+      int target, int level, int iformat, int format, int type, dynamic data) {
+    _gl.texImage2D(target, level, iformat, format, type, data);
+  }
+
+  void texImage2D(int target, int level, int iformat, int w, int h, int border,
+      int format, int type, dynamic data) {
+    _gl.texImage2D(target, level, iformat, w, h, border, format, type, data);
+  }
+
+  void texSubImage2D(int target, int level, int x, int y, int w, int h,
+      int format, int type, dynamic data) {
+    _gl.texSubImage2D(target, level, x, y, w, h, format, type, data);
+  }
+
+  void activeTexture(int target) {
+    _gl.activeTexture(target);
   }
 
   dynamic createProgram() {
-    return gl.createProgram();
+    return _gl.createProgram();
   }
 
-  void linkProgram(dynamic obj) {
-    return gl.linkProgram(obj);
+  void linkProgram(WEBGL.Program obj) {
+    _gl.linkProgram(obj);
   }
 
-  void useProgram(dynamic obj) {
-    return gl.useProgram(obj);
+  void useProgram(WEBGL.Program obj) {
+    _gl.useProgram(obj);
   }
 
   dynamic createShader(int kind) {
-    return gl.createShader(kind);
+    return _gl.createShader(kind);
+  }
+
+  int getAttribLocation(WEBGL.Program program, String attribute) {
+    return _gl.getAttribLocation(program, attribute);
+  }
+
+  WEBGL.UniformLocation getUniformLocation(
+      WEBGL.Program program, String uniform) {
+    return _gl.getUniformLocation(program, uniform);
   }
 
   int getError() {
-    return gl.getError();
+    return _gl.getError();
+  }
+
+  void vertexAttribDivisor(int index, int stride) {
+    _gl.vertexAttribDivisor(index, stride);
+  }
+
+  // reads from bound GL_FRAMEBUFFER
+  void readPixels(
+      int x, int y, int w, int h, int implFormat, int implType, TypedData buf) {
+    _gl.readPixels(x, y, w, h, implFormat, implType, buf);
+  }
+
+  String getProgramInfoLog(WEBGL.Program program) {
+    return _gl.getProgramInfoLog(program);
+  }
+
+  void pixelStorei(int type, int value) {
+    _gl.pixelStorei(type, value);
+  }
+
+  List getSupportedExtensions() {
+    return _gl.getSupportedExtensions();
+  }
+
+  dynamic getExtension(String name) {
+    return _gl.getExtension(name);
+  }
+
+  dynamic GetGlExtensionAnisotropic() {
+    var ext = _gl.getExtension("EXT_texture_filter_anisotropic");
+    if (ext == null) {
+      LogWarn("ExtensionAnisotropic NOT SUPPORTED");
+    }
+    return ext;
+  }
+
+  int MaxAnisotropicFilterLevel() {
+    var ext = GetGlExtensionAnisotropic();
+    if (ext == null) {
+      return kNoAnisotropicFilterLevel;
+    }
+    return getParameter(
+        WEBGL.ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+  }
+
+  void drawElementsInstanced(int mode, int count, int type, int offset,
+      int instanceCount, bool hasTransforms) {
+    if (hasTransforms) _gl.beginTransformFeedback(mode);
+    if (instanceCount > 1) {
+      _gl.drawElementsInstanced(mode, count, type, offset, instanceCount);
+    } else {
+      _gl.drawElements(mode, count, type, offset);
+    }
+    if (hasTransforms) _gl.endTransformFeedback();
+  }
+
+  void drawArraysInstanced(
+      int mode, int first, int count, int instanceCount, bool hasTransforms) {
+    if (hasTransforms) _gl.beginTransformFeedback(mode);
+    if (instanceCount > 1) {
+      _gl.drawArraysInstanced(mode, first, count, instanceCount);
+    } else {
+      _gl.drawArrays(mode, first, count);
+    }
+    if (hasTransforms) _gl.endTransformFeedback();
+  }
+
+  void uniform1f(WEBGL.UniformLocation location, double value) {
+    _gl.uniform1f(location, value);
+  }
+
+  void uniform1i(WEBGL.UniformLocation location, int value) {
+    _gl.uniform1i(location, value);
+  }
+
+  void uniform1fv(WEBGL.UniformLocation location, Float32List value) {
+    _gl.uniform1fv(location, value);
+  }
+
+  void uniform2fv(WEBGL.UniformLocation location, Float32List value) {
+    _gl.uniform2fv(location, value);
+  }
+
+  void uniform3fv(WEBGL.UniformLocation location, Float32List value) {
+    _gl.uniform3fv(location, value);
+  }
+
+  void uniform4fv(WEBGL.UniformLocation location, Float32List value) {
+    _gl.uniform4fv(location, value);
+  }
+
+  void uniformMatrix4fv(
+      WEBGL.UniformLocation location, bool transpose, Float32List value) {
+    _gl.uniformMatrix4fv(location, transpose, value);
+  }
+
+  void uniformMatrix3fv(
+      WEBGL.UniformLocation location, bool transpose, Float32List value) {
+    _gl.uniformMatrix3fv(location, transpose, value);
   }
 }

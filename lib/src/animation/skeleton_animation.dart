@@ -102,6 +102,30 @@ void UpdateAnimatedSkeleton(
   }
 }
 
+
+// This is meant to be put into a Texture with dimensions
+// (skeleton.length * 16) x (time.length)
+// If the texture is RGBA this reduces to
+// (skeleton.length * 4) x (time.length)
+Float32List CreateAnimationTable(
+    List<Bone> skeleton,
+    VM.Matrix4 globalOffsetTransform,
+    SkeletalAnimation animation,
+    List<double> time) {
+  AnimatedSkeleton posedSkeleton = new AnimatedSkeleton(skeleton.length);
+  Float32List data = new Float32List(skeleton.length * 16 * time.length);
+  int pos = 0;
+  for (double t in time) {
+    UpdateAnimatedSkeleton(
+        skeleton, globalOffsetTransform, animation, posedSkeleton, t);
+    for (VM.Matrix4 m in posedSkeleton.skinningTransforms) {
+      for (int i = 0; i < 16; ++i) data[pos +i ] = m[i];
+      pos += 16;
+    }
+  }
+  return data;
+}
+
 /// ## Class BoneAnimation
 /// represents Key frame animation data for a single bone in a skeleton.
 class BoneAnimation {
@@ -197,33 +221,9 @@ class SkeletalAnimation {
     assert(animList[ba.bone.boneIndex] == null);
     animList[ba.bone.boneIndex] = ba;
   }
-}
 
-List<VM.Vector3> BonePosFromSkeleton(List<Bone> bones) {
-  List<VM.Vector3> out = [];
-
-  for (int i = 1; i < bones.length; ++i) {
-    final Bone a = bones[i];
-    final Bone b = bones[a.parentNum];
-
-    out.add(a.localTransform.getTranslation());
-    out.add(b.localTransform.getTranslation());
+  @override
+  String toString() {
+    return "SkeletalAnimation[${name}, duration: ${duration}, frames: ${animList.length}]";
   }
-  print("skeleton bone ${out.length}");
-  return out;
-}
-
-List<VM.Vector3> BonePosFromAnimatedSkeleton(
-    List<Bone> bones, AnimatedSkeleton posed,
-    {double scale = 1.0}) {
-  List<VM.Vector3> out = [];
-
-  for (int i = 0; i < bones.length; ++i) {
-    final int parent = bones[i].parentNum;
-    if (parent == -1) continue;
-    out.add(posed.globalTransforms[i].getTranslation() * scale);
-    out.add(posed.globalTransforms[parent].getTranslation() * scale);
-  }
-  //print("skeleton bone ${out.length}");
-  return out;
 }

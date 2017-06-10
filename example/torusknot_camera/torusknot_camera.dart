@@ -1,6 +1,5 @@
 import 'dart:html' as HTML;
 import 'dart:math' as Math;
-import 'dart:web_gl' as WEBGL;
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -20,7 +19,7 @@ void main() {
   Texture generatedTexture = new ImageTexture(chronosGL, "gen", canvas2d);
 
   // Maybe disable depth test?
-  Material mat = new Material.Transparent("torus", new BlendEquation.Standard())
+  Material mat = new Material.Transparent("torus", BlendEquationStandard)
     ..SetUniform(uTexture, generatedTexture)
     ..SetUniform(uColor, new VM.Vector3.zero());
   Node m = new Node("torus", ShapeTorusKnot(chronosGL, useQuads: false), mat);
@@ -63,9 +62,9 @@ void main() {
     tkc.animate(elapsed);
 
     canvas2d = Utils.createGradientImage2(timeMs / 1000, canvas2d);
-    chronosGL.gl.bindTexture(WEBGL.TEXTURE_2D, generatedTexture.GetTexture());
-    chronosGL.gl.texImage2D(WEBGL.TEXTURE_2D, 0, WEBGL.RGBA, WEBGL.RGBA,
-        WEBGL.UNSIGNED_BYTE, canvas2d);
+    chronosGL.bindTexture(GL_TEXTURE_2D, generatedTexture.GetTexture());
+    chronosGL.texImage2Dweb(GL_TEXTURE_2D, 0, GL_RGBA, GL_RGBA,
+        GL_UNSIGNED_BYTE, canvas2d);
 
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);

@@ -17,13 +17,17 @@ const String VarTypeFloat = "float";
 const String VarTypeVec2 = "vec2";
 const String VarTypeVec3 = "vec3";
 const String VarTypeVec4 = "vec4";
+
 const String VarTypeMat3 = "mat3";
 const String VarTypeMat4 = "mat4";
+const String VarTypeUvec4 = "uvec4";
+const String VarTypeUvec3 = "uvec3";
+const String VarTypeUvec2 = "uvec2";
 const String VarTypeSampler2D = "sampler2D";
+const String VarTypeSampler2DShadow = "sampler2DShadow";
 const String VarTypeSamplerCube = "samplerCube";
 const String VarTypeInt = "int";
 const String VarTypeIndex = "index";
-
 
 class ShaderVarDesc {
   final String type;
@@ -39,8 +43,10 @@ class ShaderVarDesc {
       case VarTypeVec2:
         return 2;
       case VarTypeVec3:
+      case VarTypeUvec3:
         return 3;
       case VarTypeVec4:
+      case VarTypeUvec4:
         return 4;
       default:
         assert(false);
@@ -66,6 +72,7 @@ class ShaderVarDesc {
 const int prefixElement = 0x65; // 'e';
 const String eArray = "eArray"; // element array
 const String eArrayType = "eArrayType"; // element array
+const String oFragColor = "oFragColor";
 // ===========================================================
 // Misc Controls
 // ===========================================================
@@ -73,11 +80,21 @@ const int prefixControl = 0x63; // 'c;
 
 const String cDepthTest = "cDepthTest";
 const String cDepthWrite = "cDepthWrite";
-const String cBlend = "cBlend";
 const String cBlendEquation = "cBlendEquation";
+const String cStencilFunc = "cStencilFunc";
 const String cNumItems = "cNumItems";
 const String cNumInstances = "cNumInstances";
 const String cDrawMode = "cDrawMode";
+
+// ===========================================================
+// TransformFeedback
+// ===========================================================
+
+const int prefixTransform = 0x74; // 't';
+
+const String tPosition = "tPosition";
+const String tSpeed = "tSpeed";
+const String tForce = "tForce";
 // ===========================================================
 // Attributes
 // ===========================================================
@@ -145,6 +162,7 @@ const String uTexture4 = "uTexture4";
 const String uBumpMap = "uBumpMap";
 const String uNormalMap = "uNormalMap";
 const String uSpecularMap = "uSpecularMap";
+const String uAnimationTable = "uAnimationTable";
 
 const String uDepthMap = "uDepthMap";
 const String uShadowMap = "uShadowMap";
@@ -173,6 +191,8 @@ const String uCutOff = "uCutOff";
 const String uShininess = "uShininess";
 const String uOpacity = "uOpacity";
 const String uShadowBias = "uShadowBias";
+const String uRange = "uRange";
+const String uDirection = "uDirection";
 
 const String uMaterial = "uMaterial";
 
@@ -185,13 +205,18 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   eArrayType: new ShaderVarDesc(VarTypeInt, ""),
 
   //
-  cBlend: new ShaderVarDesc("", ""),
   cBlendEquation: new ShaderVarDesc("", ""),
   cDepthWrite: new ShaderVarDesc("", ""),
   cDepthTest: new ShaderVarDesc("", ""),
   cNumItems: new ShaderVarDesc("", ""),
   cNumInstances: new ShaderVarDesc("", ""),
   cDrawMode: new ShaderVarDesc("", ""),
+  cStencilFunc: new ShaderVarDesc("", ""),
+
+  // transform vars
+  tPosition: new ShaderVarDesc(VarTypeVec3, ""),
+  tSpeed: new ShaderVarDesc(VarTypeVec3, ""),
+  tForce: new ShaderVarDesc(VarTypeVec3, ""),
 
   // attribute vars
   // This should also contain an alpha channel
@@ -231,7 +256,7 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   uPerspectiveViewMatrix: new ShaderVarDesc(VarTypeMat4, ""),
   uLightPerspectiveViewMatrix: new ShaderVarDesc(VarTypeMat4, ""),
 
-  uShadowMap: new ShaderVarDesc(VarTypeSampler2D, ""),
+  uShadowMap: new ShaderVarDesc(VarTypeSampler2DShadow, ""),
 
   uTexture: new ShaderVarDesc(VarTypeSampler2D, ""),
   uTexture2: new ShaderVarDesc(VarTypeSampler2D, ""),
@@ -242,6 +267,7 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   uBumpMap: new ShaderVarDesc(VarTypeSampler2D, ""),
   uDepthMap: new ShaderVarDesc(VarTypeSampler2D, ""),
   uCubeTexture: new ShaderVarDesc(VarTypeSamplerCube, ""),
+  uAnimationTable: new ShaderVarDesc(VarTypeSampler2D, ""),
 
   uTime: new ShaderVarDesc(VarTypeFloat, "time since program start in sec"),
   uCameraNear: new ShaderVarDesc(VarTypeFloat, ""),
@@ -265,6 +291,9 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   uColorAlpha2: new ShaderVarDesc(VarTypeVec4, ""),
   uEyePosition: new ShaderVarDesc(VarTypeVec3, ""),
   uMaterial: new ShaderVarDesc(VarTypeMat4, ""),
+  uRange: new ShaderVarDesc(VarTypeVec2, ""),
+  uDirection: new ShaderVarDesc(VarTypeVec2, ""),
+
   uBoneMatrices: new ShaderVarDesc(VarTypeMat4, "", arraySize: kMaxBones),
 
   uLightDescs: new ShaderVarDesc(VarTypeMat4, "", arraySize: kMaxLights),
@@ -292,9 +321,10 @@ class ShaderObject {
   String name;
   String shader;
 
-  Map<String, String> attributeVars = {};
-  Map<String, String> uniformVars = {};
-  Map<String, String> varyingVars = {};
+  List<String> attributeVars = [];
+  List<String> uniformVars = [];
+  List<String> varyingVars = [];
+  List<String> transformVars = []; // "transformFeedbackVaryings"
 
   ShaderObject(this.name);
 
@@ -303,9 +333,10 @@ class ShaderObject {
 
     for (String n in names) {
       assert(_VarsDb.containsKey(n));
-      assert(!attributeVars.containsKey(n));
-      attributeVars[n] = n;
+      assert(!attributeVars.contains(n));
+      attributeVars.add(n);
     }
+    attributeVars.sort();
   }
 
   void AddUniformVars(List<String> names) {
@@ -313,9 +344,10 @@ class ShaderObject {
 
     for (String n in names) {
       assert(_VarsDb.containsKey(n));
-      assert(!uniformVars.containsKey(n));
-      uniformVars[n] = n;
+      assert(!uniformVars.contains(n));
+      uniformVars.add(n);
     }
+    uniformVars.sort();
   }
 
   void AddVaryingVars(List<String> names) {
@@ -323,9 +355,21 @@ class ShaderObject {
 
     for (String n in names) {
       assert(_VarsDb.containsKey(n));
-      assert(!varyingVars.containsKey(n));
-      varyingVars[n] = n;
+      assert(!varyingVars.contains(n));
+      varyingVars.add(n);
     }
+    varyingVars.sort();
+  }
+
+  void AddTransformVars(List<String> names) {
+    assert(shader == null);
+
+    for (String n in names) {
+      assert(_VarsDb.containsKey(n));
+      assert(!transformVars.contains(n));
+      transformVars.add(n);
+    }
+    transformVars.sort();
   }
 
   void SetBodyWithMain(List<String> body, {List<String> prolog = null}) {
@@ -340,35 +384,41 @@ class ShaderObject {
 
   // InitializeShader updates the shader field from header and body.
   // If you have set shader manually do not call this.
-  String _CreateShader(bool addWrapperForMain, List<String> body, prolog) {
+  String _CreateShader(
+      bool addWrapperForMain, List<String> body, List<String> prolog) {
     assert(shader == null);
     // Hack
-    //bool isFragmentShader = attributeVars.isEmpty;
-    List<String> out = [];
-    //out.add("#version 300 es");
-    out.add("precision highp float;");
-    out.add("");
-    for (String v in attributeVars.keys) {
+    bool isFragmentShader = attributeVars.isEmpty;
+    List<String> out = [
+      "#version 300 es",
+      "precision highp float;",
+      "precision highp sampler2DShadow;",
+      ""
+    ];
+    for (String v in attributeVars) {
       ShaderVarDesc d = _VarsDb[v];
-      out.add("attribute ${d.type} ${attributeVars[v]};");
+      out.add("in ${d.type} ${v};");
     }
-    /*out.add("");
+    out.add("");
 
     String modifier = isFragmentShader ? "in" : "out";
     if (isFragmentShader) {
-      out.add("out vec4 oFragColor");
+      out.add("out vec4 ${oFragColor};");
     }
-    */
-    String modifier = "varying";
-    for (String v in varyingVars.keys) {
+
+    for (String v in varyingVars) {
       ShaderVarDesc d = _VarsDb[v];
-      out.add("${modifier} ${d.type} ${varyingVars[v]};");
+      out.add("${modifier} ${d.type} ${v};");
+    }
+    for (String v in transformVars) {
+      ShaderVarDesc d = _VarsDb[v];
+      out.add("${modifier} ${d.type} ${v};");
     }
     out.add("");
-    for (String v in uniformVars.keys) {
+    for (String v in uniformVars) {
       ShaderVarDesc d = _VarsDb[v];
       String suffix = d.arraySize == 0 ? "" : "[${d.arraySize}]";
-      out.add("uniform ${d.type} ${uniformVars[v]}${suffix};");
+      out.add("uniform ${d.type} ${v}${suffix};");
     }
     out.add("");
 

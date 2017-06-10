@@ -15,7 +15,7 @@ List<ShaderObject> createNormal2ColorShader() {
       ]),
     new ShaderObject("Normal2ColorF")
       ..AddVaryingVars([vColor])
-      ..SetBodyWithMain(["gl_FragColor = vec4( ${vColor}, 1.0 );"])
+      ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1.0 );"])
   ];
 }
 

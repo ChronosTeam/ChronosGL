@@ -3,54 +3,67 @@ part of core;
 class ChronosFramebuffer {
   ChronosGL _cgl;
 
-  WEBGL.Framebuffer framebuffer;
-  TypedTexture colorTexture;
-  TypedTexture depthTexture;
+  dynamic /* gl Framebuffer */ framebuffer;
+  Texture colorTexture;
+  Texture depthTexture;
+  Texture stencilTexture;
 
-  ChronosFramebuffer(this._cgl, width, height, [colorFormat = WEBGL.RGB]) {
+  ChronosFramebuffer(this._cgl, this.colorTexture,
+      [this.depthTexture,
+      this.stencilTexture = null,
+      bool depthStencilCombined = false]) {
     framebuffer = _cgl.createFramebuffer();
 
-    colorTexture = new TypedTexture(
-        _cgl, "frame::color", width, height, colorFormat, WEBGL.UNSIGNED_BYTE);
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    if (colorTexture != null) {
+      _cgl.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+          GL_TEXTURE_2D, colorTexture.GetTexture(), 0);
+    }
+    if (depthTexture != null) {
+      _cgl.framebufferTexture2D(
+          GL_FRAMEBUFFER,
+          depthStencilCombined
+              ? GL_DEPTH_STENCIL_ATTACHMENT
+              : GL_DEPTH_ATTACHMENT,
+          GL_TEXTURE_2D,
+          depthTexture.GetTexture(),
+          0);
+    }
+    if (stencilTexture != null) {
+      assert(!depthStencilCombined,
+          "in combined mode - the stencil parameter must be null");
+      _cgl.framebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+          GL_TEXTURE_2D, stencilTexture.GetTexture(), 0);
+    }
 
-    depthTexture = new TypedTexture(_cgl, "frame::depth", width, height,
-        WEBGL.DEPTH_COMPONENT, WEBGL.UNSIGNED_SHORT);
-
-    _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
-    _cgl.gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.COLOR_ATTACHMENT0,
-        WEBGL.TEXTURE_2D, colorTexture.GetTexture(), 0);
-    _cgl.gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.DEPTH_ATTACHMENT,
-        WEBGL.TEXTURE_2D, depthTexture.GetTexture(), 0);
-
-    _cgl.bindTexture(WEBGL.TEXTURE_2D, null);
-    _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
-  }
-
-  ChronosFramebuffer.FromTexture(this._cgl, this.colorTexture) {
-    framebuffer = _cgl.createFramebuffer();
-
-    _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
-    _cgl.gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.COLOR_ATTACHMENT0,
-        WEBGL.TEXTURE_2D, colorTexture.GetTexture(), 0);
-
-    //depthTexture = new TypedTexture("frame::depth", width, height,
-    //    WEBGL.DEPTH_COMPONENT, WEBGL.UNSIGNED_SHORT);
-    //depthTexture.Install(gl);
-    //gl.framebufferTexture2D(WEBGL.FRAMEBUFFER, WEBGL.DEPTH_ATTACHMENT,
-    //    WEBGL.TEXTURE_2D, null, 0);
-
-    //gl.bindTexture(WEBGL.TEXTURE_2D, null);
-    int err = _cgl.checkFramebufferStatus(WEBGL.FRAMEBUFFER);
-    assert(err == WEBGL.FRAMEBUFFER_COMPLETE);
-    if (err != WEBGL.FRAMEBUFFER_COMPLETE) {
+    int err = _cgl.checkFramebufferStatus(GL_FRAMEBUFFER);
+    assert(err == GL_FRAMEBUFFER_COMPLETE);
+    if (err != GL_FRAMEBUFFER_COMPLETE) {
       throw "Error Incomplete Framebuffer: ${err}";
     }
-    _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
   }
 
+  ChronosFramebuffer.Default(ChronosGL cgl, int w, int h)
+      : this(
+            cgl,
+            new TypedTexture(
+                cgl, "frame::color", w, h, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE),
+            new DepthTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
+                GL_UNSIGNED_INT, false));
+
+  ChronosFramebuffer.DefaultWithStencil(ChronosGL cgl, int w, int h)
+      : this(
+            cgl,
+            new TypedTexture(
+                cgl, "frame::color", w, h, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE),
+            new DepthStencilTexture(cgl, "frame::depth.stencil", w, h),
+            null,
+            true);
+
   bool ready() {
-    bool result = _cgl.checkFramebufferStatus(WEBGL.FRAMEBUFFER) ==
-        WEBGL.FRAMEBUFFER_COMPLETE;
+    bool result =
+        _cgl.checkFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
     if (!result) {
       print("FRAMEBUFFER_INCOMPLETE");
     }
@@ -60,30 +73,28 @@ class ChronosFramebuffer {
   // e.g. into Float32List
   // BROKEN: https://github.com/dart-lang/sdk/issues/11614
   void ExtractData(var buf, int x, int y, int w, int h) {
-    _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, framebuffer);
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     // RGB (3 values per pixel), RGBA (4 values per pixel)
     // see TypeToNumChannels
-    int implFormat = _cgl.gl
-        .getParameter(WEBGL.RenderingContext.IMPLEMENTATION_COLOR_READ_FORMAT);
+    int implFormat = _cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_FORMAT);
     print("impl format: ${implFormat}");
     // FLOAT, UNSIGNED BYTE
-    int implType = _cgl.gl
-        .getParameter(WEBGL.RenderingContext.IMPLEMENTATION_COLOR_READ_TYPE);
+    int implType = _cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_TYPE);
     print("impl type: ${implType}");
-    _cgl.gl.readPixels(x, y, w, h, implFormat, implType, buf);
-    _cgl.bindFramebuffer(WEBGL.FRAMEBUFFER, null);
+    _cgl.readPixels(x, y, w, h, implFormat, implType, buf);
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
   }
 }
 
 int TypeToNumChannels(int t) {
   switch (t) {
-    case WEBGL.LUMINANCE:
+    case GL_LUMINANCE:
       return 1;
-    case WEBGL.LUMINANCE_ALPHA:
+    case GL_LUMINANCE_ALPHA:
       return 2;
-    case WEBGL.RGB:
+    case GL_RGB:
       return 3;
-    case WEBGL.RGBA:
+    case GL_RGBA:
       return 4;
     default:
       assert(false);

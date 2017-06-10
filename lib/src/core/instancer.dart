@@ -5,13 +5,13 @@ part of core;
 class InstancerData extends RenderInputSource {
   final ChronosGL _cgl;
 
-  final Map<String, WEBGL.Buffer> _buffers = {};
+  final Map<String, dynamic /* gl Buffer */> _buffers = {};
   int numInstances;
 
   InstancerData(String name, this._cgl, this.numInstances) : super(name);
 
   void AddBuffer(String canonical, Float32List data) {
-     WEBGL.Buffer b = _cgl.createBuffer();
+     dynamic /* gl Buffer */ b = _cgl.createBuffer();
      _cgl.ChangeArrayBuffer(b, data);
     _buffers[canonical] = b;
   }

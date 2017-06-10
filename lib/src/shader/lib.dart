@@ -1,5 +1,7 @@
 library chronosshader;
 
+import 'dart:math' as Math;
+
 import "../base/lib.dart";
 
 /// # Layer: Shader (uses Base Layer)

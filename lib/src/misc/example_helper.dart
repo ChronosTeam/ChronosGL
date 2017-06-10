@@ -170,9 +170,9 @@ class Utils {
 
   static Node MakeParticles(ChronosGL cgl, int numPoints,
       [int dimension = 100]) {
-    Material mat = new Material.Transparent("stars", new BlendEquation.Mix())
+    Material mat = new Material.Transparent("stars", BlendEquationMix)
       ..SetUniform(uTexture, createParticleTexture(cgl))
-      ..SetUniform(uPointSize, 1000);
+      ..SetUniform(uPointSize, 1000.0);
 
     Math.Random rand = new Math.Random();
     GeometryBuilder gb = new GeometryBuilder(true);

@@ -41,8 +41,8 @@ ColorComponents acc = CombinedLight(${vVertexPosition} - ${uEyePosition},
                                     ${uLightDescs},
                                     ${uLightTypes},
                                     ${uShininess});
-gl_FragColor.rgb = acc.diffuse + acc.specular + uColor;
-gl_FragColor.a = 1.0;
+${oFragColor}.rgb = acc.diffuse + acc.specular + uColor;
+${oFragColor}.a = 1.0;
 
 """
       ], prolog: [

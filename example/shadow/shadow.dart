@@ -1,6 +1,5 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
-import 'dart:web_gl' as WEBGL;
 import 'dart:math' as Math;
 
 import 'package:vector_math/vector_math.dart' as VM;
@@ -28,8 +27,7 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
     new ShaderObject("LightBlinnPhongShadowF")
       ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
-      ..AddUniformVars(
-          [uShadowMap, uCanvasSize, uEyePosition, uColor, uShadowBias])
+      ..AddUniformVars([uShadowMap, uEyePosition, uColor, uShadowBias])
       ..SetBodyWithMain([
         """
 
@@ -37,15 +35,9 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
 		// depth is in [-1, 1] but we want [0, 1] for the texture lookup
 		depth = 0.5 * depth + vec3(0.5);
 
-#if 1
-    float shadow = GetShadowPCF16(depth,
-                                  ${uShadowMap}, ${uCanvasSize},
-                                  0.001, 0.01);
-#else
-    float shadow = GetShadow(depth,
-                             ${uShadowMap},
-                             0.001, 0.001);
-#endif
+
+    // float shadow = GetShadowPCF16(depth, ${uShadowMap}, 0.001, 0.01);
+    float shadow = GetShadow(depth, ${uShadowMap}, 0.01, 0.001);
 
     ColorComponents acc = ColorComponents(vec3(0.0), vec3(0.0));
     if (shadow > 0.0) {
@@ -53,11 +45,11 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
                             ${uLightDescs}, ${uLightTypes}, ${uShininess});
     }
 
-    gl_FragColor.rgb = shadow * acc.diffuse +
+    ${oFragColor}.rgb = shadow * acc.diffuse +
                        shadow * acc.specular +
                        uColor;
-    gl_FragColor.a = 1.0;
-    // if ( gl_FragColor.r != 66.0)  gl_FragColor.rgb = vec3(shadow);
+    ${oFragColor}.a = 1.0;
+    // if ( ${oFragColor}.r != 66.0)  gl_FragColor.rgb = vec3(shadow);
 
       """
       ], prolog: [
@@ -68,8 +60,6 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
       ])
   ];
 }
-
-
 
 final VM.Vector3 posLight = new VM.Vector3(11.0, 20.0, 0.0);
 final VM.Vector3 dirLight = new VM.Vector3(0.0, -30.0, 0.0);
@@ -196,7 +186,7 @@ void main() {
     illumination.AddLight(l);
   }
 
-  ShadowMap shadowMap = new ShadowMapDepth16(chronosGL, 512, 512);
+  ShadowMap shadowMap = new ShadowMapDepth16(chronosGL, 1024, 1024);
 
   // display scene with shadow on left part of screen.
   RenderPhase phaseMain = new RenderPhase("main", chronosGL);

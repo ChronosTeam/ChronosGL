@@ -396,7 +396,7 @@ String MakeStandardFragment(bool useSpecularTerm, List<LightConfig> configs) {
       out.add(indent + l);
     }
   }
-  out.add(indent + "gl_FragColor = ComputeColor(cv);");
+  out.add(indent + "${oFragColor} = ComputeColor(cv);");
   out.add("}");
   return out.join("\n");
 }
