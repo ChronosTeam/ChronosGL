@@ -48,8 +48,100 @@ if( t < 3.0) {
 
 Math.Random rand = new Math.Random();
 
-const int KNumStars = 2000;
 const int kNumFireworkParticles = 200;
+const double kMaxDistance = 100.0;
+const double kMinDistance = 0.2;
+const int kPoles = 10;
+const int kIons = 100000;
+
+String DumpVec(VM.Vector3 v) {
+  return "${v.x} ${v.y} ${v.z}";
+}
+
+class Pole {
+  VM.Vector3 _pos = new VM.Vector3.zero();
+  VM.Vector3 _src = new VM.Vector3.zero();
+  VM.Vector3 _dst = new VM.Vector3.zero();
+  double _t = 0.0;
+
+  Pole(VM.Vector3 dst) {
+    setNewTarget(dst);
+  }
+
+  void setNewTarget(VM.Vector3 dst) {
+    _dst.xyz = dst.xyz;
+    _src.xyz = _pos.xyz;
+    Update(0.0);
+  }
+
+  void Update(double t) {
+    _t = t;
+    VM.Vector3.mix(_src, _dst, t, _pos);
+  }
+
+  VM.Vector3 Pos() => _pos;
+
+  @override
+  String toString() =>
+      "POLE: ${DumpVec(_pos)} time ${_t} [${DumpVec(_src)}] => [${DumpVec(_dst)}]";
+}
+
+class Ion {
+  VM.Vector3 _pos = new VM.Vector3.zero();
+  double _speed;
+
+  Ion(this._speed, VM.Vector3 pos) {
+    _pos.xyz = pos.xyz;
+  }
+
+  VM.Vector3 Pos() => _pos;
+
+  @override
+  String toString() => "ION: ${DumpVec(_pos)} speed: ${_speed}";
+
+  void Update(List<Pole> srcs, List<Pole> dsts, Math.Random rng, double dt) {
+    double distMax = 0.0;
+    VM.Vector3 force = new VM.Vector3.zero();
+
+    for (Pole pole in srcs) {
+      VM.Vector3 t = _pos - pole.Pos(); // pushing force
+      final double len = t.length;
+      if (len <= kMinDistance) continue;
+      // stop if we are out of bounds
+      if (len > kMaxDistance) {
+        Pole p = srcs[rng.nextInt(srcs.length)];
+        _pos.xyz = p.Pos().xyz;
+        print("too far ${len}");
+        return;
+      }
+      if (len > distMax) distMax = len;
+      t = t / (len * len); // the further the distance the weaker the force
+      force += t;
+    }
+
+    for (Pole pole in dsts) {
+      VM.Vector3 t = pole.Pos() - _pos; // pulling force
+      final double len = t.length;
+      // stop if we would hit the pole in the next timestep
+      if (len <= kMinDistance) {
+        Pole p = srcs[rng.nextInt(srcs.length)];
+        _pos.xyz = p.Pos().xyz;
+        print("too close: ${len}");
+        return;
+      }
+      t = t / (len * len);
+      force += t;
+    }
+
+    // the normalization sacrifices physics for aesthetics
+    _pos += force.normalized() * dt * _speed;
+  }
+}
+
+VM.Vector3 RandomVector(Math.Random rng, double d) {
+  return new VM.Vector3((rng.nextDouble() - 0.5) * d,
+      (rng.nextDouble() - 0.5) * d, (rng.nextDouble() - 0.5) * d);
+}
 
 Node getRocket(dynamic gl, Texture tw) {
   List<VM.Vector3> vertices = [];
@@ -71,16 +163,65 @@ Node getRocket(dynamic gl, Texture tw) {
 }
 
 void main() {
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
 
+  Math.Random rng = new Math.Random(0);
+  List<Pole> srcPoles = [];
+  /*
+  for (int i = 0; i < kPoles; i++) {
+    VM.Vector3 pos = RandomVector(rng, kMaxDistance * 0.1);
+    Pole pole = new Pole(pos)..Update(1.0);
+    srcPoles.add(pole);
+    print("src: ${pole}");
+  }
+  */
+  double p = 2.0;
+  srcPoles.add(new Pole(new VM.Vector3(p, p, p))..Update(1.0));
+  srcPoles.add(new Pole(new VM.Vector3(p, -p, p))..Update(1.0));
+  srcPoles.add(new Pole(new VM.Vector3(-p, p, p))..Update(1.0));
+  srcPoles.add(new Pole(new VM.Vector3(-p, -p, p))..Update(1.0));
+
+  List<Pole> dstPoles = [];
+  /*
+  for (int i = 0; i < kPoles; i++) {
+    VM.Vector3 pos = RandomVector(rng, kMaxDistance * 0.1);
+    Pole pole = new Pole(pos)..Update(1.0);
+    dstPoles.add(pole);
+    print("dst: ${pole}");
+  }
+  */
+  dstPoles.add(new Pole(new VM.Vector3(p, p, -p))..Update(1.0));
+  dstPoles.add(new Pole(new VM.Vector3(p, -p, -p))..Update(1.0));
+  dstPoles.add(new Pole(new VM.Vector3(-p, p, -p))..Update(1.0));
+  dstPoles.add(new Pole(new VM.Vector3(-p, -p, -p))..Update(1.0));
+
+  List<Ion> ions = [];
+  for (int i = 0; i < kIons; i++) {
+    Ion ion = new Ion(1.0 * rng.nextDouble(), dstPoles[0].Pos());
+    ions.add(ion);
+    print("ion: ${ion}");
+  }
+  Float32List vertices = new Float32List(3 * kIons);
+  Material mat = new Material.Transparent("stars", BlendEquationMix)
+    ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
+    ..SetUniform(uPointSize, 200.0);
+  GeometryBuilder gb = new GeometryBuilder(true);
+  for (var i = 0; i < kIons; i++) {
+    gb.AddVertex(new VM.Vector3.zero());
+  }
+  MeshData md = GeometryBuilderToMeshData("", chronosGL, gb);
   RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(chronosGL, 2000));
+  programSprites.add(new Node("ions", md, mat));
 
+  /*
   RenderProgram pssp = phase.createProgram(createFireWorksShader());
   pssp.add(getRocket(
       chronosGL, Utils.createParticleTexture(chronosGL, "fireworks")));
@@ -89,7 +230,7 @@ void main() {
   chronosGL.bindTransformFeedback(transform);
   WEBGL.Buffer buf = chronosGL.createBuffer();
   chronosGL.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buf);
-
+*/
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
     int h = canvas.clientHeight;
@@ -103,27 +244,41 @@ void main() {
 
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
-
+/*
   Float32List outDataIn = new Float32List(200 * 3);
   Float32List outData = new Float32List(200 * 3);
   outDataIn[2] = 111.0;
   chronosGL.ChangeTransformBuffer(buf, outDataIn);
   chronosGL.GetTransformBuffer(buf, outData);
   print("${outData[0]} ${outData[1]} ${outData[2]}");
-
+*/
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
+    int n = 0;
+    for (Ion ion in ions) {
+      ion.Update(srcPoles, dstPoles, rng, elapsed / 1000.0);
+      vertices[n + 0] = ion.Pos().x;
+      vertices[n + 1] = ion.Pos().y;
+      vertices[n + 2] = ion.Pos().z;
+      n += 3;
+    }
+    md.ChangeVertices(vertices);
 
     orbit.animate(elapsed);
+    /*
     pssp.ForceInput(uTime, timeMs / 1000.0);
     chronosGL.bindTransformFeedback(transform);
+    */
     phase.draw([perspective]);
+    /*
     chronosGL.GetTransformBuffer(buf, outData);
     print("${outData[0]} ${outData[1]} ${outData[2]}");
+    */
+    fps.UpdateFrameCount(timeMs);
 
     HTML.window.animationFrame.then(animate);
   }
