@@ -101,6 +101,10 @@ class MeshData extends RenderInputSource {
     return _attributes[canonical];
   }
 
+  dynamic GetBuffer(String canonical) {
+    return _buffers[canonical];
+  }
+
   void AddAttribute(String canonical, List data, int width) {
     _buffers[canonical] = _cgl.createBuffer();
     ChangeAttribute(canonical, data, width);

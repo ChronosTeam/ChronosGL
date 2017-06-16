@@ -11,17 +11,19 @@ class ShaderProgram extends RenderProgram {
   Map<String, dynamic /* gl UniformLocation */ > _uniformLocations = {};
   Set<String> _uniformsInitialized = new Set<String>();
   Set<String> _attributesInitialized = new Set<String>();
-  int _drawMode = -1;
-  int _numInstances = 0;
-  int _numItems = 0;
-  int _nextTextureUnit = 0;
+  // Per draw state
+  int _drawMode;
+  int _numInstances;
+  int _numItems;
+  int _nextTextureUnit;
+  int _elementArrayBufferType;
+  var _elementArrayBuffer;
 
   ShaderProgram(
       String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
       : super(name) {
-    _program =
-        _cgl.CompileWholeProgram(_shaderObjectV.shader, _shaderObjectF.shader,
-        _shaderObjectV.transformVars);
+    _program = _cgl.CompileWholeProgram(_shaderObjectV.shader,
+        _shaderObjectF.shader, _shaderObjectV.transformVars);
     for (String v in _shaderObjectV.attributeVars) {
       _attributeLocations[v] = _cgl.getAttribLocation(_program, v);
       if (_attributeLocations[v] < 0) {
@@ -41,6 +43,15 @@ class ShaderProgram extends RenderProgram {
     }
   }
 
+  void _ClearState() {
+    _numInstances = 0;
+    _nextTextureUnit = 0;
+    _numItems = 0;
+    _drawMode = -1;
+    _elementArrayBufferType = 0;
+    _elementArrayBuffer = null;
+  }
+
   bool _HasAttribute(String canonical) {
     return _attributeLocations.containsKey(canonical);
   }
@@ -49,7 +60,6 @@ class ShaderProgram extends RenderProgram {
       int stride, int offset) {
     _attributesInitialized.add(canonical);
     final int index = _attributeLocations[canonical];
-    _cgl.bindBuffer(GL_ARRAY_BUFFER, buffer);
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "Unknown canonical ${canonical}";
     switch (desc.type) {
@@ -57,8 +67,8 @@ class ShaderProgram extends RenderProgram {
       case VarTypeVec2:
       case VarTypeVec3:
       case VarTypeVec4:
-        _cgl.vertexAttribPointer(
-            index, desc.GetSize(), GL_FLOAT, normalized, stride, offset);
+        _cgl.vertexAttribPointer(buffer, index, desc.GetSize(), GL_FLOAT,
+            normalized, stride, offset);
         break;
       case VarTypeUvec2:
       case VarTypeUvec3:
@@ -216,9 +226,7 @@ class ShaderProgram extends RenderProgram {
     }
   }
 
-  int SetInputs(Map<String, dynamic> inputs) {
-    int indexType = 0;
-    _nextTextureUnit = 0;
+  void SetInputs(Map<String, dynamic> inputs) {
     int count = 0;
     final DateTime start = new DateTime.now();
 
@@ -232,10 +240,10 @@ class ShaderProgram extends RenderProgram {
           break;
         case prefixElement:
           if (canonical == eArray) {
-            _cgl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, inputs[canonical]);
+            _elementArrayBuffer = inputs[canonical];
             ++count;
           } else if (canonical == eArrayType) {
-            indexType = inputs[canonical];
+            _elementArrayBufferType = inputs[canonical];
           }
           break;
         case prefixControl:
@@ -253,7 +261,6 @@ class ShaderProgram extends RenderProgram {
     }
     final Duration delta = new DateTime.now().difference(start);
     LogDebug("setting ${count} var in ${delta}");
-    return indexType;
   }
 
   @override
@@ -262,7 +269,8 @@ class ShaderProgram extends RenderProgram {
     // TODO: put this behind a flag
     _attributesInitialized.clear();
     _uniformsInitialized.clear();
-    final int indexType = SetInputs(inputs);
+    _ClearState();
+    SetInputs(inputs);
     if (_numItems == 0) return;
     if (stats != null) {
       stats.add(new DrawStats(name, _numInstances, _numItems, _drawMode));
@@ -279,12 +287,8 @@ class ShaderProgram extends RenderProgram {
     }
 
     bool hasTransforms = _shaderObjectV.transformVars.length > 0;
-    if (indexType != 0) {
-      _cgl.drawElementsInstanced(
-          _drawMode, _numItems, indexType, 0, _numInstances, hasTransforms);
-    } else {
-      _cgl.drawArraysInstanced(_drawMode, 0, _numItems, _numInstances, hasTransforms);
-    }
+    _cgl.draw(_drawMode, _numItems, _elementArrayBuffer,
+        _elementArrayBufferType, 0, _numInstances, hasTransforms);
 
     if (debug) print(_cgl.getProgramInfoLog(_program));
   }

@@ -94,10 +94,6 @@ class ChronosGL {
     return program;
   }
 
-  void bindBuffer(int kind, WEBGL.Buffer buffer) {
-    _gl.bindBuffer(kind, buffer);
-  }
-
   void ChangeArrayBuffer(WEBGL.Buffer buffer, List data) {
     _gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
     _gl.bufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW);
@@ -166,10 +162,13 @@ class ChronosGL {
   }
 
   void bindTransformFeedback(dynamic transform) {
+    //_gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, null);
     _gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, transform);
   }
 
   void bindBufferBase(int kind, int offset, var buffer) {
+    // in case buffer is still bound
+    // _gl.bindBuffer(GL_ARRAY_BUFFER, null);
     _gl.bindBufferBase(kind, offset, buffer);
   }
 
@@ -233,8 +232,9 @@ class ChronosGL {
     return _gl.getParameter(kind);
   }
 
-  void vertexAttribPointer(
-      int index, int size, int type, bool normalized, int stride, int offset) {
+  void vertexAttribPointer(var buffer, int index, int size, int type,
+      bool normalized, int stride, int offset) {
+    _gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
     _gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
   }
 
@@ -329,24 +329,22 @@ class ChronosGL {
         WEBGL.ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
   }
 
-  void drawElementsInstanced(int mode, int count, int type, int offset,
+  void draw(int mode, int count, dynamic buffer, int type, int offset,
       int instanceCount, bool hasTransforms) {
     if (hasTransforms) _gl.beginTransformFeedback(mode);
-    if (instanceCount > 1) {
-      _gl.drawElementsInstanced(mode, count, type, offset, instanceCount);
+    if (buffer != null) {
+      _gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
+      if (instanceCount > 1) {
+        _gl.drawElementsInstanced(mode, count, type, offset, instanceCount);
+      } else {
+        _gl.drawElements(mode, count, type, offset);
+      }
     } else {
-      _gl.drawElements(mode, count, type, offset);
-    }
-    if (hasTransforms) _gl.endTransformFeedback();
-  }
-
-  void drawArraysInstanced(
-      int mode, int first, int count, int instanceCount, bool hasTransforms) {
-    if (hasTransforms) _gl.beginTransformFeedback(mode);
-    if (instanceCount > 1) {
-      _gl.drawArraysInstanced(mode, first, count, instanceCount);
-    } else {
-      _gl.drawArrays(mode, first, count);
+      if (instanceCount > 1) {
+        _gl.drawArraysInstanced(mode, offset, count, instanceCount);
+      } else {
+        _gl.drawArrays(mode, offset, count);
+      }
     }
     if (hasTransforms) _gl.endTransformFeedback();
   }
