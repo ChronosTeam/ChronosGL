@@ -1,62 +1,101 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:math' as Math;
 import 'dart:html' as HTML;
-import 'dart:web_gl' as WEBGL;
 import 'dart:typed_data';
 
 import 'package:vector_math/vector_math.dart' as VM;
 
+const double kMaxDistance = 100.1;
+const double kMinDistance = 0.2;
+
 List<ShaderObject> createFireWorksShader() {
   return [
     new ShaderObject("FireWorksV")
-      ..AddAttributeVars([aVertexPosition, aNormal])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uTime])
+      ..AddAttributeVars([aVertexPosition])
+      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uPointSize])
       ..AddTransformVars([tPosition])
-      ..SetBodyWithMain([
+      ..SetBody([
         """
-float t = mod(${uTime}, 5.0);
-vec3 vp = ${aVertexPosition};
-if( t < 3.0) {
-    vp.y = t;
-} else {
-    vp.y = 3.0;
-    vp += normalize(${aNormal})*(t-3.0);
+      
+const float kMaxDistance = ${kMaxDistance};
+  
+const float kMinDistance = ${kMinDistance};
+  
+const float dt = 0.1666;
+const float speed = 2.0;  
+  
+const vec3 srcs[] = vec3[](vec3(6.0, 0.0, 6.0),
+                           vec3(3.0, 0.0, 6.0),
+                           vec3(0.0, 0.0, 6.0),
+                           vec3(-3.0, 0.0, 6.0),
+                           vec3(-6.0, 0.0, 6.0));
+                           
+const vec3 dsts[] = vec3[](vec3(6.0, 0.0, -6.0),
+                           vec3(3.0, 0.0, -6.0),
+                           vec3(0.0, 0.0, -6.0),
+                           vec3(-3.0, 0.0, -6.0),
+                           vec3(-6.0, 0.0, -6.0));   
+float rand(vec2 seed){
+    return fract(sin(dot(seed ,vec2(12.9898,78.233))) * 43758.5453);
+}      
+
+int irand(int n, vec2 seed) {
+    return 1;
 }
 
-gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(vp, 1.0);
-gl_PointSize = 100.0/gl_Position.z;
-${tPosition} = gl_Position.xyz;
-${tPosition}.x = 666.0;
+vec3 vec3rand(vec3 seed) {
+    return vec3(rand(seed.yz), rand(seed.xz), rand(seed.xy));
+}
+
+vec3 Update(vec3 pos, vec3 seed) {
+    vec3 force = vec3(0.0, 0.0, 0.0);
+    for (int i = 0; i < srcs.length(); ++i) {
+       vec3 d = pos - srcs[i];
+       float l = length(d);
+       if (l <= kMinDistance) continue;
+       if (l >= kMaxDistance) {
+           return srcs[irand(srcs.length(), seed.xy)] +
+                       vec3rand(seed) * 20.0 * dt;
+       }
+       force += d / (l * l); 
+    } 
+    
+    for (int i = 0; i < dsts.length(); ++i) {
+       vec3 d = dsts[i] - pos;
+       float l = length(d);
+       if (l <= kMinDistance) {
+           return srcs[irand(srcs.length(), seed.xy)] +
+                       vec3rand(seed) * 20.0 * dt;
+       }
+       force += d / (l * l); 
+    } 
+    return pos + normalize(force) * dt * speed;
+}
+      
+void main() {        
+    gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * 
+                  vec4(${aVertexPosition}, 1.0);
+
+    gl_PointSize = ${uPointSize}/gl_Position.z;
+    ${tPosition} = Update(${aVertexPosition}, gl_Position.xyz);
+}
 """
       ]),
     new ShaderObject("FireWorksF")
-      ..AddUniformVars([uTime, uColor, uTexture])
-      ..SetBodyWithMain([
-        """
-${oFragColor} = texture(${uTexture}, gl_PointCoord);
-float t = mod(${uTime}, 5.0);
-if( t < 3.0) {
-    //gl_FragColor.x = 1.0;
-} else {
-    //gl_FragColor.rgb = ${uColor};
-    ${oFragColor}.a -= (t-3.0);
-}
-"""
-      ])
+      ..AddUniformVars([uTexture])
+      ..SetBodyWithMain(
+          ["${oFragColor} = texture( ${uTexture},  gl_PointCoord);"])
   ];
 }
 
-Math.Random rand = new Math.Random();
-
-const int kNumFireworkParticles = 200;
-const double kMaxDistance = 100.0;
-const double kMinDistance = 0.2;
 const int kIons = 10000;
 
 String DumpVec(VM.Vector3 v) {
   return "${v.x} ${v.y} ${v.z}";
 }
 
+// Source or Sink for Ions.
+// Can move themselves - currently not used.
 class Pole {
   VM.Vector3 _pos = new VM.Vector3.zero();
   VM.Vector3 _src = new VM.Vector3.zero();
@@ -85,6 +124,7 @@ class Pole {
       "POLE: ${DumpVec(_pos)} time ${_t} [${DumpVec(_src)}] => [${DumpVec(_dst)}]";
 }
 
+// Particle emitted from a Source Pole and heading towards a Sink Pole.
 class Ion {
   VM.Vector3 _pos;
   double _speed;
@@ -98,8 +138,8 @@ class Ion {
   @override
   String toString() => "ION: ${DumpVec(_pos)} speed: ${_speed}";
 
+  // Update position based on distance Source/Sink Poles
   void Update(List<Pole> srcs, List<Pole> dsts, Math.Random rng, double dt) {
-    double distMax = 0.0;
     VM.Vector3 force = new VM.Vector3.zero();
 
     for (Pole pole in srcs) {
@@ -109,13 +149,12 @@ class Ion {
       // stop if we are out of bounds
       if (len > kMaxDistance) {
         Pole p = srcs[rng.nextInt(srcs.length)];
-        _pos = p.Pos() + RandomVector(rng, 20.0 *  dt);
+        _pos = p.Pos() + RandomVector(rng, 20.0 * dt);
         print("too far ${len}");
         return;
       }
-      if (len > distMax) distMax = len;
-      t = t / (len * len); // the further the distance the weaker the force
-      force += t;
+      // the further the distance the weaker the force
+      force += t / (len * len);
     }
 
     for (Pole pole in dsts) {
@@ -128,8 +167,7 @@ class Ion {
         print("too close: ${len}");
         return;
       }
-      t = t / (len * len);
-      force += t;
+      force += t / (len * len);
     }
 
     // the normalization sacrifices physics for aesthetics
@@ -142,34 +180,22 @@ VM.Vector3 RandomVector(Math.Random rng, double d) {
       (rng.nextDouble() - 0.5) * d, (rng.nextDouble() - 0.5) * d);
 }
 
-Node getRocket(dynamic gl, Texture tw) {
-  List<VM.Vector3> vertices = [];
-  List<VM.Vector3> normals = [];
-  for (var i = 0; i < kNumFireworkParticles; i++) {
-    vertices.add(new VM.Vector3(0.0, 0.0, 0.0));
-    normals.add(new VM.Vector3(rand.nextDouble() - 0.5, rand.nextDouble() - 0.5,
-        rand.nextDouble() - 0.5));
-  }
-
-  MeshData md = new MeshData("firefwork-particles", gl, GL_POINTS)
-    ..AddVertices(FlattenVector3List(vertices))
-    ..AddAttribute(aNormal, FlattenVector3List(normals), 3);
-
-  Material mat = new Material.Transparent("mat", BlendEquationMix)
-    ..SetUniform(uTexture, tw)
-    ..SetUniform(uColor, ColorRed);
-  return new Node(md.name, md, mat);
-}
-
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  final int width = canvas.clientWidth;
+  final int height = canvas.clientHeight;
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, 0.5, 0.5, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  RenderPhase phase = new RenderPhase("main", chronosGL);
+
+  Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
+    ..AdjustAspect(width, height);
+
+  RenderPhase phase = new RenderPhase("main", chronosGL)
+    ..viewPortW = width
+    ..viewPortH = height;
 
   Math.Random rng = new Math.Random(0);
   List<Pole> srcPoles = [];
@@ -190,7 +216,7 @@ void main() {
   VM.Vector3 outOfBounds = new VM.Vector3.all(kMaxDistance * 100.0);
   List<Ion> ions = [];
   for (int i = 0; i < kIons; i++) {
-    Ion ion = new Ion(1.0 + 2.0 * rng.nextDouble(), outOfBounds);
+    Ion ion = new Ion(2.0, outOfBounds);
     ions.add(ion);
   }
   Float32List vertices = new Float32List(3 * kIons);
@@ -199,50 +225,42 @@ void main() {
     ..SetUniform(uPointSize, 200.0);
   GeometryBuilder gb = new GeometryBuilder(true);
   for (var i = 0; i < kIons; i++) {
-    gb.AddVertex(new VM.Vector3.zero());
+    gb.AddVertex(new VM.Vector3.all(0.0));
   }
   MeshData md = GeometryBuilderToMeshData("", chronosGL, gb);
   RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(new Node("ions", md, mat));
+  Node node = new Node("ions", md, mat);
+  programSprites.add(node);
 
-  /*
   RenderProgram pssp = phase.createProgram(createFireWorksShader());
-  pssp.add(getRocket(
-      chronosGL, Utils.createParticleTexture(chronosGL, "fireworks")));
 
-  var transform = chronosGL.createTransformFeedback();
-  chronosGL.bindTransformFeedback(transform);
-  WEBGL.Buffer buf = chronosGL.createBuffer();
-  chronosGL.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buf);
-*/
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
+  MeshData md2 = GeometryBuilderToMeshData("", chronosGL, gb);
+  MeshData md1 = GeometryBuilderToMeshData("", chronosGL, gb);
 
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
-/*
-  Float32List outDataIn = new Float32List(200 * 3);
-  Float32List outData = new Float32List(200 * 3);
-  outDataIn[2] = 111.0;
-  chronosGL.ChangeTransformBuffer(buf, outDataIn);
-  chronosGL.GetTransformBuffer(buf, outData);
-  print("${outData[0]} ${outData[1]} ${outData[2]}");
-*/
+  Node node1 = new Node("ions1", md1, mat);
+  var transform1 = chronosGL.createTransformFeedback();
+  chronosGL.bindTransformFeedback(transform1);
+  chronosGL.bindBufferBase(
+      GL_TRANSFORM_FEEDBACK_BUFFER, 0, md2.GetBuffer(aVertexPosition));
+  pssp.add(node1);
+
+  chronosGL.bindTransformFeedback(transform1);
+  programSprites.enabled = false;
+
+  // Prep for copyBufferSubData below
+  chronosGL.bindBuffer(GL_ARRAY_BUFFER, md1.GetBuffer(aVertexPosition));
+  chronosGL.bindBuffer(
+      GL_TRANSFORM_FEEDBACK_BUFFER, md2.GetBuffer(aVertexPosition));
+
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
+
+    /*
     int n = 0;
     for (Ion ion in ions) {
       if (elapsed == 0.0) continue;
@@ -253,20 +271,16 @@ void main() {
       n += 3;
     }
     md.ChangeVertices(vertices);
+    */
 
     orbit.animate(elapsed);
-    /*
-    pssp.ForceInput(uTime, timeMs / 1000.0);
-    chronosGL.bindTransformFeedback(transform);
-    */
+
     phase.draw([perspective]);
-    /*
-    chronosGL.GetTransformBuffer(buf, outData);
-    print("${outData[0]} ${outData[1]} ${outData[2]}");
-    */
-    fps.UpdateFrameCount(timeMs);
 
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs);
+    chronosGL.copyBufferSubData(
+        GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0, kIons * 3);
   }
 
   animate(0.0);

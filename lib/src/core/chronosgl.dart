@@ -132,6 +132,15 @@ class ChronosGL {
     _gl.deleteBuffer(buffer);
   }
 
+  void bindBuffer(int kind, dynamic buffer) {
+    _gl.bindBuffer(kind, buffer);
+  }
+
+  void copyBufferSubData(dynamic srcBuffer, dynamic dstBuffer, int srcOffset,
+      int dstOffset, int size) {
+    _gl.copyBufferSubData(srcBuffer, dstBuffer, srcOffset, dstOffset, size);
+  }
+
   WEBGL.Framebuffer createFramebuffer() {
     return _gl.createFramebuffer();
   }
@@ -283,7 +292,6 @@ class ChronosGL {
   int getError() {
     return _gl.getError();
   }
-
 
   // reads from bound GL_FRAMEBUFFER
   void readPixels(
