@@ -7,7 +7,8 @@ class ShaderProgram extends RenderProgram {
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
   dynamic /* gl  Program */ _program;
-  Map<String, int> _attributeLocations = {};
+
+  Set<String> _attributes;
   Map<String, dynamic /* gl UniformLocation */ > _uniformLocations = {};
   Set<String> _uniformsInitialized = new Set<String>();
   Set<String> _attributesInitialized = new Set<String>();
@@ -24,14 +25,8 @@ class ShaderProgram extends RenderProgram {
       : super(name) {
     _program = _cgl.CompileWholeProgram(_shaderObjectV.shader,
         _shaderObjectF.shader, _shaderObjectV.transformVars);
-    for (String v in _shaderObjectV.attributeVars) {
-      _attributeLocations[v] = _cgl.getAttribLocation(_program, v);
-      if (_attributeLocations[v] < 0) {
-        LogError("cannot get location for  attribute $v");
-        assert(false);
-      }
-    }
 
+    _attributes = new Set.from(_shaderObjectV.attributeVars);
     for (String v in _shaderObjectV.uniformVars) {
       _uniformLocations[v] = _cgl.getUniformLocation(_program, v);
     }
@@ -53,13 +48,13 @@ class ShaderProgram extends RenderProgram {
   }
 
   bool _HasAttribute(String canonical) {
-    return _attributeLocations.containsKey(canonical);
+    return _attributes.contains(canonical);
   }
 
   void _SetAttribute(String canonical, dynamic /* Buffer */ buffer, normalized,
       int stride, int offset) {
     _attributesInitialized.add(canonical);
-    final int index = _attributeLocations[canonical];
+    final int index = GetLayoutPos(canonical);
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "Unknown canonical ${canonical}";
     switch (desc.type) {
@@ -201,12 +196,12 @@ class ShaderProgram extends RenderProgram {
 
   List<String> UninitializedInputs() {
     if (_uniformsInitialized.length == _uniformLocations.length &&
-        _attributesInitialized.length == _attributeLocations.length) return [];
+        _attributesInitialized.length == _attributes.length) return [];
     List<String> out = [];
     for (String u in _uniformLocations.keys) {
       if (!_uniformsInitialized.contains(u)) out.add(u);
     }
-    for (String u in _attributeLocations.keys) {
+    for (String u in _attributes) {
       if (!_attributesInitialized.contains(u)) out.add(u);
     }
     return out;
@@ -216,13 +211,11 @@ class ShaderProgram extends RenderProgram {
   void DrawSetUp() {
     if (debug) print("[${name} setting attributes");
     _cgl.useProgram(_program);
-    for (String a in _attributeLocations.keys) {
-      final index = _attributeLocations[a];
+    for (String a in _attributes) {
+      final index = GetLayoutPos(a);
       if (debug) print("[${name}] $a $index");
-      _cgl.enableVertexAttribArray(index);
-      if (a.codeUnitAt(0) == prefixInstancer) {
-        _cgl.vertexAttribDivisor(index, 1);
-      }
+      _cgl.enableVertexAttribArray(
+          index, a.codeUnitAt(0) == prefixInstancer ? 1 : 0);
     }
   }
 
@@ -296,12 +289,10 @@ class ShaderProgram extends RenderProgram {
   @override
   void DrawTearDown() {
     if (debug) print("[${name} unsetting attributes");
-    for (String canonical in _attributeLocations.keys) {
-      int index = _attributeLocations[canonical];
-      if (canonical.startsWith("ia")) {
-        _cgl.vertexAttribDivisor(index, 0);
-      }
-      _cgl.disableVertexAttribArray(index);
+    for (String canonical in _attributes) {
+      int index = GetLayoutPos(canonical);
+      _cgl.disableVertexAttribArray(
+          index, canonical.codeUnitAt(0) == prefixInstancer);
     }
   }
 }

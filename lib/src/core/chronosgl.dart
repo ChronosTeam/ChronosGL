@@ -200,12 +200,14 @@ class ChronosGL {
     _gl.stencilFunc(func, value, mask);
   }
 
-  void enableVertexAttribArray(int index) {
+  void enableVertexAttribArray(int index, int divisor) {
     _gl.enableVertexAttribArray(index);
+    if (divisor > 0) _gl.vertexAttribDivisor(index, divisor);
   }
 
-  void disableVertexAttribArray(int index) {
+  void disableVertexAttribArray(int index, bool instanced) {
     _gl.disableVertexAttribArray(index);
+    if (instanced) _gl.vertexAttribDivisor(index, 0);
   }
 
   void clear(int kind) {
@@ -273,10 +275,6 @@ class ChronosGL {
     return _gl.createShader(kind);
   }
 
-  int getAttribLocation(WEBGL.Program program, String attribute) {
-    return _gl.getAttribLocation(program, attribute);
-  }
-
   WEBGL.UniformLocation getUniformLocation(
       WEBGL.Program program, String uniform) {
     return _gl.getUniformLocation(program, uniform);
@@ -286,9 +284,6 @@ class ChronosGL {
     return _gl.getError();
   }
 
-  void vertexAttribDivisor(int index, int stride) {
-    _gl.vertexAttribDivisor(index, stride);
-  }
 
   // reads from bound GL_FRAMEBUFFER
   void readPixels(
