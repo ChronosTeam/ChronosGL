@@ -33,7 +33,7 @@ abstract class RenderProgram extends RenderInputSink {
   }
 
   void removeAll() {
-    return objects.clear();
+    objects.clear();
   }
 
   void DrawOne(Map<String, dynamic> inputs, List<DrawStats> stats);

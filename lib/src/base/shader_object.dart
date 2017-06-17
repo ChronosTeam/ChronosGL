@@ -313,6 +313,20 @@ ShaderVarDesc RetrieveShaderVarDesc(String canonical) {
   return _VarsDb[canonical];
 }
 
+// start with one to deliberately exercise corner cases
+int _nextLayoutPos = 0;
+Map<String, int> _canonicalToLayoutPos = {};
+
+int GetLayoutPos(String canonical) {
+  int pos = _canonicalToLayoutPos[canonical];
+  if (pos == null) {
+    pos = _nextLayoutPos;
+    ++_nextLayoutPos;
+    _canonicalToLayoutPos[canonical] = pos;
+  }
+  return pos;
+}
+
 // ShaderObject describes a shader (either fragment or vertex) and its
 // interface to the world on a syntactical (uncompiled) level.
 // Protocol:
@@ -395,9 +409,10 @@ class ShaderObject {
       "precision highp sampler2DShadow;",
       ""
     ];
-    for (String v in attributeVars) {
-      ShaderVarDesc d = _VarsDb[v];
-      out.add("in ${d.type} ${v};");
+    for (String a in attributeVars) {
+      ShaderVarDesc d = _VarsDb[a];
+      int pos = GetLayoutPos(a);
+      out.add("layout (location=${pos}) in ${d.type} ${a};");
     }
     out.add("");
 

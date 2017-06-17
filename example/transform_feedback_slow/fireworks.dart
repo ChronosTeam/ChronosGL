@@ -9,85 +9,6 @@ const double kMaxDistance = 100.1;
 const double kMinDistance = 0.2;
 const int kIons = 10000;
 
-List<ShaderObject> createFireWorksShader() {
-  return [
-    new ShaderObject("FireWorksV")
-      ..AddAttributeVars([aVertexPosition])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uPointSize])
-      ..AddTransformVars([tPosition])
-      ..SetBody([
-        """
-      
-const float kMaxDistance = ${kMaxDistance};
-  
-const float kMinDistance = ${kMinDistance};
-  
-const float dt = 0.1666;
-const float speed = 2.0;  
-  
-const vec3 srcs[] = vec3[](vec3(6.0, 0.0, 6.0),
-                           vec3(3.0, 0.0, 6.0),
-                           vec3(0.0, 0.0, 6.0),
-                           vec3(-3.0, 0.0, 6.0),
-                           vec3(-6.0, 0.0, 6.0));
-                           
-const vec3 dsts[] = vec3[](vec3(6.0, 0.0, -6.0),
-                           vec3(3.0, 0.0, -6.0),
-                           vec3(0.0, 0.0, -6.0),
-                           vec3(-3.0, 0.0, -6.0),
-                           vec3(-6.0, 0.0, -6.0));   
-float rand(vec2 seed){
-    return fract(sin(dot(seed ,vec2(12.9898,78.233))) * 43758.5453);
-}      
-
-int irand(int n, vec2 seed) {
-    return 1;
-}
-
-vec3 vec3rand(vec3 seed) {
-    return vec3(rand(seed.yz), rand(seed.xz), rand(seed.xy));
-}
-
-vec3 Update(vec3 pos, vec3 seed) {
-    vec3 force = vec3(0.0, 0.0, 0.0);
-    for (int i = 0; i < srcs.length(); ++i) {
-       vec3 d = pos - srcs[i];
-       float l = length(d);
-       if (l <= kMinDistance) continue;
-       if (l >= kMaxDistance) {
-           return srcs[irand(srcs.length(), seed.xy)] +
-                       vec3rand(seed) * 20.0 * dt;
-       }
-       force += d / (l * l); 
-    } 
-    
-    for (int i = 0; i < dsts.length(); ++i) {
-       vec3 d = dsts[i] - pos;
-       float l = length(d);
-       if (l <= kMinDistance) {
-           return srcs[irand(srcs.length(), seed.xy)] +
-                       vec3rand(seed) * 20.0 * dt;
-       }
-       force += d / (l * l); 
-    } 
-    return pos + normalize(force) * dt * speed;
-}
-      
-void main() {        
-    gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * 
-                  vec4(${aVertexPosition}, 1.0);
-
-    gl_PointSize = ${uPointSize}/gl_Position.z;
-    ${tPosition} = Update(${aVertexPosition}, gl_Position.xyz);
-}
-"""
-      ]),
-    new ShaderObject("FireWorksF")
-      ..AddUniformVars([uTexture])
-      ..SetBodyWithMain(
-          ["${oFragColor} = texture( ${uTexture},  gl_PointCoord);"])
-  ];
-}
 
 String DumpVec(VM.Vector3 v) {
   return "${v.x} ${v.y} ${v.z}";
@@ -230,20 +151,6 @@ void main() {
       phase.createProgram(createPointSpritesShader());
   programSprites.add(new Node("ions", md, mat));
 
-  RenderProgram pssp = phase.createProgram(createFireWorksShader());
-  MeshData md2 = GeometryBuilderToMeshData("", chronosGL, gb);
-  MeshData md1 = GeometryBuilderToMeshData("", chronosGL, gb);
-
-  Node node1 = new Node("ions1", md1, mat);
-  var transform1 = chronosGL.createTransformFeedback();
-  chronosGL.bindTransformFeedback(transform1);
-  chronosGL.bindBufferBase(
-      GL_TRANSFORM_FEEDBACK_BUFFER, 0, md2.GetBuffer(aVertexPosition));
-  pssp.add(node1);
-
-  chronosGL.bindTransformFeedback(transform1);
-  programSprites.enabled = true;
-  pssp.enabled = false;
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
@@ -269,13 +176,6 @@ void main() {
 
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(timeMs);
-    if (pssp.enabled) {
-      chronosGL.bindBuffer(GL_ARRAY_BUFFER, md1.GetBuffer(aVertexPosition));
-      chronosGL.bindBuffer(
-          GL_TRANSFORM_FEEDBACK_BUFFER, md2.GetBuffer(aVertexPosition));
-      chronosGL.copyBufferSubData(
-          GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0, kIons * 3);
-    }
   }
 
   animate(0.0);
