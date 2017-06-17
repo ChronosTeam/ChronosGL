@@ -314,7 +314,7 @@ ShaderVarDesc RetrieveShaderVarDesc(String canonical) {
 }
 
 // start with one to deliberately exercise corner cases
-int _nextLayoutPos = 1;
+int _nextLayoutPos = 0;
 Map<String, int> _canonicalToLayoutPos = {};
 
 int GetLayoutPos(String canonical) {
