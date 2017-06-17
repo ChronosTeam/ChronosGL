@@ -7,6 +7,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 const double kMaxDistance = 100.1;
 const double kMinDistance = 0.2;
+const int kIons = 10000;
 
 List<ShaderObject> createFireWorksShader() {
   return [
@@ -87,8 +88,6 @@ void main() {
           ["${oFragColor} = texture( ${uTexture},  gl_PointCoord);"])
   ];
 }
-
-const int kIons = 10000;
 
 String DumpVec(VM.Vector3 v) {
   return "${v.x} ${v.y} ${v.z}";
@@ -180,38 +179,37 @@ VM.Vector3 RandomVector(Math.Random rng, double d) {
       (rng.nextDouble() - 0.5) * d, (rng.nextDouble() - 0.5) * d);
 }
 
+List<Pole> MakeRowOfPoles(List<double> xx, double y, double z, double scale) {
+  List<Pole> out = [];
+  for (double x in xx) {
+    out.add(new Pole(new VM.Vector3(x, y, z) * scale)..Update(1.0));
+  }
+  return out;
+}
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
+  final Math.Random rng = new Math.Random(0);
+
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   final int width = canvas.clientWidth;
   final int height = canvas.clientHeight;
+  canvas.width = width;
+  canvas.height = height;
+
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, 0.5, 0.5, canvas);
-
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
     ..AdjustAspect(width, height);
-
   RenderPhase phase = new RenderPhase("main", chronosGL)
     ..viewPortW = width
     ..viewPortH = height;
-
-  Math.Random rng = new Math.Random(0);
-  List<Pole> srcPoles = [];
-  double p = 3.0;
-  srcPoles.add(new Pole(new VM.Vector3(2.0 * p, 0.0, 2.0 * p))..Update(1.0));
-  srcPoles.add(new Pole(new VM.Vector3(1.0 * p, 0.0, 2.0 * p))..Update(1.0));
-  srcPoles.add(new Pole(new VM.Vector3(0.0 * p, 0.0, 2.0 * p))..Update(1.0));
-  srcPoles.add(new Pole(new VM.Vector3(-1.0 * p, 0.0, 2.0 * p))..Update(1.0));
-  srcPoles.add(new Pole(new VM.Vector3(-2.0 * p, 0.0, 2.0 * p))..Update(1.0));
-
-  List<Pole> dstPoles = [];
-  dstPoles.add(new Pole(new VM.Vector3(2.0 * p, 0.0, -2.0 * p))..Update(1.0));
-  dstPoles.add(new Pole(new VM.Vector3(1.0 * p, 0.0, -2.0 * p))..Update(1.0));
-  dstPoles.add(new Pole(new VM.Vector3(0.0 * p, 0.0, -2.0 * p))..Update(1.0));
-  dstPoles.add(new Pole(new VM.Vector3(-1.0 * p, 0.0, -2.0 * p))..Update(1.0));
-  dstPoles.add(new Pole(new VM.Vector3(-2.0 * p, 0.0, -2.0 * p))..Update(1.0));
+  List<Pole> srcPoles =
+      MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, 2.0, 3.0);
+  List<Pole> dstPoles =
+      MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, -2.0, 3.0);
 
   VM.Vector3 outOfBounds = new VM.Vector3.all(kMaxDistance * 100.0);
   List<Ion> ions = [];
@@ -225,16 +223,14 @@ void main() {
     ..SetUniform(uPointSize, 200.0);
   GeometryBuilder gb = new GeometryBuilder(true);
   for (var i = 0; i < kIons; i++) {
-    gb.AddVertex(new VM.Vector3.all(0.0));
+    gb.AddVertex(new VM.Vector3.zero());
   }
   MeshData md = GeometryBuilderToMeshData("", chronosGL, gb);
   RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  Node node = new Node("ions", md, mat);
-  programSprites.add(node);
+  programSprites.add(new Node("ions", md, mat));
 
   RenderProgram pssp = phase.createProgram(createFireWorksShader());
-
   MeshData md2 = GeometryBuilderToMeshData("", chronosGL, gb);
   MeshData md1 = GeometryBuilderToMeshData("", chronosGL, gb);
 
@@ -246,12 +242,8 @@ void main() {
   pssp.add(node1);
 
   chronosGL.bindTransformFeedback(transform1);
-  programSprites.enabled = false;
-
-  // Prep for copyBufferSubData below
-  chronosGL.bindBuffer(GL_ARRAY_BUFFER, md1.GetBuffer(aVertexPosition));
-  chronosGL.bindBuffer(
-      GL_TRANSFORM_FEEDBACK_BUFFER, md2.GetBuffer(aVertexPosition));
+  programSprites.enabled = true;
+  pssp.enabled = false;
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
@@ -260,27 +252,30 @@ void main() {
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
 
-    /*
-    int n = 0;
-    for (Ion ion in ions) {
-      if (elapsed == 0.0) continue;
-      ion.Update(srcPoles, dstPoles, rng, elapsed / 1000.0);
-      vertices[n + 0] = ion.Pos().x;
-      vertices[n + 1] = ion.Pos().y;
-      vertices[n + 2] = ion.Pos().z;
-      n += 3;
+    if (programSprites.enabled && elapsed > 0.0) {
+      int n = 0;
+      for (Ion ion in ions) {
+        ion.Update(srcPoles, dstPoles, rng, elapsed / 1000.0);
+        vertices[n + 0] = ion.Pos().x;
+        vertices[n + 1] = ion.Pos().y;
+        vertices[n + 2] = ion.Pos().z;
+        n += 3;
+      }
+      md.ChangeVertices(vertices);
     }
-    md.ChangeVertices(vertices);
-    */
-
     orbit.animate(elapsed);
 
     phase.draw([perspective]);
 
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(timeMs);
-    chronosGL.copyBufferSubData(
-        GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0, kIons * 3);
+    if (pssp.enabled) {
+      chronosGL.bindBuffer(GL_ARRAY_BUFFER, md1.GetBuffer(aVertexPosition));
+      chronosGL.bindBuffer(
+          GL_TRANSFORM_FEEDBACK_BUFFER, md2.GetBuffer(aVertexPosition));
+      chronosGL.copyBufferSubData(
+          GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0, kIons * 3);
+    }
   }
 
   animate(0.0);
