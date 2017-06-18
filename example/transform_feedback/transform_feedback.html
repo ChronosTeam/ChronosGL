@@ -7,6 +7,27 @@
   </head>
   <body>
     <div id="stats"></div>
+     <div style="color: gray;">
+     Particles:
+     <select id="particles">
+         <option>10</option>
+         <option>100</option>
+         <option>1000</option>
+         <option selected value=10000>10k</option>
+         <option value=100000>100k</option>
+         <option value=1000000>1000k</option>
+     </select>
+
+     EasyingW:
+     <select id="easingWidth">
+         <option>Sine</option>
+         <option selected>Cosine</option>
+         <option>Quadratic</option>
+         <option>Cubic</option>
+         <option>Linear</option>
+     </select>
+ </div>
+
     <canvas id="webgl-canvas" style="cursor:crosshair"></canvas>
     <script type="application/dart" src="transform_feedback.dart"></script>
     <script src="packages/browser/dart.js"></script>
