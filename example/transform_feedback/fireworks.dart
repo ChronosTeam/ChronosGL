@@ -23,7 +23,7 @@ const float kMaxDistance = ${kMaxDistance};
 const float kMinDistance = ${kMinDistance};
   
 const float dt = 0.1666;
-const float speed = 2.0;  
+const float speed = 0.5;  
   
 const vec3 srcs[] = vec3[](vec3(6.0, 0.0, 6.0),
                            vec3(3.0, 0.0, 6.0),
@@ -41,7 +41,7 @@ float rand(vec2 seed){
 }      
 
 int irand(int n, vec2 seed) {
-    return 1;
+    return int(floor(rand(seed) * float(n)));
 }
 
 vec3 vec3rand(vec3 seed) {
@@ -217,33 +217,43 @@ void main() {
     Ion ion = new Ion(2.0, outOfBounds);
     ions.add(ion);
   }
-  Float32List vertices = new Float32List(3 * kIons);
+
+  Float32List particlePos = new Float32List(3 * kIons);
+  void RecomputeParticlePos(double t) {
+    int n = 0;
+    for (Ion ion in ions) {
+      ion.Update(srcPoles, dstPoles, rng, t);
+      particlePos[n + 0] = ion.Pos().x;
+      particlePos[n + 1] = ion.Pos().y;
+      particlePos[n + 2] = ion.Pos().z;
+      n += 3;
+    }
+  }
+
   Material mat = new Material.Transparent("stars", BlendEquationMix)
     ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
     ..SetUniform(uPointSize, 200.0);
   GeometryBuilder gb = new GeometryBuilder(true);
   for (var i = 0; i < kIons; i++) {
-    gb.AddVertex(new VM.Vector3.zero());
+    gb.AddVertex(RandomVector(rng, kMaxDistance * 100.0));
   }
   MeshData md = GeometryBuilderToMeshData("", chronosGL, gb);
-  RenderProgram programSprites =
-      phase.createProgram(createPointSpritesShader());
-  programSprites.add(new Node("ions", md, mat));
+  RenderProgram programJS = phase.createProgram(createPointSpritesShader());
+  programJS.add(new Node("ions1", md, mat));
 
-  RenderProgram pssp = phase.createProgram(createFireWorksShader());
+  RenderProgram programGPU = phase.createProgram(createFireWorksShader());
   MeshData md2 = GeometryBuilderToMeshData("", chronosGL, gb);
   MeshData md1 = GeometryBuilderToMeshData("", chronosGL, gb);
 
-  Node node1 = new Node("ions1", md1, mat);
-  var transform1 = chronosGL.createTransformFeedback();
-  chronosGL.bindTransformFeedback(transform1);
+  var transform = chronosGL.createTransformFeedback();
+  chronosGL.bindTransformFeedback(transform);
   chronosGL.bindBufferBase(
       GL_TRANSFORM_FEEDBACK_BUFFER, 0, md2.GetBuffer(aVertexPosition));
-  pssp.add(node1);
+  programGPU.add(new Node("ions2", md1, mat));
 
-  chronosGL.bindTransformFeedback(transform1);
-  programSprites.enabled = true;
-  pssp.enabled = false;
+  chronosGL.bindTransformFeedback(transform);
+  programJS.enabled = false;
+  programGPU.enabled = true;
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
@@ -252,16 +262,9 @@ void main() {
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
 
-    if (programSprites.enabled && elapsed > 0.0) {
-      int n = 0;
-      for (Ion ion in ions) {
-        ion.Update(srcPoles, dstPoles, rng, elapsed / 1000.0);
-        vertices[n + 0] = ion.Pos().x;
-        vertices[n + 1] = ion.Pos().y;
-        vertices[n + 2] = ion.Pos().z;
-        n += 3;
-      }
-      md.ChangeVertices(vertices);
+    if (programJS.enabled && elapsed > 0.0) {
+      RecomputeParticlePos(elapsed / 1000.0);
+      md.ChangeVertices(particlePos);
     }
     orbit.animate(elapsed);
 
@@ -269,7 +272,7 @@ void main() {
 
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(timeMs);
-    if (pssp.enabled) {
+    if (programGPU.enabled) {
       chronosGL.bindBuffer(GL_ARRAY_BUFFER, md1.GetBuffer(aVertexPosition));
       chronosGL.bindBuffer(
           GL_TRANSFORM_FEEDBACK_BUFFER, md2.GetBuffer(aVertexPosition));
