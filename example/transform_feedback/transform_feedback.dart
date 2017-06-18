@@ -15,6 +15,9 @@ const String uSinks = "uSinks";
 
 final HTML.SelectElement gParticles = HTML.document.querySelector('#particles');
 
+final HTML.InputElement gCpuCompute =
+    HTML.document.querySelector('#cpucompute');
+
 List<ShaderObject> createParticleShader() {
   return [
     new ShaderObject("ParticleV")
@@ -26,7 +29,7 @@ List<ShaderObject> createParticleShader() {
         """
 const float kMaxDistance = ${kMaxDistance};
 const float kMinDistance = ${kMinDistance};
-const float speed = 0.06;  
+const float dt = 0.06;  
     
 float rand(vec2 seed){
     return fract(sin(dot(seed, vec2(12.9898,78.233))) * 43758.5453);
@@ -64,7 +67,7 @@ vec3 Update(vec3 pos, vec3 seed) {
        }
        force += d / (l * l); 
     } 
-    return pos + normalize(force) * speed;
+    return pos + normalize(force) * dt;
 }
       
 void main() {        
@@ -108,9 +111,8 @@ class Pole {
 // Particle emitted from a Source Pole and heading towards a Sink Pole.
 class Ion {
   VM.Vector3 _pos;
-  double _speed;
 
-  Ion(this._speed, VM.Vector3 pos) {
+  Ion(VM.Vector3 pos) {
     _pos = pos.clone();
   }
 
@@ -127,7 +129,7 @@ class Ion {
       // stop if we are out of bounds
       if (len > kMaxDistance) {
         Pole p = srcs[rng.nextInt(srcs.length)];
-        _pos = p.Pos() + RandomVector(rng, 20.0 * dt);
+        _pos = p.Pos() + RandomVector(rng, 0.35);
         print("too far ${len}");
         return;
       }
@@ -141,7 +143,7 @@ class Ion {
       // stop if we would hit the pole in the next timestep
       if (len <= kMinDistance) {
         Pole p = srcs[rng.nextInt(srcs.length)];
-        _pos = p.Pos() + RandomVector(rng, 20.0 * dt);
+        _pos = p.Pos() + RandomVector(rng, 0.35);
         print("too close: ${len}");
         return;
       }
@@ -149,16 +151,17 @@ class Ion {
     }
 
     // the normalization sacrifices physics for aesthetics
-    _pos += force.normalized() * dt * _speed;
+    _pos += force.normalized() * dt;
   }
 
   @override
-  String toString() => "ION: ${DumpVec(_pos)} speed: ${_speed}";
+  String toString() => "ION: ${DumpVec(_pos)}";
 }
 
 VM.Vector3 RandomVector(Math.Random rng, double d) {
-  return new VM.Vector3((rng.nextDouble() - 0.5) * d,
-      (rng.nextDouble() - 0.5) * d, (rng.nextDouble() - 0.5) * d);
+  return new VM.Vector3((rng.nextDouble() - 0.5), (rng.nextDouble() - 0.5),
+      (rng.nextDouble() - 0.5))
+    ..scale(d);
 }
 
 List<Pole> MakeRowOfPoles(List<double> xx, double y, double z, double scale) {
@@ -182,6 +185,7 @@ Float32List ExtractPolePos(List<Pole> poles) {
 }
 
 void ExtractIonPos(List<Ion> ions, Float32List out) {
+  assert(ions.length * 3 == out.length);
   int n = 0;
   for (Ion ion in ions) {
     out[n + 0] = ion.Pos().x;
@@ -218,43 +222,24 @@ void main() {
     ..viewPortH = height;
   RenderProgram programJS = phase.createProgram(createPointSpritesShader());
   RenderProgram programGPU = phase.createProgram(createParticleShader());
-  programJS.enabled = true;
-  programGPU.enabled = !programJS.enabled;
+
 
   List<Pole> srcPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, 2.0, 3.0);
   List<Pole> dstPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, -2.0, 3.0);
 
-  int numIons = int.parse(gParticles.value);
-
-  List<Ion> ions = [];
-  for (int i = 0; i < numIons; i++) {
-    Ion ion = new Ion(2.0, RandomVector(rng, kMaxDistance * 100.0));
-    ions.add(ion);
-  }
-
-  Float32List ionsPos = new Float32List(3 * numIons);
+  List<Ion> ions = [new Ion(RandomVector(rng, kMaxDistance * 100.0))];
+  Float32List ionsPos = new Float32List(3 * ions.length);
   ExtractIonPos(ions, ionsPos);
-
-  void RecomputeIonsPos(double t) {
-    for (Ion ion in ions) {
-      ion.Update(srcPoles, dstPoles, rng, t);
-    }
-    ExtractIonPos(ions, ionsPos);
-  }
-
-  GeometryBuilder gb = new GeometryBuilder(true);
-  for (var i = 0; i < numIons; i++) {
-    gb.AddVertex(RandomVector(rng, kMaxDistance * 100.0));
-  }
 
   // JS version setup
   Material matJS = new Material.Transparent("stars", BlendEquationMix)
     ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
     ..SetUniform(uPointSize, 200.0);
-  MeshData md = GeometryBuilderToMeshData("", chronosGL, gb);
-  programJS.add(new Node("ions1", md, matJS));
+  MeshData mdJS = new MeshData("mdJS", chronosGL, GL_POINTS)
+    ..AddVertices(ionsPos);
+  programJS.add(new Node("ionsJS", mdJS, matJS));
 
   // GPU version setup
   Material matGPU = new Material.Transparent("stars", BlendEquationMix)
@@ -263,27 +248,54 @@ void main() {
     ..SetUniform(uSources, ExtractPolePos(srcPoles))
     ..SetUniform(uSinks, ExtractPolePos(dstPoles));
 
-  MeshData md2 = GeometryBuilderToMeshData("", chronosGL, gb);
-  MeshData md1 = GeometryBuilderToMeshData("", chronosGL, gb);
+  MeshData mdOut = new MeshData("ionsOut", chronosGL, GL_POINTS)
+    ..AddVertices(ionsPos);
+  MeshData mdIn = new MeshData("ionsIn", chronosGL, GL_POINTS)
+    ..AddVertices(ionsPos);
+  programGPU.add(new Node("ionsGPU", mdIn, matGPU));
+
+  void SelectRenderer(HTML.Event ev) {
+ programJS.enabled = gCpuCompute.checked;
+  programGPU.enabled = !programJS.enabled;
+ }
+
+  void ResizeIons(HTML.Event ev) {
+    int n = int.parse(gParticles.value);
+    print("resize to $n ions");
+    ions.clear();
+    for (int i = 0; i < n; i++) {
+      Ion ion = new Ion(RandomVector(rng, kMaxDistance * 100.0));
+      ions.add(ion);
+    }
+    ionsPos = new Float32List(3 * n);
+    ExtractIonPos(ions, ionsPos);
+    chronosGL.bindBuffer(GL_ARRAY_BUFFER, null);
+    chronosGL.bindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, null);
+    mdOut.ChangeVertices(ionsPos);
+    mdIn.ChangeVertices(ionsPos);
+    chronosGL.bindBufferBase(
+        GL_TRANSFORM_FEEDBACK_BUFFER, 0, mdOut.GetBuffer(aVertexPosition));
+  }
+
+  void UpdateIonsJS(double t) {
+    for (Ion ion in ions) {
+      ion.Update(srcPoles, dstPoles, rng, t);
+    }
+    ExtractIonPos(ions, ionsPos);
+    mdJS.ChangeVertices(ionsPos);
+  }
 
   var transform = chronosGL.createTransformFeedback();
   chronosGL.bindTransformFeedback(transform);
-  chronosGL.bindBufferBase(
-      GL_TRANSFORM_FEEDBACK_BUFFER, 0, md2.GetBuffer(aVertexPosition));
-  programGPU.add(new Node("ions2", md1, matGPU));
-  chronosGL.bindTransformFeedback(transform);
 
-  double _lastTimeMs = 0.0;
+  ResizeIons(null);
+  SelectRenderer(null);
+
   void animate(timeMs) {
-    double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
+    orbit.animate(0.0); // argument is not used
 
-    if (programJS.enabled && elapsed > 0.0) {
-      RecomputeIonsPos(elapsed / 1000.0);
-      md.ChangeVertices(ionsPos);
-    }
-    orbit.animate(elapsed);
+    if (programJS.enabled) UpdateIonsJS(0.06);
 
     phase.draw([perspective]);
 
@@ -292,13 +304,15 @@ void main() {
 
     // use vertex shader output as input for next round
     if (programGPU.enabled) {
-      chronosGL.bindBuffer(GL_ARRAY_BUFFER, md1.GetBuffer(aVertexPosition));
+      chronosGL.bindBuffer(GL_ARRAY_BUFFER, mdIn.GetBuffer(aVertexPosition));
       chronosGL.bindBuffer(
-          GL_TRANSFORM_FEEDBACK_BUFFER, md2.GetBuffer(aVertexPosition));
+          GL_TRANSFORM_FEEDBACK_BUFFER, mdOut.GetBuffer(aVertexPosition));
       chronosGL.copyBufferSubData(
-          GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0, numIons * 3);
+          GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0, ions.length * 3);
     }
   }
 
+  gParticles.onChange.listen(ResizeIons);
+  gCpuCompute.onChange.listen(SelectRenderer);
   animate(0.0);
 }
