@@ -163,16 +163,28 @@ class ShaderProgram extends RenderProgram {
         }
         break;
       case VarTypeVec4:
-        assert(val.storage.length == 4);
-        _cgl.uniform4fv(l, val.storage);
+        if (desc.arraySize == 0) {
+          assert(val.storage.length == 4);
+          _cgl.uniform4fv(l, val.storage);
+        } else {
+          _cgl.uniform4fv(l, val);
+        }
         break;
       case VarTypeVec3:
-        assert(val.storage.length == 3);
-        _cgl.uniform3fv(l, val.storage);
+        if (desc.arraySize == 0) {
+          assert(val.storage.length == 3);
+          _cgl.uniform3fv(l, val.storage);
+        } else {
+          _cgl.uniform3fv(l, val);
+        }
         break;
       case VarTypeVec2:
-        assert(val.storage.length == 2);
-        _cgl.uniform2fv(l, val.storage);
+        if (desc.arraySize == 0) {
+          assert(val.storage.length == 2);
+          _cgl.uniform2fv(l, val.storage);
+        } else {
+          _cgl.uniform2fv(l, val);
+        }
         break;
       case VarTypeSampler2D:
       case VarTypeSampler2DShadow:

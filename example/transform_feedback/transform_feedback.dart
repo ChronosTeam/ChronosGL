@@ -9,33 +9,24 @@ const double kMaxDistance = 100.1;
 const double kMinDistance = 0.2;
 const int kIons = 50000;
 
+final VM.Vector3 kVecOutOfBounds = new VM.Vector3.all(kMaxDistance * 100.0);
+
+const String uSources = "uSources";
+const String uSinks = "uSinks";
+
 List<ShaderObject> createFireWorksShader() {
   return [
     new ShaderObject("FireWorksV")
       ..AddAttributeVars([aVertexPosition])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uPointSize])
+      ..AddUniformVars(
+          [uPerspectiveViewMatrix, uModelMatrix, uPointSize, uSources, uSinks])
       ..AddTransformVars([tPosition])
       ..SetBody([
         """
-      
 const float kMaxDistance = ${kMaxDistance};
-  
 const float kMinDistance = ${kMinDistance};
-  
-const float dt = 0.015;
-const float speed = 4.0;  
-  
-const vec3 srcs[] = vec3[](vec3(6.0, 0.0, 6.0),
-                           vec3(3.0, 0.0, 6.0),
-                           vec3(0.0, 0.0, 6.0),
-                           vec3(-3.0, 0.0, 6.0),
-                           vec3(-6.0, 0.0, 6.0));
-                           
-const vec3 dsts[] = vec3[](vec3(6.0, 0.0, -6.0),
-                           vec3(3.0, 0.0, -6.0),
-                           vec3(0.0, 0.0, -6.0),
-                           vec3(-3.0, 0.0, -6.0),
-                           vec3(-6.0, 0.0, -6.0));   
+const float speed = 0.06;  
+    
 float rand(vec2 seed){
     return fract(sin(dot(seed, vec2(12.9898,78.233))) * 43758.5453);
 }      
@@ -48,51 +39,58 @@ vec3 vec3rand(vec3 seed) {
     return vec3(rand(seed.yz) - 0.5, rand(seed.xz) - 0.5, rand(seed.xy) - 0.5);
 }
 
+vec3 RandomSource(vec3 seed) {
+    return ${uSources}[irand(${uSources}.length(), seed.xy * seed.z)];
+}
+
 vec3 Update(vec3 pos, vec3 seed) {
     vec3 force = vec3(0.0, 0.0, 0.0);
-    for (int i = 0; i < srcs.length(); ++i) {
-       vec3 d = pos - srcs[i];
+    for (int i = 0; i < ${uSources}.length(); ++i) {
+       vec3 d = pos - ${uSources}[i];
        float l = length(d);
        if (l <= kMinDistance) continue;
        if (l >= kMaxDistance) {
-           return srcs[irand(srcs.length(), seed.xy)] +
-                       vec3rand(seed) * 20.0 * dt;
+           return RandomSource(seed) + vec3rand(seed) * 0.35;
        }
        force += d / (l * l); 
     } 
     
-    for (int i = 0; i < dsts.length(); ++i) {
-       vec3 d = dsts[i] - pos;
+    for (int i = 0; i < ${uSinks}.length(); ++i) {
+       vec3 d = ${uSinks}[i] - pos;
        float l = length(d);
        if (l <= kMinDistance) {
-           int index = irand(srcs.length(), seed.xy * seed.z);
-           return srcs[index] + vec3rand(seed) * 20.0 * dt;
+          return RandomSource(seed) + vec3rand(seed) * 0.35;
        }
        force += d / (l * l); 
     } 
-    return pos + normalize(force) * dt * speed;
+    return pos + normalize(force) * speed;
 }
       
 void main() {        
     gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * 
                   vec4(${aVertexPosition}, 1.0);
-
     gl_PointSize = ${uPointSize}/gl_Position.z;
+    
+    // new position for next round
     ${tPosition} = Update(${aVertexPosition}, gl_Position.xyz);
 }
 """
       ]),
     new ShaderObject("FireWorksF")
       ..AddUniformVars([uTexture])
-      ..SetBodyWithMain(
-          ["${oFragColor} = texture( ${uTexture},  gl_PointCoord);"])
+      ..SetBody([
+        """
+void main() {
+      ${oFragColor} = texture( ${uTexture},  gl_PointCoord);
+}
+"""
+      ])
   ];
 }
 
 String DumpVec(VM.Vector3 v) => "${v.x} ${v.y} ${v.z}";
 
-// Source or Sink for Ions.
-// Can move themselves - currently not used.
+// Source or Sink for Ions. Can move themselves - currently not used.
 class Pole {
   VM.Vector3 _pos = new VM.Vector3.zero();
 
@@ -116,9 +114,6 @@ class Ion {
   }
 
   VM.Vector3 Pos() => _pos;
-
-  @override
-  String toString() => "ION: ${DumpVec(_pos)} speed: ${_speed}";
 
   // Update position based on distance Source/Sink Poles
   void Update(List<Pole> srcs, List<Pole> dsts, Math.Random rng, double dt) {
@@ -155,6 +150,9 @@ class Ion {
     // the normalization sacrifices physics for aesthetics
     _pos += force.normalized() * dt * _speed;
   }
+
+  @override
+  String toString() => "ION: ${DumpVec(_pos)} speed: ${_speed}";
 }
 
 VM.Vector3 RandomVector(Math.Random rng, double d) {
@@ -170,7 +168,24 @@ List<Pole> MakeRowOfPoles(List<double> xx, double y, double z, double scale) {
   return out;
 }
 
+Float32List ExtractPolePos(List<Pole> poles) {
+  Float32List out = new Float32List(3 * poles.length);
+  int n = 0;
+  for (Pole p in poles) {
+    out[n + 0] = p.Pos().x;
+    out[n + 1] = p.Pos().y;
+    out[n + 2] = p.Pos().z;
+    n += 3;
+  }
+  return out;
+}
+
 void main() {
+  IntroduceNewShaderVar(
+      uSources, new ShaderVarDesc(VarTypeVec3, "", arraySize: 5));
+  IntroduceNewShaderVar(
+      uSinks, new ShaderVarDesc(VarTypeVec3, "", arraySize: 5));
+
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
@@ -186,18 +201,23 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(15.0, 0.5, 0.5, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
     ..AdjustAspect(width, height);
+
   RenderPhase phase = new RenderPhase("main", chronosGL)
     ..viewPortW = width
     ..viewPortH = height;
+  RenderProgram programJS = phase.createProgram(createPointSpritesShader());
+  RenderProgram programGPU = phase.createProgram(createFireWorksShader());
+  programJS.enabled = false;
+  programGPU.enabled = !programJS.enabled;
+
   List<Pole> srcPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, 2.0, 3.0);
   List<Pole> dstPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, -2.0, 3.0);
 
-  VM.Vector3 outOfBounds = new VM.Vector3.all(kMaxDistance * 100.0);
   List<Ion> ions = [];
   for (int i = 0; i < kIons; i++) {
-    Ion ion = new Ion(2.0, outOfBounds);
+    Ion ion = new Ion(2.0, kVecOutOfBounds);
     ions.add(ion);
   }
 
@@ -213,18 +233,25 @@ void main() {
     }
   }
 
-  Material mat = new Material.Transparent("stars", BlendEquationMix)
-    ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
-    ..SetUniform(uPointSize, 200.0);
   GeometryBuilder gb = new GeometryBuilder(true);
   for (var i = 0; i < kIons; i++) {
     gb.AddVertex(RandomVector(rng, kMaxDistance * 100.0));
   }
-  MeshData md = GeometryBuilderToMeshData("", chronosGL, gb);
-  RenderProgram programJS = phase.createProgram(createPointSpritesShader());
-  programJS.add(new Node("ions1", md, mat));
 
-  RenderProgram programGPU = phase.createProgram(createFireWorksShader());
+  // JS version setup
+  Material matJS = new Material.Transparent("stars", BlendEquationMix)
+    ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
+    ..SetUniform(uPointSize, 200.0);
+  MeshData md = GeometryBuilderToMeshData("", chronosGL, gb);
+  programJS.add(new Node("ions1", md, matJS));
+
+  // GPU version setup
+  Material matGPU = new Material.Transparent("stars", BlendEquationMix)
+    ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
+    ..SetUniform(uPointSize, 200.0)
+    ..SetUniform(uSources, ExtractPolePos(srcPoles))
+    ..SetUniform(uSinks, ExtractPolePos(dstPoles));
+
   MeshData md2 = GeometryBuilderToMeshData("", chronosGL, gb);
   MeshData md1 = GeometryBuilderToMeshData("", chronosGL, gb);
 
@@ -232,11 +259,8 @@ void main() {
   chronosGL.bindTransformFeedback(transform);
   chronosGL.bindBufferBase(
       GL_TRANSFORM_FEEDBACK_BUFFER, 0, md2.GetBuffer(aVertexPosition));
-  programGPU.add(new Node("ions2", md1, mat));
+  programGPU.add(new Node("ions2", md1, matGPU));
   chronosGL.bindTransformFeedback(transform);
-
-  programJS.enabled = false;
-  programGPU.enabled = !programJS.enabled;
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
@@ -254,6 +278,8 @@ void main() {
 
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(timeMs);
+
+    // use vertex shader output as input for next round
     if (programGPU.enabled) {
       chronosGL.bindBuffer(GL_ARRAY_BUFFER, md1.GetBuffer(aVertexPosition));
       chronosGL.bindBuffer(
