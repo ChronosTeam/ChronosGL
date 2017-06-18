@@ -7,7 +7,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 const double kMaxDistance = 100.1;
 const double kMinDistance = 0.2;
-const int kIons = 10000;
+const int kIons = 50000;
 
 List<ShaderObject> createFireWorksShader() {
   return [
@@ -22,8 +22,8 @@ const float kMaxDistance = ${kMaxDistance};
   
 const float kMinDistance = ${kMinDistance};
   
-const float dt = 0.1666;
-const float speed = 0.5;  
+const float dt = 0.015;
+const float speed = 4.0;  
   
 const vec3 srcs[] = vec3[](vec3(6.0, 0.0, 6.0),
                            vec3(3.0, 0.0, 6.0),
@@ -37,7 +37,7 @@ const vec3 dsts[] = vec3[](vec3(6.0, 0.0, -6.0),
                            vec3(-3.0, 0.0, -6.0),
                            vec3(-6.0, 0.0, -6.0));   
 float rand(vec2 seed){
-    return fract(sin(dot(seed ,vec2(12.9898,78.233))) * 43758.5453);
+    return fract(sin(dot(seed, vec2(12.9898,78.233))) * 43758.5453);
 }      
 
 int irand(int n, vec2 seed) {
@@ -45,7 +45,7 @@ int irand(int n, vec2 seed) {
 }
 
 vec3 vec3rand(vec3 seed) {
-    return vec3(rand(seed.yz), rand(seed.xz), rand(seed.xy));
+    return vec3(rand(seed.yz) - 0.5, rand(seed.xz) - 0.5, rand(seed.xy) - 0.5);
 }
 
 vec3 Update(vec3 pos, vec3 seed) {
@@ -65,8 +65,8 @@ vec3 Update(vec3 pos, vec3 seed) {
        vec3 d = dsts[i] - pos;
        float l = length(d);
        if (l <= kMinDistance) {
-           return srcs[irand(srcs.length(), seed.xy)] +
-                       vec3rand(seed) * 20.0 * dt;
+           int index = irand(srcs.length(), seed.xy * seed.z);
+           return srcs[index] + vec3rand(seed) * 20.0 * dt;
        }
        force += d / (l * l); 
     } 
@@ -89,38 +89,21 @@ void main() {
   ];
 }
 
-String DumpVec(VM.Vector3 v) {
-  return "${v.x} ${v.y} ${v.z}";
-}
+String DumpVec(VM.Vector3 v) => "${v.x} ${v.y} ${v.z}";
 
 // Source or Sink for Ions.
 // Can move themselves - currently not used.
 class Pole {
   VM.Vector3 _pos = new VM.Vector3.zero();
-  VM.Vector3 _src = new VM.Vector3.zero();
-  VM.Vector3 _dst = new VM.Vector3.zero();
-  double _t = 0.0;
 
-  Pole(VM.Vector3 dst) {
-    setNewTarget(dst);
-  }
-
-  void setNewTarget(VM.Vector3 dst) {
-    _dst.xyz = dst.xyz;
-    _src.xyz = _pos.xyz;
-    Update(0.0);
-  }
-
-  void Update(double t) {
-    _t = t;
-    VM.Vector3.mix(_src, _dst, t, _pos);
+  Pole(VM.Vector3 pos) {
+    _pos = pos.clone();
   }
 
   VM.Vector3 Pos() => _pos;
 
   @override
-  String toString() =>
-      "POLE: ${DumpVec(_pos)} time ${_t} [${DumpVec(_src)}] => [${DumpVec(_dst)}]";
+  String toString() => "POLE: ${DumpVec(_pos)}";
 }
 
 // Particle emitted from a Source Pole and heading towards a Sink Pole.
@@ -182,7 +165,7 @@ VM.Vector3 RandomVector(Math.Random rng, double d) {
 List<Pole> MakeRowOfPoles(List<double> xx, double y, double z, double scale) {
   List<Pole> out = [];
   for (double x in xx) {
-    out.add(new Pole(new VM.Vector3(x, y, z) * scale)..Update(1.0));
+    out.add(new Pole(new VM.Vector3(x, y, z) * scale));
   }
   return out;
 }
@@ -218,14 +201,14 @@ void main() {
     ions.add(ion);
   }
 
-  Float32List particlePos = new Float32List(3 * kIons);
-  void RecomputeParticlePos(double t) {
+  Float32List ionsPos = new Float32List(3 * kIons);
+  void RecomputeIonsPos(double t) {
     int n = 0;
     for (Ion ion in ions) {
       ion.Update(srcPoles, dstPoles, rng, t);
-      particlePos[n + 0] = ion.Pos().x;
-      particlePos[n + 1] = ion.Pos().y;
-      particlePos[n + 2] = ion.Pos().z;
+      ionsPos[n + 0] = ion.Pos().x;
+      ionsPos[n + 1] = ion.Pos().y;
+      ionsPos[n + 2] = ion.Pos().z;
       n += 3;
     }
   }
@@ -250,21 +233,20 @@ void main() {
   chronosGL.bindBufferBase(
       GL_TRANSFORM_FEEDBACK_BUFFER, 0, md2.GetBuffer(aVertexPosition));
   programGPU.add(new Node("ions2", md1, mat));
-
   chronosGL.bindTransformFeedback(transform);
+
   programJS.enabled = false;
-  programGPU.enabled = true;
+  programGPU.enabled = !programJS.enabled;
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
 
     if (programJS.enabled && elapsed > 0.0) {
-      RecomputeParticlePos(elapsed / 1000.0);
-      md.ChangeVertices(particlePos);
+      RecomputeIonsPos(elapsed / 1000.0);
+      md.ChangeVertices(ionsPos);
     }
     orbit.animate(elapsed);
 
