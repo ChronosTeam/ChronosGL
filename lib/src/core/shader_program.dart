@@ -78,11 +78,14 @@ class RenderProgram extends RenderInputSink {
     return true;
   }
 
-  bool HasDownCompatibleAttributesTo(RenderProgram other) {
+  bool HasDownwardCompatibleAttributesTo(RenderProgram other) {
     var a = _shaderObjectV.GetLayoutMap();
     var b = other._shaderObjectV.GetLayoutMap();
     for (String key in a.keys) {
-      if (a[key] != b[key]) return false;
+      if (a[key] != b[key]) {
+        print("@@ ${key} ${a[key]} ${b[key]} ");
+        return false;
+      }
     }
     return true;
   }

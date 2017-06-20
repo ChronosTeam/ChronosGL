@@ -304,7 +304,6 @@ ShaderVarDesc RetrieveShaderVarDesc(String canonical) {
   return _VarsDb[canonical];
 }
 
-
 // ShaderObject describes a shader (either fragment or vertex) and its
 // interface to the world on a syntactical (uncompiled) level.
 // Protocol:
@@ -323,6 +322,10 @@ class ShaderObject {
 
   ShaderObject(this.name);
 
+  int GetLayoutPos(String canonical) => _canonicalToLayoutPos[canonical];
+
+  Map<String, int> GetLayoutMap() => _canonicalToLayoutPos;
+
   void AddAttributeVars(List<String> names) {
     assert(shader == null);
 
@@ -330,6 +333,8 @@ class ShaderObject {
       assert(_VarsDb.containsKey(n));
       assert(!attributeVars.contains(n));
       attributeVars.add(n);
+      _canonicalToLayoutPos[n] = _nextLayoutPos;
+      ++_nextLayoutPos;
     }
     attributeVars.sort();
   }
@@ -430,16 +435,4 @@ class ShaderObject {
 
     return out.join("\n");
   }
-
-  int GetLayoutPos(String canonical) {
-    int pos = _canonicalToLayoutPos[canonical];
-    if (pos == null) {
-      pos = _nextLayoutPos;
-      ++_nextLayoutPos;
-      _canonicalToLayoutPos[canonical] = pos;
-    }
-    return pos;
-  }
-
-   Map<String, int> GetLayoutMap() => _canonicalToLayoutPos;
 }

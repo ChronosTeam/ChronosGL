@@ -102,8 +102,6 @@ class MeshData extends NamedEntity {
 
   int get elementArrayBufferType => _indexBufferType;
 
-  dynamic get elementArrayBuffer => _indexBuffer;
-
   int GetNumItems() {
     if (_faces != null) {
       return _faces.length;

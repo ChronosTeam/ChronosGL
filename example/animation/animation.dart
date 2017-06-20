@@ -86,7 +86,7 @@ void main() {
   final RenderProgram prgSimple = phase.createProgram(createDemoShader());
   final RenderProgram prgBone = phase.createProgram(createSolidColorShader());
 
-  prgSimple.HasDownCompatibleAttributesTo(prgAnim);
+  assert(prgSimple.HasDownwardCompatibleAttributesTo(prgAnim));
 
   final Material matWire = new Material("wire")
     ..SetUniform(uColor, ColorYellow);

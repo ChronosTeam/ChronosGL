@@ -196,7 +196,7 @@ void main() {
         ..SetInput(uCanvasSize, shadowMap.GetMapSize())
         ..SetInput(uShadowBias, 0.03);
   RenderProgram fixed = phaseMain.createProgram(createSolidColorShader());
-  fixed.HasDownCompatibleAttributesTo(basic);
+  assert(fixed.HasDownwardCompatibleAttributesTo(basic));
 
   for (Node n in MakeScene(basic)) {
     basic.add(n);

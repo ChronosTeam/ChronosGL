@@ -86,6 +86,8 @@ void main() {
   RenderProgram prgSimple = phase.createProgram(createDemoShader());
   RenderProgram prgAnim = phase.createProgram(createAnimationShader());
 
+  assert(prgSimple.HasDownwardCompatibleAttributesTo(prgAnim));
+
   final RenderProgram prgBone = phase.createProgram(createSolidColorShader());
   final Material matWire = new Material("wire")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
@@ -160,7 +162,7 @@ void main() {
     SkeletalAnimation anim = ImportAnimationFromThreeJsJson(list[0], skeleton);
     // skin mesh
     {
-      MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb[0]);
+      MeshData md = GeometryBuilderToMeshData(meshFile, prgAnim, gb[0]);
       Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
@@ -187,7 +189,7 @@ void main() {
     }
     // bone wire mesh
     {
-      boneVisualizer = new BoneVisualizer(chronosGL, matWire, skeleton, anim);
+      boneVisualizer = new BoneVisualizer(prgBone, matWire, skeleton, anim);
       Node mesh = boneVisualizer.mesh..rotX(3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
