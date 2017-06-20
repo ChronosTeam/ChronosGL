@@ -95,7 +95,7 @@ class MeshData extends RenderInputSource {
   }
 
   bool SupportsAttribute(String canonical) {
-    return _locationMap != null && _locationMap.containsKey(canonical);
+    return _locationMap.containsKey(canonical);
   }
 
   int GetNumItems() {
@@ -116,32 +116,29 @@ class MeshData extends RenderInputSource {
   void AddAttribute(String canonical, List data, int width) {
     _buffers[canonical] = _cgl.createBuffer();
     ChangeAttribute(canonical, data, width);
-    if (_locationMap != null) {
-      _cgl.bindVertexArray(_vao);
-      ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
-      if (desc == null) throw "Unknown canonical ${canonical}";
-      assert(_locationMap.containsKey(canonical), "unexpected attribute ${canonical}");
-      int index = _locationMap[canonical];
-      _cgl.enableVertexAttribArray(index, 0);
-      _cgl.vertexAttribPointer(
-          _buffers[canonical], index, desc.GetSize(), GL_FLOAT, false, 0, 0);
-    }
+    _cgl.bindVertexArray(_vao);
+    ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
+    if (desc == null) throw "Unknown canonical ${canonical}";
+    assert(_locationMap.containsKey(canonical),
+        "unexpected attribute ${canonical}");
+    int index = _locationMap[canonical];
+    _cgl.enableVertexAttribArray(index, 0);
+    _cgl.vertexAttribPointer(
+        _buffers[canonical], index, desc.GetSize(), GL_FLOAT, false, 0, 0);
   }
 
   void AddVertices(Float32List data) {
     final String canonical = aVertexPosition;
     _buffers[canonical] = _cgl.createBuffer();
     ChangeVertices(data);
-    if (_locationMap != null) {
-      _cgl.bindVertexArray(_vao);
-      ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
-      if (desc == null) throw "Unknown canonical ${canonical}";
-      assert(_locationMap.containsKey(canonical));
-      int index = _locationMap[canonical];
-      _cgl.enableVertexAttribArray(index, 0);
-      _cgl.vertexAttribPointer(
-          _buffers[canonical], index, desc.GetSize(), GL_FLOAT, false, 0, 0);
-    }
+    _cgl.bindVertexArray(_vao);
+    ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
+    if (desc == null) throw "Unknown canonical ${canonical}";
+    assert(_locationMap.containsKey(canonical));
+    int index = _locationMap[canonical];
+    _cgl.enableVertexAttribArray(index, 0);
+    _cgl.vertexAttribPointer(
+        _buffers[canonical], index, desc.GetSize(), GL_FLOAT, false, 0, 0);
   }
 
   void ChangeFaces(List<int> faces) {
@@ -157,9 +154,7 @@ class MeshData extends RenderInputSource {
       _indexBufferType = GL_UNSIGNED_INT;
     }
 
-    if (_locationMap != null) {
-      _cgl.bindVertexArray(_vao);
-    }
+    _cgl.bindVertexArray(_vao);
     _cgl.ChangeElementArrayBuffer(_indexBuffer, _faces as TypedData);
   }
 
@@ -170,9 +165,8 @@ class MeshData extends RenderInputSource {
 
   @override
   void AddToSink(RenderInputSink program) {
-    if (_locationMap != null) {
-      _cgl.bindVertexArray(_vao);
-    }
+    _cgl.bindVertexArray(_vao);
+
     for (String canonical in _buffers.keys) {
       program.SetInput(canonical, _buffers[canonical], this);
     }
@@ -197,9 +191,7 @@ class MeshData extends RenderInputSource {
     }
     program.Remove(cDrawMode);
     program.Remove(cNumItems);
-     if (_locationMap != null) {
-      _cgl.bindVertexArray(null);
-    }
+    _cgl.bindVertexArray(null);
   }
 
   Iterable<String> GetAttributes() {
@@ -220,9 +212,13 @@ class MeshData extends RenderInputSource {
 
 void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
   for (String canonical in gb.attributes.keys) {
+    if (!md.SupportsAttribute(canonical)) {
+      print("Dropping unnecessary attribute: ${canonical}");
+      continue;
+    }
     dynamic lst = gb.attributes[canonical];
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
-    if (!md.SupportsAttribute(canonical)) continue;
+
     //print("${md.name} ${canonical} ${lst}");
     switch (desc.type) {
       case VarTypeVec2:
@@ -281,7 +277,8 @@ MeshData _ExtractWireframeNormals(
   return out;
 }
 
-MeshData GeometryBuilderToWireframeNormals(ShaderProgram prog, GeometryBuilder gb,
+MeshData GeometryBuilderToWireframeNormals(
+    ShaderProgram prog, GeometryBuilder gb,
     [scale = 1.0]) {
   MeshData out = prog.MakeMeshData("norm", GL_LINES);
   return _ExtractWireframeNormals(out, FlattenVector3List(gb.vertices),
@@ -308,7 +305,8 @@ MeshData LineEndPointsToMeshData(
   return md;
 }
 
-MeshData ExtractWireframeNormals(ShaderProgram prog, MeshData md, [scale = 1.0]) {
+MeshData ExtractWireframeNormals(ShaderProgram prog, MeshData md,
+    [scale = 1.0]) {
   assert(md._drawMode == GL_TRIANGLES);
   MeshData out = prog.MakeMeshData(md.name, GL_LINES);
   final Float32List vertices = md.GetAttribute(aVertexPosition);
