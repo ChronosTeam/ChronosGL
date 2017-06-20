@@ -52,7 +52,7 @@ void main() {
   phase.viewPortW = w;
   phase.viewPortH = h;
   // Create the first shader programs and add it to the phase.
-  ShaderProgram basic = phase.createProgram(demoShader());
+  RenderProgram basic = phase.createProgram(demoShader());
 
   // Make a torus and add it to the first program,
   Material mat = new Material("torus-mat");
@@ -62,7 +62,7 @@ void main() {
 
   // Create the second program and the point sprites. The details are
   // hidden in the library functions.
-  ShaderProgram sprites = phase.createProgram(createPointSpritesShader());
+  RenderProgram sprites = phase.createProgram(createPointSpritesShader());
   sprites.add(Utils.MakeParticles(sprites, 2000));
 
   // Main loop body

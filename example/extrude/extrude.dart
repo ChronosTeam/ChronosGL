@@ -30,7 +30,7 @@ void main() {
   List<VM.Vector2> base = ContourCircle(20, 10.0);
   List<VM.Vector2> grad = GetContourGradient(base);
 
-  MeshData MakeBevelMesh(ShaderProgram prog) {
+  MeshData MakeBevelMesh(RenderProgram prog) {
     double width = gWidth.valueAsNumber + 0.0;
     double height = gHeight.valueAsNumber + 0.0;
     Easing easingWidth = MapStringToEasing[gEasingWidth.value];

@@ -45,7 +45,7 @@ void main() {
 
   Material mat = new Material("mat");
   // Sky Sphere
-  ShaderProgram skyprg = phase
+  RenderProgram skyprg = phase
       .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
   MeshData md = ShapeIcosahedron(skyprg, 3);
   //..multiplyVertices(100);

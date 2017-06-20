@@ -244,7 +244,7 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
 }
 
 MeshData GeometryBuilderToMeshData(
-    String name, ShaderProgram prog, GeometryBuilder gb) {
+    String name, RenderProgram prog, GeometryBuilder gb) {
   MeshData md =
       prog.MakeMeshData(name, gb.pointsOnly ? GL_POINTS : GL_TRIANGLES);
   md.AddVertices(FlattenVector3List(gb.vertices));
@@ -278,7 +278,7 @@ MeshData _ExtractWireframeNormals(
 }
 
 MeshData GeometryBuilderToWireframeNormals(
-    ShaderProgram prog, GeometryBuilder gb,
+    RenderProgram prog, GeometryBuilder gb,
     [scale = 1.0]) {
   MeshData out = prog.MakeMeshData("norm", GL_LINES);
   return _ExtractWireframeNormals(out, FlattenVector3List(gb.vertices),
@@ -287,7 +287,7 @@ MeshData GeometryBuilderToWireframeNormals(
 
 //Extract Wireframe MeshData
 MeshData GeometryBuilderToMeshDataWireframe(
-    String name, ShaderProgram prog, GeometryBuilder gb) {
+    String name, RenderProgram prog, GeometryBuilder gb) {
   MeshData md = prog.MakeMeshData(name, GL_LINES);
   md.AddVertices(FlattenVector3List(gb.vertices));
   md.AddFaces(gb.GenerateLineIndices());
@@ -296,7 +296,7 @@ MeshData GeometryBuilderToMeshDataWireframe(
 }
 
 MeshData LineEndPointsToMeshData(
-    String name, ShaderProgram prog, List<VM.Vector3> points) {
+    String name, RenderProgram prog, List<VM.Vector3> points) {
   MeshData md = prog.MakeMeshData(name, GL_LINES);
   md.AddVertices(FlattenVector3List(points));
   List<int> faces = new List<int>(points.length);
@@ -305,7 +305,7 @@ MeshData LineEndPointsToMeshData(
   return md;
 }
 
-MeshData ExtractWireframeNormals(ShaderProgram prog, MeshData md,
+MeshData ExtractWireframeNormals(RenderProgram prog, MeshData md,
     [scale = 1.0]) {
   assert(md._drawMode == GL_TRIANGLES);
   MeshData out = prog.MakeMeshData(md.name, GL_LINES);
@@ -314,7 +314,7 @@ MeshData ExtractWireframeNormals(ShaderProgram prog, MeshData md,
   return _ExtractWireframeNormals(out, vertices, normals, scale);
 }
 
-MeshData ExtractWireframe(ShaderProgram prog, MeshData md) {
+MeshData ExtractWireframe(RenderProgram prog, MeshData md) {
   assert(md._drawMode == GL_TRIANGLES);
   MeshData out = prog.MakeMeshData(md.name, GL_LINES);
   out.AddVertices(md._vertices);

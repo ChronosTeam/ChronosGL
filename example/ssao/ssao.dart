@@ -29,7 +29,7 @@ void main() {
   phase1.viewPortW = width;
   phase1.viewPortH = height;
 
-  ShaderProgram prg1 = phase1.createProgram(createSolidColorShader());
+  RenderProgram prg1 = phase1.createProgram(createSolidColorShader());
 
   RenderPhase phase2 = new RenderPhase("phase2", chronosGL, null);
   phase2.viewPortW = width;

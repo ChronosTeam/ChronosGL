@@ -42,7 +42,7 @@ List<ShaderObject> createFireWorksShader() {
 
 Math.Random rand = new Math.Random();
 
-Node getRocket(ShaderProgram prog, Texture tw) {
+Node getRocket(RenderProgram prog, Texture tw) {
   int numPoints = 200;
 
   List<VM.Vector3> vertices = [];
@@ -70,11 +70,11 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
 
-  ShaderProgram programSprites =
+  RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(programSprites, 2000));
 
-  ShaderProgram pssp = phase.createProgram(createFireWorksShader());
+  RenderProgram pssp = phase.createProgram(createFireWorksShader());
   pssp.add(getRocket(
       pssp, Utils.createParticleTexture(chronosGL, "fireworks")));
 

@@ -1,8 +1,23 @@
 part of core;
 
-/// ## Class ShaderProgram (is a RenderProgram)
-/// represents invocations of an actual GPU program.
-class ShaderProgram extends RenderProgram {
+class DrawStats {
+  String name;
+  int numInstances;
+  int numItems;
+  int drawMode;
+
+  DrawStats(this.name, this.numInstances, this.numItems, this.drawMode);
+
+  @override
+  String toString() => "[${name}] ${numInstances} ${numItems} ${drawMode}";
+}
+
+/// ## Class RenderProgram (is a RenderInputSink)
+/// represents several invocations of the same program running on the GPU.
+/// It consists of a tree of **Nodes** which provide **Inputs** for the
+/// program. The program is invoked once for most **Nodes** while traversing
+/// the tree recursively.
+class RenderProgram extends RenderInputSink {
   ChronosGL _cgl;
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
@@ -20,7 +35,11 @@ class ShaderProgram extends RenderProgram {
   int _elementArrayBufferType;
   var _elementArrayBuffer;
 
-  ShaderProgram(
+  // these are the identity by default
+  final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
+  final List<Node> objects = new List<Node>();
+
+  RenderProgram(
       String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
       : super(name) {
     _program = _cgl.CompileWholeProgram(_shaderObjectV.shader,
@@ -38,11 +57,23 @@ class ShaderProgram extends RenderProgram {
     }
   }
 
-  MeshData MakeMeshData(String name, int drawMode) {
-     return new MeshData(name, _cgl, drawMode, _shaderObjectV.GetLayoutMap());
+  void add(Node obj) {
+    objects.add(obj);
   }
 
-  bool HasCompatibleAttributesTo(ShaderProgram other) {
+  bool remove(Node obj) {
+    return objects.remove(obj);
+  }
+
+  void removeAll() {
+    objects.clear();
+  }
+
+  MeshData MakeMeshData(String name, int drawMode) {
+    return new MeshData(name, _cgl, drawMode, _shaderObjectV.GetLayoutMap());
+  }
+
+  bool HasCompatibleAttributesTo(RenderProgram other) {
     var a = _shaderObjectV.GetLayoutMap();
     var b = other._shaderObjectV.GetLayoutMap();
     if (a.length != b.length) return false;
@@ -52,7 +83,7 @@ class ShaderProgram extends RenderProgram {
     return true;
   }
 
-  bool HasDownCompatibleAttributesTo(ShaderProgram other) {
+  bool HasDownCompatibleAttributesTo(RenderProgram other) {
     var a = _shaderObjectV.GetLayoutMap();
     var b = other._shaderObjectV.GetLayoutMap();
     for (String key in a.keys) {
@@ -70,41 +101,11 @@ class ShaderProgram extends RenderProgram {
     _elementArrayBuffer = null;
   }
 
-
   bool _HasAttribute(String canonical) {
     return _attributes.contains(canonical);
   }
 
   ChronosGL getContext() => _cgl;
-
-  void _SetAttribute(String canonical, dynamic /* Buffer */ buffer, normalized,
-      int stride, int offset) {
-    _attributesInitialized.add(canonical);
-    final int index = _shaderObjectV.GetLayoutPos(canonical);
-    ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
-    if (desc == null) throw "Unknown canonical ${canonical}";
-    switch (desc.type) {
-      case VarTypeFloat:
-      case VarTypeVec2:
-      case VarTypeVec3:
-      case VarTypeVec4:
-        _cgl.vertexAttribPointer(buffer, index, desc.GetSize(), GL_FLOAT,
-            normalized, stride, offset);
-        break;
-      case VarTypeUvec2:
-      case VarTypeUvec3:
-      case VarTypeUvec4:
-        assert(false);
-        /*
-        _cgl.gl.vertexAttribIPointer(
-            index, desc.GetSize(), GL_UNSIGNED_INT, normalized, stride, offset);
-            */
-        break;
-      default:
-        throw "type ${canonical} - ${desc.type} not supported";
-        break;
-    }
-  }
 
   bool _HasUniform(String canonical) {
     return _uniformLocations.containsKey(canonical);
@@ -245,7 +246,6 @@ class ShaderProgram extends RenderProgram {
     return out;
   }
 
-  @override
   void DrawSetUp() {
     if (debug) print("[${name} setting attributes");
     _cgl.useProgram(_program);
@@ -294,8 +294,7 @@ class ShaderProgram extends RenderProgram {
     LogDebug("setting ${count} var in ${delta}");
   }
 
-  @override
-  void DrawOne(Map<String, dynamic> inputs, List<DrawStats> stats) {
+  void _drawOne(Map<String, dynamic> inputs, List<DrawStats> stats) {
     _numInstances = 0;
     // TODO: put this behind a flag
     _attributesInitialized.clear();
@@ -324,7 +323,36 @@ class ShaderProgram extends RenderProgram {
     if (debug) print(_cgl.getProgramInfoLog(_program));
   }
 
-  @override
+  void _drawRecursively(
+      Node node, final VM.Matrix4 parent, List<DrawStats> stats) {
+    if (!node.enabled) return;
+    // m is read-only!
+    final VM.Matrix4 m = node.UpdateModelMatrix(parent);
+    if (node.SomethingToDraw()) {
+      LogDebug("drawing: ${node}");
+      node.AddShaderInputs(this);
+      _drawOne(GetInputs(), stats);
+      node.RemoveShaderInputs(this);
+    }
+    for (Node child in node.children) {
+      _drawRecursively(child, m, stats);
+    }
+  }
+
+  // This is a weird flow control:
+  // * When draw() is called,
+  // * we recursively draw items in objects passing "this" as a parameter
+  // * the objects then call the Draw method above
+  void draw(List<DrawStats> stats) {
+    DrawSetUp();
+    _modelMatrix.setIdentity();
+    if (debug) print("[draw objects ${objects.length}");
+    for (Node node in objects) {
+      _drawRecursively(node, _modelMatrix, stats);
+    }
+    DrawTearDown();
+  }
+
   void DrawTearDown() {
     if (debug) print("[${name} unsetting attributes");
     for (String canonical in _attributes) {

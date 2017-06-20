@@ -152,7 +152,7 @@ final Material matNormals = new Material("normals")
 final Material lightSourceMat = new Material("light")
   ..SetUniform(uColor, ColorYellow);
 
-List<Node> MakeScene(ShaderProgram prog) {
+List<Node> MakeScene(RenderProgram prog) {
   return [
     new Node("sphere", ShapeIcosahedron(prog, 3), matObjects)
       ..setPos(0.0, 0.0, 0.0),
@@ -190,12 +190,12 @@ void main() {
 
   // display scene with shadow on left part of screen.
   RenderPhase phaseMain = new RenderPhase("main", chronosGL);
-  ShaderProgram basic = phaseMain
+  RenderProgram basic = phaseMain
       .createProgram(createLightShaderBlinnPhongWithShadow())
         ..SetInput(uShadowMap, shadowMap.GetMapTexture())
         ..SetInput(uCanvasSize, shadowMap.GetMapSize())
         ..SetInput(uShadowBias, 0.03);
-  ShaderProgram fixed = phaseMain.createProgram(createSolidColorShader());
+  RenderProgram fixed = phaseMain.createProgram(createSolidColorShader());
   fixed.HasDownCompatibleAttributesTo(basic);
 
   for (Node n in MakeScene(basic)) {

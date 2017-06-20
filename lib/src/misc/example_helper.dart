@@ -168,7 +168,7 @@ class Utils {
 
   static int id = 1;
 
-  static Node MakeParticles(ShaderProgram prog, int numPoints,
+  static Node MakeParticles(RenderProgram prog, int numPoints,
       [int dimension = 100]) {
     Material mat = new Material.Transparent("stars", BlendEquationMix)
       ..SetUniform(uTexture, createParticleTexture(prog.getContext()))
@@ -201,7 +201,7 @@ class Utils {
   }
 }
 
-MeshData ShapeCube(ShaderProgram prog,
+MeshData ShapeCube(RenderProgram prog,
     {double x: 1.0,
     double y: 1.0,
     double z: 1.0,
@@ -214,7 +214,7 @@ MeshData ShapeCube(ShaderProgram prog,
   return GeometryBuilderToMeshData("cube", prog, gb);
 }
 
-MeshData ShapeWedge(ShaderProgram prog,
+MeshData ShapeWedge(RenderProgram prog,
     {double x: 1.0,
     double y: 1.0,
     double z: 1.0,
@@ -227,7 +227,7 @@ MeshData ShapeWedge(ShaderProgram prog,
   return GeometryBuilderToMeshData("wedge", prog, gb);
 }
 
-MeshData ShapeCylinder(ShaderProgram prog, double radTop, double radBot,
+MeshData ShapeCylinder(RenderProgram prog, double radTop, double radBot,
     double height, int radialSubdivisions,
     [bool computeNormals = true]) {
   GeometryBuilder gb = CylinderGeometry(
@@ -235,13 +235,13 @@ MeshData ShapeCylinder(ShaderProgram prog, double radTop, double radBot,
   return GeometryBuilderToMeshData("cylinder-${radialSubdivisions}", prog, gb);
 }
 
-MeshData ShapeIcosahedron(ShaderProgram prog,
+MeshData ShapeIcosahedron(RenderProgram prog,
     [int subdivisions = 4, double scale = 1.0, bool computeNormals = true]) {
   GeometryBuilder gb = IcosahedronGeometry(subdivisions, scale, computeNormals);
   return GeometryBuilderToMeshData("icosahedron-${subdivisions}", prog, gb);
 }
 
-MeshData ShapeTorusKnot(ShaderProgram prog,
+MeshData ShapeTorusKnot(RenderProgram prog,
     {double radius: 20.0,
     double tube: 4.0,
     int segmentsR: 128,
@@ -264,12 +264,12 @@ MeshData ShapeTorusKnot(ShaderProgram prog,
   return GeometryBuilderToMeshData("torusknot", prog, gb);
 }
 
-MeshData ShapeQuad(ShaderProgram prog, int size) {
+MeshData ShapeQuad(RenderProgram prog, int size) {
   GeometryBuilder gb = QuadGeometry(size);
   return GeometryBuilderToMeshData("quad", prog, gb);
 }
 
-MeshData ShapeGrid(ShaderProgram prog,
+MeshData ShapeGrid(RenderProgram prog,
     int xstrips, int ystrips, double xlen, double ylen) {
   GeometryBuilder gb = GridGeometry(xstrips, ystrips, xlen, ylen);
   return GeometryBuilderToMeshData("strips", prog, gb);
@@ -277,7 +277,7 @@ MeshData ShapeGrid(ShaderProgram prog,
 
 final Material EmptyMaterial = new Material("empty-mat");
 
-Node UnitNode(ShaderProgram prog) {
+Node UnitNode(RenderProgram prog) {
   final MeshData UnitQuad = ShapeQuad(prog, 1);
   return new Node("unit-mesh", UnitQuad, EmptyMaterial);
 }

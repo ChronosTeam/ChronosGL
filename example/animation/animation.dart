@@ -82,9 +82,9 @@ void main() {
 
   final RenderPhase phase = new RenderPhase("main", chronosGL);
   //RenderProgram prg = phase.createProgram(createDemoShader());
-  final ShaderProgram prgAnim = phase.createProgram(createAnimationShader());
-  final ShaderProgram prgSimple = phase.createProgram(createDemoShader());
-  final ShaderProgram prgBone = phase.createProgram(createSolidColorShader());
+  final RenderProgram prgAnim = phase.createProgram(createAnimationShader());
+  final RenderProgram prgSimple = phase.createProgram(createDemoShader());
+  final RenderProgram prgBone = phase.createProgram(createSolidColorShader());
 
   prgSimple.HasDownCompatibleAttributesTo(prgAnim);
 
@@ -96,7 +96,7 @@ void main() {
   List<double> animationSteps;
   BoneVisualizer boneVisualizer;
 
-  Map<String, ShaderProgram> programMap = {
+  Map<String, RenderProgram> programMap = {
     "idSkeleton": prgBone,
     "idStatic": prgSimple,
     "idAnimation": prgAnim,

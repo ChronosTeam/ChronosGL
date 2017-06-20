@@ -29,7 +29,7 @@ void main() {
     ..viewPortW = width
     ..viewPortH = height;
 
-  ShaderProgram perlinNoise =
+  RenderProgram perlinNoise =
       phaseMain.createProgram(createPerlinNoiseColorShader(true));
 
   Material mat = new Material("mat");
@@ -40,7 +40,7 @@ void main() {
     ..viewPortW = width ~/ 2
     ..viewPortH = height ~/ 2;
 
-  ShaderProgram progHighPass = phaseHighPass
+  RenderProgram progHighPass = phaseHighPass
       .createProgram(createLuminosityHighPassShader())
         ..SetInput(uRange, new VM.Vector2(0.65, 0.65 + 0.01))
         ..SetInput(uColorAlpha, new VM.Vector4.zero())
@@ -53,7 +53,7 @@ void main() {
   RenderPhase phaseBloom1 = new RenderPhase("bloom1", chronosGL, fb1)
     ..viewPortW = width ~/ 2
     ..viewPortH = height ~/ 2;
-  ShaderProgram bloom1 = phaseBloom1
+  RenderProgram bloom1 = phaseBloom1
       .createProgram(createBloomTextureShader(radius, radius * 1.0))
         ..SetInput(uDirection, new VM.Vector2(1.5, 0.0))
         ..SetInput(uTexture, fb2.colorTexture);
@@ -62,7 +62,7 @@ void main() {
   RenderPhase phaseBloom2 = new RenderPhase("bloom2", chronosGL, fb2)
     ..viewPortW = width ~/ 2
     ..viewPortH = height ~/ 2;
-  ShaderProgram bloom2 = phaseBloom2.createProgram(createBloomTextureShader(radius, radius * 1.0))
+  RenderProgram bloom2 = phaseBloom2.createProgram(createBloomTextureShader(radius, radius * 1.0))
     ..SetInput(uDirection, new VM.Vector2(0.0, 1.5))
     ..SetInput(uTexture, fb1.colorTexture);
     bloom2.add(UnitNode(bloom2));

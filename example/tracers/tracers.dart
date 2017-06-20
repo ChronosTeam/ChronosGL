@@ -28,14 +28,14 @@ void main() {
   phase.clearColorBuffer = false;
 
   // Every frame 4% of the screen will be blurred
-  ShaderProgram shaderProgramBlur = phase.createProgram(blurdShader());
+  RenderProgram shaderProgramBlur = phase.createProgram(blurdShader());
   Material matBlur =
       new Material.Transparent("blur", BlendEquationStandard)
         ..SetUniform(uColorAlpha, new VM.Vector4(0.0, 0.0, 0.0, 0.04));
   shaderProgramBlur.add(new Node("", ShapeQuad(shaderProgramBlur, 1), matBlur));
 
   // stars
-  ShaderProgram sprites = phase.createProgram(createPointSpritesShader());
+  RenderProgram sprites = phase.createProgram(createPointSpritesShader());
   sprites.add(Utils.MakeParticles(sprites, 2000));
 
   void resolutionChange(HTML.Event ev) {

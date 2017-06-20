@@ -19,7 +19,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  ShaderProgram program = phase.createProgram(createWireframeShader());
+  RenderProgram program = phase.createProgram(createWireframeShader());
   final Material matWireframe = new Material("wire")
     ..SetUniform(uColorAlpha, new VM.Vector4(1.0, 1.0, 0.0, 1.0))
     ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5));

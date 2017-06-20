@@ -39,7 +39,7 @@ class BoneVisualizer {
 
   Node mesh;
 
-  BoneVisualizer(ShaderProgram prog, Material mat, this._skeleton, this._anim) {
+  BoneVisualizer(RenderProgram prog, Material mat, this._skeleton, this._anim) {
     _animatedSkeleton = new AnimatedSkeleton(_skeleton.length);
     UpdateAnimatedSkeleton(
         _skeleton, _globalOffsetTransform, _anim, _animatedSkeleton, 0.0);

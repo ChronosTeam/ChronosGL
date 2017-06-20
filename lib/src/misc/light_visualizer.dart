@@ -1,6 +1,6 @@
 part of misc;
 
-MeshData EmptyLightVisualizer(ShaderProgram prog, String name) {
+MeshData EmptyLightVisualizer(RenderProgram prog, String name) {
   MeshData md = prog.MakeMeshData(name, GL_LINES);
   md.AddVertices(new Float32List(3));
   md.AddFaces([0, 0]);
@@ -154,7 +154,7 @@ void UpdateLightVisualizer(MeshData md, Light light) {
   }
 }
 
-MeshData LightVisualizer(ShaderProgram prog, Light light) {
+MeshData LightVisualizer(RenderProgram prog, Light light) {
   MeshData md = EmptyLightVisualizer(prog, "dirLightViz");
   UpdateLightVisualizer(md, light);
   return md;

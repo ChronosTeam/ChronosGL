@@ -220,8 +220,8 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL)
     ..viewPortW = width
     ..viewPortH = height;
-  ShaderProgram programJS = phase.createProgram(createPointSpritesShader());
-  ShaderProgram programGPU = phase.createProgram(createParticleShader());
+  RenderProgram programJS = phase.createProgram(createPointSpritesShader());
+  RenderProgram programGPU = phase.createProgram(createParticleShader());
 
 
   List<Pole> srcPoles =

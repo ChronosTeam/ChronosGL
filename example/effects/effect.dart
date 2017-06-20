@@ -124,7 +124,7 @@ void main() {
         ..SetInput(uColorAlpha, new VM.Vector4.zero())
         ..SetInput(uTexture, fb.colorTexture);
 
-  for (ShaderProgram prog in effects.values) {
+  for (RenderProgram prog in effects.values) {
       prog.add(UnitNode(prog));
   }
 

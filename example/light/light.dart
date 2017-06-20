@@ -39,7 +39,7 @@ final Map<String, Node> gScenes = {
 };
 
 void MakeSceneCubeSphere(
-    ChronosGL chronosGL, ShaderProgram prog, Node container) {
+    ChronosGL chronosGL, RenderProgram prog, Node container) {
   MeshData cubeMeshData = ShapeCube(prog, x: 2.0, y: 2.0, z: 2.0);
   MeshData sphereMeshData = ShapeIcosahedron(prog);
 
@@ -91,15 +91,15 @@ void main() {
   orbit.setPos(0.0, 0.0, 56.0);
   Perspective perspective = new Perspective(orbit, 0.1, 10000.0);
   RenderPhase phaseBlinnPhong = new RenderPhase("blinn-phong", chronosGL);
-  ShaderProgram lightBlinnPhong =
+  RenderProgram lightBlinnPhong =
       phaseBlinnPhong.createProgram(createLightShaderBlinnPhong());
-  ShaderProgram fixedBlinnPhong =
+  RenderProgram fixedBlinnPhong =
       phaseBlinnPhong.createProgram(createSolidColorShader());
 
   RenderPhase phaseGourad = new RenderPhase("gourad", chronosGL);
-  ShaderProgram lightGourad =
+  RenderProgram lightGourad =
       phaseGourad.createProgram(createLightShaderGourad());
-  ShaderProgram fixedGourad =
+  RenderProgram fixedGourad =
       phaseGourad.createProgram(createSolidColorShader());
 
   assert(lightBlinnPhong.HasCompatibleAttributesTo(lightGourad));

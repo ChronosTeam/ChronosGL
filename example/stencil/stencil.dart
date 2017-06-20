@@ -40,7 +40,7 @@ void main() {
   }
   phase.framebuffer.depthTexture.SetImageData(data);
 
-  ShaderProgram basic = phase.createProgram(createSolidColorShader());
+  RenderProgram basic = phase.createProgram(createSolidColorShader());
 
   final Material matRed = new Material("red")
     ..SetUniform(uColor, ColorRed)
@@ -73,7 +73,7 @@ void main() {
     ..viewPortW = width
     ..viewPortH = height;
 
-  ShaderProgram copy = phase2.createProgram(createCopyShader())
+  RenderProgram copy = phase2.createProgram(createCopyShader())
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetInput(uTexture, fb.colorTexture);
     copy.add(UnitNode(copy));

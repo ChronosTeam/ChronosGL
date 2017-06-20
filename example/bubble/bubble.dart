@@ -43,10 +43,10 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
 
-  ShaderProgram sprites = phase.createProgram(createPointSpritesShader());
+  RenderProgram sprites = phase.createProgram(createPointSpritesShader());
   sprites.add(Utils.MakeParticles(sprites, 2000));
 
-  ShaderProgram shaderSpheres = phase.createProgram(sphereShader());
+  RenderProgram shaderSpheres = phase.createProgram(sphereShader());
 
   MeshData md = ShapeIcosahedron(shaderSpheres, 3);
   shaderSpheres.add(new Node("sphere", md, matSphere)..setPos(0.0, 0.0, 0.0));

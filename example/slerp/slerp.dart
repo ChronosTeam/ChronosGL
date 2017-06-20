@@ -45,7 +45,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3, canvas);
   Perspective perspective = new Perspective(orbit, 1.0, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  ShaderProgram prg = phase.createProgram(createDemoShader());
+  RenderProgram prg = phase.createProgram(createDemoShader());
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -114,7 +114,7 @@ void main() {
 
     prg.add(node);
 
-    ShaderProgram programSprites =
+    RenderProgram programSprites =
         phase.createProgram(createPointSpritesShader());
     programSprites.add(Utils.MakeParticles(programSprites, 2000));
 

@@ -48,13 +48,13 @@ void main() {
   double d = 20.0;
   Orthographic orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
   RenderPhase phaseOrthograhic = new RenderPhase("shadow", chronosGL);
-  ShaderProgram prgOrthographic =
+  RenderProgram prgOrthographic =
       phaseOrthograhic.createProgram(createTexturedShader());
 
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phasePerspective = new RenderPhase("perspective", chronosGL);
   phasePerspective.clearColorBuffer = false;
-  ShaderProgram prgPerspective =
+  RenderProgram prgPerspective =
       phasePerspective.createProgram(createTexturedShader());
 
   assert(prgOrthographic.HasCompatibleAttributesTo(prgPerspective));

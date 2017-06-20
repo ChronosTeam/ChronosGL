@@ -27,7 +27,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0, -45.0, 0.3, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 2520.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  ShaderProgram prg = phase.createProgram(createNormal2ColorShader());
+  RenderProgram prg = phase.createProgram(createNormal2ColorShader());
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

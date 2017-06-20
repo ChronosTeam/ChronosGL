@@ -13,7 +13,7 @@ void main() {
   Perspective perspective = new Perspective(tkc, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
 
-  ShaderProgram programBasic = phase.createProgram(createTexturedShader());
+  RenderProgram programBasic = phase.createProgram(createTexturedShader());
 
   canvas2d = Utils.createGradientImage2(0.0, canvas2d);
   Texture generatedTexture = new ImageTexture(chronosGL, "gen", canvas2d);
@@ -35,7 +35,7 @@ void main() {
     //chronosGL.programs['point_sprites'].add(new PointSprites.fromVertex(p1, textureCache.get("textures/particle.bmp")));
   }
 
-  ShaderProgram programSprites =
+  RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(programSprites, 2000));
 

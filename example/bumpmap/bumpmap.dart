@@ -73,8 +73,8 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  ShaderProgram fixed = phase.createProgram(createSolidColorShader());
-  ShaderProgram prg = phase.createProgram(createShader());
+  RenderProgram fixed = phase.createProgram(createSolidColorShader());
+  RenderProgram prg = phase.createProgram(createShader());
 
   DirectionalLight dl = new DirectionalLight("dir", dirLight, colDiffuse, colSpecular, 40.0);
   SpotLight sl = new SpotLight("spot", posLight, dirLight, colDiffuse,

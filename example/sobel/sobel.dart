@@ -35,7 +35,7 @@ void main() {
   phase2.viewPortW = width;
   phase2.viewPortH = height;
 
-  ShaderProgram prg2 = phase2.createProgram(createSobelShader());
+  RenderProgram prg2 = phase2.createProgram(createSobelShader());
   prg2
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetInput(uDepthMap, fb.depthTexture)

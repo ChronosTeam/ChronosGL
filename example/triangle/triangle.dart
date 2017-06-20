@@ -49,7 +49,7 @@ void main() {
   double d = 40.0;
   Orthographic orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
   RenderPhase phaseOrthograhic = new RenderPhase("shadow", chronosGL);
-  ShaderProgram prgOrthographic =
+  RenderProgram prgOrthographic =
       phaseOrthograhic.createProgram(createTexturedShader());
 
   Texture solid = MakeSolidColorTexture(chronosGL, "red-solid", "red");

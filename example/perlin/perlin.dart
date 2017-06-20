@@ -11,9 +11,9 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(165.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  ShaderProgram programBasic = phase.createProgram(createTexturedShader());
+  RenderProgram programBasic = phase.createProgram(createTexturedShader());
 
-  ShaderProgram perlinNoise =
+  RenderProgram perlinNoise =
       phase.createProgram(createPerlinNoiseColorShader(false));
 
   Material mat = new Material("torus")
@@ -27,7 +27,7 @@ void main() {
     ..setPos(50.0, 0.0, 0.0);
   perlinNoise.add(m2);
 
-  ShaderProgram programSprites =
+  RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
   programSprites.add(Utils.MakeParticles(programSprites, 2000));
 

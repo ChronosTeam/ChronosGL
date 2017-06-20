@@ -100,7 +100,7 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  List<ShaderProgram> prgs = [
+  List<RenderProgram> prgs = [
     phase.createProgram(createPlasmaShader()),
     phase.createProgram(createPlasmaShader2()),
     phase.createProgram(createPlasmaShader3())
@@ -132,7 +132,7 @@ void main() {
     prgs[(pointer)].add(m);
   });
 
-  ShaderProgram sprites =
+  RenderProgram sprites =
       phase.createProgram(createPointSpritesShader());
   sprites.add(Utils.MakeParticles(sprites, 2000));
 

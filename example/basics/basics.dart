@@ -13,7 +13,7 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  ShaderProgram basic = phase.createProgram(createTexturedShader());
+  RenderProgram basic = phase.createProgram(createTexturedShader());
 
   final Material matWood = new Material("wood")
     ..SetUniform(uColor, ColorYellow);
@@ -55,7 +55,7 @@ void main() {
     basic.add(torus);
   }
 
-  ShaderProgram sprites = phase.createProgram(createPointSpritesShader());
+  RenderProgram sprites = phase.createProgram(createPointSpritesShader());
   sprites.add(Utils.MakeParticles(sprites, 2000));
 
   void resolutionChange(HTML.Event ev) {
