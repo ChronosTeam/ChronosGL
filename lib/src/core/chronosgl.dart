@@ -340,11 +340,10 @@ class ChronosGL {
         WEBGL.ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
   }
 
-  void draw(int mode, int count, dynamic buffer, int type, int offset,
+  void draw(int mode, int count, int type, int offset,
       int instanceCount, bool hasTransforms) {
     if (hasTransforms) _gl.beginTransformFeedback(mode);
-    if (buffer != null) {
-      _gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
+    if (type != -1) {
       if (instanceCount > 1) {
         _gl.drawElementsInstanced(mode, count, type, offset, instanceCount);
       } else {

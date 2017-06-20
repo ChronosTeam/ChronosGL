@@ -292,8 +292,8 @@ class RenderProgram extends RenderInputSink {
 
     md.SetUp();
     bool hasTransforms = _shaderObjectV.transformVars.length > 0;
-    _cgl.draw(md.drawMode, md.GetNumItems(), md.elementArrayBuffer,
-        md.elementArrayBufferType, 0, md.GetNumInstances(), hasTransforms);
+    _cgl.draw(md.drawMode, md.GetNumItems(), md.elementArrayBufferType, 0,
+        md.GetNumInstances(), hasTransforms);
     if (debug) print(_cgl.getProgramInfoLog(_program));
     md.TearDown();
   }

@@ -175,33 +175,9 @@ class MeshData extends NamedEntity {
 
   void SetUp() {
     _cgl.bindVertexArray(_vao);
-/*
-    for (String canonical in _buffers.keys) {
-      program.SetInput(canonical, _buffers[canonical], this);
-    }
-
-    // should this really be here - interaction with indexer
-    if (_indexBuffer != null) {
-      program.SetInput(eArray, _indexBuffer, this);
-      program.SetInput(eArrayType, _indexBufferType, this);
-    }
-    program.SetInput(cDrawMode, _drawMode, this);
-    program.SetInput(cNumItems, GetNumItems(), this);
-    */
   }
 
   void TearDown() {
-    /*
-    for (String canonical in _buffers.keys) {
-      program.Remove(canonical);
-    }
-    if (_indexBuffer != null) {
-      program.Remove(eArray);
-      program.Remove(eArrayType);
-    }
-    program.Remove(cDrawMode);
-    program.Remove(cNumItems);
-    */
     _cgl.bindVertexArray(null);
   }
 
