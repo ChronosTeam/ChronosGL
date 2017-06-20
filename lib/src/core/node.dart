@@ -1,4 +1,4 @@
-part of base;
+part of core;
 
 /// ## Class Node (is a Spatial)
 /// represents a tree hierarchy of objects that well be rendered
@@ -10,7 +10,7 @@ part of base;
 /// Each Node is also a Spatial so it be re-oriented with respect to its parent
 class Node extends Spatial {
   RenderInputSource _material;
-  RenderInputSource _meshData;
+  MeshData _meshData;
   RenderInputSource _instancerData;
 
   // children inherent the parent matrix for its rotation and position
@@ -32,11 +32,11 @@ class Node extends Spatial {
 
   RenderInputSource get material => _material;
 
-  RenderInputSource get meshData => _meshData;
+  MeshData get meshData => _meshData;
 
   RenderInputSource get instancerData => _instancerData;
 
-  void set meshData(RenderInputSource md) {
+  void set meshData(MeshData md) {
     _meshData = md;
   }
 
@@ -52,13 +52,11 @@ class Node extends Spatial {
     program.SetInput(uNormalMatrix, _normMatrix, this);
 
     _material.AddToSink(program);
-    _meshData.AddToSink(program);
     if (_instancerData != null) _instancerData.AddToSink(program);
   }
 
   void RemoveShaderInputs(RenderInputSink program) {
     if (_instancerData != null) _instancerData.RemoveFromSink(program);
-    _meshData.RemoveFromSink(program);
     _material.RemoveFromSink(program);
 
     program.Remove(uTransformationMatrix);

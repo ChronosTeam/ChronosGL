@@ -27,13 +27,8 @@ class RenderProgram extends RenderInputSink {
   Map<String, dynamic /* gl UniformLocation */ > _uniformLocations = {};
   Set<String> _uniformsInitialized = new Set<String>();
   Set<String> _attributesInitialized = new Set<String>();
-  // Per draw state
-  int _drawMode;
-  int _numInstances;
-  int _numItems;
+
   int _nextTextureUnit;
-  int _elementArrayBufferType;
-  var _elementArrayBuffer;
 
   // these are the identity by default
   final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
@@ -93,12 +88,7 @@ class RenderProgram extends RenderInputSink {
   }
 
   void _ClearState() {
-    _numInstances = 0;
     _nextTextureUnit = 0;
-    _numItems = 0;
-    _drawMode = -1;
-    _elementArrayBufferType = 0;
-    _elementArrayBuffer = null;
   }
 
   bool _HasAttribute(String canonical) {
@@ -113,15 +103,6 @@ class RenderProgram extends RenderInputSink {
 
   void _SetControl(String canonical, var val) {
     switch (canonical) {
-      case cNumInstances:
-        _numInstances = val;
-        break;
-      case cDrawMode:
-        _drawMode = val;
-        break;
-      case cNumItems:
-        _numItems = val;
-        break;
       case cDepthTest:
         if (val == true) {
           _cgl.enable(GL_DEPTH_TEST);
@@ -269,14 +250,6 @@ class RenderProgram extends RenderInputSink {
             ++count;
           }
           break;
-        case prefixElement:
-          if (canonical == eArray) {
-            _elementArrayBuffer = inputs[canonical];
-            ++count;
-          } else if (canonical == eArrayType) {
-            _elementArrayBufferType = inputs[canonical];
-          }
-          break;
         case prefixControl:
           _SetControl(canonical, inputs[canonical]);
           ++count;
@@ -294,33 +267,35 @@ class RenderProgram extends RenderInputSink {
     LogDebug("setting ${count} var in ${delta}");
   }
 
-  void _drawOne(Map<String, dynamic> inputs, List<DrawStats> stats) {
-    _numInstances = 0;
+  void _drawOne(
+      MeshData md, Map<String, dynamic> inputs, List<DrawStats> stats) {
     // TODO: put this behind a flag
     _attributesInitialized.clear();
     _uniformsInitialized.clear();
     _ClearState();
     SetInputs(inputs);
-    if (_numItems == 0) return;
     if (stats != null) {
-      stats.add(new DrawStats(name, _numInstances, _numItems, _drawMode));
+      stats.add(new DrawStats(
+          name, md.GetNumInstances(), md.GetNumItems(), md.drawMode));
     }
     if (debug)
-      print("[${name}] draw points: ${_drawMode} instances${_numInstances}");
+      print(
+          "[${name}] draw points: ${md.drawMode} instances${md.GetNumInstances()}");
     // TODO: put this behind a flag
     List<String> uninitialized = UninitializedInputs();
     if (uninitialized.isNotEmpty) {
       String mesg =
-          "${name} ${_drawMode}: uninitialized inputs: ${uninitialized}";
+          "${name} ${md.drawMode}: uninitialized inputs: ${uninitialized}";
       LogError(mesg);
       //throw mesg;
     }
 
+    md.SetUp();
     bool hasTransforms = _shaderObjectV.transformVars.length > 0;
-    _cgl.draw(_drawMode, _numItems, _elementArrayBuffer,
-        _elementArrayBufferType, 0, _numInstances, hasTransforms);
-
+    _cgl.draw(md.drawMode, md.GetNumItems(), md.elementArrayBuffer,
+        md.elementArrayBufferType, 0, md.GetNumInstances(), hasTransforms);
     if (debug) print(_cgl.getProgramInfoLog(_program));
+    md.TearDown();
   }
 
   void _drawRecursively(
@@ -331,7 +306,7 @@ class RenderProgram extends RenderInputSink {
     if (node.SomethingToDraw()) {
       LogDebug("drawing: ${node}");
       node.AddShaderInputs(this);
-      _drawOne(GetInputs(), stats);
+      _drawOne(node.meshData, GetInputs(), stats);
       node.RemoveShaderInputs(this);
     }
     for (Node child in node.children) {

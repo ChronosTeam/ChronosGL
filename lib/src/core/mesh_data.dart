@@ -50,12 +50,12 @@ Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data = null]) {
   return data;
 }
 
-/// ## Class MeshData (is a RenderInputSource)
-/// presents attributes and vertex buffers associated with
+/// ## Class MeshData
+/// presents a VAO - attributes and vertex buffers associated with
 /// an mesh, e.g. a sphere, cube, etc.
 /// MeshData objects can be populated directly but often they
 /// will derived from **GeometryBuilder** objects.
-class MeshData extends RenderInputSource {
+class MeshData extends NamedEntity {
   final ChronosGL _cgl;
   final dynamic _vao;
   final _drawMode;
@@ -98,11 +98,21 @@ class MeshData extends RenderInputSource {
     return _locationMap.containsKey(canonical);
   }
 
+  int get drawMode => _drawMode;
+
+  int get elementArrayBufferType => _indexBufferType;
+
+  dynamic get elementArrayBuffer => _indexBuffer;
+
   int GetNumItems() {
     if (_faces != null) {
       return _faces.length;
     }
     return _vertices.length ~/ 3;
+  }
+
+  int GetNumInstances() {
+    return 0;
   }
 
   Float32List GetAttribute(String canonical) {
@@ -163,10 +173,9 @@ class MeshData extends RenderInputSource {
     ChangeFaces(faces);
   }
 
-  @override
-  void AddToSink(RenderInputSink program) {
+  void SetUp() {
     _cgl.bindVertexArray(_vao);
-
+/*
     for (String canonical in _buffers.keys) {
       program.SetInput(canonical, _buffers[canonical], this);
     }
@@ -178,10 +187,11 @@ class MeshData extends RenderInputSource {
     }
     program.SetInput(cDrawMode, _drawMode, this);
     program.SetInput(cNumItems, GetNumItems(), this);
+    */
   }
 
-  @override
-  void RemoveFromSink(RenderInputSink program) {
+  void TearDown() {
+    /*
     for (String canonical in _buffers.keys) {
       program.Remove(canonical);
     }
@@ -191,6 +201,7 @@ class MeshData extends RenderInputSource {
     }
     program.Remove(cDrawMode);
     program.Remove(cNumItems);
+    */
     _cgl.bindVertexArray(null);
   }
 

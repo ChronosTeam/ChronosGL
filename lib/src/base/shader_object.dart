@@ -69,9 +69,6 @@ class ShaderVarDesc {
 
 // Used both as enum and as string. The latter allows for a limited form
 // of syntax checking inside shader programs.
-const int prefixElement = 0x65; // 'e';
-const String eArray = "eArray"; // element array
-const String eArrayType = "eArrayType"; // element array
 const String oFragColor = "oFragColor";
 // ===========================================================
 // Misc Controls
@@ -201,16 +198,10 @@ const String uLightCount = "uLightCount";
 const String uLightTypes = "uLightTypes";
 
 final Map<String, ShaderVarDesc> _VarsDb = {
-  eArray: new ShaderVarDesc(VarTypeIndex, ""),
-  eArrayType: new ShaderVarDesc(VarTypeInt, ""),
-
-  //
+  // controls
   cBlendEquation: new ShaderVarDesc("", ""),
   cDepthWrite: new ShaderVarDesc("", ""),
   cDepthTest: new ShaderVarDesc("", ""),
-  cNumItems: new ShaderVarDesc("", ""),
-  cNumInstances: new ShaderVarDesc("", ""),
-  cDrawMode: new ShaderVarDesc("", ""),
   cStencilFunc: new ShaderVarDesc("", ""),
 
   // transform vars
