@@ -13,7 +13,7 @@ void main() {
   Perspective perspective = new Perspective(tkc, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
 
-  RenderProgram programBasic = phase.createProgram(createTexturedShader());
+  ShaderProgram programBasic = phase.createProgram(createTexturedShader());
 
   canvas2d = Utils.createGradientImage2(0.0, canvas2d);
   Texture generatedTexture = new ImageTexture(chronosGL, "gen", canvas2d);
@@ -22,7 +22,7 @@ void main() {
   Material mat = new Material.Transparent("torus", BlendEquationStandard)
     ..SetUniform(uTexture, generatedTexture)
     ..SetUniform(uColor, new VM.Vector3.zero());
-  Node m = new Node("torus", ShapeTorusKnot(chronosGL, useQuads: false), mat);
+  Node m = new Node("torus", ShapeTorusKnot(programBasic, useQuads: false), mat);
 
   programBasic.add(m);
 
@@ -35,9 +35,9 @@ void main() {
     //chronosGL.programs['point_sprites'].add(new PointSprites.fromVertex(p1, textureCache.get("textures/particle.bmp")));
   }
 
-  RenderProgram programSprites =
+  ShaderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(chronosGL, 2000));
+  programSprites.add(Utils.MakeParticles(programSprites, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

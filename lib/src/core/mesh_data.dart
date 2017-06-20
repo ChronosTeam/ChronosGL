@@ -57,8 +57,10 @@ Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data = null]) {
 /// will derived from **GeometryBuilder** objects.
 class MeshData extends RenderInputSource {
   final ChronosGL _cgl;
+  final dynamic _vao;
   final _drawMode;
-  final Map<String, dynamic /* gl Buffer */> _buffers = {};
+  final Map<String, dynamic /* gl Buffer */ > _buffers = {};
+  final Map<String, int> _locationMap;
   dynamic /* gl Buffer */ _indexBuffer;
   int _indexBufferType = -1;
 
@@ -66,7 +68,9 @@ class MeshData extends RenderInputSource {
   List<int> _faces;
   Map<String, Float32List> _attributes = {};
 
-  MeshData(String name, this._cgl, this._drawMode) : super("meshdata:" + name);
+  MeshData(String name, this._cgl, this._drawMode, this._locationMap)
+      : _vao = _cgl.createVertexArray(),
+        super("meshdata:" + name);
 
   void clearData() {
     for (String canonical in _buffers.keys) {
@@ -90,6 +94,10 @@ class MeshData extends RenderInputSource {
     ChangeAttribute(canonical, data, 3);
   }
 
+  bool SupportsAttribute(String canonical) {
+    return _locationMap != null && _locationMap.containsKey(canonical);
+  }
+
   int GetNumItems() {
     if (_faces != null) {
       return _faces.length;
@@ -108,12 +116,32 @@ class MeshData extends RenderInputSource {
   void AddAttribute(String canonical, List data, int width) {
     _buffers[canonical] = _cgl.createBuffer();
     ChangeAttribute(canonical, data, width);
+    if (_locationMap != null) {
+      _cgl.bindVertexArray(_vao);
+      ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
+      if (desc == null) throw "Unknown canonical ${canonical}";
+      assert(_locationMap.containsKey(canonical), "unexpected attribute ${canonical}");
+      int index = _locationMap[canonical];
+      _cgl.enableVertexAttribArray(index, 0);
+      _cgl.vertexAttribPointer(
+          _buffers[canonical], index, desc.GetSize(), GL_FLOAT, false, 0, 0);
+    }
   }
 
   void AddVertices(Float32List data) {
     final String canonical = aVertexPosition;
     _buffers[canonical] = _cgl.createBuffer();
     ChangeVertices(data);
+    if (_locationMap != null) {
+      _cgl.bindVertexArray(_vao);
+      ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
+      if (desc == null) throw "Unknown canonical ${canonical}";
+      assert(_locationMap.containsKey(canonical));
+      int index = _locationMap[canonical];
+      _cgl.enableVertexAttribArray(index, 0);
+      _cgl.vertexAttribPointer(
+          _buffers[canonical], index, desc.GetSize(), GL_FLOAT, false, 0, 0);
+    }
   }
 
   void ChangeFaces(List<int> faces) {
@@ -128,6 +156,10 @@ class MeshData extends RenderInputSource {
       _faces = new Uint32List.fromList(faces);
       _indexBufferType = GL_UNSIGNED_INT;
     }
+
+    if (_locationMap != null) {
+      _cgl.bindVertexArray(_vao);
+    }
     _cgl.ChangeElementArrayBuffer(_indexBuffer, _faces as TypedData);
   }
 
@@ -138,6 +170,9 @@ class MeshData extends RenderInputSource {
 
   @override
   void AddToSink(RenderInputSink program) {
+    if (_locationMap != null) {
+      _cgl.bindVertexArray(_vao);
+    }
     for (String canonical in _buffers.keys) {
       program.SetInput(canonical, _buffers[canonical], this);
     }
@@ -162,6 +197,9 @@ class MeshData extends RenderInputSource {
     }
     program.Remove(cDrawMode);
     program.Remove(cNumItems);
+     if (_locationMap != null) {
+      _cgl.bindVertexArray(null);
+    }
   }
 
   Iterable<String> GetAttributes() {
@@ -184,6 +222,7 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
   for (String canonical in gb.attributes.keys) {
     dynamic lst = gb.attributes[canonical];
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
+    if (!md.SupportsAttribute(canonical)) continue;
     //print("${md.name} ${canonical} ${lst}");
     switch (desc.type) {
       case VarTypeVec2:
@@ -209,9 +248,9 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
 }
 
 MeshData GeometryBuilderToMeshData(
-    String name, ChronosGL cgl, GeometryBuilder gb) {
+    String name, ShaderProgram prog, GeometryBuilder gb) {
   MeshData md =
-      new MeshData(name, cgl, gb.pointsOnly ? GL_POINTS : GL_TRIANGLES);
+      prog.MakeMeshData(name, gb.pointsOnly ? GL_POINTS : GL_TRIANGLES);
   md.AddVertices(FlattenVector3List(gb.vertices));
   if (!gb.pointsOnly) md.AddFaces(gb.GenerateFaceIndices());
   _GeometryBuilderAttributesToMeshData(gb, md);
@@ -242,17 +281,17 @@ MeshData _ExtractWireframeNormals(
   return out;
 }
 
-MeshData GeometryBuilderToWireframeNormals(ChronosGL cgl, GeometryBuilder gb,
+MeshData GeometryBuilderToWireframeNormals(ShaderProgram prog, GeometryBuilder gb,
     [scale = 1.0]) {
-  MeshData out = new MeshData("norm", cgl, GL_LINES);
+  MeshData out = prog.MakeMeshData("norm", GL_LINES);
   return _ExtractWireframeNormals(out, FlattenVector3List(gb.vertices),
       FlattenVector3List(gb.attributes[aNormal] as List<VM.Vector3>), scale);
 }
 
 //Extract Wireframe MeshData
 MeshData GeometryBuilderToMeshDataWireframe(
-    String name, ChronosGL cgl, GeometryBuilder gb) {
-  MeshData md = new MeshData(name, cgl, GL_LINES);
+    String name, ShaderProgram prog, GeometryBuilder gb) {
+  MeshData md = prog.MakeMeshData(name, GL_LINES);
   md.AddVertices(FlattenVector3List(gb.vertices));
   md.AddFaces(gb.GenerateLineIndices());
   _GeometryBuilderAttributesToMeshData(gb, md);
@@ -260,8 +299,8 @@ MeshData GeometryBuilderToMeshDataWireframe(
 }
 
 MeshData LineEndPointsToMeshData(
-    String name, ChronosGL cgl, List<VM.Vector3> points) {
-  MeshData md = new MeshData(name, cgl, GL_LINES);
+    String name, ShaderProgram prog, List<VM.Vector3> points) {
+  MeshData md = prog.MakeMeshData(name, GL_LINES);
   md.AddVertices(FlattenVector3List(points));
   List<int> faces = new List<int>(points.length);
   for (int i = 0; i < points.length; ++i) faces[i] = i;
@@ -269,17 +308,17 @@ MeshData LineEndPointsToMeshData(
   return md;
 }
 
-MeshData ExtractWireframeNormals(ChronosGL cgl, MeshData md, [scale = 1.0]) {
+MeshData ExtractWireframeNormals(ShaderProgram prog, MeshData md, [scale = 1.0]) {
   assert(md._drawMode == GL_TRIANGLES);
-  MeshData out = new MeshData(md.name, cgl, GL_LINES);
+  MeshData out = prog.MakeMeshData(md.name, GL_LINES);
   final Float32List vertices = md.GetAttribute(aVertexPosition);
   final Float32List normals = md.GetAttribute(aNormal);
   return _ExtractWireframeNormals(out, vertices, normals, scale);
 }
 
-MeshData ExtractWireframe(ChronosGL cgl, MeshData md) {
+MeshData ExtractWireframe(ShaderProgram prog, MeshData md) {
   assert(md._drawMode == GL_TRIANGLES);
-  MeshData out = new MeshData(md.name, cgl, GL_LINES);
+  MeshData out = prog.MakeMeshData(md.name, GL_LINES);
   out.AddVertices(md._vertices);
   final List<int> faces = md._faces;
   List<int> lines = new List<int>(faces.length * 2);

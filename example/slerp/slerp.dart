@@ -45,7 +45,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3, canvas);
   Perspective perspective = new Perspective(orbit, 1.0, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram prg = phase.createProgram(createDemoShader());
+  ShaderProgram prg = phase.createProgram(createDemoShader());
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -71,7 +71,7 @@ void main() {
   Future.wait(futures).then((List list) {
     // Setup Mesh
     GeometryBuilder ctLogo = ImportGeometryFromWavefront(list[0]);
-    MeshData md = GeometryBuilderToMeshData("", chronosGL, ctLogo);
+    MeshData md = GeometryBuilderToMeshData("", prg, ctLogo);
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
@@ -114,9 +114,9 @@ void main() {
 
     prg.add(node);
 
-    RenderProgram programSprites =
+    ShaderProgram programSprites =
         phase.createProgram(createPointSpritesShader());
-    programSprites.add(Utils.MakeParticles(chronosGL, 2000));
+    programSprites.add(Utils.MakeParticles(programSprites, 2000));
 
     double _lastTimeMs = 0.0;
     void animate(timeMs) {

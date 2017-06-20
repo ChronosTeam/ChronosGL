@@ -220,8 +220,8 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL)
     ..viewPortW = width
     ..viewPortH = height;
-  RenderProgram programJS = phase.createProgram(createPointSpritesShader());
-  RenderProgram programGPU = phase.createProgram(createParticleShader());
+  ShaderProgram programJS = phase.createProgram(createPointSpritesShader());
+  ShaderProgram programGPU = phase.createProgram(createParticleShader());
 
 
   List<Pole> srcPoles =
@@ -237,7 +237,7 @@ void main() {
   Material matJS = new Material.Transparent("stars", BlendEquationMix)
     ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
     ..SetUniform(uPointSize, 200.0);
-  MeshData mdJS = new MeshData("mdJS", chronosGL, GL_POINTS)
+  MeshData mdJS = programJS.MakeMeshData("mdJS", GL_POINTS)
     ..AddVertices(ionsPos);
   programJS.add(new Node("ionsJS", mdJS, matJS));
 
@@ -248,9 +248,9 @@ void main() {
     ..SetUniform(uSources, ExtractPolePos(srcPoles))
     ..SetUniform(uSinks, ExtractPolePos(dstPoles));
 
-  MeshData mdOut = new MeshData("ionsOut", chronosGL, GL_POINTS)
+  MeshData mdOut = programGPU.MakeMeshData("ionsOut", GL_POINTS)
     ..AddVertices(ionsPos);
-  MeshData mdIn = new MeshData("ionsIn", chronosGL, GL_POINTS)
+  MeshData mdIn = programGPU.MakeMeshData("ionsIn", GL_POINTS)
     ..AddVertices(ionsPos);
   programGPU.add(new Node("ionsGPU", mdIn, matGPU));
 

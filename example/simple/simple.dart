@@ -52,18 +52,18 @@ void main() {
   phase.viewPortW = w;
   phase.viewPortH = h;
   // Create the first shader programs and add it to the phase.
-  RenderProgram basic = phase.createProgram(demoShader());
+  ShaderProgram basic = phase.createProgram(demoShader());
 
   // Make a torus and add it to the first program,
   Material mat = new Material("torus-mat");
   Node torus =
-      new Node("torus", ShapeTorusKnot(chronosGL, radius: 1.0, tube: 0.4), mat);
+      new Node("torus", ShapeTorusKnot(basic, radius: 1.0, tube: 0.4), mat);
   basic.add(torus);
 
   // Create the second program and the point sprites. The details are
   // hidden in the library functions.
-  RenderProgram sprites = phase.createProgram(createPointSpritesShader());
-  sprites.add(Utils.MakeParticles(chronosGL, 2000));
+  ShaderProgram sprites = phase.createProgram(createPointSpritesShader());
+  sprites.add(Utils.MakeParticles(sprites, 2000));
 
   // Main loop body
   double _lastTimeMs = 0.0;

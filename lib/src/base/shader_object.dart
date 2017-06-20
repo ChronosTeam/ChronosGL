@@ -313,19 +313,6 @@ ShaderVarDesc RetrieveShaderVarDesc(String canonical) {
   return _VarsDb[canonical];
 }
 
-// start with one to deliberately exercise corner cases
-int _nextLayoutPos = 0;
-Map<String, int> _canonicalToLayoutPos = {};
-
-int GetLayoutPos(String canonical) {
-  int pos = _canonicalToLayoutPos[canonical];
-  if (pos == null) {
-    pos = _nextLayoutPos;
-    ++_nextLayoutPos;
-    _canonicalToLayoutPos[canonical] = pos;
-  }
-  return pos;
-}
 
 // ShaderObject describes a shader (either fragment or vertex) and its
 // interface to the world on a syntactical (uncompiled) level.
@@ -339,6 +326,9 @@ class ShaderObject {
   List<String> uniformVars = [];
   List<String> varyingVars = [];
   List<String> transformVars = []; // "transformFeedbackVaryings"
+  // start with one to deliberately exercise corner cases
+  int _nextLayoutPos = 0;
+  Map<String, int> _canonicalToLayoutPos = {};
 
   ShaderObject(this.name);
 
@@ -449,4 +439,16 @@ class ShaderObject {
 
     return out.join("\n");
   }
+
+  int GetLayoutPos(String canonical) {
+    int pos = _canonicalToLayoutPos[canonical];
+    if (pos == null) {
+      pos = _nextLayoutPos;
+      ++_nextLayoutPos;
+      _canonicalToLayoutPos[canonical] = pos;
+    }
+    return pos;
+  }
+
+   Map<String, int> GetLayoutMap() => _canonicalToLayoutPos;
 }

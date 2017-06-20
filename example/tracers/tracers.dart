@@ -28,15 +28,15 @@ void main() {
   phase.clearColorBuffer = false;
 
   // Every frame 4% of the screen will be blurred
-  RenderProgram shaderProgramBlur = phase.createProgram(blurdShader());
+  ShaderProgram shaderProgramBlur = phase.createProgram(blurdShader());
   Material matBlur =
       new Material.Transparent("blur", BlendEquationStandard)
         ..SetUniform(uColorAlpha, new VM.Vector4(0.0, 0.0, 0.0, 0.04));
-  shaderProgramBlur.add(new Node("", ShapeQuad(chronosGL, 1), matBlur));
+  shaderProgramBlur.add(new Node("", ShapeQuad(shaderProgramBlur, 1), matBlur));
 
   // stars
-  RenderProgram sprites = phase.createProgram(createPointSpritesShader());
-  sprites.add(Utils.MakeParticles(chronosGL, 2000));
+  ShaderProgram sprites = phase.createProgram(createPointSpritesShader());
+  sprites.add(Utils.MakeParticles(sprites, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

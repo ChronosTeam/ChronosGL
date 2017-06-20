@@ -9,15 +9,15 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram programCM = phase.createProgram(createCubeMapShader());
+  ShaderProgram programCM = phase.createProgram(createCubeMapShader());
 
   Material mat = new Material("cubemap");
-  MeshData md = ShapeCube(chronosGL, x: 2.0, y: 2.0, z: 2.0);
+  MeshData md = ShapeCube(programCM, x: 2.0, y: 2.0, z: 2.0);
   programCM.add(new Node("cube", md, mat));
 
   RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(chronosGL, 2000));
+  programSprites.add(Utils.MakeParticles(programSprites, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -49,7 +49,7 @@ void main() {
   Future.wait(futures).then((List list) {
     Texture cubeTex = new CubeTexture(chronosGL, "stars", list);
     mat.SetUniform(uCubeTexture, cubeTex);
-    Node sky = Utils.MakeSkycube(chronosGL, cubeTex);
+    Node sky = Utils.MakeSkycube(programCM, cubeTex);
     programCM.add(sky);
     animate(0.0);
   });

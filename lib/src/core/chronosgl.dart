@@ -136,6 +136,14 @@ class ChronosGL {
     _gl.bindBuffer(kind, buffer);
   }
 
+  WEBGL.VertexArrayObject createVertexArray() {
+    return _gl.createVertexArray();
+  }
+
+  void bindVertexArray(WEBGL.VertexArrayObject vao) {
+    _gl.bindVertexArray(vao);
+  }
+
   void copyBufferSubData(dynamic srcBuffer, dynamic dstBuffer, int srcOffset,
       int dstOffset, int size) {
     _gl.copyBufferSubData(srcBuffer, dstBuffer, srcOffset, dstOffset, size);

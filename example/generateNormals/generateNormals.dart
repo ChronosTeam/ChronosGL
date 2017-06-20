@@ -27,7 +27,7 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0, -45.0, 0.3, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 2520.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram prg = phase.createProgram(createNormal2ColorShader());
+  ShaderProgram prg = phase.createProgram(createNormal2ColorShader());
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -74,7 +74,7 @@ void main() {
     // because we de-dup most things implicitly)
     for (var i = 0; i < geos.length; i++) {
       geos[i].GenerateNormalsAssumingTriangleMode();
-      MeshData md = GeometryBuilderToMeshData("", chronosGL, geos[i]);
+      MeshData md = GeometryBuilderToMeshData("", prg, geos[i]);
       // because some vertices were reused for different faces, so we need to deduplicate the indices
       Node mesh = new Node(md.name, md, mat)..setPos(-5.0 + i * 7, 4.0, 0.0);
       if (geos[i] == ctLogo) {

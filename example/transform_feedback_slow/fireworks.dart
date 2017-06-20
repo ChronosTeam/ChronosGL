@@ -9,7 +9,6 @@ const double kMaxDistance = 100.1;
 const double kMinDistance = 0.2;
 const int kIons = 10000;
 
-
 String DumpVec(VM.Vector3 v) {
   return "${v.x} ${v.y} ${v.z}";
 }
@@ -127,6 +126,9 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL)
     ..viewPortW = width
     ..viewPortH = height;
+  ShaderProgram programSprites =
+      phase.createProgram(createPointSpritesShader());
+
   List<Pole> srcPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, 2.0, 3.0);
   List<Pole> dstPoles =
@@ -146,11 +148,8 @@ void main() {
   for (var i = 0; i < kIons; i++) {
     gb.AddVertex(new VM.Vector3.zero());
   }
-  MeshData md = GeometryBuilderToMeshData("", chronosGL, gb);
-  RenderProgram programSprites =
-      phase.createProgram(createPointSpritesShader());
+  MeshData md = GeometryBuilderToMeshData("", programSprites, gb);
   programSprites.add(new Node("ions", md, mat));
-
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {

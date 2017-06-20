@@ -13,7 +13,7 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram basic = phase.createProgram(createTexturedShader());
+  ShaderProgram basic = phase.createProgram(createTexturedShader());
 
   final Material matWood = new Material("wood")
     ..SetUniform(uColor, ColorYellow);
@@ -26,37 +26,37 @@ void main() {
     ..ForceUniform(cBlendEquation, BlendEquationStandard);
 
   {
-    Node ico = new Node("sphere", ShapeIcosahedron(chronosGL, 3), matWood)
+    Node ico = new Node("sphere", ShapeIcosahedron(basic, 3), matWood)
       ..setPos(0.0, 0.0, 0.0);
     basic.add(ico);
   }
   {
-    Node cube = new Node("cube", ShapeCube(chronosGL), matGradient)
+    Node cube = new Node("cube", ShapeCube(basic), matGradient)
       ..setPos(-5.0, 0.0, -5.0);
     basic.add(cube);
   }
 
   {
     Node cyl = new Node(
-        "cylinder", ShapeCylinder(chronosGL, 3.0, 6.0, 2.0, 32), matTrans)
+        "cylinder", ShapeCylinder(basic, 3.0, 6.0, 2.0, 32), matTrans)
       ..setPos(5.0, 0.0, -5.0);
     basic.add(cyl);
   }
   {
-    Node quad = new Node("quad", ShapeQuad(chronosGL, 2), matTrans)
+    Node quad = new Node("quad", ShapeQuad(basic, 2), matTrans)
       //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
       ..setPos(-5.0, 0.0, 5.0);
     basic.add(quad);
   }
   {
     Node torus = new Node(
-        "torus", ShapeTorusKnot(chronosGL, radius: 1.0, tube: 0.4), matGradient)
+        "torus", ShapeTorusKnot(basic, radius: 1.0, tube: 0.4), matGradient)
       ..setPos(5.0, 0.0, 5.0);
     basic.add(torus);
   }
 
-  RenderProgram sprites = phase.createProgram(createPointSpritesShader());
-  sprites.add(Utils.MakeParticles(chronosGL, 2000));
+  ShaderProgram sprites = phase.createProgram(createPointSpritesShader());
+  sprites.add(Utils.MakeParticles(sprites, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

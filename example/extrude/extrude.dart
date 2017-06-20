@@ -30,7 +30,7 @@ void main() {
   List<VM.Vector2> base = ContourCircle(20, 10.0);
   List<VM.Vector2> grad = GetContourGradient(base);
 
-  MeshData MakeBevelMesh() {
+  MeshData MakeBevelMesh(ShaderProgram prog) {
     double width = gWidth.valueAsNumber + 0.0;
     double height = gHeight.valueAsNumber + 0.0;
     Easing easingWidth = MapStringToEasing[gEasingWidth.value];
@@ -43,10 +43,10 @@ void main() {
         BevelStrips(base, grad, supports, new VM.Matrix3.identity());
     GeometryBuilder gb = new GeometryBuilder();
     gb.AddFaces4Strips(strips, true);
-    return GeometryBuilderToMeshDataWireframe("", chronosGL, gb);
+    return GeometryBuilderToMeshDataWireframe("", prog, gb);
   }
 
-  Node node = new Node("pipe", MakeBevelMesh(), matWire);
+  Node node = new Node("pipe", MakeBevelMesh(program), matWire);
   program.add(node);
 
   void resolutionChange(HTML.Event ev) {
@@ -68,7 +68,7 @@ void main() {
     timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
-    node.meshData = MakeBevelMesh();
+    node.meshData = MakeBevelMesh(program);
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
     phase.draw([perspective]);

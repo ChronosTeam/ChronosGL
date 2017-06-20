@@ -35,12 +35,12 @@ void main() {
   phase2.viewPortW = width;
   phase2.viewPortH = height;
 
-  RenderProgram prg2 = phase2.createProgram(createSobelShader());
+  ShaderProgram prg2 = phase2.createProgram(createSobelShader());
   prg2
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetInput(uDepthMap, fb.depthTexture)
     ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..add(UnitNode(prg2));
 
   RenderPhase phase1only = new RenderPhase("phase1only", chronosGL, null);
   phase1only.viewPortW = width;
@@ -72,7 +72,7 @@ void main() {
     // Setup Mesh
     GeometryBuilder ctLogo = ImportGeometryFromWavefront(list[0]);
 
-    MeshData md = GeometryBuilderToMeshData("", chronosGL, ctLogo);
+    MeshData md = GeometryBuilderToMeshData("", prg1, ctLogo);
     Material mat = new Material("mat");
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)

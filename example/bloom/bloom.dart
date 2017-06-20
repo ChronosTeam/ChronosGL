@@ -29,51 +29,54 @@ void main() {
     ..viewPortW = width
     ..viewPortH = height;
 
-  RenderProgram perlinNoise =
+  ShaderProgram perlinNoise =
       phaseMain.createProgram(createPerlinNoiseColorShader(true));
 
   Material mat = new Material("mat");
-  Node node = new Node("torus", ShapeTorusKnot(chronosGL), mat);
+  Node node = new Node("torus", ShapeTorusKnot(perlinNoise), mat);
   perlinNoise.add(node);
 
   RenderPhase phaseHighPass = new RenderPhase("highpass", chronosGL, fb2)
     ..viewPortW = width ~/ 2
     ..viewPortH = height ~/ 2;
 
-  RenderProgram progHighPass =
-      phaseHighPass.createProgram(createLuminosityHighPassShader())
+  ShaderProgram progHighPass = phaseHighPass
+      .createProgram(createLuminosityHighPassShader())
         ..SetInput(uRange, new VM.Vector2(0.65, 0.65 + 0.01))
         ..SetInput(uColorAlpha, new VM.Vector4.zero())
-        ..SetInput(uTexture, fb.colorTexture)
-        ..add(UnitNode(chronosGL));
+        ..SetInput(uTexture, fb.colorTexture);
+
+  progHighPass.add(UnitNode(progHighPass));
 
   int radius = 6;
 
   RenderPhase phaseBloom1 = new RenderPhase("bloom1", chronosGL, fb1)
     ..viewPortW = width ~/ 2
     ..viewPortH = height ~/ 2;
-  phaseBloom1.createProgram(createBloomTextureShader(radius, radius * 1.0))
-    ..SetInput(uDirection, new VM.Vector2(1.5, 0.0))
-    ..SetInput(uTexture, fb2.colorTexture)
-    ..add(UnitNode(chronosGL));
+  ShaderProgram bloom1 = phaseBloom1
+      .createProgram(createBloomTextureShader(radius, radius * 1.0))
+        ..SetInput(uDirection, new VM.Vector2(1.5, 0.0))
+        ..SetInput(uTexture, fb2.colorTexture);
+  bloom1.add(UnitNode(bloom1));
 
   RenderPhase phaseBloom2 = new RenderPhase("bloom2", chronosGL, fb2)
     ..viewPortW = width ~/ 2
     ..viewPortH = height ~/ 2;
-  phaseBloom2.createProgram(createBloomTextureShader(radius, radius * 1.0))
+  ShaderProgram bloom2 = phaseBloom2.createProgram(createBloomTextureShader(radius, radius * 1.0))
     ..SetInput(uDirection, new VM.Vector2(0.0, 1.5))
-    ..SetInput(uTexture, fb1.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb1.colorTexture);
+    bloom2.add(UnitNode(bloom2));
 
   RenderPhase phaseApply = new RenderPhase("apply", chronosGL, null)
     ..viewPortW = width
     ..viewPortH = height;
-   RenderProgram progApply = phaseApply.createProgram(createApplyBloomEffectShader())
-    ..SetInput(uTexture, fb.colorTexture)
-    ..SetInput(uScale, 0.6)
-    ..SetInput(uColor, ColorWhite)
-    ..SetInput(uTexture2, fb2.colorTexture)
-    ..add(UnitNode(chronosGL));
+  RenderProgram progApply =
+      phaseApply.createProgram(createApplyBloomEffectShader())
+        ..SetInput(uTexture, fb.colorTexture)
+        ..SetInput(uScale, 0.6)
+        ..SetInput(uColor, ColorWhite)
+        ..SetInput(uTexture2, fb2.colorTexture);
+  progApply.add(UnitNode(progApply));
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {

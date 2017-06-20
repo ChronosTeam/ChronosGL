@@ -47,99 +47,86 @@ void main() {
     ..viewPortH = height;
   Map<String, RenderProgram> effects = {};
   effects["none"] = phase2.createProgram(createCopyShader())
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["toon"] = phase2.createProgram(createToonShader())
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["hexalate-10"] = phase2.createProgram(createHexPixelateShader())
     ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
     ..SetInput(uPointSize, 10.0)
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["hexalate-20"] = phase2.createProgram(createHexPixelateShader())
     ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
     ..SetInput(uPointSize, 20.0)
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["hexalate-varying"] = phase2.createProgram(createHexPixelateShader())
     ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
     ..SetInput(uPointSize, 10.0)
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["dot"] = phase2.createProgram(createDotShader())
     ..SetInput(uCenter2, new VM.Vector2(0.0, 0.0))
     ..SetInput(uScale, 0.8)
     ..SetInput(uAngle, 0.5)
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["dot2"] = phase2.createProgram(createDotShader())
     ..SetInput(uCenter2, new VM.Vector2(0.0, 0.0))
     ..SetInput(uScale, 0.3)
     ..SetInput(uAngle, 0.5)
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["tv-distortion"] = phase2.createProgram(createTvDistortionShader())
     ..SetInput(uScale, 0.0009)
     ..SetInput(uTime, 0.0)
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["kaleidoscope8"] = phase2.createProgram(createKaleidoscopeShader())
     ..SetInput(uScale, 8.0)
     ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["kaleidoscope5"] = phase2.createProgram(createKaleidoscopeShader())
     ..SetInput(uScale, 5.0)
     ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["lumidots-8"] = phase2.createProgram(createLumidotsShader())
     ..SetInput(uPointSize, 8.0)
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["lumidots-16"] = phase2.createProgram(createLumidotsShader())
     ..SetInput(uPointSize, 16.0)
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["lumidots-varying"] = phase2.createProgram(createLumidotsShader())
     ..SetInput(uPointSize, 16.0)
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["square-8"] = phase2.createProgram(createSquarePixelateShader())
     ..SetInput(uPointSize, 8.0)
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["square-16"] = phase2.createProgram(createSquarePixelateShader())
     ..SetInput(uPointSize, 16.0)
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["square-varying"] = phase2.createProgram(createSquarePixelateShader())
     ..SetInput(uPointSize, 16.0)
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
 
   effects["luminosity-highpass"] =
       phase2.createProgram(createLuminosityHighPassShader())
         ..SetInput(uRange, new VM.Vector2(0.85, 0.86))
         ..SetInput(uColorAlpha, new VM.Vector4.zero())
-        ..SetInput(uTexture, fb.colorTexture)
-        ..add(UnitNode(chronosGL));
+        ..SetInput(uTexture, fb.colorTexture);
+
+  for (ShaderProgram prog in effects.values) {
+      prog.add(UnitNode(prog));
+  }
 
   assert(gEffect != null);
   for (String o in effects.keys) {
@@ -186,7 +173,7 @@ void main() {
   Future.wait(futures).then((List list) {
     // Setup Mesh
     GeometryBuilder ctLogo = ImportGeometryFromWavefront(list[0]);
-    MeshData md = GeometryBuilderToMeshData("", chronosGL, ctLogo);
+    MeshData md = GeometryBuilderToMeshData("", prg1, ctLogo);
     Material mat = new Material("mat")..SetUniform(uColor, ColorGray8);
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)

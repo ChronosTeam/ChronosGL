@@ -9,9 +9,9 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(15.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram prg = phase.createProgram(createSolidColorShader());
+  ShaderProgram prg = phase.createProgram(createSolidColorShader());
 
-  MeshData sphere = ShapeIcosahedron(chronosGL);
+  MeshData sphere = ShapeIcosahedron(prg);
   Material headMat = new Material("head")
     ..SetUniform(uColor, new VM.Vector3(0.94, 0.72, 0.63));
   Node head = new Node("head", sphere, headMat);
@@ -37,9 +37,9 @@ void main() {
 
   prg.add(head);
 
-  RenderProgram programSprites =
+  ShaderProgram sprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(chronosGL, 2000));
+  sprites.add(Utils.MakeParticles(sprites, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

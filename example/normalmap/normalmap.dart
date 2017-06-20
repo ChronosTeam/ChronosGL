@@ -75,7 +75,7 @@ void main() {
     ..SetUniform(uColor, ColorYellow)
     ..SetUniform(uShininess, 25.0);
   Node shapePointLight = new Node(
-      "pointLight", ShapeIcosahedron(chronosGL, 4, 0.1), lightSourceMat)
+      "pointLight", ShapeIcosahedron(fixed, 4, 0.1), lightSourceMat)
     ..setPosFromVec(posLight);
   fixed.add(shapePointLight);
 
@@ -131,7 +131,7 @@ void main() {
     // Setup Mesh
     List<GeometryBuilder> gbs = ImportGeometryFromThreeJsJson(list[0]);
     print(gbs[0]);
-    MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL, gbs[0]);
+    MeshData md = GeometryBuilderToMeshData(modelFile, prg, gbs[0]);
 
     Node mesh = new Node(md.name, md, mat);
     Node n = new Node.Container("wrapper", mesh);

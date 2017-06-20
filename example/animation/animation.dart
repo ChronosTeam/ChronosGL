@@ -82,9 +82,12 @@ void main() {
 
   final RenderPhase phase = new RenderPhase("main", chronosGL);
   //RenderProgram prg = phase.createProgram(createDemoShader());
-  final RenderProgram prgAnim = phase.createProgram(createAnimationShader());
-  final RenderProgram prgSimple = phase.createProgram(createDemoShader());
-  final RenderProgram prgBone = phase.createProgram(createSolidColorShader());
+  final ShaderProgram prgAnim = phase.createProgram(createAnimationShader());
+  final ShaderProgram prgSimple = phase.createProgram(createDemoShader());
+  final ShaderProgram prgBone = phase.createProgram(createSolidColorShader());
+
+  prgSimple.HasDownCompatibleAttributesTo(prgAnim);
+
   final Material matWire = new Material("wire")
     ..SetUniform(uColor, ColorYellow);
 
@@ -93,7 +96,7 @@ void main() {
   List<double> animationSteps;
   BoneVisualizer boneVisualizer;
 
-  Map<String, RenderProgram> programMap = {
+  Map<String, ShaderProgram> programMap = {
     "idSkeleton": prgBone,
     "idStatic": prgSimple,
     "idAnimation": prgAnim,
@@ -164,7 +167,7 @@ void main() {
     SkeletalAnimation anim = ImportAnimationFromAssimp2Json(animJson, skeleton);
     print("Imnported ${anim}");
     {
-      MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb);
+      MeshData md = GeometryBuilderToMeshData(meshFile, prgAnim, gb);
       Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
@@ -190,7 +193,7 @@ void main() {
           animationData);
       mat.SetUniform(uAnimationTable, animationTable);
 
-      boneVisualizer = new BoneVisualizer(chronosGL, matWire, skeleton, anim);
+      boneVisualizer = new BoneVisualizer(prgBone, matWire, skeleton, anim);
 
       Node mesh = boneVisualizer.mesh..rotX(3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);

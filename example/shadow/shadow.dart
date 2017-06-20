@@ -152,18 +152,18 @@ final Material matNormals = new Material("normals")
 final Material lightSourceMat = new Material("light")
   ..SetUniform(uColor, ColorYellow);
 
-List<Node> MakeScene(ChronosGL chronosGL) {
+List<Node> MakeScene(ShaderProgram prog) {
   return [
-    new Node("sphere", ShapeIcosahedron(chronosGL, 3), matObjects)
+    new Node("sphere", ShapeIcosahedron(prog, 3), matObjects)
       ..setPos(0.0, 0.0, 0.0),
-    new Node("cube", ShapeCube(chronosGL), matObjects)..setPos(-5.0, 0.0, -5.0),
+    new Node("cube", ShapeCube(prog), matObjects)..setPos(-5.0, 0.0, -5.0),
     new Node(
-        "cylinder", ShapeCylinder(chronosGL, 3.0, 6.0, 2.0, 32), matObjects)
+        "cylinder", ShapeCylinder(prog, 3.0, 6.0, 2.0, 32), matObjects)
       ..setPos(5.0, 0.0, -5.0),
-    new Node("torusknot", ShapeTorusKnot(chronosGL, radius: 1.0, tube: 0.4),
+    new Node("torusknot", ShapeTorusKnot(prog, radius: 1.0, tube: 0.4),
         matObjects)
       ..setPos(5.0, 0.0, 5.0),
-    new Node("plane", ShapeCube(chronosGL, x: 30.0, y: 0.1, z: 30.0), matGray)
+    new Node("plane", ShapeCube(prog, x: 30.0, y: 0.1, z: 30.0), matGray)
       ..setPos(0.0, -10.0, 0.0),
   ];
 }
@@ -190,20 +190,21 @@ void main() {
 
   // display scene with shadow on left part of screen.
   RenderPhase phaseMain = new RenderPhase("main", chronosGL);
-  RenderProgram basic = phaseMain
+  ShaderProgram basic = phaseMain
       .createProgram(createLightShaderBlinnPhongWithShadow())
         ..SetInput(uShadowMap, shadowMap.GetMapTexture())
         ..SetInput(uCanvasSize, shadowMap.GetMapSize())
         ..SetInput(uShadowBias, 0.03);
-  RenderProgram fixed = phaseMain.createProgram(createSolidColorShader());
+  ShaderProgram fixed = phaseMain.createProgram(createSolidColorShader());
+  fixed.HasDownCompatibleAttributesTo(basic);
 
-  for (Node n in MakeScene(chronosGL)) {
+  for (Node n in MakeScene(basic)) {
     basic.add(n);
     shadowMap.AddShadowCaster(n);
   }
 
   // Same order as lightSources
-  MeshData mdLight = EmptyLightVisualizer(chronosGL, "light");
+  MeshData mdLight = EmptyLightVisualizer(fixed, "light");
   fixed.add(new Node("light", mdLight, lightSourceMat));
 
   // Event Handling

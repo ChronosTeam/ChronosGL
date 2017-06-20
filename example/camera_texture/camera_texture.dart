@@ -19,7 +19,7 @@ void main() {
   final Material matGradient = new Material("gradient")
     ..SetUniform(uColor, ColorBlack);
 
-  Node cube = new Node("cube", ShapeCube(chronosGL), matGradient)
+  Node cube = new Node("cube", ShapeCube(basic), matGradient)
     ..setPos(-5.0, 0.0, -5.0);
   basic.add(cube);
 

@@ -38,6 +38,29 @@ class ShaderProgram extends RenderProgram {
     }
   }
 
+  MeshData MakeMeshData(String name, int drawMode) {
+     return new MeshData(name, _cgl, drawMode, _shaderObjectV.GetLayoutMap());
+  }
+
+  bool HasCompatibleAttributesTo(ShaderProgram other) {
+    var a = _shaderObjectV.GetLayoutMap();
+    var b = other._shaderObjectV.GetLayoutMap();
+    if (a.length != b.length) return false;
+    for (String key in a.keys) {
+      if (a[key] != b[key]) return false;
+    }
+    return true;
+  }
+
+  bool HasDownCompatibleAttributesTo(ShaderProgram other) {
+    var a = _shaderObjectV.GetLayoutMap();
+    var b = other._shaderObjectV.GetLayoutMap();
+    for (String key in a.keys) {
+      if (a[key] != b[key]) return false;
+    }
+    return true;
+  }
+
   void _ClearState() {
     _numInstances = 0;
     _nextTextureUnit = 0;
@@ -47,14 +70,17 @@ class ShaderProgram extends RenderProgram {
     _elementArrayBuffer = null;
   }
 
+
   bool _HasAttribute(String canonical) {
     return _attributes.contains(canonical);
   }
 
+  ChronosGL getContext() => _cgl;
+
   void _SetAttribute(String canonical, dynamic /* Buffer */ buffer, normalized,
       int stride, int offset) {
     _attributesInitialized.add(canonical);
-    final int index = GetLayoutPos(canonical);
+    final int index = _shaderObjectV.GetLayoutPos(canonical);
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "Unknown canonical ${canonical}";
     switch (desc.type) {
@@ -224,7 +250,7 @@ class ShaderProgram extends RenderProgram {
     if (debug) print("[${name} setting attributes");
     _cgl.useProgram(_program);
     for (String a in _attributes) {
-      final index = GetLayoutPos(a);
+      final index = _shaderObjectV.GetLayoutPos(a);
       if (debug) print("[${name}] $a $index");
       _cgl.enableVertexAttribArray(
           index, a.codeUnitAt(0) == prefixInstancer ? 1 : 0);
@@ -258,7 +284,7 @@ class ShaderProgram extends RenderProgram {
         case prefixInstancer:
         case prefixAttribute:
           if (_HasAttribute(canonical)) {
-            _SetAttribute(canonical, inputs[canonical], false, 0, 0);
+            // _SetAttribute(canonical, inputs[canonical], false, 0, 0);
             ++count;
           }
           break;
@@ -288,7 +314,7 @@ class ShaderProgram extends RenderProgram {
       String mesg =
           "${name} ${_drawMode}: uninitialized inputs: ${uninitialized}";
       LogError(mesg);
-      throw mesg;
+      //throw mesg;
     }
 
     bool hasTransforms = _shaderObjectV.transformVars.length > 0;
@@ -302,7 +328,7 @@ class ShaderProgram extends RenderProgram {
   void DrawTearDown() {
     if (debug) print("[${name} unsetting attributes");
     for (String canonical in _attributes) {
-      int index = GetLayoutPos(canonical);
+      int index = _shaderObjectV.GetLayoutPos(canonical);
       _cgl.disableVertexAttribArray(
           index, canonical.codeUnitAt(0) == prefixInstancer);
     }
