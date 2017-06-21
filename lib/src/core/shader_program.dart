@@ -83,7 +83,6 @@ class RenderProgram extends RenderInputSink {
     var b = other._shaderObjectV.GetLayoutMap();
     for (String key in a.keys) {
       if (a[key] != b[key]) {
-        print("@@ ${key} ${a[key]} ${b[key]} ");
         return false;
       }
     }
@@ -233,12 +232,6 @@ class RenderProgram extends RenderInputSink {
   void DrawSetUp() {
     if (debug) print("[${name} setting attributes");
     _cgl.useProgram(_program);
-    for (String a in _attributes) {
-      final index = _shaderObjectV.GetLayoutPos(a);
-      if (debug) print("[${name}] $a $index");
-      _cgl.enableVertexAttribArray(
-          index, a.codeUnitAt(0) == prefixInstancer ? 1 : 0);
-    }
   }
 
   void SetInputs(Map<String, dynamic> inputs) {
@@ -272,11 +265,16 @@ class RenderProgram extends RenderInputSink {
 
   void _drawOne(
       MeshData md, Map<String, dynamic> inputs, List<DrawStats> stats) {
-    // TODO: put this behind a flag
-    _attributesInitialized.clear();
-    _uniformsInitialized.clear();
     _ClearState();
+
+    // TODO: put this behind a flag
+    _uniformsInitialized.clear();
     SetInputs(inputs);
+
+    _attributesInitialized.clear();
+    for (String a in md.GetAttributes()) {
+      _attributesInitialized.add(a);
+    }
     if (stats != null) {
       stats.add(new DrawStats(
           name, md.GetNumInstances(), md.GetNumItems(), md.drawMode));
@@ -331,12 +329,5 @@ class RenderProgram extends RenderInputSink {
     DrawTearDown();
   }
 
-  void DrawTearDown() {
-    if (debug) print("[${name} unsetting attributes");
-    for (String canonical in _attributes) {
-      int index = _shaderObjectV.GetLayoutPos(canonical);
-      _cgl.disableVertexAttribArray(
-          index, canonical.codeUnitAt(0) == prefixInstancer);
-    }
-  }
+  void DrawTearDown() {}
 }

@@ -124,12 +124,12 @@ class MeshData extends NamedEntity {
   void AddAttribute(String canonical, List data, int width) {
     _buffers[canonical] = _cgl.createBuffer();
     ChangeAttribute(canonical, data, width);
-    _cgl.bindVertexArray(_vao);
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "Unknown canonical ${canonical}";
     assert(_locationMap.containsKey(canonical),
         "unexpected attribute ${canonical}");
     int index = _locationMap[canonical];
+    _cgl.bindVertexArray(_vao);
     _cgl.enableVertexAttribArray(index, 0);
     _cgl.vertexAttribPointer(
         _buffers[canonical], index, desc.GetSize(), GL_FLOAT, false, 0, 0);
@@ -139,11 +139,11 @@ class MeshData extends NamedEntity {
     final String canonical = aVertexPosition;
     _buffers[canonical] = _cgl.createBuffer();
     ChangeVertices(data);
-    _cgl.bindVertexArray(_vao);
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "Unknown canonical ${canonical}";
     assert(_locationMap.containsKey(canonical));
     int index = _locationMap[canonical];
+    _cgl.bindVertexArray(_vao);
     _cgl.enableVertexAttribArray(index, 0);
     _cgl.vertexAttribPointer(
         _buffers[canonical], index, desc.GetSize(), GL_FLOAT, false, 0, 0);
