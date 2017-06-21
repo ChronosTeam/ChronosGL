@@ -2,7 +2,7 @@ part of base;
 
 /// ## Class Orthographic (is a RenderInputSource)
 /// TBD
-class Orthographic extends RenderInputSource {
+class Orthographic extends UniformSource {
   final Camera _camera;
   final VM.Matrix4 _proj = new VM.Matrix4.zero();
   final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
@@ -21,7 +21,7 @@ class Orthographic extends RenderInputSource {
   }
 
   @override
-  void AddToSink(RenderInputSink inputs) {
+  void AddToSink(UniformSink inputs) {
     _camera.getViewMatrix(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
     _projViewMatrix.multiply(_viewMatrix);
@@ -29,7 +29,7 @@ class Orthographic extends RenderInputSource {
   }
 
   @override
-  void RemoveFromSink(RenderInputSink inputs) {
+  void RemoveFromSink(UniformSink inputs) {
     inputs.Remove(uPerspectiveViewMatrix);
   }
 
@@ -51,7 +51,7 @@ class Orthographic extends RenderInputSource {
 /// provides the **Input** for perspective projection, i.e.
 /// the uPerspectiveViewMatrix Uniform which also requires a **Camera**
 /// for view matrix.
-class Perspective extends RenderInputSource {
+class Perspective extends UniformSource {
   Camera _camera;
   double _fov = 50.0; // horizontal fov in deg  divided by 2
   double _aspect = 1.0;
@@ -90,7 +90,7 @@ class Perspective extends RenderInputSource {
   }
 
   @override
-  void AddToSink(RenderInputSink inputs) {
+  void AddToSink(UniformSink inputs) {
     inputs.SetInput(uEyePosition, _camera.getEyePosition(), this);
     _camera.getViewMatrix(_viewMatrix);
     _perspectiveViewMatrix.setFrom(_mat);
@@ -99,7 +99,7 @@ class Perspective extends RenderInputSource {
   }
 
   @override
-  void RemoveFromSink(RenderInputSink inputs) {
+  void RemoveFromSink(UniformSink inputs) {
     inputs.Remove(uEyePosition);
     inputs.Remove(uPerspectiveViewMatrix);
   }

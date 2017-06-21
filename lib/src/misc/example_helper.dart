@@ -168,10 +168,10 @@ class Utils {
 
   static int id = 1;
 
-  static Node MakeParticles(ChronosGL cgl, int numPoints,
+  static Node MakeParticles(RenderProgram prog, int numPoints,
       [int dimension = 100]) {
     Material mat = new Material.Transparent("stars", BlendEquationMix)
-      ..SetUniform(uTexture, createParticleTexture(cgl))
+      ..SetUniform(uTexture, createParticleTexture(prog.getContext()))
       ..SetUniform(uPointSize, 1000.0);
 
     Math.Random rand = new Math.Random();
@@ -185,7 +185,7 @@ class Utils {
 
     id++;
     final String name = 'point_sprites_mesh_' + id.toString();
-    return new Node(name, GeometryBuilderToMeshData(name, cgl, gb), mat);
+    return new Node(name, GeometryBuilderToMeshData(name, prog, gb), mat);
   }
 
   static String getQueryVariable(String name) {
@@ -201,7 +201,7 @@ class Utils {
   }
 }
 
-MeshData ShapeCube(ChronosGL cgl,
+MeshData ShapeCube(RenderProgram prog,
     {double x: 1.0,
     double y: 1.0,
     double z: 1.0,
@@ -211,10 +211,10 @@ MeshData ShapeCube(ChronosGL cgl,
     double vMax: 1.0}) {
   GeometryBuilder gb = CubeGeometry(
       x: x, y: y, z: z, uMin: uMin, uMax: uMax, vMin: vMin, vMax: vMax);
-  return GeometryBuilderToMeshData("cube", cgl, gb);
+  return GeometryBuilderToMeshData("cube", prog, gb);
 }
 
-MeshData ShapeWedge(ChronosGL cgl,
+MeshData ShapeWedge(RenderProgram prog,
     {double x: 1.0,
     double y: 1.0,
     double z: 1.0,
@@ -224,24 +224,24 @@ MeshData ShapeWedge(ChronosGL cgl,
     double vMax: 1.0}) {
   GeometryBuilder gb = WedgeGeometry(
       x: x, y: y, z: z, uMin: uMin, uMax: uMax, vMin: vMin, vMax: vMax);
-  return GeometryBuilderToMeshData("wedge", cgl, gb);
+  return GeometryBuilderToMeshData("wedge", prog, gb);
 }
 
-MeshData ShapeCylinder(ChronosGL cgl, double radTop, double radBot,
+MeshData ShapeCylinder(RenderProgram prog, double radTop, double radBot,
     double height, int radialSubdivisions,
     [bool computeNormals = true]) {
   GeometryBuilder gb = CylinderGeometry(
       radTop, radBot, height, radialSubdivisions, computeNormals);
-  return GeometryBuilderToMeshData("cylinder-${radialSubdivisions}", cgl, gb);
+  return GeometryBuilderToMeshData("cylinder-${radialSubdivisions}", prog, gb);
 }
 
-MeshData ShapeIcosahedron(ChronosGL cgl,
+MeshData ShapeIcosahedron(RenderProgram prog,
     [int subdivisions = 4, double scale = 1.0, bool computeNormals = true]) {
   GeometryBuilder gb = IcosahedronGeometry(subdivisions, scale, computeNormals);
-  return GeometryBuilderToMeshData("icosahedron-${subdivisions}", cgl, gb);
+  return GeometryBuilderToMeshData("icosahedron-${subdivisions}", prog, gb);
 }
 
-MeshData ShapeTorusKnot(ChronosGL cgl,
+MeshData ShapeTorusKnot(RenderProgram prog,
     {double radius: 20.0,
     double tube: 4.0,
     int segmentsR: 128,
@@ -261,24 +261,24 @@ MeshData ShapeTorusKnot(ChronosGL cgl,
       heightScale: heightScale,
       useQuads: useQuads,
       computeNormals: computeNormals);
-  return GeometryBuilderToMeshData("torusknot", cgl, gb);
+  return GeometryBuilderToMeshData("torusknot", prog, gb);
 }
 
-MeshData ShapeQuad(ChronosGL cgl, int size) {
+MeshData ShapeQuad(RenderProgram prog, int size) {
   GeometryBuilder gb = QuadGeometry(size);
-  return GeometryBuilderToMeshData("quad", cgl, gb);
+  return GeometryBuilderToMeshData("quad", prog, gb);
 }
 
-MeshData ShapeGrid(
-    ChronosGL cgl, int xstrips, int ystrips, double xlen, double ylen) {
+MeshData ShapeGrid(RenderProgram prog,
+    int xstrips, int ystrips, double xlen, double ylen) {
   GeometryBuilder gb = GridGeometry(xstrips, ystrips, xlen, ylen);
-  return GeometryBuilderToMeshData("strips", cgl, gb);
+  return GeometryBuilderToMeshData("strips", prog, gb);
 }
 
 final Material EmptyMaterial = new Material("empty-mat");
 
-Node UnitNode(ChronosGL cgl) {
-  final MeshData UnitQuad = ShapeQuad(cgl, 1);
+Node UnitNode(RenderProgram prog) {
+  final MeshData UnitQuad = ShapeQuad(prog, 1);
   return new Node("unit-mesh", UnitQuad, EmptyMaterial);
 }
 

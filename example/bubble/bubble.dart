@@ -44,11 +44,11 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL);
 
   RenderProgram sprites = phase.createProgram(createPointSpritesShader());
-  sprites.add(Utils.MakeParticles(chronosGL, 2000));
+  sprites.add(Utils.MakeParticles(sprites, 2000));
 
   RenderProgram shaderSpheres = phase.createProgram(sphereShader());
 
-  MeshData md = ShapeIcosahedron(chronosGL, 3);
+  MeshData md = ShapeIcosahedron(shaderSpheres, 3);
   shaderSpheres.add(new Node("sphere", md, matSphere)..setPos(0.0, 0.0, 0.0));
   shaderSpheres.add(new Node("sphere", md, matSphere)..setPos(1.5, 0.0, 0.0));
 

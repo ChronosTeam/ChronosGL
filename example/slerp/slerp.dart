@@ -71,7 +71,7 @@ void main() {
   Future.wait(futures).then((List list) {
     // Setup Mesh
     GeometryBuilder ctLogo = ImportGeometryFromWavefront(list[0]);
-    MeshData md = GeometryBuilderToMeshData("", chronosGL, ctLogo);
+    MeshData md = GeometryBuilderToMeshData("", prg, ctLogo);
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
@@ -116,7 +116,7 @@ void main() {
 
     RenderProgram programSprites =
         phase.createProgram(createPointSpritesShader());
-    programSprites.add(Utils.MakeParticles(chronosGL, 2000));
+    programSprites.add(Utils.MakeParticles(programSprites, 2000));
 
     double _lastTimeMs = 0.0;
     void animate(timeMs) {

@@ -27,7 +27,7 @@ void main() {
   {
     GeometryBuilder gb = IcosahedronGeometry(2)..GenerateWireframeCenters();
     Node ico = new Node("sphere",
-        GeometryBuilderToMeshData("icosahedron", chronosGL, gb), matWireframe)
+        GeometryBuilderToMeshData("icosahedron", program, gb), matWireframe)
       ..setPos(0.0, 0.0, 0.0);
     program.add(ico);
   }
@@ -35,7 +35,7 @@ void main() {
   {
     GeometryBuilder gb = CubeGeometry()..GenerateWireframeCenters();
     Node cube = new Node(
-        "cube", GeometryBuilderToMeshData("cube", chronosGL, gb), matWireframe)
+        "cube", GeometryBuilderToMeshData("cube", program, gb), matWireframe)
       ..setPos(-5.0, 0.0, -5.0);
     program.add(cube);
   }
@@ -43,7 +43,7 @@ void main() {
   {
     GeometryBuilder gb = WedgeGeometry()..GenerateWireframeCenters();
     Node wedge = new Node("wedge",
-        GeometryBuilderToMeshData("wedge", chronosGL, gb), matWireframe)
+        GeometryBuilderToMeshData("wedge", program, gb), matWireframe)
       ..setPos(0.0, -5.0, 0.0);
     program.add(wedge);
   }
@@ -52,7 +52,7 @@ void main() {
     GeometryBuilder gb = CylinderGeometryWireframeFriendly(3.0, 4.0, 2.0, 16)
       ..GenerateWireframeCenters();
     Node cyl = new Node("cylinder",
-        GeometryBuilderToMeshData("cylinder", chronosGL, gb), matWireframe)
+        GeometryBuilderToMeshData("cylinder", program, gb), matWireframe)
       ..setPos(5.0, 0.0, -5.0);
     program.add(cyl);
   }
@@ -60,7 +60,7 @@ void main() {
   {
     GeometryBuilder gb = QuadGeometry(2)..GenerateWireframeCenters();
     Node quad = new Node(
-        "quad", GeometryBuilderToMeshData("quad", chronosGL, gb), matWireframe)
+        "quad", GeometryBuilderToMeshData("quad", program, gb), matWireframe)
       ..setPos(-5.0, 0.0, 5.0);
     program.add(quad);
   }
@@ -69,7 +69,7 @@ void main() {
     GeometryBuilder gb = ShapeTorusKnotGeometry(radius: 1.0, tube: 0.4)
       ..GenerateWireframeCenters();
     Node torus = new Node("torus",
-        GeometryBuilderToMeshData("torus", chronosGL, gb), matWireframe)
+        GeometryBuilderToMeshData("torus", program, gb), matWireframe)
       ..setPos(5.0, 0.0, 5.0);
     program.add(torus);
   }

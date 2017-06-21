@@ -163,7 +163,7 @@ class Ion {
       if (len <= kMinDistance) {
         Pole p = srcs[rng.nextInt(srcs.length)];
         _pos = p.Pos() + RandomVector(rng, 20.0 * dt);
-        print("too close: ${len}");
+        print("too close: ${len} ${_[]}");
         return;
       }
       force += t / (len * len);
@@ -196,22 +196,30 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   final int width = canvas.clientWidth;
   final int height = canvas.clientHeight;
-  canvas.width = width;
-  canvas.height = height;
 
   ChronosGL chronosGL = new ChronosGL(canvas);
+
   OrbitCamera orbit = new OrbitCamera(15.0, 0.5, 0.5, canvas);
+
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
     ..AdjustAspect(width, height);
+
   RenderPhase phase = new RenderPhase("main", chronosGL)
     ..viewPortW = width
     ..viewPortH = height;
+  /*
   List<Pole> srcPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, 2.0, 3.0);
   List<Pole> dstPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, -2.0, 3.0);
+   */
+  List<Pole> srcPoles = [];
+  srcPoles.add(new Pole(new VM.Vector3(2.0, 0.0, 2.0) * 3.0)..Update(1.0));
 
-  VM.Vector3 outOfBounds = new VM.Vector3.all(kMaxDistance * 100.0);
+  List<Pole> dstPoles = [];
+  dstPoles.add(new Pole(new VM.Vector3(2.0, 0.0, -2.0) * 3.0)..Update(1.0));
+
+  final VM.Vector3 outOfBounds = new VM.Vector3.all(kMaxDistance * 100.0);
   List<Ion> ions = [];
   for (int i = 0; i < kIons; i++) {
     Ion ion = new Ion(2.0, outOfBounds);
@@ -223,14 +231,17 @@ void main() {
     ..SetUniform(uPointSize, 200.0);
   GeometryBuilder gb = new GeometryBuilder(true);
   for (var i = 0; i < kIons; i++) {
-    gb.AddVertex(new VM.Vector3.zero());
+    gb.AddVertex(new VM.Vector3.all(0.0));
   }
-  MeshData md = GeometryBuilderToMeshData("", chronosGL, gb);
+  MeshData md = GeometryBuilderToMeshData("slow", chronosGL, gb);
+
   RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(new Node("ions", md, mat));
+  Node node = new Node("ions", md, mat);
+  programSprites.add(node);
 
   RenderProgram pssp = phase.createProgram(createFireWorksShader());
+
   MeshData md2 = GeometryBuilderToMeshData("", chronosGL, gb);
   MeshData md1 = GeometryBuilderToMeshData("", chronosGL, gb);
 
@@ -250,9 +261,10 @@ void main() {
     timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
-    orbit.azimuth += 0.001;
+    //orbit.azimuth += 0.001;
 
     if (programSprites.enabled && elapsed > 0.0) {
+      print("update ions");
       int n = 0;
       for (Ion ion in ions) {
         ion.Update(srcPoles, dstPoles, rng, elapsed / 1000.0);
@@ -263,6 +275,7 @@ void main() {
       }
       md.ChangeVertices(vertices);
     }
+
     orbit.animate(elapsed);
 
     phase.draw([perspective]);

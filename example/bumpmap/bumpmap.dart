@@ -85,7 +85,7 @@ void main() {
   Material lightMat = new Material("light")
     ..SetUniform(uColor, ColorYellow);
   fixed.add(new Node(
-      "pointLight", LightVisualizer(chronosGL, light), lightMat));
+      "pointLight", LightVisualizer(fixed, light), lightMat));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -130,7 +130,7 @@ void main() {
     // Setup Mesh
     List<GeometryBuilder> gbs = ImportGeometryFromThreeJsJson(list[0]);
     print(gbs[0]);
-    MeshData md = GeometryBuilderToMeshData(modelFile, chronosGL, gbs[0]);
+    MeshData md = GeometryBuilderToMeshData(modelFile, prg, gbs[0]);
 
     Node mesh = new Node(md.name, md, mat);
     Node n = new Node.Container("wrapper", mesh);

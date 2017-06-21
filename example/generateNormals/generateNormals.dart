@@ -74,7 +74,7 @@ void main() {
     // because we de-dup most things implicitly)
     for (var i = 0; i < geos.length; i++) {
       geos[i].GenerateNormalsAssumingTriangleMode();
-      MeshData md = GeometryBuilderToMeshData("", chronosGL, geos[i]);
+      MeshData md = GeometryBuilderToMeshData("", prg, geos[i]);
       // because some vertices were reused for different faces, so we need to deduplicate the indices
       Node mesh = new Node(md.name, md, mat)..setPos(-5.0 + i * 7, 4.0, 0.0);
       if (geos[i] == ctLogo) {

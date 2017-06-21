@@ -40,8 +40,8 @@ void main() {
     ..SetInput(uCameraFar, 2529.0)
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetInput(uDepthMap, fb.depthTexture)
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
+  prg2.add(UnitNode(prg2));
 
   RenderPhase phase1only = new RenderPhase("phase1only", chronosGL, null);
   phase1only.viewPortW = width;
@@ -73,7 +73,7 @@ void main() {
   Future.wait(futures).then((List list) {
     // Setup Mesh
     GeometryBuilder ctLogo = ImportGeometryFromWavefront(list[0]);
-    MeshData md = GeometryBuilderToMeshData("", chronosGL, ctLogo);
+    MeshData md = GeometryBuilderToMeshData("", prg1, ctLogo);
     Material mat = new Material("mat")
       ..SetUniform(uColor, ColorGray8);
     Node mesh = new Node(md.name, md, mat)

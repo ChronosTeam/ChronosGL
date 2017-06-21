@@ -39,8 +39,6 @@ part "spatial.dart";
 part "projection.dart";
 part "camera.dart";
 part "geometry_builder.dart";
-part "node.dart";
-part "render_program.dart";
 part "illumination.dart";
 
 void LogInfo(String s) {

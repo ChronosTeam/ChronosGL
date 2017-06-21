@@ -1,8 +1,23 @@
 part of core;
 
-/// ## Class ShaderProgram (is a RenderProgram)
-/// represents invocations of an actual GPU program.
-class ShaderProgram extends RenderProgram {
+class DrawStats {
+  String name;
+  int numInstances;
+  int numItems;
+  int drawMode;
+
+  DrawStats(this.name, this.numInstances, this.numItems, this.drawMode);
+
+  @override
+  String toString() => "[${name}] ${numInstances} ${numItems} ${drawMode}";
+}
+
+/// ## Class RenderProgram (is a UniformSink)
+/// represents several invocations of the same program running on the GPU.
+/// It consists of a tree of **Nodes** which provide **Inputs** for the
+/// program. The program is invoked once for most **Nodes** while traversing
+/// the tree recursively.
+class RenderProgram extends UniformSink {
   ChronosGL _cgl;
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
@@ -12,15 +27,20 @@ class ShaderProgram extends RenderProgram {
   Map<String, dynamic /* gl UniformLocation */ > _uniformLocations = {};
   Set<String> _uniformsInitialized = new Set<String>();
   Set<String> _attributesInitialized = new Set<String>();
-  // Per draw state
-  int _drawMode;
-  int _numInstances;
-  int _numItems;
-  int _nextTextureUnit;
-  int _elementArrayBufferType;
-  var _elementArrayBuffer;
 
-  ShaderProgram(
+  // TODO: this should contain all the state, including blending, depth writing
+  // and detect incompatible settings
+  Map<String, dynamic> _uniforms = {};
+  // Where the input came from
+  Map<String, NamedEntity> _origin = {};
+
+  int _nextTextureUnit;
+
+  // these are the identity by default
+  final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
+  final List<Node> objects = new List<Node>();
+
+  RenderProgram(
       String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
       : super(name) {
     _program = _cgl.CompileWholeProgram(_shaderObjectV.shader,
@@ -38,47 +58,52 @@ class ShaderProgram extends RenderProgram {
     }
   }
 
+  void add(Node obj) {
+    objects.add(obj);
+  }
+
+  bool remove(Node obj) {
+    return objects.remove(obj);
+  }
+
+  void removeAll() {
+    objects.clear();
+  }
+
+  MeshData MakeMeshData(String name, int drawMode) {
+    return new MeshData(name, _cgl, drawMode, _shaderObjectV.GetLayoutMap());
+  }
+
+  bool HasCompatibleAttributesTo(RenderProgram other) {
+    var a = _shaderObjectV.GetLayoutMap();
+    var b = other._shaderObjectV.GetLayoutMap();
+    if (a.length != b.length) return false;
+    for (String key in a.keys) {
+      if (a[key] != b[key]) return false;
+    }
+    return true;
+  }
+
+  bool HasDownwardCompatibleAttributesTo(RenderProgram other) {
+    var a = _shaderObjectV.GetLayoutMap();
+    var b = other._shaderObjectV.GetLayoutMap();
+    for (String key in a.keys) {
+      if (a[key] != b[key]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   void _ClearState() {
-    _numInstances = 0;
     _nextTextureUnit = 0;
-    _numItems = 0;
-    _drawMode = -1;
-    _elementArrayBufferType = 0;
-    _elementArrayBuffer = null;
   }
 
   bool _HasAttribute(String canonical) {
     return _attributes.contains(canonical);
   }
 
-  void _SetAttribute(String canonical, dynamic /* Buffer */ buffer, normalized,
-      int stride, int offset) {
-    _attributesInitialized.add(canonical);
-    final int index = GetLayoutPos(canonical);
-    ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
-    if (desc == null) throw "Unknown canonical ${canonical}";
-    switch (desc.type) {
-      case VarTypeFloat:
-      case VarTypeVec2:
-      case VarTypeVec3:
-      case VarTypeVec4:
-        _cgl.vertexAttribPointer(buffer, index, desc.GetSize(), GL_FLOAT,
-            normalized, stride, offset);
-        break;
-      case VarTypeUvec2:
-      case VarTypeUvec3:
-      case VarTypeUvec4:
-        assert(false);
-        /*
-        _cgl.gl.vertexAttribIPointer(
-            index, desc.GetSize(), GL_UNSIGNED_INT, normalized, stride, offset);
-            */
-        break;
-      default:
-        throw "type ${canonical} - ${desc.type} not supported";
-        break;
-    }
-  }
+  ChronosGL getContext() => _cgl;
 
   bool _HasUniform(String canonical) {
     return _uniformLocations.containsKey(canonical);
@@ -86,15 +111,6 @@ class ShaderProgram extends RenderProgram {
 
   void _SetControl(String canonical, var val) {
     switch (canonical) {
-      case cNumInstances:
-        _numInstances = val;
-        break;
-      case cDrawMode:
-        _drawMode = val;
-        break;
-      case cNumItems:
-        _numItems = val;
-        break;
       case cDepthTest:
         if (val == true) {
           _cgl.enable(GL_DEPTH_TEST);
@@ -163,16 +179,28 @@ class ShaderProgram extends RenderProgram {
         }
         break;
       case VarTypeVec4:
-        assert(val.storage.length == 4);
-        _cgl.uniform4fv(l, val.storage);
+        if (desc.arraySize == 0) {
+          assert(val.storage.length == 4);
+          _cgl.uniform4fv(l, val.storage);
+        } else {
+          _cgl.uniform4fv(l, val);
+        }
         break;
       case VarTypeVec3:
-        assert(val.storage.length == 3);
-        _cgl.uniform3fv(l, val.storage);
+        if (desc.arraySize == 0) {
+          assert(val.storage.length == 3);
+          _cgl.uniform3fv(l, val.storage);
+        } else {
+          _cgl.uniform3fv(l, val);
+        }
         break;
       case VarTypeVec2:
-        assert(val.storage.length == 2);
-        _cgl.uniform2fv(l, val.storage);
+        if (desc.arraySize == 0) {
+          assert(val.storage.length == 2);
+          _cgl.uniform2fv(l, val.storage);
+        } else {
+          _cgl.uniform2fv(l, val);
+        }
         break;
       case VarTypeSampler2D:
       case VarTypeSampler2DShadow:
@@ -207,16 +235,9 @@ class ShaderProgram extends RenderProgram {
     return out;
   }
 
-  @override
   void DrawSetUp() {
     if (debug) print("[${name} setting attributes");
     _cgl.useProgram(_program);
-    for (String a in _attributes) {
-      final index = GetLayoutPos(a);
-      if (debug) print("[${name}] $a $index");
-      _cgl.enableVertexAttribArray(
-          index, a.codeUnitAt(0) == prefixInstancer ? 1 : 0);
-    }
   }
 
   void SetInputs(Map<String, dynamic> inputs) {
@@ -231,14 +252,6 @@ class ShaderProgram extends RenderProgram {
             ++count;
           }
           break;
-        case prefixElement:
-          if (canonical == eArray) {
-            _elementArrayBuffer = inputs[canonical];
-            ++count;
-          } else if (canonical == eArrayType) {
-            _elementArrayBufferType = inputs[canonical];
-          }
-          break;
         case prefixControl:
           _SetControl(canonical, inputs[canonical]);
           ++count;
@@ -246,7 +259,7 @@ class ShaderProgram extends RenderProgram {
         case prefixInstancer:
         case prefixAttribute:
           if (_HasAttribute(canonical)) {
-            _SetAttribute(canonical, inputs[canonical], false, 0, 0);
+            // _SetAttribute(canonical, inputs[canonical], false, 0, 0);
             ++count;
           }
           break;
@@ -256,43 +269,95 @@ class ShaderProgram extends RenderProgram {
     LogDebug("setting ${count} var in ${delta}");
   }
 
-  @override
-  void DrawOne(Map<String, dynamic> inputs, List<DrawStats> stats) {
-    _numInstances = 0;
-    // TODO: put this behind a flag
-    _attributesInitialized.clear();
-    _uniformsInitialized.clear();
+  void _drawOne(
+      MeshData md, Map<String, dynamic> inputs, List<DrawStats> stats) {
     _ClearState();
+
+    // TODO: put this behind a flag
+    _uniformsInitialized.clear();
     SetInputs(inputs);
-    if (_numItems == 0) return;
+
+    _attributesInitialized.clear();
+    for (String a in md.GetAttributes()) {
+      _attributesInitialized.add(a);
+    }
     if (stats != null) {
-      stats.add(new DrawStats(name, _numInstances, _numItems, _drawMode));
+      stats.add(new DrawStats(
+          name, md.GetNumInstances(), md.GetNumItems(), md.drawMode));
     }
     if (debug)
-      print("[${name}] draw points: ${_drawMode} instances${_numInstances}");
+      print(
+          "[${name}] draw points: ${md.drawMode} instances${md.GetNumInstances()}");
     // TODO: put this behind a flag
     List<String> uninitialized = UninitializedInputs();
     if (uninitialized.isNotEmpty) {
       String mesg =
-          "${name} ${_drawMode}: uninitialized inputs: ${uninitialized}";
+          "${name} ${md.drawMode}: uninitialized inputs: ${uninitialized}";
       LogError(mesg);
-      throw mesg;
+      //throw mesg;
     }
 
+    md.SetUp();
     bool hasTransforms = _shaderObjectV.transformVars.length > 0;
-    _cgl.draw(_drawMode, _numItems, _elementArrayBuffer,
-        _elementArrayBufferType, 0, _numInstances, hasTransforms);
-
+    _cgl.draw(md.drawMode, md.GetNumItems(), md.elementArrayBufferType, 0,
+        md.GetNumInstances(), hasTransforms);
     if (debug) print(_cgl.getProgramInfoLog(_program));
+    md.TearDown();
+  }
+
+  void _drawRecursively(
+      Node node, final VM.Matrix4 parent, List<DrawStats> stats) {
+    if (!node.enabled) return;
+    // m is read-only!
+    final VM.Matrix4 m = node.UpdateModelMatrix(parent);
+    if (node.SomethingToDraw()) {
+      LogDebug("drawing: ${node}");
+      node.AddShaderInputs(this);
+      _drawOne(node.meshData, _uniforms, stats);
+      node.RemoveShaderInputs(this);
+    }
+    for (Node child in node.children) {
+      _drawRecursively(child, m, stats);
+    }
+  }
+
+  // This is a weird flow control:
+  // * When draw() is called,
+  // * we recursively draw items in objects passing "this" as a parameter
+  // * the objects then call the Draw method above
+  void draw(List<DrawStats> stats) {
+    DrawSetUp();
+    _modelMatrix.setIdentity();
+    if (debug) print("[draw objects ${objects.length}");
+    for (Node node in objects) {
+      _drawRecursively(node, _modelMatrix, stats);
+    }
+    DrawTearDown();
+  }
+
+  void DrawTearDown() {}
+
+  @override
+  void ForceInput(String canonical, var val, [NamedEntity origin = null]) {
+    if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
+    if (origin == null) origin = kUnknownEntity;
+    _uniforms[canonical] = val;
+    _origin[canonical] = origin;
   }
 
   @override
-  void DrawTearDown() {
-    if (debug) print("[${name} unsetting attributes");
-    for (String canonical in _attributes) {
-      int index = GetLayoutPos(canonical);
-      _cgl.disableVertexAttribArray(
-          index, canonical.codeUnitAt(0) == prefixInstancer);
+  void SetInput(String canonical, var val, [NamedEntity origin = null]) {
+    if (_uniforms.containsKey(canonical)) {
+      LogError("canonical already present: ${canonical}");
+      assert(false);
     }
+    ForceInput(canonical, val, origin);
+  }
+
+  @override
+  void Remove(String canonical) {
+    assert(_uniforms.containsKey(canonical));
+    _uniforms.remove(canonical);
+    _origin.remove(canonical);
   }
 }

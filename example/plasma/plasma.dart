@@ -100,13 +100,14 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  List<RenderProgram> prgs = new List<RenderProgram>();
-  prgs.add(phase.createProgram(createPlasmaShader()));
-  prgs.add(phase.createProgram(createPlasmaShader2()));
-  prgs.add(phase.createProgram(createPlasmaShader3()));
+  List<RenderProgram> prgs = [
+    phase.createProgram(createPlasmaShader()),
+    phase.createProgram(createPlasmaShader2()),
+    phase.createProgram(createPlasmaShader3())
+  ];
 
   Material mat = new Material("mat");
-  MeshData md = ShapeCube(chronosGL, x: 10.0, y: 10.0, z: 10.0);
+  MeshData md = ShapeCube(prgs[0], x: 10.0, y: 10.0, z: 10.0);
 
   Node m = new Node(md.name, md, mat)
     ..setPos(0.0, 0.0, 0.0)
@@ -130,9 +131,10 @@ void main() {
     pointer = myselect.selectedIndex;
     prgs[(pointer)].add(m);
   });
-  RenderProgram programSprites =
+
+  RenderProgram sprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(chronosGL, 2000));
+  sprites.add(Utils.MakeParticles(sprites, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

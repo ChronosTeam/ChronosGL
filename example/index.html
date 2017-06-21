@@ -12,15 +12,22 @@ body {
 	</style>
 </head>
 
-<body>
+<br>
 	<h1> ChronosGL Examples</h1>
-	As of version 2.2.0 ChronosGL requires <b>WebGL2</b>.
+	<p>
+	As of version 3.0.0 ChronosGL requires <b>WebGL2</b>.
 	(Check browser compatibility at: <a href="http://webglreport.com/?v=2">webglreport.com</a>)
-	<br>
-	<br>
-	If you use Dartium, make sure you lauch it with the <tt>--enable-unsafe-es3-apis</tt> option.
-    <br>
-	If there are problems check the JavaScript console for output.
+	</p>
+	<p>
+	If you use Dartium (50), make sure you launch it with the
+		<tt>--enable-unsafe-es3-apis</tt> option.
+	</p>
+     <p>
+	You can also use regular Chrome or Firefox via:
+	<tt>/pub serve --web-compiler dartdevc example/</tt>
+	</p>
+
+If there are problems check the <b>JavaScript console</b> for output.
 
 	<h2>Trivial Examples</h2>
 
@@ -55,8 +62,10 @@ body {
 	<a href="stencil/stencil.html">Stencil Buffer</a><br>
 	<a href="skyscraper/skyscraper.html">Using a custom shader
 		(SkyScraper)</a><br>
-
-	<a href="torusknot_camera/torusknot_camera.html">Fly inside a transparent torusknot</a><br>
+    <a href="transform_feedback/transform_feedback.html">
+		Transform-Feedback</a><br>
+	<a href="torusknot_camera/torusknot_camera.html">
+		Fly inside a transparent torusknot</a><br>
 	<a href="tracers/tracers.html">Tracers</a><br>
 	<a href="triangle/triangle.html">Penrose Triangle</a><br>
 	<a href="wireframe/wireframe.html">Wireframe Shapes</a><br>
@@ -66,7 +75,6 @@ body {
 
 	<a href="bumpmap/bumpmap.html">Bump Map</a><br>
 	<a href="normalmap/normalmap.html">Normal Map</a><br>
-	<a href="transform_feedback/fireworks.html">Transform-Feedback</a><br>
 	<h2>Code</h2>
 	Code for all examples can be found at
 	<a href="https://github.com/ChronosTeam/ChronosGL/tree/master/example">

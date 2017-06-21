@@ -1,7 +1,7 @@
 part of misc;
 
-MeshData EmptyLightVisualizer(ChronosGL cgl, String name) {
-  MeshData md = new MeshData(name, cgl, GL_LINES);
+MeshData EmptyLightVisualizer(RenderProgram prog, String name) {
+  MeshData md = prog.MakeMeshData(name, GL_LINES);
   md.AddVertices(new Float32List(3));
   md.AddFaces([0, 0]);
   return md;
@@ -154,8 +154,8 @@ void UpdateLightVisualizer(MeshData md, Light light) {
   }
 }
 
-MeshData LightVisualizer(ChronosGL cgl, Light light) {
-  MeshData md = EmptyLightVisualizer(cgl, "dirLightViz");
+MeshData LightVisualizer(RenderProgram prog, Light light) {
+  MeshData md = EmptyLightVisualizer(prog, "dirLightViz");
   UpdateLightVisualizer(md, light);
   return md;
 }

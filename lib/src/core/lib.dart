@@ -4,7 +4,7 @@ library core;
 // It would be nice if we could also break the dependency on dart:web_gl
 // for easier testing.
 import 'dart:typed_data';
-import 'dart:web_gl' as WEBGL;
+import 'dart:web_gl' as WEBGL;  // only chronosgl.dart uses WEBGL
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -20,8 +20,8 @@ part "shader_program.dart";
 part "mesh_data.dart";
 part "textures.dart";
 part "material.dart";
+part "node.dart";
 part "framebuffer.dart";
 part "render_phase.dart";
-part "instancer.dart";
 part "chronosgl.dart";
 part "constants.dart";

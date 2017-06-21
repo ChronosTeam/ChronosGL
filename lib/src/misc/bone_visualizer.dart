@@ -39,12 +39,12 @@ class BoneVisualizer {
 
   Node mesh;
 
-  BoneVisualizer(ChronosGL cgl, Material mat, this._skeleton, this._anim) {
+  BoneVisualizer(RenderProgram prog, Material mat, this._skeleton, this._anim) {
     _animatedSkeleton = new AnimatedSkeleton(_skeleton.length);
     UpdateAnimatedSkeleton(
         _skeleton, _globalOffsetTransform, _anim, _animatedSkeleton, 0.0);
     _mdWire = LineEndPointsToMeshData(
-        "wire", cgl, BonePosFromAnimatedSkeleton(_skeleton, _animatedSkeleton));
+        "wire", prog, BonePosFromAnimatedSkeleton(_skeleton, _animatedSkeleton));
     mesh = new Node(_mdWire.name, _mdWire, mat);
   }
 

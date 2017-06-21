@@ -70,22 +70,22 @@ void main() {
 
   Node side1 = new Node(
       "side1",
-      ShapeCube(chronosGL, x: length, y: thickness, z: thickness),
+      ShapeCube(prgOrthographic, x: length, y: thickness, z: thickness),
       mat1)..setPos(-thickness, 0.0, 0.0);
 
   Node side2 = new Node(
       "side2",
-      ShapeCube(chronosGL, x: thickness, y: thickness, z: length),
+      ShapeCube(prgOrthographic, x: thickness, y: thickness, z: length),
       mat2)..setPos(-length, 0.0, length + thickness);
 
   double length3 = length - thickness;
   Node side3a = new Node(
       "side3a",
-      ShapeCube(chronosGL, x: thickness, y: length3, z: thickness),
+      ShapeCube(prgOrthographic, x: thickness, y: length3, z: thickness),
       mat3)..setPos(length, length3 - 1 * thickness, 0.0);
 
   Node side3b = new Node("side3b",
-      ShapeWedge(chronosGL, x: thickness, y: thickness, z: thickness), mat3)
+      ShapeWedge(prgOrthographic, x: thickness, y: thickness, z: thickness), mat3)
     ..rotY(Math.PI)
     ..setPos(length, length + length3 - thickness, 0.0);
 

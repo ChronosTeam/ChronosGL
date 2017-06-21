@@ -69,9 +69,6 @@ class ShaderVarDesc {
 
 // Used both as enum and as string. The latter allows for a limited form
 // of syntax checking inside shader programs.
-const int prefixElement = 0x65; // 'e';
-const String eArray = "eArray"; // element array
-const String eArrayType = "eArrayType"; // element array
 const String oFragColor = "oFragColor";
 // ===========================================================
 // Misc Controls
@@ -201,16 +198,10 @@ const String uLightCount = "uLightCount";
 const String uLightTypes = "uLightTypes";
 
 final Map<String, ShaderVarDesc> _VarsDb = {
-  eArray: new ShaderVarDesc(VarTypeIndex, ""),
-  eArrayType: new ShaderVarDesc(VarTypeInt, ""),
-
-  //
+  // controls
   cBlendEquation: new ShaderVarDesc("", ""),
   cDepthWrite: new ShaderVarDesc("", ""),
   cDepthTest: new ShaderVarDesc("", ""),
-  cNumItems: new ShaderVarDesc("", ""),
-  cNumInstances: new ShaderVarDesc("", ""),
-  cDrawMode: new ShaderVarDesc("", ""),
   cStencilFunc: new ShaderVarDesc("", ""),
 
   // transform vars
@@ -313,20 +304,6 @@ ShaderVarDesc RetrieveShaderVarDesc(String canonical) {
   return _VarsDb[canonical];
 }
 
-// start with one to deliberately exercise corner cases
-int _nextLayoutPos = 0;
-Map<String, int> _canonicalToLayoutPos = {};
-
-int GetLayoutPos(String canonical) {
-  int pos = _canonicalToLayoutPos[canonical];
-  if (pos == null) {
-    pos = _nextLayoutPos;
-    ++_nextLayoutPos;
-    _canonicalToLayoutPos[canonical] = pos;
-  }
-  return pos;
-}
-
 // ShaderObject describes a shader (either fragment or vertex) and its
 // interface to the world on a syntactical (uncompiled) level.
 // Protocol:
@@ -339,8 +316,15 @@ class ShaderObject {
   List<String> uniformVars = [];
   List<String> varyingVars = [];
   List<String> transformVars = []; // "transformFeedbackVaryings"
+  // start with one to deliberately exercise corner cases
+  int _nextLayoutPos = 0;
+  Map<String, int> _canonicalToLayoutPos = {};
 
   ShaderObject(this.name);
+
+  int GetLayoutPos(String canonical) => _canonicalToLayoutPos[canonical];
+
+  Map<String, int> GetLayoutMap() => _canonicalToLayoutPos;
 
   void AddAttributeVars(List<String> names) {
     assert(shader == null);
@@ -349,6 +333,8 @@ class ShaderObject {
       assert(_VarsDb.containsKey(n));
       assert(!attributeVars.contains(n));
       attributeVars.add(n);
+      _canonicalToLayoutPos[n] = _nextLayoutPos;
+      ++_nextLayoutPos;
     }
     attributeVars.sort();
   }

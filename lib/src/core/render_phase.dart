@@ -22,7 +22,7 @@ class RenderPhase extends NamedEntity {
 
   ChronosFramebuffer get framebuffer => _framebuffer;
 
-  void draw(List<RenderInputSource> inputs, [List<DrawStats> stats = null]) {
+  void draw(List<UniformSource> inputs, [List<DrawStats> stats = null]) {
     if (_framebuffer == null) {
       _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
     } else {
@@ -38,11 +38,11 @@ class RenderPhase extends NamedEntity {
 
     for (RenderProgram prg in _programs) {
       if (!prg.enabled) continue;
-      for (RenderInputSource p in inputs) {
+      for (UniformSource p in inputs) {
         p.AddToSink(prg);
       }
       prg.draw(stats);
-      for (RenderInputSource p in inputs) {
+      for (UniformSource p in inputs) {
         p.RemoveFromSink(prg);
       }
     }
@@ -68,7 +68,7 @@ class RenderPhase extends NamedEntity {
   }
 
   RenderProgram createProgram(List<ShaderObject> so) {
-    RenderProgram prg = new ShaderProgram(so[0].name, _cgl, so[0], so[1]);
+    RenderProgram prg = new RenderProgram(so[0].name, _cgl, so[0], so[1]);
     AddRenderProgram(prg);
     return prg;
   }

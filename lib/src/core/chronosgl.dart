@@ -136,6 +136,14 @@ class ChronosGL {
     _gl.bindBuffer(kind, buffer);
   }
 
+  WEBGL.VertexArrayObject createVertexArray() {
+    return _gl.createVertexArray();
+  }
+
+  void bindVertexArray(WEBGL.VertexArrayObject vao) {
+    _gl.bindVertexArray(vao);
+  }
+
   void copyBufferSubData(dynamic srcBuffer, dynamic dstBuffer, int srcOffset,
       int dstOffset, int size) {
     _gl.copyBufferSubData(srcBuffer, dstBuffer, srcOffset, dstOffset, size);
@@ -214,11 +222,13 @@ class ChronosGL {
     if (divisor > 0) _gl.vertexAttribDivisor(index, divisor);
   }
 
+  // Obsolete because of VAOs
+  /*
   void disableVertexAttribArray(int index, bool instanced) {
     _gl.disableVertexAttribArray(index);
     if (instanced) _gl.vertexAttribDivisor(index, 0);
   }
-
+*/
   void clear(int kind) {
     _gl.clear(kind);
   }
@@ -332,11 +342,10 @@ class ChronosGL {
         WEBGL.ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
   }
 
-  void draw(int mode, int count, dynamic buffer, int type, int offset,
+  void draw(int mode, int count, int type, int offset,
       int instanceCount, bool hasTransforms) {
     if (hasTransforms) _gl.beginTransformFeedback(mode);
-    if (buffer != null) {
-      _gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
+    if (type != -1) {
       if (instanceCount > 1) {
         _gl.drawElementsInstanced(mode, count, type, offset, instanceCount);
       } else {

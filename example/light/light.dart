@@ -23,7 +23,8 @@ const String meshFile = "../asset/dragon/dragon.obj";
 const String textureFile = "../asset/dragon/dragon.png";
 
 final Map<String, Light> gLightSources = {
-  idDirectional: new DirectionalLight("dir", dirLight, ColorBlack, ColorWhite, 40.0),
+  idDirectional:
+      new DirectionalLight("dir", dirLight, ColorBlack, ColorWhite, 40.0),
   idPoint: new PointLight("point", posLight, ColorLiteBlue, ColorWhite, range),
   idSpot: new SpotLight("spot", posLight, spotDirLight, ColorLiteGreen,
       ColorWhite, range, angle, 2.0, 1.0, 40.0)
@@ -37,9 +38,10 @@ final Map<String, Node> gScenes = {
   "Dragon": gDragon,
 };
 
-void MakeSceneCubeSphere(ChronosGL chronosGL, Node container) {
-  MeshData cubeMeshData = ShapeCube(chronosGL, x: 2.0, y: 2.0, z: 2.0);
-  MeshData sphereMeshData = ShapeIcosahedron(chronosGL);
+void MakeSceneCubeSphere(
+    ChronosGL chronosGL, RenderProgram prog, Node container) {
+  MeshData cubeMeshData = ShapeCube(prog, x: 2.0, y: 2.0, z: 2.0);
+  MeshData sphereMeshData = ShapeIcosahedron(prog);
 
   List<Material> mats = [
     new Material("mat0")
@@ -73,8 +75,7 @@ void MakeSceneCubeSphere(ChronosGL chronosGL, Node container) {
   }
 
   // Subdivide plane to show Gourad shading issues
-  Node grid =
-      new Node("grid", ShapeGrid(chronosGL, 20, 20, 80.0, 80.0), mats[0]);
+  Node grid = new Node("grid", ShapeGrid(prog, 20, 20, 80.0, 80.0), mats[0]);
   grid.rotX(-MATH.PI * 0.48);
   grid.setPos(0.0, -20.0, 20.0);
   container.add(grid);
@@ -101,6 +102,9 @@ void main() {
   RenderProgram fixedGourad =
       phaseGourad.createProgram(createSolidColorShader());
 
+  assert(lightBlinnPhong.HasCompatibleAttributesTo(lightGourad));
+  assert(fixedBlinnPhong.HasCompatibleAttributesTo(fixedGourad));
+
   Illumination illumination = new Illumination();
   for (Light l in gLightSources.values) {
     illumination.AddLight(l);
@@ -111,16 +115,14 @@ void main() {
   Map<String, Node> lightVisualizers = {
     idDirectional: new Node(
         "DirLightViz",
-        LightVisualizer(chronosGL, gLightSources[idDirectional]),
+        LightVisualizer(fixedBlinnPhong, gLightSources[idDirectional]),
         lightSourceMat),
     idPoint: new Node(
         "PointLightViz",
-        LightVisualizer(chronosGL, gLightSources[idPoint]),
+        LightVisualizer(fixedBlinnPhong, gLightSources[idPoint]),
         lightSourceMat),
-    idSpot: new Node(
-        "SpotLightViz",
-        LightVisualizer(chronosGL, gLightSources[idSpot]),
-        lightSourceMat)
+    idSpot: new Node("SpotLightViz",
+        LightVisualizer(fixedBlinnPhong, gLightSources[idSpot]), lightSourceMat)
   };
 
   for (Node n in lightVisualizers.values) {
@@ -133,7 +135,7 @@ void main() {
     lightBlinnPhong.add(n);
   }
 
-  MakeSceneCubeSphere(chronosGL, gCubeSphere);
+  MakeSceneCubeSphere(chronosGL, lightGourad, gCubeSphere);
 
   HTML.SelectElement selectPhase =
       HTML.document.querySelector('#phase') as HTML.SelectElement;
@@ -223,7 +225,7 @@ void main() {
       ..SetUniform(uShininess, glossiness);
     GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
     print(gb);
-    MeshData md = GeometryBuilderToMeshData(meshFile, chronosGL, gb);
+    MeshData md = GeometryBuilderToMeshData(meshFile, lightGourad, gb);
     Node mesh = new Node(md.name, md, mat);
     //..rotX(-3.14 / 4);
     Node n = new Node.Container("wrapper", mesh);

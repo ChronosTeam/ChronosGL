@@ -1,7 +1,6 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 
-
 // r,g,b,a  are in the range of [0, 255]
 // float = r / (256^4) + g / (256^3) + b / 256^2 + a / 256^1
 // float is assumed to be in [0, 1]
@@ -58,6 +57,8 @@ void main() {
   RenderProgram prgPerspective =
       phasePerspective.createProgram(createTexturedShader());
 
+  assert(prgOrthographic.HasCompatibleAttributesTo(prgPerspective));
+
   Texture solid = MakeSolidColorTexture(chronosGL, "red-solid", "red");
   final Material mat1 = new Material("mat1")
     ..SetUniform(uTexture, solid)
@@ -75,15 +76,15 @@ void main() {
     ..SetUniform(uTexture, solid)
     ..SetUniform(uColor, ColorGray8);
 
-  Node ico = new Node("sphere", ShapeIcosahedron(chronosGL, 3), mat1)
+  Node ico = new Node("sphere", ShapeIcosahedron(prgOrthographic, 3), mat1)
     ..setPos(0.0, 0.0, 0.0);
 
-  Node cube = new Node("cube", ShapeCube(chronosGL), mat2)
+  Node cube = new Node("cube", ShapeCube(prgOrthographic), mat2)
     ..setPos(-5.0, 0.0, -5.0);
 
-  Node cyl =
-      new Node("cylinder", ShapeCylinder(chronosGL, 3.0, 6.0, 2.0, 32), mat3)
-        ..setPos(5.0, 0.0, -5.0);
+  Node cyl = new Node(
+      "cylinder", ShapeCylinder(prgOrthographic, 3.0, 6.0, 2.0, 32), mat3)
+    ..setPos(5.0, 0.0, -5.0);
 
   /*
     Mesh torus = new Mesh(Shapes.TorusKnot(radius: 1.0, tube: 0.4)..generateNormalsAssumingTriangleMode(), mat2)
@@ -92,9 +93,9 @@ void main() {
     basic.add(torus);
   }*/
 
-  Node plane =
-      new Node("cube", ShapeCube(chronosGL, x: 20.0, y: 0.1, z: 20.0), matPlane)
-        ..setPos(0.0, -10.0, 0.0);
+  Node plane = new Node(
+      "cube", ShapeCube(prgOrthographic, x: 20.0, y: 0.1, z: 20.0), matPlane)
+    ..setPos(0.0, -10.0, 0.0);
 
   for (Node m in [ico, cube, cyl, plane]) {
     prgOrthographic.add(m);

@@ -47,7 +47,7 @@ void main() {
   // Sky Sphere
   RenderProgram skyprg = phase
       .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
-  MeshData md = ShapeIcosahedron(chronosGL, 3);
+  MeshData md = ShapeIcosahedron(skyprg, 3);
   //..multiplyVertices(100);
   Node m = new Node(md.name, md, mat)..transform.scale(100.0);
   skyprg.add(m);
@@ -63,7 +63,7 @@ void main() {
   for (int i = 2 * 4; i < 4 * 4; i++) {
     uvs[i].setFrom(q);
   }
-  MeshData house = GeometryBuilderToMeshData("house", chronosGL, gb);
+  MeshData house = GeometryBuilderToMeshData("house", prg, gb);
 
   for (int x = -10; x < 10; x += 4) {
     for (int z = -10; z < 10; z += 4) {

@@ -51,21 +51,21 @@ void main() {
     ..SetUniform(uColor, ColorBlue)
     ..ForceUniform(cStencilFunc, StencilEqualOne);
 
-  Node ico = new Node("sphere", ShapeIcosahedron(chronosGL, 3), matRed)
+  Node ico = new Node("sphere", ShapeIcosahedron(basic, 3), matRed)
     ..setPos(0.0, 0.0, 0.0);
   basic.add(ico);
 
-  Node cube = new Node("cube", ShapeCube(chronosGL), matBlue)
+  Node cube = new Node("cube", ShapeCube(basic), matBlue)
     ..setPos(-5.0, 0.0, -5.0);
   basic.add(cube);
 
   Node cyl =
-      new Node("cylinder", ShapeCylinder(chronosGL, 1.0, 3.0, 2.0, 32), matRed)
+      new Node("cylinder", ShapeCylinder(basic, 1.0, 3.0, 2.0, 32), matRed)
         ..setPos(5.0, 0.0, -5.0);
   basic.add(cyl);
 
   Node torus = new Node(
-      "torus", ShapeTorusKnot(chronosGL, radius: 1.0, tube: 0.4), matBlue)
+      "torus", ShapeTorusKnot(basic, radius: 1.0, tube: 0.4), matBlue)
     ..setPos(5.0, 0.0, 5.0);
   basic.add(torus);
 
@@ -73,10 +73,10 @@ void main() {
     ..viewPortW = width
     ..viewPortH = height;
 
-  phase2.createProgram(createCopyShader())
+  RenderProgram copy = phase2.createProgram(createCopyShader())
     ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(chronosGL));
+    ..SetInput(uTexture, fb.colorTexture);
+    copy.add(UnitNode(copy));
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {

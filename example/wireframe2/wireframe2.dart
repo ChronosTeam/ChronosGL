@@ -68,14 +68,14 @@ void main() {
     GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
     print(gb);
     MeshData mdWire =
-        GeometryBuilderToMeshDataWireframe(meshFile, chronosGL, gb);
+        GeometryBuilderToMeshDataWireframe(meshFile, program, gb);
     print(mdWire);
 
     nodeWire = new Node(mdWire.name, mdWire, matWire);
     nodeWire.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
     program.add(nodeWire);
 
-    MeshData mdNorm = GeometryBuilderToWireframeNormals(chronosGL, gb, 0.05);
+    MeshData mdNorm = GeometryBuilderToWireframeNormals(program, gb, 0.05);
     nodeNorm = new Node(mdNorm.name, mdNorm, matNorm);
     nodeNorm.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
     program.add(nodeNorm);

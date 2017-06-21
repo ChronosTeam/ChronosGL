@@ -42,7 +42,7 @@ List<ShaderObject> createFireWorksShader() {
 
 Math.Random rand = new Math.Random();
 
-Node getRocket(RenderProgram prog, Texture tw) {
+Node getRocket(dynamic gl, Texture tw) {
   int numPoints = 200;
 
   List<VM.Vector3> vertices = [];
@@ -53,7 +53,7 @@ Node getRocket(RenderProgram prog, Texture tw) {
         rand.nextDouble() - 0.5));
   }
 
-  MeshData md = prog.MakeMeshData("firefwork-particles", GL_POINTS)
+  MeshData md = new MeshData("firefwork-particles", gl, GL_POINTS)
     ..AddVertices(FlattenVector3List(vertices))
     ..AddAttribute(aNormal, FlattenVector3List(normals), 3);
 
@@ -72,11 +72,11 @@ void main() {
 
   RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(programSprites, 2000));
+  programSprites.add(Utils.MakeParticles(chronosGL, 2000));
 
   RenderProgram pssp = phase.createProgram(createFireWorksShader());
   pssp.add(getRocket(
-      pssp, Utils.createParticleTexture(chronosGL, "fireworks")));
+      chronosGL, Utils.createParticleTexture(chronosGL, "fireworks")));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
