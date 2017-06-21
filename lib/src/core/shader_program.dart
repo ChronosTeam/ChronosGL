@@ -17,7 +17,7 @@ class DrawStats {
 /// It consists of a tree of **Nodes** which provide **Inputs** for the
 /// program. The program is invoked once for most **Nodes** while traversing
 /// the tree recursively.
-class RenderProgram extends RenderInputSink {
+class RenderProgram extends UniformSink {
   ChronosGL _cgl;
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
@@ -27,6 +27,11 @@ class RenderProgram extends RenderInputSink {
   Map<String, dynamic /* gl UniformLocation */ > _uniformLocations = {};
   Set<String> _uniformsInitialized = new Set<String>();
   Set<String> _attributesInitialized = new Set<String>();
+
+  // TODO: this should contain all the state, including blending, depth writing
+  // and detect incompatible settings
+  Map<String, dynamic> _inputs = {};
+  Map<String, NamedEntity> _origin = {};
 
   int _nextTextureUnit;
 
@@ -307,7 +312,7 @@ class RenderProgram extends RenderInputSink {
     if (node.SomethingToDraw()) {
       LogDebug("drawing: ${node}");
       node.AddShaderInputs(this);
-      _drawOne(node.meshData, GetInputs(), stats);
+      _drawOne(node.meshData, _inputs, stats);
       node.RemoveShaderInputs(this);
     }
     for (Node child in node.children) {
@@ -330,4 +335,28 @@ class RenderProgram extends RenderInputSink {
   }
 
   void DrawTearDown() {}
+
+  @override
+  void ForceInput(String canonical, var val, [NamedEntity origin = null]) {
+    if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
+    if (origin == null) origin = kUnknownEntity;
+    _inputs[canonical] = val;
+    _origin[canonical] = origin;
+  }
+
+  @override
+  void SetInput(String canonical, var val, [NamedEntity origin = null]) {
+    if (_inputs.containsKey(canonical)) {
+      LogError("canonical already present: ${canonical}");
+      assert(false);
+    }
+    ForceInput(canonical, val, origin);
+  }
+
+  @override
+  void Remove(String canonical) {
+    assert(_inputs.containsKey(canonical));
+    _inputs.remove(canonical);
+    _origin.remove(canonical);
+  }
 }

@@ -38,7 +38,7 @@ final TheBlendEquation BlendEquationAdd =
 /// ## Class Material (is a RenderInputSource)
 /// is a light weight container for **Inputs**.
 /// By convention the *Inputs** pertain to mesh appearance.
-class Material extends RenderInputSource {
+class Material extends UniformSource {
   Map<String, dynamic> _uniforms = {};
 
   Material(String name) : super(name) {
@@ -70,14 +70,14 @@ class Material extends RenderInputSource {
   }
 
   @override
-  void AddToSink(RenderInputSink inputs) {
+  void AddToSink(UniformSink inputs) {
     _uniforms.forEach((String k, v) {
       inputs.SetInput(k, v, this);
     });
   }
 
   @override
-  void RemoveFromSink(RenderInputSink inputs) {
+  void RemoveFromSink(UniformSink inputs) {
     for (String canonical in _uniforms.keys) {
       inputs.Remove(canonical);
     }
