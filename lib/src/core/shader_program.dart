@@ -12,7 +12,7 @@ class DrawStats {
   String toString() => "[${name}] ${numInstances} ${numItems} ${drawMode}";
 }
 
-/// ## Class RenderProgram (is a RenderInputSink)
+/// ## Class RenderProgram (is a UniformSink)
 /// represents several invocations of the same program running on the GPU.
 /// It consists of a tree of **Nodes** which provide **Inputs** for the
 /// program. The program is invoked once for most **Nodes** while traversing
@@ -30,7 +30,8 @@ class RenderProgram extends UniformSink {
 
   // TODO: this should contain all the state, including blending, depth writing
   // and detect incompatible settings
-  Map<String, dynamic> _inputs = {};
+  Map<String, dynamic> _uniforms = {};
+  // Where the input came from
   Map<String, NamedEntity> _origin = {};
 
   int _nextTextureUnit;
@@ -312,7 +313,7 @@ class RenderProgram extends UniformSink {
     if (node.SomethingToDraw()) {
       LogDebug("drawing: ${node}");
       node.AddShaderInputs(this);
-      _drawOne(node.meshData, _inputs, stats);
+      _drawOne(node.meshData, _uniforms, stats);
       node.RemoveShaderInputs(this);
     }
     for (Node child in node.children) {
@@ -340,13 +341,13 @@ class RenderProgram extends UniformSink {
   void ForceInput(String canonical, var val, [NamedEntity origin = null]) {
     if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
     if (origin == null) origin = kUnknownEntity;
-    _inputs[canonical] = val;
+    _uniforms[canonical] = val;
     _origin[canonical] = origin;
   }
 
   @override
   void SetInput(String canonical, var val, [NamedEntity origin = null]) {
-    if (_inputs.containsKey(canonical)) {
+    if (_uniforms.containsKey(canonical)) {
       LogError("canonical already present: ${canonical}");
       assert(false);
     }
@@ -355,8 +356,8 @@ class RenderProgram extends UniformSink {
 
   @override
   void Remove(String canonical) {
-    assert(_inputs.containsKey(canonical));
-    _inputs.remove(canonical);
+    assert(_uniforms.containsKey(canonical));
+    _uniforms.remove(canonical);
     _origin.remove(canonical);
   }
 }
