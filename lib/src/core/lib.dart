@@ -23,6 +23,5 @@ part "material.dart";
 part "node.dart";
 part "framebuffer.dart";
 part "render_phase.dart";
-part "instancer.dart";
 part "chronosgl.dart";
 part "constants.dart";

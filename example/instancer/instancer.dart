@@ -32,7 +32,7 @@ List<ShaderObject> createInstancedShader() {
   ];
 }
 
-InstancerData MakeInstances(dynamic gl) {
+void AddInstanceData(MeshData md) {
   int count = 1000;
   Float32List translations = new Float32List(count * 3);
   Float32List rotations = new Float32List(count * 4);
@@ -52,10 +52,8 @@ InstancerData MakeInstances(dynamic gl) {
     }
   }
 
-  InstancerData out = new InstancerData("instances", gl, count);
-  out.AddBuffer(iaRotation, rotations);
-  out.AddBuffer(iaTranslation, translations);
-  return out;
+  md.AddAttribute(iaRotation, rotations, 4);
+  md.AddAttribute(iaTranslation, translations, 3);
 }
 
 void main() {
@@ -66,17 +64,17 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(265.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
+  RenderProgram prg = phase.createProgram(createInstancedShader());
 
   Material mat = new Material("mat");
-  Node m = new Node.WithInstances("torus",
-      ShapeTorusKnot(chronosGL, radius: 12.0), MakeInstances(chronosGL), mat);
-
-  RenderProgram prg = phase.createProgram(createInstancedShader());
+  MeshData md = ShapeTorusKnot(prg, radius: 12.0);
+  AddInstanceData(md);
+  Node m = new Node("torus", md, mat);
   prg.add(m);
 
   RenderProgram programSprites =
       phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(chronosGL, 2000));
+  programSprites.add(Utils.MakeParticles(programSprites, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

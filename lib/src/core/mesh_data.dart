@@ -62,6 +62,7 @@ class MeshData extends NamedEntity {
   final Map<String, dynamic /* gl Buffer */ > _buffers = {};
   final Map<String, int> _locationMap;
   dynamic /* gl Buffer */ _indexBuffer;
+  int _instances = 0;
   int _indexBufferType = -1;
 
   Float32List _vertices;
@@ -83,7 +84,12 @@ class MeshData extends NamedEntity {
 
   void ChangeAttribute(String canonical, List data, int width) {
     if (debug) print("ChangeBuffer ${canonical} ${data.length}");
-    assert(data.length ~/ width == _vertices.length ~/ 3);
+    if (canonical.codeUnitAt(0) == prefixInstancer) {
+      assert(
+          data.length ~/ width == _instances, "ChangeAttribute ${_instances}");
+    } else {
+      assert(data.length ~/ width == _vertices.length ~/ 3);
+    }
     _attributes[canonical] = data;
     _cgl.ChangeArrayBuffer(_buffers[canonical], data);
   }
@@ -110,7 +116,7 @@ class MeshData extends NamedEntity {
   }
 
   int GetNumInstances() {
-    return 0;
+    return _instances;
   }
 
   Float32List GetAttribute(String canonical) {
@@ -122,15 +128,20 @@ class MeshData extends NamedEntity {
   }
 
   void AddAttribute(String canonical, List data, int width) {
+    final bool instanced = canonical.codeUnitAt(0) == prefixInstancer;
+    if (instanced && _instances == 0) {
+      _instances = data.length ~/ width;
+    }
     _buffers[canonical] = _cgl.createBuffer();
     ChangeAttribute(canonical, data, width);
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "Unknown canonical ${canonical}";
     assert(_locationMap.containsKey(canonical),
         "unexpected attribute ${canonical}");
-    int index = _locationMap[canonical];
+
+    final int index = _locationMap[canonical];
     _cgl.bindVertexArray(_vao);
-    _cgl.enableVertexAttribArray(index, 0);
+    _cgl.enableVertexAttribArray(index, instanced ? 1 : 0);
     _cgl.vertexAttribPointer(
         _buffers[canonical], index, desc.GetSize(), GL_FLOAT, false, 0, 0);
   }

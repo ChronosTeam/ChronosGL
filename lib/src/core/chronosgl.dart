@@ -222,11 +222,13 @@ class ChronosGL {
     if (divisor > 0) _gl.vertexAttribDivisor(index, divisor);
   }
 
+  // Obsolete because of VAOs
+  /*
   void disableVertexAttribArray(int index, bool instanced) {
     _gl.disableVertexAttribArray(index);
     if (instanced) _gl.vertexAttribDivisor(index, 0);
   }
-
+*/
   void clear(int kind) {
     _gl.clear(kind);
   }
