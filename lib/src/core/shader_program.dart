@@ -12,7 +12,7 @@ class DrawStats {
   String toString() => "[${name}] ${numInstances} ${numItems} ${drawMode}";
 }
 
-/// ## Class RenderProgram (is a UniformSink)
+/// ## Class RenderProgram (is a NamedEntity)
 /// represents several invocations of the same program running on the GPU.
 /// It consists of a tree of **Nodes** which provide **Inputs** for the
 /// program. The program is invoked once for most **Nodes** while traversing
@@ -32,7 +32,6 @@ class RenderProgram extends NamedEntity {
 
   // Scene stuff - move this out of here
   // these are the identity by default
-  final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
   final List<Node> objects = new List<Node>();
 
   RenderProgram(
@@ -141,7 +140,8 @@ class RenderProgram extends NamedEntity {
   void _SetUniform(String group, String canonical, var val) {
     // enable only for debug
     if (_uniformsInitialized.containsKey(canonical)) {
-      LogError("${canonical} : group ${group} overwrites ${_uniformsInitialized[canonical]}");
+      LogError(
+          "${canonical} : group ${group} overwrites ${_uniformsInitialized[canonical]}");
     }
     _uniformsInitialized[canonical] = group;
 
@@ -261,7 +261,8 @@ class RenderProgram extends NamedEntity {
     LogDebug("setting ${count} var in ${delta}");
   }
 
-  void DrawOne(MeshData md, List<UniformGroup> uniforms, List<DrawStats> stats) {
+  void DrawOne(
+      MeshData md, List<UniformGroup> uniforms, List<DrawStats> stats) {
     _ClearState();
 
     // TODO: put this behind a flag
@@ -315,15 +316,11 @@ class RenderProgram extends NamedEntity {
     }
   }
 
-  // This is a weird flow control:
-  // * When draw() is called,
-  // * we recursively draw items in objects passing "this" as a parameter
-  // * the objects then call the Draw method above
   void drawScene(List<DrawStats> stats, List<UniformGroup> uniforms) {
     DrawSetUp();
     UniformGroup transforms = new UniformGroup("transforms");
     uniforms.add(transforms);
-    _modelMatrix.setIdentity();
+    final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
     if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {
       _drawRecursively(node, _modelMatrix, stats, uniforms);
