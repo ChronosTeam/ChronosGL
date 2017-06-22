@@ -191,7 +191,7 @@ void main() {
   RenderPhase phaseMain = new RenderPhase("main", chronosGL);
   RenderProgram basic =
       phaseMain.createProgram(createLightShaderBlinnPhongWithShadow());
-  Material uniforms = new Material.Plain("plain")
+  UniformGroup uniforms = new UniformGroup("plain")
     ..SetUniform(uShadowMap, shadowMap.GetMapTexture())
     ..SetUniform(uCanvasSize, shadowMap.GetMapSize())
     ..SetUniform(uShadowBias, 0.03);

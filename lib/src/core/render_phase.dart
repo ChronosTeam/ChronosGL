@@ -7,7 +7,8 @@ class RenderPhase extends NamedEntity {
   ChronosFramebuffer _framebuffer;
   final List<RenderProgram> _programs = [];
   //final VM.Matrix4 _pMatrix = new VM.Matrix4.identity();
-  int _clear_mode = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+  int _clear_mode =
+      GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 
   int viewPortX = 0;
   int viewPortY = 0;
@@ -22,7 +23,7 @@ class RenderPhase extends NamedEntity {
 
   ChronosFramebuffer get framebuffer => _framebuffer;
 
-  void draw(List<UniformSource> inputs, [List<DrawStats> stats = null]) {
+  void draw(List<UniformGroup> inputs, [List<DrawStats> stats = null]) {
     if (_framebuffer == null) {
       _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
     } else {
@@ -36,32 +37,31 @@ class RenderPhase extends NamedEntity {
       _cgl.clear(_clear_mode);
     }
 
-    UniformSink sink = new UniformSink();
     for (RenderProgram prg in _programs) {
       if (!prg.enabled) continue;
-      for (UniformSource p in inputs) {
-        p.AddToSink(sink);
-      }
-      prg.draw(stats, sink);
-      for (UniformSource p in inputs) {
-        p.RemoveFromSink(sink);
-      }
+      prg.drawScene(stats, inputs);
     }
   }
 
   void set clearColorBuffer(bool clear) {
-    if (clear) _clear_mode |= GL_COLOR_BUFFER_BIT;
-    else _clear_mode &= ~GL_COLOR_BUFFER_BIT;
+    if (clear)
+      _clear_mode |= GL_COLOR_BUFFER_BIT;
+    else
+      _clear_mode &= ~GL_COLOR_BUFFER_BIT;
   }
 
   void set clearDepthBuffer(bool clear) {
-    if (clear) _clear_mode |= GL_DEPTH_BUFFER_BIT;
-    else _clear_mode &= ~GL_DEPTH_BUFFER_BIT;
+    if (clear)
+      _clear_mode |= GL_DEPTH_BUFFER_BIT;
+    else
+      _clear_mode &= ~GL_DEPTH_BUFFER_BIT;
   }
 
   void set clearStencilBuffer(bool clear) {
-    if (clear) _clear_mode |= GL_STENCIL_BUFFER_BIT;
-    else _clear_mode &= ~GL_STENCIL_BUFFER_BIT;
+    if (clear)
+      _clear_mode |= GL_STENCIL_BUFFER_BIT;
+    else
+      _clear_mode &= ~GL_STENCIL_BUFFER_BIT;
   }
 
   void AddRenderProgram(RenderProgram s) {

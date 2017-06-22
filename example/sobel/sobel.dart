@@ -39,7 +39,7 @@ void main() {
   RenderProgram prg2 = phase2.createProgram(createSobelShader());
   prg2.add(UnitNode(prg2));
 
-  Material uniforms = new Material.Plain("plain")
+  UniformGroup uniforms = new UniformGroup("plain")
     ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetUniform(uDepthMap, fb.depthTexture)
     ..SetUniform(uTexture, fb.colorTexture);

@@ -36,7 +36,7 @@ void main() {
   phase2.viewPortW = width;
   phase2.viewPortH = height;
   RenderProgram prg2 = phase2.createProgram(createSSAOShader());
-  Material uniforms = new Material.Plain("plain")
+  UniformGroup uniforms = new UniformGroup("plain")
     ..SetUniform(uCameraNear, 0.1)
     ..SetUniform(uCameraFar, 2529.0)
     ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))

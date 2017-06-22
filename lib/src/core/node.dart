@@ -37,22 +37,12 @@ class Node extends Spatial {
     children.add(node);
   }
 
-  void AddShaderInputs(UniformSink program) {
+  void UpdateTransforms(UniformGroup transforms) {
     // TODO: computing the normal matrix like this is wrong
     _normMatrix.copyNormalMatrix(_modelMatrix);
-    program.SetInput(uTransformationMatrix, transform, this);
-    program.SetInput(uModelMatrix, _modelMatrix, this);
-    program.SetInput(uNormalMatrix, _normMatrix, this);
-
-    _material.AddToSink(program);
-  }
-
-  void RemoveShaderInputs(UniformSink program) {
-    _material.RemoveFromSink(program);
-
-    program.Remove(uTransformationMatrix);
-    program.Remove(uModelMatrix);
-    program.Remove(uNormalMatrix);
+    transforms.ForceUniform(uTransformationMatrix, transform);
+    transforms.ForceUniform(uModelMatrix, _modelMatrix);
+    transforms.ForceUniform(uNormalMatrix, _normMatrix);
   }
 
   VM.Matrix4 UpdateModelMatrix(final VM.Matrix4 parent) {

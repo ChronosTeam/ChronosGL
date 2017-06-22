@@ -73,7 +73,7 @@ void main() {
     ..viewPortH = height;
 
   RenderProgram copy = phase2.createProgram(createCopyShader());
-  Material uniforms = new Material.Plain("plain")
+  UniformGroup uniforms = new UniformGroup("plain")
     ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetUniform(uTexture, fb.colorTexture);
   copy.add(UnitNode(copy));

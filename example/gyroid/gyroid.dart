@@ -208,7 +208,7 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL);
 
   RenderProgram program = phase.createProgram(createSphericalGyroidShader());
-  Material uniforms = new Material.Plain("plain");
+  UniformGroup uniforms = new UniformGroup("plain");
   program.add(UnitNode(program));
 
   void resolutionChange(HTML.Event ev) {

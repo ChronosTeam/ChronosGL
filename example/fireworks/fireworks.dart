@@ -77,7 +77,7 @@ void main() {
   RenderProgram pssp = phase.createProgram(createFireWorksShader());
   pssp.add(
       getRocket(pssp, Utils.createParticleTexture(chronosGL, "fireworks")));
-  Material uniforms = new Material.Plain("fireworks");
+  UniformGroup uniforms = new UniformGroup("fireworks");
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

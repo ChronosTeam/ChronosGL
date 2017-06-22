@@ -116,7 +116,7 @@ abstract class ShadowMap {
   RenderProgram _programCompute;
 
   RenderPhase _phaseVisualize;
-  Material _uniforms = new Material.Plain("shadow-uniforms");
+  UniformGroup _uniforms = new UniformGroup("uniforms");
 
   VM.Vector2 _mapSize;
   Texture _depthTexture;

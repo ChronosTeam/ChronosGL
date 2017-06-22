@@ -25,11 +25,12 @@ class RenderProgram extends NamedEntity {
 
   Set<String> _attributes;
   Map<String, dynamic /* gl UniformLocation */ > _uniformLocations = {};
-  Set<String> _uniformsInitialized = new Set<String>();
+  Map<String, String> _uniformsInitialized = {};
   Set<String> _attributesInitialized = new Set<String>();
 
   int _nextTextureUnit;
 
+  // Scene stuff - move this out of here
   // these are the identity by default
   final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
   final List<Node> objects = new List<Node>();
@@ -137,8 +138,12 @@ class RenderProgram extends NamedEntity {
     }
   }
 
-  void _SetUniform(String canonical, var val) {
-    _uniformsInitialized.add(canonical);
+  void _SetUniform(String group, String canonical, var val) {
+    // enable only for debug
+    if (_uniformsInitialized.containsKey(canonical)) {
+      LogError("${canonical} : group ${group} overwrites ${_uniformsInitialized[canonical]}");
+    }
+    _uniformsInitialized[canonical] = group;
 
     // Note, we could make this smarter and skip
     // overwriting values with the same values;
@@ -221,7 +226,7 @@ class RenderProgram extends NamedEntity {
         _attributesInitialized.length == _attributes.length) return [];
     List<String> out = [];
     for (String u in _uniformLocations.keys) {
-      if (!_uniformsInitialized.contains(u)) out.add(u);
+      if (!_uniformsInitialized.containsKey(u)) out.add(u);
     }
     for (String u in _attributes) {
       if (!_attributesInitialized.contains(u)) out.add(u);
@@ -234,7 +239,7 @@ class RenderProgram extends NamedEntity {
     _cgl.useProgram(_program);
   }
 
-  void _ActivateUniforms(Map<String, dynamic> inputs) {
+  void _ActivateUniforms(String group, Map<String, dynamic> inputs) {
     int count = 0;
     final DateTime start = new DateTime.now();
 
@@ -242,7 +247,7 @@ class RenderProgram extends NamedEntity {
       switch (canonical.codeUnitAt(0)) {
         case prefixUniform:
           if (_HasUniform(canonical)) {
-            _SetUniform(canonical, inputs[canonical]);
+            _SetUniform(group, canonical, inputs[canonical]);
             ++count;
           }
           break;
@@ -250,26 +255,20 @@ class RenderProgram extends NamedEntity {
           _SetControl(canonical, inputs[canonical]);
           ++count;
           break;
-        case prefixInstancer:
-        case prefixAttribute:
-          if (_HasAttribute(canonical)) {
-            // _SetAttribute(canonical, inputs[canonical], false, 0, 0);
-            ++count;
-          }
-          break;
       }
     }
     final Duration delta = new DateTime.now().difference(start);
     LogDebug("setting ${count} var in ${delta}");
   }
 
-  void DrawOne(
-      MeshData md, UniformSink uniforms, List<DrawStats> stats) {
+  void DrawOne(MeshData md, List<UniformGroup> uniforms, List<DrawStats> stats) {
     _ClearState();
 
     // TODO: put this behind a flag
     _uniformsInitialized.clear();
-    _ActivateUniforms(uniforms.GetUniforms());
+    for (UniformGroup u in uniforms) {
+      _ActivateUniforms(u.name, u.GetUniforms());
+    }
 
     _attributesInitialized.clear();
     for (String a in md.GetAttributes()) {
@@ -300,18 +299,19 @@ class RenderProgram extends NamedEntity {
   }
 
   void _drawRecursively(Node node, final VM.Matrix4 parent,
-      List<DrawStats> stats, UniformSink sink) {
+      List<DrawStats> stats, List<UniformGroup> uniforms) {
     if (!node.enabled) return;
     // m is read-only!
     final VM.Matrix4 m = node.UpdateModelMatrix(parent);
     if (node.SomethingToDraw()) {
       LogDebug("drawing: ${node}");
-      node.AddShaderInputs(sink);
-      DrawOne(node.meshData, sink, stats);
-      node.RemoveShaderInputs(sink);
+      node.UpdateTransforms(uniforms.last);
+      uniforms.add(node.material);
+      DrawOne(node.meshData, uniforms, stats);
+      uniforms.removeLast();
     }
     for (Node child in node.children) {
-      _drawRecursively(child, m, stats, sink);
+      _drawRecursively(child, m, stats, uniforms);
     }
   }
 
@@ -319,13 +319,16 @@ class RenderProgram extends NamedEntity {
   // * When draw() is called,
   // * we recursively draw items in objects passing "this" as a parameter
   // * the objects then call the Draw method above
-  void draw(List<DrawStats> stats, UniformSink sink) {
+  void drawScene(List<DrawStats> stats, List<UniformGroup> uniforms) {
     DrawSetUp();
+    UniformGroup transforms = new UniformGroup("transforms");
+    uniforms.add(transforms);
     _modelMatrix.setIdentity();
     if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {
-      _drawRecursively(node, _modelMatrix, stats, sink);
+      _drawRecursively(node, _modelMatrix, stats, uniforms);
     }
+    uniforms.removeLast();
     DrawTearDown();
   }
 
