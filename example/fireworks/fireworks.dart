@@ -75,8 +75,9 @@ void main() {
   programSprites.add(Utils.MakeParticles(programSprites, 2000));
 
   RenderProgram pssp = phase.createProgram(createFireWorksShader());
-  pssp.add(getRocket(
-      pssp, Utils.createParticleTexture(chronosGL, "fireworks")));
+  pssp.add(
+      getRocket(pssp, Utils.createParticleTexture(chronosGL, "fireworks")));
+  UniformGroup uniforms = new UniformGroup("fireworks");
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -99,8 +100,8 @@ void main() {
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    pssp.ForceInput(uTime, timeMs / 1000.0);
-    phase.draw([perspective]);
+    uniforms.ForceUniform(uTime, timeMs / 1000.0);
+    phase.draw([perspective, uniforms]);
     HTML.window.animationFrame.then(animate);
   }
 

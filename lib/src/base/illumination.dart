@@ -6,9 +6,9 @@ final VM.Vector3 _up2 = new VM.Vector3(0.0, 0.0, 1.0);
 /// ## Class Light
 /// represents a light source with helpers for
 /// light and shadow computation.
-/// **Light** is NOT a **ShaderInputProvider**. But several **Lights**
+/// **Light** is NOT a **UniformGroup**. But several **Lights**
 /// can be added to an **Illumination** object which is
-/// a **ShaderInputProvider**.
+/// a **UnformGroup*.
 abstract class Light extends NamedEntity {
   final int type;
   Light(String name, this.type) : super(name);
@@ -199,9 +199,9 @@ class HemisphericalLight implements Light {
 }
 */
 
-/// ## Class Illumination (is a RenderInputProvider)
+/// ## Class Illumination (is a Uniforms)
 /// represents a collection of Lights.
-class Illumination extends UniformSource {
+class Illumination extends UniformGroup {
   final List<Light> _lights = [];
   final Float32List _lightDescs = new Float32List(16 * kMaxLights);
   final Float32List _lightTypes = new Float32List(kMaxLights);
@@ -228,15 +228,10 @@ class Illumination extends UniformSource {
   }
 
   @override
-  void AddToSink(UniformSink inputs) {
+  Map<String, NamedEntity> GetUniforms() {
     _SetLightInfo(_lightDescs, _lightTypes, _lights);
-    inputs.SetInput(uLightDescs, _lightDescs, this);
-    inputs.SetInput(uLightTypes, _lightTypes, this);
-  }
-
-  @override
-  void RemoveFromSink(UniformSink inputs) {
-    inputs.Remove(uLightDescs);
-    inputs.Remove(uLightTypes);
+    ForceUniform(uLightDescs, _lightDescs);
+    ForceUniform(uLightTypes, _lightTypes);
+    return _uniforms;
   }
 }

@@ -35,11 +35,10 @@ final TheBlendEquation BlendEquationMix =
 final TheBlendEquation BlendEquationAdd =
     new TheBlendEquation(GL_FUNC_ADD, GL_ONE, GL_ONE);
 
-/// ## Class Material (is a RenderInputSource)
-/// is a light weight container for **Inputs**.
-/// By convention the *Inputs** pertain to mesh appearance.
-class Material extends UniformSource {
-  Map<String, dynamic> _uniforms = {};
+/// ## Class Material (is a UniformGroup)
+/// is a light weight container for uniforms related to the appearance
+/// of a mesh.
+class Material extends UniformGroup {
 
   Material(String name) : super(name) {
     SetUniform(cDepthTest, true);
@@ -53,33 +52,5 @@ class Material extends UniformSource {
     SetUniform(cDepthWrite, false);
     SetUniform(cBlendEquation, beq);
     SetUniform(cStencilFunc, StencilFunctionNone);
-  }
-
-  void SetUniform(String canonical, dynamic val) {
-    assert(
-        !_uniforms.containsKey(canonical), "uniform ${canonical} already set");
-    ForceUniform(canonical, val);
-  }
-
-  void ForceUniform(String canonical, dynamic val) {
-    _uniforms[canonical] = val;
-  }
-
-  bool HasUniform(String canonical) {
-    return _uniforms.containsKey(canonical);
-  }
-
-  @override
-  void AddToSink(UniformSink inputs) {
-    _uniforms.forEach((String k, v) {
-      inputs.SetInput(k, v, this);
-    });
-  }
-
-  @override
-  void RemoveFromSink(UniformSink inputs) {
-    for (String canonical in _uniforms.keys) {
-      inputs.Remove(canonical);
-    }
   }
 }

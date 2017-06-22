@@ -109,27 +109,27 @@ void main() {
   Material mat = new Material("mat");
   MeshData md = ShapeCube(prgs[0], x: 10.0, y: 10.0, z: 10.0);
 
-  Node m = new Node(md.name, md, mat)
+  Node cube = new Node(md.name, md, mat)
     ..setPos(0.0, 0.0, 0.0)
     ..lookUp(1.0)
     ..lookLeft(0.7);
 
-  prgs[0].add(m);
+  prgs[0].add(cube);
 
   int pointer = 0;
 
   HTML.document.addEventListener('keypress', (event) {
-    prgs[pointer % 3].remove(m);
-    prgs[(pointer + 1) % 3].add(m);
+    prgs[pointer % 3].remove(cube);
+    prgs[(pointer + 1) % 3].add(cube);
     pointer = (pointer + 1) % 3;
   });
 
   HTML.SelectElement myselect =
       HTML.document.querySelector('#myselect') as HTML.SelectElement;
   myselect.onChange.listen((HTML.Event e) {
-    prgs[pointer].remove(m);
+    prgs[pointer].remove(cube);
     pointer = myselect.selectedIndex;
-    prgs[(pointer)].add(m);
+    prgs[(pointer)].add(cube);
   });
 
   RenderProgram sprites =
@@ -158,11 +158,10 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
 
-    m.rollLeft(elapsed * 0.0005);
-    m.lookLeft(elapsed * 0.0005);
-    for (RenderProgram p in prgs) {
-      p.ForceInput(uTime, timeMs / 1000.0);
-    }
+    cube.rollLeft(elapsed * 0.0005);
+    cube.lookLeft(elapsed * 0.0005);
+    mat.ForceUniform(uTime, timeMs / 1000.0);
+
     phase.draw([perspective]);
     HTML.window.animationFrame.then(animate);
   }

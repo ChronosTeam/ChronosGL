@@ -157,11 +157,10 @@ List<Node> MakeScene(RenderProgram prog) {
     new Node("sphere", ShapeIcosahedron(prog, 3), matObjects)
       ..setPos(0.0, 0.0, 0.0),
     new Node("cube", ShapeCube(prog), matObjects)..setPos(-5.0, 0.0, -5.0),
-    new Node(
-        "cylinder", ShapeCylinder(prog, 3.0, 6.0, 2.0, 32), matObjects)
+    new Node("cylinder", ShapeCylinder(prog, 3.0, 6.0, 2.0, 32), matObjects)
       ..setPos(5.0, 0.0, -5.0),
-    new Node("torusknot", ShapeTorusKnot(prog, radius: 1.0, tube: 0.4),
-        matObjects)
+    new Node(
+        "torusknot", ShapeTorusKnot(prog, radius: 1.0, tube: 0.4), matObjects)
       ..setPos(5.0, 0.0, 5.0),
     new Node("plane", ShapeCube(prog, x: 30.0, y: 0.1, z: 30.0), matGray)
       ..setPos(0.0, -10.0, 0.0),
@@ -190,11 +189,12 @@ void main() {
 
   // display scene with shadow on left part of screen.
   RenderPhase phaseMain = new RenderPhase("main", chronosGL);
-  RenderProgram basic = phaseMain
-      .createProgram(createLightShaderBlinnPhongWithShadow())
-        ..SetInput(uShadowMap, shadowMap.GetMapTexture())
-        ..SetInput(uCanvasSize, shadowMap.GetMapSize())
-        ..SetInput(uShadowBias, 0.03);
+  RenderProgram basic =
+      phaseMain.createProgram(createLightShaderBlinnPhongWithShadow());
+  UniformGroup uniforms = new UniformGroup("plain")
+    ..SetUniform(uShadowMap, shadowMap.GetMapTexture())
+    ..SetUniform(uCanvasSize, shadowMap.GetMapSize())
+    ..SetUniform(uShadowBias, 0.03);
   RenderProgram fixed = phaseMain.createProgram(createSolidColorShader());
   assert(fixed.HasDownwardCompatibleAttributesTo(basic));
 
@@ -276,9 +276,9 @@ void main() {
     fps.ChangeExtra("${gActiveLight}");
 
     shadowMap.Compute(lm);
-    basic.ForceInput(uLightPerspectiveViewMatrix, lm);
+    uniforms.ForceUniform(uLightPerspectiveViewMatrix, lm);
     // render scene utilizing shadow map
-    phaseMain.draw([perspective, illumination]);
+    phaseMain.draw([perspective, illumination, uniforms]);
     shadowMap.Visualize();
 
     HTML.window.animationFrame.then(animate);

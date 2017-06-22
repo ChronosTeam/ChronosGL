@@ -35,7 +35,7 @@ void main() {
   Uint32List data = new Uint32List(width * height);
   for (int x = 0; x < width; ++x) {
     for (int y = 0; y < height; ++y) {
-      data[y * width + x] = (x & 8) == 0 ? 0 : 1 ;
+      data[y * width + x] = (x & 8) == 0 ? 0 : 1;
     }
   }
   phase.framebuffer.depthTexture.SetImageData(data);
@@ -45,7 +45,6 @@ void main() {
   final Material matRed = new Material("red")
     ..SetUniform(uColor, ColorRed)
     ..ForceUniform(cStencilFunc, StencilFunctionNone);
-
 
   final Material matBlue = new Material("blue")
     ..SetUniform(uColor, ColorBlue)
@@ -64,19 +63,20 @@ void main() {
         ..setPos(5.0, 0.0, -5.0);
   basic.add(cyl);
 
-  Node torus = new Node(
-      "torus", ShapeTorusKnot(basic, radius: 1.0, tube: 0.4), matBlue)
-    ..setPos(5.0, 0.0, 5.0);
+  Node torus =
+      new Node("torus", ShapeTorusKnot(basic, radius: 1.0, tube: 0.4), matBlue)
+        ..setPos(5.0, 0.0, 5.0);
   basic.add(torus);
 
   RenderPhase phase2 = new RenderPhase("copy", chronosGL)
     ..viewPortW = width
     ..viewPortH = height;
 
-  RenderProgram copy = phase2.createProgram(createCopyShader())
-    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
-    ..SetInput(uTexture, fb.colorTexture);
-    copy.add(UnitNode(copy));
+  RenderProgram copy = phase2.createProgram(createCopyShader());
+  UniformGroup uniforms = new UniformGroup("plain")
+    ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetUniform(uTexture, fb.colorTexture);
+  copy.add(UnitNode(copy));
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
@@ -86,12 +86,12 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
 
-    matBlue.ForceUniform(cStencilFunc,
-        gStencil.checked ? StencilEqualOne : StencilFunctionNone);
+    matBlue.ForceUniform(
+        cStencilFunc, gStencil.checked ? StencilEqualOne : StencilFunctionNone);
 
     List<DrawStats> stats = [];
     phase.draw([perspective], stats);
-    phase2.draw([], stats);
+    phase2.draw([uniforms], stats);
     List<String> out = [];
     for (DrawStats d in stats) {
       out.add(d.toString());

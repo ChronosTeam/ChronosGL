@@ -1,8 +1,8 @@
 part of base;
 
-/// ## Class Orthographic (is a RenderInputSource)
+/// ## Class Orthographic (is a UniformGroup)
 /// TBD
-class Orthographic extends UniformSource {
+class Orthographic extends UniformGroup {
   final Camera _camera;
   final VM.Matrix4 _proj = new VM.Matrix4.zero();
   final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
@@ -21,16 +21,12 @@ class Orthographic extends UniformSource {
   }
 
   @override
-  void AddToSink(UniformSink inputs) {
+  Map<String, NamedEntity> GetUniforms() {
     _camera.getViewMatrix(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
     _projViewMatrix.multiply(_viewMatrix);
-    inputs.SetInput(uPerspectiveViewMatrix, _projViewMatrix, this);
-  }
-
-  @override
-  void RemoveFromSink(UniformSink inputs) {
-    inputs.Remove(uPerspectiveViewMatrix);
+    ForceUniform(uPerspectiveViewMatrix, _projViewMatrix);
+    return _uniforms;
   }
 
   void Update() {
@@ -47,11 +43,11 @@ class Orthographic extends UniformSource {
   }
 }
 
-/// ## Class Perspective (is a RenderInputSource)
+/// ## Class Perspective (is a UniformGroup)
 /// provides the **Input** for perspective projection, i.e.
 /// the uPerspectiveViewMatrix Uniform which also requires a **Camera**
 /// for view matrix.
-class Perspective extends UniformSource {
+class Perspective extends UniformGroup {
   Camera _camera;
   double _fov = 50.0; // horizontal fov in deg  divided by 2
   double _aspect = 1.0;
@@ -90,17 +86,12 @@ class Perspective extends UniformSource {
   }
 
   @override
-  void AddToSink(UniformSink inputs) {
-    inputs.SetInput(uEyePosition, _camera.getEyePosition(), this);
+  Map<String, NamedEntity> GetUniforms() {
+    ForceUniform(uEyePosition, _camera.getEyePosition());
     _camera.getViewMatrix(_viewMatrix);
     _perspectiveViewMatrix.setFrom(_mat);
     _perspectiveViewMatrix.multiply(_viewMatrix);
-    inputs.SetInput(uPerspectiveViewMatrix, _perspectiveViewMatrix, this);
-  }
-
-  @override
-  void RemoveFromSink(UniformSink inputs) {
-    inputs.Remove(uEyePosition);
-    inputs.Remove(uPerspectiveViewMatrix);
+    ForceUniform(uPerspectiveViewMatrix, _perspectiveViewMatrix);
+    return _uniforms;
   }
 }

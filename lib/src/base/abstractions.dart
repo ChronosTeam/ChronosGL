@@ -19,35 +19,32 @@ class UnknownEntity extends NamedEntity {
 
 final NamedEntity kUnknownEntity = new UnknownEntity();
 
-/// ## Class UniformSink (is a NamedEntity)
-/// represents a collection of **Inputs**
-/// There is only one class inheriting from it: RenderProgram
-/// The **Inputs** are usually populated by **UniformSource** via
-/// their AddToSink(), but **Inputs** can also set directly by
-/// calling SetInput()/ForceInput().
-abstract class UniformSink extends NamedEntity {
-  UniformSink(String name) : super(name);
 
-  void ForceInput(String canonical, var val, [NamedEntity origin = null]);
-
-  void SetInput(String canonical, var val, [NamedEntity origin = null]);
-
-  void Remove(String canonical);
-}
-
-/// ## Class UniformSource (is a NamedEntity)
-/// is an abstraction for adding/removing
-/// inputs to/from a RenderInputSink object.
+/// ## Class UniformGroup (is a NamedEntity)
+/// is an abstraction for a set of uniforms
 ///
-/// Typically the UniformSink object will be GPU program
-/// and the RenderInputSource
+/// Important subclasses are:
 /// a Projections object to provide a perspective matrix uniform
-/// or a MeshData object to provide vertex attributes
 /// or Material object to provide color and texture uniforms
 /// or ...
-abstract class UniformSource extends NamedEntity {
-  UniformSource(String name) : super(name);
+class UniformGroup extends NamedEntity {
+  UniformGroup(String name) : super(name);
 
-  void AddToSink(UniformSink inputs);
-  void RemoveFromSink(UniformSink inputs);
+  Map<String, dynamic> _uniforms = {};
+
+  void SetUniform(String canonical, dynamic val) {
+    assert(
+    !_uniforms.containsKey(canonical), "uniform ${canonical} already set");
+    ForceUniform(canonical, val);
+  }
+
+  void ForceUniform(String canonical, dynamic val) {
+    _uniforms[canonical] = val;
+  }
+
+  bool HasUniform(String canonical) {
+    return _uniforms.containsKey(canonical);
+  }
+
+  Map<String, NamedEntity> GetUniforms() => _uniforms;
 }

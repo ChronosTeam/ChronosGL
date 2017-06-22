@@ -24,7 +24,8 @@ void main() {
   canvas.height = height;
   perspective.AdjustAspect(width, height);
 
-  ChronosFramebuffer fb = new ChronosFramebuffer.Default(chronosGL, width, height);
+  ChronosFramebuffer fb =
+      new ChronosFramebuffer.Default(chronosGL, width, height);
   RenderPhase phase1 = new RenderPhase("phase1", chronosGL, fb);
   phase1.viewPortW = width;
   phase1.viewPortH = height;
@@ -36,11 +37,12 @@ void main() {
   phase2.viewPortH = height;
 
   RenderProgram prg2 = phase2.createProgram(createSobelShader());
-  prg2
-    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
-    ..SetInput(uDepthMap, fb.depthTexture)
-    ..SetInput(uTexture, fb.colorTexture)
-    ..add(UnitNode(prg2));
+  prg2.add(UnitNode(prg2));
+
+  UniformGroup uniforms = new UniformGroup("plain")
+    ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetUniform(uDepthMap, fb.depthTexture)
+    ..SetUniform(uTexture, fb.colorTexture);
 
   RenderPhase phase1only = new RenderPhase("phase1only", chronosGL, null);
   phase1only.viewPortW = width;
@@ -57,7 +59,7 @@ void main() {
     fps.UpdateFrameCount(timeMs);
     if (gSobel.checked) {
       phase1.draw([perspective]);
-      phase2.draw([perspective]);
+      phase2.draw([perspective, uniforms]);
     } else {
       phase1only.draw([perspective]);
     }

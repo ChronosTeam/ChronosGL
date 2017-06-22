@@ -12,12 +12,12 @@ class DrawStats {
   String toString() => "[${name}] ${numInstances} ${numItems} ${drawMode}";
 }
 
-/// ## Class RenderProgram (is a UniformSink)
+/// ## Class RenderProgram (is a NamedEntity)
 /// represents several invocations of the same program running on the GPU.
 /// It consists of a tree of **Nodes** which provide **Inputs** for the
 /// program. The program is invoked once for most **Nodes** while traversing
 /// the tree recursively.
-class RenderProgram extends UniformSink {
+class RenderProgram extends NamedEntity {
   ChronosGL _cgl;
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
@@ -25,19 +25,13 @@ class RenderProgram extends UniformSink {
 
   Set<String> _attributes;
   Map<String, dynamic /* gl UniformLocation */ > _uniformLocations = {};
-  Set<String> _uniformsInitialized = new Set<String>();
+  Map<String, String> _uniformsInitialized = {};
   Set<String> _attributesInitialized = new Set<String>();
-
-  // TODO: this should contain all the state, including blending, depth writing
-  // and detect incompatible settings
-  Map<String, dynamic> _uniforms = {};
-  // Where the input came from
-  Map<String, NamedEntity> _origin = {};
 
   int _nextTextureUnit;
 
+  // Scene stuff - move this out of here
   // these are the identity by default
-  final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
   final List<Node> objects = new List<Node>();
 
   RenderProgram(
@@ -143,8 +137,13 @@ class RenderProgram extends UniformSink {
     }
   }
 
-  void _SetUniform(String canonical, var val) {
-    _uniformsInitialized.add(canonical);
+  void _SetUniform(String group, String canonical, var val) {
+    // enable only for debug
+    if (_uniformsInitialized.containsKey(canonical)) {
+      LogError(
+          "${canonical} : group ${group} overwrites ${_uniformsInitialized[canonical]}");
+    }
+    _uniformsInitialized[canonical] = group;
 
     // Note, we could make this smarter and skip
     // overwriting values with the same values;
@@ -227,7 +226,7 @@ class RenderProgram extends UniformSink {
         _attributesInitialized.length == _attributes.length) return [];
     List<String> out = [];
     for (String u in _uniformLocations.keys) {
-      if (!_uniformsInitialized.contains(u)) out.add(u);
+      if (!_uniformsInitialized.containsKey(u)) out.add(u);
     }
     for (String u in _attributes) {
       if (!_attributesInitialized.contains(u)) out.add(u);
@@ -240,7 +239,7 @@ class RenderProgram extends UniformSink {
     _cgl.useProgram(_program);
   }
 
-  void SetInputs(Map<String, dynamic> inputs) {
+  void _ActivateUniforms(String group, Map<String, dynamic> inputs) {
     int count = 0;
     final DateTime start = new DateTime.now();
 
@@ -248,7 +247,7 @@ class RenderProgram extends UniformSink {
       switch (canonical.codeUnitAt(0)) {
         case prefixUniform:
           if (_HasUniform(canonical)) {
-            _SetUniform(canonical, inputs[canonical]);
+            _SetUniform(group, canonical, inputs[canonical]);
             ++count;
           }
           break;
@@ -256,26 +255,21 @@ class RenderProgram extends UniformSink {
           _SetControl(canonical, inputs[canonical]);
           ++count;
           break;
-        case prefixInstancer:
-        case prefixAttribute:
-          if (_HasAttribute(canonical)) {
-            // _SetAttribute(canonical, inputs[canonical], false, 0, 0);
-            ++count;
-          }
-          break;
       }
     }
     final Duration delta = new DateTime.now().difference(start);
     LogDebug("setting ${count} var in ${delta}");
   }
 
-  void _drawOne(
-      MeshData md, Map<String, dynamic> inputs, List<DrawStats> stats) {
+  void DrawOne(
+      MeshData md, List<UniformGroup> uniforms, List<DrawStats> stats) {
     _ClearState();
 
     // TODO: put this behind a flag
     _uniformsInitialized.clear();
-    SetInputs(inputs);
+    for (UniformGroup u in uniforms) {
+      _ActivateUniforms(u.name, u.GetUniforms());
+    }
 
     _attributesInitialized.clear();
     for (String a in md.GetAttributes()) {
@@ -305,59 +299,35 @@ class RenderProgram extends UniformSink {
     md.TearDown();
   }
 
-  void _drawRecursively(
-      Node node, final VM.Matrix4 parent, List<DrawStats> stats) {
+  void _drawRecursively(Node node, final VM.Matrix4 parent,
+      List<DrawStats> stats, List<UniformGroup> uniforms) {
     if (!node.enabled) return;
     // m is read-only!
     final VM.Matrix4 m = node.UpdateModelMatrix(parent);
     if (node.SomethingToDraw()) {
       LogDebug("drawing: ${node}");
-      node.AddShaderInputs(this);
-      _drawOne(node.meshData, _uniforms, stats);
-      node.RemoveShaderInputs(this);
+      node.UpdateTransforms(uniforms.last);
+      uniforms.add(node.material);
+      DrawOne(node.meshData, uniforms, stats);
+      uniforms.removeLast();
     }
     for (Node child in node.children) {
-      _drawRecursively(child, m, stats);
+      _drawRecursively(child, m, stats, uniforms);
     }
   }
 
-  // This is a weird flow control:
-  // * When draw() is called,
-  // * we recursively draw items in objects passing "this" as a parameter
-  // * the objects then call the Draw method above
-  void draw(List<DrawStats> stats) {
+  void drawScene(List<DrawStats> stats, List<UniformGroup> uniforms) {
     DrawSetUp();
-    _modelMatrix.setIdentity();
+    UniformGroup transforms = new UniformGroup("transforms");
+    uniforms.add(transforms);
+    final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
     if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {
-      _drawRecursively(node, _modelMatrix, stats);
+      _drawRecursively(node, _modelMatrix, stats, uniforms);
     }
+    uniforms.removeLast();
     DrawTearDown();
   }
 
   void DrawTearDown() {}
-
-  @override
-  void ForceInput(String canonical, var val, [NamedEntity origin = null]) {
-    if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
-    if (origin == null) origin = kUnknownEntity;
-    _uniforms[canonical] = val;
-    _origin[canonical] = origin;
-  }
-
-  @override
-  void SetInput(String canonical, var val, [NamedEntity origin = null]) {
-    if (_uniforms.containsKey(canonical)) {
-      LogError("canonical already present: ${canonical}");
-      assert(false);
-    }
-    ForceInput(canonical, val, origin);
-  }
-
-  @override
-  void Remove(String canonical) {
-    assert(_uniforms.containsKey(canonical));
-    _uniforms.remove(canonical);
-    _origin.remove(canonical);
-  }
 }
