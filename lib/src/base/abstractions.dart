@@ -25,14 +25,37 @@ final NamedEntity kUnknownEntity = new UnknownEntity();
 /// The **Inputs** are usually populated by **UniformSource** via
 /// their AddToSink(), but **Inputs** can also set directly by
 /// calling SetInput()/ForceInput().
-abstract class UniformSink extends NamedEntity {
-  UniformSink(String name) : super(name);
+class UniformSink {
+  // TODO: this should contain all the state, including blending, depth writing
+  // and detect incompatible settings
+  Map<String, dynamic> _uniforms = {};
+  // Where the input came from
+  Map<String, NamedEntity> _origin = {};
 
-  void ForceInput(String canonical, var val, [NamedEntity origin = null]);
+  UniformSink();
 
-  void SetInput(String canonical, var val, [NamedEntity origin = null]);
+   Map<String, NamedEntity> GetUniforms() => _uniforms;
 
-  void Remove(String canonical);
+  void ForceInput(String canonical, var val, [NamedEntity origin = null]) {
+    if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
+    if (origin == null) origin = kUnknownEntity;
+    _uniforms[canonical] = val;
+    _origin[canonical] = origin;
+  }
+
+  void SetInput(String canonical, var val, [NamedEntity origin = null]) {
+    if (_uniforms.containsKey(canonical)) {
+      LogError("canonical already present: ${canonical}");
+      assert(false);
+    }
+    ForceInput(canonical, val, origin);
+  }
+
+  void Remove(String canonical) {
+    assert(_uniforms.containsKey(canonical));
+    _uniforms.remove(canonical);
+    _origin.remove(canonical);
+  }
 }
 
 /// ## Class UniformSource (is a NamedEntity)

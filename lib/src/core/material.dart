@@ -55,6 +55,8 @@ class Material extends UniformSource {
     SetUniform(cStencilFunc, StencilFunctionNone);
   }
 
+  Material.Plain(String name) : super(name) {}
+
   void SetUniform(String canonical, dynamic val) {
     assert(
         !_uniforms.containsKey(canonical), "uniform ${canonical} already set");

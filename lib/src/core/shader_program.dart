@@ -17,7 +17,7 @@ class DrawStats {
 /// It consists of a tree of **Nodes** which provide **Inputs** for the
 /// program. The program is invoked once for most **Nodes** while traversing
 /// the tree recursively.
-class RenderProgram extends UniformSink {
+class RenderProgram extends NamedEntity {
   ChronosGL _cgl;
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
@@ -27,12 +27,6 @@ class RenderProgram extends UniformSink {
   Map<String, dynamic /* gl UniformLocation */ > _uniformLocations = {};
   Set<String> _uniformsInitialized = new Set<String>();
   Set<String> _attributesInitialized = new Set<String>();
-
-  // TODO: this should contain all the state, including blending, depth writing
-  // and detect incompatible settings
-  Map<String, dynamic> _uniforms = {};
-  // Where the input came from
-  Map<String, NamedEntity> _origin = {};
 
   int _nextTextureUnit;
 
@@ -240,7 +234,7 @@ class RenderProgram extends UniformSink {
     _cgl.useProgram(_program);
   }
 
-  void SetInputs(Map<String, dynamic> inputs) {
+  void _ActivateUniforms(Map<String, dynamic> inputs) {
     int count = 0;
     final DateTime start = new DateTime.now();
 
@@ -269,13 +263,13 @@ class RenderProgram extends UniformSink {
     LogDebug("setting ${count} var in ${delta}");
   }
 
-  void _drawOne(
-      MeshData md, Map<String, dynamic> inputs, List<DrawStats> stats) {
+  void DrawOne(
+      MeshData md, UniformSink uniforms, List<DrawStats> stats) {
     _ClearState();
 
     // TODO: put this behind a flag
     _uniformsInitialized.clear();
-    SetInputs(inputs);
+    _ActivateUniforms(uniforms.GetUniforms());
 
     _attributesInitialized.clear();
     for (String a in md.GetAttributes()) {
@@ -305,19 +299,19 @@ class RenderProgram extends UniformSink {
     md.TearDown();
   }
 
-  void _drawRecursively(
-      Node node, final VM.Matrix4 parent, List<DrawStats> stats) {
+  void _drawRecursively(Node node, final VM.Matrix4 parent,
+      List<DrawStats> stats, UniformSink sink) {
     if (!node.enabled) return;
     // m is read-only!
     final VM.Matrix4 m = node.UpdateModelMatrix(parent);
     if (node.SomethingToDraw()) {
       LogDebug("drawing: ${node}");
-      node.AddShaderInputs(this);
-      _drawOne(node.meshData, _uniforms, stats);
-      node.RemoveShaderInputs(this);
+      node.AddShaderInputs(sink);
+      DrawOne(node.meshData, sink, stats);
+      node.RemoveShaderInputs(sink);
     }
     for (Node child in node.children) {
-      _drawRecursively(child, m, stats);
+      _drawRecursively(child, m, stats, sink);
     }
   }
 
@@ -325,39 +319,15 @@ class RenderProgram extends UniformSink {
   // * When draw() is called,
   // * we recursively draw items in objects passing "this" as a parameter
   // * the objects then call the Draw method above
-  void draw(List<DrawStats> stats) {
+  void draw(List<DrawStats> stats, UniformSink sink) {
     DrawSetUp();
     _modelMatrix.setIdentity();
     if (debug) print("[draw objects ${objects.length}");
     for (Node node in objects) {
-      _drawRecursively(node, _modelMatrix, stats);
+      _drawRecursively(node, _modelMatrix, stats, sink);
     }
     DrawTearDown();
   }
 
   void DrawTearDown() {}
-
-  @override
-  void ForceInput(String canonical, var val, [NamedEntity origin = null]) {
-    if (RetrieveShaderVarDesc(canonical) == null) throw "unknown ${canonical}";
-    if (origin == null) origin = kUnknownEntity;
-    _uniforms[canonical] = val;
-    _origin[canonical] = origin;
-  }
-
-  @override
-  void SetInput(String canonical, var val, [NamedEntity origin = null]) {
-    if (_uniforms.containsKey(canonical)) {
-      LogError("canonical already present: ${canonical}");
-      assert(false);
-    }
-    ForceInput(canonical, val, origin);
-  }
-
-  @override
-  void Remove(String canonical) {
-    assert(_uniforms.containsKey(canonical));
-    _uniforms.remove(canonical);
-    _origin.remove(canonical);
-  }
 }

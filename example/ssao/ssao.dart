@@ -24,7 +24,8 @@ void main() {
   canvas.height = height;
   perspective.AdjustAspect(width, height);
 
-  ChronosFramebuffer fb = new ChronosFramebuffer.Default(chronosGL, width, height);
+  ChronosFramebuffer fb =
+      new ChronosFramebuffer.Default(chronosGL, width, height);
   RenderPhase phase1 = new RenderPhase("phase1", chronosGL, fb);
   phase1.viewPortW = width;
   phase1.viewPortH = height;
@@ -35,19 +36,18 @@ void main() {
   phase2.viewPortW = width;
   phase2.viewPortH = height;
   RenderProgram prg2 = phase2.createProgram(createSSAOShader());
-  prg2
-    ..SetInput(uCameraNear, 0.1)
-    ..SetInput(uCameraFar, 2529.0)
-    ..SetInput(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
-    ..SetInput(uDepthMap, fb.depthTexture)
-    ..SetInput(uTexture, fb.colorTexture);
+  Material uniforms = new Material.Plain("plain")
+    ..SetUniform(uCameraNear, 0.1)
+    ..SetUniform(uCameraFar, 2529.0)
+    ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetUniform(uDepthMap, fb.depthTexture)
+    ..SetUniform(uTexture, fb.colorTexture);
   prg2.add(UnitNode(prg2));
 
   RenderPhase phase1only = new RenderPhase("phase1only", chronosGL, null);
   phase1only.viewPortW = width;
   phase1only.viewPortH = height;
   phase1only.AddRenderProgram(prg1);
-
 
   double _lastTimeMs = 0.0;
   void animate(timeMs) {
@@ -59,7 +59,7 @@ void main() {
     fps.UpdateFrameCount(timeMs);
     if (gSSAO.checked) {
       phase1.draw([perspective]);
-      phase2.draw([perspective]);
+      phase2.draw([perspective, uniforms]);
     } else {
       phase1only.draw([perspective]);
     }
@@ -74,8 +74,7 @@ void main() {
     // Setup Mesh
     GeometryBuilder ctLogo = ImportGeometryFromWavefront(list[0]);
     MeshData md = GeometryBuilderToMeshData("", prg1, ctLogo);
-    Material mat = new Material("mat")
-      ..SetUniform(uColor, ColorGray8);
+    Material mat = new Material("mat")..SetUniform(uColor, ColorGray8);
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);

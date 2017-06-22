@@ -208,6 +208,7 @@ void main() {
   RenderPhase phase = new RenderPhase("main", chronosGL);
 
   RenderProgram program = phase.createProgram(createSphericalGyroidShader());
+  Material uniforms = new Material.Plain("plain");
   program.add(UnitNode(program));
 
   void resolutionChange(HTML.Event ev) {
@@ -225,14 +226,13 @@ void main() {
 
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
-    program.ForceInput(uTime, timeMs / 1000.0);
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
     int w = canvas.clientWidth;
     int h = canvas.clientHeight;
-
-    program.ForceInput(uCanvasSize, new VM.Vector2(0.0 + w, 0.0 + h));
-    phase.draw([]);
+    uniforms.ForceUniform(uTime, timeMs / 1000.0);
+    uniforms.ForceUniform(uCanvasSize, new VM.Vector2(0.0 + w, 0.0 + h));
+    phase.draw([uniforms]);
     HTML.window.animationFrame.then(animate);
   }
 

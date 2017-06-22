@@ -36,14 +36,15 @@ class RenderPhase extends NamedEntity {
       _cgl.clear(_clear_mode);
     }
 
+    UniformSink sink = new UniformSink();
     for (RenderProgram prg in _programs) {
       if (!prg.enabled) continue;
       for (UniformSource p in inputs) {
-        p.AddToSink(prg);
+        p.AddToSink(sink);
       }
-      prg.draw(stats);
+      prg.draw(stats, sink);
       for (UniformSource p in inputs) {
-        p.RemoveFromSink(prg);
+        p.RemoveFromSink(sink);
       }
     }
   }

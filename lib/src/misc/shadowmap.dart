@@ -116,6 +116,7 @@ abstract class ShadowMap {
   RenderProgram _programCompute;
 
   RenderPhase _phaseVisualize;
+  Material _uniforms = new Material.Plain("shadow-uniforms");
 
   VM.Vector2 _mapSize;
   Texture _depthTexture;
@@ -138,8 +139,8 @@ abstract class ShadowMap {
 
   // TODO: this should take a Illumination instance as an argument eventually
   void Compute(VM.Matrix4 lightMatrix) {
-    _programCompute.ForceInput(uLightPerspectiveViewMatrix, lightMatrix);
-    _phaseCompute.draw([]);
+    _uniforms.ForceUniform(uLightPerspectiveViewMatrix, lightMatrix);
+    _phaseCompute.draw([_uniforms]);
   }
 
   void Visualize() {
@@ -206,17 +207,16 @@ class ShadowMapDepth16 extends ShadowMap {
       ..viewPortW = w
       ..viewPortH = h;
     _programCompute = _phaseCompute.createProgram(_createShadowShaderDepth16());
-
+    _uniforms..SetUniform(uTexture, GetMapTexture())
+      ..SetUniform(uCutOff, 0.0)
+      ..SetUniform(uCameraNear, 0.0)
+      ..SetUniform(uCameraFar, 0.0);
     // We do not clear the color buffer for visualization, so Visualize
     // should be called as the last thing touching the framebuffer.
     _phaseVisualize = new RenderPhase("visualize-shadow", cgl)
       ..clearColorBuffer = false;
     _programVisualize = _phaseVisualize
-        .createProgram(_createShaderVisualizeShadowmapLinearDepth16())
-          ..SetInput(uTexture, GetMapTexture())
-          ..SetInput(uCutOff, 0.0)
-          ..SetInput(uCameraNear, 0.0)
-          ..SetInput(uCameraFar, 0.0);
+        .createProgram(_createShaderVisualizeShadowmapLinearDepth16());
 
     _programVisualize.add(UnitNode(_programVisualize));
   }
@@ -326,11 +326,12 @@ class ShadowMapPackedRGBA extends ShadowMap {
     _phaseVisualize = new RenderPhase("visualize-shadow", cgl)
       ..clearColorBuffer = false;
     _programVisualize = _phaseVisualize
-        .createProgram(_createShaderVisualizeShadowmapLinearPackedRGBA())
-          ..SetInput(uShadowMap, GetMapTexture())
-          ..SetInput(uCutOff, 0.0)
-          ..SetInput(uCameraNear, 0.0)
-          ..SetInput(uCameraFar, 0.0);
+        .createProgram(_createShaderVisualizeShadowmapLinearPackedRGBA());
+    _uniforms
+          ..SetUniform(uShadowMap, GetMapTexture())
+          ..SetUniform(uCutOff, 0.0)
+          ..SetUniform(uCameraNear, 0.0)
+          ..SetUniform(uCameraFar, 0.0);
     _programVisualize.add(UnitNode(_programVisualize));
   }
 
