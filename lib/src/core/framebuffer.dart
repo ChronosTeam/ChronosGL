@@ -1,5 +1,7 @@
 part of core;
 
+const int GL_CLEAR_ALL = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+
 class Framebuffer {
   ChronosGL _cgl;
 

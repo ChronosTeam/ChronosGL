@@ -7,8 +7,7 @@ class RenderPhase extends NamedEntity {
   Framebuffer _framebuffer;
   final List<RenderProgram> _programs = [];
   //final VM.Matrix4 _pMatrix = new VM.Matrix4.identity();
-  int _clear_mode =
-      GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+  int _clear_mode = GL_CLEAR_ALL;
 
   int viewPortX = 0;
   int viewPortY = 0;
