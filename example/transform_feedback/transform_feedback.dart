@@ -23,7 +23,8 @@ final ShaderObject particleVertexShader = new ShaderObject("ParticleV")
   ..AddUniformVars(
       [uPerspectiveViewMatrix, uModelMatrix, uPointSize, uSources, uSinks])
   ..AddTransformVars([tPosition])
-  ..SetBody(["""
+  ..SetBody([
+    """
 const float kMaxDistance = ${kMaxDistance};
 const float kMinDistance = ${kMinDistance};
 const float dt = 0.06;  
@@ -259,7 +260,7 @@ void main() {
     ionsPos = new Float32List(3 * n);
     ExtractIonPos(ions, ionsPos);
     chronosGL.bindBuffer(GL_ARRAY_BUFFER, null);
-    chronosGL.bindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, null);
+    chronosGL.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, null);
     mdOut.ChangeVertices(ionsPos);
     mdIn.ChangeVertices(ionsPos);
     chronosGL.bindBufferBase(
