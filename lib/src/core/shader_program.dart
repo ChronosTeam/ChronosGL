@@ -239,7 +239,7 @@ class RenderProgram extends NamedEntity {
     _cgl.useProgram(_program);
   }
 
-  void _ActivateUniforms(String group, Map<String, dynamic> inputs) {
+  void _ActivateUniforms(String group, Map<String, Object> inputs) {
     int count = 0;
     final DateTime start = new DateTime.now();
 
@@ -261,7 +261,7 @@ class RenderProgram extends NamedEntity {
     LogDebug("setting ${count} var in ${delta}");
   }
 
-  void DrawOne(
+  void Draw(
       MeshData md, List<UniformGroup> uniforms, List<DrawStats> stats) {
     _ClearState();
 
@@ -308,7 +308,7 @@ class RenderProgram extends NamedEntity {
       LogDebug("drawing: ${node}");
       node.UpdateTransforms(uniforms.last);
       uniforms.add(node.material);
-      DrawOne(node.meshData, uniforms, stats);
+      Draw(node.meshData, uniforms, stats);
       uniforms.removeLast();
     }
     for (Node child in node.children) {

@@ -23,14 +23,8 @@ class RenderPhase extends NamedEntity {
   Framebuffer get framebuffer => _framebuffer;
 
   void draw(List<UniformGroup> inputs, [List<DrawStats> stats = null]) {
-    _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer.framebuffer);
-
-    assert(viewPortW > 0 && viewPortH > 0);
-    _cgl.viewport(viewPortX, viewPortY, viewPortW, viewPortH);
-
-    if (_clear_mode != 0) {
-      _cgl.clear(_clear_mode);
-    }
+    _framebuffer.Activate(
+        _clear_mode, viewPortX, viewPortY, viewPortW, viewPortH);
 
     for (RenderProgram prg in _programs) {
       if (!prg.enabled) continue;

@@ -3,7 +3,7 @@ part of core;
 class Framebuffer {
   ChronosGL _cgl;
 
-  dynamic /* gl Framebuffer */ framebuffer;
+  dynamic /* gl Framebuffer */ _framebuffer;
   Texture colorTexture;
   Texture depthTexture;
   Texture stencilTexture;
@@ -12,9 +12,9 @@ class Framebuffer {
       [this.depthTexture,
       this.stencilTexture = null,
       bool depthStencilCombined = false]) {
-    framebuffer = _cgl.createFramebuffer();
+    _framebuffer = _cgl.createFramebuffer();
 
-    _cgl.bindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     if (colorTexture != null) {
       _cgl.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
           GL_TEXTURE_2D, colorTexture.GetTexture(), 0);
@@ -44,7 +44,7 @@ class Framebuffer {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
   }
 
-  Framebuffer.Screen(this._cgl) : framebuffer = null;
+  Framebuffer.Screen(this._cgl) : _framebuffer = null;
 
   Framebuffer.Default(ChronosGL cgl, int w, int h)
       : this(
@@ -63,10 +63,22 @@ class Framebuffer {
             null,
             true);
 
+  void Activate(int clear_mode, int viewPortX, int viewPortY, int viewPortW,
+      int viewPortH) {
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+
+    assert(viewPortW > 0 && viewPortH > 0);
+    _cgl.viewport(viewPortX, viewPortY, viewPortW, viewPortH);
+
+    if (clear_mode != 0) {
+      _cgl.clear(clear_mode);
+    }
+  }
+
   // e.g. into Float32List
   // BROKEN: https://github.com/dart-lang/sdk/issues/11614
   void ExtractData(var buf, int x, int y, int w, int h) {
-    _cgl.bindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     // RGB (3 values per pixel), RGBA (4 values per pixel)
     // see TypeToNumChannels
     int implFormat = _cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_FORMAT);

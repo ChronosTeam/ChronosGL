@@ -44,25 +44,24 @@ List<ShaderObject> createCubeMapShader() {
     new ShaderObject("CubeMapF")
       ..AddVaryingVars([vVertexPosition])
       ..AddUniformVars([uCubeTexture])
-      ..SetBodyWithMain([
-        "${oFragColor} = texture( ${uCubeTexture}, ${vVertexPosition} );"
-      ]),
+      ..SetBodyWithMain(
+          ["${oFragColor} = texture( ${uCubeTexture}, ${vVertexPosition} );"]),
   ];
 }
 
-List<ShaderObject> createPointSpritesShader() {
-  return [
-    new ShaderObject("PointSprites")
-      ..AddAttributeVars([aVertexPosition])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uPointSize])
-      ..SetBodyWithMain(
-          [StdVertexBody, "gl_PointSize = ${uPointSize}/gl_Position.z;"]),
-    new ShaderObject("PointSpritesF")
-      ..AddUniformVars([uTexture])
-      ..SetBodyWithMain(
-          ["${oFragColor} = texture( ${uTexture},  gl_PointCoord);"])
-  ];
-}
+final ShaderObject pointSpritesVertexShader = new ShaderObject("PointSpritesV")
+  ..AddAttributeVars([aVertexPosition])
+  ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uPointSize])
+  ..SetBodyWithMain(
+      [StdVertexBody, "gl_PointSize = ${uPointSize}/gl_Position.z;"]);
+
+final ShaderObject pointSpritesFragmentShader = new ShaderObject(
+    "PointSpritesF")
+  ..AddUniformVars([uTexture])
+  ..SetBodyWithMain(["${oFragColor} = texture( ${uTexture},  gl_PointCoord);"]);
+
+List<ShaderObject> createPointSpritesShader() =>
+    [pointSpritesVertexShader, pointSpritesFragmentShader];
 
 List<ShaderObject> createDemoShader() {
   return [

@@ -228,7 +228,7 @@ class Illumination extends UniformGroup {
   }
 
   @override
-  Map<String, NamedEntity> GetUniforms() {
+  Map<String, Object> GetUniforms() {
     _SetLightInfo(_lightDescs, _lightTypes, _lights);
     ForceUniform(uLightDescs, _lightDescs);
     ForceUniform(uLightTypes, _lightTypes);

@@ -30,15 +30,15 @@ final NamedEntity kUnknownEntity = new UnknownEntity();
 class UniformGroup extends NamedEntity {
   UniformGroup(String name) : super(name);
 
-  Map<String, dynamic> _uniforms = {};
+  Map<String, Object> _uniforms = {};
 
-  void SetUniform(String canonical, dynamic val) {
+  void SetUniform(String canonical, Object val) {
     assert(
     !_uniforms.containsKey(canonical), "uniform ${canonical} already set");
     ForceUniform(canonical, val);
   }
 
-  void ForceUniform(String canonical, dynamic val) {
+  void ForceUniform(String canonical, Object val) {
     _uniforms[canonical] = val;
   }
 
@@ -46,5 +46,5 @@ class UniformGroup extends NamedEntity {
     return _uniforms.containsKey(canonical);
   }
 
-  Map<String, NamedEntity> GetUniforms() => _uniforms;
+  Map<String, Object> GetUniforms() => _uniforms;
 }
