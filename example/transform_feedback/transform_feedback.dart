@@ -18,15 +18,12 @@ final HTML.SelectElement gParticles = HTML.document.querySelector('#particles');
 final HTML.InputElement gCpuCompute =
     HTML.document.querySelector('#cpucompute');
 
-List<ShaderObject> createParticleShader() {
-  return [
-    new ShaderObject("ParticleV")
-      ..AddAttributeVars([aVertexPosition])
-      ..AddUniformVars(
-          [uPerspectiveViewMatrix, uModelMatrix, uPointSize, uSources, uSinks])
-      ..AddTransformVars([tPosition])
-      ..SetBody([
-        """
+final ShaderObject particleVertexShader = new ShaderObject("ParticleV")
+  ..AddAttributeVars([aVertexPosition])
+  ..AddUniformVars(
+      [uPerspectiveViewMatrix, uModelMatrix, uPointSize, uSources, uSinks])
+  ..AddTransformVars([tPosition])
+  ..SetBody(["""
 const float kMaxDistance = ${kMaxDistance};
 const float kMinDistance = ${kMinDistance};
 const float dt = 0.06;  
@@ -79,18 +76,17 @@ void main() {
     ${tPosition} = Update(${aVertexPosition}, gl_Position.xyz);
 }
 """
-      ]),
-    new ShaderObject("ParticleF")
-      ..AddUniformVars([uTexture])
-      ..SetBody([
-        """
+  ]);
+
+final ShaderObject particleFragmentShader = new ShaderObject("ParticleF")
+  ..AddUniformVars([uTexture])
+  ..SetBody([
+    """
 void main() {
       ${oFragColor} = texture( ${uTexture},  gl_PointCoord);
 }
 """
-      ])
-  ];
-}
+  ]);
 
 String DumpVec(VM.Vector3 v) => "${v.x} ${v.y} ${v.z}";
 
@@ -217,12 +213,10 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
     ..AdjustAspect(width, height);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL)
-    ..viewPortW = width
-    ..viewPortH = height;
-  RenderProgram programJS = phase.createProgram(createPointSpritesShader());
-  RenderProgram programGPU = phase.createProgram(createParticleShader());
-
+  RenderProgram programJS = new RenderProgram(
+      "GPU", chronosGL, pointSpritesVertexShader, particleFragmentShader);
+  RenderProgram programGPU = new RenderProgram(
+      "GPU", chronosGL, particleVertexShader, particleFragmentShader);
 
   List<Pole> srcPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, 2.0, 3.0);
@@ -236,14 +230,15 @@ void main() {
   // JS version setup
   Material matJS = new Material.Transparent("stars", BlendEquationMix)
     ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity())
     ..SetUniform(uPointSize, 200.0);
   MeshData mdJS = programJS.MakeMeshData("mdJS", GL_POINTS)
     ..AddVertices(ionsPos);
-  programJS.add(new Node("ionsJS", mdJS, matJS));
 
   // GPU version setup
   Material matGPU = new Material.Transparent("stars", BlendEquationMix)
     ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity())
     ..SetUniform(uPointSize, 200.0)
     ..SetUniform(uSources, ExtractPolePos(srcPoles))
     ..SetUniform(uSinks, ExtractPolePos(dstPoles));
@@ -252,12 +247,6 @@ void main() {
     ..AddVertices(ionsPos);
   MeshData mdIn = programGPU.MakeMeshData("ionsIn", GL_POINTS)
     ..AddVertices(ionsPos);
-  programGPU.add(new Node("ionsGPU", mdIn, matGPU));
-
-  void SelectRenderer(HTML.Event ev) {
- programJS.enabled = gCpuCompute.checked;
-  programGPU.enabled = !programJS.enabled;
- }
 
   void ResizeIons(HTML.Event ev) {
     int n = int.parse(gParticles.value);
@@ -289,30 +278,27 @@ void main() {
   chronosGL.bindTransformFeedback(transform);
 
   ResizeIons(null);
-  SelectRenderer(null);
 
   void animate(timeMs) {
-    orbit.azimuth += 0.001;
+    orbit.azimuth += 0.002;
     orbit.animate(0.0); // argument is not used
 
-    if (programJS.enabled) UpdateIonsJS(0.06);
-
-    phase.draw([perspective]);
-
-    HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs);
-
-    // use vertex shader output as input for next round
-    if (programGPU.enabled) {
+    if (gCpuCompute.checked) {
+      UpdateIonsJS(0.06);
+      programJS.Draw(mdJS, [perspective, matJS]);
+    } else {
+      programGPU.Draw(mdIn, [perspective, matGPU]);
+      // use vertex shader output as input for next round
       chronosGL.bindBuffer(GL_ARRAY_BUFFER, mdIn.GetBuffer(aVertexPosition));
       chronosGL.bindBuffer(
           GL_TRANSFORM_FEEDBACK_BUFFER, mdOut.GetBuffer(aVertexPosition));
       chronosGL.copyBufferSubData(
           GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0, ions.length * 3);
     }
+    HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs);
   }
 
   gParticles.onChange.listen(ResizeIons);
-  gCpuCompute.onChange.listen(SelectRenderer);
   animate(0.0);
 }
