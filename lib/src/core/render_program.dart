@@ -234,10 +234,6 @@ class RenderProgram extends NamedEntity {
     return out;
   }
 
-  void DrawSetUp() {
-    if (debug) print("[${name} setting attributes");
-    _cgl.useProgram(_program);
-  }
 
   void _ActivateUniforms(String group, Map<String, Object> inputs) {
     int count = 0;
@@ -262,7 +258,8 @@ class RenderProgram extends NamedEntity {
   }
 
   void Draw(
-      MeshData md, List<UniformGroup> uniforms, List<DrawStats> stats) {
+      MeshData md, List<UniformGroup> uniforms, [List<DrawStats> stats=null]) {
+    _cgl.useProgram(_program);
     _ClearState();
 
     // TODO: put this behind a flag
@@ -291,12 +288,11 @@ class RenderProgram extends NamedEntity {
       //throw mesg;
     }
 
-    md.SetUp();
+    md.Activate();
     bool hasTransforms = _shaderObjectV.transformVars.length > 0;
     _cgl.draw(md.drawMode, md.GetNumItems(), md.elementArrayBufferType, 0,
         md.GetNumInstances(), hasTransforms);
     if (debug) print(_cgl.getProgramInfoLog(_program));
-    md.TearDown();
   }
 
   void _drawRecursively(Node node, final VM.Matrix4 parent,
@@ -316,8 +312,7 @@ class RenderProgram extends NamedEntity {
     }
   }
 
-  void drawScene(List<DrawStats> stats, List<UniformGroup> uniforms) {
-    DrawSetUp();
+  void DrawScene(List<UniformGroup> uniforms, [List<DrawStats> stats=null]) {
     UniformGroup transforms = new UniformGroup("transforms");
     uniforms.add(transforms);
     final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
@@ -326,8 +321,6 @@ class RenderProgram extends NamedEntity {
       _drawRecursively(node, _modelMatrix, stats, uniforms);
     }
     uniforms.removeLast();
-    DrawTearDown();
   }
 
-  void DrawTearDown() {}
 }

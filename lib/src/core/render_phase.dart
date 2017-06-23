@@ -28,7 +28,7 @@ class RenderPhase extends NamedEntity {
 
     for (RenderProgram prg in _programs) {
       if (!prg.enabled) continue;
-      prg.drawScene(stats, inputs);
+      prg.DrawScene(inputs, stats);
     }
   }
 

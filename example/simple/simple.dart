@@ -74,14 +74,8 @@ void main() {
     orbit.animate(elapsed);
 
     // use default framebuffer which also auto clears itself
-    progBasic.DrawSetUp();
-    progBasic.Draw(torus, [perspective, materialBasic], null);
-    progBasic.DrawTearDown();
-    progBasic.DrawTearDown();
-
-    progSprites.DrawSetUp();
-    progSprites.Draw(stars, [perspective, materialStars], null);
-    progSprites.DrawTearDown();
+    progBasic.Draw(torus, [perspective, materialBasic]);
+    progSprites.Draw(stars, [perspective, materialStars]);
 
     HTML.window.animationFrame.then(animate);
   }

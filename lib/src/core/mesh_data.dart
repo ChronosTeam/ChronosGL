@@ -182,12 +182,8 @@ class MeshData extends NamedEntity {
     ChangeFaces(faces);
   }
 
-  void SetUp() {
+  void Activate() {
     _cgl.bindVertexArray(_vao);
-  }
-
-  void TearDown() {
-    _cgl.bindVertexArray(null);
   }
 
   Iterable<String> GetAttributes() {
