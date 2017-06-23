@@ -38,10 +38,18 @@ List<ShaderObject> createSkyScraperShader() {
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  int w = canvas.clientWidth;
+  int h = canvas.clientHeight;
+  canvas.width = w;
+  canvas.height = h;
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(25.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  perspective.AdjustAspect(w, h);
+
   RenderPhase phase = new RenderPhase("main", chronosGL);
+  phase.viewPortW = w;
+  phase.viewPortH = h;
 
   Material mat = new Material("mat");
   // Sky Sphere
@@ -73,23 +81,8 @@ void main() {
     }
   }
 
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
-
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
