@@ -1,6 +1,6 @@
 part of core;
 
-class ChronosFramebuffer {
+class Framebuffer {
   ChronosGL _cgl;
 
   dynamic /* gl Framebuffer */ framebuffer;
@@ -8,7 +8,7 @@ class ChronosFramebuffer {
   Texture depthTexture;
   Texture stencilTexture;
 
-  ChronosFramebuffer(this._cgl, this.colorTexture,
+  Framebuffer(this._cgl, this.colorTexture,
       [this.depthTexture,
       this.stencilTexture = null,
       bool depthStencilCombined = false]) {
@@ -44,7 +44,9 @@ class ChronosFramebuffer {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
   }
 
-  ChronosFramebuffer.Default(ChronosGL cgl, int w, int h)
+  Framebuffer.Screen(this._cgl) : framebuffer = null;
+
+  Framebuffer.Default(ChronosGL cgl, int w, int h)
       : this(
             cgl,
             new TypedTexture(
@@ -52,7 +54,7 @@ class ChronosFramebuffer {
             new DepthTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
                 GL_UNSIGNED_INT, false));
 
-  ChronosFramebuffer.DefaultWithStencil(ChronosGL cgl, int w, int h)
+  Framebuffer.DefaultWithStencil(ChronosGL cgl, int w, int h)
       : this(
             cgl,
             new TypedTexture(
@@ -60,15 +62,6 @@ class ChronosFramebuffer {
             new DepthStencilTexture(cgl, "frame::depth.stencil", w, h),
             null,
             true);
-
-  bool ready() {
-    bool result =
-        _cgl.checkFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
-    if (!result) {
-      print("FRAMEBUFFER_INCOMPLETE");
-    }
-    return result;
-  }
 
   // e.g. into Float32List
   // BROKEN: https://github.com/dart-lang/sdk/issues/11614

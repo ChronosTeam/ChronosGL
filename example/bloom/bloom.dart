@@ -17,13 +17,13 @@ void main() {
   canvas.height = height;
   perspective.AdjustAspect(width, height);
 
-  ChronosFramebuffer fb =
-      new ChronosFramebuffer.Default(chronosGL, width, height);
+  Framebuffer fb =
+      new Framebuffer.Default(chronosGL, width, height);
 
-  ChronosFramebuffer fb1 =
-      new ChronosFramebuffer.Default(chronosGL, width ~/ 2, height ~/ 2);
-  ChronosFramebuffer fb2 =
-      new ChronosFramebuffer.Default(chronosGL, width ~/ 2, height ~/ 2);
+  Framebuffer fb1 =
+      new Framebuffer.Default(chronosGL, width ~/ 2, height ~/ 2);
+  Framebuffer fb2 =
+      new Framebuffer.Default(chronosGL, width ~/ 2, height ~/ 2);
 
   RenderPhase phaseMain = new RenderPhase("main", chronosGL, fb)
     ..viewPortW = width

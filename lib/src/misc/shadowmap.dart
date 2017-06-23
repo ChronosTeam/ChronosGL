@@ -193,7 +193,7 @@ List<ShaderObject> _createShaderVisualizeShadowmapLinearDepth16() {
 }
 
 class ShadowMapDepth16 extends ShadowMap {
-  ChronosFramebuffer _shadowBuffer;
+  Framebuffer _shadowBuffer;
   RenderProgram _programVisualize;
 
   ShadowMapDepth16(ChronosGL cgl, int w, int h) {
@@ -202,7 +202,7 @@ class ShadowMapDepth16 extends ShadowMap {
         cgl, "frame::color", w, h, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
     _depthTexture = new DepthTexture(
         cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24, GL_UNSIGNED_INT, true);
-    _shadowBuffer = new ChronosFramebuffer(cgl, dummy, _depthTexture);
+    _shadowBuffer = new Framebuffer(cgl, dummy, _depthTexture);
     _phaseCompute = new RenderPhase("compute-shadow", cgl, _shadowBuffer)
       ..viewPortW = w
       ..viewPortH = h;
@@ -308,12 +308,12 @@ void main() {
 }
 
 class ShadowMapPackedRGBA extends ShadowMap {
-  ChronosFramebuffer _shadowBuffer;
+  Framebuffer _shadowBuffer;
   RenderProgram _programVisualize;
 
   ShadowMapPackedRGBA(ChronosGL cgl, int w, int h) {
     _mapSize = new VM.Vector2(w + 0.0, h + 0.0);
-    _shadowBuffer = new ChronosFramebuffer.Default(cgl, w, h);
+    _shadowBuffer = new Framebuffer.Default(cgl, w, h);
     _depthTexture = _shadowBuffer.colorTexture;
     _phaseCompute = new RenderPhase("compute-shadow", cgl, _shadowBuffer)
       ..viewPortW = w

@@ -33,8 +33,8 @@ void main() {
   canvas.height = height;
   perspective.AdjustAspect(width, height);
 
-  ChronosFramebuffer fb =
-      new ChronosFramebuffer.Default(chronosGL, width, height);
+  Framebuffer fb =
+      new Framebuffer.Default(chronosGL, width, height);
 
   RenderPhase phase1 = new RenderPhase("phase1", chronosGL, fb);
   phase1.viewPortW = width;
@@ -45,87 +45,108 @@ void main() {
   RenderPhase phase2 = new RenderPhase("effect", chronosGL, null)
     ..viewPortW = width
     ..viewPortH = height;
+
   Map<String, RenderProgram> effects = {};
-  effects["none"] = phase2.createProgram(createCopyShader())
-    ..SetInput(uTexture, fb.colorTexture);
+  Map<String, UniformGroup> uniforms = {};
 
-  effects["toon"] = phase2.createProgram(createToonShader())
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["none"] = phase2.createProgram(createCopyShader());
+  uniforms["none"] = new UniformGroup("none")
+    ..SetUniform(uTexture, fb.colorTexture);
 
-  effects["hexalate-10"] = phase2.createProgram(createHexPixelateShader())
-    ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
-    ..SetInput(uPointSize, 10.0)
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["toon"] = phase2.createProgram(createToonShader());
+  uniforms["toon"] = new UniformGroup("toon")
+    ..SetUniform(uTexture, fb.colorTexture);
 
-  effects["hexalate-20"] = phase2.createProgram(createHexPixelateShader())
-    ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
-    ..SetInput(uPointSize, 20.0)
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["hexalate-10"] = phase2.createProgram(createHexPixelateShader());
+  uniforms["hexalate-10"] = new UniformGroup("hexalate-10")
+    ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
+    ..SetUniform(uPointSize, 10.0)
+    ..SetUniform(uTexture, fb.colorTexture);
 
-  effects["hexalate-varying"] = phase2.createProgram(createHexPixelateShader())
-    ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
-    ..SetInput(uPointSize, 10.0)
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["hexalate-20"] = phase2.createProgram(createHexPixelateShader());
+  uniforms["hexalate-20"] = new UniformGroup("hexalate-20")
+    ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
+    ..SetUniform(uPointSize, 20.0)
+    ..SetUniform(uTexture, fb.colorTexture);
 
-  effects["dot"] = phase2.createProgram(createDotShader())
-    ..SetInput(uCenter2, new VM.Vector2(0.0, 0.0))
-    ..SetInput(uScale, 0.8)
-    ..SetInput(uAngle, 0.5)
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["hexalate-varying"] = phase2.createProgram(createHexPixelateShader());
+  uniforms["hexalate-varying"] = new UniformGroup("hexalate-varying")
+    ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
+    ..SetUniform(uPointSize, 10.0)
+    ..SetUniform(uTexture, fb.colorTexture);
 
-  effects["dot2"] = phase2.createProgram(createDotShader())
-    ..SetInput(uCenter2, new VM.Vector2(0.0, 0.0))
-    ..SetInput(uScale, 0.3)
-    ..SetInput(uAngle, 0.5)
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["dot"] = phase2.createProgram(createDotShader());
+  uniforms["dot"] = new UniformGroup("dot")
+    ..SetUniform(uCenter2, new VM.Vector2(0.0, 0.0))
+    ..SetUniform(uScale, 0.8)
+    ..SetUniform(uAngle, 0.5)
+    ..SetUniform(uTexture, fb.colorTexture);
 
-  effects["tv-distortion"] = phase2.createProgram(createTvDistortionShader())
-    ..SetInput(uScale, 0.0009)
-    ..SetInput(uTime, 0.0)
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["dot2"] = phase2.createProgram(createDotShader());
+  uniforms["dot2"] = new UniformGroup("dot2")
+    ..SetUniform(uCenter2, new VM.Vector2(0.0, 0.0))
+    ..SetUniform(uScale, 0.3)
+    ..SetUniform(uAngle, 0.5)
+    ..SetUniform(uTexture, fb.colorTexture);
 
-  effects["kaleidoscope8"] = phase2.createProgram(createKaleidoscopeShader())
-    ..SetInput(uScale, 8.0)
-    ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["tv-distortion"] = phase2.createProgram(createTvDistortionShader());
+  uniforms["tv-distortion"] = new UniformGroup("tv-distortion")
+    ..SetUniform(uScale, 0.0009)
+    ..SetUniform(uTime, 0.0)
+    ..SetUniform(uTexture, fb.colorTexture);
 
-  effects["kaleidoscope5"] = phase2.createProgram(createKaleidoscopeShader())
-    ..SetInput(uScale, 5.0)
-    ..SetInput(uCenter2, new VM.Vector2(0.5, 0.5))
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["kaleidoscope8"] = phase2.createProgram(createKaleidoscopeShader());
+  uniforms["kaleidoscope8"] = new UniformGroup("kaleidoscope8")
+    ..SetUniform(uScale, 8.0)
+    ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
+    ..SetUniform(uTexture, fb.colorTexture);
 
-  effects["lumidots-8"] = phase2.createProgram(createLumidotsShader())
-    ..SetInput(uPointSize, 8.0)
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["kaleidoscope5"] = phase2.createProgram(createKaleidoscopeShader());
+  uniforms["kaleidoscope5"] = new UniformGroup("kaleidoscope5")
+    ..SetUniform(uScale, 5.0)
+    ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
+    ..SetUniform(uTexture, fb.colorTexture);
 
-  effects["lumidots-16"] = phase2.createProgram(createLumidotsShader())
-    ..SetInput(uPointSize, 16.0)
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["lumidots-8"] = phase2.createProgram(createLumidotsShader());
+  uniforms["lumidots-8"] = new UniformGroup("lumidots-8")
+    ..SetUniform(uPointSize, 8.0)
+    ..SetUniform(uTexture, fb.colorTexture);
 
-  effects["lumidots-varying"] = phase2.createProgram(createLumidotsShader())
-    ..SetInput(uPointSize, 16.0)
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["lumidots-16"] = phase2.createProgram(createLumidotsShader());
+  uniforms["lumidots-16"] = new UniformGroup("lumidots-16")
+    ..SetUniform(uPointSize, 16.0)
+    ..SetUniform(uTexture, fb.colorTexture);
 
-  effects["square-8"] = phase2.createProgram(createSquarePixelateShader())
-    ..SetInput(uPointSize, 8.0)
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["lumidots-varying"] = phase2.createProgram(createLumidotsShader());
+  uniforms["lumidots-varying"] = new UniformGroup("lumidots-varying")
+    ..SetUniform(uPointSize, 16.0)
+    ..SetUniform(uTexture, fb.colorTexture);
 
-  effects["square-16"] = phase2.createProgram(createSquarePixelateShader())
-    ..SetInput(uPointSize, 16.0)
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["square-8"] = phase2.createProgram(createSquarePixelateShader());
+  uniforms["square-8"] = new UniformGroup("square-8")
+    ..SetUniform(uPointSize, 8.0)
+    ..SetUniform(uTexture, fb.colorTexture);
 
-  effects["square-varying"] = phase2.createProgram(createSquarePixelateShader())
-    ..SetInput(uPointSize, 16.0)
-    ..SetInput(uTexture, fb.colorTexture);
+  effects["square-16"] = phase2.createProgram(createSquarePixelateShader());
+  uniforms["square-16"] = new UniformGroup("square-16")
+    ..SetUniform(uPointSize, 16.0)
+    ..SetUniform(uTexture, fb.colorTexture);
+
+  effects["square-varying"] =
+      phase2.createProgram(createSquarePixelateShader());
+  uniforms["square-varying"] = new UniformGroup("square-varying")
+    ..SetUniform(uPointSize, 16.0)
+    ..SetUniform(uTexture, fb.colorTexture);
 
   effects["luminosity-highpass"] =
-      phase2.createProgram(createLuminosityHighPassShader())
-        ..SetInput(uRange, new VM.Vector2(0.85, 0.86))
-        ..SetInput(uColorAlpha, new VM.Vector4.zero())
-        ..SetInput(uTexture, fb.colorTexture);
+      phase2.createProgram(createLuminosityHighPassShader());
+  uniforms["luminosity-highpass"] = new UniformGroup("luminosity-highpass")
+    ..SetUniform(uRange, new VM.Vector2(0.85, 0.86))
+    ..SetUniform(uColorAlpha, new VM.Vector4.zero())
+    ..SetUniform(uTexture, fb.colorTexture);
 
   for (RenderProgram prog in effects.values) {
-      prog.add(UnitNode(prog));
+    prog.add(UnitNode(prog));
   }
 
   assert(gEffect != null);
@@ -152,14 +173,14 @@ void main() {
     fps.UpdateFrameCount(timeMs);
 
     double timeSec = timeMs / 1000.0;
-    effects["tv-distortion"].ForceInput(uTime, timeSec);
+    uniforms["tv-distortion"].ForceUniform(uTime, timeSec);
     //effects["kaleidoscope5"].ForceInput(uScale, timeMs / 1000.0);
-    effects["hexalate-varying"]
-        .ForceInput(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
-    effects["square-varying"]
-        .ForceInput(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
-    effects["lumidots-varying"]
-        .ForceInput(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
+    uniforms["hexalate-varying"]
+        .ForceUniform(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
+    uniforms["square-varying"]
+        .ForceUniform(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
+    uniforms["lumidots-varying"]
+        .ForceUniform(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
     phase1.draw([perspective]);
     phase2.draw([perspective]);
 

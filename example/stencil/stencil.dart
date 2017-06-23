@@ -22,8 +22,8 @@ void main() {
   canvas.height = height;
   perspective.AdjustAspect(width, height);
 
-  ChronosFramebuffer fb =
-      new ChronosFramebuffer.DefaultWithStencil(chronosGL, width, height);
+  Framebuffer fb =
+      new Framebuffer.DefaultWithStencil(chronosGL, width, height);
   RenderPhase phase = new RenderPhase("main", chronosGL, fb)
     ..viewPortW = width
     ..viewPortH = height

@@ -4,7 +4,7 @@ part of core;
 /// represents a sequence of RenderPrograms.
 class RenderPhase extends NamedEntity {
   final ChronosGL _cgl;
-  ChronosFramebuffer _framebuffer;
+  Framebuffer _framebuffer;
   final List<RenderProgram> _programs = [];
   //final VM.Matrix4 _pMatrix = new VM.Matrix4.identity();
   int _clear_mode =
@@ -15,20 +15,15 @@ class RenderPhase extends NamedEntity {
   int viewPortW = 0;
   int viewPortH = 0;
 
-  RenderPhase(String name, this._cgl, [this._framebuffer = null]) : super(name);
-
-  void SetFramebuffer(ChronosFramebuffer fb) {
-    _framebuffer = fb;
+  RenderPhase(String name, this._cgl, [this._framebuffer = null])
+      : super(name) {
+    if (_framebuffer == null) _framebuffer = new Framebuffer.Screen(_cgl);
   }
 
-  ChronosFramebuffer get framebuffer => _framebuffer;
+  Framebuffer get framebuffer => _framebuffer;
 
   void draw(List<UniformGroup> inputs, [List<DrawStats> stats = null]) {
-    if (_framebuffer == null) {
-      _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
-    } else {
-      _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer.framebuffer);
-    }
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer.framebuffer);
 
     assert(viewPortW > 0 && viewPortH > 0);
     _cgl.viewport(viewPortX, viewPortY, viewPortW, viewPortH);
