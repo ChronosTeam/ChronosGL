@@ -61,7 +61,6 @@ void main() {
   Material materialStars = Utils.MakeStarMaterial(chronosGL)
     ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
   MeshData stars = Utils.MakeStarMesh(progSprites, 2000, 100.0);
-  progSprites.add(Utils.MakeParticles(progSprites, 2000));
 
   // Main loop body
   double _lastTimeMs = 0.0;

@@ -190,49 +190,33 @@ void main(void)
 
 """;
 
-List<ShaderObject> createSphericalGyroidShader() {
-  return [
-    new ShaderObject("SphericalGyroid")
-      ..AddAttributeVars([aVertexPosition])
-      ..SetBodyWithMain([NullVertexBody]),
-    new ShaderObject("SphericalGyroidF")
-      ..AddUniformVars([uCanvasSize, uTime])
-      ..SetBody([_FragmentShader])
-  ];
-}
+final ShaderObject gyroidVertexShader = new ShaderObject("SphericalGyroid")
+  ..AddAttributeVars([aVertexPosition])
+  ..SetBodyWithMain([NullVertexBody]);
+
+final ShaderObject gyroidFragmentShader = new ShaderObject("SphericalGyroidF")
+  ..AddUniformVars([uCanvasSize, uTime])
+  ..SetBody([_FragmentShader]);
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  // Make sure canvas is really full screen
+  final int w = canvas.clientWidth;
+  final int h = canvas.clientHeight;
+  canvas.width = w;
+  canvas.height = h;
   ChronosGL chronosGL = new ChronosGL(canvas);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL);
-
-  RenderProgram program = phase.createProgram(createSphericalGyroidShader());
+  RenderProgram program = new RenderProgram(
+      "gyroid", chronosGL, gyroidVertexShader, gyroidFragmentShader);
   UniformGroup uniforms = new UniformGroup("plain");
-  program.add(UnitNode(program));
-
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
+  MeshData unitQuad = ShapeQuad(program, 1);
 
   void animate(timeMs) {
     timeMs = 0.0 + timeMs;
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
     uniforms.ForceUniform(uTime, timeMs / 1000.0);
     uniforms.ForceUniform(uCanvasSize, new VM.Vector2(0.0 + w, 0.0 + h));
-    phase.draw([uniforms]);
+    program.Draw(unitQuad, [uniforms]);
     HTML.window.animationFrame.then(animate);
   }
 
