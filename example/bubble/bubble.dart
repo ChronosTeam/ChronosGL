@@ -30,8 +30,7 @@ List<ShaderObject> sphereShader() {
   ];
 }
 
-Material matSphere =
-    new Material.Transparent("sphere", BlendEquationMix);
+Material matSphere = new Material.Transparent("sphere", BlendEquationMix);
 
 void main() {
   StatsFps fps =
@@ -67,15 +66,15 @@ void main() {
   HTML.window.onResize.listen(resolutionChange);
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
     phase.draw([perspective]);
+
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs);
   }
 
   List<Future<dynamic>> futures = [

@@ -37,9 +37,9 @@ void main() {
   }
 
   {
-    Node cyl = new Node(
-        "cylinder", ShapeCylinder(basic, 3.0, 6.0, 2.0, 32), matTrans)
-      ..setPos(5.0, 0.0, -5.0);
+    Node cyl =
+        new Node("cylinder", ShapeCylinder(basic, 3.0, 6.0, 2.0, 32), matTrans)
+          ..setPos(5.0, 0.0, -5.0);
     basic.add(cyl);
   }
   {
@@ -73,8 +73,7 @@ void main() {
   HTML.window.onResize.listen(resolutionChange);
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;
@@ -87,9 +86,8 @@ void main() {
       out.add(d.toString());
     }
 
-    fps.UpdateFrameCount(timeMs, out.join("<br>"));
-
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs, out.join("<br>"));
   }
 
   List<Future<dynamic>> futures = [

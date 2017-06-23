@@ -73,25 +73,19 @@ void main() {
     ..SetUniform(uTexture2, fb2.colorTexture);
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    double v;
-    timeMs = timeMs + 0.0;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.01;
     orbit.animate(elapsed);
     material.ForceUniform(uTime, timeMs / 1000.0);
 
-    /*
-    screen.Activate(0, 0, 0, width, height);
-    progPerlinNoise.Draw(torus, [perspective, material]);
-    */
     fb.Activate(GL_CLEAR_ALL, 0, 0, width, height);
     progPerlinNoise.Draw(torus, [perspective, material]);
 
     fb2.Activate(GL_CLEAR_ALL, 0, 0, width ~/ 2, height ~/ 2);
-    v = gLuminance.valueAsNumber * 1.0;
-    uniformsHighPass.ForceUniform(uRange, new VM.Vector2(v, v + 0.01));
+    double lum = gLuminance.valueAsNumber * 1.0;
+    uniformsHighPass.ForceUniform(uRange, new VM.Vector2(lum, lum + 0.01));
     progHighPass.Draw(unitQuad, [perspective, uniformsHighPass]);
 
     fb1.Activate(GL_CLEAR_ALL, 0, 0, width ~/ 2, height ~/ 2);
@@ -101,8 +95,7 @@ void main() {
     progBloom.Draw(unitQuad, [perspective, uniformsBloom2]);
 
     screen.Activate(GL_CLEAR_ALL, 0, 0, width, height);
-    v = gIntensity.valueAsNumber * 1.0;
-    uniformsApply.ForceUniform(uScale, v);
+    uniformsApply.ForceUniform(uScale, gIntensity.valueAsNumber * 1.0);
     progApplyBloom.Draw(unitQuad, [perspective, uniformsApply]);
 
     HTML.window.animationFrame.then(animate);
