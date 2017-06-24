@@ -77,7 +77,7 @@ void main() {
     fps.UpdateFrameCount(timeMs);
   }
 
-  List<Future<dynamic>> futures = [
+  List<Future<Object>> futures = [
     LoadImage(textureFile),
   ];
   Future.wait(futures).then((List list) {

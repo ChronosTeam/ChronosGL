@@ -64,7 +64,7 @@ void main() {
   Material mat = new Material("mat");
   Math.Random rng = new Math.Random();
 
-  List<Future<dynamic>> futures = [
+  List<Future<Object>> futures = [
     LoadRaw(modelFile),
   ];
 
@@ -102,7 +102,7 @@ void main() {
           axis.normalize();
           angle = 2 * Math.PI * rng.nextDouble();
         } else {
-          // TODO(rhulha): the original value was all zerow which caused the animation to stop.
+          // TODO(rhulha): the original value was all zero which caused the animation to stop.
           axis.setValues(1.0, 0.0, 0.0);
           angle = 0.0;
         }

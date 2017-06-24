@@ -55,7 +55,7 @@ void main() {
 
   Material mat = new Material("mat");
 
-  List<Future<dynamic>> futures = [
+  List<Future<Object>> futures = [
     LoadRaw(modelFile),
   ];
 

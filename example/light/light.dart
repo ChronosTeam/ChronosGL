@@ -210,7 +210,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  List<Future<dynamic>> futures = [
+  List<Future<Object>> futures = [
     LoadRaw(meshFile),
     LoadImage(textureFile),
   ];

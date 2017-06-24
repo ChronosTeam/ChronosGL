@@ -69,7 +69,7 @@ void main() {
     fps.UpdateFrameCount(timeMs);
   }
 
-  List<Future<dynamic>> futures = [
+  List<Future<Object>> futures = [
     LoadRaw(modelFile),
   ];
 

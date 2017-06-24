@@ -90,7 +90,7 @@ void main() {
     fps.UpdateFrameCount(timeMs, out.join("<br>"));
   }
 
-  List<Future<dynamic>> futures = [
+  List<Future<Object>> futures = [
     LoadImage("../gradient.jpg"),
     LoadImage("../transparent.png"),
     LoadImage("../wood.jpg"),

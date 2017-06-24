@@ -106,7 +106,7 @@ void main() {
 
   Material mat = new Material("mat")..SetUniform(uColor, ColorGray4)..SetUniform(uShininess, 25.0);
 
-  List<Future<dynamic>> futures = [
+  List<Future<Object>> futures = [
     LoadJson(modelFile),
     LoadImage(textureFile),
     LoadImage(specularmapFile),

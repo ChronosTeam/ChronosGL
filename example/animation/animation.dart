@@ -148,7 +148,7 @@ void main() {
     boneVisualizer.Update(timeMs / 1000.0);
   }
 
-  List<Future<dynamic>> futures = [
+  List<Future<Object>> futures = [
     LoadJson(meshFile),
     LoadImage(textureFile),
   ];

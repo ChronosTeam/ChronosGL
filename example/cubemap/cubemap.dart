@@ -43,7 +43,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  List<Future<dynamic>> futures = LoadCubeImages("skybox_", ".png");
+  List<Future<Object>> futures = LoadCubeImages("skybox_", ".png");
 
   Future.wait(futures).then((List list) {
     Texture cubeTex = new CubeTexture(chronosGL, "stars", list);

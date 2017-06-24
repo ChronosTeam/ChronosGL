@@ -116,7 +116,7 @@ void main() {
     ..SetUniform(uColor, colSkin)
     ..SetUniform(uShininess, glossiness);
 
-  List<Future<dynamic>> futures = [
+  List<Future<Object>> futures = [
     LoadJson(modelFile),
     LoadImage(bumpmapFile),
   ];
