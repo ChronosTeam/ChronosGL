@@ -50,7 +50,7 @@ class GeometryBuilder {
   List<Face3> _faces3 = [];
   List<Face4> _faces4 = [];
   List<VM.Vector3> vertices = [];
-  Map<String, List> attributes = {};
+  Map<String, dynamic> attributes = {};
 
   GeometryBuilder([this.pointsOnly = false]);
 

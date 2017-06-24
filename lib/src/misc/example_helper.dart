@@ -20,7 +20,7 @@ class Utils {
 */
 
   static HTML.CanvasElement createCanvas(
-      HTML.CanvasElement canvas, callback(HTML.CanvasRenderingContext2D ctx),
+      HTML.CanvasElement canvas, void callback(HTML.CanvasRenderingContext2D ctx),
       [int size = 512]) {
     if (canvas == null)
       canvas = new HTML.CanvasElement(width: size, height: size);
@@ -79,10 +79,10 @@ class Utils {
     }, d);
   }
 
-  static Node MakeSkycube(gl, Texture cubeTexture) {
+  static Node MakeSkycube(RenderProgram prog, Texture cubeTexture) {
     Material mat = new Material("skycube")
       ..SetUniform(uCubeTexture, cubeTexture);
-    MeshData md = ShapeCube(gl, x: 512.0, y: 512.0, z: 512.0);
+    MeshData md = ShapeCube(prog, x: 512.0, y: 512.0, z: 512.0);
     return new Node("skycube", md, mat);
   }
 

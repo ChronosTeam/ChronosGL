@@ -21,10 +21,10 @@ class RenderProgram extends NamedEntity {
   ChronosGL _cgl;
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
-  dynamic /* gl  Program */ _program;
+  Object /* gl  Program */ _program;
 
   Set<String> _attributes;
-  Map<String, dynamic /* gl UniformLocation */ > _uniformLocations = {};
+  Map<String, Object /* gl UniformLocation */ > _uniformLocations = {};
   Map<String, String> _uniformsInitialized = {};
   Set<String> _attributesInitialized = new Set<String>();
 
@@ -93,17 +93,13 @@ class RenderProgram extends NamedEntity {
     _nextTextureUnit = 0;
   }
 
-  bool _HasAttribute(String canonical) {
-    return _attributes.contains(canonical);
-  }
-
   ChronosGL getContext() => _cgl;
 
   bool _HasUniform(String canonical) {
     return _uniformLocations.containsKey(canonical);
   }
 
-  void _SetControl(String canonical, var val) {
+  void _SetControl(String canonical, Object val) {
     switch (canonical) {
       case cDepthTest:
         if (val == true) {
@@ -137,7 +133,7 @@ class RenderProgram extends NamedEntity {
     }
   }
 
-  void _SetUniform(String group, String canonical, var val) {
+  void _SetUniform(String group, String canonical, Object val) {
     // enable only for debug
     if (_uniformsInitialized.containsKey(canonical)) {
       LogError(
@@ -150,7 +146,7 @@ class RenderProgram extends NamedEntity {
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "unknown ${canonical}";
     assert(_uniformLocations.containsKey(canonical));
-    dynamic /* UniformLocation */ l = _uniformLocations[canonical];
+    Object /* UniformLocation */ l = _uniformLocations[canonical];
     switch (desc.type) {
       case VarTypeFloat:
         if (desc.arraySize == 0) {
@@ -161,7 +157,7 @@ class RenderProgram extends NamedEntity {
         break;
       case VarTypeMat4:
         if (desc.arraySize == 0) {
-          _cgl.uniformMatrix4fv(l, false, val.storage);
+          _cgl.uniformMatrix4fv(l, false, (val as VM.Matrix4).storage);
         } else if (val is Float32List) {
           _cgl.uniformMatrix4fv(l, false, val);
         } else {
@@ -170,7 +166,7 @@ class RenderProgram extends NamedEntity {
         break;
       case VarTypeMat3:
         if (desc.arraySize == 0) {
-          _cgl.uniformMatrix3fv(l, false, val.storage);
+          _cgl.uniformMatrix3fv(l, false, (val as VM.Matrix3).storage);
         } else if (val is Float32List) {
           _cgl.uniformMatrix3fv(l, false, val);
         } else {
@@ -179,24 +175,21 @@ class RenderProgram extends NamedEntity {
         break;
       case VarTypeVec4:
         if (desc.arraySize == 0) {
-          assert(val.storage.length == 4);
-          _cgl.uniform4fv(l, val.storage);
+          _cgl.uniform4fv(l, (val as VM.Vector4).storage);
         } else {
           _cgl.uniform4fv(l, val);
         }
         break;
       case VarTypeVec3:
         if (desc.arraySize == 0) {
-          assert(val.storage.length == 3);
-          _cgl.uniform3fv(l, val.storage);
+          _cgl.uniform3fv(l, (val as VM.Vector3).storage);
         } else {
           _cgl.uniform3fv(l, val);
         }
         break;
       case VarTypeVec2:
         if (desc.arraySize == 0) {
-          assert(val.storage.length == 2);
-          _cgl.uniform2fv(l, val.storage);
+          _cgl.uniform2fv(l, (val as VM.Vector2).storage);
         } else {
           _cgl.uniform2fv(l, val);
         }
@@ -204,14 +197,14 @@ class RenderProgram extends NamedEntity {
       case VarTypeSampler2D:
       case VarTypeSampler2DShadow:
         _cgl.activeTexture(GL_TEXTURE0 + _nextTextureUnit);
-        _cgl.bindTexture(GL_TEXTURE_2D, val.GetTexture());
+        _cgl.bindTexture(GL_TEXTURE_2D, (val as Texture).GetTexture());
         _cgl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
         break;
       case VarTypeSamplerCube:
         assert(canonical == uCubeTexture);
         _cgl.activeTexture(GL_TEXTURE0 + _nextTextureUnit);
-        _cgl.bindTexture(GL_TEXTURE_CUBE_MAP, val.GetTexture());
+        _cgl.bindTexture(GL_TEXTURE_CUBE_MAP, (val as Texture).GetTexture());
         _cgl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
         break;

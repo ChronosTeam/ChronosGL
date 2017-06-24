@@ -79,7 +79,7 @@ class Framebuffer {
 
   // e.g. into Float32List
   // BROKEN: https://github.com/dart-lang/sdk/issues/11614
-  void ExtractData(var buf, int x, int y, int w, int h) {
+  void ExtractData(Object buf, int x, int y, int w, int h) {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     // RGB (3 values per pixel), RGBA (4 values per pixel)
     // see TypeToNumChannels

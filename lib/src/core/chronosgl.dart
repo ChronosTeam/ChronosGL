@@ -26,7 +26,7 @@ WEBGL.Shader _CompileShader(dynamic gl, int type, String text) {
   gl.shaderSource(shader, text);
   gl.compileShader(shader);
 
-  var result = gl.getShaderParameter(shader, GL_COMPILE_STATUS);
+  bool result = gl.getShaderParameter(shader, GL_COMPILE_STATUS);
   if (result != null && result == false) {
     String error = gl.getShaderInfoLog(shader);
     LogInfo("Compilation failed:");
@@ -48,7 +48,7 @@ class ChronosGL {
       {bool preserveDrawingBuffer: false,
       bool faceCulling: false,
       bool antialiasing: true}) {
-    Map attributes = {
+    Map<String, Object> attributes = {
       "alpha": false,
       "depth": true,
       "stencil": true,
@@ -128,7 +128,7 @@ class ChronosGL {
   // Why all these shims?
   // They are useful for instrumentation and may allow us some day
   // to interface with dart-gl
-  void deleteBuffer(dynamic buffer) {
+  void deleteBuffer(WEBGL.Buffer buffer) {
     _gl.deleteBuffer(buffer);
   }
 
@@ -144,7 +144,7 @@ class ChronosGL {
     _gl.bindVertexArray(vao);
   }
 
-  void copyBufferSubData(dynamic srcBuffer, dynamic dstBuffer, int srcOffset,
+  void copyBufferSubData(int srcBuffer,int dstBuffer, int srcOffset,
       int dstOffset, int size) {
     _gl.copyBufferSubData(srcBuffer, dstBuffer, srcOffset, dstOffset, size);
   }
@@ -153,7 +153,7 @@ class ChronosGL {
     return _gl.createFramebuffer();
   }
 
-  void bindFramebuffer(int kind, dynamic framebuffer) {
+  void bindFramebuffer(int kind, WEBGL.Framebuffer framebuffer) {
     _gl.bindFramebuffer(kind, framebuffer);
   }
 
@@ -162,7 +162,7 @@ class ChronosGL {
   }
 
   void framebufferTexture2D(
-      int target, int attachment, int textarget, dynamic texture, int level) {
+      int target, int attachment, int textarget, WEBGL.Texture texture, int level) {
     _gl.framebufferTexture2D(target, attachment, textarget, texture, level);
   }
 
@@ -170,7 +170,7 @@ class ChronosGL {
     return _gl.createTexture();
   }
 
-  void bindTexture(int kind, dynamic texture) {
+  void bindTexture(int kind, WEBGL.Texture texture) {
     _gl.bindTexture(kind, texture);
   }
 
@@ -183,7 +183,7 @@ class ChronosGL {
     _gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, transform);
   }
 
-  void bindBufferBase(int kind, int offset, var buffer) {
+  void bindBufferBase(int kind, int offset, Object buffer) {
     // in case buffer is still bound
     // _gl.bindBuffer(GL_ARRAY_BUFFER, null);
     _gl.bindBufferBase(kind, offset, buffer);
@@ -253,7 +253,7 @@ class ChronosGL {
     return _gl.getParameter(kind);
   }
 
-  void vertexAttribPointer(var buffer, int index, int size, int type,
+  void vertexAttribPointer(WEBGL.Buffer buffer, int index, int size, int type,
       bool normalized, int stride, int offset) {
     _gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
     _gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
@@ -321,12 +321,12 @@ class ChronosGL {
     return _gl.getSupportedExtensions();
   }
 
-  dynamic getExtension(String name) {
+  Object getExtension(String name) {
     return _gl.getExtension(name);
   }
 
-  dynamic GetGlExtensionAnisotropic() {
-    var ext = _gl.getExtension("EXT_texture_filter_anisotropic");
+  Object GetGlExtensionAnisotropic() {
+    Object ext = _gl.getExtension("EXT_texture_filter_anisotropic");
     if (ext == null) {
       LogWarn("ExtensionAnisotropic NOT SUPPORTED");
     }

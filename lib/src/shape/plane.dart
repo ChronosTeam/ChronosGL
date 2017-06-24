@@ -27,7 +27,7 @@ GeometryBuilder QuadGeometry(num size) {
   return gb;
 }
 
-GeometryBuilder GridGeometry(int xstrips, ystrips, double xlen, double ylen) {
+GeometryBuilder GridGeometry(int xstrips, int ystrips, double xlen, double ylen) {
   final double xoffset = xlen * 0.5;
   final double yoffset = ylen * 0.5;
   final double xdelta = xlen / xstrips;

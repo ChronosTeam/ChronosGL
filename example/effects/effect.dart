@@ -14,7 +14,7 @@ HTML.SelectElement gScene =
     HTML.document.querySelector('#scene') as HTML.SelectElement;
 
 double RangeOverTime(double a, double b, double interval, double t) {
-  double s = t % interval * 2.0 * Math.PI;
+  //double s = t % interval * 2.0 * Math.PI;
   return (b - a) * (0.5 + 0.5 * Math.cos(t)) + a;
 }
 
