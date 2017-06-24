@@ -127,7 +127,7 @@ class Ion {
       if (len > kMaxDistance) {
         Pole p = srcs[rng.nextInt(srcs.length)];
         _pos = p.Pos() + RandomVector(rng, 0.35);
-        print("too far ${len}");
+        //print("too far ${len}");
         return;
       }
       // the further the distance the weaker the force
@@ -141,7 +141,7 @@ class Ion {
       if (len <= kMinDistance) {
         Pole p = srcs[rng.nextInt(srcs.length)];
         _pos = p.Pos() + RandomVector(rng, 0.35);
-        print("too close: ${len}");
+        //print("too close: ${len}");
         return;
       }
       force += t / (len * len);
@@ -198,30 +198,33 @@ void main() {
   IntroduceNewShaderVar(
       uSinks, new ShaderVarDesc(VarTypeVec3, "", arraySize: 5));
 
-  StatsFps fps =
+  final StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   final Math.Random rng = new Math.Random(0);
 
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  final HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas');
   final int width = canvas.clientWidth;
   final int height = canvas.clientHeight;
   canvas.width = width;
   canvas.height = height;
 
-  ChronosGL chronosGL = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(15.0, 0.5, 0.5, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
+  final ChronosGL chronosGL = new ChronosGL(canvas);
+  final OrbitCamera orbit = new OrbitCamera(15.0, 0.5, 0.5, canvas);
+  final Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
     ..AdjustAspect(width, height);
 
-  RenderProgram programJS = new RenderProgram(
+  final RenderProgram programJS = new RenderProgram(
       "GPU", chronosGL, pointSpritesVertexShader, particleFragmentShader);
-  RenderProgram programGPU = new RenderProgram(
+  final RenderProgram programGPU = new RenderProgram(
       "GPU", chronosGL, particleVertexShader, particleFragmentShader);
+  final int bindingIndex = programGPU.GetTransformBindingIndex(tPosition);
+  print ("@@@@ ${bindingIndex}");
 
-  List<Pole> srcPoles =
+  final List<Pole> srcPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, 2.0, 3.0);
-  List<Pole> dstPoles =
+  final List<Pole> dstPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, -2.0, 3.0);
 
   List<Ion> ions = [new Ion(RandomVector(rng, kMaxDistance * 100.0))];
@@ -260,11 +263,11 @@ void main() {
     ionsPos = new Float32List(3 * n);
     ExtractIonPos(ions, ionsPos);
     chronosGL.bindBuffer(GL_ARRAY_BUFFER, null);
-    chronosGL.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, null);
+    chronosGL.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex, null);
     mdOut.ChangeVertices(ionsPos);
     mdIn.ChangeVertices(ionsPos);
-    chronosGL.bindBufferBase(
-        GL_TRANSFORM_FEEDBACK_BUFFER, 0, mdOut.GetBuffer(aVertexPosition));
+    chronosGL.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex,
+        mdOut.GetBuffer(aVertexPosition));
   }
 
   void UpdateIonsJS(double t) {
