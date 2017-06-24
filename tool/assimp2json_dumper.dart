@@ -30,7 +30,7 @@ void main(List<String> arguments) {
 
     print("reading mesh from: ${p}");
     String meshData = new File(p).readAsStringSync();
-    Map<String, Object> json = JSON.decode(meshData);
+    Map<String, List> json = JSON.decode(meshData);
 
     List<Bone> skeleton = ImportSkeletonFromAssimp2Json(json);
 
