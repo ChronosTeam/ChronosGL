@@ -8,7 +8,7 @@ Future<String> LoadRaw(String url) {
     c.complete(hr.response);
   });
   hr.send('');
-  return c.future as Future<String>;
+  return c.future;
 }
 
 Future<Map> LoadJson(String url) {
@@ -19,7 +19,7 @@ Future<Map> LoadJson(String url) {
     c.complete(JSON.decode(hr.response));
   });
   hr.send('');
-  return c.future as Future<Map>;
+  return c.future;
 }
 
 Future<HTML.ImageElement> LoadImage(String url) {
@@ -27,7 +27,7 @@ Future<HTML.ImageElement> LoadImage(String url) {
   HTML.ImageElement image = new HTML.ImageElement();
   image.onLoad.first.then((_) => c.complete(image));
   image.src = url;
-  return c.future as Future<HTML.ImageElement>;
+  return c.future;
 }
 
 Future<HTML.VideoElement> LoadVideo(String url) {
@@ -38,7 +38,7 @@ Future<HTML.VideoElement> LoadVideo(String url) {
   video.loop = true;
   video.onPlaying.first.then((_) => c.complete(video));
   video.src = url;
-  return c.future as Future<HTML.VideoElement>;
+  return c.future;
 }
 
 final List<String> _kUrlInfix = ["nx", "px", "ny", "py", "nz", "pz"];
@@ -51,7 +51,7 @@ List<Future<HTML.ImageElement>> LoadCubeImages(
     HTML.ImageElement image = new HTML.ImageElement();
     image.onLoad.first.then((_) => c.complete(image));
     image.src = urlPrefix + _kUrlInfix[i] + urlSuffix;
-    out[i] = c.future as Future<HTML.ImageElement>;
+    out[i] = c.future;
   }
   return out;
 }

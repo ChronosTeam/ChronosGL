@@ -50,14 +50,34 @@ class GeometryBuilder {
   List<Face3> _faces3 = [];
   List<Face4> _faces4 = [];
   List<VM.Vector3> vertices = [];
-  Map<String, dynamic> attributes = {};
+  Map<String, List> attributes = {};
 
   GeometryBuilder([this.pointsOnly = false]);
 
   void EnableAttribute(String canonical) {
     assert(!attributes.containsKey(canonical));
     assert(canonical.startsWith("a"));
-    attributes[canonical] = [];
+    ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
+    switch (desc.type) {
+      case VarTypeVec2:
+        attributes[canonical] = <VM.Vector2>[];
+        break;
+      case VarTypeVec3:
+        attributes[canonical] = <VM.Vector3>[];
+
+        break;
+      case VarTypeVec4:
+        attributes[canonical] = <VM.Vector4>[];
+        break;
+      case VarTypeFloat:
+        attributes[canonical] = <double>[];
+        break;
+      case VarTypeUvec4:
+        attributes[canonical] = <List<int>>[];
+        break;
+      default:
+        assert(false, "unknown type for ${canonical}");
+    }
   }
 
   bool HasAttribute(String canonical) {
@@ -172,7 +192,7 @@ class GeometryBuilder {
 
   void AddAttributesUvec4(String canonical, List<List<int>> lst) {
     List ts = attributes[canonical];
-     for (List<int> v in lst) {
+    for (List<int> v in lst) {
       ts.add(v.sublist(0));
     }
   }

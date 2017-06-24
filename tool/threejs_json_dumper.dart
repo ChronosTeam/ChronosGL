@@ -123,7 +123,7 @@ void ShowInfo(Map json) {
   List<int> skinIndices = json["skinIndices"];
   List<double> skinWeights = json["skinWeights"];
   Map animation = json["animation"];
-  var metadata = json["metadata"];
+  Object metadata = json["metadata"];
 
   print("meta: ${metadata}");
   print("materials: ${materials.length}");
@@ -151,7 +151,7 @@ void main(List<String> arguments) {
 
     print("reading mesh from: ${p}");
     var meshData = new File(p).readAsStringSync();
-    var json = JSON.decode(meshData);
+    Object json = JSON.decode(meshData);
     ShowInfo(json);
     DumpFaces(json, argResults['faces']);
 

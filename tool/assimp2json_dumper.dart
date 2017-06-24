@@ -11,7 +11,7 @@ import 'package:chronosgl/src/animation/lib.dart';
 
 void ShowInfo(Map json) {
   for (String k in json.keys) {
-    var val = json[k];
+    Object val = json[k];
     if (val is List || val is Map) {
       print("$k ${val.length}");
     } else {
@@ -29,8 +29,8 @@ void main(List<String> arguments) {
     print("reading  ${p}");
 
     print("reading mesh from: ${p}");
-    var meshData = new File(p).readAsStringSync();
-    Map<String, dynamic> json = JSON.decode(meshData);
+    String meshData = new File(p).readAsStringSync();
+    Map<String, Object> json = JSON.decode(meshData);
 
     List<Bone> skeleton = ImportSkeletonFromAssimp2Json(json);
 
