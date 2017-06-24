@@ -1,6 +1,7 @@
 # https://www.dartlang.org/guides/language/analysis-options
 analyzer:
-  strong-mode: true
+  strong-mode:
+      implicit-dynamic: false
 
 
 linter:
