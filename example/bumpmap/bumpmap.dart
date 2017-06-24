@@ -11,12 +11,12 @@ const String bumpmapFile = dir + "Infinite-Level_02_Disp_NoSmoothUV-4096.jpg";
 List<ShaderObject> createShader() {
   return [
     new ShaderObject("LightBlinnPhongFancyV")
-      ..AddAttributeVars([aVertexPosition, aNormal, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aNormal, aTextureCoordinates])
       ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
       ..SetBodyWithMain([
         """
-        vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
+        vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
         gl_Position = ${uPerspectiveViewMatrix} * pos;
         ${vVertexPosition} = pos.xyz;
         ${vTextureCoordinates} = ${aTextureCoordinates};

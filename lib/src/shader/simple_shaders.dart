@@ -3,7 +3,7 @@ part of chronosshader;
 List<ShaderObject> createTexturedShader() {
   return [
     new ShaderObject("Textured")
-      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain([StdVertexBody, StdVertexTextureForward]),
@@ -19,7 +19,7 @@ List<ShaderObject> createTexturedShader() {
 List<ShaderObject> createSolidColorShader() {
   return [
     new ShaderObject("SolidColor")
-      ..AddAttributeVars([aVertexPosition])
+      ..AddAttributeVars([aPosition])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([StdVertexBody]),
     new ShaderObject("SolidColorF")
@@ -34,12 +34,12 @@ List<ShaderObject> createSolidColorShader() {
 List<ShaderObject> createCubeMapShader() {
   return [
     new ShaderObject("CubeMap")
-      ..AddAttributeVars([aVertexPosition])
+      ..AddAttributeVars([aPosition])
       ..AddVaryingVars([vVertexPosition])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([
         StdVertexBody,
-        "${vVertexPosition} = normalize(${aVertexPosition});"
+        "${vVertexPosition} = normalize(${aPosition});"
       ]),
     new ShaderObject("CubeMapF")
       ..AddVaryingVars([vVertexPosition])
@@ -50,7 +50,7 @@ List<ShaderObject> createCubeMapShader() {
 }
 
 final ShaderObject pointSpritesVertexShader = new ShaderObject("PointSpritesV")
-  ..AddAttributeVars([aVertexPosition])
+  ..AddAttributeVars([aPosition])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uPointSize])
   ..SetBodyWithMain(
       [StdVertexBody, "gl_PointSize = ${uPointSize}/gl_Position.z;"]);
@@ -66,12 +66,12 @@ List<ShaderObject> createPointSpritesShader() =>
 List<ShaderObject> createDemoShader() {
   return [
     new ShaderObject("FixedVertexColorV")
-      ..AddAttributeVars([aVertexPosition])
+      ..AddAttributeVars([aPosition])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..AddVaryingVars([vColor])
       ..SetBodyWithMain([
         StdVertexBody,
-        "${vColor} = ColorFromPosition(${aVertexPosition});",
+        "${vColor} = ColorFromPosition(${aPosition});",
       ], prolog: [
         StdLibShader
       ]),

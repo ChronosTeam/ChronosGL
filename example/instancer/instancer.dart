@@ -6,7 +6,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 List<ShaderObject> createInstancedShader() {
   return [
     new ShaderObject("InstancedV")
-      ..AddAttributeVars([aVertexPosition])
+      ..AddAttributeVars([aPosition])
       ..AddAttributeVars([iaRotation, iaTranslation])
       ..AddVaryingVars([vColor])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
@@ -17,12 +17,12 @@ List<ShaderObject> createInstancedShader() {
         }
 
         void main(void) {
-          vec3 P = rotate_vertex_position(${aVertexPosition}, ${iaRotation}) +
+          vec3 P = rotate_vertex_position(${aPosition}, ${iaRotation}) +
                     ${iaTranslation};
           gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(P, 1);
-          ${vColor} = vec3( sin(${aVertexPosition}.x)/2.0+0.5,
-                       cos(${aVertexPosition}.y)/2.0+0.5, 
-                       sin(${aVertexPosition}.z)/2.0+0.5);
+          ${vColor} = vec3( sin(${aPosition}.x)/2.0+0.5,
+                       cos(${aPosition}.y)/2.0+0.5, 
+                       sin(${aPosition}.z)/2.0+0.5);
         }
         """
       ]),

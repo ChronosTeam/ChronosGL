@@ -154,12 +154,12 @@ abstract class ShadowMap {
 List<ShaderObject> _createShadowShaderDepth16() {
   return [
     new ShaderObject("ShadowMapV")
-      ..AddAttributeVars([aVertexPosition])
+      ..AddAttributeVars([aPosition])
       ..AddUniformVars([uLightPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([
         """
     gl_Position = ${uLightPerspectiveViewMatrix} * ${uModelMatrix} *
-                  vec4(${aVertexPosition}, 1.0);
+                  vec4(${aPosition}, 1.0);
     """
       ]),
     // What we care about here is the internal update of the depth buffer
@@ -176,7 +176,7 @@ float GetShadowMapValue(sampler2D shadowMap,	vec2 uv) {
 List<ShaderObject> _createShaderVisualizeShadowmapLinearDepth16() {
   return [
     new ShaderObject("copyV")
-      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTextureCoordinates])
       ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain(
           [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
@@ -263,12 +263,12 @@ float GetShadowMapValue(sampler2D shadowMap,	vec2 uv) {
 List<ShaderObject> _createShadowShaderPackedRGBA() {
   return [
     new ShaderObject("ShadowV")
-      ..AddAttributeVars([aVertexPosition])
+      ..AddAttributeVars([aPosition])
       ..AddVaryingVars([vDepth])
       ..AddUniformVars([uLightPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([
         """
-    gl_Position = ${uLightPerspectiveViewMatrix} * ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
+    gl_Position = ${uLightPerspectiveViewMatrix} * ${uModelMatrix} * vec4(${aPosition}, 1.0);
     ${vDepth} = gl_Position.z / gl_Position.w * 0.5 + 0.5;
 """
       ]),
@@ -288,7 +288,7 @@ void main() {
 List<ShaderObject> _createShaderVisualizeShadowmapLinearPackedRGBA() {
   return [
     new ShaderObject("copyV")
-      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTextureCoordinates])
       ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain(
           [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),

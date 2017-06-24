@@ -1,7 +1,7 @@
 part of chronosshader;
 
 ShaderObject _effectVertexShader = new ShaderObject("uv-passthru")
-  ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+  ..AddAttributeVars([aPosition, aTextureCoordinates])
   ..AddVaryingVars([vTextureCoordinates])
   ..SetBodyWithMain(
       [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]);

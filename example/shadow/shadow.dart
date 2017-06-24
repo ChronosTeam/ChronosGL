@@ -7,7 +7,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
   return [
     new ShaderObject("LightBlinnPhongShadowV")
-      ..AddAttributeVars([aVertexPosition, aNormal])
+      ..AddAttributeVars([aPosition, aNormal])
       ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight])
       ..AddUniformVars([
         uPerspectiveViewMatrix,
@@ -17,7 +17,7 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
       ])
       ..SetBodyWithMain([
         """
-        vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
+        vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
         ${vPositionFromLight} = ${uLightPerspectiveViewMatrix} * pos;
         gl_Position = ${uPerspectiveViewMatrix} * pos;
         ${vVertexPosition} = pos.xyz;

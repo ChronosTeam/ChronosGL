@@ -17,7 +17,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 /// Each attribute/uniform has a **canonical name**. By convention the first
 /// letter of the name signals the type of input:
 ///
-/// * a: "Attribute" (aVertexPosition, aTextureCoordinates, aNormal, ...)
+/// * a: "Attribute" (aPosition, aTextureCoordinates, aNormal, ...)
 /// * u: "Uniform" (uPerspectiveViewMatrix, uTexture, ...)
 /// * c: "Controls" (cDepthWrite, cDepthTest, cBlendEquation, ...)
 /// * v: "Varying Attributes"

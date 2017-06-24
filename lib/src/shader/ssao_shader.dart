@@ -152,7 +152,7 @@ String _SSAOShaderImpl = """
 List<ShaderObject> createSSAOShader() {
   return [
     new ShaderObject("SSAOV")
-      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTextureCoordinates])
       ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain([
         NullVertexBody,

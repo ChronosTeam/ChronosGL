@@ -6,7 +6,7 @@ import 'dart:async';
 List<ShaderObject> createNormal2ColorShader() {
   return [
     new ShaderObject("Normal2Color")
-      ..AddAttributeVars([aVertexPosition, aNormal])
+      ..AddAttributeVars([aPosition, aNormal])
       ..AddVaryingVars([vColor])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([

@@ -4,7 +4,7 @@ part of chronosshader;
 List<ShaderObject> createLightShaderGourad() {
   return [
     new ShaderObject("LightGouradV")
-      ..AddAttributeVars([aVertexPosition, aNormal, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aNormal, aTextureCoordinates])
       ..AddVaryingVars([vColor])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
@@ -12,7 +12,7 @@ List<ShaderObject> createLightShaderGourad() {
       ..SetBody([
         """
     void main() {
-    vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
+    vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
     gl_Position = ${uPerspectiveViewMatrix} * pos;
     vec3 normal = ${uNormalMatrix} * ${aNormal};
 
@@ -42,12 +42,12 @@ List<ShaderObject> createLightShaderGourad() {
 List<ShaderObject> createLightShaderBlinnPhong() {
   return [
     new ShaderObject("LightBlinnPhongV")
-      ..AddAttributeVars([aVertexPosition, aNormal, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aNormal, aTextureCoordinates])
       ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
       ..SetBodyWithMain([
         """
-        vec4 pos = ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
+        vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
         gl_Position = ${uPerspectiveViewMatrix} * pos;
         ${vVertexPosition} = pos.xyz;
         ${vTextureCoordinates} = ${aTextureCoordinates};

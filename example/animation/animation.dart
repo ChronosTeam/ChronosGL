@@ -30,13 +30,13 @@ void main() {
                                               ${aBoneWeight},
                                               ivec4(${aBoneIndex}),
                                               int(${uTime}));
-   vec4 pos = skinMat * vec4(aVertexPosition, 1.0);
+   vec4 pos = skinMat * vec4(${aPosition}, 1.0);
    // vVertexPosition = pos.xyz;
    // This is not quite accurate
    //${vNormal} = normalize(mat3(skinMat) * aNormal);
    gl_Position = uPerspectiveViewMatrix * pos;
 
-   vTextureCoordinates = aTextureCoordinates;
+   vTextureCoordinates = ${aTextureCoordinates};
 }
 
 """;
@@ -51,7 +51,7 @@ List<ShaderObject> createAnimationShader() {
   return [
     new ShaderObject("AnimationV")
       ..AddAttributeVars(
-          [aVertexPosition, aTextureCoordinates, aBoneIndex, aBoneWeight])
+          [aPosition, aTextureCoordinates, aBoneIndex, aBoneWeight])
       //..AddAttributeVar(aNormal)
       ..AddVaryingVars([vTextureCoordinates])
       //..AddVaryingVar(vNormal)

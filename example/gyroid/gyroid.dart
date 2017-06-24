@@ -191,7 +191,7 @@ void main(void)
 """;
 
 final ShaderObject gyroidVertexShader = new ShaderObject("SphericalGyroid")
-  ..AddAttributeVars([aVertexPosition])
+  ..AddAttributeVars([aPosition])
   ..SetBodyWithMain([NullVertexBody]);
 
 final ShaderObject gyroidFragmentShader = new ShaderObject("SphericalGyroidF")

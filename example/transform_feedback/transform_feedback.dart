@@ -19,7 +19,7 @@ final HTML.InputElement gCpuCompute =
     HTML.document.querySelector('#cpucompute');
 
 final ShaderObject particleVertexShader = new ShaderObject("ParticleV")
-  ..AddAttributeVars([aVertexPosition])
+  ..AddAttributeVars([aPosition])
   ..AddUniformVars(
       [uPerspectiveViewMatrix, uModelMatrix, uPointSize, uSources, uSinks])
   ..AddTransformVars([tPosition])
@@ -70,11 +70,11 @@ vec3 Update(vec3 pos, vec3 seed) {
       
 void main() {        
     gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * 
-                  vec4(${aVertexPosition}, 1.0);
+                  vec4(${aPosition}, 1.0);
     gl_PointSize = ${uPointSize}/gl_Position.z;
     
     // new position for next round
-    ${tPosition} = Update(${aVertexPosition}, gl_Position.xyz);
+    ${tPosition} = Update(${aPosition}, gl_Position.xyz);
 }
 """
   ]);
@@ -267,7 +267,7 @@ void main() {
     mdOut.ChangeVertices(ionsPos);
     mdIn.ChangeVertices(ionsPos);
     chronosGL.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex,
-        mdOut.GetBuffer(aVertexPosition));
+        mdOut.GetBuffer(aPosition));
   }
 
   void UpdateIonsJS(double t) {
@@ -293,9 +293,9 @@ void main() {
     } else {
       programGPU.Draw(mdIn, [perspective, matGPU]);
       // use vertex shader output as input for next round
-      chronosGL.bindBuffer(GL_ARRAY_BUFFER, mdIn.GetBuffer(aVertexPosition));
+      chronosGL.bindBuffer(GL_ARRAY_BUFFER, mdIn.GetBuffer(aPosition));
       chronosGL.bindBuffer(
-          GL_TRANSFORM_FEEDBACK_BUFFER, mdOut.GetBuffer(aVertexPosition));
+          GL_TRANSFORM_FEEDBACK_BUFFER, mdOut.GetBuffer(aPosition));
       chronosGL.copyBufferSubData(
           GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0, ions.length * 3);
     }

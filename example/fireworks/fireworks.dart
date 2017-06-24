@@ -5,12 +5,12 @@ import 'dart:html' as HTML;
 import 'package:vector_math/vector_math.dart' as VM;
 
 final ShaderObject fireworksVertexShader = new ShaderObject("FireWorksV")
-  ..AddAttributeVars([aVertexPosition, aNormal])
+  ..AddAttributeVars([aPosition, aNormal])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uTime])
   ..SetBodyWithMain([
     """
       float t = mod(${uTime}, 5.0);
-      vec3 vp = ${aVertexPosition};
+      vec3 vp = ${aPosition};
       if( t < 3.0) {
        vp.y = t;
       } else {

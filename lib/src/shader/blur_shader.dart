@@ -45,7 +45,7 @@ List<ShaderObject> createBloomTextureShader(int radius, double sigma) {
   String constants = makeGaussianPdfKernelString(radius, sigma);
   return [
     new ShaderObject("uv-passthru")
-      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTextureCoordinates])
       ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain(
           [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
@@ -68,7 +68,7 @@ void main() {
 List<ShaderObject> createApplyBloomEffectShader() {
   return [
     new ShaderObject("uv-passthru")
-      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTextureCoordinates])
       ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain(
           [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),

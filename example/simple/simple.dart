@@ -5,7 +5,7 @@ import 'package:chronosgl/chronosgl.dart';
 
 // A very simple shaders - many other are available out of the box.
 final ShaderObject demoVertexShader = new ShaderObject("demoVertexShader")
-  ..AddAttributeVars([aVertexPosition])
+  ..AddAttributeVars([aPosition])
   ..AddVaryingVars([vColor])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..SetBody([
@@ -13,10 +13,10 @@ final ShaderObject demoVertexShader = new ShaderObject("demoVertexShader")
 void main(void) {
     gl_Position = ${uPerspectiveViewMatrix} *
                   ${uModelMatrix} *
-                  vec4(${aVertexPosition}, 1.0);
-    ${vColor}.r = sin(${aVertexPosition}.x)/2.0+0.5;
-    ${vColor}.g = cos(${aVertexPosition}.y)/2.0+0.5;
-    ${vColor}.b = sin(${aVertexPosition}.z)/2.0+0.5;
+                  vec4(${aPosition}, 1.0);
+    ${vColor}.r = sin(${aPosition}.x)/2.0+0.5;
+    ${vColor}.g = cos(${aPosition}.y)/2.0+0.5;
+    ${vColor}.b = sin(${aPosition}.z)/2.0+0.5;
 }
 """
   ]);

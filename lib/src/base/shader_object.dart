@@ -99,7 +99,7 @@ const int prefixAttribute = 0x61; // 'a';
 
 const String aColor = "aColors";
 const String aColorAlpha = "aColorAlpha";
-const String aVertexPosition = "aVertexPosition";
+const String aPosition = "aVertex";
 const String aTextureCoordinates = "aTextureCoordinates";
 const String aNormal = "aNormal";
 const String aBinormal = "aBinormal";
@@ -213,7 +213,7 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   // This should also contain an alpha channel
   aColor: new ShaderVarDesc(VarTypeVec3, "per vertex color"),
   aColorAlpha: new ShaderVarDesc(VarTypeVec4, "per vertex color"),
-  aVertexPosition: new ShaderVarDesc(VarTypeVec3, "vertex coordinates"),
+  aPosition: new ShaderVarDesc(VarTypeVec3, "vertex coordinates"),
   aTextureCoordinates: new ShaderVarDesc(VarTypeVec2, "texture uvs"),
   aNormal: new ShaderVarDesc(VarTypeVec3, "vertex normals"),
   aBinormal: new ShaderVarDesc(VarTypeVec3, "vertex binormals"),

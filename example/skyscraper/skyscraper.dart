@@ -6,12 +6,12 @@ import 'package:vector_math/vector_math.dart' as VM;
 List<ShaderObject> createSkyScraperShader() {
   return [
     new ShaderObject("SkyScraperV")
-      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTextureCoordinates])
       ..AddVaryingVars([vVertexPosition, vTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([
         StdVertexBody,
-        "${vVertexPosition} = ${aVertexPosition};",
+        "${vVertexPosition} = ${aPosition};",
         "${vTextureCoordinates} = ${aTextureCoordinates};",
       ]),
     new ShaderObject("SkyScraperF")

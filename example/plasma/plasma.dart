@@ -10,7 +10,7 @@ import 'package:chronosgl/chronosgl.dart';
 List<ShaderObject> createPlasmaShader() {
   return [
     new ShaderObject("Plasma1V")
-      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain(
@@ -44,7 +44,7 @@ List<ShaderObject> createPlasmaShader() {
 List<ShaderObject> createPlasmaShader2() {
   return [
     new ShaderObject("Plasma2V")
-      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain(
@@ -68,7 +68,7 @@ List<ShaderObject> createPlasmaShader2() {
 List<ShaderObject> createPlasmaShader3() {
   return [
     new ShaderObject("Plasma3V")
-      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTextureCoordinates])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain(

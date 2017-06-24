@@ -95,7 +95,7 @@ class MeshData extends NamedEntity {
   }
 
   void ChangeVertices(Float32List data) {
-    final String canonical = aVertexPosition;
+    final String canonical = aPosition;
     _vertices = data;
     ChangeAttribute(canonical, data, 3);
   }
@@ -147,7 +147,7 @@ class MeshData extends NamedEntity {
   }
 
   void AddVertices(Float32List data) {
-    final String canonical = aVertexPosition;
+    final String canonical = aPosition;
     _buffers[canonical] = _cgl.createBuffer();
     ChangeVertices(data);
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
@@ -305,7 +305,7 @@ MeshData ExtractWireframeNormals(RenderProgram prog, MeshData md,
     [double scale = 1.0]) {
   assert(md._drawMode == GL_TRIANGLES);
   MeshData out = prog.MakeMeshData(md.name, GL_LINES);
-  final Float32List vertices = md.GetAttribute(aVertexPosition);
+  final Float32List vertices = md.GetAttribute(aPosition);
   final Float32List normals = md.GetAttribute(aNormal);
   return _ExtractWireframeNormals(out, vertices, normals, scale);
 }

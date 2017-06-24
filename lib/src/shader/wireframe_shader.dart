@@ -38,7 +38,7 @@ void main() {
 List<ShaderObject> createWireframeShader() {
   return [
     new ShaderObject("WireframeV")
-      ..AddAttributeVars([aVertexPosition, aCenter])
+      ..AddAttributeVars([aPosition, aCenter])
       ..AddVaryingVars([vCenter])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([StdVertexBody, "${vCenter} = ${aCenter};"]),

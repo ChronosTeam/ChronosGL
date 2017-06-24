@@ -7,7 +7,7 @@ String textureFile = "sphere.png";
 // https://www.opengl.org/wiki/Mathematics_of_glTexGen
 
 String _SphereV = """
-  vec3 u = normalize(vec3(${uModelMatrix} * vec4(${aVertexPosition}, 1.0)));
+  vec3 u = normalize(vec3(${uModelMatrix} * vec4(${aPosition}, 1.0)));
   vec3 n = normalize(${uNormalMatrix} * ${aNormal} );
   vec3 r = reflect( u, n );
   r.z += 1.0;
@@ -18,7 +18,7 @@ String _SphereV = """
 List<ShaderObject> sphereShader() {
   return [
     new ShaderObject("sphereV")
-      ..AddAttributeVars([aVertexPosition, aNormal])
+      ..AddAttributeVars([aPosition, aNormal])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
       ..AddVaryingVars([vTextureCoordinates])
       ..SetBodyWithMain([StdVertexBody, _SphereV]),
