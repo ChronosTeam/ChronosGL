@@ -64,13 +64,17 @@ class RenderProgram extends NamedEntity {
     objects.clear();
   }
 
+  int GetTransformBindingIndex(String canonical) {
+   return _shaderObjectV.GetTransformBindingIndex(canonical);
+  }
+
   MeshData MakeMeshData(String name, int drawMode) {
-    return new MeshData(name, _cgl, drawMode, _shaderObjectV.GetLayoutMap());
+    return new MeshData(name, _cgl, drawMode, _shaderObjectV.GetAttributeLayoutMap());
   }
 
   bool HasCompatibleAttributesTo(RenderProgram other) {
-    var a = _shaderObjectV.GetLayoutMap();
-    var b = other._shaderObjectV.GetLayoutMap();
+    var a = _shaderObjectV.GetAttributeLayoutMap();
+    var b = other._shaderObjectV.GetAttributeLayoutMap();
     if (a.length != b.length) return false;
     for (String key in a.keys) {
       if (a[key] != b[key]) return false;
@@ -79,8 +83,8 @@ class RenderProgram extends NamedEntity {
   }
 
   bool HasDownwardCompatibleAttributesTo(RenderProgram other) {
-    var a = _shaderObjectV.GetLayoutMap();
-    var b = other._shaderObjectV.GetLayoutMap();
+    var a = _shaderObjectV.GetAttributeLayoutMap();
+    var b = other._shaderObjectV.GetAttributeLayoutMap();
     for (String key in a.keys) {
       if (a[key] != b[key]) {
         return false;

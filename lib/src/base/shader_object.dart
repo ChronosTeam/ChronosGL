@@ -322,9 +322,11 @@ class ShaderObject {
 
   ShaderObject(this.name);
 
-  int GetLayoutPos(String canonical) => _canonicalToLayoutPos[canonical];
+  int GetAttributeLayoutPos(String canonical) => _canonicalToLayoutPos[canonical];
 
-  Map<String, int> GetLayoutMap() => _canonicalToLayoutPos;
+  int GetTransformBindingIndex(String canonical) => transformVars.indexOf(canonical);
+
+  Map<String, int> GetAttributeLayoutMap() => _canonicalToLayoutPos;
 
   void AddAttributeVars(List<String> names) {
     assert(shader == null);
@@ -397,7 +399,7 @@ class ShaderObject {
     ];
     for (String a in attributeVars) {
       ShaderVarDesc d = _VarsDb[a];
-      int pos = GetLayoutPos(a);
+      int pos = GetAttributeLayoutPos(a);
       out.add("layout (location=${pos}) in ${d.type} ${a};");
     }
     out.add("");
