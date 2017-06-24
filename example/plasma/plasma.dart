@@ -10,13 +10,13 @@ import 'package:chronosgl/chronosgl.dart';
 List<ShaderObject> createPlasmaShader() {
   return [
     new ShaderObject("Plasma1V")
-      ..AddAttributeVars([aPosition, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTexUV])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..SetBodyWithMain(
-          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+          [StdVertexBody, "${vTexUV} = ${aTexUV};"]),
     new ShaderObject("Plasma1F")
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTime])
       ..SetBodyWithMain([
         """
@@ -25,7 +25,7 @@ List<ShaderObject> createPlasmaShader() {
     vec2 u_k = vec2(10.0,10.0);
 
     float v = 0.0;
-    vec2 c = ${vTextureCoordinates} * u_k - u_k/2.0;
+    vec2 c = ${vTexUV} * u_k - u_k/2.0;
     v += sin((c.x+u_time));
     v += sin((c.y+u_time)/2.0);
     v += sin((c.x+c.y+u_time)/2.0);
@@ -44,18 +44,18 @@ List<ShaderObject> createPlasmaShader() {
 List<ShaderObject> createPlasmaShader2() {
   return [
     new ShaderObject("Plasma2V")
-      ..AddAttributeVars([aPosition, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTexUV])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..SetBodyWithMain(
-          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+          [StdVertexBody, "${vTexUV} = ${aTexUV};"]),
     new ShaderObject("Plasma2F")
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTime])
       ..SetBodyWithMain([
         """
-    float x = ${vTextureCoordinates}.x;
-    float y = ${vTextureCoordinates}.y;
+    float x = ${vTexUV}.x;
+    float y = ${vTexUV}.y;
     float v = sin(x * cos(${uTime}/15.0) * 120.0) +
               cos(y * sin(${uTime}/10.0) * 120.0) +
               sin(sqrt(y * y + x * x) * 40.0);
@@ -68,18 +68,18 @@ List<ShaderObject> createPlasmaShader2() {
 List<ShaderObject> createPlasmaShader3() {
   return [
     new ShaderObject("Plasma3V")
-      ..AddAttributeVars([aPosition, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTexUV])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..SetBodyWithMain(
-          [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+          [StdVertexBody, "${vTexUV} = ${aTexUV};"]),
     new ShaderObject("Plasma3F")
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTime])
       ..SetBodyWithMain([
         """
-    float x = ${vTextureCoordinates}.x*1000.0; // gl_FragCoord.x;
-    float y = ${vTextureCoordinates}.y*1000.0; // gl_FragCoord.y;
+    float x = ${vTexUV}.x*1000.0; // gl_FragCoord.x;
+    float y = ${vTexUV}.y*1000.0; // gl_FragCoord.y;
     float time = ${uTime};
     float mov0 = x+y+cos(sin(time)*2.)*100.+sin(x/100.)*1000.;
     float mov1 = y / 720.0 / 0.2 + time;

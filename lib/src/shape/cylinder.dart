@@ -59,9 +59,9 @@ GeometryBuilder CylinderGeometry(double radTop, double radBot, double height,
     assert(vertices.length == 2 + 2 * radialSubdivisions);
   }
   GeometryBuilder gb = new GeometryBuilder();
-  gb.EnableAttribute(aTextureCoordinates);
+  gb.EnableAttribute(aTexUV);
   gb.AddVertices(vertices);
-  gb.AddAttributesVector2(aTextureCoordinates, uvs);
+  gb.AddAttributesVector2(aTexUV, uvs);
   if (computeNormals) {
     gb.EnableAttribute(aNormal);
     gb.AddAttributesVector3(aNormal, normal);
@@ -110,7 +110,7 @@ GeometryBuilder CylinderGeometryWireframeFriendly(
   final VM.Vector3 centerBot = new VM.Vector3(0.0, -halfHeight, 0.0);
 
   GeometryBuilder gb = new GeometryBuilder();
-  gb.EnableAttribute(aTextureCoordinates);
+  gb.EnableAttribute(aTexUV);
 
   // Why do we have to repeat the vertices?
   // Without it example wireframe does not work
@@ -121,15 +121,15 @@ GeometryBuilder CylinderGeometryWireframeFriendly(
     // TODO: fix these
     gb.AddVertices([centerBot, bot[i + 1], bot[i]]);
     // TODO: fix these
-    gb.AddAttributesVector2(aTextureCoordinates, [zero, zero, zero]);
-    gb.AddAttributesVector2(aTextureCoordinates, [zero, zero, zero]);
+    gb.AddAttributesVector2(aTexUV, [zero, zero, zero]);
+    gb.AddAttributesVector2(aTexUV, [zero, zero, zero]);
   }
 
   gb.AddFaces4(radialSubdivisions);
   for (int i = 0; i < radialSubdivisions; i++) {
     gb.AddVertices([top[i + 1], top[i], bot[i], bot[i + 1]]);
     // TODO: fix these
-    gb.AddAttributesVector2(aTextureCoordinates, [zero, zero, zero, zero]);
+    gb.AddAttributesVector2(aTexUV, [zero, zero, zero, zero]);
   }
   return gb;
 }

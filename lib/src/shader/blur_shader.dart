@@ -31,11 +31,11 @@ String makeGaussianPdfKernelString(int radius, double sigma) {
 String _kernelFragment = """
 void main() {
     vec2 invSize = 1.0 / vec2(textureSize(${uTexture}, 0));
-    vec3 sum = texture(${uTexture}, ${vTextureCoordinates}).rgb * kernel[0];
+    vec3 sum = texture(${uTexture}, ${vTexUV}).rgb * kernel[0];
     for (int i = 1; i < kernel.length(); i++) {
         vec2 offset = ${uDirection} * invSize * float(i);
-        sum += texture(${uTexture}, ${vTextureCoordinates} + offset).rgb * kernel[i];
-        sum += texture(${uTexture}, ${vTextureCoordinates} - offset).rgb * kernel[i];
+        sum += texture(${uTexture}, ${vTexUV} + offset).rgb * kernel[i];
+        sum += texture(${uTexture}, ${vTexUV} - offset).rgb * kernel[i];
     }
     ${oFragColor} = vec4(sum, 1.0);
 }
@@ -45,12 +45,12 @@ List<ShaderObject> createBloomTextureShader(int radius, double sigma) {
   String constants = makeGaussianPdfKernelString(radius, sigma);
   return [
     new ShaderObject("uv-passthru")
-      ..AddAttributeVars([aPosition, aTextureCoordinates])
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTexUV])
+      ..AddVaryingVars([vTexUV])
       ..SetBodyWithMain(
-          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+          [NullVertexBody, "${vTexUV} = ${aTexUV};"]),
     new ShaderObject("BloomPassF")
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uDirection, uTexture])
       ..SetBody([constants, _kernelFragment])
   ];
@@ -58,22 +58,22 @@ List<ShaderObject> createBloomTextureShader(int radius, double sigma) {
 
 String _applyBloomEffectFragment = """
 void main() {
-	${oFragColor} = texture(${uTexture}, ${vTextureCoordinates}) +
+	${oFragColor} = texture(${uTexture}, ${vTexUV}) +
 	                ${uScale} *
 	                vec4(${uColor}, 1.0) *
-	                texture(${uTexture2}, ${vTextureCoordinates});
+	                texture(${uTexture2}, ${vTexUV});
 }
 """;
 
 List<ShaderObject> createApplyBloomEffectShader() {
   return [
     new ShaderObject("uv-passthru")
-      ..AddAttributeVars([aPosition, aTextureCoordinates])
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTexUV])
+      ..AddVaryingVars([vTexUV])
       ..SetBodyWithMain(
-          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+          [NullVertexBody, "${vTexUV} = ${aTexUV};"]),
     new ShaderObject("BloomPassF")
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTexture, uTexture2, uScale, uColor])
       ..SetBody([_applyBloomEffectFragment])
   ];

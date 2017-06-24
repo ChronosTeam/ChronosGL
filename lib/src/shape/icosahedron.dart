@@ -123,7 +123,7 @@ GeometryBuilder IcosahedronGeometry(
   }
 
   GeometryBuilder gb = new GeometryBuilder();
-  gb.EnableAttribute(aTextureCoordinates);
+  gb.EnableAttribute(aTexUV);
   if (computeNormals) {
     gb.EnableAttribute(aNormal);
   }
@@ -146,7 +146,7 @@ GeometryBuilder IcosahedronGeometry(
       gb.AddAttributesVector3(aNormal, [v1, v2, v3]);
     }
     gb.AddVerticesFace3([v1.scaled(scale), v2.scaled(scale), v3.scaled(scale)]);
-    gb.AddAttributesVector2(aTextureCoordinates, [t1, t2, t3]);
+    gb.AddAttributesVector2(aTexUV, [t1, t2, t3]);
   }
   return gb;
 }

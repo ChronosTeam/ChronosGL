@@ -40,7 +40,7 @@ void main() {
    ${vColor} = vec3( sin(${aPosition}.x)/2.0+0.5,
                       cos(${aPosition}.y)/2.0+0.5,
                       sin(${aPosition}.z)/2.0+0.5);
-   //vTextureCoordinates = ${aTextureCoordinates};
+   //vTexUV = ${aTexUV};
 }
 
 """;
@@ -56,7 +56,7 @@ List<ShaderObject> createAnimationShader() {
     new ShaderObject("AnimationV")
       ..AddAttributeVars([aPosition, aBoneIndex, aBoneWeight])
       //..AddAttributeVar(aNormal)
-      //..AddAttributeVar(aTextureCoordinates)
+      //..AddAttributeVar(aTexUV)
       ..AddVaryingVars([vColor])
       //..AddVaryingVar(vTextureCoordinates)
       //..AddVaryingVar(vNormal)

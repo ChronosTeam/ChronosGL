@@ -176,16 +176,16 @@ float GetShadowMapValue(sampler2D shadowMap,	vec2 uv) {
 List<ShaderObject> _createShaderVisualizeShadowmapLinearDepth16() {
   return [
     new ShaderObject("copyV")
-      ..AddAttributeVars([aPosition, aTextureCoordinates])
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTexUV])
+      ..AddVaryingVars([vTexUV])
       ..SetBodyWithMain(
-          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+          [NullVertexBody, "${vTexUV} = ${aTexUV};"]),
     new ShaderObject("copyF")
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTexture, uCutOff, uCameraFar, uCameraNear])
       ..SetBodyWithMain([
         """
-   float d = texture(${uTexture},  ${vTextureCoordinates}).x;
+   float d = texture(${uTexture},  ${vTexUV}).x;
    ${oFragColor}.rgb = vec3(d >= ${uCutOff} ? d : 0.0);
 """
       ])
@@ -288,18 +288,18 @@ void main() {
 List<ShaderObject> _createShaderVisualizeShadowmapLinearPackedRGBA() {
   return [
     new ShaderObject("copyV")
-      ..AddAttributeVars([aPosition, aTextureCoordinates])
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTexUV])
+      ..AddVaryingVars([vTexUV])
       ..SetBodyWithMain(
-          [NullVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]),
+          [NullVertexBody, "${vTexUV} = ${aTexUV};"]),
     new ShaderObject("copyF")
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uShadowMap, uCutOff, uCameraFar, uCameraNear])
       ..SetBody([
         _PackedRGBALib,
         """
 void main() {
-    float d = unpackDepth(texture(${uShadowMap},  ${vTextureCoordinates}));
+    float d = unpackDepth(texture(${uShadowMap},  ${vTexUV}));
     ${oFragColor}.rgb = vec3(d >= ${uCutOff} ? d : 0.0);
 }
 """

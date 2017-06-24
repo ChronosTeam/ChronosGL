@@ -12,7 +12,7 @@ String _SphereV = """
   vec3 r = reflect( u, n );
   r.z += 1.0;
   float m = 2.0 * length(r);
-  ${vTextureCoordinates} = vec2(r.x/m + 0.5, r.y/m + 0.5);
+  ${vTexUV} = vec2(r.x/m + 0.5, r.y/m + 0.5);
 """;
 
 List<ShaderObject> sphereShader() {
@@ -20,13 +20,13 @@ List<ShaderObject> sphereShader() {
     new ShaderObject("sphereV")
       ..AddAttributeVars([aPosition, aNormal])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..SetBodyWithMain([StdVertexBody, _SphereV]),
     new ShaderObject("sphereF")
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTexture])
       ..SetBodyWithMain(
-          ["${oFragColor} = texture(${uTexture}, ${vTextureCoordinates});"])
+          ["${oFragColor} = texture(${uTexture}, ${vTexUV});"])
   ];
 }
 

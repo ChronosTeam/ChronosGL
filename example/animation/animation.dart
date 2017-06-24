@@ -34,16 +34,16 @@ void main() {
    // vVertexPosition = pos.xyz;
    // This is not quite accurate
    //${vNormal} = normalize(mat3(skinMat) * aNormal);
-   gl_Position = uPerspectiveViewMatrix * pos;
+   gl_Position = ${uPerspectiveViewMatrix} * pos;
 
-   vTextureCoordinates = ${aTextureCoordinates};
+   ${vTexUV} = ${aTexUV};
 }
 
 """;
 
 const String skinningFragmentShader = """
 void main() {
-  ${oFragColor} = texture(${uTexture}, ${vTextureCoordinates});
+  ${oFragColor} = texture(${uTexture}, ${vTexUV});
 }
 """;
 
@@ -51,9 +51,9 @@ List<ShaderObject> createAnimationShader() {
   return [
     new ShaderObject("AnimationV")
       ..AddAttributeVars(
-          [aPosition, aTextureCoordinates, aBoneIndex, aBoneWeight])
+          [aPosition, aTexUV, aBoneIndex, aBoneWeight])
       //..AddAttributeVar(aNormal)
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       //..AddVaryingVar(vNormal)
       ..AddUniformVars([
         uPerspectiveViewMatrix,
@@ -63,7 +63,7 @@ List<ShaderObject> createAnimationShader() {
       ])
       ..SetBody([skinningVertexShader]),
     new ShaderObject("AnimationV")
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTexture])
       ..SetBody([skinningFragmentShader]),
   ];

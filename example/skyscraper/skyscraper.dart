@@ -6,24 +6,24 @@ import 'package:vector_math/vector_math.dart' as VM;
 List<ShaderObject> createSkyScraperShader() {
   return [
     new ShaderObject("SkyScraperV")
-      ..AddAttributeVars([aPosition, aTextureCoordinates])
-      ..AddVaryingVars([vVertexPosition, vTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTexUV])
+      ..AddVaryingVars([vVertexPosition, vTexUV])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([
         StdVertexBody,
         "${vVertexPosition} = ${aPosition};",
-        "${vTextureCoordinates} = ${aTextureCoordinates};",
+        "${vTexUV} = ${aTexUV};",
       ]),
     new ShaderObject("SkyScraperF")
-      ..AddVaryingVars([vVertexPosition, vTextureCoordinates])
+      ..AddVaryingVars([vVertexPosition, vTexUV])
       ..SetBodyWithMain([
         """
       // the step finds the windows
       // multiplying the tex coord with 11 gives it a black column on the right side but with artifacts
       // multiplying the tex coord with 10.9 gives it a black column on the right side WITHOUT the
       // artifacts on the right side
-      float s1 = step(mod(${vTextureCoordinates}.x*11.+1., 2.), 1.);
-      float s2 = step(mod(${vTextureCoordinates}.y*21.+1., 2.), 1.);
+      float s1 = step(mod(${vTexUV}.x*11.+1., 2.), 1.);
+      float s2 = step(mod(${vTexUV}.y*21.+1., 2.), 1.);
       float s3 = step( s1+s2, 1.1);
 
       ${oFragColor} = vec4( 1.-s3, 1.-s3, 1.-s3, 1. );
@@ -66,7 +66,7 @@ void main() {
   VM.Vector2 q = new VM.Vector2(0.01, 0.01);
   GeometryBuilder gb = CubeGeometry(
       x: 1.0, y: 2.0, z: 1.0, uMin: 0.01, uMax: 0.99, vMin: 0.01, vMax: 0.99);
-  List uvs = gb.attributes[aTextureCoordinates];
+  List uvs = gb.attributes[aTexUV];
   // change top and bottom face
   for (int i = 2 * 4; i < 4 * 4; i++) {
     uvs[i].setFrom(q);

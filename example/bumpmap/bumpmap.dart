@@ -11,20 +11,20 @@ const String bumpmapFile = dir + "Infinite-Level_02_Disp_NoSmoothUV-4096.jpg";
 List<ShaderObject> createShader() {
   return [
     new ShaderObject("LightBlinnPhongFancyV")
-      ..AddAttributeVars([aPosition, aNormal, aTextureCoordinates])
-      ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
+      ..AddAttributeVars([aPosition, aNormal, aTexUV])
+      ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
       ..SetBodyWithMain([
         """
         vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
         gl_Position = ${uPerspectiveViewMatrix} * pos;
         ${vVertexPosition} = pos.xyz;
-        ${vTextureCoordinates} = ${aTextureCoordinates};
+        ${vTexUV} = ${aTexUV};
         ${vNormal} = ${uNormalMatrix} * ${aNormal};
         """
       ]),
     new ShaderObject("LightBlinnPhongFancyF")
-      ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
+      ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
       ..AddUniformVars([uEyePosition, uColor])
       ..AddUniformVars([uBumpScale, uBumpMap])
@@ -32,7 +32,7 @@ List<ShaderObject> createShader() {
         """
 
 
-vec2 uv = dHdxy_fwd(${vTextureCoordinates}, ${uBumpScale}, ${uBumpMap});
+vec2 uv = dHdxy_fwd(${vTexUV}, ${uBumpScale}, ${uBumpMap});
 vec3 normal = perturbNormalArb(${vVertexPosition}, vNormal, uv);
 
 ColorComponents acc = CombinedLight(${vVertexPosition} - ${uEyePosition},

@@ -104,7 +104,7 @@ List<GeometryBuilder> ImportGeometryFromThreeJsJson(Map json) {
     while (out.length <= mat) {
       GeometryBuilder gb = new GeometryBuilder();
       if (Normals.length > 0) gb.EnableAttribute(aNormal);
-      if (Uvs.length > 0) gb.EnableAttribute(aTextureCoordinates);
+      if (Uvs.length > 0) gb.EnableAttribute(aTexUV);
       if (skinMultiplier > 0) {
         gb.EnableAttribute(aBoneIndex);
         gb.EnableAttribute(aBoneWeight);
@@ -125,7 +125,7 @@ List<GeometryBuilder> ImportGeometryFromThreeJsJson(Map json) {
       gb.AddVerticesFace4(vertex);
     }
     if (uv.length > 0) {
-      gb.AddAttributesVector2(aTextureCoordinates, uv);
+      gb.AddAttributesVector2(aTexUV, uv);
     }
     if (normal.length > 0) {
       gb.AddAttributesVector3(aNormal, normal);

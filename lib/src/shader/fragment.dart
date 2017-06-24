@@ -4,7 +4,7 @@ const String StdVertexBody =
     "gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(${aPosition}, 1.0);";
 
 const String StdVertexTextureForward =
-    "${vTextureCoordinates} = ${aTextureCoordinates};";
+    "${vTexUV} = ${aTexUV};";
 
 const String NullVertexBody = "gl_Position = vec4(${aPosition}, 1.0);";
 

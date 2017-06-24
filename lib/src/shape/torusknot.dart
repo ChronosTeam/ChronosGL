@@ -52,7 +52,7 @@ GeometryBuilder ShapeTorusKnotGeometry(
   }
 
   GeometryBuilder gb = new GeometryBuilder();
-  gb.EnableAttribute(aTextureCoordinates);
+  gb.EnableAttribute(aTexUV);
 
   for (int i = 0; i < segmentsR; ++i) {
     for (int j = 0; j < segmentsT; ++j) {
@@ -79,15 +79,15 @@ GeometryBuilder ShapeTorusKnotGeometry(
       if (useQuads) {
         gb.AddFaces4(1);
         gb.AddVertices([vertices[d], vertices[c], vertices[b], vertices[a]]);
-        gb.AddAttributesVector2(aTextureCoordinates, [uva, uvb, uvc, uvd]);
+        gb.AddAttributesVector2(aTexUV, [uva, uvb, uvc, uvd]);
       } else {
         gb.AddFaces3(2);
         gb.AddVertices([vertices[a], vertices[b], vertices[c]]);
         gb.AddVertices([vertices[a], vertices[c], vertices[d]]);
         // TODO: explain why this choice of uvs is more appealing
-        gb.AddAttributesVector2(aTextureCoordinates, [uva, uvb, uvc]);
-        gb.AddAttributesVector2(aTextureCoordinates, [uvd, uvc, uvb]);
-        //gb.AddAttributesVector2(aTextureCoordinates, [uva, uvc, uvd]);
+        gb.AddAttributesVector2(aTexUV, [uva, uvb, uvc]);
+        gb.AddAttributesVector2(aTexUV, [uvd, uvc, uvb]);
+        //gb.AddAttributesVector2(aTexUV, [uva, uvc, uvd]);
       }
     }
   }

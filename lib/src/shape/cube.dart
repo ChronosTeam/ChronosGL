@@ -101,11 +101,11 @@ GeometryBuilder CubeGeometry(
   ];
 
   GeometryBuilder gb = new GeometryBuilder();
-  gb.EnableAttribute(aTextureCoordinates);
+  gb.EnableAttribute(aTexUV);
   if (computeNormals) gb.EnableAttribute(aNormal);
   gb.AddFaces4(6);
   gb.AddVertices(vertices);
-  gb.AddAttributesVector2(aTextureCoordinates, uvs);
+  gb.AddAttributesVector2(aTexUV, uvs);
   if (computeNormals) {
     for (int i = 0; i < _CubeNormals.length; i++) {
       VM.Vector3 n = _CubeNormals[i];
@@ -205,16 +205,16 @@ GeometryBuilder WedgeGeometry(
   ];
 
   GeometryBuilder gb = new GeometryBuilder();
-  gb.EnableAttribute(aTextureCoordinates);
+  gb.EnableAttribute(aTexUV);
   gb.EnableAttribute(aNormal);
 
   gb.AddFaces3(2);
   gb.AddVertices(vertices3);
-  gb.AddAttributesVector2(aTextureCoordinates, uvs3);
+  gb.AddAttributesVector2(aTexUV, uvs3);
 
   gb.AddFaces4(3);
   gb.AddVertices(vertices4);
-  gb.AddAttributesVector2(aTextureCoordinates, uvs4);
+  gb.AddAttributesVector2(aTexUV, uvs4);
 
   if (computeNormals) gb.GenerateNormalsAssumingTriangleMode();
   return gb;

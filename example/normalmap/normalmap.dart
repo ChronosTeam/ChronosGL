@@ -12,8 +12,8 @@ String specularmapFile = Dir + "Map-SPEC.jpg";
 List<ShaderObject> createShader() {
   return [
     new ShaderObject("LightBlinnPhongV")
-      ..AddAttributeVars([aPosition, aNormal, aTextureCoordinates])
-      ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
+      ..AddAttributeVars([aPosition, aNormal, aTexUV])
+      ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
       ..SetBodyWithMain([
         """
@@ -21,11 +21,11 @@ List<ShaderObject> createShader() {
         gl_Position = ${uPerspectiveViewMatrix} * pos;
         ${vVertexPosition} = pos.xyz;
         ${vNormal} = ${uNormalMatrix} * ${aNormal};
-        ${vTextureCoordinates} = ${aTextureCoordinates};
+        ${vTexUV} = ${aTexUV};
 """
       ]),
     new ShaderObject("LightBlinnPhongF")
-      ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
+      ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
       ..AddUniformVars([uEyePosition, uColor, uTexture])
       ..SetBodyWithMain([
@@ -37,7 +37,7 @@ ColorComponents acc = CombinedLight(${vVertexPosition} - ${uEyePosition},
                                     ${uLightTypes},
                                     ${uShininess});
 
-vec4 diffuseMap = texture(${uTexture}, ${vTextureCoordinates} );
+vec4 diffuseMap = texture(${uTexture}, ${vTexUV} );
 
 ${oFragColor}.rgb = diffuseMap.rgb + acc.diffuse + acc.specular + uColor;
 ${oFragColor}.a = 1.0;

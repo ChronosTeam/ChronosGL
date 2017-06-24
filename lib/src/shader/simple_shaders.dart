@@ -3,15 +3,15 @@ part of chronosshader;
 List<ShaderObject> createTexturedShader() {
   return [
     new ShaderObject("Textured")
-      ..AddAttributeVars([aPosition, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTexUV])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..SetBodyWithMain([StdVertexBody, StdVertexTextureForward]),
     new ShaderObject("TexturedF")
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uColor, uTexture])
       ..SetBodyWithMain([
-        "${oFragColor} = texture(${uTexture}, ${vTextureCoordinates}) + vec4( ${uColor}, 0.0 );"
+        "${oFragColor} = texture(${uTexture}, ${vTexUV}) + vec4( ${uColor}, 0.0 );"
       ])
   ];
 }

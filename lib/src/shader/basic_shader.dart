@@ -4,7 +4,7 @@ part of chronosshader;
 List<ShaderObject> createLightShaderGourad() {
   return [
     new ShaderObject("LightGouradV")
-      ..AddAttributeVars([aPosition, aNormal, aTextureCoordinates])
+      ..AddAttributeVars([aPosition, aNormal, aTexUV])
       ..AddVaryingVars([vColor])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
@@ -23,7 +23,7 @@ List<ShaderObject> createLightShaderGourad() {
 
      ${vColor} = acc.diffuse +
                  acc.specular +
-                 texture(${uTexture}, ${aTextureCoordinates}).rgb;
+                 texture(${uTexture}, ${aTexUV}).rgb;
     }
         """
       ], prolog: [
@@ -42,20 +42,20 @@ List<ShaderObject> createLightShaderGourad() {
 List<ShaderObject> createLightShaderBlinnPhong() {
   return [
     new ShaderObject("LightBlinnPhongV")
-      ..AddAttributeVars([aPosition, aNormal, aTextureCoordinates])
-      ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
+      ..AddAttributeVars([aPosition, aNormal, aTexUV])
+      ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
       ..SetBodyWithMain([
         """
         vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
         gl_Position = ${uPerspectiveViewMatrix} * pos;
         ${vVertexPosition} = pos.xyz;
-        ${vTextureCoordinates} = ${aTextureCoordinates};
+        ${vTexUV} = ${aTexUV};
         ${vNormal} = ${uNormalMatrix} * ${aNormal};
         """
       ]),
     new ShaderObject("LightBlinnPhongF")
-      ..AddVaryingVars([vVertexPosition, vNormal, vTextureCoordinates])
+      ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
       ..AddUniformVars([uEyePosition, uTexture])
       ..SetBodyWithMain([
@@ -69,7 +69,7 @@ List<ShaderObject> createLightShaderBlinnPhong() {
 
     ${oFragColor}.rgb = acc.diffuse +
                        acc.specular +
-                       texture(${uTexture}, ${vTextureCoordinates}).rgb;
+                       texture(${uTexture}, ${vTexUV}).rgb;
     ${oFragColor}.a = 1.0;
 """
       ], prolog: [

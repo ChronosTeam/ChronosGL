@@ -100,7 +100,7 @@ const int prefixAttribute = 0x61; // 'a';
 const String aColor = "aColors";
 const String aColorAlpha = "aColorAlpha";
 const String aPosition = "aVertex";
-const String aTextureCoordinates = "aTextureCoordinates";
+const String aTexUV = "aTexUV";
 const String aNormal = "aNormal";
 const String aBinormal = "aBinormal";
 const String aTangent = "aTangent";
@@ -127,7 +127,7 @@ const String iaScale = "iaScale";
 // Varying
 // ===========================================================
 const String vColor = "vColor";
-const String vTextureCoordinates = "vTextureCoordinates";
+const String vTexUV = "vTexUV";
 const String vLightWeighting = "vLightWeighting";
 const String vNormal = "vNormal";
 const String vVertexPosition = "vVertexPosition";
@@ -214,7 +214,7 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   aColor: new ShaderVarDesc(VarTypeVec3, "per vertex color"),
   aColorAlpha: new ShaderVarDesc(VarTypeVec4, "per vertex color"),
   aPosition: new ShaderVarDesc(VarTypeVec3, "vertex coordinates"),
-  aTextureCoordinates: new ShaderVarDesc(VarTypeVec2, "texture uvs"),
+  aTexUV: new ShaderVarDesc(VarTypeVec2, "texture uvs"),
   aNormal: new ShaderVarDesc(VarTypeVec3, "vertex normals"),
   aBinormal: new ShaderVarDesc(VarTypeVec3, "vertex binormals"),
   aCenter: new ShaderVarDesc(VarTypeVec4, "for wireframe"),
@@ -229,7 +229,7 @@ final Map<String, ShaderVarDesc> _VarsDb = {
 
   // Varying
   vColor: new ShaderVarDesc(VarTypeVec3, "per vertex color"),
-  vTextureCoordinates: new ShaderVarDesc(VarTypeVec2, ""),
+  vTexUV: new ShaderVarDesc(VarTypeVec2, ""),
   vLightWeighting: new ShaderVarDesc(VarTypeVec3, ""),
   vNormal: new ShaderVarDesc(VarTypeVec3, ""),
   vVertexPosition: new ShaderVarDesc(VarTypeVec3, "vertex coordinates"),
