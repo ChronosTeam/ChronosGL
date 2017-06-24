@@ -125,8 +125,7 @@ void main() {
   orbit.polar = 35.0 * Math.PI / 180.0;
   orbit.azimuth = -45.0 * Math.PI / 180.0;
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    timeMs += 0.0; // force double
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     //orbit.azimuth += 0.001;

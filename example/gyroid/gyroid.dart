@@ -212,8 +212,7 @@ void main() {
   UniformGroup uniforms = new UniformGroup("plain");
   MeshData unitQuad = ShapeQuad(program, 1);
 
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     uniforms.ForceUniform(uTime, timeMs / 1000.0);
     uniforms.ForceUniform(uCanvasSize, new VM.Vector2(0.0 + w, 0.0 + h));
     program.Draw(unitQuad, [uniforms]);

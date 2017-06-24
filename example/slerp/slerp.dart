@@ -119,7 +119,7 @@ void main() {
     programSprites.add(Utils.MakeParticles(programSprites, 2000));
 
     double _lastTimeMs = 0.0;
-    void animate(timeMs) {
+    void animate(num timeMs) {
       double elapsed = timeMs - _lastTimeMs;
       _lastTimeMs = timeMs;
       orbit.azimuth += 0.001;

@@ -280,7 +280,7 @@ void main() {
 
   ResizeIons(null);
 
-  void animate(timeMs) {
+  void animate(num timeMs) {
     orbit.azimuth += 0.002;
     orbit.animate(0.0); // argument is not used
 

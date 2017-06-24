@@ -132,7 +132,7 @@ void main() {
 
   mat.ForceUniform(uTime, 0.0);
 
-  void animate(timeMs) {
+  void animate(num timeMs) {
     timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;

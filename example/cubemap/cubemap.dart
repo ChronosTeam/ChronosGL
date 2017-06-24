@@ -33,8 +33,7 @@ void main() {
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     orbit.azimuth += 0.001;

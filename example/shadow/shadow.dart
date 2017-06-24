@@ -263,8 +263,7 @@ void main() {
   //HTML.document.getElementById("posx").onChange.listen((HTML.Event ev) =>
   //light.pos.x = GetInputValue(ev));
 
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs;
     //orbit.azimuth += 0.001;
