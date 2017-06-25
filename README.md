@@ -11,7 +11,7 @@ A simple WebGL2 engine written in Dart
 * MIT licensed
 * straight-forward API
 * lightweight (close to "baremetal")
-* fully based on WebGL2 and GLSL 3.00es 
+* fully based on WebGL2 and GLSL 3.00es
 * keyboard and mouse event capture
 * support for canvas based textures including skybox
 * focus on procedural content generation
@@ -25,10 +25,10 @@ A simple WebGL2 engine written in Dart
 * [Github](https://github.com/ChronosTeam/ChronosGL)
 * [Classes/Basic Concepts](https://github.com/ChronosTeam/ChronosGL/tree/master/class_glossary.md)
 
-## Example (from example/simple/)
-
-* [HTML part](https://github.com/ChronosTeam/ChronosGL/tree/master/example/simple/simple.html)
-* [Dart part](https://github.com/ChronosTeam/ChronosGL/tree/master/example/simple/simple.dart)
+## Examples
+* [Live Examples](http://chronosteam.github.io/ChronosGL/Examples/)
+* [Simple example HTML part](https://github.com/ChronosTeam/ChronosGL/tree/master/example/simple/simple.html)
+* [Simple example Dart part](https://github.com/ChronosTeam/ChronosGL/tree/master/example/simple/simple.dart)
 
 ## Usage
 

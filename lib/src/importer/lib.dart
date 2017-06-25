@@ -7,7 +7,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 import "../core/lib.dart";
 import "../animation/lib.dart";
 
-/// # Layer: Importer (uses Base Layer)
+/// # Layer: Importer (uses Core Layer)
 /// contains helpers reading various mesh file formats into **GeometryBuilders**
 
 part "util.dart";

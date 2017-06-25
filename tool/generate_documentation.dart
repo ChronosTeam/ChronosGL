@@ -17,6 +17,8 @@ List<String> kDirs = [
   "lib/src/webhelper",
   "lib/src/polygon/lib.dart",
   "lib/src/polygon",
+  "lib/src/misc/lib.dart",
+  "lib/src/misc",
 ];
 
 Set<String> gAlreadyProcessed = new Set<String>();

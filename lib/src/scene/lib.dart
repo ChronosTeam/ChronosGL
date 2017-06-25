@@ -9,7 +9,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 import "../core/lib.dart";
 
-/// # Layer: Scene (uses Base Layer, Core Layer, dart:web_gl)
+/// # Layer: Scene (uses Core Layer)
 /// The **scene layer** adds abstractions to the *core layer**
 /// related to scene graphs.
 ///
