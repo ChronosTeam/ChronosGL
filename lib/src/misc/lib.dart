@@ -7,7 +7,6 @@ import 'dart:html' as HTML;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-import "../base/lib.dart";
 import "../core/lib.dart";
 import "../shader/lib.dart";
 import "../shape/lib.dart";

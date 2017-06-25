@@ -7,7 +7,6 @@ import 'dart:web_gl' as WEBGL;  // only chronosgl.dart uses WEBGL
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-import "../base/lib.dart";
 import "../core/lib.dart";
 
 /// # Layer: Scene (uses Base Layer, Core Layer, dart:web_gl)

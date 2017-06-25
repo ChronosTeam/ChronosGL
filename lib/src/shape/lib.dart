@@ -9,7 +9,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 /// Higher layers contain wrappers that generate the corresponding
 /// MeshData objects from them.
 
-import '../base/lib.dart';
+import '../core/lib.dart';
 
 part "plane.dart";
 part "cylinder.dart";

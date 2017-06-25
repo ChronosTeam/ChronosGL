@@ -1,4 +1,4 @@
-part of base;
+part of core;
 
 /// ## Class NamedEntity
 /// is inherited by almost all other classes in ChronosGL.

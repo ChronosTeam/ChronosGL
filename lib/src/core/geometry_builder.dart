@@ -1,4 +1,4 @@
-part of base;
+part of core;
 
 class Face1 {
   int a;

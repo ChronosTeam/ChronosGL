@@ -1,4 +1,4 @@
-part of base;
+part of core;
 
 final int RIGHTX = 0, RIGHTY = 4, RIGHTZ = 8;
 final int UPX = 1, UPY = 5, UPZ = 9;

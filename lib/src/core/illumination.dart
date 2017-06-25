@@ -1,4 +1,4 @@
-part of base;
+part of core;
 
 final VM.Vector3 _up = new VM.Vector3(0.0, 1.0, 0.0);
 final VM.Vector3 _up2 = new VM.Vector3(0.0, 0.0, 1.0);

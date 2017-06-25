@@ -1,4 +1,4 @@
-part of base;
+part of core;
 
 const int kMaxLights = 4;
 const int kMaxBones = 128;
