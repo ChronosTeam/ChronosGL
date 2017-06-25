@@ -4,7 +4,7 @@ import 'dart:math' as Math;
 
 import "../core/lib.dart";
 
-/// # Layer: Shader (uses Base Layer)
+/// # Layer: Shader (uses Core Layer)
 /// provides many standard Vertex and Fragment shaders.
 
 part 'fragment.dart';

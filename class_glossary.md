@@ -73,7 +73,7 @@ provides the **Input** for perspective projection, i.e.
 the uPerspectiveViewMatrix Uniform which also requires a **Camera**
 for view matrix.
 
-# Layer: Scene (uses Base Layer, Core Layer, dart:web_gl)
+# Layer: Scene (uses Core Layer)
 The **scene layer** adds abstractions to the *core layer**
 related to scene graphs.
 
@@ -96,10 +96,10 @@ Each Node is a Spatial so it be re-oriented with respect to its parent
 ## Class RenderPhase (is a NamedEntity)
 represents a sequence of Scenes.
 
-# Layer: Shader (uses Base Layer)
+# Layer: Shader (uses Core Layer)
 provides many standard Vertex and Fragment shaders.
 
-# Layer: Shape (uses Base Layer)
+# Layer: Shape (uses Core Layer)
 contains helpers for creating **GeometryBuilder**
 objects for basic shapes like cubes and cylinders.
 Higher layers contain wrappers that generate the corresponding
@@ -120,10 +120,13 @@ represents Key frame animation data for a single bone in a skeleton.
 ## Class SkeletalAnimation
 represents Key frame animation data for an entire skeleton.
 
-# Layer: Importer (uses Base Layer)
+# Layer: Importer (uses Core Layer)
 contains helpers reading various mesh file formats into **GeometryBuilders**
 
 # Layer: WebHelper (uses Core Layer, dart:html)
 adds helpers which require access to HTML features like
 DOM tree (elements).
+
+# Layer: Misc (uses Core Layer, Scene Layer, Shape Layer, Shader Layer, Animation Layer)
+The **misc layer** contains miscellaneous helpers
 
