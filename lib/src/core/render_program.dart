@@ -14,9 +14,6 @@ class DrawStats {
 
 /// ## Class RenderProgram (is a NamedEntity)
 /// represents several invocations of the same program running on the GPU.
-/// It consists of a tree of **Nodes** which provide **Inputs** for the
-/// program. The program is invoked once for most **Nodes** while traversing
-/// the tree recursively.
 class RenderProgram extends NamedEntity {
   ChronosGL _cgl;
   ShaderObject _shaderObjectV;
@@ -29,10 +26,6 @@ class RenderProgram extends NamedEntity {
   Set<String> _attributesInitialized = new Set<String>();
 
   int _nextTextureUnit;
-
-  // Scene stuff - move this out of here
-  // these are the identity by default
-  final List<Node> objects = new List<Node>();
 
   RenderProgram(
       String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
@@ -50,18 +43,6 @@ class RenderProgram extends NamedEntity {
       // assert(!uniformLocations.containsKey(v));
       _uniformLocations[v] = _cgl.getUniformLocation(_program, v);
     }
-  }
-
-  void add(Node obj) {
-    objects.add(obj);
-  }
-
-  bool remove(Node obj) {
-    return objects.remove(obj);
-  }
-
-  void removeAll() {
-    objects.clear();
   }
 
   int GetTransformBindingIndex(String canonical) {

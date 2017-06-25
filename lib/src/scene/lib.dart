@@ -13,5 +13,6 @@ import "../core/lib.dart";
 /// # Layer: Scene (uses Base Layer, Core Layer, dart:web_gl)
 /// The **scene layer** adds abstractions to the *core layer**
 /// related to scene graphs.
-
+///
+part "node.dart";
 part "render_phase.dart";

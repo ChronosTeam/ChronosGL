@@ -1,4 +1,4 @@
-part of core;
+part of scene;
 
 /// ## Class Node (is a Spatial)
 /// represents a tree hierarchy of objects that well be rendered

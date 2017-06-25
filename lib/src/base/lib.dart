@@ -9,7 +9,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 /// # Layer: Base
 /// The **base layer** contains many of the fundamental abstractions like:
-/// NamedEntity, Uniforms, Spacial, Node. Illumination, Perspective,
+/// NamedEntity, Uniforms, Spacial, Illumination, Perspective,
 /// Camera, etc
 ///
 
