@@ -51,8 +51,8 @@ Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data = null]) {
 }
 
 /// ## Class MeshData
-/// presents a VAO - attributes and vertex buffers associated with
-/// an mesh, e.g. a sphere, cube, etc.
+/// represent the raw data for mesh.
+/// Internally this is wrapper around a Vertex Array Object (VAO).
 /// MeshData objects can be populated directly but often they
 /// will derived from **GeometryBuilder** objects.
 class MeshData extends NamedEntity {

@@ -1,5 +1,10 @@
 part of scene;
 
+///  ## Class Scene (is a NamedEntity)
+///  represents a simple scene graph.
+///  Each scene is rendered by multiple invocation of a single RenderProgram
+///  and contains additional UniformGroups to be passed to
+///  that program at draw time.
 class Scene extends NamedEntity {
   final RenderProgram program;
   final List<UniformGroup> uniforms;
@@ -40,7 +45,7 @@ void drawRecursively(RenderProgram prog, Node node, final VM.Matrix4 parent,
 }
 
 /// ## Class RenderPhase (is a NamedEntity)
-/// represents a sequence of RenderPrograms.
+/// represents a sequence of Scenes.
 class RenderPhase extends NamedEntity {
   Framebuffer _framebuffer;
   final ChronosGL _cgl;

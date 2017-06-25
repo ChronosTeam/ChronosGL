@@ -14,9 +14,6 @@ import 'package:vector_math/vector_math.dart' as VM;
 /// NamedEntity, Uniforms, Spacial, Illumination, Perspective,
 /// Camera, RenderObject, RenderProgram, ChronosGL, etc.
 ///
-/// which require the use of  **dart:web_gl**.
-/// Code using the **core layer** can currently not be unit tested
-/// but requires more elaborate browser tests.
 
 /// ## Canonical Names:
 /// Each attribute/uniform has a **canonical name**. By convention the first

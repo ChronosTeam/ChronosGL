@@ -24,9 +24,9 @@ final NamedEntity kUnknownEntity = new UnknownEntity();
 /// is an abstraction for a set of uniforms
 ///
 /// Important subclasses are:
-/// a Projections object to provide a perspective matrix uniform
-/// or Material object to provide color and texture uniforms
-/// or ...
+/// * Projection provides a perspective matrix uniform
+/// * Material provides color and texture uniforms
+/// * Illumination provides uniforms describing light sources
 class UniformGroup extends NamedEntity {
   UniformGroup(String name) : super(name);
 

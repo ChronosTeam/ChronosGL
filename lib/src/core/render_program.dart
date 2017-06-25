@@ -13,7 +13,7 @@ class DrawStats {
 }
 
 /// ## Class RenderProgram (is a NamedEntity)
-/// represents several invocations of the same program running on the GPU.
+/// represents program running on the GPU with an API to invoke it.
 class RenderProgram extends NamedEntity {
   ChronosGL _cgl;
   ShaderObject _shaderObjectV;
