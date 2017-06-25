@@ -50,38 +50,39 @@ List<ShaderObject> createPerlinNoiseVertexColorShader() {
  */
 
 // this shader is build for use with an icosahedron
-List<ShaderObject> createPerlinNoiseColorShader(bool blackVariant) {
+final ShaderObject perlinNoiseVertexShader = new ShaderObject("PerlinNoiseV")
+  ..AddAttributeVars([aPosition])
+  ..AddVaryingVars([vNormal])
+  ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uTime])
+  ..SetBody([
+    perlinNoisefunctions,
+    """
+void main() {
+    vec3 normal = normalize( ${aPosition});
+    float f = 0.5 * pnoise( normal + ${uTime}/3.0, vec3( 10.0 ) );
+    //vNormal = ${aPosition} + f * normal;
+    //vNormal = f*normal;
+    ${vNormal} = normal;
+    gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(${aPosition}, 1.0);
+}
+"""
+  ]);
+
+// this shader is build for use with an icosahedron
+ShaderObject makePerlinNoiseColorFragmentShader(bool blackVariant) {
   String define = "";
   String name = "PerlinNoiseColor";
   if (blackVariant) {
     define = "#define BLACK 1";
     name = "Black" + name;
   }
-  return [
-    new ShaderObject(name + "V")
-      ..AddAttributeVars([aPosition])
-      ..AddVaryingVars([vNormal])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uTime])
-      ..SetBody([
-        perlinNoisefunctions,
-        """
-void main() {
-        vec3 normal = normalize( ${aPosition});
-        float f = 0.5 * pnoise( normal + ${uTime}/3.0, vec3( 10.0 ) );
-        //vNormal = ${aPosition} + f * normal;
-        //vNormal = f*normal;
-        ${vNormal} = normal;
-        gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(${aPosition}, 1.0);
-}
+  return new ShaderObject(name + " F")
+    ..AddVaryingVars([vNormal])
+    ..AddUniformVars([uTime, uTransformationMatrix])
+    ..SetBody([
+      define,
+      perlinNoisefunctions,
       """
-      ]),
-    new ShaderObject(name + " F")
-      ..AddVaryingVars([vNormal])
-      ..AddUniformVars([uTime, uTransformationMatrix])
-      ..SetBody([
-        define,
-        perlinNoisefunctions,
-        """
 #define VARIANT 1
 
 void main() {
@@ -119,6 +120,5 @@ void main() {
   ${oFragColor} = vec4( color, 1.0 );
 }
 """
-      ])
-  ];
+    ]);
 }

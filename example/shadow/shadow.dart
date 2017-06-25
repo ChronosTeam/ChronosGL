@@ -4,8 +4,7 @@ import 'dart:math' as Math;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
-  return [
+final ShaderObject lightVertexShaderBlinnPhongWithShadow =
     new ShaderObject("LightBlinnPhongShadowV")
       ..AddAttributeVars([aPosition, aNormal])
       ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight])
@@ -23,7 +22,9 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
         ${vVertexPosition} = pos.xyz;
         ${vNormal} = ${uNormalMatrix} * ${aNormal};
         """
-      ]),
+      ]);
+
+final ShaderObject lightFragmentShaderBlinnPhongWithShadow =
     new ShaderObject("LightBlinnPhongShadowF")
       ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
@@ -57,9 +58,7 @@ List<ShaderObject> createLightShaderBlinnPhongWithShadow() {
         ShadowMapDepth16.GetShadowMapValueLib(),
         StdLibShader,
         ShadowMapShaderLib,
-      ])
-  ];
-}
+      ]);
 
 final VM.Vector3 posLight = new VM.Vector3(11.0, 20.0, 0.0);
 final VM.Vector3 dirLight = new VM.Vector3(0.0, -30.0, 0.0);
@@ -152,19 +151,24 @@ final Material matNormals = new Material("normals")
 final Material lightSourceMat = new Material("light")
   ..SetUniform(uColor, ColorYellow);
 
-List<Node> MakeScene(RenderProgram prog) {
-  return [
-    new Node("sphere", ShapeIcosahedron(prog, 3), matObjects)
-      ..setPos(0.0, 0.0, 0.0),
-    new Node("cube", ShapeCube(prog), matObjects)..setPos(-5.0, 0.0, -5.0),
-    new Node("cylinder", ShapeCylinder(prog, 3.0, 6.0, 2.0, 32), matObjects)
-      ..setPos(5.0, 0.0, -5.0),
-    new Node(
-        "torusknot", ShapeTorusKnot(prog, radius: 1.0, tube: 0.4), matObjects)
-      ..setPos(5.0, 0.0, 5.0),
-    new Node("plane", ShapeCube(prog, x: 30.0, y: 0.1, z: 30.0), matGray)
-      ..setPos(0.0, -10.0, 0.0),
-  ];
+void AddShapesToScene(Scene scene) {
+  scene.add(new Node("sphere", ShapeIcosahedron(scene.program, 3), matObjects)
+    ..setPos(0.0, 0.0, 0.0));
+
+  scene.add(new Node("cube", ShapeCube(scene.program), matObjects)
+    ..setPos(-5.0, 0.0, -5.0));
+
+  scene.add(new Node(
+      "cylinder", ShapeCylinder(scene.program, 3.0, 6.0, 2.0, 32), matObjects)
+    ..setPos(5.0, 0.0, -5.0));
+
+  scene.add(new Node(
+      "torusknot", ShapeTorusKnot(scene.program, radius: 1.0, tube: 0.4), matObjects)
+    ..setPos(5.0, 0.0, 5.0));
+
+  scene.add(new Node(
+      "plane", ShapeCube(scene.program, x: 30.0, y: 0.1, z: 30.0), matGray)
+    ..setPos(0.0, -10.0, 0.0));
 }
 
 void main() {
@@ -187,25 +191,40 @@ void main() {
 
   ShadowMap shadowMap = new ShadowMapDepth16(chronosGL, 1024, 1024);
 
-  // display scene with shadow on left part of screen.
-  RenderPhase phaseMain = new RenderPhase("main", chronosGL);
-  RenderProgram basic =
-      phaseMain.createProgram(createLightShaderBlinnPhongWithShadow());
   UniformGroup uniforms = new UniformGroup("plain")
     ..SetUniform(uShadowMap, shadowMap.GetMapTexture())
     ..SetUniform(uCanvasSize, shadowMap.GetMapSize())
     ..SetUniform(uShadowBias, 0.03);
-  RenderProgram fixed = phaseMain.createProgram(createSolidColorShader());
-  assert(fixed.HasDownwardCompatibleAttributesTo(basic));
 
-  for (Node n in MakeScene(basic)) {
-    basic.add(n);
+  // display scene with shadow on left part of screen.
+  RenderPhase phaseMain = new RenderPhase("main", chronosGL);
+  Scene sceneBasic = new Scene(
+      "solid",
+      new RenderProgram(
+          "solid",
+          chronosGL,
+          lightVertexShaderBlinnPhongWithShadow,
+          lightFragmentShaderBlinnPhongWithShadow),
+      [perspective, illumination, uniforms]);
+  phaseMain.add(sceneBasic);
+
+  Scene sceneFixed = new Scene(
+      "solid",
+      new RenderProgram(
+          "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+      [perspective, illumination]);
+  phaseMain.add(sceneFixed);
+
+  assert(
+      sceneFixed.program.HasDownwardCompatibleAttributesTo(sceneBasic.program));
+  AddShapesToScene(sceneBasic);
+  for (Node n in sceneBasic.nodes) {
     shadowMap.AddShadowCaster(n);
   }
 
   // Same order as lightSources
-  MeshData mdLight = EmptyLightVisualizer(fixed, "light");
-  fixed.add(new Node("light", mdLight, lightSourceMat));
+  MeshData mdLight = EmptyLightVisualizer(sceneFixed.program, "light");
+  sceneFixed.add(new Node("light", mdLight, lightSourceMat));
 
   // Event Handling
   for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
@@ -265,10 +284,9 @@ void main() {
 
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     //orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
 
     VM.Matrix4 lm = gActiveLight.ExtractShadowProjViewMatrix();
     UpdateLightVisualizer(mdLight, gActiveLight);
@@ -277,10 +295,11 @@ void main() {
     shadowMap.Compute(lm);
     uniforms.ForceUniform(uLightPerspectiveViewMatrix, lm);
     // render scene utilizing shadow map
-    phaseMain.draw([perspective, illumination, uniforms]);
+    phaseMain.Draw();
     shadowMap.Visualize();
 
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs);
   }
 
   animate(0.0);

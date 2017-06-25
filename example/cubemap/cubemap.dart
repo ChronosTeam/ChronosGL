@@ -2,6 +2,16 @@ import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 import "dart:async";
 
+Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
+  Scene scene = new Scene(
+      "stars",
+      new RenderProgram(
+          "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
+      [perspective]);
+  scene.add(Utils.MakeParticles(scene.program, num));
+  return scene;
+}
+
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
@@ -9,15 +19,18 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram programCM = phase.createProgram(createCubeMapShader());
+  Scene scene = new Scene(
+      "objects",
+      new RenderProgram(
+          "solid", chronosGL, cubeMapVertexShader, cubeMapFragmentShader),
+      [perspective]);
+  phase.add(scene);
 
   Material mat = new Material("cubemap");
-  MeshData md = ShapeCube(programCM, x: 2.0, y: 2.0, z: 2.0);
-  programCM.add(new Node("cube", md, mat));
+  MeshData md = ShapeCube(scene.program, x: 2.0, y: 2.0, z: 2.0);
+  scene.add(new Node("cube", md, mat));
 
-  RenderProgram programSprites =
-      phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(programSprites, 2000));
+  phase.add(MakeStarScene(chronosGL, perspective, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -35,10 +48,10 @@ void main() {
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    phase.draw([perspective]);
+    phase.Draw();
 
     HTML.window.animationFrame.then(animate);
   }
@@ -48,8 +61,8 @@ void main() {
   Future.wait(futures).then((List list) {
     Texture cubeTex = new CubeTexture(chronosGL, "stars", list);
     mat.SetUniform(uCubeTexture, cubeTex);
-    Node sky = Utils.MakeSkycube(programCM, cubeTex);
-    programCM.add(sky);
+    Node sky = Utils.MakeSkycube(scene.program, cubeTex);
+    scene.add(sky);
     animate(0.0);
   });
 }

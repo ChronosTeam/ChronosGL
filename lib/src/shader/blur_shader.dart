@@ -28,7 +28,7 @@ String makeGaussianPdfKernelString(int radius, double sigma) {
   return "float kernel[$radius] = float[$radius]($lst);";
 }
 
-String _kernelFragment = """
+const String _kernelFragment = """
 void main() {
     vec2 invSize = 1.0 / vec2(textureSize(${uTexture}, 0));
     vec3 sum = texture(${uTexture}, ${vTexUV}).rgb * kernel[0];
@@ -56,7 +56,7 @@ List<ShaderObject> createBloomTextureShader(int radius, double sigma) {
   ];
 }
 
-String _applyBloomEffectFragment = """
+const String _applyBloomEffectFragment = """
 void main() {
 	${oFragColor} = texture(${uTexture}, ${vTexUV}) +
 	                ${uScale} *
@@ -65,16 +65,16 @@ void main() {
 }
 """;
 
-List<ShaderObject> createApplyBloomEffectShader() {
-  return [
+final ShaderObject applyBloomEffectVertexShader =
     new ShaderObject("uv-passthru")
       ..AddAttributeVars([aPosition, aTexUV])
       ..AddVaryingVars([vTexUV])
       ..SetBodyWithMain(
-          [NullVertexBody, "${vTexUV} = ${aTexUV};"]),
+          [NullVertexBody, "${vTexUV} = ${aTexUV};"]);
+
+final ShaderObject applyBloomEffectFragmentShader =
     new ShaderObject("BloomPassF")
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTexture, uTexture2, uScale, uColor])
-      ..SetBody([_applyBloomEffectFragment])
-  ];
-}
+      ..SetBody([_applyBloomEffectFragment]);
+

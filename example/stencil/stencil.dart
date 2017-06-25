@@ -39,7 +39,12 @@ void main() {
   }
   phase.framebuffer.depthTexture.SetImageData(data);
 
-  RenderProgram basic = phase.createProgram(createSolidColorShader());
+  Scene scene = new Scene(
+      "solid",
+      new RenderProgram(
+          "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+      [perspective]);
+  phase.add(scene);
 
   final Material matRed = new Material("red")
     ..SetUniform(uColor, ColorRed)
@@ -49,38 +54,47 @@ void main() {
     ..SetUniform(uColor, ColorBlue)
     ..ForceUniform(cStencilFunc, StencilEqualOne);
 
-  Node ico = new Node("sphere", ShapeIcosahedron(basic, 3), matRed)
+  Node ico = new Node("sphere", ShapeIcosahedron(scene.program, 3), matRed)
     ..setPos(0.0, 0.0, 0.0);
-  basic.add(ico);
+  scene.add(ico);
 
-  Node cube = new Node("cube", ShapeCube(basic), matBlue)
+  Node cube = new Node("cube", ShapeCube(scene.program), matBlue)
     ..setPos(-5.0, 0.0, -5.0);
-  basic.add(cube);
+  scene.add(cube);
 
-  Node cyl =
-      new Node("cylinder", ShapeCylinder(basic, 1.0, 3.0, 2.0, 32), matRed)
-        ..setPos(5.0, 0.0, -5.0);
-  basic.add(cyl);
+  Node cyl = new Node(
+      "cylinder", ShapeCylinder(scene.program, 1.0, 3.0, 2.0, 32), matRed)
+    ..setPos(5.0, 0.0, -5.0);
+  scene.add(cyl);
 
-  Node torus =
-      new Node("torus", ShapeTorusKnot(basic, radius: 1.0, tube: 0.4), matBlue)
-        ..setPos(5.0, 0.0, 5.0);
-  basic.add(torus);
+  Node torus = new Node(
+      "torus", ShapeTorusKnot(scene.program, radius: 1.0, tube: 0.4), matBlue)
+    ..setPos(5.0, 0.0, 5.0);
+  scene.add(torus);
 
+  // using a phase for this simple effect is overkill - this is just
+  // demonstrating that it can be done.
   RenderPhase phase2 = new RenderPhase("copy", chronosGL)
     ..viewPortW = width
     ..viewPortH = height;
 
-  RenderProgram copy = phase2.createProgram(createCopyShader());
   UniformGroup uniforms = new UniformGroup("plain")
     ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetUniform(uTexture, fb.colorTexture);
-  copy.add(UnitNode(copy));
+
+  Scene postproc = new Scene(
+      "postproc",
+      new RenderProgram(
+          "postproc", chronosGL, copyVertexShader, copyFragmentShader),
+      [uniforms]);
+  phase2.add(postproc);
+
+  postproc.add(UnitNode(postproc.program));
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
 
@@ -88,8 +102,8 @@ void main() {
         cStencilFunc, gStencil.checked ? StencilEqualOne : StencilFunctionNone);
 
     List<DrawStats> stats = [];
-    phase.draw([perspective], stats);
-    phase2.draw([uniforms], stats);
+    phase.Draw(stats);
+    phase2.Draw(stats);
     List<String> out = [];
     for (DrawStats d in stats) {
       out.add(d.toString());

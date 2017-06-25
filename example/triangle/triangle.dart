@@ -2,43 +2,6 @@ import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 import 'dart:math' as Math;
 
-// r,g,b,a  are in the range of [0, 255]
-// float = r / (256^4) + g / (256^3) + b / 256^2 + a / 256^1
-// float is assumed to be in [0, 1]
-// Not that the conversion from bytes to floats introduces a 1/256 factor
-// From http://spidergl.org/example.php?id=6
-String packFloatToRGBA = """
-vec4 pack_depth(float depth) {
-	const vec4 bit_shift = vec4(256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0);
-	const vec4 bit_mask  = vec4(0.0, 1.0/256.0, 1.0/256.0, 1.0/256.0);
-	vec4 res = fract(depth * bit_shift);
-	res -= res.xxyz * bit_mask;
-	return res;
-}
-""";
-
-String unpackRGBAToFloat = """
-float unpack_depth(vec4 rgba_depth) {
-	const vec4 bit_shift = vec4(1.0/(256.0*256.0*256.0), 1.0/(256.0*256.0), 1.0/256.0, 1.0);
-	float depth = dot(rgba_depth, bit_shift);
-	return depth;
-}
-""";
-
-List<ShaderObject> createShadowShader() {
-  return [
-    new ShaderObject("ShadowV")
-      ..AddAttributeVars([aPosition])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..SetBodyWithMain([StdVertexBody]),
-    new ShaderObject("ShadowF")
-      ..SetBody([
-        packFloatToRGBA,
-        "void main(void) { gl_FragColor = pack_depth(gl_FragCoord.z); }"
-      ])
-  ];
-}
-
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -48,9 +11,13 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(20.0, 0.0, 0.0, canvas);
   double d = 40.0;
   Orthographic orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
-  RenderPhase phaseOrthograhic = new RenderPhase("shadow", chronosGL);
-  RenderProgram prgOrthographic =
-      phaseOrthograhic.createProgram(createTexturedShader());
+  RenderPhase phase = new RenderPhase("shadow", chronosGL);
+  Scene scene = new Scene(
+      "objects",
+      new RenderProgram(
+          "textured", chronosGL, texturedVertexShader, texturedFragmentShader),
+      [orthographic]);
+  phase.add(scene);
 
   Texture solid = MakeSolidColorTexture(chronosGL, "red-solid", "red");
   final Material mat1 = new Material("mat1")
@@ -68,24 +35,21 @@ void main() {
   double thickness = 3.0;
   double length = 5.0 * thickness;
 
-  Node side1 = new Node(
-      "side1",
-      ShapeCube(prgOrthographic, x: length, y: thickness, z: thickness),
-      mat1)..setPos(-thickness, 0.0, 0.0);
+  Node side1 = new Node("side1",
+      ShapeCube(scene.program, x: length, y: thickness, z: thickness), mat1)
+    ..setPos(-thickness, 0.0, 0.0);
 
-  Node side2 = new Node(
-      "side2",
-      ShapeCube(prgOrthographic, x: thickness, y: thickness, z: length),
-      mat2)..setPos(-length, 0.0, length + thickness);
+  Node side2 = new Node("side2",
+      ShapeCube(scene.program, x: thickness, y: thickness, z: length), mat2)
+    ..setPos(-length, 0.0, length + thickness);
 
   double length3 = length - thickness;
-  Node side3a = new Node(
-      "side3a",
-      ShapeCube(prgOrthographic, x: thickness, y: length3, z: thickness),
-      mat3)..setPos(length, length3 - 1 * thickness, 0.0);
+  Node side3a = new Node("side3a",
+      ShapeCube(scene.program, x: thickness, y: length3, z: thickness), mat3)
+    ..setPos(length, length3 - 1 * thickness, 0.0);
 
   Node side3b = new Node("side3b",
-      ShapeWedge(prgOrthographic, x: thickness, y: thickness, z: thickness), mat3)
+      ShapeWedge(scene.program, x: thickness, y: thickness, z: thickness), mat3)
     ..rotY(Math.PI)
     ..setPos(length, length + length3 - thickness, 0.0);
 
@@ -103,7 +67,7 @@ void main() {
     prgOrthographic.add(m);
   }
 */
-  prgOrthographic.add(triangle);
+  scene.add(triangle);
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -112,8 +76,8 @@ void main() {
     canvas.height = h;
     print("size change $w $h");
     orthographic.AdjustAspect(w, h);
-    phaseOrthograhic.viewPortW = w;
-    phaseOrthograhic.viewPortH = h;
+    phase.viewPortW = w;
+    phase.viewPortH = h;
   }
 
   resolutionChange(null);
@@ -127,16 +91,17 @@ void main() {
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     //orbit.azimuth += 0.001;
     //orbit.rotZ(0.001);
     orbit.animate(elapsed);
     orbit.roll += 0.01;
     double polar = orbit.polar * 180.0 / Math.PI;
     double azimuth = orbit.azimuth * 180.0 / Math.PI;
-    fps.UpdateFrameCount(timeMs, "${polar}<br>${azimuth}");
-    phaseOrthograhic.draw([orthographic]);
+    phase.Draw();
+
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs, "${polar}<br>${azimuth}");
   }
 
   animate(0.0);

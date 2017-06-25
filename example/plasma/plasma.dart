@@ -7,19 +7,17 @@ import 'package:chronosgl/chronosgl.dart';
 
 // TODO: Add www.shadertoy.com/view/4dlGDN www.shadertoy.com/view/lsfGzr
 
-List<ShaderObject> createPlasmaShader() {
-  return [
-    new ShaderObject("Plasma1V")
-      ..AddAttributeVars([aPosition, aTexUV])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..AddVaryingVars([vTexUV])
-      ..SetBodyWithMain(
-          [StdVertexBody, "${vTexUV} = ${aTexUV};"]),
-    new ShaderObject("Plasma1F")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uTime])
-      ..SetBodyWithMain([
-        """
+final ShaderObject plasmaVertexShader1 = new ShaderObject("Plasma1V")
+  ..AddAttributeVars([aPosition, aTexUV])
+  ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
+  ..AddVaryingVars([vTexUV])
+  ..SetBodyWithMain([StdVertexBody, "${vTexUV} = ${aTexUV};"]);
+
+final ShaderObject plasmaFragmentShader1 = new ShaderObject("Plasma1F")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uTime])
+  ..SetBodyWithMain([
+    """
     #define PI 3.1415926535897932384626433832795
     float u_time = ${uTime} * 5.0;
     vec2 u_k = vec2(10.0,10.0);
@@ -37,23 +35,19 @@ List<ShaderObject> createPlasmaShader() {
     vec3 col = mix(col1, col2, sin(u_time)*.5+.5);
     ${oFragColor} = vec4(col*.5 + .5, 1.0);
 """
-      ])
-  ];
-}
+  ]);
 
-List<ShaderObject> createPlasmaShader2() {
-  return [
-    new ShaderObject("Plasma2V")
-      ..AddAttributeVars([aPosition, aTexUV])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..AddVaryingVars([vTexUV])
-      ..SetBodyWithMain(
-          [StdVertexBody, "${vTexUV} = ${aTexUV};"]),
-    new ShaderObject("Plasma2F")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uTime])
-      ..SetBodyWithMain([
-        """
+final ShaderObject plasmaVertexShader2 = new ShaderObject("Plasma2V")
+  ..AddAttributeVars([aPosition, aTexUV])
+  ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
+  ..AddVaryingVars([vTexUV])
+  ..SetBodyWithMain([StdVertexBody, "${vTexUV} = ${aTexUV};"]);
+
+final ShaderObject plasmaFragmentShader2 = new ShaderObject("Plasma2F")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uTime])
+  ..SetBodyWithMain([
+    """
     float x = ${vTexUV}.x;
     float y = ${vTexUV}.y;
     float v = sin(x * cos(${uTime}/15.0) * 120.0) +
@@ -61,23 +55,19 @@ List<ShaderObject> createPlasmaShader2() {
               sin(sqrt(y * y + x * x) * 40.0);
     ${oFragColor} = vec4(1, v,1,1);
   """
-      ])
-  ];
-}
+  ]);
 
-List<ShaderObject> createPlasmaShader3() {
-  return [
-    new ShaderObject("Plasma3V")
-      ..AddAttributeVars([aPosition, aTexUV])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..AddVaryingVars([vTexUV])
-      ..SetBodyWithMain(
-          [StdVertexBody, "${vTexUV} = ${aTexUV};"]),
-    new ShaderObject("Plasma3F")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uTime])
-      ..SetBodyWithMain([
-        """
+final ShaderObject plasmaVertexShader3 = new ShaderObject("Plasma3V")
+  ..AddAttributeVars([aPosition, aTexUV])
+  ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
+  ..AddVaryingVars([vTexUV])
+  ..SetBodyWithMain([StdVertexBody, "${vTexUV} = ${aTexUV};"]);
+
+final ShaderObject plasmaFragmentShader3 = new ShaderObject("Plasma3F")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uTime])
+  ..SetBodyWithMain([
+    """
     float x = ${vTexUV}.x*1000.0; // gl_FragCoord.x;
     float y = ${vTexUV}.y*1000.0; // gl_FragCoord.y;
     float time = ${uTime};
@@ -89,8 +79,16 @@ List<ShaderObject> createPlasmaShader3() {
     float c3 = abs(sin(c2+cos(mov1+mov2+c2)+cos(mov2)+sin(x/1000.)));
     ${oFragColor} = vec4( c1,c2,c3,1.0);
   """
-      ])
-  ];
+  ]);
+
+Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
+  Scene scene = new Scene(
+      "stars",
+      new RenderProgram(
+          "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
+      [perspective]);
+  scene.add(Utils.MakeParticles(scene.program, num));
+  return scene;
 }
 
 void main() {
@@ -100,41 +98,52 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  List<RenderProgram> prgs = [
-    phase.createProgram(createPlasmaShader()),
-    phase.createProgram(createPlasmaShader2()),
-    phase.createProgram(createPlasmaShader3())
+  List<Scene> scenes = [
+    new Scene(
+        "plasma1",
+        new RenderProgram(
+            "plasma1", chronosGL, plasmaVertexShader1, plasmaFragmentShader1),
+        [perspective]),
+    new Scene(
+        "plasma2",
+        new RenderProgram(
+            "plasma2", chronosGL, plasmaVertexShader2, plasmaFragmentShader2),
+        [perspective]),
+    new Scene(
+        "plasma3",
+        new RenderProgram(
+            "plasma3", chronosGL, plasmaVertexShader3, plasmaFragmentShader3),
+        [perspective]),
   ];
+  for (Scene s in scenes) phase.add(s);
 
   Material mat = new Material("mat");
-  MeshData md = ShapeCube(prgs[0], x: 10.0, y: 10.0, z: 10.0);
+  MeshData md = ShapeCube(scenes[0].program, x: 10.0, y: 10.0, z: 10.0);
 
   Node cube = new Node(md.name, md, mat)
     ..setPos(0.0, 0.0, 0.0)
     ..lookUp(1.0)
     ..lookLeft(0.7);
 
-  prgs[0].add(cube);
+  scenes[0].add(cube);
 
   int pointer = 0;
 
   HTML.document.addEventListener('keypress', (event) {
-    prgs[pointer % 3].remove(cube);
-    prgs[(pointer + 1) % 3].add(cube);
+    scenes[pointer % 3].remove(cube);
+    scenes[(pointer + 1) % 3].add(cube);
     pointer = (pointer + 1) % 3;
   });
 
   HTML.SelectElement myselect =
       HTML.document.querySelector('#myselect') as HTML.SelectElement;
   myselect.onChange.listen((HTML.Event e) {
-    prgs[pointer].remove(cube);
+    scenes[pointer].remove(cube);
     pointer = myselect.selectedIndex;
-    prgs[(pointer)].add(cube);
+    scenes[(pointer)].add(cube);
   });
 
-  RenderProgram sprites =
-      phase.createProgram(createPointSpritesShader());
-  sprites.add(Utils.MakeParticles(sprites, 2000));
+  phase.add(MakeStarScene(chronosGL, perspective, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -153,7 +162,7 @@ void main() {
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
 
@@ -161,7 +170,7 @@ void main() {
     cube.lookLeft(elapsed * 0.0005);
     mat.ForceUniform(uTime, timeMs / 1000.0);
 
-    phase.draw([perspective]);
+    phase.Draw();
     HTML.window.animationFrame.then(animate);
   }
 

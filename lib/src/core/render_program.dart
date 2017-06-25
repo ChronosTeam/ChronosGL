@@ -291,33 +291,4 @@ class RenderProgram extends NamedEntity {
         md.GetNumInstances(), hasTransforms);
     if (debug) print(_cgl.getProgramInfoLog(_program));
   }
-
-  void _drawRecursively(Node node, final VM.Matrix4 parent,
-      List<DrawStats> stats, List<UniformGroup> uniforms) {
-    if (!node.enabled) return;
-    // m is read-only!
-    final VM.Matrix4 m = node.UpdateModelMatrix(parent);
-    if (node.SomethingToDraw()) {
-      LogDebug("drawing: ${node}");
-      node.UpdateTransforms(uniforms.last);
-      uniforms.add(node.material);
-      Draw(node.meshData, uniforms, stats);
-      uniforms.removeLast();
-    }
-    for (Node child in node.children) {
-      _drawRecursively(child, m, stats, uniforms);
-    }
-  }
-
-  void DrawScene(List<UniformGroup> uniforms, [List<DrawStats> stats=null]) {
-    UniformGroup transforms = new UniformGroup("transforms");
-    uniforms.add(transforms);
-    final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
-    if (debug) print("[draw objects ${objects.length}");
-    for (Node node in objects) {
-      _drawRecursively(node, _modelMatrix, stats, uniforms);
-    }
-    uniforms.removeLast();
-  }
-
 }

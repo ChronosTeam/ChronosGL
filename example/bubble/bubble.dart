@@ -15,22 +15,28 @@ String _SphereV = """
   ${vTexUV} = vec2(r.x/m + 0.5, r.y/m + 0.5);
 """;
 
-List<ShaderObject> sphereShader() {
-  return [
-    new ShaderObject("sphereV")
-      ..AddAttributeVars([aPosition, aNormal])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
-      ..AddVaryingVars([vTexUV])
-      ..SetBodyWithMain([StdVertexBody, _SphereV]),
-    new ShaderObject("sphereF")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uTexture])
-      ..SetBodyWithMain(
-          ["${oFragColor} = texture(${uTexture}, ${vTexUV});"])
-  ];
-}
+ShaderObject sphereVertexShader = new ShaderObject("sphereV")
+  ..AddAttributeVars([aPosition, aNormal])
+  ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
+  ..AddVaryingVars([vTexUV])
+  ..SetBodyWithMain([StdVertexBody, _SphereV]);
+
+ShaderObject sphereFragmentShader = new ShaderObject("sphereF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uTexture])
+  ..SetBodyWithMain(["${oFragColor} = texture(${uTexture}, ${vTexUV});"]);
 
 Material matSphere = new Material.Transparent("sphere", BlendEquationMix);
+
+Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
+  Scene scene = new Scene(
+      "stars",
+      new RenderProgram(
+          "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
+      [perspective]);
+  scene.add(Utils.MakeParticles(scene.program, num));
+  return scene;
+}
 
 void main() {
   StatsFps fps =
@@ -41,15 +47,17 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(5.0, 10.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
+  phase.add(MakeStarScene(chronosGL, perspective, 2000));
 
-  RenderProgram sprites = phase.createProgram(createPointSpritesShader());
-  sprites.add(Utils.MakeParticles(sprites, 2000));
-
-  RenderProgram shaderSpheres = phase.createProgram(sphereShader());
-
-  MeshData md = ShapeIcosahedron(shaderSpheres, 3);
-  shaderSpheres.add(new Node("sphere", md, matSphere)..setPos(0.0, 0.0, 0.0));
-  shaderSpheres.add(new Node("sphere", md, matSphere)..setPos(1.5, 0.0, 0.0));
+  Scene scene = new Scene(
+      "spheres",
+      new RenderProgram(
+          "spheres", chronosGL, sphereVertexShader, sphereFragmentShader),
+      [perspective]);
+  phase.add(scene);
+  MeshData md = ShapeIcosahedron(scene.program, 3);
+  scene.add(new Node("sphere", md, matSphere)..setPos(0.0, 0.0, 0.0));
+  scene.add(new Node("sphere", md, matSphere)..setPos(1.5, 0.0, 0.0));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -68,10 +76,10 @@ void main() {
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    phase.draw([perspective]);
+    phase.Draw();
 
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(timeMs);

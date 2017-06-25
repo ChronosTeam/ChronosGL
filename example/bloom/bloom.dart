@@ -26,22 +26,19 @@ void main() {
   Framebuffer fb1 = new Framebuffer.Default(chronosGL, width ~/ 2, height ~/ 2);
   Framebuffer fb2 = new Framebuffer.Default(chronosGL, width ~/ 2, height ~/ 2);
 
-  List<ShaderObject> perlinShaders = createPerlinNoiseColorShader(true);
-  RenderProgram progPerlinNoise = new RenderProgram(
-      "perlin", chronosGL, perlinShaders[0], perlinShaders[1]);
+  RenderProgram progPerlinNoise = new RenderProgram("perlin", chronosGL,
+      perlinNoiseVertexShader, makePerlinNoiseColorFragmentShader(true));
 
-  List<ShaderObject> highPassShaders = createLuminosityHighPassShader();
-  RenderProgram progHighPass = new RenderProgram(
-      "highpass", chronosGL, highPassShaders[0], highPassShaders[1]);
+  RenderProgram progHighPass = new RenderProgram("highpass", chronosGL,
+      effectVertexShader, luminosityHighPassFragmentShader);
 
   List<ShaderObject> bloomShaders =
       createBloomTextureShader(radius, radius * 1.0);
   RenderProgram progBloom =
       new RenderProgram("bloom", chronosGL, bloomShaders[0], bloomShaders[1]);
 
-  List<ShaderObject> applyBloomShaders = createApplyBloomEffectShader();
-  RenderProgram progApplyBloom = new RenderProgram(
-      "bloom", chronosGL, applyBloomShaders[0], applyBloomShaders[1]);
+  RenderProgram progApplyBloom = new RenderProgram("bloom", chronosGL,
+      applyBloomEffectVertexShader, applyBloomEffectFragmentShader);
 
   assert(progApplyBloom.HasCompatibleAttributesTo(progHighPass));
   assert(progApplyBloom.HasCompatibleAttributesTo(progBloom));
@@ -75,7 +72,7 @@ void main() {
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.01;
     orbit.animate(elapsed);
     material.ForceUniform(uTime, timeMs / 1000.0);

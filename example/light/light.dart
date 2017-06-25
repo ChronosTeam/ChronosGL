@@ -90,52 +90,67 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(50.0, 10.0, 0.0, canvas);
   orbit.setPos(0.0, 0.0, 56.0);
   Perspective perspective = new Perspective(orbit, 0.1, 10000.0);
-  RenderPhase phaseBlinnPhong = new RenderPhase("blinn-phong", chronosGL);
-  RenderProgram lightBlinnPhong =
-      phaseBlinnPhong.createProgram(createLightShaderBlinnPhong());
-  RenderProgram fixedBlinnPhong =
-      phaseBlinnPhong.createProgram(createSolidColorShader());
-
-  RenderPhase phaseGourad = new RenderPhase("gourad", chronosGL);
-  RenderProgram lightGourad =
-      phaseGourad.createProgram(createLightShaderGourad());
-  RenderProgram fixedGourad =
-      phaseGourad.createProgram(createSolidColorShader());
-
-  assert(lightBlinnPhong.HasCompatibleAttributesTo(lightGourad));
-  assert(fixedBlinnPhong.HasCompatibleAttributesTo(fixedGourad));
 
   Illumination illumination = new Illumination();
   for (Light l in gLightSources.values) {
     illumination.AddLight(l);
   }
 
+  RenderPhase phaseBlinnPhong = new RenderPhase("BlinnPhong", chronosGL);
+  Scene sceneBlinnPhong = new Scene(
+      "BlinnPhong",
+      new RenderProgram("BlinnPhong", chronosGL, lightVertexShaderBlinnPhong,
+          lightFragmentShaderBlinnPhong),
+      [perspective, illumination]);
+  phaseBlinnPhong.add(sceneBlinnPhong);
+
+  RenderPhase phaseGourad = new RenderPhase("Gourad", chronosGL);
+  Scene sceneGourad = new Scene(
+      "Gourad",
+      new RenderProgram("Gourad", chronosGL, lightVertexShaderGourad,
+          lightFragmentShaderGourad),
+      [perspective, illumination]);
+  phaseGourad.add(sceneGourad);
+
+  assert(
+      sceneBlinnPhong.program.HasCompatibleAttributesTo(sceneGourad.program));
+
+  Scene sceneFixed = new Scene(
+      "Fixed",
+      new RenderProgram(
+          "Fixed", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+      [perspective]);
+
+  phaseBlinnPhong.add(sceneFixed);
+  phaseGourad.add(sceneFixed);
+
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, ColorYellow);
   Map<String, Node> lightVisualizers = {
     idDirectional: new Node(
         "DirLightViz",
-        LightVisualizer(fixedBlinnPhong, gLightSources[idDirectional]),
+        LightVisualizer(sceneFixed.program, gLightSources[idDirectional]),
         lightSourceMat),
     idPoint: new Node(
         "PointLightViz",
-        LightVisualizer(fixedBlinnPhong, gLightSources[idPoint]),
+        LightVisualizer(sceneFixed.program, gLightSources[idPoint]),
         lightSourceMat),
-    idSpot: new Node("SpotLightViz",
-        LightVisualizer(fixedBlinnPhong, gLightSources[idSpot]), lightSourceMat)
+    idSpot: new Node(
+        "SpotLightViz",
+        LightVisualizer(sceneFixed.program, gLightSources[idSpot]),
+        lightSourceMat)
   };
 
   for (Node n in lightVisualizers.values) {
-    fixedBlinnPhong.add(n);
-    fixedGourad.add(n);
+    sceneFixed.add(n);
   }
 
   for (Node n in gScenes.values) {
-    lightGourad.add(n);
-    lightBlinnPhong.add(n);
+    sceneGourad.add(n);
+    sceneBlinnPhong.add(n);
   }
 
-  MakeSceneCubeSphere(chronosGL, lightGourad, gCubeSphere);
+  MakeSceneCubeSphere(chronosGL, sceneBlinnPhong.program, gCubeSphere);
 
   HTML.SelectElement selectPhase =
       HTML.document.querySelector('#phase') as HTML.SelectElement;
@@ -192,7 +207,7 @@ void main() {
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
@@ -206,7 +221,7 @@ void main() {
 
     RenderPhase phase =
         selectPhase.selectedIndex == 0 ? phaseBlinnPhong : phaseGourad;
-    phase.draw([perspective, illumination]);
+    phase.Draw();
     HTML.window.animationFrame.then(animate);
   }
 
@@ -224,7 +239,8 @@ void main() {
       ..SetUniform(uShininess, glossiness);
     GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
     print(gb);
-    MeshData md = GeometryBuilderToMeshData(meshFile, lightGourad, gb);
+    MeshData md =
+        GeometryBuilderToMeshData(meshFile, sceneBlinnPhong.program, gb);
     Node mesh = new Node(md.name, md, mat);
     //..rotX(-3.14 / 4);
     Node n = new Node.Container("wrapper", mesh);

@@ -25,10 +25,10 @@ class Effect {
   final RenderProgram program;
   final UniformGroup uniforms;
 
-  Effect(ChronosGL cgl, List<ShaderObject> shaders, this.uniforms)
+  Effect(ChronosGL cgl, ShaderObject shader, this.uniforms)
       : name = uniforms.name,
         program =
-            new RenderProgram(uniforms.name, cgl, shaders[0], shaders[1]) {
+            new RenderProgram(uniforms.name, cgl, effectVertexShader, shader) {
     all[uniforms.name] = this;
   }
 }
@@ -52,19 +52,18 @@ void main() {
 
   Framebuffer fb = new Framebuffer.Default(chronosGL, width, height);
 
-  List<ShaderObject> shaders = createDemoShader();
-  RenderProgram progDemo =
-      new RenderProgram("demo", chronosGL, shaders[0], shaders[1]);
+  RenderProgram progDemo = new RenderProgram(
+      "demo", chronosGL, demoVertexShader, demoFragmentShader);
 
-  new Effect(chronosGL, createCopyShader(),
+  new Effect(chronosGL, copyFragmentShader,
       new UniformGroup("none")..SetUniform(uTexture, fb.colorTexture));
 
-  new Effect(chronosGL, createToonShader(),
+  new Effect(chronosGL, toonFragmentShader,
       new UniformGroup("toon")..SetUniform(uTexture, fb.colorTexture));
 
   new Effect(
       chronosGL,
-      createHexPixelateShader(),
+      hexPixelateFragmentShader,
       new UniformGroup("hexalate-10")
         ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
         ..SetUniform(uPointSize, 10.0)
@@ -72,7 +71,7 @@ void main() {
 
   new Effect(
       chronosGL,
-      createHexPixelateShader(),
+      hexPixelateFragmentShader,
       new UniformGroup("hexalate-20")
         ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
         ..SetUniform(uPointSize, 20.0)
@@ -80,7 +79,7 @@ void main() {
 
   new Effect(
       chronosGL,
-      createHexPixelateShader(),
+      hexPixelateFragmentShader,
       new UniformGroup("hexalate-varying")
         ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
         ..SetUniform(uPointSize, 10.0)
@@ -88,7 +87,7 @@ void main() {
 
   new Effect(
       chronosGL,
-      createDotShader(),
+      dotFragmentShader,
       new UniformGroup("dot")
         ..SetUniform(uCenter2, new VM.Vector2(0.0, 0.0))
         ..SetUniform(uScale, 0.8)
@@ -97,7 +96,7 @@ void main() {
 
   new Effect(
       chronosGL,
-      createDotShader(),
+      dotFragmentShader,
       new UniformGroup("dot2")
         ..SetUniform(uCenter2, new VM.Vector2(0.0, 0.0))
         ..SetUniform(uScale, 0.3)
@@ -106,7 +105,7 @@ void main() {
 
   new Effect(
       chronosGL,
-      createTvDistortionShader(),
+      tvDistortionFragmentShader,
       new UniformGroup("tv-distortion")
         ..SetUniform(uScale, 0.0009)
         ..SetUniform(uTime, 0.0)
@@ -114,7 +113,7 @@ void main() {
 
   new Effect(
       chronosGL,
-      createKaleidoscopeShader(),
+      kaleidoscopeShader,
       new UniformGroup("kaleidoscope8")
         ..SetUniform(uScale, 8.0)
         ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
@@ -122,7 +121,7 @@ void main() {
 
   new Effect(
       chronosGL,
-      createKaleidoscopeShader(),
+      kaleidoscopeShader,
       new UniformGroup("kaleidoscope5")
         ..SetUniform(uScale, 5.0)
         ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
@@ -130,49 +129,49 @@ void main() {
 
   new Effect(
       chronosGL,
-      createLumidotsShader(),
+      lumidotsFragmentShader,
       new UniformGroup("lumidots-8")
         ..SetUniform(uPointSize, 8.0)
         ..SetUniform(uTexture, fb.colorTexture));
 
   new Effect(
       chronosGL,
-      createLumidotsShader(),
+      lumidotsFragmentShader,
       new UniformGroup("lumidots-16")
         ..SetUniform(uPointSize, 16.0)
         ..SetUniform(uTexture, fb.colorTexture));
 
   new Effect(
       chronosGL,
-      createLumidotsShader(),
+      lumidotsFragmentShader,
       new UniformGroup("lumidots-varying")
         ..SetUniform(uPointSize, 16.0)
         ..SetUniform(uTexture, fb.colorTexture));
 
   new Effect(
       chronosGL,
-      createSquarePixelateShader(),
+      squarePixelateFragmentShader,
       new UniformGroup("square-8")
         ..SetUniform(uPointSize, 8.0)
         ..SetUniform(uTexture, fb.colorTexture));
 
   new Effect(
       chronosGL,
-      createSquarePixelateShader(),
+      squarePixelateFragmentShader,
       new UniformGroup("square-16")
         ..SetUniform(uPointSize, 16.0)
         ..SetUniform(uTexture, fb.colorTexture));
 
   new Effect(
       chronosGL,
-      createSquarePixelateShader(),
+      squarePixelateFragmentShader,
       new UniformGroup("square-varying")
         ..SetUniform(uPointSize, 16.0)
         ..SetUniform(uTexture, fb.colorTexture));
 
   new Effect(
       chronosGL,
-      createLuminosityHighPassShader(),
+      luminosityHighPassFragmentShader,
       new UniformGroup("luminosity-highpass")
         ..SetUniform(uRange, new VM.Vector2(0.85, 0.86))
         ..SetUniform(uColorAlpha, new VM.Vector4.zero())
@@ -193,7 +192,7 @@ void main() {
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.01;
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);

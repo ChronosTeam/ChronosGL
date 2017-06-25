@@ -5,6 +5,16 @@ import 'package:chronosgl/chronosgl.dart';
 import 'dart:math' as Math;
 import 'package:vector_math/vector_math.dart' as VM;
 
+Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective,int num) {
+  Scene scene = new Scene(
+      "stars",
+      new RenderProgram("stars", cgl, pointSpritesVertexShader,
+          pointSpritesFragmentShader),
+      [perspective]);
+  scene.add(Utils.MakeParticles(scene.program, num));
+  return scene;
+}
+
 VM.Quaternion slerp(VM.Quaternion a, VM.Quaternion b, double t) {
   double ax = a[0], ay = a[1], az = a[2], aw = a[3];
   double bx = b[0], by = b[1], bz = b[2], bw = b[3];
@@ -37,7 +47,7 @@ VM.Quaternion slerp(VM.Quaternion a, VM.Quaternion b, double t) {
       scale0 * az + scale1 * bz, scale0 * aw + scale1 * bw);
 }
 
-String modelFile = "../ct_logo.obj";
+const String modelFile = "../ct_logo.obj";
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
@@ -45,7 +55,15 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3, canvas);
   Perspective perspective = new Perspective(orbit, 1.0, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram prg = phase.createProgram(createDemoShader());
+
+  Scene scene = new Scene(
+      "demo",
+      new RenderProgram(
+          "demo", chronosGL, demoVertexShader, demoFragmentShader),
+      [perspective]);
+  phase.add(scene);
+
+  phase.add(MakeStarScene(chronosGL, perspective, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -71,7 +89,7 @@ void main() {
   Future.wait(futures).then((List list) {
     // Setup Mesh
     GeometryBuilder ctLogo = ImportGeometryFromWavefront(list[0]);
-    MeshData md = GeometryBuilderToMeshData("", prg, ctLogo);
+    MeshData md = GeometryBuilderToMeshData("", scene.program, ctLogo);
     Node mesh = new Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
@@ -112,21 +130,19 @@ void main() {
       }
     }
 
-    prg.add(node);
+    scene.add(node);
 
-    RenderProgram programSprites =
-        phase.createProgram(createPointSpritesShader());
-    programSprites.add(Utils.MakeParticles(programSprites, 2000));
+
 
     double _lastTimeMs = 0.0;
     void animate(num timeMs) {
       double elapsed = timeMs - _lastTimeMs;
-      _lastTimeMs = timeMs;
+      _lastTimeMs = timeMs + 0.0;
       orbit.azimuth += 0.001;
       orbit.animate(elapsed);
       animateNode(elapsed);
 
-      phase.draw([perspective]);
+      phase.Draw();
       HTML.window.animationFrame.then(animate);
     }
 

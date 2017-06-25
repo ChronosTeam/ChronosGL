@@ -123,11 +123,9 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(15.0, 0.5, 0.5, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
     ..AdjustAspect(width, height);
-  RenderPhase phase = new RenderPhase("main", chronosGL)
-    ..viewPortW = width
-    ..viewPortH = height;
-  RenderProgram programSprites =
-      phase.createProgram(createPointSpritesShader());
+
+  final RenderProgram program = new RenderProgram(
+      "CPU", chronosGL, pointSpritesVertexShader, pointSpritesFragmentShader);
 
   List<Pole> srcPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, 2.0, 3.0);
@@ -143,21 +141,21 @@ void main() {
   Float32List vertices = new Float32List(3 * kIons);
   Material mat = new Material.Transparent("stars", BlendEquationMix)
     ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
-    ..SetUniform(uPointSize, 200.0);
+    ..SetUniform(uPointSize, 200.0)
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
   GeometryBuilder gb = new GeometryBuilder(true);
   for (var i = 0; i < kIons; i++) {
     gb.AddVertex(new VM.Vector3.zero());
   }
-  MeshData md = GeometryBuilderToMeshData("", programSprites, gb);
-  programSprites.add(new Node("ions", md, mat));
+  MeshData md = GeometryBuilderToMeshData("", program, gb);
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
 
-    if (programSprites.enabled && elapsed > 0.0) {
+    if (elapsed > 0.0) {
       int n = 0;
       for (Ion ion in ions) {
         ion.Update(srcPoles, dstPoles, rng, elapsed / 1000.0);
@@ -170,7 +168,7 @@ void main() {
     }
     orbit.animate(elapsed);
 
-    phase.draw([perspective]);
+    program.Draw(md, [perspective, mat]);
 
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(timeMs);

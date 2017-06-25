@@ -22,6 +22,5 @@ part "textures.dart";
 part "material.dart";
 part "node.dart";
 part "framebuffer.dart";
-part "render_phase.dart";
 part "chronosgl.dart";
 part "constants.dart";

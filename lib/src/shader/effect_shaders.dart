@@ -1,23 +1,18 @@
 part of chronosshader;
 
-ShaderObject _effectVertexShader = new ShaderObject("uv-passthru")
+final ShaderObject effectVertexShader = new ShaderObject("uv-passthru")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddVaryingVars([vTexUV])
-  ..SetBodyWithMain(
-      [NullVertexBody, "${vTexUV} = ${aTexUV};"]);
+  ..SetBodyWithMain([NullVertexBody, "${vTexUV} = ${aTexUV};"]);
 
-List<ShaderObject> createCopyShader() {
-  return [
-    _effectVertexShader,
-    new ShaderObject("copyF")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uTexture])
-      ..SetBodyWithMain(
-          ["${oFragColor} = texture(${uTexture}, ${vTexUV});"])
-  ];
-}
+final ShaderObject copyVertexShader = effectVertexShader;
 
-String _libFragment = """
+final ShaderObject copyFragmentShader = new ShaderObject("copyF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uTexture])
+  ..SetBodyWithMain(["${oFragColor} = texture(${uTexture}, ${vTexUV});"]);
+
+const String _libFragment = """
 vec3 RGBtoHSV(vec3 rgb) {
    float r = rgb.r;
    float g = rgb.g;
@@ -128,21 +123,16 @@ void main() {
 }
 """;
 
-List<ShaderObject> createToonShader() {
-  return [
-    _effectVertexShader,
-    new ShaderObject("ToonF")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uTexture])
-      ..SetBody([_libFragment, _toonFragment])
-  ];
-}
+final ShaderObject toonFragmentShader = new ShaderObject("ToonF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uTexture])
+  ..SetBody([_libFragment, _toonFragment]);
 
 // Inspired by glfx.js
 // The edges of a hexagon centered at 0,0 with diameter 1.0 are:
 // where is the height of an equilateral triangle with edge length 1.0
 // H = sqrt(0.75)  = 0.866025404;
-String _hexPixelateFragment = """
+const String _hexPixelateFragment = """
 
 float S = 0.86602540378;
 
@@ -189,18 +179,13 @@ void main() {
 }
 """;
 
-List<ShaderObject> createHexPixelateShader() {
-  return [
-    _effectVertexShader,
-    new ShaderObject("HexPixelateF")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uCenter2, uPointSize, uTexture])
-      ..SetBody([_hexPixelateFragment])
-  ];
-}
+final ShaderObject hexPixelateFragmentShader = new ShaderObject("HexPixelateF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uCenter2, uPointSize, uTexture])
+  ..SetBody([_hexPixelateFragment]);
 
 // Inspired by three.js
-String _dotFragment = """
+const String _dotFragment = """
 float pattern(vec2 tex) {
 		float s = sin( ${uAngle} );
 		float c = cos( ${uAngle} );
@@ -217,18 +202,13 @@ void main() {
 }
 """;
 
-List<ShaderObject> createDotShader() {
-  return [
-    _effectVertexShader,
-    new ShaderObject("DotF")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uCenter2, uScale, uAngle, uTexture])
-      ..SetBody([_dotFragment])
-  ];
-}
+final ShaderObject dotFragmentShader = new ShaderObject("DotF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uCenter2, uScale, uAngle, uTexture])
+  ..SetBody([_dotFragment]);
 
 // Inspired by https://www.shadertoy.com/view/4dBGzK
-String _tvDistortionFragment = """
+const String _tvDistortionFragment = """
 float rand(vec2 co)  {
     float a = 12.9898;
     float b = 78.233;
@@ -261,17 +241,13 @@ void main() {
 }
 """;
 
-List<ShaderObject> createTvDistortionShader() {
-  return [
-    _effectVertexShader,
+final ShaderObject tvDistortionFragmentShader =
     new ShaderObject("DotF")
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uScale, uTime, uTexture])
-      ..SetBody([_tvDistortionFragment])
-  ];
-}
+      ..SetBody([_tvDistortionFragment]);
 
-String _kaleidoscopeFragment = """
+const String _kaleidoscopeFragment = """
 vec2 kaleidoscope( vec2 uv, float n) {
    float PI = 3.1415926;
     float angle = PI / n;
@@ -287,21 +263,14 @@ void main() {
 }
 """;
 
-List<ShaderObject> createKaleidoscopeShader() {
-  return [
-    _effectVertexShader,
+final ShaderObject kaleidoscopeShader =
     new ShaderObject("KaleidoscopeF")
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uScale, uCenter2, uTexture])
-      ..SetBody([_kaleidoscopeFragment])
-  ];
-}
-
-
-
+      ..SetBody([_kaleidoscopeFragment]);
 
 // Inspired by https://www.shadertoy.com/view/MtcXRB
-String _lumidotsFragment = """
+const String _lumidotsFragment = """
 
 // http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
 float RGB2Luma(vec3 rgb) { return dot(rgb, vec3(0.212, 0.715, 0.072)); }
@@ -321,17 +290,13 @@ void main() {
 }
 """;
 
-List<ShaderObject> createLumidotsShader() {
-  return [
-    _effectVertexShader,
+final ShaderObject lumidotsFragmentShader =
     new ShaderObject("LumidotsF")
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uPointSize, uTexture])
-      ..SetBody([_lumidotsFragment])
-  ];
-}
+      ..SetBody([_lumidotsFragment]);
 
-String _squarePixelateFragment = """
+const String _squarePixelateFragment = """
 void main() {
 	  vec2 texdim = vec2(textureSize(${uTexture}, 0));
     float r = ${uPointSize};
@@ -341,17 +306,13 @@ void main() {
 }
 """;
 
-List<ShaderObject> createSquarePixelateShader() {
-  return [
-    _effectVertexShader,
+final ShaderObject squarePixelateFragmentShader =
     new ShaderObject("SquarePixelateF")
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uPointSize, uTexture])
-      ..SetBody([_squarePixelateFragment])
-  ];
-}
+      ..SetBody([_squarePixelateFragment]);
 
-String _luminosityHighPassFragment = """
+const String _luminosityHighPassFragment = """
 
 // http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
 float RGB2Luma(vec3 rgb) { return dot(rgb, vec3(0.212, 0.715, 0.072)); }
@@ -365,12 +326,8 @@ void main() {
 }
 """;
 
-List<ShaderObject> createLuminosityHighPassShader() {
-  return [
-    _effectVertexShader,
+final ShaderObject luminosityHighPassFragmentShader =
     new ShaderObject("LuminosityHighPassF")
       ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uRange, uColorAlpha ,uTexture])
-      ..SetBody([_luminosityHighPassFragment])
-  ];
-}
+      ..AddUniformVars([uRange, uColorAlpha, uTexture])
+      ..SetBody([_luminosityHighPassFragment]);

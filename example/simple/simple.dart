@@ -66,7 +66,7 @@ void main() {
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     // animate the camera a little
     orbit.azimuth += 0.003;
     // allow the camera to also reflect mouse movement.

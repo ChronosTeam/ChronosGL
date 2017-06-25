@@ -216,7 +216,7 @@ void main() {
     ..AdjustAspect(width, height);
 
   final RenderProgram programJS = new RenderProgram(
-      "GPU", chronosGL, pointSpritesVertexShader, particleFragmentShader);
+      "CPU", chronosGL, pointSpritesVertexShader, pointSpritesFragmentShader);
   final RenderProgram programGPU = new RenderProgram(
       "GPU", chronosGL, particleVertexShader, particleFragmentShader);
   final int bindingIndex = programGPU.GetTransformBindingIndex(tPosition);

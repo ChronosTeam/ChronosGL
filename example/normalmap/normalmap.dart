@@ -9,27 +9,26 @@ String normalmapFile = Dir + "Infinite-Level_02_Tangent_SmoothUV.jpg";
 String textureFile = Dir + "Map-COL.jpg";
 String specularmapFile = Dir + "Map-SPEC.jpg";
 
-List<ShaderObject> createShader() {
-  return [
-    new ShaderObject("LightBlinnPhongV")
-      ..AddAttributeVars([aPosition, aNormal, aTexUV])
-      ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
-      ..SetBodyWithMain([
-        """
+final ShaderObject vertexShader = new ShaderObject("LightBlinnPhongV")
+  ..AddAttributeVars([aPosition, aNormal, aTexUV])
+  ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
+  ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
+  ..SetBodyWithMain([
+    """
         vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
         gl_Position = ${uPerspectiveViewMatrix} * pos;
         ${vVertexPosition} = pos.xyz;
         ${vNormal} = ${uNormalMatrix} * ${aNormal};
         ${vTexUV} = ${aTexUV};
 """
-      ]),
-    new ShaderObject("LightBlinnPhongF")
-      ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
-      ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
-      ..AddUniformVars([uEyePosition, uColor, uTexture])
-      ..SetBodyWithMain([
-        """
+  ]);
+
+final ShaderObject fragmentShader = new ShaderObject("LightBlinnPhongF")
+  ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
+  ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
+  ..AddUniformVars([uEyePosition, uColor, uTexture])
+  ..SetBodyWithMain([
+    """
 ColorComponents acc = CombinedLight(${vVertexPosition} - ${uEyePosition},
                                     ${vNormal},
                                     ${uEyePosition},
@@ -43,11 +42,9 @@ ${oFragColor}.rgb = diffuseMap.rgb + acc.diffuse + acc.specular + uColor;
 ${oFragColor}.a = 1.0;
 
 """
-      ], prolog: [
-        StdLibShader
-      ])
-  ];
-}
+  ], prolog: [
+    StdLibShader
+  ]);
 
 VM.Vector3 posLight = new VM.Vector3(0.5, 1.0, 0.0);
 VM.Vector3 dirLight = new VM.Vector3(0.0, 10.0, 0.0);
@@ -62,22 +59,31 @@ void main() {
 
   OrbitCamera orbit = new OrbitCamera(0.5, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 100.0);
+  Illumination illumination = new Illumination();
+  illumination.AddLight(new SpotLight("spot", posLight, posLight, colDiffuse,
+      colSpecular, 50.0, 0.95, 2.0, 1.0, 50.0));
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram fixed = phase.createProgram(createSolidColorShader());
-  RenderProgram prg = phase.createProgram(createShader());
-
-  Illumination illumination = new Illumination();
-  illumination.AddLight(new SpotLight(
-      "spot", posLight, posLight, colDiffuse, colSpecular, 50.0, 0.95, 2.0, 1.0, 50.0));
+  Scene sceneFixed = new Scene(
+      "Fixed",
+      new RenderProgram(
+          "Fixed", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+      [perspective, illumination]);
+  phase.add(sceneFixed);
 
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, ColorYellow)
     ..SetUniform(uShininess, 25.0);
-  Node shapePointLight = new Node(
-      "pointLight", ShapeIcosahedron(fixed, 4, 0.1), lightSourceMat)
+  Node shapePointLight = new Node("pointLight",
+      ShapeIcosahedron(sceneFixed.program, 4, 0.1), lightSourceMat)
     ..setPosFromVec(posLight);
-  fixed.add(shapePointLight);
+  sceneFixed.add(shapePointLight);
+
+  Scene sceneMain = new Scene(
+      "main",
+      new RenderProgram("main", chronosGL, vertexShader, fragmentShader),
+      [perspective, illumination]);
+  phase.add(sceneMain);
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -96,15 +102,18 @@ void main() {
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
-    phase.draw([perspective, illumination]);
+    phase.Draw();
+
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs);
   }
 
-  Material mat = new Material("mat")..SetUniform(uColor, ColorGray4)..SetUniform(uShininess, 25.0);
+  Material mat = new Material("mat")
+    ..SetUniform(uColor, ColorGray4)
+    ..SetUniform(uShininess, 25.0);
 
   List<Future<Object>> futures = [
     LoadJson(modelFile),
@@ -130,14 +139,15 @@ void main() {
     // Setup Mesh
     List<GeometryBuilder> gbs = ImportGeometryFromThreeJsJson(list[0]);
     print(gbs[0]);
-    MeshData md = GeometryBuilderToMeshData(modelFile, prg, gbs[0]);
+    MeshData md =
+        GeometryBuilderToMeshData(modelFile, sceneMain.program, gbs[0]);
 
     Node mesh = new Node(md.name, md, mat);
     Node n = new Node.Container("wrapper", mesh);
     //n.invert = true;
     n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
     //n.matrix.scale(0.02);
-    prg.add(n);
+    sceneMain.add(n);
     // GO!
     animate(0.0);
   });

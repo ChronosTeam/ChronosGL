@@ -5,31 +5,48 @@ import "dart:async";
 
 String textureFile = "../gradient.jpg";
 
+Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
+  Scene scene = new Scene(
+      "stars",
+      new RenderProgram(
+          "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
+      [perspective]);
+  scene.add(Utils.MakeParticles(scene.program, num));
+  return scene;
+}
+
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(165.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram programBasic = phase.createProgram(createTexturedShader());
-
-  RenderProgram perlinNoise =
-      phase.createProgram(createPerlinNoiseColorShader(false));
+  Scene sceneBasic = new Scene(
+      "tesxtured",
+      new RenderProgram(
+          "textured", chronosGL, texturedVertexShader, texturedFragmentShader),
+      [perspective]);
+  phase.add(sceneBasic);
 
   Material mat = new Material("torus")
     ..SetUniform(uColor, new VM.Vector3.zero());
-  Node m1 = new Node("torus1", ShapeTorusKnot(programBasic), mat)
+  Node m1 = new Node("torus1", ShapeTorusKnot(sceneBasic.program), mat)
     ..setPos(-50.0, 0.0, 0.0);
-  programBasic.add(m1);
+  sceneBasic.add(m1);
+
+  Scene scenePerlin = new Scene(
+      "perlin",
+      new RenderProgram("perlin", chronosGL, perlinNoiseVertexShader,
+          makePerlinNoiseColorFragmentShader(false)),
+      [perspective]);
+  phase.add(scenePerlin);
 
   Material matDummy = new Material("mat");
-  Node m2 = new Node("torus2", ShapeTorusKnot(perlinNoise), matDummy)
+  Node m2 = new Node("torus2", ShapeTorusKnot(scenePerlin.program), matDummy)
     ..setPos(50.0, 0.0, 0.0);
-  perlinNoise.add(m2);
+  scenePerlin.add(m2);
 
-  RenderProgram programSprites =
-      phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(programSprites, 2000));
+  phase.add(MakeStarScene(chronosGL, perspective, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -52,7 +69,7 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     matDummy.ForceUniform(uTime, timeMs / 1000.0);
-    phase.draw([perspective]);
+    phase.Draw();
     HTML.window.animationFrame.then(animate);
   }
 

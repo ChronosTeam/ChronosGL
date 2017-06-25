@@ -6,9 +6,9 @@ import 'dart:typed_data';
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-String meshFile = "../asset/knight/knight.js";
+const String meshFile = "../asset/knight/knight.js";
 
-String skinningVertexShader = """
+const String skinningVertexShader = """
 mat4 GetBoneMatrix(sampler2D table, int index, int time) {
     vec4 v1 = texelFetch(table, ivec2(index * 4 + 0, time), 0);
     vec4 v2 = texelFetch(table, ivec2(index * 4 + 1, time), 0);
@@ -45,31 +45,28 @@ void main() {
 
 """;
 
-String skinningFragmentShader = """
+const String skinningFragmentShader = """
 void main() {
   ${oFragColor}.rgb = ${vColor};
 }
 """;
 
-List<ShaderObject> createAnimationShader() {
-  return [
-    new ShaderObject("AnimationV")
-      ..AddAttributeVars([aPosition, aBoneIndex, aBoneWeight])
-      //..AddAttributeVar(aNormal)
-      //..AddAttributeVar(aTexUV)
-      ..AddVaryingVars([vColor])
-      //..AddVaryingVar(vTextureCoordinates)
-      //..AddVaryingVar(vNormal)
-      ..AddUniformVars(
-          [uPerspectiveViewMatrix, uModelMatrix, uAnimationTable, uTime])
-      ..SetBody([skinningVertexShader]),
-    new ShaderObject("AnimationV")
-      ..AddVaryingVars([vColor])
-      //..AddVaryingVar(vTextureCoordinates)
-      //..AddUniformVar(uTextureSampler)
-      ..SetBody([skinningFragmentShader]),
-  ];
-}
+final ShaderObject animationVertexShader = new ShaderObject("AnimationV")
+  ..AddAttributeVars([aPosition, aBoneIndex, aBoneWeight])
+  //..AddAttributeVar(aNormal)
+  //..AddAttributeVar(aTexUV)
+  ..AddVaryingVars([vColor])
+  //..AddVaryingVar(vTextureCoordinates)
+  //..AddVaryingVar(vNormal)
+  ..AddUniformVars(
+      [uPerspectiveViewMatrix, uModelMatrix, uAnimationTable, uTime])
+  ..SetBody([skinningVertexShader]);
+
+final ShaderObject animationFragmentShader = new ShaderObject("AnimationV")
+  ..AddVaryingVars([vColor])
+  //..AddVaryingVar(vTextureCoordinates)
+  //..AddUniformVar(uTextureSampler)
+  ..SetBody([skinningFragmentShader]);
 
 final double kAnimTimeStep = 0.0333;
 
@@ -83,12 +80,31 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram prgSimple = phase.createProgram(createDemoShader());
-  RenderProgram prgAnim = phase.createProgram(createAnimationShader());
 
-  assert(prgSimple.HasDownwardCompatibleAttributesTo(prgAnim));
+  Scene sceneAnim = new Scene(
+      "animation",
+      new RenderProgram("animation", chronosGL, animationVertexShader,
+          animationFragmentShader),
+      [perspective]);
+  phase.add(sceneAnim);
 
-  final RenderProgram prgBone = phase.createProgram(createSolidColorShader());
+  Scene sceneSkeleton = new Scene(
+      "solid",
+      new RenderProgram(
+          "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+      [perspective]);
+  phase.add(sceneSkeleton);
+
+  Scene sceneDemo = new Scene(
+      "demo",
+      new RenderProgram(
+          "demo", chronosGL, demoVertexShader, demoFragmentShader),
+      [perspective]);
+  phase.add(sceneDemo);
+
+  assert(sceneSkeleton.program
+      .HasDownwardCompatibleAttributesTo(sceneAnim.program));
+
   final Material matWire = new Material("wire")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
 
@@ -113,9 +129,9 @@ void main() {
   HTML.window.onResize.listen(resolutionChange);
 
   Map<String, RenderProgram> programMap = {
-    "idSkeleton": prgBone,
-    "idStatic": prgSimple,
-    "idAnimation": prgAnim,
+    "idSkeleton": sceneSkeleton.program,
+    "idStatic": sceneDemo.program,
+    "idAnimation": sceneAnim.program,
   };
 
   for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
@@ -136,12 +152,14 @@ void main() {
 
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
-    phase.draw([perspective]);
+    phase.Draw([]);
+
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs);
+
     int step =
         ((timeMs / 1000.0) / kAnimTimeStep).floor() % animationSteps.length;
     mat.ForceUniform(uTime, step + 0.0);
@@ -161,12 +179,13 @@ void main() {
     SkeletalAnimation anim = ImportAnimationFromThreeJsJson(list[0], skeleton);
     // skin mesh
     {
-      MeshData md = GeometryBuilderToMeshData(meshFile, prgAnim, gb[0]);
+      MeshData md =
+          GeometryBuilderToMeshData(meshFile, sceneAnim.program, gb[0]);
       Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
-      prgSimple.add(n);
-      prgAnim.add(n);
+      sceneDemo.add(n);
+      sceneAnim.add(n);
     }
     {
       animationSteps = [];
@@ -175,27 +194,20 @@ void main() {
       }
       Float32List animationData = CreateAnimationTable(
           skeleton, globalOffsetTransform, anim, animationSteps);
-      animationTable = new TypedTexture(
-          chronosGL,
-          "anim",
-          skeleton.length * 4,
-          animationSteps.length,
-          GL_RGBA32F,
-          GL_RGBA,
-          GL_FLOAT,
-          animationData);
+      animationTable = new TypedTexture(chronosGL, "anim", skeleton.length * 4,
+          animationSteps.length, GL_RGBA32F, GL_RGBA, GL_FLOAT, animationData);
       mat.SetUniform(uAnimationTable, animationTable);
     }
     // bone wire mesh
     {
-      boneVisualizer = new BoneVisualizer(prgBone, matWire, skeleton, anim);
+      boneVisualizer =
+          new BoneVisualizer(sceneSkeleton.program, matWire, skeleton, anim);
       Node mesh = boneVisualizer.mesh..rotX(3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
-      prgBone.add(n);
+      sceneSkeleton.add(n);
     }
 
-    // Start
     animate(0.0);
   });
 }

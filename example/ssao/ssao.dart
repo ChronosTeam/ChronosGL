@@ -28,9 +28,8 @@ void main() {
   Framebuffer screen = new Framebuffer.Screen(chronosGL);
   Framebuffer fb = new Framebuffer.Default(chronosGL, width, height);
 
-  List<ShaderObject> solidShader = createSolidColorShader();
-  RenderProgram progSolid =
-      new RenderProgram("solid", chronosGL, solidShader[0], solidShader[1]);
+  RenderProgram progSolid = new RenderProgram(
+      "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader);
 
   List<ShaderObject> ssaoShader = createSSAOShader();
   RenderProgram progSSAO =
@@ -53,7 +52,7 @@ void main() {
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     if (gSSAO.checked) {

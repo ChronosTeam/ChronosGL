@@ -47,30 +47,25 @@ void main() {
 }
 """;
 
-List<ShaderObject> createAnimationShader() {
-  return [
-    new ShaderObject("AnimationV")
-      ..AddAttributeVars(
-          [aPosition, aTexUV, aBoneIndex, aBoneWeight])
-      //..AddAttributeVar(aNormal)
-      ..AddVaryingVars([vTexUV])
-      //..AddVaryingVar(vNormal)
-      ..AddUniformVars([
-        uPerspectiveViewMatrix,
-        uModelMatrix,
-        uAnimationTable,
-        uTime,
-      ])
-      ..SetBody([skinningVertexShader]),
-    new ShaderObject("AnimationV")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uTexture])
-      ..SetBody([skinningFragmentShader]),
-  ];
-}
+final ShaderObject animationVertexShader = new ShaderObject("AnimationV")
+  ..AddAttributeVars([aPosition, aTexUV, aBoneIndex, aBoneWeight])
+  //..AddAttributeVar(aNormal)
+  ..AddVaryingVars([vTexUV])
+  //..AddVaryingVar(vNormal)
+  ..AddUniformVars([
+    uPerspectiveViewMatrix,
+    uModelMatrix,
+    uAnimationTable,
+    uTime,
+  ])
+  ..SetBody([skinningVertexShader]);
+
+final ShaderObject animationFragmentShader = new ShaderObject("AnimationV")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uTexture])
+  ..SetBody([skinningFragmentShader]);
 
 final double kAnimTimeStep = 0.0333;
-
 
 void main() {
   StatsFps fps =
@@ -81,12 +76,30 @@ void main() {
   Perspective perspective = new Perspective(orbit, 1.0, 10000.0);
 
   final RenderPhase phase = new RenderPhase("main", chronosGL);
-  //RenderProgram prg = phase.createProgram(createDemoShader());
-  final RenderProgram prgAnim = phase.createProgram(createAnimationShader());
-  final RenderProgram prgSimple = phase.createProgram(createDemoShader());
-  final RenderProgram prgBone = phase.createProgram(createSolidColorShader());
 
-  assert(prgSimple.HasDownwardCompatibleAttributesTo(prgAnim));
+  Scene sceneAnim = new Scene(
+      "animation",
+      new RenderProgram("animation", chronosGL, animationVertexShader,
+          animationFragmentShader),
+      [perspective]);
+  phase.add(sceneAnim);
+
+  Scene sceneSkeleton = new Scene(
+      "solid",
+      new RenderProgram(
+          "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+      [perspective]);
+  phase.add(sceneSkeleton);
+
+  Scene sceneDemo = new Scene(
+      "demo",
+      new RenderProgram(
+          "demo", chronosGL, demoVertexShader, demoFragmentShader),
+      [perspective]);
+  phase.add(sceneDemo);
+
+  assert(sceneSkeleton.program
+      .HasDownwardCompatibleAttributesTo(sceneAnim.program));
 
   final Material matWire = new Material("wire")
     ..SetUniform(uColor, ColorYellow);
@@ -97,9 +110,9 @@ void main() {
   BoneVisualizer boneVisualizer;
 
   Map<String, RenderProgram> programMap = {
-    "idSkeleton": prgBone,
-    "idStatic": prgSimple,
-    "idAnimation": prgAnim,
+    "idSkeleton": sceneSkeleton.program,
+    "idStatic": sceneDemo.program,
+    "idAnimation": sceneAnim.program,
   };
 
   for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
@@ -133,14 +146,14 @@ void main() {
   mat.ForceUniform(uTime, 0.0);
 
   void animate(num timeMs) {
-    timeMs = 0.0 + timeMs;
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
-    phase.draw([perspective]);
+    phase.Draw();
+
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs);
 
     int step =
         ((timeMs / 1000.0) / kAnimTimeStep).floor() % animationSteps.length;
@@ -167,12 +180,12 @@ void main() {
     SkeletalAnimation anim = ImportAnimationFromAssimp2Json(animJson, skeleton);
     print("Imnported ${anim}");
     {
-      MeshData md = GeometryBuilderToMeshData(meshFile, prgAnim, gb);
+      MeshData md = GeometryBuilderToMeshData(meshFile, sceneAnim.program, gb);
       Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
-      prgSimple.add(n);
-      prgAnim.add(n);
+      sceneDemo.add(n);
+      sceneAnim.add(n);
     }
     animationSteps = [];
     for (double t = 0.0; t < anim.duration; t += kAnimTimeStep) {
@@ -182,23 +195,16 @@ void main() {
     {
       Float32List animationData = CreateAnimationTable(
           skeleton, globalOffsetTransform, anim, animationSteps);
-      animationTable = new TypedTexture(
-          chronosGL,
-          "anim",
-          skeleton.length * 4,
-          animationSteps.length,
-          GL_RGBA32F,
-          GL_RGBA,
-          GL_FLOAT,
-          animationData);
+      animationTable = new TypedTexture(chronosGL, "anim", skeleton.length * 4,
+          animationSteps.length, GL_RGBA32F, GL_RGBA, GL_FLOAT, animationData);
       mat.SetUniform(uAnimationTable, animationTable);
 
-      boneVisualizer = new BoneVisualizer(prgBone, matWire, skeleton, anim);
+      boneVisualizer = new BoneVisualizer(sceneSkeleton.program, matWire, skeleton, anim);
 
       Node mesh = boneVisualizer.mesh..rotX(3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);
       n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
-      prgBone.add(n);
+      sceneSkeleton.add(n);
     }
 
     // Start

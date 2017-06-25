@@ -3,21 +3,20 @@ import 'dart:html' as HTML;
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
-List<ShaderObject> createSkyScraperShader() {
-  return [
-    new ShaderObject("SkyScraperV")
-      ..AddAttributeVars([aPosition, aTexUV])
-      ..AddVaryingVars([vVertexPosition, vTexUV])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..SetBodyWithMain([
-        StdVertexBody,
-        "${vVertexPosition} = ${aPosition};",
-        "${vTexUV} = ${aTexUV};",
-      ]),
-    new ShaderObject("SkyScraperF")
-      ..AddVaryingVars([vVertexPosition, vTexUV])
-      ..SetBodyWithMain([
-        """
+final ShaderObject skyScraperVertexShader = new ShaderObject("SkyScraperV")
+  ..AddAttributeVars([aPosition, aTexUV])
+  ..AddVaryingVars([vVertexPosition, vTexUV])
+  ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
+  ..SetBodyWithMain([
+    StdVertexBody,
+    "${vVertexPosition} = ${aPosition};",
+    "${vTexUV} = ${aTexUV};",
+  ]);
+
+final ShaderObject skyScraperFragmentShader = new ShaderObject("SkyScraperF")
+  ..AddVaryingVars([vVertexPosition, vTexUV])
+  ..SetBodyWithMain([
+    """
       // the step finds the windows
       // multiplying the tex coord with 11 gives it a black column on the right side but with artifacts
       // multiplying the tex coord with 10.9 gives it a black column on the right side WITHOUT the
@@ -32,9 +31,7 @@ List<ShaderObject> createSkyScraperShader() {
       //                       mod(vVertexPosition.y*20.0,2.0),
       //                       mod(vVertexPosition.z*10.0,2.0), 1. );
 """
-      ])
-  ];
-}
+  ]);
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
@@ -51,16 +48,27 @@ void main() {
   phase.viewPortW = w;
   phase.viewPortH = h;
 
+ Scene sceneBuilding = new Scene(
+      "building",
+      new RenderProgram(
+          "building", chronosGL, skyScraperVertexShader, skyScraperFragmentShader),
+      [perspective]);
+  phase.add(sceneBuilding);
+
+  Scene sceneSky = new Scene(
+      "sky",
+      new RenderProgram(
+          "sky", chronosGL, demoVertexShader, demoFragmentShader),
+      [perspective]);
+  phase.add(sceneSky);
+
   Material mat = new Material("mat");
   // Sky Sphere
-  RenderProgram skyprg = phase
-      .createProgram(createDemoShader()); //  PerlinNoiseColorShader(true));
-  MeshData md = ShapeIcosahedron(skyprg, 3);
+  MeshData md = ShapeIcosahedron(sceneSky.program, 3);
   //..multiplyVertices(100);
   Node m = new Node(md.name, md, mat)..transform.scale(100.0);
-  skyprg.add(m);
+  sceneSky.add(m);
 
-  RenderProgram prg = phase.createProgram(createSkyScraperShader());
 
   // 0.01 and 0.99 is to remove some artifacts on the edges
   VM.Vector2 q = new VM.Vector2(0.01, 0.01);
@@ -71,23 +79,23 @@ void main() {
   for (int i = 2 * 4; i < 4 * 4; i++) {
     uvs[i].setFrom(q);
   }
-  MeshData house = GeometryBuilderToMeshData("house", prg, gb);
+  MeshData house = GeometryBuilderToMeshData("house", sceneBuilding.program, gb);
 
   for (int x = -10; x < 10; x += 4) {
     for (int z = -10; z < 10; z += 4) {
       Node m = new Node(house.name, house, mat)
         ..setPos(x.toDouble(), 0.0, z.toDouble());
-      prg.add(m);
+      sceneBuilding.add(m);
     }
   }
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    phase.draw([perspective]);
+    phase.Draw();
     HTML.window.animationFrame.then(animate);
   }
 
