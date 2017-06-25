@@ -1,7 +1,7 @@
 part of webhelper;
 
 Future<HTML.VideoElement> MakeVideoElementFromCamera() {
-  Completer c = new Completer();
+  Completer<HTML.VideoElement> c = new Completer();
   // TODO: come up with better error handling signaling
   HTML.window.navigator
       .getUserMedia(video: true)
@@ -9,10 +9,10 @@ Future<HTML.VideoElement> MakeVideoElementFromCamera() {
     HTML.VideoElement video = new HTML.VideoElement()..autoplay = true;
     video.onPlaying.first.then((_) => c.complete(video));
     video.src = HTML.Url.createObjectUrl(stream);
-  }).catchError((error) {
+  }).catchError((Object error) {
     c.complete(null);
   });
-  return c.future as Future<HTML.VideoElement>;
+  return c.future;
 }
 
 HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {

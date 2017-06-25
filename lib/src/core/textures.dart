@@ -113,7 +113,7 @@ class Texture {
     _cgl.bindTexture(_textureType, null);
   }
 
-  void SetImageData(var data) {
+  void SetImageData(Object data) {
     _cgl.texImage2Dweb(
         _textureType, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, data);
   }
@@ -196,7 +196,7 @@ class TypedTexture extends Texture {
   // null is required by the shadow example
   // There used to be a bug - this seems fixed now, cf.:
   // sdk: https://github.com/dart-lang/sdk/issues/23517
-  var _data;
+  Object _data;
 
   TypedTexture(ChronosGL cgl, String url, this._width, this._height,
       this._internalFormatType, this._formatType, this._dataType,
@@ -205,7 +205,7 @@ class TypedTexture extends Texture {
     _Install();
   }
 
-  void UpdateContent(var data) {
+  void UpdateContent(Object data) {
     _data = data;
     _cgl.bindTexture(_textureType, _texture);
     _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width, _height, 0,
@@ -213,7 +213,7 @@ class TypedTexture extends Texture {
     _cgl.bindTexture(_textureType, null);
   }
 
-   void SetImageDataPartial( var data, int x, int y, int w, int h) {
+   void SetImageDataPartial(Object data, int x, int y, int w, int h) {
      _cgl.bindTexture(_textureType, _texture);
      _cgl.texSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, _formatType, _dataType, data);
      _cgl.bindTexture(_textureType, null);
@@ -244,9 +244,9 @@ class ImageTexture extends Texture {
   dynamic _element; // CanvasElement, ImageElement, VideoElement
 
   ImageTexture(ChronosGL cgl, String url, this._element,
-      [delayInstall = false,
+      [bool delayInstall = false,
       TextureProperties tp = null,
-      textureType = GL_TEXTURE_2D])
+      int textureType = GL_TEXTURE_2D])
       : super(
             cgl, textureType, url, tp == null ? new TextureProperties() : tp) {
     if (!delayInstall) {

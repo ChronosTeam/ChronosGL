@@ -13,26 +13,19 @@ class DrawStats {
 }
 
 /// ## Class RenderProgram (is a NamedEntity)
-/// represents several invocations of the same program running on the GPU.
-/// It consists of a tree of **Nodes** which provide **Inputs** for the
-/// program. The program is invoked once for most **Nodes** while traversing
-/// the tree recursively.
+/// represents program running on the GPU with an API to invoke it.
 class RenderProgram extends NamedEntity {
   ChronosGL _cgl;
   ShaderObject _shaderObjectV;
   ShaderObject _shaderObjectF;
-  dynamic /* gl  Program */ _program;
+  Object /* gl  Program */ _program;
 
   Set<String> _attributes;
-  Map<String, dynamic /* gl UniformLocation */ > _uniformLocations = {};
+  Map<String, Object /* gl UniformLocation */ > _uniformLocations = {};
   Map<String, String> _uniformsInitialized = {};
   Set<String> _attributesInitialized = new Set<String>();
 
   int _nextTextureUnit;
-
-  // Scene stuff - move this out of here
-  // these are the identity by default
-  final List<Node> objects = new List<Node>();
 
   RenderProgram(
       String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
@@ -52,25 +45,17 @@ class RenderProgram extends NamedEntity {
     }
   }
 
-  void add(Node obj) {
-    objects.add(obj);
-  }
-
-  bool remove(Node obj) {
-    return objects.remove(obj);
-  }
-
-  void removeAll() {
-    objects.clear();
+  int GetTransformBindingIndex(String canonical) {
+   return _shaderObjectV.GetTransformBindingIndex(canonical);
   }
 
   MeshData MakeMeshData(String name, int drawMode) {
-    return new MeshData(name, _cgl, drawMode, _shaderObjectV.GetLayoutMap());
+    return new MeshData(name, _cgl, drawMode, _shaderObjectV.GetAttributeLayoutMap());
   }
 
   bool HasCompatibleAttributesTo(RenderProgram other) {
-    var a = _shaderObjectV.GetLayoutMap();
-    var b = other._shaderObjectV.GetLayoutMap();
+    var a = _shaderObjectV.GetAttributeLayoutMap();
+    var b = other._shaderObjectV.GetAttributeLayoutMap();
     if (a.length != b.length) return false;
     for (String key in a.keys) {
       if (a[key] != b[key]) return false;
@@ -79,8 +64,8 @@ class RenderProgram extends NamedEntity {
   }
 
   bool HasDownwardCompatibleAttributesTo(RenderProgram other) {
-    var a = _shaderObjectV.GetLayoutMap();
-    var b = other._shaderObjectV.GetLayoutMap();
+    var a = _shaderObjectV.GetAttributeLayoutMap();
+    var b = other._shaderObjectV.GetAttributeLayoutMap();
     for (String key in a.keys) {
       if (a[key] != b[key]) {
         return false;
@@ -93,17 +78,13 @@ class RenderProgram extends NamedEntity {
     _nextTextureUnit = 0;
   }
 
-  bool _HasAttribute(String canonical) {
-    return _attributes.contains(canonical);
-  }
-
   ChronosGL getContext() => _cgl;
 
   bool _HasUniform(String canonical) {
     return _uniformLocations.containsKey(canonical);
   }
 
-  void _SetControl(String canonical, var val) {
+  void _SetControl(String canonical, Object val) {
     switch (canonical) {
       case cDepthTest:
         if (val == true) {
@@ -137,7 +118,7 @@ class RenderProgram extends NamedEntity {
     }
   }
 
-  void _SetUniform(String group, String canonical, var val) {
+  void _SetUniform(String group, String canonical, Object val) {
     // enable only for debug
     if (_uniformsInitialized.containsKey(canonical)) {
       LogError(
@@ -150,7 +131,7 @@ class RenderProgram extends NamedEntity {
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "unknown ${canonical}";
     assert(_uniformLocations.containsKey(canonical));
-    dynamic /* UniformLocation */ l = _uniformLocations[canonical];
+    Object /* UniformLocation */ l = _uniformLocations[canonical];
     switch (desc.type) {
       case VarTypeFloat:
         if (desc.arraySize == 0) {
@@ -161,7 +142,7 @@ class RenderProgram extends NamedEntity {
         break;
       case VarTypeMat4:
         if (desc.arraySize == 0) {
-          _cgl.uniformMatrix4fv(l, false, val.storage);
+          _cgl.uniformMatrix4fv(l, false, (val as VM.Matrix4).storage);
         } else if (val is Float32List) {
           _cgl.uniformMatrix4fv(l, false, val);
         } else {
@@ -170,7 +151,7 @@ class RenderProgram extends NamedEntity {
         break;
       case VarTypeMat3:
         if (desc.arraySize == 0) {
-          _cgl.uniformMatrix3fv(l, false, val.storage);
+          _cgl.uniformMatrix3fv(l, false, (val as VM.Matrix3).storage);
         } else if (val is Float32List) {
           _cgl.uniformMatrix3fv(l, false, val);
         } else {
@@ -179,24 +160,21 @@ class RenderProgram extends NamedEntity {
         break;
       case VarTypeVec4:
         if (desc.arraySize == 0) {
-          assert(val.storage.length == 4);
-          _cgl.uniform4fv(l, val.storage);
+          _cgl.uniform4fv(l, (val as VM.Vector4).storage);
         } else {
           _cgl.uniform4fv(l, val);
         }
         break;
       case VarTypeVec3:
         if (desc.arraySize == 0) {
-          assert(val.storage.length == 3);
-          _cgl.uniform3fv(l, val.storage);
+          _cgl.uniform3fv(l, (val as VM.Vector3).storage);
         } else {
           _cgl.uniform3fv(l, val);
         }
         break;
       case VarTypeVec2:
         if (desc.arraySize == 0) {
-          assert(val.storage.length == 2);
-          _cgl.uniform2fv(l, val.storage);
+          _cgl.uniform2fv(l, (val as VM.Vector2).storage);
         } else {
           _cgl.uniform2fv(l, val);
         }
@@ -204,14 +182,14 @@ class RenderProgram extends NamedEntity {
       case VarTypeSampler2D:
       case VarTypeSampler2DShadow:
         _cgl.activeTexture(GL_TEXTURE0 + _nextTextureUnit);
-        _cgl.bindTexture(GL_TEXTURE_2D, val.GetTexture());
+        _cgl.bindTexture(GL_TEXTURE_2D, (val as Texture).GetTexture());
         _cgl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
         break;
       case VarTypeSamplerCube:
         assert(canonical == uCubeTexture);
         _cgl.activeTexture(GL_TEXTURE0 + _nextTextureUnit);
-        _cgl.bindTexture(GL_TEXTURE_CUBE_MAP, val.GetTexture());
+        _cgl.bindTexture(GL_TEXTURE_CUBE_MAP, (val as Texture).GetTexture());
         _cgl.uniform1i(l, _nextTextureUnit);
         _nextTextureUnit++;
         break;
@@ -234,12 +212,8 @@ class RenderProgram extends NamedEntity {
     return out;
   }
 
-  void DrawSetUp() {
-    if (debug) print("[${name} setting attributes");
-    _cgl.useProgram(_program);
-  }
 
-  void _ActivateUniforms(String group, Map<String, dynamic> inputs) {
+  void _ActivateUniforms(String group, Map<String, Object> inputs) {
     int count = 0;
     final DateTime start = new DateTime.now();
 
@@ -261,8 +235,9 @@ class RenderProgram extends NamedEntity {
     LogDebug("setting ${count} var in ${delta}");
   }
 
-  void DrawOne(
-      MeshData md, List<UniformGroup> uniforms, List<DrawStats> stats) {
+  void Draw(
+      MeshData md, List<UniformGroup> uniforms, [List<DrawStats> stats=null]) {
+    _cgl.useProgram(_program);
     _ClearState();
 
     // TODO: put this behind a flag
@@ -291,43 +266,10 @@ class RenderProgram extends NamedEntity {
       //throw mesg;
     }
 
-    md.SetUp();
+    md.Activate();
     bool hasTransforms = _shaderObjectV.transformVars.length > 0;
     _cgl.draw(md.drawMode, md.GetNumItems(), md.elementArrayBufferType, 0,
         md.GetNumInstances(), hasTransforms);
     if (debug) print(_cgl.getProgramInfoLog(_program));
-    md.TearDown();
   }
-
-  void _drawRecursively(Node node, final VM.Matrix4 parent,
-      List<DrawStats> stats, List<UniformGroup> uniforms) {
-    if (!node.enabled) return;
-    // m is read-only!
-    final VM.Matrix4 m = node.UpdateModelMatrix(parent);
-    if (node.SomethingToDraw()) {
-      LogDebug("drawing: ${node}");
-      node.UpdateTransforms(uniforms.last);
-      uniforms.add(node.material);
-      DrawOne(node.meshData, uniforms, stats);
-      uniforms.removeLast();
-    }
-    for (Node child in node.children) {
-      _drawRecursively(child, m, stats, uniforms);
-    }
-  }
-
-  void drawScene(List<DrawStats> stats, List<UniformGroup> uniforms) {
-    DrawSetUp();
-    UniformGroup transforms = new UniformGroup("transforms");
-    uniforms.add(transforms);
-    final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
-    if (debug) print("[draw objects ${objects.length}");
-    for (Node node in objects) {
-      _drawRecursively(node, _modelMatrix, stats, uniforms);
-    }
-    uniforms.removeLast();
-    DrawTearDown();
-  }
-
-  void DrawTearDown() {}
 }

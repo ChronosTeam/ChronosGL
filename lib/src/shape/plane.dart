@@ -19,15 +19,15 @@ GeometryBuilder QuadGeometry(num size) {
   List<VM.Vector3> normals = [n, n, n, n];
 
   GeometryBuilder gb = new GeometryBuilder();
-  gb.EnableAttribute(aTextureCoordinates);
+  gb.EnableAttribute(aTexUV);
   gb.AddVerticesFace4(vertices);
-  gb.AddAttributesVector2(aTextureCoordinates, uvs);
+  gb.AddAttributesVector2(aTexUV, uvs);
   gb.EnableAttribute(aNormal);
   gb.AddAttributesVector3(aNormal, normals);
   return gb;
 }
 
-GeometryBuilder GridGeometry(int xstrips, ystrips, double xlen, double ylen) {
+GeometryBuilder GridGeometry(int xstrips, int ystrips, double xlen, double ylen) {
   final double xoffset = xlen * 0.5;
   final double yoffset = ylen * 0.5;
   final double xdelta = xlen / xstrips;
@@ -61,8 +61,8 @@ GeometryBuilder GridGeometry(int xstrips, ystrips, double xlen, double ylen) {
           index(x, y), index(x + 1, y), index(x + 1, y + 1), index(x, y + 1));
     }
   }
-  gb.EnableAttribute(aTextureCoordinates);
-  gb.AddAttributesVector2(aTextureCoordinates, uvs);
+  gb.EnableAttribute(aTexUV);
+  gb.AddAttributesVector2(aTexUV, uvs);
   gb.EnableAttribute(aNormal);
   gb.AddAttributesVector3(aNormal, normals);
   return gb;

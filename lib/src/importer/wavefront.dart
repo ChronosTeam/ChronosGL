@@ -4,7 +4,7 @@ part of importer;
 
 GeometryBuilder ImportGeometryFromWavefront(String text) {
   GeometryBuilder gb = new GeometryBuilder();
-  gb.EnableAttribute(aTextureCoordinates);
+  gb.EnableAttribute(aTexUV);
   gb.EnableAttribute(aNormal);
 
   // This is a map which associates a range of indices with a name
@@ -88,7 +88,7 @@ GeometryBuilder ImportGeometryFromWavefront(String text) {
         gb.AddVerticesFace4(faceVertices);
       }
       gb.AddAttributesVector3(aNormal, faceNormal);
-      gb.AddAttributesVector2(aTextureCoordinates, faceUvs);
+      gb.AddAttributesVector2(aTexUV, faceUvs);
     }
   }
   final Duration delta = new DateTime.now().difference(start);

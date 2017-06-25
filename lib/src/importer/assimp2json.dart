@@ -24,9 +24,9 @@ GeometryBuilder ImportGeometryFromAssimp2JsonMesh(
   }
   if (mesh.containsKey("texturecoords")) {
     assert(mesh["texturecoords"].length == 1);
-    gb.EnableAttribute(aTextureCoordinates);
+    gb.EnableAttribute(aTexUV);
     gb.AddAttributesVector2(
-        aTextureCoordinates, ConvertToVector2List(mesh['texturecoords'][0]));
+        aTexUV, ConvertToVector2List(mesh['texturecoords'][0]));
   }
   if (mesh.containsKey("tangents")) {
     gb.EnableAttribute(aTangent);

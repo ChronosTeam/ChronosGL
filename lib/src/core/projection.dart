@@ -1,4 +1,4 @@
-part of base;
+part of core;
 
 /// ## Class Orthographic (is a UniformGroup)
 /// TBD
@@ -21,7 +21,7 @@ class Orthographic extends UniformGroup {
   }
 
   @override
-  Map<String, NamedEntity> GetUniforms() {
+  Map<String, Object> GetUniforms() {
     _camera.getViewMatrix(_viewMatrix);
     _projViewMatrix.setFrom(_proj);
     _projViewMatrix.multiply(_viewMatrix);
@@ -86,7 +86,7 @@ class Perspective extends UniformGroup {
   }
 
   @override
-  Map<String, NamedEntity> GetUniforms() {
+  Map<String, Object> GetUniforms() {
     ForceUniform(uEyePosition, _camera.getEyePosition());
     _camera.getViewMatrix(_viewMatrix);
     _perspectiveViewMatrix.setFrom(_mat);

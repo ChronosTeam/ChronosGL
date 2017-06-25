@@ -57,7 +57,7 @@ String _SSAOShaderImpl = """
     
 /*
     float doFog() {
-      float zdepth = unpackDepth( texture(${uDepthMap}, ${vTextureCoordinates} ) );
+      float zdepth = unpackDepth( texture(${uDepthMap}, ${vTexUV} ) );
       float depth = -cameraFar * cameraNear / ( zdepth * cameraFarMinusNear - cameraFar );
       return smoothstep( fogNear, fogFar, depth );
     }
@@ -87,8 +87,8 @@ String _SSAOShaderImpl = """
     float calcAO( float depth, float dw, float dh ) {
       float dd = radius - depth * radius;
       vec2 vv = vec2( dw, dh );
-      vec2 coord1 = ${vTextureCoordinates} + dd * vv;
-      vec2 coord2 = ${vTextureCoordinates} - dd * vv;
+      vec2 coord1 = ${vTexUV} + dd * vv;
+      vec2 coord2 = ${vTexUV} - dd * vv;
       float temp1 = 0.0;
       float temp2 = 0.0;
       int far = 0;
@@ -104,8 +104,8 @@ String _SSAOShaderImpl = """
       float width = ${uCanvasSize}.x;
       float height = ${uCanvasSize}.y;
 
-      vec2 noise = rand( ${vTextureCoordinates} );
-      float depth = readDepth( ${vTextureCoordinates} );
+      vec2 noise = rand( ${vTexUV} );
+      float depth = readDepth( ${vTexUV} );
       float tt = clamp( depth, aoClamp, 1.0 );
       float w = ( 1.0 / width )  / tt + ( noise.x * ( 1.0 - noise.x ) );
       float h = ( 1.0 / height ) / tt + ( noise.y * ( 1.0 - noise.y ) );
@@ -134,7 +134,7 @@ String _SSAOShaderImpl = """
 */
 
       // Diffuse
-      vec3 color = texture(${uTexture}, ${vTextureCoordinates} ).rgb;
+      vec3 color = texture(${uTexture}, ${vTexUV} ).rgb;
       vec3 lumcoeff = vec3( 0.299, 0.587, 0.114 );
       float lum = dot( color.rgb, lumcoeff );
       vec3 luminance = vec3( lum );
@@ -152,14 +152,14 @@ String _SSAOShaderImpl = """
 List<ShaderObject> createSSAOShader() {
   return [
     new ShaderObject("SSAOV")
-      ..AddAttributeVars([aVertexPosition, aTextureCoordinates])
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddAttributeVars([aPosition, aTexUV])
+      ..AddVaryingVars([vTexUV])
       ..SetBodyWithMain([
         NullVertexBody,
         StdVertexTextureForward,
       ]),
     new ShaderObject("SSAOF")
-      ..AddVaryingVars([vTextureCoordinates])
+      ..AddVaryingVars([vTexUV])
       //..AddUniformVar(uFogEnabled)
       //..AddUniformVar(uFogNear)
       //..AddUniformVar(uFogFar)

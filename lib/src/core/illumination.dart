@@ -1,4 +1,4 @@
-part of base;
+part of core;
 
 final VM.Vector3 _up = new VM.Vector3(0.0, 1.0, 0.0);
 final VM.Vector3 _up2 = new VM.Vector3(0.0, 0.0, 1.0);
@@ -228,7 +228,7 @@ class Illumination extends UniformGroup {
   }
 
   @override
-  Map<String, NamedEntity> GetUniforms() {
+  Map<String, Object> GetUniforms() {
     _SetLightInfo(_lightDescs, _lightTypes, _lights);
     ForceUniform(uLightDescs, _lightDescs);
     ForceUniform(uLightTypes, _lightTypes);

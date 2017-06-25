@@ -1,20 +1,22 @@
 part of core;
 
-class ChronosFramebuffer {
+const int GL_CLEAR_ALL = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+
+class Framebuffer {
   ChronosGL _cgl;
 
-  dynamic /* gl Framebuffer */ framebuffer;
+  dynamic /* gl Framebuffer */ _framebuffer;
   Texture colorTexture;
   Texture depthTexture;
   Texture stencilTexture;
 
-  ChronosFramebuffer(this._cgl, this.colorTexture,
+  Framebuffer(this._cgl, this.colorTexture,
       [this.depthTexture,
       this.stencilTexture = null,
       bool depthStencilCombined = false]) {
-    framebuffer = _cgl.createFramebuffer();
+    _framebuffer = _cgl.createFramebuffer();
 
-    _cgl.bindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     if (colorTexture != null) {
       _cgl.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
           GL_TEXTURE_2D, colorTexture.GetTexture(), 0);
@@ -44,7 +46,9 @@ class ChronosFramebuffer {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
   }
 
-  ChronosFramebuffer.Default(ChronosGL cgl, int w, int h)
+  Framebuffer.Screen(this._cgl) : _framebuffer = null;
+
+  Framebuffer.Default(ChronosGL cgl, int w, int h)
       : this(
             cgl,
             new TypedTexture(
@@ -52,7 +56,7 @@ class ChronosFramebuffer {
             new DepthTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
                 GL_UNSIGNED_INT, false));
 
-  ChronosFramebuffer.DefaultWithStencil(ChronosGL cgl, int w, int h)
+  Framebuffer.DefaultWithStencil(ChronosGL cgl, int w, int h)
       : this(
             cgl,
             new TypedTexture(
@@ -61,19 +65,22 @@ class ChronosFramebuffer {
             null,
             true);
 
-  bool ready() {
-    bool result =
-        _cgl.checkFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
-    if (!result) {
-      print("FRAMEBUFFER_INCOMPLETE");
+  void Activate(int clear_mode, int viewPortX, int viewPortY, int viewPortW,
+      int viewPortH) {
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+
+    assert(viewPortW > 0 && viewPortH > 0);
+    _cgl.viewport(viewPortX, viewPortY, viewPortW, viewPortH);
+
+    if (clear_mode != 0) {
+      _cgl.clear(clear_mode);
     }
-    return result;
   }
 
   // e.g. into Float32List
   // BROKEN: https://github.com/dart-lang/sdk/issues/11614
-  void ExtractData(var buf, int x, int y, int w, int h) {
-    _cgl.bindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+  void ExtractData(Object buf, int x, int y, int w, int h) {
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     // RGB (3 values per pixel), RGBA (4 values per pixel)
     // see TypeToNumChannels
     int implFormat = _cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_FORMAT);

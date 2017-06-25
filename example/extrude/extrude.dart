@@ -18,14 +18,21 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  int w = canvas.clientWidth;
+  int h = canvas.clientHeight;
+  canvas.width = w;
+  canvas.height = h;
   ChronosGL chronosGL = new ChronosGL(canvas);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram program = phase.createProgram(createSolidColorShader());
+  Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
+    ..AdjustAspect(w, h);
+  RenderProgram prog = new RenderProgram(
+      "basic", chronosGL, solidColorVertexShader, solidColorFragmentShader);
+
   final Material matWire = new Material("wire")
-    ..SetUniform(uColor, ColorYellow);
+    ..SetUniform(uColor, ColorYellow)
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
 
   List<VM.Vector2> base = ContourCircle(20, 10.0);
   List<VM.Vector2> grad = GetContourGradient(base);
@@ -36,9 +43,8 @@ void main() {
     Easing easingWidth = MapStringToEasing[gEasingWidth.value];
     Easing easingHeight = MapStringToEasing[gEasingHeight.value];
     int segments = gSegments.valueAsNumber;
-    List<VM.Vector2> supports =
-        BevelSupportPoints(width, height, segments, widthEasing: easingWidth,
-        heightEasing: easingHeight);
+    List<VM.Vector2> supports = BevelSupportPoints(width, height, segments,
+        widthEasing: easingWidth, heightEasing: easingHeight);
     List<List<VM.Vector3>> strips =
         BevelStrips(base, grad, supports, new VM.Matrix3.identity());
     GeometryBuilder gb = new GeometryBuilder();
@@ -46,33 +52,17 @@ void main() {
     return GeometryBuilderToMeshDataWireframe("", prog, gb);
   }
 
-  Node node = new Node("pipe", MakeBevelMesh(program), matWire);
-  program.add(node);
-
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
-    node.meshData = MakeBevelMesh(program);
+    _lastTimeMs = timeMs + 0.0;
+    MeshData wire = MakeBevelMesh(prog);
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
-    phase.draw([perspective]);
+    prog.Draw(wire, [perspective, matWire]);
+
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs);
   }
 
   animate(0.0);

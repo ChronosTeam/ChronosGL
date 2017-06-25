@@ -404,13 +404,13 @@ String MakeStandardFragment(bool useSpecularTerm, List<LightConfig> configs) {
 List<ShaderObject> createStandardShader(
     bool useSpecularTerm, List<LightConfig> configs) {
   ShaderObject v = new ShaderObject("StandardV")
-    ..AddAttributeVar(aVertexPosition)
+    ..AddAttributeVar(aVertex)
     ..AddUniformVar(uPerspectiveViewMatrix)
     ..AddUniformVar(uModelMatrix)
-    ..AddAttributeVar(aTextureCoordinates)
-    ..AddVaryingVar(vTextureCoordinates)
+    ..AddAttributeVar(aTexUV)
+    ..AddVaryingVar(vTexUV)
     ..SetBodyWithMain(
-        [StdVertexBody, "${vTextureCoordinates} = ${aTextureCoordinates};"]);
+        [StdVertexBody, "${vTexUV} = ${aTexUV};"]);
 
   ShaderObject f = new ShaderObject("StandardF")
     ..AddVaryingVar(vVertexPosition)

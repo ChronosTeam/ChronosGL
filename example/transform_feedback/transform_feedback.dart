@@ -18,15 +18,13 @@ final HTML.SelectElement gParticles = HTML.document.querySelector('#particles');
 final HTML.InputElement gCpuCompute =
     HTML.document.querySelector('#cpucompute');
 
-List<ShaderObject> createParticleShader() {
-  return [
-    new ShaderObject("ParticleV")
-      ..AddAttributeVars([aVertexPosition])
-      ..AddUniformVars(
-          [uPerspectiveViewMatrix, uModelMatrix, uPointSize, uSources, uSinks])
-      ..AddTransformVars([tPosition])
-      ..SetBody([
-        """
+final ShaderObject particleVertexShader = new ShaderObject("ParticleV")
+  ..AddAttributeVars([aPosition])
+  ..AddUniformVars(
+      [uPerspectiveViewMatrix, uModelMatrix, uPointSize, uSources, uSinks])
+  ..AddTransformVars([tPosition])
+  ..SetBody([
+    """
 const float kMaxDistance = ${kMaxDistance};
 const float kMinDistance = ${kMinDistance};
 const float dt = 0.06;  
@@ -72,25 +70,24 @@ vec3 Update(vec3 pos, vec3 seed) {
       
 void main() {        
     gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * 
-                  vec4(${aVertexPosition}, 1.0);
+                  vec4(${aPosition}, 1.0);
     gl_PointSize = ${uPointSize}/gl_Position.z;
     
     // new position for next round
-    ${tPosition} = Update(${aVertexPosition}, gl_Position.xyz);
+    ${tPosition} = Update(${aPosition}, gl_Position.xyz);
 }
 """
-      ]),
-    new ShaderObject("ParticleF")
-      ..AddUniformVars([uTexture])
-      ..SetBody([
-        """
+  ]);
+
+final ShaderObject particleFragmentShader = new ShaderObject("ParticleF")
+  ..AddUniformVars([uTexture])
+  ..SetBody([
+    """
 void main() {
       ${oFragColor} = texture( ${uTexture},  gl_PointCoord);
 }
 """
-      ])
-  ];
-}
+  ]);
 
 String DumpVec(VM.Vector3 v) => "${v.x} ${v.y} ${v.z}";
 
@@ -130,7 +127,7 @@ class Ion {
       if (len > kMaxDistance) {
         Pole p = srcs[rng.nextInt(srcs.length)];
         _pos = p.Pos() + RandomVector(rng, 0.35);
-        print("too far ${len}");
+        //print("too far ${len}");
         return;
       }
       // the further the distance the weaker the force
@@ -144,7 +141,7 @@ class Ion {
       if (len <= kMinDistance) {
         Pole p = srcs[rng.nextInt(srcs.length)];
         _pos = p.Pos() + RandomVector(rng, 0.35);
-        print("too close: ${len}");
+        //print("too close: ${len}");
         return;
       }
       force += t / (len * len);
@@ -201,32 +198,33 @@ void main() {
   IntroduceNewShaderVar(
       uSinks, new ShaderVarDesc(VarTypeVec3, "", arraySize: 5));
 
-  StatsFps fps =
+  final StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   final Math.Random rng = new Math.Random(0);
 
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  final HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas');
   final int width = canvas.clientWidth;
   final int height = canvas.clientHeight;
   canvas.width = width;
   canvas.height = height;
 
-  ChronosGL chronosGL = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(15.0, 0.5, 0.5, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
+  final ChronosGL chronosGL = new ChronosGL(canvas);
+  final OrbitCamera orbit = new OrbitCamera(15.0, 0.5, 0.5, canvas);
+  final Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
     ..AdjustAspect(width, height);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL)
-    ..viewPortW = width
-    ..viewPortH = height;
-  RenderProgram programJS = phase.createProgram(createPointSpritesShader());
-  RenderProgram programGPU = phase.createProgram(createParticleShader());
+  final RenderProgram programJS = new RenderProgram(
+      "CPU", chronosGL, pointSpritesVertexShader, pointSpritesFragmentShader);
+  final RenderProgram programGPU = new RenderProgram(
+      "GPU", chronosGL, particleVertexShader, particleFragmentShader);
+  final int bindingIndex = programGPU.GetTransformBindingIndex(tPosition);
+  print ("@@@@ ${bindingIndex}");
 
-
-  List<Pole> srcPoles =
+  final List<Pole> srcPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, 2.0, 3.0);
-  List<Pole> dstPoles =
+  final List<Pole> dstPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, -2.0, 3.0);
 
   List<Ion> ions = [new Ion(RandomVector(rng, kMaxDistance * 100.0))];
@@ -236,14 +234,15 @@ void main() {
   // JS version setup
   Material matJS = new Material.Transparent("stars", BlendEquationMix)
     ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity())
     ..SetUniform(uPointSize, 200.0);
   MeshData mdJS = programJS.MakeMeshData("mdJS", GL_POINTS)
     ..AddVertices(ionsPos);
-  programJS.add(new Node("ionsJS", mdJS, matJS));
 
   // GPU version setup
   Material matGPU = new Material.Transparent("stars", BlendEquationMix)
     ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity())
     ..SetUniform(uPointSize, 200.0)
     ..SetUniform(uSources, ExtractPolePos(srcPoles))
     ..SetUniform(uSinks, ExtractPolePos(dstPoles));
@@ -252,12 +251,6 @@ void main() {
     ..AddVertices(ionsPos);
   MeshData mdIn = programGPU.MakeMeshData("ionsIn", GL_POINTS)
     ..AddVertices(ionsPos);
-  programGPU.add(new Node("ionsGPU", mdIn, matGPU));
-
-  void SelectRenderer(HTML.Event ev) {
- programJS.enabled = gCpuCompute.checked;
-  programGPU.enabled = !programJS.enabled;
- }
 
   void ResizeIons(HTML.Event ev) {
     int n = int.parse(gParticles.value);
@@ -270,11 +263,11 @@ void main() {
     ionsPos = new Float32List(3 * n);
     ExtractIonPos(ions, ionsPos);
     chronosGL.bindBuffer(GL_ARRAY_BUFFER, null);
-    chronosGL.bindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, null);
+    chronosGL.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex, null);
     mdOut.ChangeVertices(ionsPos);
     mdIn.ChangeVertices(ionsPos);
-    chronosGL.bindBufferBase(
-        GL_TRANSFORM_FEEDBACK_BUFFER, 0, mdOut.GetBuffer(aVertexPosition));
+    chronosGL.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex,
+        mdOut.GetBuffer(aPosition));
   }
 
   void UpdateIonsJS(double t) {
@@ -289,30 +282,27 @@ void main() {
   chronosGL.bindTransformFeedback(transform);
 
   ResizeIons(null);
-  SelectRenderer(null);
 
-  void animate(timeMs) {
-    orbit.azimuth += 0.001;
+  void animate(num timeMs) {
+    orbit.azimuth += 0.002;
     orbit.animate(0.0); // argument is not used
 
-    if (programJS.enabled) UpdateIonsJS(0.06);
-
-    phase.draw([perspective]);
-
-    HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs);
-
-    // use vertex shader output as input for next round
-    if (programGPU.enabled) {
-      chronosGL.bindBuffer(GL_ARRAY_BUFFER, mdIn.GetBuffer(aVertexPosition));
+    if (gCpuCompute.checked) {
+      UpdateIonsJS(0.06);
+      programJS.Draw(mdJS, [perspective, matJS]);
+    } else {
+      programGPU.Draw(mdIn, [perspective, matGPU]);
+      // use vertex shader output as input for next round
+      chronosGL.bindBuffer(GL_ARRAY_BUFFER, mdIn.GetBuffer(aPosition));
       chronosGL.bindBuffer(
-          GL_TRANSFORM_FEEDBACK_BUFFER, mdOut.GetBuffer(aVertexPosition));
+          GL_TRANSFORM_FEEDBACK_BUFFER, mdOut.GetBuffer(aPosition));
       chronosGL.copyBufferSubData(
           GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0, ions.length * 3);
     }
+    HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs);
   }
 
   gParticles.onChange.listen(ResizeIons);
-  gCpuCompute.onChange.listen(SelectRenderer);
   animate(0.0);
 }

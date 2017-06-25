@@ -4,7 +4,7 @@ library importer;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-import "../base/lib.dart";
+import "../core/lib.dart";
 import "../animation/lib.dart";
 
 /// # Layer: Importer (uses Base Layer)

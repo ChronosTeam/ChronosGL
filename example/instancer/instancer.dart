@@ -3,33 +3,40 @@ import 'dart:html' as HTML;
 import 'dart:typed_data';
 import 'package:vector_math/vector_math.dart' as VM;
 
-List<ShaderObject> createInstancedShader() {
-  return [
-    new ShaderObject("InstancedV")
-      ..AddAttributeVars([aVertexPosition])
-      ..AddAttributeVars([iaRotation, iaTranslation])
-      ..AddVaryingVars([vColor])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..SetBody([
-        """
-        vec3 rotate_vertex_position(vec3 pos, vec4 rot) { 
-          return pos + 2.0 * cross(rot.xyz, cross(rot.xyz, pos) + rot.w * pos);
-        }
+final ShaderObject instancedVertexShader = new ShaderObject("InstancedV")
+  ..AddAttributeVars([aPosition])
+  ..AddAttributeVars([iaRotation, iaTranslation])
+  ..AddVaryingVars([vColor])
+  ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
+  ..SetBody([
+    """
+vec3 rotate_vertex_position(vec3 pos, vec4 rot) { 
+    return pos + 2.0 * cross(rot.xyz, cross(rot.xyz, pos) + rot.w * pos);
+}
 
-        void main(void) {
-          vec3 P = rotate_vertex_position(${aVertexPosition}, ${iaRotation}) +
-                    ${iaTranslation};
-          gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(P, 1);
-          ${vColor} = vec3( sin(${aVertexPosition}.x)/2.0+0.5,
-                       cos(${aVertexPosition}.y)/2.0+0.5, 
-                       sin(${aVertexPosition}.z)/2.0+0.5);
-        }
-        """
-      ]),
-    new ShaderObject("InstancedF")
-      ..AddVaryingVars([vColor])
-      ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1. );"])
-  ];
+void main(void) {
+    vec3 P = rotate_vertex_position(${aPosition}, ${iaRotation}) +
+             ${iaTranslation};
+    gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(P, 1);
+    ${vColor} = vec3(sin(${aPosition}.x)/2.0+0.5,
+                     cos(${aPosition}.y)/2.0+0.5, 
+                     sin(${aPosition}.z)/2.0+0.5);
+}
+"""
+  ]);
+
+final ShaderObject instancedFragmentShader = new ShaderObject("InstancedF")
+  ..AddVaryingVars([vColor])
+  ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1. );"]);
+
+Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
+  Scene scene = new Scene(
+      "stars",
+      new RenderProgram(
+          "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
+      [perspective]);
+  scene.add(Utils.MakeParticles(scene.program, num));
+  return scene;
 }
 
 void AddInstanceData(MeshData md) {
@@ -60,21 +67,25 @@ void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+
   ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(265.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram prg = phase.createProgram(createInstancedShader());
+  Scene scene = new Scene(
+      "instanced",
+      new RenderProgram("instanced", chronosGL, instancedVertexShader,
+          instancedFragmentShader),
+      [perspective]);
+  phase.add(scene);
 
   Material mat = new Material("mat");
-  MeshData md = ShapeTorusKnot(prg, radius: 12.0);
+  MeshData md = ShapeTorusKnot(scene.program, radius: 12.0);
   AddInstanceData(md);
-  Node m = new Node("torus", md, mat);
-  prg.add(m);
+  scene.add(new Node("torus", md, mat));
 
-  RenderProgram programSprites =
-      phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(programSprites, 2000));
+  phase.add(MakeStarScene(chronosGL, perspective, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -91,15 +102,15 @@ void main() {
   HTML.window.onResize.listen(resolutionChange);
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
-    phase.draw([perspective]);
+    phase.Draw();
+
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs);
   }
 
   animate(0.0);

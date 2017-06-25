@@ -12,16 +12,19 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram basic = phase.createProgram(createTexturedShader());
-
-  //Texture texture = new ImageTexture(chronosGL, "../gradient.jpg");
+  Scene scene = new Scene(
+      "objects",
+      new RenderProgram(
+          "solid", chronosGL, texturedVertexShader, texturedFragmentShader),
+      [perspective]);
+  phase.add(scene);
 
   final Material matGradient = new Material("gradient")
     ..SetUniform(uColor, ColorBlack);
 
-  Node cube = new Node("cube", ShapeCube(basic), matGradient)
+  Node cube = new Node("cube", ShapeCube(scene.program), matGradient)
     ..setPos(-5.0, 0.0, -5.0);
-  basic.add(cube);
+  scene.add(cube);
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -41,10 +44,9 @@ void main() {
   ImageTexture texture;
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     try {
@@ -53,7 +55,7 @@ void main() {
       print(exception);
     }
     List<DrawStats> stats = [];
-    phase.draw([perspective], stats);
+    phase.Draw(stats);
     List<String> out = [];
     for (DrawStats d in stats) {
       out.add(d.toString());
@@ -64,7 +66,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  List<Future<dynamic>> futures = [
+  List<Future<Object>> futures = [
     MakeVideoElementFromCamera(),
     //LoadVideo("movie.ogv"),
   ];

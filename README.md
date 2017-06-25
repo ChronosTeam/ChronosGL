@@ -9,12 +9,16 @@ A simple WebGL2 engine written in Dart
 ## Features:
 
 * MIT licensed
-* simple code and API through small number of abstractions
-* lightweight and fast (clsoe to "baremetal")
-* Fully WebGL2 and GLSL 3.00es based (as of version 3.X)
-* capture keyboard and mouse events
-* great support for canvas based textures including skybox
-* focus on procedural content generation and textureless rendering
+* straight-forward API
+* lightweight (close to "baremetal")
+* fully based on WebGL2 and GLSL 3.00es 
+* keyboard and mouse event capture
+* support for canvas based textures including skybox
+* focus on procedural content generation
+* optional basic scenegraph
+* importer for several file formats
+* bone animations
+* few dependencies
 
 ## Code
 
@@ -28,13 +32,13 @@ A simple WebGL2 engine written in Dart
 
 ## Usage
 
-*You must use Dartium (Version 50 or later) and Dart SDK (Version 1.24.0-dev.6.9-1 or later)*
+*You must use Dartium (Version 50 or later) and Dart SDK (Version 1.24.0 or later)*
 
 Create a new Dart webapp project, add this as a pubspec.yaml dependency:
         dependencies:
           chronosgl: any
 
-You may also need the vector_math library which is the only library that ChronosGL
+You also need the vector_math library which is the only library that ChronosGL
 is dependent on.
 
 

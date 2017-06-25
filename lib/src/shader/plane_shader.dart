@@ -3,11 +3,11 @@ part of chronosshader;
 List<ShaderObject> createPlane2GreyShader() {
   return [
     new ShaderObject("Plane2GreyV")
-      ..AddAttributeVars([aVertexPosition, aNormal])
+      ..AddAttributeVars([aPosition, aNormal])
       ..AddVaryingVars([vColor])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..SetBodyWithMain([
-        "float d = sin(dot( ${aVertexPosition}, ${aNormal})) / 2.0 + 0.5;",
+        "float d = sin(dot( ${aPosition}, ${aNormal})) / 2.0 + 0.5;",
         "${vColor} = vec3(d,d,d);",
         StdVertexBody,
       ]),
@@ -37,8 +37,8 @@ vec3 HSV2RGB( vec3 hsv )
 }
 
 void main(void) {
-  gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(${aVertexPosition}, 1.0);
-  float d=dot( ${aVertexPosition}, ${aNormal});
+  gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(${aPosition}, 1.0);
+  float d=dot( ${aPosition}, ${aNormal});
   vec3 hsv = vec3(d,1,1);
   ${vColor} = HSV2RGB(hsv);
 }
@@ -47,7 +47,7 @@ void main(void) {
 List<ShaderObject> createPlane2ColorShader() {
   return [
     new ShaderObject("Plane2ColorV")
-      ..AddAttributeVars([aVertexPosition, aNormal])
+      ..AddAttributeVars([aPosition, aNormal])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..AddVaryingVars([vColor])
       ..SetBody([_VertexShaderPlane2ColorV]),

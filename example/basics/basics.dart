@@ -3,6 +3,16 @@ import 'dart:html' as HTML;
 import 'package:chronosgl/chronosgl.dart';
 import "dart:async";
 
+Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective,int num) {
+  Scene scene = new Scene(
+      "stars",
+      new RenderProgram("stars", cgl, pointSpritesVertexShader,
+          pointSpritesFragmentShader),
+      [perspective]);
+  scene.add(Utils.MakeParticles(scene.program, num));
+  return scene;
+}
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -13,10 +23,15 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram basic = phase.createProgram(createTexturedShader());
+  Scene scene = new Scene(
+      "objects",
+      new RenderProgram(
+          "textured", chronosGL, texturedVertexShader, texturedFragmentShader),
+      [perspective]);
+  phase.add(scene);
 
   final Material matWood = new Material("wood")
-    ..SetUniform(uColor, ColorYellow);
+    ..SetUniform(uColor, ColorBlack);
 
   final Material matGradient = new Material("gradient")
     ..SetUniform(uColor, ColorRed);
@@ -26,37 +41,36 @@ void main() {
     ..ForceUniform(cBlendEquation, BlendEquationStandard);
 
   {
-    Node ico = new Node("sphere", ShapeIcosahedron(basic, 3), matWood)
+    Node ico = new Node("sphere", ShapeIcosahedron(scene.program, 3), matWood)
       ..setPos(0.0, 0.0, 0.0);
-    basic.add(ico);
+    scene.add(ico);
   }
   {
-    Node cube = new Node("cube", ShapeCube(basic), matGradient)
+    Node cube = new Node("cube", ShapeCube(scene.program), matGradient)
       ..setPos(-5.0, 0.0, -5.0);
-    basic.add(cube);
+    scene.add(cube);
   }
 
   {
     Node cyl = new Node(
-        "cylinder", ShapeCylinder(basic, 3.0, 6.0, 2.0, 32), matTrans)
+        "cylinder", ShapeCylinder(scene.program, 3.0, 6.0, 2.0, 32), matTrans)
       ..setPos(5.0, 0.0, -5.0);
-    basic.add(cyl);
+    scene.add(cyl);
   }
   {
-    Node quad = new Node("quad", ShapeQuad(basic, 2), matTrans)
+    Node quad = new Node("quad", ShapeQuad(scene.program, 2), matTrans)
       //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
       ..setPos(-5.0, 0.0, 5.0);
-    basic.add(quad);
+    scene.add(quad);
   }
   {
-    Node torus = new Node(
-        "torus", ShapeTorusKnot(basic, radius: 1.0, tube: 0.4), matGradient)
+    Node torus = new Node("torus",
+        ShapeTorusKnot(scene.program, radius: 1.0, tube: 0.4), matGradient)
       ..setPos(5.0, 0.0, 5.0);
-    basic.add(torus);
+    scene.add(torus);
   }
 
-  RenderProgram sprites = phase.createProgram(createPointSpritesShader());
-  sprites.add(Utils.MakeParticles(sprites, 2000));
+  phase.add(MakeStarScene(chronosGL, perspective, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -73,26 +87,24 @@ void main() {
   HTML.window.onResize.listen(resolutionChange);
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
 
     List<DrawStats> stats = [];
-    phase.draw([perspective], stats);
+    phase.Draw(stats);
     List<String> out = [];
     for (DrawStats d in stats) {
       out.add(d.toString());
     }
 
-    fps.UpdateFrameCount(timeMs, out.join("<br>"));
-
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs, out.join("<br>"));
   }
 
-  List<Future<dynamic>> futures = [
+  List<Future<Object>> futures = [
     LoadImage("../gradient.jpg"),
     LoadImage("../transparent.png"),
     LoadImage("../wood.jpg"),

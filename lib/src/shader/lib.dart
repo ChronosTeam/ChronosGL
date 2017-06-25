@@ -2,7 +2,7 @@ library chronosshader;
 
 import 'dart:math' as Math;
 
-import "../base/lib.dart";
+import "../core/lib.dart";
 
 /// # Layer: Shader (uses Base Layer)
 /// provides many standard Vertex and Fragment shaders.

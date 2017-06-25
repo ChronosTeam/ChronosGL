@@ -4,15 +4,13 @@ import 'dart:html' as HTML;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-List<ShaderObject> createFireWorksShader() {
-  return [
-    new ShaderObject("FireWorksV")
-      ..AddAttributeVars([aVertexPosition, aNormal])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uTime])
-      ..SetBodyWithMain([
-        """
+final ShaderObject fireworksVertexShader = new ShaderObject("FireWorksV")
+  ..AddAttributeVars([aPosition, aNormal])
+  ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uTime])
+  ..SetBodyWithMain([
+    """
       float t = mod(${uTime}, 5.0);
-      vec3 vp = ${aVertexPosition};
+      vec3 vp = ${aPosition};
       if( t < 3.0) {
        vp.y = t;
       } else {
@@ -22,11 +20,12 @@ List<ShaderObject> createFireWorksShader() {
       gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(vp, 1.0);
       gl_PointSize = 100.0/gl_Position.z;
 """
-      ]),
-    new ShaderObject("FireWorksF")
-      ..AddUniformVars([uTime, uColor, uTexture])
-      ..SetBodyWithMain([
-        """
+  ]);
+
+final ShaderObject fireworksFragmentShader = new ShaderObject("FireWorksF")
+  ..AddUniformVars([uTime, uColor, uTexture])
+  ..SetBodyWithMain([
+    """
       ${oFragColor} = texture(${uTexture}, gl_PointCoord);
       float t = mod(${uTime}, 5.0);
       if( t < 3.0) {
@@ -36,14 +35,11 @@ List<ShaderObject> createFireWorksShader() {
          ${oFragColor}.a -= (t-3.0);
       }
 """
-      ])
-  ];
-}
+  ]);
 
-Math.Random rand = new Math.Random();
-
-Node getRocket(RenderProgram prog, Texture tw) {
+MeshData getRocket(RenderProgram prog) {
   int numPoints = 200;
+  Math.Random rand = new Math.Random();
 
   List<VM.Vector3> vertices = [];
   List<VM.Vector3> normals = [];
@@ -53,55 +49,48 @@ Node getRocket(RenderProgram prog, Texture tw) {
         rand.nextDouble() - 0.5));
   }
 
-  MeshData md = prog.MakeMeshData("firefwork-particles", GL_POINTS)
+  return prog.MakeMeshData("firefwork-particles", GL_POINTS)
     ..AddVertices(FlattenVector3List(vertices))
     ..AddAttribute(aNormal, FlattenVector3List(normals), 3);
-
-  Material mat = new Material.Transparent("mat", BlendEquationMix)
-    ..SetUniform(uTexture, tw)
-    ..SetUniform(uColor, ColorRed);
-  return new Node(md.name, md, mat);
 }
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  // Make sure canvas is really full screen
+  final int w = canvas.clientWidth;
+  final int h = canvas.clientHeight;
+  canvas.width = w;
+  canvas.height = h;
+
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  RenderPhase phase = new RenderPhase("main", chronosGL);
+  perspective.AdjustAspect(w, h);
 
-  RenderProgram programSprites =
-      phase.createProgram(createPointSpritesShader());
-  programSprites.add(Utils.MakeParticles(programSprites, 2000));
+  // used for both stars and fireworks
+  Material material = Utils.MakeStarMaterial(chronosGL)
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity())
+    ..SetUniform(uColor, ColorRed);
 
-  RenderProgram pssp = phase.createProgram(createFireWorksShader());
-  pssp.add(
-      getRocket(pssp, Utils.createParticleTexture(chronosGL, "fireworks")));
-  UniformGroup uniforms = new UniformGroup("fireworks");
+  RenderProgram progSprites = new RenderProgram(
+      "basic", chronosGL, pointSpritesVertexShader, pointSpritesFragmentShader);
+  MeshData stars = Utils.MakeStarMesh(progSprites, 2000, 100.0);
 
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
+  RenderProgram pssp = new RenderProgram(
+      "fireworks", chronosGL, fireworksVertexShader, fireworksFragmentShader);
+  MeshData rocket = getRocket(pssp);
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    uniforms.ForceUniform(uTime, timeMs / 1000.0);
-    phase.draw([perspective, uniforms]);
+    material.ForceUniform(uTime, timeMs / 1000.0);
+
+    progSprites.Draw(stars, [perspective, material]);
+    pssp.Draw(rocket, [perspective, material]);
+
     HTML.window.animationFrame.then(animate);
   }
 

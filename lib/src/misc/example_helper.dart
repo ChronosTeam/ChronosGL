@@ -20,7 +20,7 @@ class Utils {
 */
 
   static HTML.CanvasElement createCanvas(
-      HTML.CanvasElement canvas, callback(HTML.CanvasRenderingContext2D ctx),
+      HTML.CanvasElement canvas, void callback(HTML.CanvasRenderingContext2D ctx),
       [int size = 512]) {
     if (canvas == null)
       canvas = new HTML.CanvasElement(width: size, height: size);
@@ -79,10 +79,10 @@ class Utils {
     }, d);
   }
 
-  static Node MakeSkycube(gl, Texture cubeTexture) {
+  static Node MakeSkycube(RenderProgram prog, Texture cubeTexture) {
     Material mat = new Material("skycube")
       ..SetUniform(uCubeTexture, cubeTexture);
-    MeshData md = ShapeCube(gl, x: 512.0, y: 512.0, z: 512.0);
+    MeshData md = ShapeCube(prog, x: 512.0, y: 512.0, z: 512.0);
     return new Node("skycube", md, mat);
   }
 
@@ -168,24 +168,29 @@ class Utils {
 
   static int id = 1;
 
-  static Node MakeParticles(RenderProgram prog, int numPoints,
-      [int dimension = 100]) {
-    Material mat = new Material.Transparent("stars", BlendEquationMix)
-      ..SetUniform(uTexture, createParticleTexture(prog.getContext()))
-      ..SetUniform(uPointSize, 1000.0);
+  static Math.Random rand = new Math.Random();
 
-    Math.Random rand = new Math.Random();
-    GeometryBuilder gb = new GeometryBuilder(true);
-    for (var i = 0; i < numPoints; i++) {
-      gb.AddVertex(new VM.Vector3(
-          (rand.nextDouble() - 0.5) * dimension,
-          (rand.nextDouble() - 0.5) * dimension,
-          (rand.nextDouble() - 0.5) * dimension));
+  static MeshData MakeStarMesh(
+      RenderProgram prog, int numPoints, double dimension) {
+    final String name = 'stars_${numPoints}';
+    Float32List pos = new Float32List(numPoints * 3);
+    for (var i = 0; i < numPoints * 3; i++) {
+      pos[i] = (rand.nextDouble() - 0.5) * dimension;
     }
+    return prog.MakeMeshData(name, GL_POINTS)..AddVertices(pos);
+  }
 
-    id++;
-    final String name = 'point_sprites_mesh_' + id.toString();
-    return new Node(name, GeometryBuilderToMeshData(name, prog, gb), mat);
+  static Material MakeStarMaterial(ChronosGL cgl, [double size = 1000.0]) {
+    return new Material.Transparent("stars", BlendEquationMix)
+      ..SetUniform(uTexture, createParticleTexture(cgl))
+      ..SetUniform(uPointSize, size);
+  }
+
+  static Node MakeParticles(RenderProgram prog, int numPoints,
+      [double dimension = 100.0]) {
+    Material mat = MakeStarMaterial(prog.getContext());
+    MeshData md = MakeStarMesh(prog, numPoints, dimension);
+    return new Node(md.name, md, mat);
   }
 
   static String getQueryVariable(String name) {
@@ -269,8 +274,8 @@ MeshData ShapeQuad(RenderProgram prog, int size) {
   return GeometryBuilderToMeshData("quad", prog, gb);
 }
 
-MeshData ShapeGrid(RenderProgram prog,
-    int xstrips, int ystrips, double xlen, double ylen) {
+MeshData ShapeGrid(
+    RenderProgram prog, int xstrips, int ystrips, double xlen, double ylen) {
   GeometryBuilder gb = GridGeometry(xstrips, ystrips, xlen, ylen);
   return GeometryBuilderToMeshData("strips", prog, gb);
 }

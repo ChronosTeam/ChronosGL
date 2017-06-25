@@ -1,4 +1,4 @@
-part of base;
+part of core;
 
 /// ## Class NamedEntity
 /// is inherited by almost all other classes in ChronosGL.
@@ -24,21 +24,21 @@ final NamedEntity kUnknownEntity = new UnknownEntity();
 /// is an abstraction for a set of uniforms
 ///
 /// Important subclasses are:
-/// a Projections object to provide a perspective matrix uniform
-/// or Material object to provide color and texture uniforms
-/// or ...
+/// * Projection provides a perspective matrix uniform
+/// * Material provides color and texture uniforms
+/// * Illumination provides uniforms describing light sources
 class UniformGroup extends NamedEntity {
   UniformGroup(String name) : super(name);
 
-  Map<String, dynamic> _uniforms = {};
+  Map<String, Object> _uniforms = {};
 
-  void SetUniform(String canonical, dynamic val) {
+  void SetUniform(String canonical, Object val) {
     assert(
     !_uniforms.containsKey(canonical), "uniform ${canonical} already set");
     ForceUniform(canonical, val);
   }
 
-  void ForceUniform(String canonical, dynamic val) {
+  void ForceUniform(String canonical, Object val) {
     _uniforms[canonical] = val;
   }
 
@@ -46,5 +46,5 @@ class UniformGroup extends NamedEntity {
     return _uniforms.containsKey(canonical);
   }
 
-  Map<String, NamedEntity> GetUniforms() => _uniforms;
+  Map<String, Object> GetUniforms() => _uniforms;
 }

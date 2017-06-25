@@ -1,13 +1,13 @@
-part of core;
+part of scene;
 
 /// ## Class Node (is a Spatial)
-/// represents a tree hierarchy of objects that well be rendered
+/// represents a hierarchy of objects that well be rendered
 /// by rendered RenderProgram.
-/// Currently, only leaf Nodes will cause draw calls by providing
-/// **Inputs** for MeshData and Material (and optionally InstancerData).
-/// Non leaf Nodes (aka containers) currently do not support
-/// having a Material associated with them but we would like to change that.
-/// Each Node is also a Spatial so it be re-oriented with respect to its parent
+/// Typically that hierarchy is a tree but DAGs are supported.
+/// Only leaf Nodes will cause draw calls by providing
+/// MeshData and Material.
+/// Non leaf Nodes are just containers for other Nodes
+/// Each Node is a Spatial so it be re-oriented with respect to its parent
 class Node extends Spatial {
   Material _material;
   MeshData _meshData;

@@ -23,7 +23,13 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram program = phase.createProgram(createSolidColorShader());
+  Scene scene = new Scene(
+      "solid",
+      new RenderProgram(
+          "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+      [perspective]);
+  phase.add(scene);
+
   final Material matWire = new Material("wire")
     ..SetUniform(uColor, ColorYellow);
   final Material matNorm = new Material("normal")
@@ -47,20 +53,20 @@ void main() {
   HTML.window.onResize.listen(resolutionChange);
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
     nodeNorm.enabled = gShowNormals.checked;
     nodeWire.enabled = gShowWires.checked;
-    phase.draw([perspective]);
+    phase.Draw();
+
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs);
   }
 
-  List<Future<dynamic>> futures = [
+  List<Future<Object>> futures = [
     LoadRaw(meshFile),
   ];
 
@@ -68,17 +74,18 @@ void main() {
     GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
     print(gb);
     MeshData mdWire =
-        GeometryBuilderToMeshDataWireframe(meshFile, program, gb);
+        GeometryBuilderToMeshDataWireframe(meshFile, scene.program, gb);
     print(mdWire);
 
     nodeWire = new Node(mdWire.name, mdWire, matWire);
     nodeWire.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
-    program.add(nodeWire);
+    scene.add(nodeWire);
 
-    MeshData mdNorm = GeometryBuilderToWireframeNormals(program, gb, 0.05);
+    MeshData mdNorm =
+        GeometryBuilderToWireframeNormals(scene.program, gb, 0.05);
     nodeNorm = new Node(mdNorm.name, mdNorm, matNorm);
     nodeNorm.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
-    program.add(nodeNorm);
+    scene.add(nodeNorm);
 
     // Start
     animate(0.0);

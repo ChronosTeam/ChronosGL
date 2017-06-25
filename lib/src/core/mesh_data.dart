@@ -51,17 +51,17 @@ Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data = null]) {
 }
 
 /// ## Class MeshData
-/// presents a VAO - attributes and vertex buffers associated with
-/// an mesh, e.g. a sphere, cube, etc.
+/// represent the raw data for mesh.
+/// Internally this is wrapper around a Vertex Array Object (VAO).
 /// MeshData objects can be populated directly but often they
 /// will derived from **GeometryBuilder** objects.
 class MeshData extends NamedEntity {
   final ChronosGL _cgl;
-  final dynamic _vao;
-  final _drawMode;
-  final Map<String, dynamic /* gl Buffer */ > _buffers = {};
+  final Object _vao;
+  final int _drawMode;
+  final Map<String, Object /* gl Buffer */ > _buffers = {};
   final Map<String, int> _locationMap;
-  dynamic /* gl Buffer */ _indexBuffer;
+  Object /* gl Buffer */ _indexBuffer;
   int _instances = 0;
   int _indexBufferType = -1;
 
@@ -95,7 +95,7 @@ class MeshData extends NamedEntity {
   }
 
   void ChangeVertices(Float32List data) {
-    final String canonical = aVertexPosition;
+    final String canonical = aPosition;
     _vertices = data;
     ChangeAttribute(canonical, data, 3);
   }
@@ -147,7 +147,7 @@ class MeshData extends NamedEntity {
   }
 
   void AddVertices(Float32List data) {
-    final String canonical = aVertexPosition;
+    final String canonical = aPosition;
     _buffers[canonical] = _cgl.createBuffer();
     ChangeVertices(data);
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
@@ -182,12 +182,8 @@ class MeshData extends NamedEntity {
     ChangeFaces(faces);
   }
 
-  void SetUp() {
+  void Activate() {
     _cgl.bindVertexArray(_vao);
-  }
-
-  void TearDown() {
-    _cgl.bindVertexArray(null);
   }
 
   Iterable<String> GetAttributes() {
@@ -212,25 +208,29 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
       print("Dropping unnecessary attribute: ${canonical}");
       continue;
     }
-    dynamic lst = gb.attributes[canonical];
+    List lst = gb.attributes[canonical];
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
 
     //print("${md.name} ${canonical} ${lst}");
     switch (desc.type) {
       case VarTypeVec2:
-        md.AddAttribute(canonical, FlattenVector2List(lst), 2);
+        md.AddAttribute(
+            canonical, FlattenVector2List(lst as List<VM.Vector2>), 2);
         break;
       case VarTypeVec3:
-        md.AddAttribute(canonical, FlattenVector3List(lst), 3);
+        md.AddAttribute(
+            canonical, FlattenVector3List(lst as List<VM.Vector3>), 3);
         break;
       case VarTypeVec4:
-        md.AddAttribute(canonical, FlattenVector4List(lst), 4);
+        md.AddAttribute(
+            canonical, FlattenVector4List(lst as List<VM.Vector4>), 4);
         break;
       case VarTypeFloat:
-        md.AddAttribute(canonical, new Float32List.fromList(lst), 1);
+        md.AddAttribute(
+            canonical, new Float32List.fromList(lst as List<double>), 1);
         break;
       case VarTypeUvec4:
-        md.AddAttribute(canonical, FlattenUvec4List(lst), 4);
+        md.AddAttribute(canonical, FlattenUvec4List(lst as List<List<int>>), 4);
         break;
       default:
         assert(false,
@@ -250,7 +250,7 @@ MeshData GeometryBuilderToMeshData(
 }
 
 MeshData _ExtractWireframeNormals(
-    MeshData out, List<double> vertices, List<double> normals, scale) {
+    MeshData out, List<double> vertices, List<double> normals, double scale) {
   assert(vertices.length == normals.length);
   Float32List v = new Float32List(2 * vertices.length);
   for (int i = 0; i < vertices.length; i += 3) {
@@ -275,7 +275,7 @@ MeshData _ExtractWireframeNormals(
 
 MeshData GeometryBuilderToWireframeNormals(
     RenderProgram prog, GeometryBuilder gb,
-    [scale = 1.0]) {
+    [double scale = 1.0]) {
   MeshData out = prog.MakeMeshData("norm", GL_LINES);
   return _ExtractWireframeNormals(out, FlattenVector3List(gb.vertices),
       FlattenVector3List(gb.attributes[aNormal] as List<VM.Vector3>), scale);
@@ -302,10 +302,10 @@ MeshData LineEndPointsToMeshData(
 }
 
 MeshData ExtractWireframeNormals(RenderProgram prog, MeshData md,
-    [scale = 1.0]) {
+    [double scale = 1.0]) {
   assert(md._drawMode == GL_TRIANGLES);
   MeshData out = prog.MakeMeshData(md.name, GL_LINES);
-  final Float32List vertices = md.GetAttribute(aVertexPosition);
+  final Float32List vertices = md.GetAttribute(aPosition);
   final Float32List normals = md.GetAttribute(aNormal);
   return _ExtractWireframeNormals(out, vertices, normals, scale);
 }

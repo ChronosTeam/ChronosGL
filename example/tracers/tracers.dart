@@ -3,15 +3,25 @@ import 'dart:html' as HTML;
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
-List<ShaderObject> blurdShader() {
-  return [
+final ShaderObject blurdVertexShader =
+
     new ShaderObject("bluredV")
-      ..AddAttributeVars([aVertexPosition])
-      ..SetBodyWithMain([NullVertexBody]),
+      ..AddAttributeVars([aPosition])
+      ..SetBodyWithMain([NullVertexBody]);
+
+final ShaderObject bluredFragmentShader =
     new ShaderObject("bluredF")
       ..AddUniformVars([uColorAlpha])
-      ..SetBodyWithMain(["${oFragColor} = ${uColorAlpha};"])
-  ];
+      ..SetBodyWithMain(["${oFragColor} = ${uColorAlpha};"]);
+
+Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective,int num) {
+  Scene scene = new Scene(
+      "stars",
+      new RenderProgram("stars", cgl, pointSpritesVertexShader,
+          pointSpritesFragmentShader),
+      [perspective]);
+  scene.add(Utils.MakeParticles(scene.program, num));
+  return scene;
 }
 
 void main() {
@@ -27,16 +37,21 @@ void main() {
   phase.clearDepthBuffer = true;
   phase.clearColorBuffer = false;
 
+  Scene scene = new Scene(
+      "blur",
+      new RenderProgram(
+          "blur", chronosGL, blurdVertexShader, bluredFragmentShader),
+      [perspective]);
+  phase.add(scene);
+
+
   // Every frame 4% of the screen will be blurred
-  RenderProgram shaderProgramBlur = phase.createProgram(blurdShader());
   Material matBlur =
       new Material.Transparent("blur", BlendEquationStandard)
         ..SetUniform(uColorAlpha, new VM.Vector4(0.0, 0.0, 0.0, 0.04));
-  shaderProgramBlur.add(new Node("", ShapeQuad(shaderProgramBlur, 1), matBlur));
+  scene.add(new Node("", ShapeQuad(scene.program, 1), matBlur));
 
-  // stars
-  RenderProgram sprites = phase.createProgram(createPointSpritesShader());
-  sprites.add(Utils.MakeParticles(sprites, 2000));
+  phase.add(MakeStarScene(chronosGL, perspective, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -53,15 +68,14 @@ void main() {
   HTML.window.onResize.listen(resolutionChange);
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.005;
     orbit.animate(elapsed);
 
     List<DrawStats> stats = [];
-    phase.draw([perspective], stats);
+    phase.Draw(stats);
     List<String> out = [];
     for (DrawStats d in stats) {
       out.add(d.toString());

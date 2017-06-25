@@ -3,21 +3,37 @@ import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 import 'dart:html' as HTML;
 
+Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective,int num) {
+  Scene scene = new Scene(
+      "stars",
+      new RenderProgram("stars", cgl, pointSpritesVertexShader,
+          pointSpritesFragmentShader),
+      [perspective]);
+  scene.add(Utils.MakeParticles(scene.program, num));
+  return scene;
+}
+
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL chronosGL = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   RenderPhase phase = new RenderPhase("main", chronosGL);
-  RenderProgram prg = phase.createProgram(createSolidColorShader());
 
-  MeshData sphere = ShapeIcosahedron(prg);
+  Scene scene = new Scene(
+      "objects",
+      new RenderProgram(
+          "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+      [perspective]);
+  phase.add(scene);
+
+  MeshData sphere = ShapeIcosahedron(scene.program);
   Material headMat = new Material("head")
     ..SetUniform(uColor, new VM.Vector3(0.94, 0.72, 0.63));
   Node head = new Node("head", sphere, headMat);
+  scene.add(head);
 
-  Material eyeMat = new Material("eye")
-    ..SetUniform(uColor, ColorBlue);
+  Material eyeMat = new Material("eye")..SetUniform(uColor, ColorBlue);
   Node leftEye = new Node("leftEye", sphere, eyeMat)
     ..setPos(-0.2, 0.4, -0.8)
     ..transform.scale(0.2);
@@ -35,11 +51,8 @@ void main() {
     ..setPos(0.0, 0.0, -0.9);
   head.add(nose);
 
-  prg.add(head);
+  phase.add(MakeStarScene(chronosGL, perspective, 2000));
 
-  RenderProgram sprites =
-      phase.createProgram(createPointSpritesShader());
-  sprites.add(Utils.MakeParticles(sprites, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -56,13 +69,13 @@ void main() {
   HTML.window.onResize.listen(resolutionChange);
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    phase.draw([perspective]);
+    phase.Draw();
+
     HTML.window.animationFrame.then(animate);
   }
 

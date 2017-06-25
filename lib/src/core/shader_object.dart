@@ -1,4 +1,4 @@
-part of base;
+part of core;
 
 const int kMaxLights = 4;
 const int kMaxBones = 128;
@@ -99,8 +99,8 @@ const int prefixAttribute = 0x61; // 'a';
 
 const String aColor = "aColors";
 const String aColorAlpha = "aColorAlpha";
-const String aVertexPosition = "aVertexPosition";
-const String aTextureCoordinates = "aTextureCoordinates";
+const String aPosition = "aVertex";
+const String aTexUV = "aTexUV";
 const String aNormal = "aNormal";
 const String aBinormal = "aBinormal";
 const String aTangent = "aTangent";
@@ -127,10 +127,10 @@ const String iaScale = "iaScale";
 // Varying
 // ===========================================================
 const String vColor = "vColor";
-const String vTextureCoordinates = "vTextureCoordinates";
+const String vTexUV = "vTexUV";
 const String vLightWeighting = "vLightWeighting";
 const String vNormal = "vNormal";
-const String vVertexPosition = "vVertexPosition";
+const String vPosition = "vPosition";
 const String vCenter = "vCenter";
 const String vDepth = "vDepth";
 
@@ -213,8 +213,8 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   // This should also contain an alpha channel
   aColor: new ShaderVarDesc(VarTypeVec3, "per vertex color"),
   aColorAlpha: new ShaderVarDesc(VarTypeVec4, "per vertex color"),
-  aVertexPosition: new ShaderVarDesc(VarTypeVec3, "vertex coordinates"),
-  aTextureCoordinates: new ShaderVarDesc(VarTypeVec2, "texture uvs"),
+  aPosition: new ShaderVarDesc(VarTypeVec3, "vertex coordinates"),
+  aTexUV: new ShaderVarDesc(VarTypeVec2, "texture uvs"),
   aNormal: new ShaderVarDesc(VarTypeVec3, "vertex normals"),
   aBinormal: new ShaderVarDesc(VarTypeVec3, "vertex binormals"),
   aCenter: new ShaderVarDesc(VarTypeVec4, "for wireframe"),
@@ -229,10 +229,10 @@ final Map<String, ShaderVarDesc> _VarsDb = {
 
   // Varying
   vColor: new ShaderVarDesc(VarTypeVec3, "per vertex color"),
-  vTextureCoordinates: new ShaderVarDesc(VarTypeVec2, ""),
+  vTexUV: new ShaderVarDesc(VarTypeVec2, ""),
   vLightWeighting: new ShaderVarDesc(VarTypeVec3, ""),
   vNormal: new ShaderVarDesc(VarTypeVec3, ""),
-  vVertexPosition: new ShaderVarDesc(VarTypeVec3, "vertex coordinates"),
+  vPosition: new ShaderVarDesc(VarTypeVec3, "vertex coordinates"),
   vPositionFromLight: new ShaderVarDesc(VarTypeVec4, "delta from light"),
   vCenter: new ShaderVarDesc(VarTypeVec4, "for wireframe"),
   vDepth: new ShaderVarDesc(VarTypeFloat, "depth for shadowmaps"),
@@ -322,9 +322,11 @@ class ShaderObject {
 
   ShaderObject(this.name);
 
-  int GetLayoutPos(String canonical) => _canonicalToLayoutPos[canonical];
+  int GetAttributeLayoutPos(String canonical) => _canonicalToLayoutPos[canonical];
 
-  Map<String, int> GetLayoutMap() => _canonicalToLayoutPos;
+  int GetTransformBindingIndex(String canonical) => transformVars.indexOf(canonical);
+
+  Map<String, int> GetAttributeLayoutMap() => _canonicalToLayoutPos;
 
   void AddAttributeVars(List<String> names) {
     assert(shader == null);
@@ -397,7 +399,7 @@ class ShaderObject {
     ];
     for (String a in attributeVars) {
       ShaderVarDesc d = _VarsDb[a];
-      int pos = GetLayoutPos(a);
+      int pos = GetAttributeLayoutPos(a);
       out.add("layout (location=${pos}) in ${d.type} ${a};");
     }
     out.add("");

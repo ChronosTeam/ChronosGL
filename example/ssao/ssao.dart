@@ -1,5 +1,6 @@
 import 'dart:html' as HTML;
 import 'dart:async';
+import 'dart:math' as Math;
 
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
@@ -14,71 +15,66 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 2520.0);
-
   final width = canvas.clientWidth;
   final height = canvas.clientHeight;
   canvas.width = width;
   canvas.height = height;
-  perspective.AdjustAspect(width, height);
 
-  ChronosFramebuffer fb =
-      new ChronosFramebuffer.Default(chronosGL, width, height);
-  RenderPhase phase1 = new RenderPhase("phase1", chronosGL, fb);
-  phase1.viewPortW = width;
-  phase1.viewPortH = height;
+  ChronosGL chronosGL = new ChronosGL(canvas);
+  OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3, canvas);
+  Perspective perspective = new Perspective(orbit, 0.1, 2520.0)
+    ..AdjustAspect(width, height);
 
-  RenderProgram prg1 = phase1.createProgram(createSolidColorShader());
+  Framebuffer screen = new Framebuffer.Screen(chronosGL);
+  Framebuffer fb = new Framebuffer.Default(chronosGL, width, height);
 
-  RenderPhase phase2 = new RenderPhase("phase2", chronosGL, null);
-  phase2.viewPortW = width;
-  phase2.viewPortH = height;
-  RenderProgram prg2 = phase2.createProgram(createSSAOShader());
+  RenderProgram progSolid = new RenderProgram(
+      "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader);
+
+  List<ShaderObject> ssaoShader = createSSAOShader();
+  RenderProgram progSSAO =
+      new RenderProgram("ssao", chronosGL, ssaoShader[0], ssaoShader[1]);
+
   UniformGroup uniforms = new UniformGroup("plain")
     ..SetUniform(uCameraNear, 0.1)
     ..SetUniform(uCameraFar, 2529.0)
     ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
     ..SetUniform(uDepthMap, fb.depthTexture)
     ..SetUniform(uTexture, fb.colorTexture);
-  prg2.add(UnitNode(prg2));
 
-  RenderPhase phase1only = new RenderPhase("phase1only", chronosGL, null);
-  phase1only.viewPortW = width;
-  phase1only.viewPortH = height;
-  phase1only.AddRenderProgram(prg1);
+  MeshData unitQuad = ShapeQuad(progSSAO, 1);
+
+  MeshData ctLogo;
+  Material material = new Material("mat")
+    ..SetUniform(uColor, ColorGray8)
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity()..rotateX(Math.PI / 2));
 
   double _lastTimeMs = 0.0;
-  void animate(timeMs) {
-    timeMs = 0.0 + timeMs;
+  void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
     if (gSSAO.checked) {
-      phase1.draw([perspective]);
-      phase2.draw([perspective, uniforms]);
+      fb.Activate(GL_CLEAR_ALL, 0, 0, width, height);
+      progSolid.Draw(ctLogo, [perspective, material]);
+      screen.Activate(GL_CLEAR_ALL, 0, 0, width, height);
+      progSSAO.Draw(unitQuad, [uniforms]);
     } else {
-      phase1only.draw([perspective]);
+      progSolid.Draw(ctLogo, [perspective, material]);
     }
+
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(timeMs);
   }
 
-  List<Future<dynamic>> futures = [
+  List<Future<Object>> futures = [
     LoadRaw(modelFile),
   ];
 
   Future.wait(futures).then((List list) {
-    // Setup Mesh
-    GeometryBuilder ctLogo = ImportGeometryFromWavefront(list[0]);
-    MeshData md = GeometryBuilderToMeshData("", prg1, ctLogo);
-    Material mat = new Material("mat")..SetUniform(uColor, ColorGray8);
-    Node mesh = new Node(md.name, md, mat)
-      ..rotX(3.14 / 2)
-      ..rotZ(3.14);
-    prg1.add(mesh);
+    GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
+    ctLogo = GeometryBuilderToMeshData("", progSolid, gb);
 
     animate(0.0);
   });

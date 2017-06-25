@@ -1,14 +1,14 @@
-# Layer: Base
-The **base layer** contains many of the fundamental abstractions like:
-NamedEntity, Uniforms, Spacial, Node. Illumination, Perspective,
-Camera, etc
+# Layer: Core (dart:web_gl)
+The **core layer** contains all of the fundamental abstractions like:
+NamedEntity, Uniforms, Spacial, Illumination, Perspective,
+Camera, RenderObject, RenderProgram, ChronosGL, etc.
 
 
 ## Canonical Names:
 Each attribute/uniform has a **canonical name**. By convention the first
 letter of the name signals the type of input:
 
-* a: "Attribute" (aVertexPosition, aTextureCoordinates, aNormal, ...)
+* a: "Attribute" (aPosition, aTexUV, aNormal, ...)
 * u: "Uniform" (uPerspectiveViewMatrix, uTexture, ...)
 * c: "Controls" (cDepthWrite, cDepthTest, cBlendEquation, ...)
 * v: "Varying Attributes"
@@ -28,13 +28,9 @@ what it means to be disabled will differ from class to class.
 is an abstraction for a set of uniforms
 
 Important subclasses are:
-a Projections object to provide a perspective matrix uniform
-or Material object to provide color and texture uniforms
-or ...
-
-## Class Spatial (is a NamedEntity)
-is a base class for object that need to be transformed, e.g.
-moved, scaled, rotated.
+* Projection provides a perspective matrix uniform
+* Material provides color and texture uniforms
+* Illumination provides uniforms describing light sources
 
 ## Class Light
 represents a light source with helpers for
@@ -45,6 +41,26 @@ a **UnformGroup*.
 
 ## Class Illumination (is a Uniforms)
 represents a collection of Lights.
+
+## Class Material (is a UniformGroup)
+is a light weight container for uniforms related to the appearance
+of a mesh.
+
+## Class MeshData
+represent the raw data for mesh.
+Internally this is wrapper around a Vertex Array Object (VAO).
+MeshData objects can be populated directly but often they
+will derived from **GeometryBuilder** objects.
+
+## Class RenderProgram (is a NamedEntity)
+represents program running on the GPU with an API to invoke it.
+
+## Class TextureProperties
+is the base class for all textures
+
+## Class Spatial (is a NamedEntity)
+is a base class for object that need to be transformed, e.g.
+moved, scaled, rotated.
 
 ## Class Camera (is a Spatial)
 provides helpers to set up a view matrix.
@@ -57,42 +73,28 @@ provides the **Input** for perspective projection, i.e.
 the uPerspectiveViewMatrix Uniform which also requires a **Camera**
 for view matrix.
 
-# Layer: Core (uses Base Layer, dart:web_gl)
-The **core layer** adds abstractions to the *base layer**
-which require the use of  **dart:web_gl**.
-Code using the **core layer** can currently not be unit tested
-but requires more elaborate browser tests.
+# Layer: Scene (uses Base Layer, Core Layer, dart:web_gl)
+The **scene layer** adds abstractions to the *core layer**
+related to scene graphs.
+
 
 ## Class Node (is a Spatial)
-represents a tree hierarchy of objects that well be rendered
+represents a hierarchy of objects that well be rendered
 by rendered RenderProgram.
-Currently, only leaf Nodes will cause draw calls by providing
-**Inputs** for MeshData and Material (and optionally InstancerData).
-Non leaf Nodes (aka containers) currently do not support
-having a Material associated with them but we would like to change that.
-Each Node is also a Spatial so it be re-oriented with respect to its parent
+Typically that hierarchy is a tree but DAGs are supported.
+Only leaf Nodes will cause draw calls by providing
+MeshData and Material.
+Non leaf Nodes are just containers for other Nodes
+Each Node is a Spatial so it be re-oriented with respect to its parent
 
-## Class Material (is a UniformGroup)
-is a light weight container for uniforms related to the appearance
-of a mesh.
-
-## Class MeshData
-presents a VAO - attributes and vertex buffers associated with
-an mesh, e.g. a sphere, cube, etc.
-MeshData objects can be populated directly but often they
-will derived from **GeometryBuilder** objects.
-
-## Class TextureProperties
-is the base class for all textures
+ ## Class Scene (is a NamedEntity)
+ represents a simple scene graph.
+ Each scene is rendered by multiple invocation of a single RenderProgram
+ and contains additional UniformGroups to be passed to
+ that program at draw time.
 
 ## Class RenderPhase (is a NamedEntity)
-represents a sequence of RenderPrograms.
-
-## Class RenderProgram (is a UniformSink)
-represents several invocations of the same program running on the GPU.
-It consists of a tree of **Nodes** which provide **Inputs** for the
-program. The program is invoked once for most **Nodes** while traversing
-the tree recursively.
+represents a sequence of Scenes.
 
 # Layer: Shader (uses Base Layer)
 provides many standard Vertex and Fragment shaders.
