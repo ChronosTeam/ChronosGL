@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Fireworks</title>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <div id="stats"></div>
+     <div style="color: gray;">
+     Particles:
+     <select id="particles">
+         <option>10</option>
+         <option>50</option>
+         <option>100</option>
+         <option>500</option>
+         <option>1000</option>
+         <option>5000</option>
+         <option selected value=10000>10k</option>
+         <option value=50000>50k</option>
+         <option value=100000>100k</option>
+         <option value=500000>500k</option>
+         <option value=1000000>1000k</option>
+         <option value=5000000>5000k</option>
+     </select>
+
+     Use CPU computation:
+        <input type="checkbox" id="cpucompute">
+ </div>
+
+    <canvas id="webgl-canvas" style="cursor:crosshair"></canvas>
+    <script type="application/dart" src="transform_feedback.dart"></script>
+    <script src="packages/browser/dart.js"></script>
+  </body>
+</html>

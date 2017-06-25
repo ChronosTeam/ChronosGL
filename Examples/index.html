@@ -2,76 +2,188 @@
 
 <html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChronosGL Examples</title>
-	<style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChronosGL Examples</title>
+    <style>
 body {
  font-family:	Helvetica, sans-serif;
 }
-	</style>
+
+
+    </style>
 </head>
 
-<body>
-	<h1> ChronosGL Examples</h1>
-	As of version 3.0.0 ChronosGL requires <b>WebGL2</b>.
-	(Check browser compatibility at: <a href="http://webglreport.com/?v=2">webglreport.com</a>)
-	<br>
-	<br>
-	If you use Dartium, make sure you lauch it with the <tt>--enable-unsafe-es3-apis</tt> option.
-    <br>
-	If there are problems check the JavaScript console for output.
+<br>
+<h1> ChronosGL Examples</h1>
+<p>
+    As of version 3.0.0 ChronosGL requires <b>WebGL2</b>.
+    (Check browser compatibility at: <a href="http://webglreport.com/?v=2">webglreport.com</a>)
+</p>
+<p>
+    If you use Dartium (50), make sure you launch it with the
+    <tt>--enable-unsafe-es3-apis</tt> option.
+</p>
+<p>
+    You can also use regular Chrome or Firefox via:
+    <tt>/pub serve --web-compiler dartdevc example/</tt>
+</p>
 
-	<h2>Trivial Examples</h2>
+If there are problems check the <b>JavaScript console</b> for output.
 
-	<a href="simple/simple.html">Simple Example</a>
+<h2>Trivial Examples</h2>
 
-	<h2>Standard Examples</h2>
-    <a href="animation/animation.html">Animation (assimp2json format)</a><br>
-	<a href="animation2/animation.html">Animation (three.js JSON format)</a><br>
-	<a href="basics/basics.html">Basic Shapes</a><br>
-	<a href="bloom/bloom.html">Bloom Effect</a><br>
-	<a href="bubble/bubble.html">Bubble</a><br>
-	<a href="camera_texture/camera_texture.html">Camera Texture demo</a><br>
-	<a href="cubemap/cubemap.html">Cubemap demo</a><br>
-	<a href="effects/effect.html">Postprocessing Effects</a><br>
-	<a href="extrude/extrude.html">Extrude</a><br>
-	<a href="fireworks/fireworks.html">Fireworks</a><br>
-	<a href="gyroid/gyroid.html">Cool Gyroid demo</a><br>
-	<a href="instancer/instancer.html">Instancer</a><br>
-	<a href="light/light.html">Lighting Shader</a><br>
-	<a href="obj/obj.html">Lightwave obj File Viewer</a><br>
-	<a href="orbit_camera/orbit_camera.html">Orbit Camera</a><br>
-	<a href="ortho/ortho.html">Othographic vs Perspective</a><br>
-	<a href="perlin/perlin.html">Perlin Noise Torusknot</a><br>
-	<a href="plasma/plasma.html">Plasma Shader</a><br>
-	<a href="generateNormals/generateNormals.html">Generate normals for
-		MeshData that does not contain it</a><br>
-	<a href="shadow/shadow.html">Shadows</a><br>
-	<a href="slerp/slerp.html">Quaternion Spherical Linear
-		Interpolation (slerp)</a><br>
-	<a href="sobel/sobel.html">Sobel Edge Detection Shader</a><br>
-	<a href="ssao/ssao.html">Screen Space Ambient Occlusion (SSAO) shader</a><br>
-	<a href="stencil/stencil.html">Stencil Buffer</a><br>
-	<a href="skyscraper/skyscraper.html">Using a custom shader
-		(SkyScraper)</a><br>
+<a href="simple/simple.html">Simple Example</a>
 
-	<a href="torusknot_camera/torusknot_camera.html">Fly inside a transparent torusknot</a><br>
-	<a href="tracers/tracers.html">Tracers</a><br>
-	<a href="triangle/triangle.html">Penrose Triangle</a><br>
-	<a href="wireframe/wireframe.html">Wireframe Shapes</a><br>
-	<a href="wireframe2/wireframe2.html">Wireframe Shapes 2</a><br>
+<h2>Standard Examples</h2>
+<table>
+    <tr>
+        <td><a href="animation/animation.html">Animation</a></td>
+        <td>scenegraph, animation, assimp2json import</td>
+    </tr>
+    <tr>
+        <td><a href="animation2/animation.html">Animation2</a></td>
+        <td>scenegraph, animation, three.js JSON import</td>
+    </tr>
+    <tr>
+        <td><a href="basics/basics.html">Basic Shapes</a></td>
+        <td>scenegraph, basic shapes</td>
+    </tr>
+    <tr>
+        <td><a href="bloom/bloom.html">Bloom Effect</a></td>
+        <td>postprocessing</td>
+    </tr>
+    <tr>
+        <td><a href="bubble/bubble.html">Bubble</a></td>
+        <td>transparency</td>
+    </tr>
+    <tr>
+        <td><a href="camera_texture/camera_texture.html">Camera Texture demo</a></td>
+        <td>animated textures</td>
+    </tr>
+    <tr>
+        <td><a href="cubemap/cubemap.html">Cubemap demo</a></td>
+        <td>cube mape textures</td>
+    </tr>
+    <tr>
+        <td><a href="effects/effect.html">Effects</a></td>
+        <td>postprocessing, wave import</td>
+    </tr>
+    <tr>
+        <td><a href="extrude/extrude.html">Extrude</a></td>
+        <td>contours</td>
+    </tr>
+    <tr>
+        <td><a href="fireworks/fireworks.html">Fireworks</a></td>
+        <td>custom shader</td>
+    </tr>
+    <tr>
+        <td><a href="gyroid/gyroid.html">Cool Gyroid demo</a></td>
+        <td>shadertoy shader reuse</td>
+    </tr>
+    <tr>
+        <td><a href="instancer/instancer.html">Instancer</a></td>
+        <td>instancing</td>
+    </tr>
+    <tr>
+        <td><a href="light/light.html">Lighting Shader</a></td>
+        <td>Blinn-Phong shader, Gourad shader</td>
+    </tr>
+    <tr>
+        <td><a href="obj/obj.html">Lightwave obj Viewer</a></td>
+        <td>wave import</td>
+    </tr>
+    <tr>
+        <td><a href="orbit_camera/orbit_camera.html">Orbit Camera</a></td>
+        <td>scenegraph</td>
+    </tr>
+    <tr>
+        <td><a href="ortho/ortho.html">Othographic vs Perspective</a></td>
+        <td>orthogrpahic, split screen</td>
+    </tr>
+    <tr>
+        <td><a href="perlin/perlin.html">Perlin Noise Torusknot</a></td>
+        <td>animated perlin noise</td>
+    </tr>
+    <tr>
+        <td><a href="plasma/plasma.html">Plasma Shader</a></td>
+        <td>animated textures</td>
+    </tr>
+    <tr>
+        <td><a href="generateNormals/generateNormals.html">Generate normals</a></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><a href="shadow/shadow.html">Shadows</a></td>
+        <td>split screen</td>
+    </tr>
+    <tr>
+        <td><a href="slerp/slerp.html">Quaternion Spherical Linear
+            Interpolation (slerp)</a></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><a href="sobel/sobel.html">Sobel Edge Detection</a></td>
+        <td>custom shader</td>
+    </tr>
+    <tr>
+        <td><a href="ssao/ssao.html">Screen Space Ambient Occlusion (SSAO)</a></td>
+        <td>custom shader</td>
+    </tr>
+    <tr>
+        <td><a href="stencil/stencil.html">Stencil Buffer</a></td>
+        <td>stencil buffer</td>
+    </tr>
+    <tr>
+        <td><a href="skyscraper/skyscraper.html">SkyScraper</a></td>
+        <td>custom shader</td>
+    </tr>
+    <tr>
+        <td><a href="transform_feedback/transform_feedback.html">
+            Transform-Feedback</a></td>
+        <td>transform feedback</td>
+    </tr>
+    <tr>
+        <td><a href="torusknot_camera/torusknot_camera.html">
+            Fly inside a transparent torusknot</a></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><a href="tracers/tracers.html">Tracers</a></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><a href="triangle/triangle.html">Penrose Triangle</a></td>
+        <td>orthographic</td>
+    </tr>
+    <tr>
+        <td><a href="wireframe/wireframe.html">Wireframe Shapes</a></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><a href="wireframe2/wireframe2.html">Wireframe Shapes 2</a></td>
+        <td></td>
+    </tr>
+</table>
 
-    <h2>Work in progress</h2>
+<h2>Work in progress</h2>
+<table>
 
-	<a href="bumpmap/bumpmap.html">Bump Map</a><br>
-	<a href="normalmap/normalmap.html">Normal Map</a><br>
-	<a href="transform_feedback/fireworks.html">Transform-Feedback</a><br>
-	<h2>Code</h2>
-	Code for all examples can be found at
-	<a href="https://github.com/ChronosTeam/ChronosGL/tree/master/example">
-		https://github.com/ChronosTeam/ChronosGL/tree/master/example
-	</a>
+    <tr>
+        <td><a href="bumpmap/bumpmap.html">Bump Map</a></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><a href="normalmap/normalmap.html">Normal Map</a></td>
+        <td></td>
+    </tr>
+</table>
+
+<h2>Code</h2>
+Code for all examples can be found at
+<a href="https://github.com/ChronosTeam/ChronosGL/tree/master/example">
+    https://github.com/ChronosTeam/ChronosGL/tree/master/example
+</a>
 
 </body>
 </html>
