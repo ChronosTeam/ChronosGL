@@ -31,7 +31,7 @@ void main() {
                                               ivec4(${aBoneIndex}),
                                               int(${uTime}));
    vec4 pos = skinMat * vec4(${aPosition}, 1.0);
-   // vVertexPosition = pos.xyz;
+   // vPosition = pos.xyz;
    // This is not quite accurate
    //${vNormal} = normalize(mat3(skinMat) * aNormal);
    gl_Position = ${uPerspectiveViewMatrix} * pos;

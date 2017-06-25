@@ -27,16 +27,16 @@ final ShaderObject solidColorFragmentShader = new ShaderObject("SolidColorF")
 // to sample the cube texture
 final ShaderObject cubeMapVertexShader = new ShaderObject("CubeMap")
   ..AddAttributeVars([aPosition])
-  ..AddVaryingVars([vVertexPosition])
+  ..AddVaryingVars([vPosition])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..SetBodyWithMain(
-      [StdVertexBody, "${vVertexPosition} = normalize(${aPosition});"]);
+      [StdVertexBody, "${vPosition} = normalize(${aPosition});"]);
 
 final ShaderObject cubeMapFragmentShader = new ShaderObject("CubeMapF")
-  ..AddVaryingVars([vVertexPosition])
+  ..AddVaryingVars([vPosition])
   ..AddUniformVars([uCubeTexture])
   ..SetBodyWithMain(
-      ["${oFragColor} = texture( ${uCubeTexture}, ${vVertexPosition} );"]);
+      ["${oFragColor} = texture( ${uCubeTexture}, ${vPosition} );"]);
 
 final ShaderObject pointSpritesVertexShader = new ShaderObject("PointSpritesV")
   ..AddAttributeVars([aPosition])

@@ -7,7 +7,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 final ShaderObject lightVertexShaderBlinnPhongWithShadow =
     new ShaderObject("LightBlinnPhongShadowV")
       ..AddAttributeVars([aPosition, aNormal])
-      ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight])
+      ..AddVaryingVars([vPosition, vNormal, vPositionFromLight])
       ..AddUniformVars([
         uPerspectiveViewMatrix,
         uLightPerspectiveViewMatrix,
@@ -19,14 +19,14 @@ final ShaderObject lightVertexShaderBlinnPhongWithShadow =
         vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
         ${vPositionFromLight} = ${uLightPerspectiveViewMatrix} * pos;
         gl_Position = ${uPerspectiveViewMatrix} * pos;
-        ${vVertexPosition} = pos.xyz;
+        ${vPosition} = pos.xyz;
         ${vNormal} = ${uNormalMatrix} * ${aNormal};
         """
       ]);
 
 final ShaderObject lightFragmentShaderBlinnPhongWithShadow =
     new ShaderObject("LightBlinnPhongShadowF")
-      ..AddVaryingVars([vVertexPosition, vNormal, vPositionFromLight])
+      ..AddVaryingVars([vPosition, vNormal, vPositionFromLight])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
       ..AddUniformVars([uShadowMap, uEyePosition, uColor, uShadowBias])
       ..SetBodyWithMain([
@@ -42,7 +42,7 @@ final ShaderObject lightFragmentShaderBlinnPhongWithShadow =
 
     ColorComponents acc = ColorComponents(vec3(0.0), vec3(0.0));
     if (shadow > 0.0) {
-        acc = CombinedLight(${vVertexPosition}, ${vNormal}, ${uEyePosition},
+        acc = CombinedLight(${vPosition}, ${vNormal}, ${uEyePosition},
                             ${uLightDescs}, ${uLightTypes}, ${uShininess});
     }
 

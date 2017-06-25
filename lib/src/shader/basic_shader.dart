@@ -38,25 +38,25 @@ final ShaderObject lightFragmentShaderGourad = new ShaderObject("LightGrouradV")
 final ShaderObject lightVertexShaderBlinnPhong =
     new ShaderObject("LightBlinnPhongV")
       ..AddAttributeVars([aPosition, aNormal, aTexUV])
-      ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
+      ..AddVaryingVars([vPosition, vNormal, vTexUV])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
       ..SetBody(["""
 void main() {
     vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
     gl_Position = ${uPerspectiveViewMatrix} * pos;
-    ${vVertexPosition} = pos.xyz;
+    ${vPosition} = pos.xyz;
     ${vTexUV} = ${aTexUV};
     ${vNormal} = ${uNormalMatrix} * ${aNormal};
 }
 """]);
 final ShaderObject lightFragmentShaderBlinnPhong =
     new ShaderObject("LightBlinnPhongF")
-      ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
+      ..AddVaryingVars([vPosition, vNormal, vTexUV])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
       ..AddUniformVars([uEyePosition, uTexture])
       ..SetBodyWithMain([
         """
-ColorComponents acc = CombinedLight(${vVertexPosition},
+ColorComponents acc = CombinedLight(${vPosition},
                                     ${vNormal},
                                     ${uEyePosition},
                                     ${uLightDescs},

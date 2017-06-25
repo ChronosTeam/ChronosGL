@@ -130,7 +130,7 @@ const String vColor = "vColor";
 const String vTexUV = "vTexUV";
 const String vLightWeighting = "vLightWeighting";
 const String vNormal = "vNormal";
-const String vVertexPosition = "vVertexPosition";
+const String vPosition = "vPosition";
 const String vCenter = "vCenter";
 const String vDepth = "vDepth";
 
@@ -232,7 +232,7 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   vTexUV: new ShaderVarDesc(VarTypeVec2, ""),
   vLightWeighting: new ShaderVarDesc(VarTypeVec3, ""),
   vNormal: new ShaderVarDesc(VarTypeVec3, ""),
-  vVertexPosition: new ShaderVarDesc(VarTypeVec3, "vertex coordinates"),
+  vPosition: new ShaderVarDesc(VarTypeVec3, "vertex coordinates"),
   vPositionFromLight: new ShaderVarDesc(VarTypeVec4, "delta from light"),
   vCenter: new ShaderVarDesc(VarTypeVec4, "for wireframe"),
   vDepth: new ShaderVarDesc(VarTypeFloat, "depth for shadowmaps"),

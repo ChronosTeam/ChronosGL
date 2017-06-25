@@ -5,16 +5,16 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 final ShaderObject skyScraperVertexShader = new ShaderObject("SkyScraperV")
   ..AddAttributeVars([aPosition, aTexUV])
-  ..AddVaryingVars([vVertexPosition, vTexUV])
+  ..AddVaryingVars([vPosition, vTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..SetBodyWithMain([
     StdVertexBody,
-    "${vVertexPosition} = ${aPosition};",
+    "${vPosition} = ${aPosition};",
     "${vTexUV} = ${aTexUV};",
   ]);
 
 final ShaderObject skyScraperFragmentShader = new ShaderObject("SkyScraperF")
-  ..AddVaryingVars([vVertexPosition, vTexUV])
+  ..AddVaryingVars([vPosition, vTexUV])
   ..SetBodyWithMain([
     """
       // the step finds the windows
@@ -27,9 +27,9 @@ final ShaderObject skyScraperFragmentShader = new ShaderObject("SkyScraperF")
 
       ${oFragColor} = vec4( 1.-s3, 1.-s3, 1.-s3, 1. );
 
-      //gl_FragColor = vec4( mod(vVertexPosition.x*10.0,2.0) ,
-      //                       mod(vVertexPosition.y*20.0,2.0),
-      //                       mod(vVertexPosition.z*10.0,2.0), 1. );
+      //gl_FragColor = vec4( mod(vPosition.x*10.0,2.0) ,
+      //                       mod(vPosition.y*20.0,2.0),
+      //                       mod(vPosition.z*10.0,2.0), 1. );
 """
   ]);
 

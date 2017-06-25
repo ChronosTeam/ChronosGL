@@ -10,29 +10,29 @@ const String bumpmapFile = dir + "Infinite-Level_02_Disp_NoSmoothUV-4096.jpg";
 
 final ShaderObject vertexShader = new ShaderObject("LightBlinnPhongFancyV")
   ..AddAttributeVars([aPosition, aNormal, aTexUV])
-  ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
+  ..AddVaryingVars([vPosition, vNormal, vTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
   ..SetBodyWithMain([
     """
 vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
 gl_Position = ${uPerspectiveViewMatrix} * pos;
-${vVertexPosition} = pos.xyz;
+${vPosition} = pos.xyz;
 ${vTexUV} = ${aTexUV};
 ${vNormal} = ${uNormalMatrix} * ${aNormal};
 """
   ]);
 
 final ShaderObject fragmentShader = new ShaderObject("LightBlinnPhongFancyF")
-  ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
+  ..AddVaryingVars([vPosition, vNormal, vTexUV])
   ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
   ..AddUniformVars([uEyePosition, uColor])
   ..AddUniformVars([uBumpScale, uBumpMap])
   ..SetBodyWithMain([
     """
 vec2 uv = dHdxy_fwd(${vTexUV}, ${uBumpScale}, ${uBumpMap});
-vec3 normal = perturbNormalArb(${vVertexPosition}, vNormal, uv);
+vec3 normal = perturbNormalArb(${vPosition}, vNormal, uv);
 
-ColorComponents acc = CombinedLight(${vVertexPosition} - ${uEyePosition},
+ColorComponents acc = CombinedLight(${vPosition} - ${uEyePosition},
                                     normal,
                                     ${uEyePosition},
                                     ${uLightDescs},

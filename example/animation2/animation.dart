@@ -31,7 +31,7 @@ void main() {
                                               ivec4(${aBoneIndex}),
                                               int(${uTime}));
    vec4 pos = skinMat * vec4(${aPosition}, 1.0);
-   // vVertexPosition = pos.xyz;
+   // vPosition = pos.xyz;
    // This is not quite accurate
    //${vNormal} = normalize(mat3(skinMat) * aNormal);
    gl_Position = ${uPerspectiveViewMatrix} * pos;
@@ -56,7 +56,7 @@ final ShaderObject animationVertexShader = new ShaderObject("AnimationV")
   //..AddAttributeVar(aNormal)
   //..AddAttributeVar(aTexUV)
   ..AddVaryingVars([vColor])
-  //..AddVaryingVar(vTextureCoordinates)
+  //..AddVaryingVar(vTexUV)
   //..AddVaryingVar(vNormal)
   ..AddUniformVars(
       [uPerspectiveViewMatrix, uModelMatrix, uAnimationTable, uTime])
@@ -64,7 +64,7 @@ final ShaderObject animationVertexShader = new ShaderObject("AnimationV")
 
 final ShaderObject animationFragmentShader = new ShaderObject("AnimationV")
   ..AddVaryingVars([vColor])
-  //..AddVaryingVar(vTextureCoordinates)
+  //..AddVaryingVar(vTexUV)
   //..AddUniformVar(uTextureSampler)
   ..SetBody([skinningFragmentShader]);
 

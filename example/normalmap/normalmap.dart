@@ -11,25 +11,25 @@ String specularmapFile = Dir + "Map-SPEC.jpg";
 
 final ShaderObject vertexShader = new ShaderObject("LightBlinnPhongV")
   ..AddAttributeVars([aPosition, aNormal, aTexUV])
-  ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
+  ..AddVaryingVars([vPosition, vNormal, vTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
   ..SetBodyWithMain([
     """
         vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
         gl_Position = ${uPerspectiveViewMatrix} * pos;
-        ${vVertexPosition} = pos.xyz;
+        ${vPosition} = pos.xyz;
         ${vNormal} = ${uNormalMatrix} * ${aNormal};
         ${vTexUV} = ${aTexUV};
 """
   ]);
 
 final ShaderObject fragmentShader = new ShaderObject("LightBlinnPhongF")
-  ..AddVaryingVars([vVertexPosition, vNormal, vTexUV])
+  ..AddVaryingVars([vPosition, vNormal, vTexUV])
   ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
   ..AddUniformVars([uEyePosition, uColor, uTexture])
   ..SetBodyWithMain([
     """
-ColorComponents acc = CombinedLight(${vVertexPosition} - ${uEyePosition},
+ColorComponents acc = CombinedLight(${vPosition} - ${uEyePosition},
                                     ${vNormal},
                                     ${uEyePosition},
                                     ${uLightDescs},
