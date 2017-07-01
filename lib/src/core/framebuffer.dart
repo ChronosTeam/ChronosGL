@@ -1,14 +1,15 @@
 part of core;
 
-const int GL_CLEAR_ALL = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+const int GL_CLEAR_ALL =
+    GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 
 class Framebuffer {
   ChronosGL _cgl;
 
   dynamic /* gl Framebuffer */ _framebuffer;
-  Texture colorTexture;
-  Texture depthTexture;
-  Texture stencilTexture;
+  TypedTexture colorTexture;
+  TypedTexture depthTexture;
+  TypedTexture stencilTexture;
 
   Framebuffer(this._cgl, this.colorTexture,
       [this.depthTexture,
@@ -53,15 +54,15 @@ class Framebuffer {
             cgl,
             new TypedTexture(
                 cgl, "frame::color", w, h, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE),
-            new DepthTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
-                GL_UNSIGNED_INT, false));
+            new TypedTexture.forDepth(cgl, "frame::depth", w, h,
+                GL_DEPTH_COMPONENT24, GL_UNSIGNED_INT));
 
   Framebuffer.DefaultWithStencil(ChronosGL cgl, int w, int h)
       : this(
             cgl,
             new TypedTexture(
                 cgl, "frame::color", w, h, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE),
-            new DepthStencilTexture(cgl, "frame::depth.stencil", w, h),
+            new TypedTexture.forDepthStencil(cgl, "frame::depth.stencil", w, h),
             null,
             true);
 

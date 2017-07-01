@@ -11,14 +11,6 @@ class TextureProperties {
 
   TextureProperties();
 
-  // http://stackoverflow.com/questions/22419682/glsl-sampler2dshadow-and-shadow2d-clarification\
-  TextureProperties.forShadowMap() {
-    flipY = false;
-    clamp = false;
-    mipmap = false;
-    shadow = true;
-  }
-
   void SetFilterNearest() {
     minFilter = GL_NEAREST;
     magFilter = GL_NEAREST;
@@ -68,6 +60,13 @@ final TextureProperties TexturePropertiesFramebuffer = new TextureProperties()
 
 final TextureProperties TexturePropertiesVideo = new TextureProperties()
   ..clamp = true;
+
+// http://stackoverflow.com/questions/22419682/glsl-sampler2dshadow-and-shadow2d-clarification\
+final TextureProperties TexturePropertiesShadowMap = new TextureProperties()
+  ..flipY = false
+  ..clamp = false
+  ..mipmap = false
+  ..shadow = true;
 
 bool IsCubeChildTextureType(int t) {
   switch (t) {
@@ -159,6 +158,30 @@ class TypedTexture extends Texture {
     _cgl.bindTexture(_textureType, null);
   }
 
+  // Used for depth and shadows
+  // Common format combos are:
+  // GL_DEPTH_COMPONENT16, GL_UNSIGNED_SHORT
+  // GL_DEPTH_COMPONENT24, GL_UNSIGNED_INT
+  // GL_FLOAT might also be possible
+  TypedTexture.forDepth(ChronosGL cgl, String url, int width, int height,
+      int formatType, int dataType)
+      : this(cgl, url, width, height, formatType, GL_DEPTH_COMPONENT, dataType,
+            null, TexturePropertiesFramebuffer);
+
+  // Used for depth and shadows
+  // Common format combos are:
+  // GL_DEPTH_COMPONENT16, GL_UNSIGNED_SHORT
+  // GL_DEPTH_COMPONENT24, GL_UNSIGNED_INT
+  // GL_FLOAT might also be possible
+  TypedTexture.forShadow(ChronosGL cgl, String url, int width, int height,
+      int formatType, int dataType)
+      : this(cgl, url, width, height, formatType, GL_DEPTH_COMPONENT, dataType,
+            null, TexturePropertiesShadowMap);
+
+  TypedTexture.forDepthStencil(ChronosGL cgl, String url, int width, int height)
+      : this(cgl, url, width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL,
+            GL_UNSIGNED_INT_24_8, null, TexturePropertiesFramebuffer);
+
   void UpdateContent(Object data) {
     _data = data;
     _cgl.bindTexture(_textureType, _texture);
@@ -180,58 +203,7 @@ class TypedTexture extends Texture {
 
   @override
   String toString() {
-    return "TypedTexture[${_url}, ${_dataType}, ${_formatType}]";
-  }
-}
-
-// Used for depth and shadows
-// Common format combos are:
-// GL_DEPTH_COMPONENT16, GL_UNSIGNED_SHORT
-// GL_DEPTH_COMPONENT24, GL_UNSIGNED_INT
-class DepthTexture extends Texture {
-  int _width;
-  int _height;
-  final int _internalFormatType;
-  // e.g.  GL_UNSIGNED_SHORT, GL_UNSIGNED_BYTE. GL_FLOAT
-  final int _dataType;
-
-  DepthTexture(ChronosGL cgl, String url, this._width, this._height,
-      this._internalFormatType, this._dataType, bool forShadow)
-      : super(
-            cgl,
-            GL_TEXTURE_2D,
-            url,
-            forShadow
-                ? new TextureProperties.forShadowMap()
-                : TexturePropertiesFramebuffer) {
-    _cgl.bindTexture(_textureType, _texture);
-    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width, _height, 0,
-        GL_DEPTH_COMPONENT, _dataType, null);
-    properties.InstallLate(_cgl, _textureType);
-    int err = _cgl.getError();
-    assert(err == GL_NO_ERROR, "problems intalling depth texture");
-  }
-}
-
-class DepthStencilTexture extends Texture {
-  int _width;
-  int _height;
-
-  DepthStencilTexture(ChronosGL cgl, String url, this._width, this._height)
-      : super(cgl, GL_TEXTURE_2D, url, TexturePropertiesFramebuffer) {
-    _cgl.bindTexture(_textureType, _texture);
-    _cgl.texImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, _width, _height, 0,
-        GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, null);
-    //properties.InstallLate(_cgl, _textureType);
-    int err = _cgl.getError();
-    assert(err == GL_NO_ERROR, "problems intalling depth-stencil texture");
-  }
-
-  @override
-  void SetImageData(var data) {
-    _cgl.bindTexture(_textureType, _texture);
-    _cgl.texImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, _width, _height, 0,
-        GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, data);
+    return "TypedTexture[${_url}, ${_internalFormatType}, ${_dataType}, ${_formatType}]";
   }
 }
 

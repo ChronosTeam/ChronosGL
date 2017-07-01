@@ -37,7 +37,7 @@ void main() {
       data[y * width + x] = (x & 8) == 0 ? 0 : 1;
     }
   }
-  phase.framebuffer.depthTexture.SetImageData(data);
+  phase.framebuffer.depthTexture.UpdateContent(data);
 
   Scene scene = new Scene(
       "solid",
