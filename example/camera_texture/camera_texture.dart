@@ -76,11 +76,7 @@ void main() {
     if (video == null) {
       HTML.window.alert("could not access camera");
     }
-    texture = new ImageTexture(chronosGL, "video", video);
-    texture.properties.minFilter = GL_LINEAR;
-    texture.properties.clamp = true;
-    // Figure out why moving this into the WebTexture contructor does not work.
-    texture.Install();
+    texture = new ImageTexture(chronosGL, "video", video, TexturePropertiesVideo);
     matGradient.SetUniform(uTexture, texture);
     animate(0.0);
   });

@@ -11,13 +11,6 @@ class TextureProperties {
 
   TextureProperties();
 
-  TextureProperties.forFramebuffer() {
-    flipY = false;
-    clamp = true;
-    mipmap = false;
-    SetFilterNearest();
-  }
-
   // http://stackoverflow.com/questions/22419682/glsl-sampler2dshadow-and-shadow2d-clarification\
   TextureProperties.forShadowMap() {
     flipY = false;
@@ -39,10 +32,7 @@ class TextureProperties {
 
   // This assumes a texture is already bound
   void InstallEarly(ChronosGL cgl, int type) {
-    //LogInfo("Setup texture ${flipY}  ${anisotropicFilterLevel}");
-    if (flipY) {
-      cgl.pixelStorei(GL_UNPACK_FLIP_Y_WEBGL, 1);
-    }
+    cgl.pixelStorei(GL_UNPACK_FLIP_Y_WEBGL, flipY ? 1 : 0);
   }
 
   // This assumes a texture is already bound
@@ -70,6 +60,15 @@ class TextureProperties {
   }
 }
 
+final TextureProperties TexturePropertiesFramebuffer = new TextureProperties()
+  ..flipY = false
+  ..clamp = true
+  ..mipmap = false
+  ..SetFilterNearest();
+
+final TextureProperties TexturePropertiesVideo = new TextureProperties()
+  ..clamp = true;
+
 bool IsCubeChildTextureType(int t) {
   switch (t) {
     case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
@@ -88,16 +87,16 @@ bool IsCubeChildTextureType(int t) {
 /// is the base class for all textures
 class Texture {
   final String _url;
-  dynamic /* GL Texture */ _texture;
+  final Object /* GL Texture */ _texture;
   final int _textureType;
   final ChronosGL _cgl;
   final TextureProperties properties;
 
-  Texture(this._cgl, this._textureType, this._url, this.properties);
+  Texture(this._cgl, this._textureType, this._url, this.properties)
+      : _texture = _cgl.createTexture();
 
   void Bind([bool initTime = false]) {
     if (initTime) {
-      _texture = _cgl.createTexture();
       properties.InstallEarly(_cgl, _textureType);
     }
 
@@ -114,19 +113,74 @@ class Texture {
   }
 
   void SetImageData(Object data) {
+    _cgl.bindTexture(_textureType, _texture);
     _cgl.texImage2Dweb(
         _textureType, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, data);
   }
 
   int GetTextureType() => _textureType;
 
-  dynamic /* gl Texture */ GetTexture() {
+  Object /* gl Texture */ GetTexture() {
     return _texture;
   }
 
   @override
   String toString() {
     return "Texture[${_url}, ${_textureType}]";
+  }
+}
+
+// https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml
+class TypedTexture extends Texture {
+  int _width;
+  int _height;
+  final int _internalFormatType;
+  // e.g. GL_DEPTH_COMPONENT, GL_RGB, GL_RGBA
+  final int _formatType;
+  // e.g.  GL_UNSIGNED_SHORT, GL_UNSIGNED_BYTE, GL_FLOAT
+  final int _dataType;
+  // null, Float32List, etc
+  // null is required by the shadow example
+  // There used to be a bug - this seems fixed now, cf.:
+  // sdk: https://github.com/dart-lang/sdk/issues/23517
+  Object _data;
+
+  TypedTexture(ChronosGL cgl, String url, this._width, this._height,
+      this._internalFormatType, this._formatType, this._dataType,
+      [this._data = null, TextureProperties prop = null])
+      : super(cgl, GL_TEXTURE_2D, url,
+            prop == null ? TexturePropertiesFramebuffer : prop) {
+    _cgl.bindTexture(_textureType, _texture);
+    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width, _height, 0,
+        _formatType, _dataType, _data);
+    properties.InstallLate(_cgl, _textureType);
+    int err = _cgl.getError();
+    assert(err == GL_NO_ERROR);
+    _cgl.bindTexture(_textureType, null);
+  }
+
+  void UpdateContent(Object data) {
+    _data = data;
+    _cgl.bindTexture(_textureType, _texture);
+    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width, _height, 0,
+        _formatType, _dataType, _data);
+    _cgl.bindTexture(_textureType, null);
+  }
+
+  void SetImageDataPartial(Object data, int x, int y, int w, int h) {
+    _cgl.bindTexture(_textureType, _texture);
+    _cgl.texSubImage2D(
+        GL_TEXTURE_2D, 0, x, y, w, h, _formatType, _dataType, data);
+    _cgl.bindTexture(_textureType, null);
+  }
+
+  dynamic GetData() {
+    return _data;
+  }
+
+  @override
+  String toString() {
+    return "TypedTexture[${_url}, ${_dataType}, ${_formatType}]";
   }
 }
 
@@ -149,8 +203,7 @@ class DepthTexture extends Texture {
             url,
             forShadow
                 ? new TextureProperties.forShadowMap()
-                : new TextureProperties.forFramebuffer()) {
-    _texture = _cgl.createTexture();
+                : TexturePropertiesFramebuffer) {
     _cgl.bindTexture(_textureType, _texture);
     _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width, _height, 0,
         GL_DEPTH_COMPONENT, _dataType, null);
@@ -165,8 +218,7 @@ class DepthStencilTexture extends Texture {
   int _height;
 
   DepthStencilTexture(ChronosGL cgl, String url, this._width, this._height)
-      : super(cgl, GL_TEXTURE_2D, url, new TextureProperties.forFramebuffer()) {
-    _texture = _cgl.createTexture();
+      : super(cgl, GL_TEXTURE_2D, url, TexturePropertiesFramebuffer) {
     _cgl.bindTexture(_textureType, _texture);
     _cgl.texImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, _width, _height, 0,
         GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, null);
@@ -183,59 +235,6 @@ class DepthStencilTexture extends Texture {
   }
 }
 
-// https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml
-class TypedTexture extends Texture {
-  int _width;
-  int _height;
-  final int _internalFormatType;
-  // e.g. GL_DEPTH_COMPONENT, GL_RGB, GL_RGBA
-  final int _formatType;
-  // e.g.  GL_UNSIGNED_SHORT, GL_UNSIGNED_BYTE, GL_FLOAT
-  final int _dataType;
-  // null, Float32List, etc
-  // null is required by the shadow example
-  // There used to be a bug - this seems fixed now, cf.:
-  // sdk: https://github.com/dart-lang/sdk/issues/23517
-  Object _data;
-
-  TypedTexture(ChronosGL cgl, String url, this._width, this._height,
-      this._internalFormatType, this._formatType, this._dataType,
-      [this._data = null])
-      : super(cgl, GL_TEXTURE_2D, url, new TextureProperties.forFramebuffer()) {
-    _Install();
-  }
-
-  void UpdateContent(Object data) {
-    _data = data;
-    _cgl.bindTexture(_textureType, _texture);
-    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width, _height, 0,
-        _formatType, _dataType, _data);
-    _cgl.bindTexture(_textureType, null);
-  }
-
-   void SetImageDataPartial(Object data, int x, int y, int w, int h) {
-     _cgl.bindTexture(_textureType, _texture);
-     _cgl.texSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, _formatType, _dataType, data);
-     _cgl.bindTexture(_textureType, null);
-  }
-
-  void _Install() {
-    Bind(true);
-    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width, _height, 0,
-        _formatType, _dataType, _data);
-    UnBind(true);
-  }
-
-  dynamic GetData() {
-    return _data;
-  }
-
-  @override
-  String toString() {
-    return "TypedTexture[${_url}, ${_dataType}, ${_formatType}]";
-  }
-}
-
 // This sort of depends on dart:html but we use a dynamic type to disguise
 // it.
 // TODO: We want to call  Install() in the constructor but this does not
@@ -244,17 +243,9 @@ class ImageTexture extends Texture {
   dynamic _element; // CanvasElement, ImageElement, VideoElement
 
   ImageTexture(ChronosGL cgl, String url, this._element,
-      [bool delayInstall = false,
-      TextureProperties tp = null,
-      int textureType = GL_TEXTURE_2D])
+      [TextureProperties tp = null, int textureType = GL_TEXTURE_2D])
       : super(
             cgl, textureType, url, tp == null ? new TextureProperties() : tp) {
-    if (!delayInstall) {
-      Install();
-    }
-  }
-
-  void Install() {
     Bind(true);
     SetImageData(_element);
     UnBind(true);
