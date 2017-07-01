@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'package:args/args.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
-import 'package:chronosgl/src/base/lib.dart';
+import 'package:chronosgl/src/core/lib.dart';
 import 'package:chronosgl/src/importer/lib.dart';
 import 'package:chronosgl/src/animation/lib.dart';
 
