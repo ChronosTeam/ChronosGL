@@ -16,3 +16,5 @@ transformers:
     checked: true
     csp: true
     verbose: true
+- test/pub_serve:
+    $include: test/**.dart

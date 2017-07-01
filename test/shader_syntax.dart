@@ -7,11 +7,13 @@ import "package:test/test.dart";
 void main() {
   test("shader_syntax", () {
     HTML.CanvasElement canvas = new HTML.CanvasElement(width: 200, height: 200);
-    ChronosGL chronosGL = new ChronosGL(canvas);
-    RenderPhase phase = new RenderPhase("test", chronosGL);
+    ChronosGL cgl = new ChronosGL(canvas);
+    RenderPhase phase = new RenderPhase("test", cgl);
     RenderProgram program;
-    program = phase.createProgram(createTexturedShader());
+    program = new RenderProgram("prog", cgl, texturedVertexShader, texturedFragmentShader);
     print("${program}");
+    phase.add(new Scene("scene", program));
+    /*
     program = phase.createProgram(createLightShaderGourad());
     print("${program}");
     program = phase.createProgram(createLightShaderBlinnPhong());
@@ -28,6 +30,7 @@ void main() {
     print("${program}");
     program = phase.createProgram(createSobelShader());
     print("${program}");
+    */
   });
 
   print("PASS");
