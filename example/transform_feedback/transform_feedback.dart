@@ -119,32 +119,27 @@ class Ion {
   void Update(List<Pole> srcs, List<Pole> dsts, Math.Random rng, double dt) {
     VM.Vector3 force = new VM.Vector3.zero();
 
-    for (Pole pole in srcs) {
-      VM.Vector3 t = _pos - pole.Pos(); // pushing force
-      final double len = t.length;
-      if (len <= kMinDistance) continue;
-      // stop if we are out of bounds
-      if (len > kMaxDistance) {
+    for (Pole pole in srcs) {  // accumulate pushing forces
+      VM.Vector3 t = _pos - pole.Pos();
+      final double dist = t.length;
+      if (dist <= kMinDistance) continue;
+      if (dist > kMaxDistance) {  // too far away
         Pole p = srcs[rng.nextInt(srcs.length)];
         _pos = p.Pos() + RandomVector(rng, 0.35);
-        //print("too far ${len}");
         return;
       }
-      // the further the distance the weaker the force
-      force += t / (len * len);
+      force += t / (dist * dist);
     }
 
-    for (Pole pole in dsts) {
-      VM.Vector3 t = pole.Pos() - _pos; // pulling force
-      final double len = t.length;
-      // stop if we would hit the pole in the next timestep
-      if (len <= kMinDistance) {
+    for (Pole pole in dsts) {  // accumulate pulling forces
+      VM.Vector3 t = pole.Pos() - _pos; //
+      final double dist = t.length;
+      if (dist <= kMinDistance) {  // too close to dst pole
         Pole p = srcs[rng.nextInt(srcs.length)];
         _pos = p.Pos() + RandomVector(rng, 0.35);
-        //print("too close: ${len}");
         return;
       }
-      force += t / (len * len);
+      force += t / (dist * dist);
     }
 
     // the normalization sacrifices physics for aesthetics
@@ -297,7 +292,7 @@ void main() {
       chronosGL.bindBuffer(
           GL_TRANSFORM_FEEDBACK_BUFFER, mdOut.GetBuffer(aPosition));
       chronosGL.copyBufferSubData(
-          GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0, ions.length * 3);
+          GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0, ions.length * 3 * 4);
     }
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(timeMs);
