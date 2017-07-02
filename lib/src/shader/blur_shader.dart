@@ -17,15 +17,15 @@ String makeGaussianPdfKernelString(int radius, double sigma) {
     if (i > 0) total += x;
   }
 
-  String lst = "";
+  StringBuffer sb = new StringBuffer("");
   String sep = "";
   for (int i = 0; i < radius; ++i) {
-    lst += sep;
+    sb.write(sep);
     sep = ", ";
-    lst += "${w[i] / total}";
+    sb.write("${w[i] / total}");
   }
 
-  return "float kernel[$radius] = float[$radius]($lst);";
+  return "float kernel[$radius] = float[$radius](${sb.toString()});";
 }
 
 const String _kernelFragment = """
