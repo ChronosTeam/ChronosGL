@@ -45,7 +45,7 @@ GeometryBuilder ImportGeometryFromAssimp2JsonMesh(
   }
 
   if (skeleton != null) {
-    Map<String, Bone> name2bone = new Map<String, Bone>();
+    Map<String, Bone> name2bone = <String, Bone>{};
     skeleton.forEach((b) => name2bone[b.boneName] = b);
     final int n = mesh['normals'].length ~/ 3;
     List<VM.Vector4> indices = new List<VM.Vector4>(n);
@@ -87,7 +87,7 @@ GeometryBuilder ImportGeometryFromAssimp2JsonMesh(
 }
 
 List<Bone> ImportSkeletonFromAssimp2Json(Map<String, dynamic> json) {
-  List<Bone> out = new List<Bone>();
+  List<Bone> out = <Bone>[];
   int count = 0;
 
   void dfs(Map<String, dynamic> node, int parent) {
@@ -119,7 +119,7 @@ List<Bone> ImportSkeletonFromAssimp2Json(Map<String, dynamic> json) {
 
 SkeletalAnimation ImportAnimationFromAssimp2Json(
     Map<String, dynamic> json, List<Bone> skeleton) {
-  Map<String, Bone> name2bone = new Map<String, Bone>();
+  Map<String, Bone> name2bone = <String, Bone>{};
   skeleton.forEach((b) => name2bone[b.boneName] = b);
 
   String name = json["name"];

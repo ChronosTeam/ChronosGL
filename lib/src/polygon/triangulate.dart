@@ -32,9 +32,9 @@ bool _isGoodEar(final List<VM.Vector2> contour, final List<int> available,
 // Triangulate will not work for all contours.
 List<int> Triangulate(List<VM.Vector2> contour) {
   assert(contour.length >= 3);
-  List<int> triangles = new List<int>();
+  List<int> triangles = <int>[];
 
-  List<int> available = new List<int>();
+  List<int> available = <int>[];
   for (int p = 0; p < contour.length; p++) {
     available.add(p);
   }

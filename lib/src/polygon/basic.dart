@@ -66,7 +66,7 @@ bool Colinear(final VM.Vector2 a, final VM.Vector2 b, final VM.Vector2 c) {
 // Note: this has one known bug when the first element is colinear
 // with its neighbors
 List<VM.Vector2> FilterDupsAndColinear(final List<VM.Vector2> contour) {
-  List<VM.Vector2> out = new List<VM.Vector2>();
+  List<VM.Vector2> out = <VM.Vector2>[];
   final cl = contour.length;
   out.add(contour[0]);
   for (int i = 1; i < cl - 1; ++i) {
@@ -161,7 +161,7 @@ VM.Vector2 _getMovement(VM.Vector2 prev, VM.Vector2 curr, VM.Vector2 next) {
 // The output contains a direction Vector2 for each input point.
 // The input must be free of colinear data.
 List<VM.Vector2> GetContourGradient(List<VM.Vector2> contour) {
-  List<VM.Vector2> out = new List<VM.Vector2>();
+  List<VM.Vector2> out = <VM.Vector2>[];
   final cl = contour.length;
   for (int i = 0; i < contour.length; i++) {
     int im1 = i - 1;
