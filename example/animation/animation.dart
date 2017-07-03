@@ -105,7 +105,7 @@ void main() {
     ..SetUniform(uColor, ColorYellow);
 
   final Material mat = new Material("mat");
-  TypedTexture animationTable;
+  TypedTextureMutable animationTable;
   List<double> animationSteps;
   BoneVisualizer boneVisualizer;
 
@@ -195,11 +195,20 @@ void main() {
     {
       Float32List animationData = CreateAnimationTable(
           skeleton, globalOffsetTransform, anim, animationSteps);
-      animationTable = new TypedTexture(chronosGL, "anim", skeleton.length * 4,
-          animationSteps.length, GL_RGBA32F, GL_RGBA, GL_FLOAT, animationData);
+      animationTable = new TypedTextureMutable(
+          chronosGL,
+          "anim",
+          skeleton.length * 4,
+          animationSteps.length,
+          GL_RGBA32F,
+          TexturePropertiesFramebuffer,
+          GL_RGBA,
+          GL_FLOAT,
+          animationData);
       mat.SetUniform(uAnimationTable, animationTable);
 
-      boneVisualizer = new BoneVisualizer(sceneSkeleton.program, matWire, skeleton, anim);
+      boneVisualizer =
+          new BoneVisualizer(sceneSkeleton.program, matWire, skeleton, anim);
 
       Node mesh = boneVisualizer.mesh..rotX(3.14 / 4);
       Node n = new Node.Container("wrapper", mesh);

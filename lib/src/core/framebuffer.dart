@@ -3,13 +3,29 @@ part of core;
 const int GL_CLEAR_ALL =
     GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 
+int TextureChannelsByType(int t) {
+  switch (t) {
+    case GL_LUMINANCE:
+      return 1;
+    case GL_LUMINANCE_ALPHA:
+      return 2;
+    case GL_RGB:
+      return 3;
+    case GL_RGBA:
+      return 4;
+    default:
+      assert(false);
+      return -1;
+  }
+}
+
 class Framebuffer {
   ChronosGL _cgl;
 
   dynamic /* gl Framebuffer */ _framebuffer;
-  TypedTexture colorTexture;
-  TypedTexture depthTexture;
-  TypedTexture stencilTexture;
+  Texture colorTexture;
+  Texture depthTexture;
+  Texture stencilTexture;
 
   Framebuffer(this._cgl, this.colorTexture,
       [this.depthTexture,
@@ -40,7 +56,7 @@ class Framebuffer {
     }
 
     int err = _cgl.checkFramebufferStatus(GL_FRAMEBUFFER);
-    assert(err == GL_FRAMEBUFFER_COMPLETE);
+    assert(err == GL_FRAMEBUFFER_COMPLETE, "framebuffer error: ${err}");
     if (err != GL_FRAMEBUFFER_COMPLETE) {
       throw "Error Incomplete Framebuffer: ${err}";
     }
@@ -52,19 +68,10 @@ class Framebuffer {
   Framebuffer.Default(ChronosGL cgl, int w, int h)
       : this(
             cgl,
-            new TypedTexture(
-                cgl, "frame::color", w, h, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE),
-            new TypedTexture.forDepth(cgl, "frame::depth", w, h,
-                GL_DEPTH_COMPONENT24, GL_UNSIGNED_INT));
-
-  Framebuffer.DefaultWithStencil(ChronosGL cgl, int w, int h)
-      : this(
-            cgl,
-            new TypedTexture(
-                cgl, "frame::color", w, h, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE),
-            new TypedTexture.forDepthStencil(cgl, "frame::depth.stencil", w, h),
-            null,
-            true);
+            new TypedTexture(cgl, "frame::color", w, h, GL_RGBA8,
+                TexturePropertiesFramebuffer),
+            new TypedTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
+                TexturePropertiesFramebuffer));
 
   void Activate(int clear_mode, int viewPortX, int viewPortY, int viewPortW,
       int viewPortH) {
@@ -80,17 +87,24 @@ class Framebuffer {
 
   // e.g. into Float32List
   // BROKEN: https://github.com/dart-lang/sdk/issues/11614
-  void ExtractData(Object buf, int x, int y, int w, int h) {
+  Float32List ExtractFloatData(Float32List buf, int x, int y, int w, int h) {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     // RGB (3 values per pixel), RGBA (4 values per pixel)
     // see TypeToNumChannels
-    int implFormat = _cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_FORMAT);
+    final int implFormat =
+        _cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_FORMAT);
     print("impl format: ${implFormat}");
     // FLOAT, UNSIGNED BYTE
-    int implType = _cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_TYPE);
+    final int implType = _cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_TYPE);
     print("impl type: ${implType}");
+    assert(implType == GL_FLOAT);
+    if (buf == null) {
+      final int arraySize = TextureChannelsByType(implFormat);
+      buf = new Float32List(arraySize * w * h);
+    }
     _cgl.readPixels(x, y, w, h, implFormat, implType, buf);
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
+    return buf;
   }
 }
 

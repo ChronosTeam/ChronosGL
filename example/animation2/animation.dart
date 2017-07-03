@@ -109,7 +109,7 @@ void main() {
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
 
   BoneVisualizer boneVisualizer;
-  TypedTexture animationTable;
+  TypedTextureMutable animationTable;
   List<double> animationSteps;
 
   Material mat = new Material("mat");
@@ -194,8 +194,8 @@ void main() {
       }
       Float32List animationData = CreateAnimationTable(
           skeleton, globalOffsetTransform, anim, animationSteps);
-      animationTable = new TypedTexture(chronosGL, "anim", skeleton.length * 4,
-          animationSteps.length, GL_RGBA32F, GL_RGBA, GL_FLOAT, animationData);
+      animationTable = new TypedTextureMutable(chronosGL, "anim", skeleton.length * 4,
+          animationSteps.length, GL_RGBA32F, TexturePropertiesFramebuffer,GL_RGBA, GL_FLOAT, animationData);
       mat.SetUniform(uAnimationTable, animationTable);
     }
     // bone wire mesh

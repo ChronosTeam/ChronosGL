@@ -94,14 +94,6 @@ class Texture {
   Texture(this._cgl, this._textureType, this._url, this.properties)
       : _texture = _cgl.createTexture();
 
-  void Bind([bool initTime = false]) {
-    if (initTime) {
-      properties.InstallEarly(_cgl, _textureType);
-    }
-
-    _cgl.bindTexture(_textureType, _texture);
-  }
-
   void UnBind([bool initTime = false]) {
     if (initTime) {
       properties.InstallLate(_cgl, _textureType);
@@ -109,12 +101,6 @@ class Texture {
       assert(err == GL_NO_ERROR);
     }
     _cgl.bindTexture(_textureType, null);
-  }
-
-  void SetImageData(Object data) {
-    _cgl.bindTexture(_textureType, _texture);
-    _cgl.texImage2Dweb(
-        _textureType, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, data);
   }
 
   int GetTextureType() => _textureType;
@@ -133,77 +119,68 @@ class Texture {
 class TypedTexture extends Texture {
   int _width;
   int _height;
-  final int _internalFormatType;
-  // e.g. GL_DEPTH_COMPONENT, GL_RGB, GL_RGBA
-  final int _formatType;
-  // e.g.  GL_UNSIGNED_SHORT, GL_UNSIGNED_BYTE, GL_FLOAT
-  final int _dataType;
-  // null, Float32List, etc
-  // null is required by the shadow example
-  // There used to be a bug - this seems fixed now, cf.:
-  // sdk: https://github.com/dart-lang/sdk/issues/23517
-  Object _data;
+  final int _internalFormat;
 
   TypedTexture(ChronosGL cgl, String url, this._width, this._height,
-      this._internalFormatType, this._formatType, this._dataType,
-      [this._data = null, TextureProperties prop = null])
-      : super(cgl, GL_TEXTURE_2D, url,
-            prop == null ? TexturePropertiesFramebuffer : prop) {
+      this._internalFormat, TextureProperties prop)
+      : super(cgl, GL_TEXTURE_2D, url, prop) {
     _cgl.bindTexture(_textureType, _texture);
-    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width, _height, 0,
-        _formatType, _dataType, _data);
+    _cgl.texStorage2D(GL_TEXTURE_2D, 1, _internalFormat, _width, _height);
     properties.InstallLate(_cgl, _textureType);
     int err = _cgl.getError();
-    assert(err == GL_NO_ERROR);
+    assert(err == GL_NO_ERROR, "texture error ${err}");
     _cgl.bindTexture(_textureType, null);
-  }
-
-  // Used for depth and shadows
-  // Common format combos are:
-  // GL_DEPTH_COMPONENT16, GL_UNSIGNED_SHORT
-  // GL_DEPTH_COMPONENT24, GL_UNSIGNED_INT
-  // GL_FLOAT might also be possible
-  TypedTexture.forDepth(ChronosGL cgl, String url, int width, int height,
-      int formatType, int dataType)
-      : this(cgl, url, width, height, formatType, GL_DEPTH_COMPONENT, dataType,
-            null, TexturePropertiesFramebuffer);
-
-  // Used for depth and shadows
-  // Common format combos are:
-  // GL_DEPTH_COMPONENT16, GL_UNSIGNED_SHORT
-  // GL_DEPTH_COMPONENT24, GL_UNSIGNED_INT
-  // GL_FLOAT might also be possible
-  TypedTexture.forShadow(ChronosGL cgl, String url, int width, int height,
-      int formatType, int dataType)
-      : this(cgl, url, width, height, formatType, GL_DEPTH_COMPONENT, dataType,
-            null, TexturePropertiesShadowMap);
-
-  TypedTexture.forDepthStencil(ChronosGL cgl, String url, int width, int height)
-      : this(cgl, url, width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL,
-            GL_UNSIGNED_INT_24_8, null, TexturePropertiesFramebuffer);
-
-  void UpdateContent(Object data) {
-    _data = data;
-    _cgl.bindTexture(_textureType, _texture);
-    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormatType, _width, _height, 0,
-        _formatType, _dataType, _data);
-    _cgl.bindTexture(_textureType, null);
-  }
-
-  void SetImageDataPartial(Object data, int x, int y, int w, int h) {
-    _cgl.bindTexture(_textureType, _texture);
-    _cgl.texSubImage2D(
-        GL_TEXTURE_2D, 0, x, y, w, h, _formatType, _dataType, data);
-    _cgl.bindTexture(_textureType, null);
-  }
-
-  dynamic GetData() {
-    return _data;
   }
 
   @override
   String toString() {
-    return "TypedTexture[${_url}, ${_internalFormatType}, ${_dataType}, ${_formatType}]";
+    return "TypedTexture[${_url}, ${_internalFormat}, ${_width} X ${_height}]";
+  }
+}
+
+class TypedTextureMutable extends Texture {
+  int _width;
+  int _height;
+  final int _internalFormat;
+
+  TypedTextureMutable(
+      ChronosGL cgl,
+      String url,
+      this._width,
+      this._height,
+      this._internalFormat,
+      TextureProperties prop,
+      int format,
+      int datatype,
+      Object data)
+      : super(cgl, GL_TEXTURE_2D, url, prop) {
+    _cgl.bindTexture(_textureType, _texture);
+    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormat, _width, _height, 0,
+        format, datatype, data);
+    properties.InstallLate(_cgl, _textureType);
+    int err = _cgl.getError();
+    assert(err == GL_NO_ERROR, "texture error ${err}");
+    _cgl.bindTexture(_textureType, null);
+  }
+
+  void UpdateContent(Object data, int format, int datatype) {
+    _cgl.bindTexture(_textureType, _texture);
+    _cgl.texImage2D(GL_TEXTURE_2D, 0, _internalFormat, _width, _height, 0,
+        format, datatype, data);
+    _cgl.bindTexture(_textureType, null);
+  }
+
+  void UpdateContentPartial(
+      Object data, int formatType, int scalarType, int x, int y, int w, int h) {
+    _cgl.bindTexture(_textureType, _texture);
+    _cgl.texSubImage2D(
+        GL_TEXTURE_2D, 0, x, y, w, h, formatType, scalarType, data);
+    _cgl.bindTexture(_textureType, null);
+  }
+
+  @override
+  String toString() {
+    return "TypedTextureMutable[${_url}, ${_internalFormat}, ${_width} X ${_height}]";
   }
 }
 
@@ -218,15 +195,25 @@ class ImageTexture extends Texture {
       [TextureProperties tp = null, int textureType = GL_TEXTURE_2D])
       : super(
             cgl, textureType, url, tp == null ? new TextureProperties() : tp) {
-    Bind(true);
+    _cgl.bindTexture(_textureType, _texture);
+
+    properties.InstallEarly(_cgl, _textureType);
     SetImageData(_element);
-    UnBind(true);
+    properties.InstallLate(_cgl, _textureType);
+    int err = _cgl.getError();
+    assert(err == GL_NO_ERROR);
+    _cgl.bindTexture(_textureType, null);
+  }
+
+  void SetImageData(Object data) {
+    _cgl.bindTexture(_textureType, _texture);
+    _cgl.texImage2Dweb(
+        _textureType, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, data);
   }
 
   void Update() {
-    Bind();
     SetImageData(_element);
-    UnBind();
+    _cgl.bindTexture(_textureType, null);
   }
 }
 
@@ -243,13 +230,19 @@ class CubeTexture extends Texture {
   CubeTexture(ChronosGL cgl, String url, List images)
       : super(cgl, GL_TEXTURE_CUBE_MAP, url, new TextureProperties()) {
     assert(images.length == _kCubeModifier.length);
-    Bind(true);
+    properties.InstallEarly(_cgl, _textureType);
+
+    _cgl.bindTexture(_textureType, _texture);
     for (int i = 0; i < _kCubeModifier.length; ++i) {
       _cgl.texImage2Dweb(
           _kCubeModifier[i], 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, images[i]);
     }
-    UnBind(true);
+    properties.InstallLate(_cgl, _textureType);
+    int err = _cgl.getError();
+    assert(err == GL_NO_ERROR);
+    _cgl.bindTexture(_textureType, null);
 
+    // huh?
     properties.clamp = true;
   }
 }
