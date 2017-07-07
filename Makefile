@@ -40,6 +40,9 @@ simple_example:
 	@echo example can be found in "file://${PWD}/build/example/simple/simple.html"
 	@echo
 
+webserver_ddc:
+	$(PUB) serve example/ --web-compiler=dartdevc
+
 publish:
 	$(PUB) publish
 

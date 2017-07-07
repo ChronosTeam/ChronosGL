@@ -1,16 +1,39 @@
 # https://www.dartlang.org/guides/language/analysis-options
+# http://dart-lang.github.io/linter/lints/
 analyzer:
   strong-mode:
       implicit-dynamic: false
-
+#      implicit-casts: false
 
 linter:
   rules:
     - always_declare_return_types
+    - annotate_overrides
+    - avoid_empty_else
+    - avoid_init_to_null
+    - avoid_slow_async_io
+    - await_only_futures
     - camel_case_types
     - empty_constructor_bodies
-    - annotate_overrides
-    - avoid_init_to_null
+    - empty_statements
+    - iterable_contains_unrelated_type
+    - list_remove_unrelated_type
+    - no_adjacent_strings_in_list
+    - no_duplicate_case_values
     - one_member_abstracts
+    - prefer_collection_literals
+#    - prefer_conditional_assignment
+    - prefer_const_constructors
+    - prefer_contains
+#    - prefer_final_fields
+#    - prefer_final_locals
     - slash_for_doc_comments
     - sort_constructors_first
+    - super_goes_last
+    - unawaited_futures
+    - unnecessary_overrides
+    - unnecessary_this
+    - unrelated_type_equality_checks
+    - use_string_buffers
+    - valid_regexps
+
