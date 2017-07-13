@@ -19,38 +19,6 @@ class Utils {
   }
 */
 
-  static HTML.CanvasElement createCanvas(
-      HTML.CanvasElement canvas, void callback(HTML.CanvasRenderingContext2D ctx),
-      [int size = 512]) {
-    if (canvas == null)
-      canvas = new HTML.CanvasElement(width: size, height: size);
-    HTML.CanvasRenderingContext2D context = canvas.getContext('2d');
-    callback(context);
-    return canvas;
-  }
-
-  static HTML.CanvasElement createGradientImage2(
-      double time, HTML.CanvasElement canvas) {
-    int d = 512;
-    return createCanvas(canvas, (HTML.CanvasRenderingContext2D ctx) {
-      double sint = Math.sin(time);
-      double n = (sint + 1) / 2;
-      ctx.rect(0, 0, d, d);
-      HTML.CanvasGradient grad = ctx.createLinearGradient(0, 0, d * n, d);
-      double cs1 = (360 * n).floorToDouble();
-      double cs2 = (90 * n).floorToDouble();
-      grad.addColorStop(0, 'hsla($cs1, 100%, 40%, 1)');
-      grad.addColorStop(0.2, 'black');
-      grad.addColorStop(0.3, 'black');
-      grad.addColorStop(0.5, 'hsla($cs2, 100%, 40%, 1)');
-      grad.addColorStop(0.7, 'black');
-      grad.addColorStop(0.9, 'black');
-      grad.addColorStop(1, 'hsla($cs1, 100%, 40%, 1)');
-      ctx.fillStyle = grad;
-      ctx.fill();
-    });
-  }
-
   static Texture createParticleTexture(ChronosGL cgl,
       [String name = "Utils::Particles"]) {
     return new ImageTexture(cgl, name, createParticleCanvas());
@@ -58,25 +26,26 @@ class Utils {
 
   static HTML.CanvasElement createParticleCanvas() {
     int d = 64;
-    return createCanvas(null, (HTML.CanvasRenderingContext2D ctx) {
-      int x = d ~/ 2, y = d ~/ 2;
+    HTML.CanvasElement canvas = new HTML.CanvasElement(width: d, height: d);
+    HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
+    int x = d ~/ 2, y = d ~/ 2;
 
-      var gradient = ctx.createRadialGradient(x, y, 1, x, y, 22);
-      gradient.addColorStop(0, 'gray');
-      gradient.addColorStop(1, 'black');
+    var gradient = ctx.createRadialGradient(x, y, 1, x, y, 22);
+    gradient.addColorStop(0, 'gray');
+    gradient.addColorStop(1, 'black');
 
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, d, d);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, d, d);
 
-      gradient = ctx.createRadialGradient(x, y, 1, x, y, 6);
-      gradient.addColorStop(0, 'white');
-      gradient.addColorStop(1, 'gray');
+    gradient = ctx.createRadialGradient(x, y, 1, x, y, 6);
+    gradient.addColorStop(0, 'white');
+    gradient.addColorStop(1, 'gray');
 
-      ctx.globalAlpha = 0.9;
-      ctx.fillStyle = gradient;
-      ctx.arc(x, y, 4, 0, 2 * Math.PI);
-      ctx.fill();
-    }, d);
+    ctx.globalAlpha = 0.9;
+    ctx.fillStyle = gradient;
+    ctx.arc(x, y, 4, 0, 2 * Math.PI);
+    ctx.fill();
+    return canvas;
   }
 
   static Node MakeSkycube(RenderProgram prog, Texture cubeTexture) {

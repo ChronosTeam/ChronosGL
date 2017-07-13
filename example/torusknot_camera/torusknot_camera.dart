@@ -3,7 +3,6 @@ import 'dart:math' as Math;
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
-HTML.CanvasElement canvas2d;
 VM.Vector3 p1 = new VM.Vector3.zero();
 
 Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
@@ -14,6 +13,25 @@ Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
       [perspective]);
   scene.add(Utils.MakeParticles(scene.program, num));
   return scene;
+}
+
+void updateTorusTexture(double time, HTML.CanvasElement canvas) {
+  HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
+  double sint = Math.sin(time);
+  double n = (sint + 1) / 2;
+  ctx.rect(0, 0, canvas.width, canvas.height);
+  HTML.CanvasGradient grad = ctx.createLinearGradient(0, 0, canvas.width * n, canvas.height);
+  double cs1 = (360 * n).floorToDouble();
+  double cs2 = (90 * n).floorToDouble();
+  grad.addColorStop(0, 'hsla($cs1, 100%, 40%, 1)');
+  grad.addColorStop(0.2, 'black');
+  grad.addColorStop(0.3, 'black');
+  grad.addColorStop(0.5, 'hsla($cs2, 100%, 40%, 1)');
+  grad.addColorStop(0.7, 'black');
+  grad.addColorStop(0.9, 'black');
+  grad.addColorStop(1, 'hsla($cs1, 100%, 40%, 1)');
+  ctx.fillStyle = grad;
+  ctx.fill();
 }
 
 void main() {
@@ -30,7 +48,10 @@ void main() {
       [perspective]);
   phase.add(scene);
 
-  canvas2d = Utils.createGradientImage2(0.0, canvas2d);
+  int d = 512;
+  HTML.CanvasElement canvas2d = new HTML.CanvasElement(width: d, height: d);
+
+  updateTorusTexture(0.0, canvas2d);
   Texture generatedTexture = new ImageTexture(chronosGL, "gen", canvas2d);
 
   // Maybe disable depth test?
@@ -73,7 +94,7 @@ void main() {
 
     tkc.animate(elapsed);
 
-    canvas2d = Utils.createGradientImage2(timeMs / 1000, canvas2d);
+    updateTorusTexture(timeMs / 1000, canvas2d);
     chronosGL.bindTexture(GL_TEXTURE_2D, generatedTexture.GetTexture());
     chronosGL.texImage2Dweb(
         GL_TEXTURE_2D, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, canvas2d);
