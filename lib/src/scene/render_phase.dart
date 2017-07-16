@@ -15,6 +15,7 @@ class Scene extends NamedEntity {
         super(name);
 
   void add(Node n) {
+    assert( n != null);
     nodes.add(n);
   }
 
@@ -86,6 +87,7 @@ class RenderPhase extends NamedEntity {
   }
 
   void add(Scene s) {
+    assert (s != null);
     _scenes.add(s);
   }
 
