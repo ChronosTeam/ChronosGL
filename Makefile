@@ -1,3 +1,5 @@
+export PATH := $(PATH):.
+
 .PHONY=documentation examples tests presubmit buildall
 
 PUB=/usr/lib/dart/bin/pub
@@ -23,15 +25,6 @@ buildall:
 	$(PUB)/bin/pub build tool/
 	$(PUB) build test/
 
-# TODO(robertm): vm tests are failing on exit:
-# Invalid argument(s): Illegal argument in isolate message : (object is a regular Dart Instance)
-tests:
-	@echo "Make sure Dartiums in on the PATH - you may need to add a symlink dartium -> chrome"
-	which dartium
-	-$(PUB) run test   -p vm test/polygon.dart
-	-$(PUB) run test   -p vm test/geometry.dart
-	$(PUB) run test   -p dartium test/shader_syntax.dart
-	$(PUB) run test   -p dartium test/show_extensions.dart
 
 presubmit: tests buildall
 
@@ -47,6 +40,27 @@ simple_example:
 	@echo example can be found in "file://${PWD}/build/example/simple/simple.html"
 	@echo
 
+webserver_ddc:
+	$(PUB) serve example/ --web-compiler=dartdevc
+
 publish:
 	$(PUB) publish
 
+############################################################
+# TESTING
+############################################################
+# TODO(robertm): vm tests are failing on exit:
+# Invalid argument(s): Illegal argument in isolate message : (object is a regular Dart Instance)
+start_test_server:
+	$(PUB) serve test --web-compiler=dartdevc --port 8111
+
+browser_tests:
+	$(PUB) run test  -p chrome --pub-serve=8111 test/geometry.dart
+
+brower_tests_old:
+	-$(PUB) run test  -p chrome --pub-serve=8111 test/geometry.dart
+	$(PUB) run test   -p dartium test/shader_syntax.dart
+	$(PUB) run test   -p dartium test/show_extensions.dart
+
+tests:
+	-$(PUB) run test   -p vm test/polygon.dart

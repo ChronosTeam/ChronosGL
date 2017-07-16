@@ -1,6 +1,42 @@
 part of core;
 
-const int GL_CLEAR_ALL = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+const int GL_CLEAR_ALL =
+    GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+
+int TextureChannelsByType(int format) {
+  switch (format) {
+    case GL_LUMINANCE:
+      return 1;
+    case GL_LUMINANCE_ALPHA:
+      return 2;
+    case GL_RGB:
+      return 3;
+    case GL_RGBA:
+      return 4;
+    default:
+      assert(false);
+      return -1;
+  }
+}
+
+class FramebufferFormat {
+  final int format;
+  int channels;
+  final int type;
+
+  FramebufferFormat(this.format, this.channels, this.type);
+
+  FramebufferFormat.fromActive(ChronosGL cgl)
+      : format = cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_FORMAT),
+        type = cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_TYPE) {
+    channels = TextureChannelsByType(format);
+  }
+
+  @override
+  String toString() {
+    return "FB-FMT: ${format} [${channels}] ${type}";
+  }
+}
 
 class Framebuffer {
   ChronosGL _cgl;
@@ -39,7 +75,7 @@ class Framebuffer {
     }
 
     int err = _cgl.checkFramebufferStatus(GL_FRAMEBUFFER);
-    assert(err == GL_FRAMEBUFFER_COMPLETE);
+    assert(err == GL_FRAMEBUFFER_COMPLETE, "framebuffer error: ${err}");
     if (err != GL_FRAMEBUFFER_COMPLETE) {
       throw "Error Incomplete Framebuffer: ${err}";
     }
@@ -51,19 +87,10 @@ class Framebuffer {
   Framebuffer.Default(ChronosGL cgl, int w, int h)
       : this(
             cgl,
-            new TypedTexture(
-                cgl, "frame::color", w, h, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE),
-            new DepthTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
-                GL_UNSIGNED_INT, false));
-
-  Framebuffer.DefaultWithStencil(ChronosGL cgl, int w, int h)
-      : this(
-            cgl,
-            new TypedTexture(
-                cgl, "frame::color", w, h, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE),
-            new DepthStencilTexture(cgl, "frame::depth.stencil", w, h),
-            null,
-            true);
+            new TypedTexture(cgl, "frame::color", w, h, GL_RGBA8,
+                TexturePropertiesFramebuffer),
+            new TypedTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
+                TexturePropertiesFramebuffer));
 
   void Activate(int clear_mode, int viewPortX, int viewPortY, int viewPortW,
       int viewPortH) {
@@ -77,34 +104,30 @@ class Framebuffer {
     }
   }
 
-  // e.g. into Float32List
-  // BROKEN: https://github.com/dart-lang/sdk/issues/11614
-  void ExtractData(Object buf, int x, int y, int w, int h) {
+  Float32List ExtractFloatData(Float32List buf, int x, int y, int w, int h) {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-    // RGB (3 values per pixel), RGBA (4 values per pixel)
-    // see TypeToNumChannels
-    int implFormat = _cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_FORMAT);
-    print("impl format: ${implFormat}");
-    // FLOAT, UNSIGNED BYTE
-    int implType = _cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_TYPE);
-    print("impl type: ${implType}");
-    _cgl.readPixels(x, y, w, h, implFormat, implType, buf);
+    final FramebufferFormat f = new FramebufferFormat.fromActive(_cgl);
+    print("$f");
+    assert(f.type == GL_FLOAT);
+    if (buf == null) {
+      buf = new Float32List(f.channels * w * h);
+    }
+    _cgl.readPixels(x, y, w, h, f.format, f.type, buf);
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
+    return buf;
   }
-}
 
-int TypeToNumChannels(int t) {
-  switch (t) {
-    case GL_LUMINANCE:
-      return 1;
-    case GL_LUMINANCE_ALPHA:
-      return 2;
-    case GL_RGB:
-      return 3;
-    case GL_RGBA:
-      return 4;
-    default:
-      assert(false);
-      return -1;
+  Uint8List ExtractByteData(Uint8List buf, int x, int y, int w, int h) {
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+    final FramebufferFormat f = new FramebufferFormat.fromActive(_cgl);
+    print("$f");
+    assert(f.type == GL_UNSIGNED_BYTE);
+    if (buf == null) {
+      buf = new Uint8List(f.channels * w * h);
+    }
+    _cgl.readPixels(x, y, w, h, f.format, f.type, buf);
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
+
+    return buf;
   }
 }

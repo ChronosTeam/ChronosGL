@@ -26,10 +26,10 @@ class Spatial extends NamedEntity {
   final VM.Vector3 _right = new VM.Vector3.zero();
 
   VM.Vector3 getPos() {
-    _pos[0] = this.transform[POSX];
-    _pos[1] = this.transform[POSY];
-    _pos[2] = this.transform[POSZ];
-    return this._pos;
+    _pos[0] = transform[POSX];
+    _pos[1] = transform[POSY];
+    _pos[2] = transform[POSZ];
+    return _pos;
   }
 
   // get the values from column 2. They represent the trail direction of this matrx

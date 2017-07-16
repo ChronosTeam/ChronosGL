@@ -125,7 +125,6 @@ void main() {
   Future.wait(futures).then((List list) {
     // Setup Maps
     ImageTexture texture = new ImageTexture(chronosGL, textureFile, list[1]);
-    texture.Install();
     /*
     Texture specularmap =
         new ImageTexture(chronosGL, specularmapFile, list[2]);

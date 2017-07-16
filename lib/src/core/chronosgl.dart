@@ -269,6 +269,10 @@ class ChronosGL {
     _gl.texImage2D(target, level, iformat, w, h, border, format, type, data);
   }
 
+  void texStorage2D(int target, int level, int iformat, int w, int h) {
+    _gl.texStorage2D(target, level, iformat, w, h);
+  }
+
   void texSubImage2D(int target, int level, int x, int y, int w, int h,
       int format, int type, dynamic data) {
     _gl.texSubImage2D(target, level, x, y, w, h, format, type, data);

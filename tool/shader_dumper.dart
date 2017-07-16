@@ -6,7 +6,6 @@
 // test/shader_syntax.dart
 
 import 'package:chronosgl/src/shader/lib.dart';
-import 'package:chronosgl/src/base/lib.dart';
 
 void main(List<String> args) {
   if (args.length != 1) {
@@ -15,6 +14,5 @@ void main(List<String> args) {
   switch (args[0]) {
   }
 
-  List<ShaderObject> shaders = createLightShaderBlinnPhong();
-  print(shaders[1].shader);
+  print(lightFragmentShaderBlinnPhong);
 }

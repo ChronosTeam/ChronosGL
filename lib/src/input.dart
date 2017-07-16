@@ -1,7 +1,7 @@
 part of chronosgl;
 
-Map<int, bool> currentlyPressedKeys = new Map<int, bool>();
-Map<String, bool> currentlyPressedMouseButtons = new Map<String, bool>();
+Map<int, bool> currentlyPressedKeys = <int, bool>{};
+Map<String, bool> currentlyPressedMouseButtons = <String, bool>{};
 
 int clientX = 0;
 int clientY = 0;

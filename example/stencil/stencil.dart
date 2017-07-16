@@ -22,14 +22,8 @@ void main() {
   canvas.height = height;
   perspective.AdjustAspect(width, height);
 
-  Framebuffer fb = new Framebuffer.DefaultWithStencil(chronosGL, width, height);
-  RenderPhase phase = new RenderPhase("main", chronosGL, fb)
-    ..viewPortW = width
-    ..viewPortH = height
-    ..clearStencilBuffer = false;
-
-  TheStencilFunction StencilEqualOne =
-      new TheStencilFunction(GL_EQUAL, 1, 0xff);
+ TypedTexture colorBuffer = new TypedTexture(chronosGL, "frame::color", width,
+      height, GL_RGBA8, TexturePropertiesFramebuffer);
 
   Uint32List data = new Uint32List(width * height);
   for (int x = 0; x < width; ++x) {
@@ -37,7 +31,28 @@ void main() {
       data[y * width + x] = (x & 8) == 0 ? 0 : 1;
     }
   }
-  phase.framebuffer.depthTexture.SetImageData(data);
+
+  TypedTextureMutable depthStencilBuffer = new TypedTextureMutable(
+      chronosGL,
+      "frame::depth.stencil",
+      width,
+      height,
+      GL_DEPTH24_STENCIL8,
+      TexturePropertiesFramebuffer,
+      GL_DEPTH_STENCIL,
+      GL_UNSIGNED_INT_24_8,
+      data);
+
+  Framebuffer fb =
+      new Framebuffer(chronosGL, colorBuffer, depthStencilBuffer, null, true);
+
+  RenderPhase phase = new RenderPhase("main", chronosGL, fb)
+    ..viewPortW = width
+    ..viewPortH = height
+    ..clearStencilBuffer = false;
+
+  TheStencilFunction StencilEqualOne =
+      new TheStencilFunction(GL_EQUAL, 1, 0xff);
 
   Scene scene = new Scene(
       "solid",
