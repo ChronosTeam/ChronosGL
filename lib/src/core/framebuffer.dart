@@ -3,8 +3,8 @@ part of core;
 const int GL_CLEAR_ALL =
     GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 
-int TextureChannelsByType(int t) {
-  switch (t) {
+int TextureChannelsByType(int format) {
+  switch (format) {
     case GL_LUMINANCE:
       return 1;
     case GL_LUMINANCE_ALPHA:
@@ -16,6 +16,25 @@ int TextureChannelsByType(int t) {
     default:
       assert(false);
       return -1;
+  }
+}
+
+class FramebufferFormat {
+  final int format;
+  int channels;
+  final int type;
+
+  FramebufferFormat(this.format, this.channels, this.type);
+
+  FramebufferFormat.fromActive(ChronosGL cgl)
+      : format = cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_FORMAT),
+        type = cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_TYPE) {
+    channels = TextureChannelsByType(format);
+  }
+
+  @override
+  String toString() {
+    return "FB-FMT: ${format} [${channels}] ${type}";
   }
 }
 
@@ -85,41 +104,30 @@ class Framebuffer {
     }
   }
 
-  // e.g. into Float32List
-  // BROKEN: https://github.com/dart-lang/sdk/issues/11614
   Float32List ExtractFloatData(Float32List buf, int x, int y, int w, int h) {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-    // RGB (3 values per pixel), RGBA (4 values per pixel)
-    // see TypeToNumChannels
-    final int implFormat =
-        _cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_FORMAT);
-    print("impl format: ${implFormat}");
-    // FLOAT, UNSIGNED BYTE
-    final int implType = _cgl.getParameter(GL_IMPLEMENTATION_COLOR_READ_TYPE);
-    print("impl type: ${implType}");
-    assert(implType == GL_FLOAT);
+    final FramebufferFormat f = new FramebufferFormat.fromActive(_cgl);
+    print("$f");
+    assert(f.type == GL_FLOAT);
     if (buf == null) {
-      final int arraySize = TextureChannelsByType(implFormat);
-      buf = new Float32List(arraySize * w * h);
+      buf = new Float32List(f.channels * w * h);
     }
-    _cgl.readPixels(x, y, w, h, implFormat, implType, buf);
+    _cgl.readPixels(x, y, w, h, f.format, f.type, buf);
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
     return buf;
   }
-}
 
-int TypeToNumChannels(int t) {
-  switch (t) {
-    case GL_LUMINANCE:
-      return 1;
-    case GL_LUMINANCE_ALPHA:
-      return 2;
-    case GL_RGB:
-      return 3;
-    case GL_RGBA:
-      return 4;
-    default:
-      assert(false);
-      return -1;
+  Uint8List ExtractByteData(Uint8List buf, int x, int y, int w, int h) {
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+    final FramebufferFormat f = new FramebufferFormat.fromActive(_cgl);
+    print("$f");
+    assert(f.type == GL_UNSIGNED_BYTE);
+    if (buf == null) {
+      buf = new Uint8List(f.channels * w * h);
+    }
+    _cgl.readPixels(x, y, w, h, f.format, f.type, buf);
+    _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
+
+    return buf;
   }
 }
