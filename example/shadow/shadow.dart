@@ -4,6 +4,10 @@ import 'dart:math' as Math;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
+
+const double kShadowBias1 = 0.001;
+const double kShadowBias2 = 0.001;
+
 final ShaderObject lightVertexShaderBlinnPhongWithShadow =
     new ShaderObject("LightBlinnPhongShadowV")
       ..AddAttributeVars([aPosition, aNormal])
@@ -36,9 +40,7 @@ final ShaderObject lightFragmentShaderBlinnPhongWithShadow =
 		// depth is in [-1, 1] but we want [0, 1] for the texture lookup
 		depth = 0.5 * depth + vec3(0.5);
 
-
-    // float shadow = GetShadowPCF16(depth, ${uShadowMap}, 0.001, 0.01);
-    float shadow = GetShadow(depth, ${uShadowMap}, 0.01, 0.001);
+    float shadow = GetShadow(depth, ${uShadowMap}, ${kShadowBias1}, ${kShadowBias2});
 
     ColorComponents acc = ColorComponents(vec3(0.0), vec3(0.0));
     if (shadow > 0.0) {
@@ -55,7 +57,6 @@ final ShaderObject lightFragmentShaderBlinnPhongWithShadow =
       """
       ], prolog: [
         "",
-        ShadowMapDepth16.GetShadowMapValueLib(),
         StdLibShader,
         ShadowMapShaderLib,
       ]);
@@ -189,7 +190,7 @@ void main() {
     illumination.AddLight(l);
   }
 
-  ShadowMap shadowMap = new ShadowMapDepth16(chronosGL, 1024, 1024);
+  ShadowMap shadowMap = new ShadowMap(chronosGL, 1024, 1024);
 
   UniformGroup uniforms = new UniformGroup("plain")
     ..SetUniform(uShadowMap, shadowMap.GetMapTexture())
