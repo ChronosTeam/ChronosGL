@@ -172,6 +172,9 @@ void AddShapesToScene(Scene scene) {
     ..setPos(0.0, -10.0, 0.0));
 }
 
+double kNear = 0.1;
+double kFar = 50.0;
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -183,14 +186,14 @@ void main() {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
 
-  final Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  final Perspective perspective = new Perspective(orbit, kNear, kFar);
 
   Illumination illumination = new Illumination();
   for (Light l in lightSources.values) {
     illumination.AddLight(l);
   }
 
-  ShadowMap shadowMap = new ShadowMap(chronosGL, 1024, 1024);
+  ShadowMap shadowMap = new ShadowMap(chronosGL, 512, 512, 0.5, 20.0);
 
   UniformGroup uniforms = new UniformGroup("plain")
     ..SetUniform(uShadowMap, shadowMap.GetMapTexture())
