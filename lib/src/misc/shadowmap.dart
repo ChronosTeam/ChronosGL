@@ -81,12 +81,17 @@ final ShaderObject visualizeShadowmapFragmentShaderLinearDepth16 =
       ..SetBodyWithMain([
         """
    float d = texture(${uTexture},  ${vTexUV}).x;
+   float near = ${uCameraNear};
+   float far = ${uCameraFar};
+   float gray = (2.0 * near) / (far + near - d * (far - near));
+   ${oFragColor}.rgb = vec3(gray);
    // ${oFragColor}.rgb = vec3(d >= ${uCutOff} ? d : 0.0);
-   ${oFragColor}.rgb = vec3(d);
+   // ${oFragColor}.rgb = vec3(d);
 """
       ]);
 
 class ShadowMap {
+  final ChronosGL _cgl;
   Texture _depthTexture;
   RenderPhase _phaseCompute;
   Framebuffer _shadowBuffer;
@@ -100,41 +105,41 @@ class ShadowMap {
   VM.Vector2 _mapSize;
 
   // Other options for format:  GL_DEPTH_COMPONENT32F
-  ShadowMap(ChronosGL cgl, int w, int h,
+  ShadowMap(this._cgl, int w, int h, double near, double far,
       {int format = GL_DEPTH_COMPONENT24}) {
     _mapSize = new VM.Vector2(w + 0.0, h + 0.0);
     Texture dummy = new TypedTexture(
-        cgl, "frame::color", w, h, GL_RGBA8, TexturePropertiesFramebuffer);
+        _cgl, "frame::color", w, h, GL_RGBA8, TexturePropertiesFramebuffer);
     _depthTexture = new TypedTexture(
-        cgl, "frame::depth", w, h, format, TexturePropertiesShadowMap);
-    _shadowBuffer = new Framebuffer(cgl, dummy, _depthTexture);
-    _phaseCompute = new RenderPhase("compute-shadow", cgl, _shadowBuffer)
+        _cgl, "frame::depth", w, h, format, TexturePropertiesShadowMap);
+    _shadowBuffer = new Framebuffer(_cgl, dummy, _depthTexture);
+    _phaseCompute = new RenderPhase("compute-shadow", _cgl, _shadowBuffer)
       ..viewPortW = w
       ..viewPortH = h;
 
     _uniforms
       ..SetUniform(uTexture, GetMapTexture())
       ..SetUniform(uCutOff, 0.0)
-      ..SetUniform(uCameraNear, 0.0)
-      ..SetUniform(uCameraFar, 0.0);
+      ..SetUniform(uCameraNear, near)
+      ..SetUniform(uCameraFar, far);
 
     _programCompute = new Scene(
         "shadowCompute",
-        new RenderProgram("shadowCompute", cgl, shadowVertexShaderDepth,
+        new RenderProgram("shadowCompute", _cgl, shadowVertexShaderDepth,
             shadowFragmentShaderDepth),
         [_uniforms]);
     _phaseCompute.add(_programCompute);
 
     // We do not clear the color buffer for visualization, so Visualize
     // should be called as the last thing touching the framebuffer.
-    _phaseVisualize = new RenderPhase("visualize-shadow", cgl)
+    _phaseVisualize = new RenderPhase("visualize-shadow", _cgl)
       ..clearColorBuffer = false;
 
     _programVisualize = new Scene(
         "shadowVisualize",
         new RenderProgram(
             "shadowVisualize",
-            cgl,
+            _cgl,
             visualizeShadowmapVertexShaderLinearDepth16,
             visualizeShadowmapFragmentShaderLinearDepth16),
         [_uniforms]);
@@ -166,10 +171,17 @@ class ShadowMap {
   }
 
   void Visualize() {
+    // Total hack! TextureSamplers could make this nicer
+    _cgl.bindTexture(GL_TEXTURE_2D, _depthTexture.GetTexture());
+    _cgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+    _cgl.bindTexture(GL_TEXTURE_2D, null);
     _phaseVisualize.Draw([]);
+    _cgl.bindTexture(GL_TEXTURE_2D, _depthTexture.GetTexture());
+    _cgl.texParameteri(
+        GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+    _cgl.bindTexture(GL_TEXTURE_2D, null);
   }
 
   VM.Vector2 GetMapSize() => _mapSize;
   Texture GetMapTexture() => _depthTexture;
 }
-
