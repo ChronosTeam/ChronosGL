@@ -217,9 +217,13 @@ class GeometryBuilder {
     }
   }
 
-  void AddFaces4Strips(List<List<VM.Vector3>> strips, bool closed) {
+  void AddFaces4Strips(List<List<VM.Vector3>> strips, bool closed, [bool flip = false]) {
     for (int i = 0; i < strips.length - 1; ++i) {
-      AddFaces4Strip(strips[i + 1], strips[i], closed);
+      if (flip) {
+         AddFaces4Strip(strips[i], strips[i+1], closed);
+      } else {
+        AddFaces4Strip(strips[i + 1], strips[i], closed);
+      }
     }
   }
 
@@ -298,6 +302,54 @@ class GeometryBuilder {
     }
     attributes[aNormal] = normals;
   }
+
+  void GenerateAveragedNormalsAssumingTriangleMode() {
+   Map<VM.Vector3, VM.Vector3> avg = {};
+   Map<VM.Vector3, int> cnt = {};
+    VM.Vector3 temp = new VM.Vector3.zero();
+    VM.Vector3 norm = new VM.Vector3.zero();
+
+    add(int index, VM.Vector3 n) {
+      VM.Vector3 v = vertices[index];
+      if (avg.containsKey(v)) {
+        avg[v] += n;
+        cnt[v]++;
+      } else {
+        avg[v] = n;
+        cnt[v] = 1;
+      }
+    }
+
+    for (Face3 f3 in _faces3) {
+      NormalFromPoints(
+          vertices[f3.a], vertices[f3.b], vertices[f3.c], temp, norm);
+      VM.Vector3 n = norm.clone();
+      add(f3.a, n);
+      add(f3.b, n);
+      add(f3.c, n);
+    }
+
+    for (Face4 f4 in _faces4) {
+      NormalFromPoints(
+          vertices[f4.a], vertices[f4.b], vertices[f4.c], temp, norm);
+        VM.Vector3 n = norm.clone();
+      add(f4.a, n);
+      add(f4.b, n);
+      add(f4.c, n);
+      add(f4.d, n);
+    }
+
+    for (VM.Vector3 key in avg.keys) {
+      avg[key] = avg[key] / (0.0 + cnt[key]);
+    }
+    List<VM.Vector3> normals = new List<VM.Vector3>(vertices.length);
+    for (int i =0 ; i < vertices.length; ++i) {
+      normals[i] =  avg[vertices[i]];
+    }
+    attributes[aNormal] = normals;
+  }
+
+
 
   void GenerateRadialNormals(VM.Vector3 center) {
     VM.Vector3 norm = new VM.Vector3.zero();
