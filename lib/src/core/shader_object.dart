@@ -169,6 +169,7 @@ const String uColor = "uColor";
 const String uColorAlpha2 = "uColorAlpha2";
 const String uColorAlpha = "uColorAlpha";
 const String uColorEmissive = "uColorEmissive";
+const String uColorAmbient = "uAmbientDiffuse";
 const String uColorDiffuse = "uColorDiffuse";
 const String uColorSpecular = "uColorSpecular";
 const String uCameraNear = "uCameraNear";
@@ -275,6 +276,7 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   uShadowBias: new ShaderVarDesc(VarTypeFloat, ""),
   uOpacity: new ShaderVarDesc(VarTypeFloat, ""),
   uColor: new ShaderVarDesc(VarTypeVec3, ""),
+  uColorAmbient: new ShaderVarDesc(VarTypeVec3, ""),
   uColorEmissive: new ShaderVarDesc(VarTypeVec3, ""),
   uColorSpecular: new ShaderVarDesc(VarTypeVec3, ""),
   uColorDiffuse: new ShaderVarDesc(VarTypeVec3, ""),
@@ -435,6 +437,7 @@ class ShaderObject {
       out.add("}");
     }
 
+    //print (out.join("\n"));
     return out.join("\n");
   }
 }
