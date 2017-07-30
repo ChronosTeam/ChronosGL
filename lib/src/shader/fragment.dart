@@ -175,6 +175,31 @@ ColorComponents DirectionalLightGetDiffuseAndSpecular(DirectionalLightInfo info,
               info.specularColor);
 }
 
+
+ColorComponents CombinedLightSpot(
+    vec3 vVertexPosition, vec3 vNormal, vec3 uEyePosition, mat4 lightDesc,
+    float shininess) {
+    SpotLightInfo info = UnpackSpotLightInfo(lightDesc);
+    return SpotLightGetDiffuseAndSpecular(
+        info, vVertexPosition, vNormal, uEyePosition, shininess);
+}
+
+ColorComponents CombinedLightPoint(
+    vec3 vVertexPosition, vec3 vNormal, vec3 uEyePosition, mat4 lightDesc,
+    float shininess) {
+    PointLightInfo info = UnpackPointLightInfo(lightDesc);
+    return PointLightGetDiffuseAndSpecular(
+        info, vVertexPosition, vNormal, uEyePosition, shininess);
+}
+
+ColorComponents CombinedLightDirectional(
+    vec3 vVertexPosition, vec3 vNormal, vec3 uEyePosition, mat4 lightDesc,
+    float shininess) {
+    DirectionalLightInfo info = UnpackDirectionalLightInfo(lightDesc);
+    return DirectionalLightGetDiffuseAndSpecular(
+        info, vVertexPosition, vNormal, uEyePosition, shininess);
+}
+
 // ============================================================
 // Combined Light
 // ============================================================
@@ -190,26 +215,17 @@ ColorComponents CombinedLight(vec3 vVertexPosition,
         ColorComponents curr;
         float type = ${uLightTypes}[i];
         if (type == ${lightTypeSpotFloat}) {
-            SpotLightInfo info = UnpackSpotLightInfo(uLightDescs[i]);
-            curr = SpotLightGetDiffuseAndSpecular(info,
-                                           vVertexPosition,
-                                           vNormal,
-                                           uEyePosition,
-                                           uShininess);
+            curr = CombinedLightSpot(
+                       vVertexPosition, vNormal, uEyePosition, uLightDescs[i], 
+                       uShininess);
         } else if (type == ${lightTypePointFloat}) {
-            PointLightInfo info = UnpackPointLightInfo(uLightDescs[i]);
-            curr = PointLightGetDiffuseAndSpecular(info,
-                                            vVertexPosition,
-                                            vNormal,
-                                            uEyePosition,
-                                            uShininess);
+            curr = CombinedLightPoint(
+                       vVertexPosition, vNormal, uEyePosition, uLightDescs[i], 
+                       uShininess);
         } else if (type == ${lightTypeDirectionalFloat}) {
-            DirectionalLightInfo info = UnpackDirectionalLightInfo(uLightDescs[i]);
-            curr = DirectionalLightGetDiffuseAndSpecular(info,
-                                                  vVertexPosition,
-                                                  vNormal,
-                                                  uEyePosition,
-                                                  uShininess);
+            curr = CombinedLightDirectional(
+                       vVertexPosition, vNormal, uEyePosition, uLightDescs[i], 
+                       uShininess);
         } else {
             continue;
         }
