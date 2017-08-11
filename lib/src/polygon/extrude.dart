@@ -55,7 +55,8 @@ List<VM.Vector2> BevelSupportPoints(double width, double height, int nSupports,
   // out[0]
   List<VM.Vector2> out = new List<VM.Vector2>(nSupports);
   for (int i = 0; i < nSupports; ++i) {
-    double t = i / nSupports;
+    // make sure t assumes zero and one at the extremes
+    double t = i / (nSupports - 1);
     out[i] = new VM.Vector2(-width * widthEasing(t), height * heightEasing(t));
   }
   return out;
