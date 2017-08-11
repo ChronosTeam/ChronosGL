@@ -119,6 +119,7 @@ class ShadowMap {
 
     _uniforms
       ..SetUniform(uTexture, GetMapTexture())
+      // for visualization only:
       ..SetUniform(uCutOff, 0.0)
       ..SetUniform(uCameraNear, near)
       ..SetUniform(uCameraFar, far);

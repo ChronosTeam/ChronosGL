@@ -5,11 +5,13 @@ class DrawStats {
   int numInstances;
   int numItems;
   int drawMode;
+  Duration duration;
 
-  DrawStats(this.name, this.numInstances, this.numItems, this.drawMode);
+  DrawStats(
+      this.name, this.numInstances, this.numItems, this.drawMode, this.duration);
 
   @override
-  String toString() => "[${name}] ${numInstances} ${numItems} ${drawMode}";
+  String toString() => "[${name}] ${numInstances} ${numItems} mode:${drawMode} [${duration.inMicroseconds}usec";
 }
 
 /// ## Class RenderProgram (is a NamedEntity)
@@ -46,11 +48,12 @@ class RenderProgram extends NamedEntity {
   }
 
   int GetTransformBindingIndex(String canonical) {
-   return _shaderObjectV.GetTransformBindingIndex(canonical);
+    return _shaderObjectV.GetTransformBindingIndex(canonical);
   }
 
   MeshData MakeMeshData(String name, int drawMode) {
-    return new MeshData(name, _cgl, drawMode, _shaderObjectV.GetAttributeLayoutMap());
+    return new MeshData(
+        name, _cgl, drawMode, _shaderObjectV.GetAttributeLayoutMap());
   }
 
   bool HasCompatibleAttributesTo(RenderProgram other) {
@@ -212,7 +215,6 @@ class RenderProgram extends NamedEntity {
     return out;
   }
 
-
   void _ActivateUniforms(String group, Map<String, Object> inputs) {
     int count = 0;
     final DateTime start = new DateTime.now();
@@ -235,8 +237,9 @@ class RenderProgram extends NamedEntity {
     LogDebug("setting ${count} var in ${delta}");
   }
 
-  void Draw(
-      MeshData md, List<UniformGroup> uniforms, [List<DrawStats> stats=null]) {
+  void Draw(MeshData md, List<UniformGroup> uniforms,
+      [List<DrawStats> stats = null]) {
+    final DateTime start = new DateTime.now();
     _cgl.useProgram(_program);
     _ClearState();
 
@@ -249,10 +252,6 @@ class RenderProgram extends NamedEntity {
     _attributesInitialized.clear();
     for (String a in md.GetAttributes()) {
       _attributesInitialized.add(a);
-    }
-    if (stats != null) {
-      stats.add(new DrawStats(
-          name, md.GetNumInstances(), md.GetNumItems(), md.drawMode));
     }
     if (debug)
       print(
@@ -271,5 +270,9 @@ class RenderProgram extends NamedEntity {
     _cgl.draw(md.drawMode, md.GetNumItems(), md.elementArrayBufferType, 0,
         md.GetNumInstances(), hasTransforms);
     if (debug) print(_cgl.getProgramInfoLog(_program));
+    if (stats != null) {
+      stats.add(new DrawStats(name, md.GetNumInstances(), md.GetNumItems(),
+          md.drawMode, new DateTime.now().difference(start)));
+    }
   }
 }

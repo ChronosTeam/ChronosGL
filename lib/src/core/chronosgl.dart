@@ -303,6 +303,10 @@ class ChronosGL {
     return _gl.getUniformLocation(program, uniform);
   }
 
+  WEBGL.Sampler createSampler() {
+    return _gl.createSampler();
+  }
+
   int getError() {
     return _gl.getError();
   }
@@ -397,5 +401,8 @@ class ChronosGL {
   void uniformMatrix3fv(
       WEBGL.UniformLocation location, bool transpose, Float32List value) {
     _gl.uniformMatrix3fv(location, transpose, value);
+  }
+  void clearColor(double r,double g,double b,double a) {
+    _gl.clearColor(r,g,b,a);
   }
 }

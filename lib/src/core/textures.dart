@@ -46,6 +46,16 @@ class TextureProperties {
     }
 
     if (shadow) {
+      /*
+      from: https://www.opengl.org/discussion_boards/showthread.php/180780-How-does-sampler2DArrayShadow-in-glsl-works
+
+      Hardware depth comparisons happen internal to your texture lookup (i.e. texture() call).
+      What you get back is not a filtered texture value, but rather a filtered depth comparison
+      result (where the depth value you pass into the texturre call is compared against one or
+      more texels). This gives you a filtered 0..1 visibility value, which is usually what you
+      want anyway.
+      */
+
       cgl.texParameteri(
           type, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
     }
@@ -64,9 +74,10 @@ final TextureProperties TexturePropertiesVideo = new TextureProperties()
 // http://stackoverflow.com/questions/22419682/glsl-sampler2dshadow-and-shadow2d-clarification\
 final TextureProperties TexturePropertiesShadowMap = new TextureProperties()
   ..flipY = false
-  ..clamp = false
+  ..clamp = true
   ..mipmap = false
   ..shadow = true;
+  //..SetFilterNearest();
 
 bool IsCubeChildTextureType(int t) {
   switch (t) {
