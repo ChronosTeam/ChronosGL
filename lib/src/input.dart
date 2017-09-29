@@ -131,6 +131,10 @@ class OrbitCamera extends Camera {
   Map<int, bool> _cpk = currentlyPressedKeys;
   Map<String, bool> _cpmb = currentlyPressedMouseButtons;
 
+  /// OrbitCamera initializes an orbiting camera
+  ///
+  /// @param this._radius blah
+  /// @param this._polar blah
   OrbitCamera(this._radius, this.azimuth, this.polar, HTML.Element eventElement)
       : super("camera:orbit") {
     eventElement.onMouseWheel.listen((HTML.WheelEvent e) {

@@ -10,6 +10,11 @@ class Scene extends NamedEntity {
   final List<UniformGroup> uniforms;
   final List<Node> nodes = [];
 
+  /// Scene initializes a scene
+  ///
+  /// @param name
+  /// @param this.program
+  /// @param unis
   Scene(String name, this.program, [List<UniformGroup> unis = null])
       : uniforms = unis == null ? <UniformGroup>[] : unis,
         super(name);

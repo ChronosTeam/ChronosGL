@@ -125,7 +125,7 @@ class RenderProgram extends NamedEntity {
     // enable only for debug
     if (_uniformsInitialized.containsKey(canonical)) {
       LogError(
-          "${canonical} : group ${group} overwrites ${_uniformsInitialized[canonical]}");
+          "${canonical} : group [${group}] overwrites [${canonical}]");
     }
     _uniformsInitialized[canonical] = group;
 
