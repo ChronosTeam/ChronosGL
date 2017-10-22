@@ -16,7 +16,7 @@ class Utils {
     if (flipY) {
       gl.pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
     }
-    gl.texImage2DCanvas(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, canvas);
+    gl.texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, canvas);
     gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, minFilter);
     gl.texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, magFilter);
     if (mipmap) {

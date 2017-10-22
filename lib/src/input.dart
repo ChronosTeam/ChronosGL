@@ -33,7 +33,7 @@ void setUpCapture(HTML.CanvasElement canvas) {
     //e.preventDefault();
     mouseDownX = e.client.x - (HTML.window.innerWidth ~/ 2);
     mouseDownY = -(e.client.y - (HTML.window.innerHeight ~/ 2));
-    bool rightclick = e.which == 3 || e.button == 2;
+    bool rightclick = e.button == 2;
     if (rightclick) currentlyPressedMouseButtons['right'] = true;
     else currentlyPressedMouseButtons['left'] = true;
   });
@@ -46,7 +46,7 @@ void setUpCapture(HTML.CanvasElement canvas) {
 
   HTML.document.onMouseUp.listen((HTML.MouseEvent e) {
     //e.preventDefault();
-    bool rightclick = e.which == 3 || e.button == 2;
+    bool rightclick = e.button == 2;
     if (rightclick) currentlyPressedMouseButtons['right'] = null;
     else currentlyPressedMouseButtons['left'] = null;
   });

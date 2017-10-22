@@ -103,10 +103,10 @@ class TextureCache {
 
         if (textureWrapper.type == TEXTURE_CUBE_MAP) {
           for (TextureWrapper tw in textureWrapper.cubeTextureChildren) {
-            gl.texImage2DImage(tw.type, 0, RGBA, RGBA, UNSIGNED_BYTE, tw.image);
+            gl.texImage2D(tw.type, 0, RGBA, RGBA, UNSIGNED_BYTE, tw.image);
           }
         } else {
-          gl.texImage2DImage(textureWrapper.type, 0, RGBA, RGBA, UNSIGNED_BYTE, textureWrapper.image);
+          gl.texImage2D(textureWrapper.type, 0, RGBA, RGBA, UNSIGNED_BYTE, textureWrapper.image);
         }
 
         if (mipmap) {
