@@ -47,4 +47,8 @@ class UniformGroup extends NamedEntity {
   }
 
   Map<String, Object> GetUniforms() => _uniforms;
+
+  String toString() {
+    return "{$runtimeType}[$name]";
+  }
 }
