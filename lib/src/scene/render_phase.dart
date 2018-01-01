@@ -15,22 +15,22 @@ class Scene extends NamedEntity {
   /// @param name
   /// @param this.program
   /// @param unis
-  Scene(String name, this.program, [List<UniformGroup> unis = null])
+  Scene(String name, this.program, [List<UniformGroup> unis])
       : uniforms = unis == null ? <UniformGroup>[] : unis,
         super(name);
 
   void add(Node n) {
-    assert( n != null);
+    assert(n != null);
     nodes.add(n);
   }
 
-   void remove(Node n) {
+  void remove(Node n) {
     nodes.remove(n);
   }
 
-   void removeAll() {
+  void removeAll() {
     nodes.clear();
-   }
+  }
 }
 
 void drawRecursively(RenderProgram prog, Node node, final VM.Matrix4 parent,
@@ -63,8 +63,7 @@ class RenderPhase extends NamedEntity {
   int viewPortW = 0;
   int viewPortH = 0;
 
-  RenderPhase(String name, this._cgl, [this._framebuffer = null])
-      : super(name) {
+  RenderPhase(String name, this._cgl, [this._framebuffer]) : super(name) {
     if (_framebuffer == null) _framebuffer = new Framebuffer.Screen(_cgl);
   }
 
@@ -92,11 +91,11 @@ class RenderPhase extends NamedEntity {
   }
 
   void add(Scene s) {
-    assert (s != null);
+    assert(s != null);
     _scenes.add(s);
   }
 
-  void Draw([List<DrawStats> stats = null]) {
+  void Draw([List<DrawStats> stats]) {
     _framebuffer.Activate(
         _clear_mode, viewPortX, viewPortY, viewPortW, viewPortH);
 
