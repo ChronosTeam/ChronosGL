@@ -29,10 +29,10 @@ WEBGL.Shader _CompileShader(dynamic gl, int type, String text) {
   bool result = gl.getShaderParameter(shader, GL_COMPILE_STATUS);
   if (result != null && result == false) {
     String error = gl.getShaderInfoLog(shader);
-    LogInfo("Compilation failed:");
-    LogInfo(_AddLineNumbers(text));
-    LogInfo("Failure:");
-    LogInfo(error);
+    LogError("Compilation failed:");
+    LogError(_AddLineNumbers(text));
+    LogError("Failure:");
+    LogError(error);
     throw error;
   }
   return shader;
@@ -55,6 +55,7 @@ class ChronosGL {
       "antialias": antialiasing,
       "premultipliedAlpha": true,
       "preserveDrawingBuffer": preserveDrawingBuffer,
+      "failIfMajorPerformanceCaveat": false,
     };
 
     _gl = _canvas.getContext("webgl2", attributes);
@@ -62,6 +63,17 @@ class ChronosGL {
       throw new Exception(NO_WEBGL_MESSAGE);
     }
 
+
+    dynamic actual = _gl.getContextAttributes();
+/*
+    LogInfo("alpha: ${actual.alpha}");
+    LogInfo("antialias: ${actual.antialias}");
+    LogInfo("depth: ${actual.depth}");
+    LogInfo("stencil: ${actual.stencil}");
+    LogInfo("premultipliedAlpha: ${actual.premultipliedAlpha}");
+    LogInfo("preserveDrawingBuffer: ${actual.preserveDrawingBuffer}");
+    LogInfo("failIfMajorPerformanceCaveat: ${actual.failIfMajorPerformanceCaveat}");
+*/
     _gl.clearColor(0.0, 0.0, 0.0, 1.0);
     _gl.enable(GL_DEPTH_TEST);
     if (faceCulling) {
@@ -197,6 +209,10 @@ class ChronosGL {
     _gl.enable(kind);
   }
 
+  void cullFace(int kind) {
+    _gl.cullFace(kind);
+  }
+
   void disable(int kind) {
     _gl.disable(kind);
   }
@@ -276,6 +292,10 @@ class ChronosGL {
   void texSubImage2D(int target, int level, int x, int y, int w, int h,
       int format, int type, dynamic data) {
     _gl.texSubImage2D(target, level, x, y, w, h, format, type, data);
+  }
+
+   void copyTexImage2D(int target, int level, int format, int x, int y, int w, int h) {
+    _gl.copyTexImage2D(target, level, format, x, y, w, h, 0);
   }
 
   void activeTexture(int target) {
@@ -375,6 +395,10 @@ class ChronosGL {
 
   void uniform1i(WEBGL.UniformLocation location, int value) {
     _gl.uniform1i(location, value);
+  }
+
+  void uniform1iv(WEBGL.UniformLocation location, Int32List value) {
+    _gl.uniform1iv(location, value);
   }
 
   void uniform1fv(WEBGL.UniformLocation location, Float32List value) {
