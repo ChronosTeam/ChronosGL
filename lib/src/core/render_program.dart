@@ -23,7 +23,7 @@ class RenderProgram extends NamedEntity {
   Object /* gl  Program */ _program;
 
   Set<String> _attributes;
-  Map<String, Object /* gl UniformLocation */ > _uniformLocations = {};
+  Map<String, Object /* WEBGL.UniformLocation */ > _uniformLocations = {};
   Map<String, String> _uniformsInitialized = {};
   Set<String> _attributesInitialized = new Set<String>();
 
