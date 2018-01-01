@@ -1,5 +1,5 @@
 name: chronosgl
-version: 3.2.2
+version: 3.2.3
 authors:
 - Robert Muth <robert@muth.org>
 - Ray Hulha <java4life@gmail.com>
@@ -16,5 +16,7 @@ transformers:
     checked: true
     csp: true
     verbose: true
+    commandLineOptions: ['--trust-type-annotations', '--trust-primitives',
+ '--show-package-warnings', '--dump-info']
 - test/pub_serve:
     $include: test/**.dart
