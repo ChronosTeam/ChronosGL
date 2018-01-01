@@ -17,7 +17,7 @@ class Node extends Spatial {
   final VM.Matrix3 _normMatrix = new VM.Matrix3.zero();
   final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
 
-  Node.Container(String name, [Node child = null]) : super(name) {
+  Node.Container(String name, [Node child]) : super(name) {
     if (child != null) children.add(child);
   }
 

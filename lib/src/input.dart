@@ -298,7 +298,7 @@ class FPSCamera extends Camera {
   int movementX = 0;
   int movementY = 0;
 
-  FPSCamera([HTML.Element eventElement = null]) : super("camera:fps") {
+  FPSCamera([HTML.Element eventElement]) : super("camera:fps") {
     if (eventElement == null) eventElement = HTML.document.body;
     eventElement.onMouseDown.listen((HTML.MouseEvent e) {
       e.preventDefault();
