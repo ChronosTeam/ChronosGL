@@ -63,17 +63,17 @@ class ChronosGL {
       throw new Exception(NO_WEBGL_MESSAGE);
     }
 
-
     dynamic actual = _gl.getContextAttributes();
-/*
-    LogInfo("alpha: ${actual.alpha}");
-    LogInfo("antialias: ${actual.antialias}");
-    LogInfo("depth: ${actual.depth}");
-    LogInfo("stencil: ${actual.stencil}");
-    LogInfo("premultipliedAlpha: ${actual.premultipliedAlpha}");
-    LogInfo("preserveDrawingBuffer: ${actual.preserveDrawingBuffer}");
-    LogInfo("failIfMajorPerformanceCaveat: ${actual.failIfMajorPerformanceCaveat}");
-*/
+    LogInfo("""
+alpha: ${actual.alpha}
+antialias: ${actual.antialias}
+depth: ${actual.depth}
+stencil: ${actual.stencil}
+premultipliedAlpha: ${actual.premultipliedAlpha}
+preserveDrawingBuffer: ${actual.preserveDrawingBuffer}
+failIfMajorPerformanceCaveat: ${actual.failIfMajorPerformanceCaveat}
+""");
+
     _gl.clearColor(0.0, 0.0, 0.0, 1.0);
     _gl.enable(GL_DEPTH_TEST);
     if (faceCulling) {
@@ -156,8 +156,8 @@ class ChronosGL {
     _gl.bindVertexArray(vao);
   }
 
-  void copyBufferSubData(int srcBuffer,int dstBuffer, int srcOffset,
-      int dstOffset, int size) {
+  void copyBufferSubData(
+      int srcBuffer, int dstBuffer, int srcOffset, int dstOffset, int size) {
     _gl.copyBufferSubData(srcBuffer, dstBuffer, srcOffset, dstOffset, size);
   }
 
@@ -173,8 +173,8 @@ class ChronosGL {
     return _gl.checkFramebufferStatus(kind);
   }
 
-  void framebufferTexture2D(
-      int target, int attachment, int textarget, WEBGL.Texture texture, int level) {
+  void framebufferTexture2D(int target, int attachment, int textarget,
+      WEBGL.Texture texture, int level) {
     _gl.framebufferTexture2D(target, attachment, textarget, texture, level);
   }
 
@@ -294,7 +294,8 @@ class ChronosGL {
     _gl.texSubImage2D(target, level, x, y, w, h, format, type, data);
   }
 
-   void copyTexImage2D(int target, int level, int format, int x, int y, int w, int h) {
+  void copyTexImage2D(
+      int target, int level, int format, int x, int y, int w, int h) {
     _gl.copyTexImage2D(target, level, format, x, y, w, h, 0);
   }
 
@@ -370,8 +371,8 @@ class ChronosGL {
         WEBGL.ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
   }
 
-  void draw(int mode, int count, int type, int offset,
-      int instanceCount, bool hasTransforms) {
+  void draw(int mode, int count, int type, int offset, int instanceCount,
+      bool hasTransforms) {
     if (hasTransforms) _gl.beginTransformFeedback(mode);
     if (type != -1) {
       if (instanceCount > 1) {
@@ -426,7 +427,8 @@ class ChronosGL {
       WEBGL.UniformLocation location, bool transpose, Float32List value) {
     _gl.uniformMatrix3fv(location, transpose, value);
   }
-  void clearColor(double r,double g,double b,double a) {
-    _gl.clearColor(r,g,b,a);
+
+  void clearColor(double r, double g, double b, double a) {
+    _gl.clearColor(r, g, b, a);
   }
 }
