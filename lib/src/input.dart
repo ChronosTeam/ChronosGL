@@ -131,9 +131,14 @@ class OrbitCamera extends Camera {
   Map<int, bool> _cpk = currentlyPressedKeys;
   Map<String, bool> _cpmb = currentlyPressedMouseButtons;
 
+  /// OrbitCamera initializes an orbiting camera
+  ///
+  /// @param this._radius blah
+  /// @param this._polar blah
   OrbitCamera(this._radius, this.azimuth, this.polar, HTML.Element eventElement)
       : super("camera:orbit") {
     eventElement.onMouseWheel.listen((HTML.WheelEvent e) {
+      e.preventDefault();
       try {
         double d = e.deltaY * mouseWheelFactor;
         if (_radius - d > 0) _radius -= d;
@@ -294,7 +299,7 @@ class FPSCamera extends Camera {
   int movementX = 0;
   int movementY = 0;
 
-  FPSCamera([HTML.Element eventElement = null]) : super("camera:fps") {
+  FPSCamera([HTML.Element eventElement]) : super("camera:fps") {
     if (eventElement == null) eventElement = HTML.document.body;
     eventElement.onMouseDown.listen((HTML.MouseEvent e) {
       e.preventDefault();

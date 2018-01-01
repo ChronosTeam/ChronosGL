@@ -23,7 +23,7 @@ class RenderProgram extends NamedEntity {
   Object /* gl  Program */ _program;
 
   Set<String> _attributes;
-  Map<String, Object /* gl UniformLocation */ > _uniformLocations = {};
+  Map<String, Object /* WEBGL.UniformLocation */ > _uniformLocations = {};
   Map<String, String> _uniformsInitialized = {};
   Set<String> _attributesInitialized = new Set<String>();
 
@@ -125,7 +125,7 @@ class RenderProgram extends NamedEntity {
     // enable only for debug
     if (_uniformsInitialized.containsKey(canonical)) {
       LogError(
-          "${canonical} : group ${group} overwrites ${_uniformsInitialized[canonical]}");
+          "${canonical} : group [${group}] overwrites [${canonical}]");
     }
     _uniformsInitialized[canonical] = group;
 
@@ -136,6 +136,13 @@ class RenderProgram extends NamedEntity {
     assert(_uniformLocations.containsKey(canonical));
     Object /* UniformLocation */ l = _uniformLocations[canonical];
     switch (desc.type) {
+      case VarTypeInt:
+        if (desc.arraySize == 0) {
+          _cgl.uniform1i(l, val);
+        } else if (val is Int32List) {
+          _cgl.uniform1iv(l, val);
+        }
+        break;
       case VarTypeFloat:
         if (desc.arraySize == 0) {
           _cgl.uniform1f(l, val);
@@ -238,7 +245,7 @@ class RenderProgram extends NamedEntity {
   }
 
   void Draw(MeshData md, List<UniformGroup> uniforms,
-      [List<DrawStats> stats = null]) {
+      [List<DrawStats> stats]) {
     final DateTime start = new DateTime.now();
     _cgl.useProgram(_program);
     _ClearState();

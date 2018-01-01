@@ -42,6 +42,7 @@ bool NormalFromPoints(VM.Vector3 a, VM.Vector3 b, VM.Vector3 c, VM.Vector3 temp,
 
   normal.scale(-1 /
       len); // normalize // added the minus to make it the correct normal compared to the base cube
+
   return true;
 }
 
@@ -105,10 +106,10 @@ class GeometryBuilder {
       if (f.d > maxIndexFace4) maxIndexFace4 = f.d;
     }
 
-    final int n = vertices.length ~/ 3;
+    final int n = vertices.length;
     assert(n >= 0);
-    assert(maxIndexFace3 < n);
-    assert(maxIndexFace4 < n);
+    assert(maxIndexFace3 < n, "${maxIndexFace3} vs $n");
+    assert(maxIndexFace4 < n, "${maxIndexFace4} vs $n");
 
     for (String canonical in attributes.keys) {
       assert(attributes[canonical].length == vertices.length,
@@ -162,31 +163,84 @@ class GeometryBuilder {
     }
   }
 
+  void AddVerticesFace3TakeOwnershipt(List<VM.Vector3> vs) {
+    assert(vs.length == 3);
+    int i = vertices.length;
+    _faces3.add(new Face3(i + 0, i + 1, i + 2));
+    for (VM.Vector3 v in vs) {
+      vertices.add(v);
+    }
+  }
+
+  void AddAttributeDouble(String canonical, double v) {
+    List<double> ts = attributes[canonical];
+    ts.add(v);
+  }
+
   void AddAttributesDouble(String canonical, List<double> lst) {
-    List ts = attributes[canonical];
+    List<double> ts = attributes[canonical];
     for (double v in lst) {
       ts.add(v);
     }
   }
 
+  void AddAttributeVector2(String canonical, VM.Vector2 v) {
+    List<VM.Vector2> ts = attributes[canonical];
+    ts.add(v.clone());
+  }
+
   void AddAttributesVector2(String canonical, List<VM.Vector2> lst) {
-    List ts = attributes[canonical];
+    List<VM.Vector2> ts = attributes[canonical];
     for (VM.Vector2 v in lst) {
       ts.add(v.clone());
     }
   }
 
+  void AddAttributesVector2TakeOwnership(
+      String canonical, List<VM.Vector2> lst) {
+    List<VM.Vector2> ts = attributes[canonical];
+    for (VM.Vector2 v in lst) {
+      ts.add(v);
+    }
+  }
+
+  void AddAttributeVector3(String canonical, VM.Vector3 v) {
+    List<VM.Vector3> ts = attributes[canonical];
+    ts.add(v.clone());
+  }
+
   void AddAttributesVector3(String canonical, List<VM.Vector3> lst) {
-    List ts = attributes[canonical];
+    List<VM.Vector3> ts = attributes[canonical];
     for (VM.Vector3 v in lst) {
       ts.add(v.clone());
     }
   }
 
+  void AddAttributesVector3TakeOwnership(
+      String canonical, List<VM.Vector3> lst) {
+    List<VM.Vector3> ts = attributes[canonical];
+    for (VM.Vector3 v in lst) {
+      ts.add(v);
+    }
+  }
+
+  void AddAttributeVector4(String canonical, VM.Vector4 v) {
+    List<VM.Vector4> ts = attributes[canonical];
+    ts.add(v.clone());
+  }
+
   void AddAttributesVector4(String canonical, List<VM.Vector4> lst) {
-    List ts = attributes[canonical];
+    List<VM.Vector4> ts = attributes[canonical];
     for (VM.Vector4 v in lst) {
       ts.add(v.clone());
+    }
+  }
+
+  void AddAttributesVector4TakeOwnership(
+      String canonical, List<VM.Vector4> lst) {
+    List ts = attributes[canonical];
+    for (VM.Vector4 v in lst) {
+      ts.add(v);
     }
   }
 
@@ -206,6 +260,15 @@ class GeometryBuilder {
     }
   }
 
+  void AddVerticesFace4TakeOwnership(List<VM.Vector3> vs) {
+    assert(vs.length == 4);
+    int i = vertices.length;
+    _faces4.add(new Face4(i + 0, i + 1, i + 2, i + 3));
+    for (VM.Vector3 v in vs) {
+      vertices.add(v);
+    }
+  }
+
   void AddFaces4Strip(List<VM.Vector3> top, List<VM.Vector3> bot, bool closed) {
     assert(top.length == bot.length);
     final n = top.length - 1;
@@ -217,10 +280,11 @@ class GeometryBuilder {
     }
   }
 
-  void AddFaces4Strips(List<List<VM.Vector3>> strips, bool closed, [bool flip = false]) {
+  void AddFaces4Strips(List<List<VM.Vector3>> strips, bool closed,
+      [bool flip = false]) {
     for (int i = 0; i < strips.length - 1; ++i) {
       if (flip) {
-         AddFaces4Strip(strips[i], strips[i+1], closed);
+        AddFaces4Strip(strips[i], strips[i + 1], closed);
       } else {
         AddFaces4Strip(strips[i + 1], strips[i], closed);
       }
@@ -303,20 +367,21 @@ class GeometryBuilder {
     attributes[aNormal] = normals;
   }
 
+  // TODO: this needs more work and may never work well
   void GenerateAveragedNormalsAssumingTriangleMode() {
-   Map<VM.Vector3, VM.Vector3> avg = {};
-   Map<VM.Vector3, int> cnt = {};
+    Map<VM.Vector3, VM.Vector3> avg = <VM.Vector3, VM.Vector3>{};
+    //Map<VM.Vector3, double> cnt = {};
     VM.Vector3 temp = new VM.Vector3.zero();
     VM.Vector3 norm = new VM.Vector3.zero();
 
-    add(int index, VM.Vector3 n) {
+    void add(int index, VM.Vector3 n) {
       VM.Vector3 v = vertices[index];
       if (avg.containsKey(v)) {
         avg[v] += n;
-        cnt[v]++;
+        //cnt[v]++;
       } else {
         avg[v] = n;
-        cnt[v] = 1;
+        //cnt[v] = 1;
       }
     }
 
@@ -332,7 +397,7 @@ class GeometryBuilder {
     for (Face4 f4 in _faces4) {
       NormalFromPoints(
           vertices[f4.a], vertices[f4.b], vertices[f4.c], temp, norm);
-        VM.Vector3 n = norm.clone();
+      VM.Vector3 n = norm.clone()..scale(2.0);
       add(f4.a, n);
       add(f4.b, n);
       add(f4.c, n);
@@ -340,16 +405,14 @@ class GeometryBuilder {
     }
 
     for (VM.Vector3 key in avg.keys) {
-      avg[key] = avg[key] / (0.0 + cnt[key]);
+      avg[key] = avg[key]..normalize();
     }
     List<VM.Vector3> normals = new List<VM.Vector3>(vertices.length);
-    for (int i =0 ; i < vertices.length; ++i) {
-      normals[i] =  avg[vertices[i]];
+    for (int i = 0; i < vertices.length; ++i) {
+      normals[i] = avg[vertices[i]];
     }
     attributes[aNormal] = normals;
   }
-
-
 
   void GenerateRadialNormals(VM.Vector3 center) {
     VM.Vector3 norm = new VM.Vector3.zero();

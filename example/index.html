@@ -10,15 +10,37 @@ body {
  font-family:	Helvetica, sans-serif;
 }
 
+th {
+  align: left;
+}
+
+th.active {
+   color: white;
+   background-color: black;
+}
+
 
     </style>
 </head>
-
-<br>
 <h1> ChronosGL Examples</h1>
 <p>
-    As of version 3.0.0 ChronosGL requires <b>WebGL2</b>.
-    (Check browser compatibility at: <a href="http://webglreport.com/?v=2">webglreport.com</a>)
+    <iframe id='iframe' width="100%" height="750" src="animation/animation.html"></iframe>
+</p>
+
+<table>
+    <tbody id="examples">
+
+    </tbody>
+</table>
+
+<h3>Navigation</h3>
+<p>Use cursor up and down to quickly navigate examples.</p>
+<p>Many examples are interactive as well (mouse + cursor keys).</p>
+
+<h3>Trouble Shooting</h3>
+<p>
+As of version 3.0.0 ChronosGL requires <b>WebGL2</b>.
+(Check browser compatibility at: <a href="http://webglreport.com/?v=2">webglreport.com</a>)
 </p>
 <p>
     If you use Dartium (50), make sure you launch it with the
@@ -31,163 +53,144 @@ body {
 
 If there are problems check the <b>JavaScript console</b> for output.
 
-<h2>Trivial Examples</h2>
+<h3>Info</h3>
+More info at <a href="http://chronosteam.github.io/ChronosGL/">main project page</a>
 
-<a href="simple/simple.html">Simple Example</a>
-
-<h2>Standard Examples</h2>
-<table>
-    <tr>
-        <td><a href="animation/animation.html">Animation</a></td>
-        <td>scenegraph, animation, assimp2json import</td>
-    </tr>
-    <tr>
-        <td><a href="animation2/animation.html">Animation2</a></td>
-        <td>scenegraph, animation, three.js JSON import</td>
-    </tr>
-    <tr>
-        <td><a href="basics/basics.html">Basic Shapes</a></td>
-        <td>scenegraph, basic shapes</td>
-    </tr>
-    <tr>
-        <td><a href="bloom/bloom.html">Bloom Effect</a></td>
-        <td>postprocessing</td>
-    </tr>
-    <tr>
-        <td><a href="bubble/bubble.html">Bubble</a></td>
-        <td>transparency</td>
-    </tr>
-    <tr>
-        <td><a href="camera_texture/camera_texture.html">Camera Texture demo</a></td>
-        <td>animated textures</td>
-    </tr>
-    <tr>
-        <td><a href="compute/compute.html">Framebuffer reads</a></td>
-        <td>float textures, compute shaders</td>
-    </tr>
-    <tr>
-        <td><a href="cubemap/cubemap.html">Cubemap demo</a></td>
-        <td>cube mape textures</td>
-    </tr>
-    <tr>
-        <td><a href="effects/effect.html">Effects</a></td>
-        <td>postprocessing, wave import</td>
-    </tr>
-    <tr>
-        <td><a href="extrude/extrude.html">Extrude</a></td>
-        <td>contours</td>
-    </tr>
-    <tr>
-        <td><a href="fireworks/fireworks.html">Fireworks</a></td>
-        <td>custom shader</td>
-    </tr>
-    <tr>
-        <td><a href="gyroid/gyroid.html">Cool Gyroid demo</a></td>
-        <td>shadertoy shader reuse</td>
-    </tr>
-    <tr>
-        <td><a href="instancer/instancer.html">Instancer</a></td>
-        <td>instancing</td>
-    </tr>
-    <tr>
-        <td><a href="light/light.html">Lighting Shader</a></td>
-        <td>Blinn-Phong shader, Gourad shader</td>
-    </tr>
-    <tr>
-        <td><a href="obj/obj.html">Lightwave obj Viewer</a></td>
-        <td>wave import</td>
-    </tr>
-    <tr>
-        <td><a href="orbit_camera/orbit_camera.html">Orbit Camera</a></td>
-        <td>scenegraph</td>
-    </tr>
-    <tr>
-        <td><a href="ortho/ortho.html">Othographic vs Perspective</a></td>
-        <td>orthogrpahic, split screen</td>
-    </tr>
-    <tr>
-        <td><a href="perlin/perlin.html">Perlin Noise Torusknot</a></td>
-        <td>animated perlin noise</td>
-    </tr>
-    <tr>
-        <td><a href="plasma/plasma.html">Plasma Shader</a></td>
-        <td>animated textures</td>
-    </tr>
-    <tr>
-        <td><a href="generateNormals/generateNormals.html">Generate normals</a></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><a href="shadow/shadow.html">Shadows</a></td>
-        <td>split screen</td>
-    </tr>
-    <tr>
-        <td><a href="slerp/slerp.html">Quaternion Spherical Linear
-            Interpolation (slerp)</a></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><a href="sobel/sobel.html">Sobel Edge Detection</a></td>
-        <td>custom shader</td>
-    </tr>
-    <tr>
-        <td><a href="ssao/ssao.html">Screen Space Ambient Occlusion (SSAO)</a></td>
-        <td>custom shader</td>
-    </tr>
-    <tr>
-        <td><a href="stencil/stencil.html">Stencil Buffer</a></td>
-        <td>stencil buffer</td>
-    </tr>
-    <tr>
-        <td><a href="skyscraper/skyscraper.html">SkyScraper</a></td>
-        <td>custom shader</td>
-    </tr>
-    <tr>
-        <td><a href="transform_feedback/transform_feedback.html">
-            Transform-Feedback</a></td>
-        <td>transform feedback</td>
-    </tr>
-    <tr>
-        <td><a href="torusknot_camera/torusknot_camera.html">
-            Fly inside a transparent torusknot</a></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><a href="tracers/tracers.html">Tracers</a></td>
-        <td>preserveDrawingBuffer</td>
-    </tr>
-    <tr>
-        <td><a href="triangle/triangle.html">Penrose Triangle</a></td>
-        <td>orthographic</td>
-    </tr>
-    <tr>
-        <td><a href="wireframe/wireframe.html">Wireframe Shapes</a></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><a href="wireframe2/wireframe2.html">Wireframe Shapes 2</a></td>
-        <td></td>
-    </tr>
-</table>
-
-<h2>Work in progress</h2>
-<table>
-
-    <tr>
-        <td><a href="bumpmap/bumpmap.html">Bump Map</a></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><a href="normalmap/normalmap.html">Normal Map</a></td>
-        <td></td>
-    </tr>
-</table>
-
-<h2>Code</h2>
 Code for all examples can be found at
 <a href="https://github.com/ChronosTeam/ChronosGL/tree/master/example">
     https://github.com/ChronosTeam/ChronosGL/tree/master/example
 </a>
+
+<script type="text/javascript">
+"use strict";
+
+window.console.log("sss hi");
+
+
+let URL_CODE_PREFIX = "https://github.com/ChronosTeam/ChronosGL/blob/master/example/";
+
+let table = document.getElementById("examples");
+let iframe = document.getElementById("iframe");
+
+let examples = [
+  ["simple", "simple.dart", "simple.html", "Simple Example", "basics"],
+  //
+  ["animation", "animation.dart", "animation.html", "Animation", "scenegraph, animation, assimp2json import"],
+  ["animation2", "animation.dart", "animation.html", "Animation2", "scenegraph, animation, three.js JSON import"],
+  ["basics", "basics.dart", "basics.html", "Basic Shapes", "scenegraph, basic shapes"],
+  ["bloom", "bloom.dart", "bloom.html", "Bloom Effect", "postprocessing"],
+  ["bubble", "bubble.dart", "bubble.html", "Bubble", "transparency"],
+  ["camera_overlay", "camera_overlay.dart", "camera_overlay.html", "Camera Overlay demo", "camera input"],
+  ["camera_texture", "camera_texture.dart", "camera_texture.html", "Camera Texture demo", "animated textures, camera input"],
+
+  ["compute", "compute.dart", "compute.html", "Framebuffer reads", "float textures, compute shaders"],
+  ["cubemap", "cubemap.dart", "cubemap.html", "Cubemap demo", "cube mape textures"],
+  ["effects", "effect.dart", "effect.html", "Effects", "postprocessing, wave import"],
+  ["extrude", "extrude.dart", "extrude.html", "Extrude", "contours"],
+  ["fireworks", "fireworks.dart", "fireworks.html", "Fireworks", "custom shader"],
+  ["gyroid", "gyroid.dart", "gyroid.html", "Cool Gyroid demo", "shadertoy shader reuse"],
+  ["instancer", "instancer.dart", "instancer.html", "Instancer", "instancing"],
+  ["light", "light.dart", "light.html", "Lighting Shader", "Blinn-Phong shader, Gourad shader"],
+  ["obj", "obj.dart", "obj.html", "Lightwave obj Viewer", "wave import"],
+  ["orbit_camera", "orbit_camera.dart", "orbit_camera.html", "Orbit Camera", "scenegraph"],
+  ["ortho", "ortho.dart", "ortho.html", "Othographic vs Perspective", "orthogrpahic, split screen"],
+
+  ["perlin", "perlin.dart", "perlin.html", "Perlin Noise Torusknot", "animated perlin noise"],
+  ["plasma", "plasma.dart", "plasma.html", "Plasma Shader", "animated textures"],
+  ["generateNormals", "generateNormals.dart", "generateNormals.html", "Generate normals", ""],
+  ["shadow", "shadow.dart", "shadow.html", "Shadows", "split screen"],
+  ["slerp", "slerp.dart", "slerp.html", "Quaternion Spherical Linear Interpolation (slerp)", ""],
+
+  ["sobel", "sobel.dart", "sobel.html", "Sobel Edge Detection", "custom shader"],
+  ["ssao", "ssao.dart", "ssao.html", "Screen Space Ambient Occlusion (SSAO)", "custom shader"],
+  ["stencil", "stencil.dart", "stencil.html", "Stencil Buffer", "stencil buffer"],
+  ["skyscraper", "skyscraper.dart", "skyscraper.html", "SkyScraper", "custom shader"],
+  ["transform_feedback", "transform_feedback.dart", "transform_feedback.html", "Transform-Feedback", "transform feedback"],
+  ["torusknot_camera", "torusknot_camera.dart", "torusknot_camera.html", "Fly inside a transparent torusknot", ""],
+  ["tracers", "tracers.dart", "tracers.html", "Tracers", "preserveDrawingBuffer"],
+  ["triangle", "triangle.dart", "triangle.html", "Penrose Triangle", "orthographic"],
+  ["wireframe", "wireframe.dart", "wireframe.html", "Wireframe Shapes"],
+  ["wireframe2", "wireframe2.dart", "wireframe2.html", "Wireframe Shapes 2"],
+  //
+  ["bumpmap", "bumpmap.dart", , "bumpmap.html", "Bump Map", "work-in-progress, experimental"],
+  ["normalmap", "normalmap.dart", "normalmap.html", "Normal Map", "work-in-progress, experimental"],
+];
+
+function populateExamples() {
+    let s = [];
+    let n = 0;
+    for (let e of examples) {
+        s.push(`<tr>`);
+        s.push(`<th name='ex's data-param=${n}>${e[3]}</th>`);
+        let code_url = URL_CODE_PREFIX + e[0] + '/' + e[1];
+        let pop_out_url =  e[0] + '/' + e[2];
+        s.push(`<td><a href="${code_url}">[code]</a> &nbsp; <a href="${pop_out_url}">[&#8599;]
+</a></td>`);
+        s.push(`<td>${e[4]}</td>`);
+        s.push(`</tr>`);
+        ++n;
+    }
+    table.innerHTML = s.join("\n");
+
+
+}
+
+function getActiveRow() {
+    let all = document.getElementsByName("ex");
+    for (let i = 0 ; i < all.length; ++i) {
+        if (all[i].className == 'active') return i;
+    }
+    window,console.log("nothing found");
+    return 0;
+}
+
+function setActive(n) {
+    let all = document.getElementsByName("ex");
+    for (let i = 0 ; i < all.length; ++i) {
+        all[i].className = (i == n) ? 'active' : '';
+        if (i == n) {
+           iframe.src = examples[i][0] + "/" + examples[i][2];
+        }
+    }
+}
+
+function handleClick(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    let n = ev.target.dataset.param;
+    window.console.log(`click: $n`);
+    setActive(n);
+}
+
+function handleKey(ev) {
+    window.console.log(`key: ${ev.keyCode}`);
+    if (ev.keyCode == '38') {
+        let active = getActiveRow();
+        window.console.log(`up arrow ${active}`);
+        if (active > 0) setActive(active - 1);
+        ev.preventDefault();
+    }
+    else if (ev.keyCode == '40') {
+        window.console.log("down arrow");
+        let active = getActiveRow();
+        window.console.log(`down arrow ${active}`);
+        if (active < examples.length - 1) setActive(active + 1);
+        ev.preventDefault();
+    }
+}
+populateExamples();
+setActive(0);
+
+let all = document.getElementsByName("ex");
+for (let i = 0 ; i < all.length; ++i) {
+  all[i].addEventListener("click", handleClick);
+}
+
+document.onkeydown = handleKey;
+
+window.console.log("active: " + getActiveRow());;
+
+</script>
 
 </body>
 </html>

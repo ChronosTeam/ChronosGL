@@ -28,12 +28,12 @@ final ShaderObject demoFragmentShader = new ShaderObject("demoFragmentShader")
 void main() {
   // The canvas is what we render the 3d scene into.
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  // Make sure canvas is really full screen
-  final int w = canvas.clientWidth;
-  final int h = canvas.clientHeight;
-  canvas.width = w;
-  canvas.height = h;
 
+  // Make sure canvas has full screen resolution
+  canvas.width  = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+
+  gLogLevel = 1;  // enable more logging
   // Create a ChronosGL object for the canvas.
   ChronosGL chronosGL = new ChronosGL(canvas);
 
@@ -42,7 +42,7 @@ void main() {
   // Create a perspective. We use a combined view+perspective matrix,
   // so the camera is part of the perspective.
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  perspective.AdjustAspect(w, h);
+  perspective.AdjustAspect(canvas.width, canvas.height);
 
   // Create the main shader program for displaying the torus.
   RenderProgram progBasic = new RenderProgram(

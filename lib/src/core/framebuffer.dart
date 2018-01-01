@@ -48,7 +48,7 @@ class Framebuffer {
 
   Framebuffer(this._cgl, this.colorTexture,
       [this.depthTexture,
-      this.stencilTexture = null,
+      this.stencilTexture,
       bool depthStencilCombined = false]) {
     _framebuffer = _cgl.createFramebuffer();
 

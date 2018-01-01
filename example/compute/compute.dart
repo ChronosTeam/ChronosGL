@@ -48,7 +48,7 @@ String ExtractAndSummarizeFloat(Framebuffer fb, int w, int h) {
     a += buf[i + 3];
   }
 
-  return "${r / (w * h)} ${g / (w * h)} ${b / (w * h)}";
+  return "${r / (w * h)} ${g / (w * h)} ${b / (w * h)} ${a / (w * h)}";
 }
 
 void main() {
