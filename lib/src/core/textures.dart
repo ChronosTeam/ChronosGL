@@ -105,14 +105,20 @@ class Texture {
   Texture(this._cgl, this._textureType, this._url, this.properties)
       : _texture = _cgl.createTexture();
 
-  void UnBind([bool initTime = false]) {
-    if (initTime) {
+
+  void CopyFromFramebuffer2D(int x, int y, int w, int h) {
+     _cgl.bindTexture(_textureType, _texture);
+     _cgl.copyTexImage2D(_textureType, 0, GL_RGBA, x, y, w, h);
+    Install();
+  }
+
+  void Install() {
+      _cgl.bindTexture(_textureType, _texture);
       properties.InstallLate(_cgl, _textureType);
       int err = _cgl.getError();
       assert(err == GL_NO_ERROR);
-    }
-    _cgl.bindTexture(_textureType, null);
   }
+
 
   int GetTextureType() => _textureType;
 
@@ -203,7 +209,7 @@ class ImageTexture extends Texture {
   dynamic _element; // CanvasElement, ImageElement, VideoElement
 
   ImageTexture(ChronosGL cgl, String url, this._element,
-      [TextureProperties tp = null, int textureType = GL_TEXTURE_2D])
+      [TextureProperties tp, int textureType = GL_TEXTURE_2D])
       : super(
             cgl, textureType, url, tp == null ? new TextureProperties() : tp) {
     _cgl.bindTexture(_textureType, _texture);
