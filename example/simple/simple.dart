@@ -33,6 +33,7 @@ void main() {
   canvas.width  = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
 
+  gLogLevel = 1;  // enable more logging
   // Create a ChronosGL object for the canvas.
   ChronosGL chronosGL = new ChronosGL(canvas);
 
