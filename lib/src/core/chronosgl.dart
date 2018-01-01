@@ -64,15 +64,7 @@ class ChronosGL {
     }
 
     dynamic actual = _gl.getContextAttributes();
-    LogInfo("""
-alpha: ${actual.alpha}
-antialias: ${actual.antialias}
-depth: ${actual.depth}
-stencil: ${actual.stencil}
-premultipliedAlpha: ${actual.premultipliedAlpha}
-preserveDrawingBuffer: ${actual.preserveDrawingBuffer}
-failIfMajorPerformanceCaveat: ${actual.failIfMajorPerformanceCaveat}
-""");
+    LogInfo("ChronosGL Config: ${actual}");
 
     _gl.clearColor(0.0, 0.0, 0.0, 1.0);
     _gl.enable(GL_DEPTH_TEST);
