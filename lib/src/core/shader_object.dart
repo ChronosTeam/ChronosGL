@@ -99,7 +99,7 @@ const int prefixAttribute = 0x61; // 'a';
 
 const String aColor = "aColors";
 const String aColorAlpha = "aColorAlpha";
-const String aPosition = "aVertex";
+const String aPosition = "aPosition";
 const String aTexUV = "aTexUV";
 const String aNormal = "aNormal";
 const String aBinormal = "aBinormal";
@@ -298,7 +298,7 @@ final Map<String, ShaderVarDesc> _VarsDb = {
 };
 
 void IntroduceNewShaderVar(String canonical, ShaderVarDesc desc) {
-  assert(!_VarsDb.containsKey(canonical));
+  assert(!_VarsDb.containsKey(canonical), "duplicate shader variable ${canonical}");
   _VarsDb[canonical] = desc;
 }
 
@@ -347,7 +347,7 @@ class ShaderObject {
     assert(shader == null);
 
     for (String n in names) {
-      assert(_VarsDb.containsKey(n));
+      assert(_VarsDb.containsKey(n), "missing uniform $n");
       assert(!uniformVars.contains(n));
       uniformVars.add(n);
     }
@@ -376,12 +376,12 @@ class ShaderObject {
     transformVars.sort();
   }
 
-  void SetBodyWithMain(List<String> body, {List<String> prolog = null}) {
+  void SetBodyWithMain(List<String> body, {List<String> prolog}) {
     assert(shader == null);
     shader = _CreateShader(true, body, prolog);
   }
 
-  void SetBody(List<String> body, {List<String> prolog = null}) {
+  void SetBody(List<String> body, {List<String> prolog}) {
     assert(shader == null);
     shader = _CreateShader(false, body, prolog);
   }
@@ -437,7 +437,7 @@ class ShaderObject {
       out.add("}");
     }
 
-    //print (out.join("\n"));
+    // print (out.join("\n"));
     return out.join("\n");
   }
 }
