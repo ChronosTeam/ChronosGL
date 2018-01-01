@@ -44,9 +44,10 @@ part "camera.dart";
 part "geometry_builder.dart";
 part "illumination.dart";
 
+int gLogLevel = 0;
 
 void LogInfo(String s) {
-  print("I: " + s);
+  if (gLogLevel > 0)  print("I: " + s);
 }
 
 void LogDebug(String s) {
