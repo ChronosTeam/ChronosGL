@@ -138,6 +138,7 @@ class OrbitCamera extends Camera {
   OrbitCamera(this._radius, this.azimuth, this.polar, HTML.Element eventElement)
       : super("camera:orbit") {
     eventElement.onMouseWheel.listen((HTML.WheelEvent e) {
+      e.preventDefault();
       try {
         double d = e.deltaY * mouseWheelFactor;
         if (_radius - d > 0) _radius -= d;
