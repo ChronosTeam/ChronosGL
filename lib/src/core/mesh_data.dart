@@ -1,6 +1,6 @@
 part of core;
 
-Float32List FlattenVector3List(List<VM.Vector3> v, [Float32List data = null]) {
+Float32List FlattenVector3List(List<VM.Vector3> v, [Float32List data]) {
   if (data == null) data = new Float32List(v.length * 3);
   for (int i = 0; i < v.length; ++i) {
     data[i * 3 + 0] = v[i].x;
@@ -10,7 +10,7 @@ Float32List FlattenVector3List(List<VM.Vector3> v, [Float32List data = null]) {
   return data;
 }
 
-Float32List FlattenVector2List(List<VM.Vector2> v, [Float32List data = null]) {
+Float32List FlattenVector2List(List<VM.Vector2> v, [Float32List data]) {
   if (data == null) data = new Float32List(v.length * 2);
   for (int i = 0; i < v.length; ++i) {
     data[i * 2 + 0] = v[i].x;
@@ -19,7 +19,7 @@ Float32List FlattenVector2List(List<VM.Vector2> v, [Float32List data = null]) {
   return data;
 }
 
-Float32List FlattenVector4List(List<VM.Vector4> v, [Float32List data = null]) {
+Float32List FlattenVector4List(List<VM.Vector4> v, [Float32List data]) {
   if (data == null) data = new Float32List(v.length * 4);
   for (int i = 0; i < v.length; ++i) {
     data[i * 4 + 0] = v[i].x;
@@ -30,7 +30,7 @@ Float32List FlattenVector4List(List<VM.Vector4> v, [Float32List data = null]) {
   return data;
 }
 
-Uint32List FlattenUvec4List(List<List<int>> v, [Uint32List data = null]) {
+Uint32List FlattenUvec4List(List<List<int>> v, [Uint32List data]) {
   if (data == null) data = new Uint32List(v.length * 4);
   for (int i = 0; i < v.length; ++i) {
     data[i * 4 + 0] = v[i][0];
@@ -41,7 +41,7 @@ Uint32List FlattenUvec4List(List<List<int>> v, [Uint32List data = null]) {
   return data;
 }
 
-Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data = null]) {
+Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data]) {
   if (data == null) data = new Float32List(v.length * 16);
   for (int i = 0; i < v.length; ++i) {
     VM.Matrix4 m = v[i];
@@ -205,7 +205,7 @@ class MeshData extends NamedEntity {
 void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
   for (String canonical in gb.attributes.keys) {
     if (!md.SupportsAttribute(canonical)) {
-      print("Dropping unnecessary attribute: ${canonical}");
+      LogInfo("Dropping unnecessary attribute: ${canonical}");
       continue;
     }
     List lst = gb.attributes[canonical];
