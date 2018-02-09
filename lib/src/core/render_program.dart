@@ -11,7 +11,7 @@ class DrawStats {
       this.name, this.numInstances, this.numItems, this.drawMode, this.duration);
 
   @override
-  String toString() => "[${name}] ${numInstances} ${numItems} mode:${drawMode} [${duration.inMicroseconds}usec";
+  String toString() => "[${name}] ${numInstances} ${numItems} mode:${drawMode} [${duration.inMicroseconds}usec]";
 }
 
 /// ## Class RenderProgram (is a NamedEntity)
@@ -28,6 +28,8 @@ class RenderProgram extends NamedEntity {
   Set<String> _attributesInitialized = new Set<String>();
 
   int _nextTextureUnit;
+  ShaderObject get shaderObjectV =>  _shaderObjectV;
+  ShaderObject get shaderObjectF =>  _shaderObjectF;
 
   RenderProgram(
       String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
