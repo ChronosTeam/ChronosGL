@@ -50,6 +50,10 @@ class UniformGroup extends NamedEntity {
 
   @override
   String toString() {
-    return "{$runtimeType}[$name]";
+    List<String> out = <String>["{$runtimeType}[$name]"];
+    for (String key in _uniforms.keys) {
+      out.add("${key}: ${_uniforms[key]}");
+    }
+    return out.join("\n");
   }
 }

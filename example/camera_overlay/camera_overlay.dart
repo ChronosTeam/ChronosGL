@@ -86,7 +86,7 @@ void main() {
   Future.wait(futures).then((List list) {
     video = list[0];
     if (video == null) {
-      HTML.window.alert("could not access camera");
+      HTML.window.alert("Could not access camera - do you have a camera installed?");
     }
     texture =
         new ImageTexture(chronosGL, "video", video, TexturePropertiesVideo);
