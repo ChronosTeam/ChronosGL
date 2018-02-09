@@ -112,15 +112,14 @@ GeometryBuilder CylinderGeometryWireframeFriendly(
   GeometryBuilder gb = new GeometryBuilder();
   gb.EnableAttribute(aTexUV);
 
-  // Why do we have to repeat the vertices?
-  // Without it example wireframe does not work
+  // Q: Why do we have to repeat the vertices?
+  // A: Without it example wireframe does not work
   // top and bottom are Face3
   gb.AddFaces3(2 * radialSubdivisions);
   for (int i = 0; i < radialSubdivisions; i++) {
     gb.AddVertices([centerTop, top[i], top[i + 1]]);
-    // TODO: fix these
     gb.AddVertices([centerBot, bot[i + 1], bot[i]]);
-    // TODO: fix these
+    // TODO: fix these:
     gb.AddAttributesVector2(aTexUV, [zero, zero, zero]);
     gb.AddAttributesVector2(aTexUV, [zero, zero, zero]);
   }
@@ -128,8 +127,50 @@ GeometryBuilder CylinderGeometryWireframeFriendly(
   gb.AddFaces4(radialSubdivisions);
   for (int i = 0; i < radialSubdivisions; i++) {
     gb.AddVertices([top[i + 1], top[i], bot[i], bot[i + 1]]);
-    // TODO: fix these
+    // TODO: fix these:
     gb.AddAttributesVector2(aTexUV, [zero, zero, zero, zero]);
+  }
+  return gb;
+}
+
+GeometryBuilder ConeGeometryWireframeFrienly(
+    double rad, double height, int radialSubdivisions) {
+  // Compute points on edges
+  final double halfHeight = height / 2;
+  VM.Vector3 top = new VM.Vector3(0.0, halfHeight, 0.0);
+
+  List<VM.Vector3> bot = [];
+  for (int i = 0; i < radialSubdivisions; i++) {
+    double u = i / radialSubdivisions * Math.PI * 2.0;
+    double x = Math.sin(u);
+    double z = Math.cos(u);
+    bot.add(new VM.Vector3(rad * x, -halfHeight, rad * z));
+  }
+  // repeat three first point so we can safely index with +1
+  bot.add(bot[0]);
+  assert(bot.length == radialSubdivisions + 1);
+
+  final VM.Vector2 zero = new VM.Vector2(0.0, 0.0);
+  final VM.Vector3 centerBot = new VM.Vector3(0.0, -halfHeight, 0.0);
+
+  GeometryBuilder gb = new GeometryBuilder();
+  gb.EnableAttribute(aTexUV);
+
+  // Q: Why do we have to repeat the vertices?
+  // A: Without it example wireframe does not work
+  // top and bottom are Face3
+  gb.AddFaces3(radialSubdivisions);
+  for (int i = 0; i < radialSubdivisions; i++) {
+    gb.AddVertices([centerBot, bot[i + 1], bot[i]]);
+    // TODO: fix these:
+    gb.AddAttributesVector2(aTexUV, [zero, zero, zero]);
+  }
+
+  gb.AddFaces3(radialSubdivisions);
+  for (int i = 0; i < radialSubdivisions; i++) {
+    gb.AddVertices([top, bot[i], bot[i + 1]]);
+    // TODO: fix these:
+    gb.AddAttributesVector2(aTexUV, [zero, zero, zero]);
   }
   return gb;
 }
