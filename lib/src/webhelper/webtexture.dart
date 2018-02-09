@@ -10,6 +10,7 @@ Future<HTML.VideoElement> MakeVideoElementFromCamera() {
     video.onPlaying.first.then((_) => c.complete(video));
     video.src = HTML.Url.createObjectUrl(stream);
   }).catchError((Object error) {
+    LogError("Camera open error ${error}");
     c.complete(null);
   });
   return c.future;
