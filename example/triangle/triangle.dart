@@ -2,6 +2,47 @@ import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 import 'dart:math' as Math;
 
+
+
+Node Triangle(RenderProgram program) {
+
+    final Material mat1 = new Material("mat1")
+    ..SetUniform(uColor, ColorBlue);
+
+  final Material mat2 = new Material("mat2")
+    ..SetUniform(uColor, ColorRed);
+
+  final Material mat3 = new Material("mat3")
+    ..SetUniform(uColor, ColorGreen);
+
+  double thickness = 3.0;
+  double length = 5.0 * thickness;
+
+  Node side1 = new Node("side1",
+      ShapeCube(program, x: length, y: thickness, z: thickness), mat1)
+    ..setPos(-thickness, 0.0, 0.0);
+
+  Node side2 = new Node("side2",
+      ShapeCube(program, x: thickness, y: thickness, z: length), mat2)
+    ..setPos(-length, 0.0, length + thickness);
+
+  double length3 = length - thickness;
+  Node side3a = new Node("side3a",
+      ShapeCube(program, x: thickness, y: length3, z: thickness), mat3)
+    ..setPos(length, length3 - 1 * thickness, 0.0);
+
+  Node side3b = new Node("side3b",
+      ShapeWedge(program, x: thickness, y: thickness, z: thickness), mat3)
+    ..rotY(Math.PI)
+    ..setPos(length, length + length3 - thickness, 0.0);
+
+  return new Node.Container("triangle")
+  ..add(side1)
+  ..add(side2)
+  ..add(side3a)
+  ..add(side3b);
+}
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -15,59 +56,11 @@ void main() {
   Scene scene = new Scene(
       "objects",
       new RenderProgram(
-          "textured", chronosGL, texturedVertexShader, texturedFragmentShader),
+          "textured", chronosGL, solidColorVertexShader, solidColorFragmentShader),
       [orthographic]);
   phase.add(scene);
 
-  Texture solid = MakeSolidColorTexture(chronosGL, "red-solid", "red");
-  final Material mat1 = new Material("mat1")
-    ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, ColorBlue);
-
-  final Material mat2 = new Material("mat2")
-    ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, ColorRed);
-
-  final Material mat3 = new Material("mat3")
-    ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, ColorGreen);
-
-  double thickness = 3.0;
-  double length = 5.0 * thickness;
-
-  Node side1 = new Node("side1",
-      ShapeCube(scene.program, x: length, y: thickness, z: thickness), mat1)
-    ..setPos(-thickness, 0.0, 0.0);
-
-  Node side2 = new Node("side2",
-      ShapeCube(scene.program, x: thickness, y: thickness, z: length), mat2)
-    ..setPos(-length, 0.0, length + thickness);
-
-  double length3 = length - thickness;
-  Node side3a = new Node("side3a",
-      ShapeCube(scene.program, x: thickness, y: length3, z: thickness), mat3)
-    ..setPos(length, length3 - 1 * thickness, 0.0);
-
-  Node side3b = new Node("side3b",
-      ShapeWedge(scene.program, x: thickness, y: thickness, z: thickness), mat3)
-    ..rotY(Math.PI)
-    ..setPos(length, length + length3 - thickness, 0.0);
-
-  Node triangle = new Node.Container("triangle");
-  triangle.add(side1);
-  triangle.add(side2);
-  triangle.add(side3a);
-  triangle.add(side3b);
-  /*
-  Node plane = new Node(
-      "cube", ShapeCube(chronosGL, x: 20.0, y: 0.1, z: 20.0), matPlane)
-    ..setPos(0.0, -1.5, 0.0);
-
-  for (Node m in [triangle, plane]) {
-    prgOrthographic.add(m);
-  }
-*/
-  scene.add(triangle);
+  scene.add(Triangle(scene.program));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

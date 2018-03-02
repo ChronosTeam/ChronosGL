@@ -39,26 +39,26 @@ void main() {
   int h = canvas.clientHeight;
   canvas.width = w;
   canvas.height = h;
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(25.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   perspective.AdjustAspect(w, h);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL);
+  RenderPhase phase = new RenderPhase("main", cgl);
   phase.viewPortW = w;
   phase.viewPortH = h;
 
  Scene sceneBuilding = new Scene(
       "building",
       new RenderProgram(
-          "building", chronosGL, skyScraperVertexShader, skyScraperFragmentShader),
+          "building", cgl, skyScraperVertexShader, skyScraperFragmentShader),
       [perspective]);
   phase.add(sceneBuilding);
 
   Scene sceneSky = new Scene(
       "sky",
       new RenderProgram(
-          "sky", chronosGL, demoVertexShader, demoFragmentShader),
+          "sky", cgl, demoVertexShader, demoFragmentShader),
       [perspective]);
   phase.add(sceneSky);
 

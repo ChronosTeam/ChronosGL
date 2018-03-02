@@ -9,6 +9,7 @@ import 'package:chronosgl/chronosgl.dart';
 final HTML.InputElement gOpaque =
     HTML.document.querySelector('#opaque') as HTML.InputElement;
 
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
