@@ -77,20 +77,25 @@ void main() {
     orbit.animate(elapsed);
     material.ForceUniform(uTime, timeMs / 1000.0);
 
+    // Draw un-bloomed object to fb
     fb.Activate(GL_CLEAR_ALL, 0, 0, width, height);
     progPerlinNoise.Draw(torus, [perspective, material]);
 
+    // Copy high intensity areas from fb to fb2
     fb2.Activate(GL_CLEAR_ALL, 0, 0, width ~/ 2, height ~/ 2);
     double lum = gLuminance.valueAsNumber * 1.0;
     uniformsHighPass.ForceUniform(uRange, new VM.Vector2(lum, lum + 0.01));
     progHighPass.Draw(unitQuad, [perspective, uniformsHighPass]);
 
+    // Blur fb2 to fb1 horizontally
     fb1.Activate(GL_CLEAR_ALL, 0, 0, width ~/ 2, height ~/ 2);
     progBloom.Draw(unitQuad, [perspective, uniformsBloom1]);
 
+    // Blur fb1 to fb2 vertically
     fb2.Activate(GL_CLEAR_ALL, 0, 0, width ~/ 2, height ~/ 2);
     progBloom.Draw(unitQuad, [perspective, uniformsBloom2]);
 
+    // Put all together: combine un-bloomed fb with fb2 and show result on screen
     screen.Activate(GL_CLEAR_ALL, 0, 0, width, height);
     uniformsApply.ForceUniform(uScale, gIntensity.valueAsNumber * 1.0);
     progApplyBloom.Draw(unitQuad, [perspective, uniformsApply]);

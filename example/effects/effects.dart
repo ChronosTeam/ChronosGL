@@ -224,9 +224,11 @@ new Effect(
           .ForceUniform(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
     }
 
+    // Draw logo to fb
     fb.Activate(GL_CLEAR_ALL, 0, 0, width, height);
     progDemo.Draw(ctLogo, [perspective, material]);
 
+    // Apply currently active effect/program to fb and show result on screen.
     screen.Activate(GL_CLEAR_ALL, 0, 0, width, height);
     active.program.Draw(unitQuad, [active.uniforms]);
 

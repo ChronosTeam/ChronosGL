@@ -53,8 +53,10 @@ void main() {
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
     if (gSobel.checked) {
+      // Draw objects into fb
       fb.Activate(GL_CLEAR_ALL, 0, 0, width, height);
       progGrey.Draw(ctLogo, [perspective, material]);
+      // Apply sobel to fb and show result on screen
       screen.Activate(GL_CLEAR_ALL, 0, 0, width, height);
       progSobel.Draw(unitQuad, [uniforms]);
     } else {

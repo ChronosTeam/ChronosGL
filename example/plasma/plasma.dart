@@ -98,6 +98,8 @@ void main() {
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   RenderPhase phase = new RenderPhase("main", chronosGL);
+  // A scene is tied to a single shader, so we must create a separate
+  // shader for each plasma type.
   List<Scene> scenes = [
     new Scene(
         "plasma1",
@@ -125,22 +127,26 @@ void main() {
     ..lookUp(1.0)
     ..lookLeft(0.7);
 
-  scenes[0].add(cube);
+  // The cube is initially in scene and we move it from scene to
+  // scene as the active scene changes
+  int activeScene = 0;
+  scenes[activeScene].add(cube);
 
-  int pointer = 0;
 
+  // Advance scene when an arbitrary key is pressed
   HTML.document.addEventListener('keypress', (event) {
-    scenes[pointer % 3].remove(cube);
-    scenes[(pointer + 1) % 3].add(cube);
-    pointer = (pointer + 1) % 3;
+    scenes[activeScene % 3].remove(cube);
+    scenes[(activeScene + 1) % 3].add(cube);
+    activeScene = (activeScene + 1) % 3;
   });
 
+  // Chose a specific scene
   HTML.SelectElement myselect =
       HTML.document.querySelector('#myselect') as HTML.SelectElement;
   myselect.onChange.listen((HTML.Event e) {
-    scenes[pointer].remove(cube);
-    pointer = myselect.selectedIndex;
-    scenes[(pointer)].add(cube);
+    scenes[activeScene].remove(cube);
+    activeScene = myselect.selectedIndex;
+    scenes[(activeScene)].add(cube);
   });
 
   phase.add(MakeStarScene(chronosGL, perspective, 2000));

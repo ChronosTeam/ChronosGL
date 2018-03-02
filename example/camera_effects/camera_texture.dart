@@ -11,37 +11,19 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(15.0, 10.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
-  // We only have one phase writing to the screen
   RenderPhase phase = new RenderPhase("main", chronosGL);
-
-  // This scene is responsible for filling the entire screen with a texture
-  // gleaned from the camera
-  Scene sceneBackground = new Scene(
-      "bg",
-      new RenderProgram("bg", chronosGL, copyVertexShader, copyFragmentShader),
-      []);
-  phase.add(sceneBackground);
-
-  final Material matBackground = new Material("bg")
-    ..ForceUniform(cDepthWrite, false);
-  sceneBackground.add(
-      new Node("bg", ShapeQuad(sceneBackground.program, 1), matBackground));
-
-  // This scene renders the a red cube in front of the background
-  Scene sceneCube = new Scene(
+  Scene scene = new Scene(
       "objects",
       new RenderProgram(
-          "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+          "solid", chronosGL, texturedVertexShader, texturedFragmentShader),
       [perspective]);
-  phase.add(sceneCube);
+  phase.add(scene);
 
-  final Material matCube = new Material("cube")..SetUniform(uColor, ColorRed);
+  final Material matGradient = new Material("cube");
 
-  double dim = 0.2;
-  Node cube = new Node(
-      "cube", ShapeCube(sceneCube.program, x: dim, y: dim, z: dim), matCube)
+  Node cube = new Node("cube", ShapeCube(scene.program), matGradient)
     ..setPos(-5.0, 0.0, -5.0);
-  sceneCube.add(cube);
+  scene.add(cube);
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -64,9 +46,8 @@ void main() {
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs + 0.0;
+    orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    cube.rotX(0.01);
-    cube.rotY(0.01);
     try {
       texture.Update();
     } catch (exception) {
@@ -86,6 +67,7 @@ void main() {
 
   List<Future<Object>> futures = [
     MakeVideoElementFromCamera(),
+    //LoadVideo("movie.ogv"),
   ];
 
   Future.wait(futures).then((List list) {
@@ -93,9 +75,8 @@ void main() {
     if (video == null) {
       HTML.window.alert("Could not access camera - do you have a camera installed?");
     }
-    texture =
-        new ImageTexture(chronosGL, "video", video, TexturePropertiesVideo);
-    matBackground.SetUniform(uTexture, texture);
+    texture = new ImageTexture(chronosGL, "video", video, TexturePropertiesVideo);
+    matGradient.SetUniform(uTexture, texture);
     animate(0.0);
   });
 }

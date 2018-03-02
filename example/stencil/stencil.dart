@@ -7,12 +7,33 @@ import 'package:chronosgl/chronosgl.dart';
 final HTML.InputElement gStencil =
     HTML.document.querySelector('#stencil') as HTML.InputElement;
 
+TypedTextureMutable MakeStripedStencilBuffer(
+    ChronosGL cgl, int width, int height, int stripeWidth) {
+  Uint32List data = new Uint32List(width * height);
+  for (int x = 0; x < width; ++x) {
+    for (int y = 0; y < height; ++y) {
+      data[y * width + x] = x % (2 * stripeWidth) < stripeWidth ? 0 : 1;
+    }
+  }
+
+  return new TypedTextureMutable(
+      cgl,
+      "frame::depth.stencil",
+      width,
+      height,
+      GL_DEPTH24_STENCIL8,
+      TexturePropertiesFramebuffer,
+      GL_DEPTH_STENCIL,
+      GL_UNSIGNED_INT_24_8,
+      data);
+}
+
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
@@ -22,42 +43,24 @@ void main() {
   canvas.height = height;
   perspective.AdjustAspect(width, height);
 
- TypedTexture colorBuffer = new TypedTexture(chronosGL, "frame::color", width,
+  // I could not get this work by writing directly to the screen.
+  // so we write to fb first and then copy that to the screen.
+  TypedTexture colorBuffer = new TypedTexture(cgl, "frame::color", width,
       height, GL_RGBA8, TexturePropertiesFramebuffer);
-
-  Uint32List data = new Uint32List(width * height);
-  for (int x = 0; x < width; ++x) {
-    for (int y = 0; y < height; ++y) {
-      data[y * width + x] = (x & 8) == 0 ? 0 : 1;
-    }
-  }
-
-  TypedTextureMutable depthStencilBuffer = new TypedTextureMutable(
-      chronosGL,
-      "frame::depth.stencil",
-      width,
-      height,
-      GL_DEPTH24_STENCIL8,
-      TexturePropertiesFramebuffer,
-      GL_DEPTH_STENCIL,
-      GL_UNSIGNED_INT_24_8,
-      data);
-
+  TypedTextureMutable depthStencilBuffer =
+      MakeStripedStencilBuffer(cgl, width, height, 8);
   Framebuffer fb =
-      new Framebuffer(chronosGL, colorBuffer, depthStencilBuffer, null, true);
+      new Framebuffer(cgl, colorBuffer, depthStencilBuffer, null, true);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL, fb)
+  RenderPhase phase = new RenderPhase("main", cgl, fb)
     ..viewPortW = width
     ..viewPortH = height
     ..clearStencilBuffer = false;
 
-  TheStencilFunction StencilEqualOne =
-      new TheStencilFunction(GL_EQUAL, 1, 0xff);
-
   Scene scene = new Scene(
       "solid",
       new RenderProgram(
-          "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+          "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective]);
   phase.add(scene);
 
@@ -65,31 +68,30 @@ void main() {
     ..SetUniform(uColor, ColorRed)
     ..ForceUniform(cStencilFunc, StencilFunctionNone);
 
-  final Material matBlue = new Material("blue")
+  final TheStencilFunction StencilEqualOne =
+      new TheStencilFunction(GL_EQUAL, 1, 0xff);
+
+  final Material matBlueStencil = new Material("blue")
     ..SetUniform(uColor, ColorBlue)
     ..ForceUniform(cStencilFunc, StencilEqualOne);
 
-  Node ico = new Node("sphere", ShapeIcosahedron(scene.program, 3), matRed)
-    ..setPos(0.0, 0.0, 0.0);
-  scene.add(ico);
+  scene.add(new Node("sphere", ShapeIcosahedron(scene.program, 3), matRed)
+    ..setPos(0.0, 0.0, 0.0));
 
-  Node cube = new Node("cube", ShapeCube(scene.program), matBlue)
-    ..setPos(-5.0, 0.0, -5.0);
-  scene.add(cube);
+  scene.add(new Node("cube", ShapeCube(scene.program), matBlueStencil)
+    ..setPos(-5.0, 0.0, -5.0));
 
-  Node cyl = new Node(
+  scene.add(new Node(
       "cylinder", ShapeCylinder(scene.program, 1.0, 3.0, 2.0, 32), matRed)
-    ..setPos(5.0, 0.0, -5.0);
-  scene.add(cyl);
+    ..setPos(5.0, 0.0, -5.0));
 
-  Node torus = new Node(
-      "torus", ShapeTorusKnot(scene.program, radius: 1.0, tube: 0.4), matBlue)
-    ..setPos(5.0, 0.0, 5.0);
-  scene.add(torus);
+  scene.add(new Node("torus",
+      ShapeTorusKnot(scene.program, radius: 1.0, tube: 0.4), matBlueStencil)
+    ..setPos(5.0, 0.0, 5.0));
 
   // using a phase for this simple effect is overkill - this is just
   // demonstrating that it can be done.
-  RenderPhase phase2 = new RenderPhase("copy", chronosGL)
+  RenderPhase phase2 = new RenderPhase("copy", cgl)
     ..viewPortW = width
     ..viewPortH = height;
 
@@ -99,8 +101,7 @@ void main() {
 
   Scene postproc = new Scene(
       "postproc",
-      new RenderProgram(
-          "postproc", chronosGL, copyVertexShader, copyFragmentShader),
+      new RenderProgram("postproc", cgl, copyVertexShader, copyFragmentShader),
       [uniforms]);
   phase2.add(postproc);
 
@@ -113,7 +114,7 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
 
-    matBlue.ForceUniform(
+    matBlueStencil.ForceUniform(
         cStencilFunc, gStencil.checked ? StencilEqualOne : StencilFunctionNone);
 
     List<DrawStats> stats = [];
