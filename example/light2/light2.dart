@@ -34,7 +34,7 @@ void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
 
   OrbitCamera orbit = new OrbitCamera(50.0, 10.0, 0.0, canvas);
   orbit.setPos(0.0, 0.0, 56.0);
@@ -44,51 +44,47 @@ void main() {
   for (Light l in gLightSources.values) {
     illumination.AddLight(l);
   }
-
-  RenderPhase phaseBlinnPhong = new RenderPhase("BlinnPhong", chronosGL);
   Scene sceneBlinnPhong = new Scene(
       "BlinnPhong",
-      new RenderProgram("BlinnPhong", chronosGL, lightVertexShaderBlinnPhong,
+      new RenderProgram("BlinnPhong", cgl, lightVertexShaderBlinnPhong,
           lightFragmentShaderBlinnPhong),
       [perspective, illumination]);
-  phaseBlinnPhong.add(sceneBlinnPhong);
 
-  RenderPhase phaseGourad = new RenderPhase("Gourad", chronosGL);
   Scene sceneGourad = new Scene(
       "Gourad",
-      new RenderProgram("Gourad", chronosGL, lightVertexShaderGourad,
-          lightFragmentShaderGourad),
+      new RenderProgram(
+          "Gourad", cgl, lightVertexShaderGourad, lightFragmentShaderGourad),
       [perspective, illumination]);
-  phaseGourad.add(sceneGourad);
-
   assert(
       sceneBlinnPhong.program.HasCompatibleAttributesTo(sceneGourad.program));
 
   Scene sceneFixed = new Scene(
       "Fixed",
       new RenderProgram(
-          "Fixed", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+          "Fixed", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective]);
 
-  phaseBlinnPhong.add(sceneFixed);
-  phaseGourad.add(sceneFixed);
+  // We have two phases
+  // 1 BlinnPhong
+  // 2 Gourad
+  // Each has two scenes
+  // 1 the lighting specific scene
+  // 2 the lighting visualization scene which is shared by the two phases
+  final RenderPhase phaseBlinnPhong = new RenderPhase("BlinnPhong", cgl)
+    ..add(sceneBlinnPhong)
+    ..add(sceneFixed);
+
+  final RenderPhase phaseGourad = new RenderPhase("Gourad", cgl)
+    ..add(sceneGourad)
+    ..add(sceneFixed);
 
   Material lightSourceMat = new Material("light")
     ..SetUniform(uColor, ColorYellow);
-  Map<String, Node> lightVisualizers = {
-    idDirectional: new Node(
-        "DirLightViz",
-        LightVisualizer(sceneFixed.program, gLightSources[idDirectional]),
-        lightSourceMat),
-    idPoint: new Node(
-        "PointLightViz",
-        LightVisualizer(sceneFixed.program, gLightSources[idPoint]),
-        lightSourceMat),
-    idSpot: new Node(
-        "SpotLightViz",
-        LightVisualizer(sceneFixed.program, gLightSources[idSpot]),
-        lightSourceMat)
-  };
+  final Map<String, Node> lightVisualizers = {};
+  for (String k in gLightSources.keys) {
+    lightVisualizers[k] = new Node(k,
+        LightVisualizer(sceneFixed.program, gLightSources[k]), lightSourceMat);
+  }
 
   for (Node n in lightVisualizers.values) {
     sceneFixed.add(n);
@@ -157,7 +153,7 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Texture
-    Texture tex = new ImageTexture(chronosGL, textureFile, list[1]);
+    Texture tex = new ImageTexture(cgl, textureFile, list[1]);
 
     Material mat = new Material("matDragon")
       ..SetUniform(uTexture, tex)

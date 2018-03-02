@@ -77,6 +77,7 @@ void main() {
 
   final RenderPhase phase = new RenderPhase("main", chronosGL);
 
+  // Shows the actual animation.
   Scene sceneAnim = new Scene(
       "animation",
       new RenderProgram("animation", chronosGL, animationVertexShader,
@@ -84,6 +85,7 @@ void main() {
       [perspective]);
   phase.add(sceneAnim);
 
+  // Shows a bone only animation.
   Scene sceneSkeleton = new Scene(
       "solid",
       new RenderProgram(
@@ -91,6 +93,7 @@ void main() {
       [perspective]);
   phase.add(sceneSkeleton);
 
+  // Shows the un-animated object.
   Scene sceneDemo = new Scene(
       "demo",
       new RenderProgram(

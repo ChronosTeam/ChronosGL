@@ -205,10 +205,10 @@ void main() {
   final int h = canvas.clientHeight;
   canvas.width = w;
   canvas.height = h;
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
 
   RenderProgram program = new RenderProgram(
-      "gyroid", chronosGL, gyroidVertexShader, gyroidFragmentShader);
+      "gyroid", cgl, gyroidVertexShader, gyroidFragmentShader);
   UniformGroup uniforms = new UniformGroup("plain");
   MeshData unitQuad = ShapeQuad(program, 1);
 

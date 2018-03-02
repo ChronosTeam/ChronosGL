@@ -17,36 +17,36 @@ Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(165.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  RenderPhase phase = new RenderPhase("main", chronosGL);
-  Scene sceneBasic = new Scene(
+
+  final Scene sceneBasic = new Scene(
       "tesxtured",
       new RenderProgram(
-          "textured", chronosGL, texturedVertexShader, texturedFragmentShader),
+          "textured", cgl, texturedVertexShader, texturedFragmentShader),
       [perspective]);
-  phase.add(sceneBasic);
 
+  // A gradient texture will be added after it has loaded.
   Material mat = new Material("torus")
     ..SetUniform(uColor, new VM.Vector3.zero());
-  Node m1 = new Node("torus1", ShapeTorusKnot(sceneBasic.program), mat)
-    ..setPos(-50.0, 0.0, 0.0);
-  sceneBasic.add(m1);
+  sceneBasic.add(new Node("torus1", ShapeTorusKnot(sceneBasic.program), mat)
+    ..setPos(-50.0, 0.0, 0.0));
 
-  Scene scenePerlin = new Scene(
+  final Scene scenePerlin = new Scene(
       "perlin",
-      new RenderProgram("perlin", chronosGL, perlinNoiseVertexShader,
+      new RenderProgram("perlin", cgl, perlinNoiseVertexShader,
           makePerlinNoiseColorFragmentShader(false)),
       [perspective]);
-  phase.add(scenePerlin);
 
   Material matDummy = new Material("mat");
-  Node m2 = new Node("torus2", ShapeTorusKnot(scenePerlin.program), matDummy)
-    ..setPos(50.0, 0.0, 0.0);
-  scenePerlin.add(m2);
+  scenePerlin.add(new Node("torus2", ShapeTorusKnot(scenePerlin.program), matDummy)
+    ..setPos(50.0, 0.0, 0.0));
 
-  phase.add(MakeStarScene(chronosGL, perspective, 2000));
+  final RenderPhase phase = new RenderPhase("main", cgl)
+    ..add(sceneBasic)
+    ..add(scenePerlin)
+    ..add(MakeStarScene(cgl, perspective, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -65,7 +65,7 @@ void main() {
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs;
+    _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     matDummy.ForceUniform(uTime, timeMs / 1000.0);
@@ -78,7 +78,7 @@ void main() {
   ];
 
   Future.wait(futures).then((List list) {
-    Texture tex = new ImageTexture(chronosGL, textureFile, list[0]);
+    Texture tex = new ImageTexture(cgl, textureFile, list[0]);
     mat..SetUniform(uTexture, tex);
     animate(0.0);
   });

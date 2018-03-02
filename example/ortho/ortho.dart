@@ -5,69 +5,48 @@ void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
   double d = 20.0;
 
   RenderProgram prog = new RenderProgram(
-      "textured", chronosGL, texturedVertexShader, texturedFragmentShader);
+      "textured", cgl, solidColorVertexShader, solidColorFragmentShader);
 
   Orthographic orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
-  RenderPhase phaseOrthograhic = new RenderPhase("shadow", chronosGL);
+  RenderPhase phaseOrthograhic = new RenderPhase("shadow", cgl);
   Scene sceneOrthographic = new Scene("objects", prog, [orthographic]);
   phaseOrthograhic.add(sceneOrthographic);
 
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  RenderPhase phasePerspective = new RenderPhase("perspective", chronosGL);
+  RenderPhase phasePerspective = new RenderPhase("perspective", cgl);
   phasePerspective.clearColorBuffer = false;
   Scene scenePerspective = new Scene("objects", prog, [perspective]);
   phasePerspective.add(scenePerspective);
 
+  final Material mat1 = new Material("mat1")..SetUniform(uColor, ColorBlue);
+  final Material mat2 = new Material("mat2")..SetUniform(uColor, ColorRed);
+  final Material mat3 = new Material("mat3")..SetUniform(uColor, ColorGreen);
+  final Material mat4 = new Material("mat4")..SetUniform(uColor, ColorCyan);
+  final Material mat5 = new Material("plane")..SetUniform(uColor, ColorGray8);
 
-  Texture solid = MakeSolidColorTexture(chronosGL, "red-solid", "red");
-  final Material mat1 = new Material("mat1")
-    ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, ColorBlue);
+  final List<Node> nodes = [
+    new Node("sphere", ShapeIcosahedron(prog, 3), mat1)..setPos(0.0, 0.0, 0.0),
+    new Node("cube", ShapeCube(prog), mat2)..setPos(-5.0, 0.0, -5.0),
+    new Node("cylinder", ShapeCylinder(prog, 3.0, 6.0, 2.0, 32), mat3)
+      ..setPos(5.0, 0.0, -5.0),
+    new Node("torus", ShapeTorusKnot(prog, radius: 1.0, tube: 0.4), mat4)
+      ..setPos(5.0, 0.0, 5.0),
+    new Node("cube", ShapeCube(prog, x: 20.0, y: 0.1, z: 20.0), mat5)
+      ..setPos(0.0, -10.0, 0.0),
+  ];
 
-  final Material mat2 = new Material("mat2")
-    ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, ColorRed);
-
-  final Material mat3 = new Material("mat3")
-    ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, ColorGreen);
-
-  final Material matPlane = new Material("plane")
-    ..SetUniform(uTexture, solid)
-    ..SetUniform(uColor, ColorGray8);
-
-  Node ico = new Node("sphere", ShapeIcosahedron(prog, 3), mat1)
-    ..setPos(0.0, 0.0, 0.0);
-
-  Node cube = new Node("cube", ShapeCube(prog), mat2)
-    ..setPos(-5.0, 0.0, -5.0);
-
-  Node cyl = new Node(
-      "cylinder", ShapeCylinder(prog, 3.0, 6.0, 2.0, 32), mat3)
-    ..setPos(5.0, 0.0, -5.0);
-
-  /*
-    Mesh torus = new Mesh(Shapes.TorusKnot(radius: 1.0, tube: 0.4)..generateNormalsAssumingTriangleMode(), mat2)
-      ..setPos(5.0, 0.0, 5.0);
-    program.add(torus);
-    basic.add(torus);
-  }*/
-
-  Node plane = new Node(
-      "cube", ShapeCube(prog, x: 20.0, y: 0.1, z: 20.0), matPlane)
-    ..setPos(0.0, -10.0, 0.0);
-
-  for (Node m in [ico, cube, cyl, plane]) {
-    sceneOrthographic.add(m);
-    scenePerspective.add(m);
+  for (Node n in nodes) {
+    sceneOrthographic.add(n);
+    scenePerspective.add(n);
   }
 
+  // This sets the viewports among other things
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
     int h = canvas.clientHeight;

@@ -7,15 +7,15 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, 10.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL);
+  RenderPhase phase = new RenderPhase("main", cgl);
   Scene scene = new Scene(
       "objects",
       new RenderProgram(
-          "solid", chronosGL, texturedVertexShader, texturedFragmentShader),
+          "solid", cgl, texturedVertexShader, texturedFragmentShader),
       [perspective]);
   phase.add(scene);
 
@@ -49,6 +49,7 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     try {
+      // Get new image from camera and update texture with it.
       texture.Update();
     } catch (exception) {
       print(exception);
@@ -75,7 +76,7 @@ void main() {
     if (video == null) {
       HTML.window.alert("Could not access camera - do you have a camera installed?");
     }
-    texture = new ImageTexture(chronosGL, "video", video, TexturePropertiesVideo);
+    texture = new ImageTexture(cgl, "video", video, TexturePropertiesVideo);
     matGradient.SetUniform(uTexture, texture);
     animate(0.0);
   });

@@ -26,9 +26,12 @@ void main() {
       [perspective]);
   phase.add(scene);
 
+  // The Skybox and the cube use the same material
   Material mat = new Material("cubemap");
-  MeshData md = ShapeCube(scene.program, x: 2.0, y: 2.0, z: 2.0);
-  scene.add(new Node("cube", md, mat));
+  MeshData mdCube = ShapeCube(scene.program, x: 2.0, y: 2.0, z: 2.0);
+  scene.add(new Node("cube", mdCube, mat));
+  MeshData mdSky = ShapeCube(scene.program, x: 512.0, y: 512.0, z: 512.0);
+  scene.add(new Node("sky", mdSky, mat));
 
   phase.add(MakeStarScene(chronosGL, perspective, 2000));
 
@@ -61,8 +64,6 @@ void main() {
   Future.wait(futures).then((List list) {
     Texture cubeTex = new CubeTexture(chronosGL, "stars", list);
     mat.SetUniform(uCubeTexture, cubeTex);
-    Node sky = Utils.MakeSkycube(scene.program, cubeTex);
-    scene.add(sky);
     animate(0.0);
   });
 }

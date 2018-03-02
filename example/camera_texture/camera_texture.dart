@@ -49,6 +49,7 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     try {
+      // Get new image from camera and update texture with it.
       texture.Update();
     } catch (exception) {
       print(exception);

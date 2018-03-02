@@ -68,14 +68,14 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
 
-  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(265.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL);
+  RenderPhase phase = new RenderPhase("main", cgl);
   Scene scene = new Scene(
       "instanced",
-      new RenderProgram("instanced", chronosGL, instancedVertexShader,
+      new RenderProgram("instanced", cgl, instancedVertexShader,
           instancedFragmentShader),
       [perspective]);
   phase.add(scene);
@@ -85,7 +85,7 @@ void main() {
   AddInstanceData(md);
   scene.add(new Node("torus", md, mat));
 
-  phase.add(MakeStarScene(chronosGL, perspective, 2000));
+  phase.add(MakeStarScene(cgl, perspective, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

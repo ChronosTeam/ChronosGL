@@ -7,19 +7,17 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, 10.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
   // We only have one phase writing to the screen
-  RenderPhase phase = new RenderPhase("main", chronosGL);
+  RenderPhase phase = new RenderPhase("main", cgl);
 
   // This scene is responsible for filling the entire screen with a texture
   // gleaned from the camera
-  Scene sceneBackground = new Scene(
-      "bg",
-      new RenderProgram("bg", chronosGL, copyVertexShader, copyFragmentShader),
-      []);
+  Scene sceneBackground = new Scene("bg",
+      new RenderProgram("bg", cgl, copyVertexShader, copyFragmentShader), []);
   phase.add(sceneBackground);
 
   final Material matBackground = new Material("bg")
@@ -31,7 +29,7 @@ void main() {
   Scene sceneCube = new Scene(
       "objects",
       new RenderProgram(
-          "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+          "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective]);
   phase.add(sceneCube);
 
@@ -68,6 +66,7 @@ void main() {
     cube.rotX(0.01);
     cube.rotY(0.01);
     try {
+      // Get new image from camera and update texture with it.
       texture.Update();
     } catch (exception) {
       print(exception);
@@ -91,10 +90,10 @@ void main() {
   Future.wait(futures).then((List list) {
     video = list[0];
     if (video == null) {
-      HTML.window.alert("Could not access camera - do you have a camera installed?");
+      HTML.window
+          .alert("Could not access camera - do you have a camera installed?");
     }
-    texture =
-        new ImageTexture(chronosGL, "video", video, TexturePropertiesVideo);
+    texture = new ImageTexture(cgl, "video", video, TexturePropertiesVideo);
     matBackground.SetUniform(uTexture, texture);
     animate(0.0);
   });

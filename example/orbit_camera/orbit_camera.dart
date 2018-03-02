@@ -3,35 +3,21 @@ import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 import 'dart:html' as HTML;
 
-Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective,int num) {
+Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
   Scene scene = new Scene(
       "stars",
-      new RenderProgram("stars", cgl, pointSpritesVertexShader,
-          pointSpritesFragmentShader),
+      new RenderProgram(
+          "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
       [perspective]);
   scene.add(Utils.MakeParticles(scene.program, num));
   return scene;
 }
 
-void main() {
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(15.0, 0.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  RenderPhase phase = new RenderPhase("main", chronosGL);
-
-  Scene scene = new Scene(
-      "objects",
-      new RenderProgram(
-          "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader),
-      [perspective]);
-  phase.add(scene);
-
-  MeshData sphere = ShapeIcosahedron(scene.program);
+Node MakeHead(RenderProgram program) {
+  MeshData sphere = ShapeIcosahedron(program);
   Material headMat = new Material("head")
     ..SetUniform(uColor, new VM.Vector3(0.94, 0.72, 0.63));
   Node head = new Node("head", sphere, headMat);
-  scene.add(head);
 
   Material eyeMat = new Material("eye")..SetUniform(uColor, ColorBlue);
   Node leftEye = new Node("leftEye", sphere, eyeMat)
@@ -50,9 +36,26 @@ void main() {
     ..transform.scale(0.3)
     ..setPos(0.0, 0.0, -0.9);
   head.add(nose);
+  return head;
+}
 
-  phase.add(MakeStarScene(chronosGL, perspective, 2000));
+void main() {
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL cgl = new ChronosGL(canvas);
+  OrbitCamera orbit = new OrbitCamera(15.0, 0.0, 0.0, canvas);
+  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  RenderPhase phase = new RenderPhase("main", cgl);
 
+  Scene scene = new Scene(
+      "objects",
+      new RenderProgram(
+          "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
+      [perspective]);
+  phase.add(scene);
+
+  scene.add(MakeHead(scene.program));
+
+  phase.add(MakeStarScene(cgl, perspective, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

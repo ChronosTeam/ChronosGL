@@ -9,7 +9,7 @@ const int radius = 6;
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(165.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
@@ -19,47 +19,47 @@ void main() {
   canvas.height = height;
   perspective.AdjustAspect(width, height);
 
-  Framebuffer screen = new Framebuffer.Screen(chronosGL);
+  final Framebuffer screen = new Framebuffer.Screen(cgl);
+  final Framebuffer fb = new Framebuffer.Default(cgl, width, height);
+  final Framebuffer fb1 = new Framebuffer.Default(cgl, width ~/ 2, height ~/ 2);
+  final Framebuffer fb2 = new Framebuffer.Default(cgl, width ~/ 2, height ~/ 2);
 
-  Framebuffer fb = new Framebuffer.Default(chronosGL, width, height);
-
-  Framebuffer fb1 = new Framebuffer.Default(chronosGL, width ~/ 2, height ~/ 2);
-  Framebuffer fb2 = new Framebuffer.Default(chronosGL, width ~/ 2, height ~/ 2);
-
-  RenderProgram progPerlinNoise = new RenderProgram("perlin", chronosGL,
+  final RenderProgram progPerlinNoise = new RenderProgram("perlin", cgl,
       perlinNoiseVertexShader, makePerlinNoiseColorFragmentShader(true));
 
-  RenderProgram progHighPass = new RenderProgram("highpass", chronosGL,
+  final RenderProgram progHighPass = new RenderProgram("highpass", cgl,
       effectVertexShader, luminosityHighPassFragmentShader);
 
-  List<ShaderObject> bloomShaders =
+  final List<ShaderObject> bloomShaders =
       createBloomTextureShader(radius, radius * 1.0);
-  RenderProgram progBloom =
-      new RenderProgram("bloom", chronosGL, bloomShaders[0], bloomShaders[1]);
 
-  RenderProgram progApplyBloom = new RenderProgram("bloom", chronosGL,
+  final RenderProgram progBloom =
+      new RenderProgram("bloom", cgl, bloomShaders[0], bloomShaders[1]);
+
+  final RenderProgram progApplyBloom = new RenderProgram("bloom", cgl,
       applyBloomEffectVertexShader, applyBloomEffectFragmentShader);
 
   assert(progApplyBloom.HasCompatibleAttributesTo(progHighPass));
   assert(progApplyBloom.HasCompatibleAttributesTo(progBloom));
-  MeshData unitQuad = ShapeQuad(progApplyBloom, 1);
+  final MeshData unitQuad = ShapeQuad(progApplyBloom, 1);
 
-  Material material = new Material("mat")
+  final Material material = new Material("mat")
     ..SetUniform(uTransformationMatrix, new VM.Matrix4.identity())
     ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
 
   MeshData torus = ShapeTorusKnot(progPerlinNoise);
 
+  // Note: the input uTexture varies between the various UniformGroups
   UniformGroup uniformsHighPass = new UniformGroup("uniformsHighPass")
     ..SetUniform(uRange, new VM.Vector2(0.65, 0.65 + 0.01))
     ..SetUniform(uColorAlpha, new VM.Vector4.zero())
     ..SetUniform(uTexture, fb.colorTexture);
 
-  UniformGroup uniformsBloom1 = new UniformGroup("uniformBloom1")
+  UniformGroup uniformsBloomH = new UniformGroup("Bloom Horizontal")
     ..SetUniform(uDirection, new VM.Vector2(1.5, 0.0))
     ..SetUniform(uTexture, fb2.colorTexture);
 
-  UniformGroup uniformsBloom2 = new UniformGroup("uniformBloom2")
+  UniformGroup uniformsBloomV = new UniformGroup("Bloom Vertical")
     ..SetUniform(uDirection, new VM.Vector2(0.0, 1.5))
     ..SetUniform(uTexture, fb1.colorTexture);
 
@@ -89,11 +89,11 @@ void main() {
 
     // Blur fb2 to fb1 horizontally
     fb1.Activate(GL_CLEAR_ALL, 0, 0, width ~/ 2, height ~/ 2);
-    progBloom.Draw(unitQuad, [perspective, uniformsBloom1]);
+    progBloom.Draw(unitQuad, [perspective, uniformsBloomH]);
 
     // Blur fb1 to fb2 vertically
     fb2.Activate(GL_CLEAR_ALL, 0, 0, width ~/ 2, height ~/ 2);
-    progBloom.Draw(unitQuad, [perspective, uniformsBloom2]);
+    progBloom.Draw(unitQuad, [perspective, uniformsBloomV]);
 
     // Put all together: combine un-bloomed fb with fb2 and show result on screen
     screen.Activate(GL_CLEAR_ALL, 0, 0, width, height);

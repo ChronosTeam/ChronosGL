@@ -62,23 +62,24 @@ void main() {
   canvas.width = w;
   canvas.height = h;
 
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
   perspective.AdjustAspect(w, h);
 
+  final RenderProgram progSprites = new RenderProgram(
+      "basic", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
+
+  final RenderProgram progFireworks = new RenderProgram(
+      "fireworks", cgl, fireworksVertexShader, fireworksFragmentShader);
+
   // used for both stars and fireworks
-  Material material = Utils.MakeStarMaterial(chronosGL)
+  final Material material = Utils.MakeStarMaterial(cgl)
     ..SetUniform(uModelMatrix, new VM.Matrix4.identity())
     ..SetUniform(uColor, ColorRed);
 
-  RenderProgram progSprites = new RenderProgram(
-      "basic", chronosGL, pointSpritesVertexShader, pointSpritesFragmentShader);
-  MeshData stars = Utils.MakeStarMesh(progSprites, 2000, 100.0);
-
-  RenderProgram pssp = new RenderProgram(
-      "fireworks", chronosGL, fireworksVertexShader, fireworksFragmentShader);
-  MeshData rocket = getRocket(pssp);
+  final MeshData stars = Utils.MakeStarMesh(progSprites, 2000, 100.0);
+  final MeshData rocket = getRocket(progFireworks);
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
@@ -89,7 +90,7 @@ void main() {
     material.ForceUniform(uTime, timeMs / 1000.0);
 
     progSprites.Draw(stars, [perspective, material]);
-    pssp.Draw(rocket, [perspective, material]);
+    progFireworks.Draw(rocket, [perspective, material]);
 
     HTML.window.animationFrame.then(animate);
   }
