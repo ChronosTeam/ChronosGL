@@ -177,6 +177,17 @@ void main() {
         ..SetUniform(uColorAlpha, new VM.Vector4.zero())
         ..SetUniform(uTexture, fb.colorTexture));
 
+  new Effect(
+      chronosGL,
+      fisheyeFragmentShader,
+      new UniformGroup("fisheye")
+        ..SetUniform(uTexture, fb.colorTexture));
+new Effect(
+      chronosGL,
+      filmFragmentShader,
+      new UniformGroup("film")
+        ..SetUniform(uTexture, fb.colorTexture));
+
   MeshData unitQuad = ShapeQuad(Effect.all["dot"].program, 1);
   MeshData ctLogo;
 

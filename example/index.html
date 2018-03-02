@@ -73,47 +73,48 @@ let table = document.getElementById("examples");
 let iframe = document.getElementById("iframe");
 
 let examples = [
-  ["simple", "simple.dart", "simple.html", "Simple Example", "basics"],
+  ["simple", "Simple Example", "basics"],
   //
-  ["animation", "animation.dart", "animation.html", "Animation", "scenegraph, animation, assimp2json import"],
-  ["animation2", "animation.dart", "animation.html", "Animation2", "scenegraph, animation, three.js JSON import"],
-  ["basics", "basics.dart", "basics.html", "Basic Shapes", "scenegraph, basic shapes"],
-  ["bloom", "bloom.dart", "bloom.html", "Bloom Effect", "postprocessing"],
-  ["bubble", "bubble.dart", "bubble.html", "Bubble", "transparency"],
-  ["camera_overlay", "camera_overlay.dart", "camera_overlay.html", "Camera Overlay demo", "camera input"],
-  ["camera_texture", "camera_texture.dart", "camera_texture.html", "Camera Texture demo", "animated textures, camera input"],
+  ["animation", "Animation", "scenegraph, animation, assimp2json import"],
+  ["animation2", "Animation2", "scenegraph, animation, three.js JSON import"],
+  ["basics", "Basic Shapes", "scenegraph, basic shapes"],
+  ["bloom", "Bloom Effect", "postprocessing"],
+  ["bubble", "Bubble", "transparency"],
+  ["compute", "Framebuffer reads", "float textures, compute shaders"],
+  ["cubemap", "Cubemap demo", "cube mape textures"],
+  ["effects", "Effects", "postprocessing, wave import"],
+  ["extrude", "Extrude", "contours"],
+  ["fireworks", "Fireworks", "custom shader"],
+  ["gyroid", "Cool Gyroid demo", "shadertoy shader reuse"],
+  ["instancer", "Instancer", "instancing"],
+  ["light", "Lighting Shader", "Blinn-Phong shader, Gourad shader"],
+  ["light2", "Lighting Shader with Dragon", "Blinn-Phong shader, Gourad shader, model import"],
+  ["obj", "Lightwave obj Viewer", "wave import"],
+  ["orbit_camera", "Orbit Camera", "scenegraph"],
+  ["ortho", "Othographic vs Perspective", "orthogrpahic, split screen"],
 
-  ["compute", "compute.dart", "compute.html", "Framebuffer reads", "float textures, compute shaders"],
-  ["cubemap", "cubemap.dart", "cubemap.html", "Cubemap demo", "cube mape textures"],
-  ["effects", "effect.dart", "effect.html", "Effects", "postprocessing, wave import"],
-  ["extrude", "extrude.dart", "extrude.html", "Extrude", "contours"],
-  ["fireworks", "fireworks.dart", "fireworks.html", "Fireworks", "custom shader"],
-  ["gyroid", "gyroid.dart", "gyroid.html", "Cool Gyroid demo", "shadertoy shader reuse"],
-  ["instancer", "instancer.dart", "instancer.html", "Instancer", "instancing"],
-  ["light", "light.dart", "light.html", "Lighting Shader", "Blinn-Phong shader, Gourad shader"],
-  ["obj", "obj.dart", "obj.html", "Lightwave obj Viewer", "wave import"],
-  ["orbit_camera", "orbit_camera.dart", "orbit_camera.html", "Orbit Camera", "scenegraph"],
-  ["ortho", "ortho.dart", "ortho.html", "Othographic vs Perspective", "orthogrpahic, split screen"],
+  ["perlin", "Perlin Noise Torusknot", "animated perlin noise"],
+  ["plasma", "Plasma Shader", "animated textures"],
+  ["generateNormals", "Generate normals", ""],
+  ["shadow", "Shadows", "split screen"],
+  ["slerp", "Quaternion Spherical Linear Interpolation (slerp)", ""],
 
-  ["perlin", "perlin.dart", "perlin.html", "Perlin Noise Torusknot", "animated perlin noise"],
-  ["plasma", "plasma.dart", "plasma.html", "Plasma Shader", "animated textures"],
-  ["generateNormals", "generateNormals.dart", "generateNormals.html", "Generate normals", ""],
-  ["shadow", "shadow.dart", "shadow.html", "Shadows", "split screen"],
-  ["slerp", "slerp.dart", "slerp.html", "Quaternion Spherical Linear Interpolation (slerp)", ""],
-
-  ["sobel", "sobel.dart", "sobel.html", "Sobel Edge Detection", "custom shader"],
-  ["ssao", "ssao.dart", "ssao.html", "Screen Space Ambient Occlusion (SSAO)", "custom shader"],
-  ["stencil", "stencil.dart", "stencil.html", "Stencil Buffer", "stencil buffer"],
-  ["skyscraper", "skyscraper.dart", "skyscraper.html", "SkyScraper", "custom shader"],
-  ["transform_feedback", "transform_feedback.dart", "transform_feedback.html", "Transform-Feedback", "transform feedback"],
-  ["torusknot_camera", "torusknot_camera.dart", "torusknot_camera.html", "Fly inside a transparent torusknot", ""],
-  ["tracers", "tracers.dart", "tracers.html", "Tracers", "preserveDrawingBuffer"],
-  ["triangle", "triangle.dart", "triangle.html", "Penrose Triangle", "orthographic"],
-  ["wireframe", "wireframe.dart", "wireframe.html", "Wireframe Shapes"],
-  ["wireframe2", "wireframe2.dart", "wireframe2.html", "Wireframe Shapes 2"],
+  ["sobel", "Sobel Edge Detection", "custom shader"],
+  ["ssao", "Screen Space Ambient Occlusion (SSAO)", "custom shader"],
+  ["stencil", "Stencil Buffer", "stencil buffer"],
+  ["skyscraper", "SkyScraper", "custom shader"],
+  ["transform_feedback", "Transform-Feedback", "transform feedback"],
+  ["torusknot_camera", "Fly inside a transparent torusknot", ""],
+  ["tracers", "Tracers", "preserveDrawingBuffer"],
+  ["triangle", "Penrose Triangle", "orthographic"],
+  ["wireframe", "Wireframe Shapes",  "wireframe"],
+  ["wireframe2", "Wireframe Shapes 2", "wireframe"],
   //
-  ["bumpmap", "bumpmap.dart", , "bumpmap.html", "Bump Map", "work-in-progress, experimental"],
-  ["normalmap", "normalmap.dart", "normalmap.html", "Normal Map", "work-in-progress, experimental"],
+  ["camera_overlay", "Camera Overlay demo", "camera input"],
+  ["camera_texture", "Camera Texture demo", "animated textures, camera input"],
+  //
+  ["bumpmap", "Bump Map", "work-in-progress, experimental"],
+  ["normalmap", "Normal Map", "work-in-progress, experimental"],
 ];
 
 function populateExamples() {
@@ -121,12 +122,12 @@ function populateExamples() {
     let n = 0;
     for (let e of examples) {
         s.push(`<tr>`);
-        s.push(`<th name='ex's data-param=${n}>${e[3]}</th>`);
-        let code_url = URL_CODE_PREFIX + e[0] + '/' + e[1];
-        let pop_out_url =  e[0] + '/' + e[2];
+        s.push(`<th name='ex's data-param=${n}>${e[1]}</th>`);
+        let code_url = URL_CODE_PREFIX + e[0] + '/' + e[0] + ".dart";
+        let pop_out_url =  e[0] + '/' + e[0] + ".html";
         s.push(`<td><a href="${code_url}">[code]</a> &nbsp; <a href="${pop_out_url}">[&#8599;]
 </a></td>`);
-        s.push(`<td>${e[4]}</td>`);
+        s.push(`<td>${e[2]}</td>`);
         s.push(`</tr>`);
         ++n;
     }
@@ -149,7 +150,7 @@ function setActive(n) {
     for (let i = 0 ; i < all.length; ++i) {
         all[i].className = (i == n) ? 'active' : '';
         if (i == n) {
-           iframe.src = examples[i][0] + "/" + examples[i][2];
+           iframe.src = examples[i][0] + "/" + examples[i][0] + ".html";
         }
     }
 }

@@ -1,5 +1,6 @@
 import 'dart:html' as HTML;
 import "dart:math" as MATH;
+import 'dart:async';
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -18,6 +19,9 @@ const String idPoint = "idPoint";
 const String idSpot = "idSpot";
 const String idDirectional = "idDirectional";
 
+const String meshFile = "../asset/dragon/dragon.obj";
+const String textureFile = "../asset/dragon/dragon.png";
+
 final Map<String, Light> gLightSources = {
   idDirectional:
       new DirectionalLight("dir", dirLight, ColorBlack, ColorWhite, 40.0),
@@ -25,49 +29,6 @@ final Map<String, Light> gLightSources = {
   idSpot: new SpotLight("spot", posLight, spotDirLight, ColorLiteGreen,
       ColorWhite, range, angle, 2.0, 1.0, 40.0)
 };
-
-void MakeSceneCubeSphere(
-    ChronosGL chronosGL, RenderProgram prog, Node container) {
-  MeshData cubeMeshData = ShapeCube(prog, x: 2.0, y: 2.0, z: 2.0);
-  MeshData sphereMeshData = ShapeIcosahedron(prog);
-
-  List<Material> mats = [
-    new Material("mat0")
-      ..SetUniform(
-          uTexture, MakeSolidColorTextureRGB(chronosGL, "gray", ColorGray4))
-      ..SetUniform(uShininess, glossiness),
-    new Material("mat1")
-      ..SetUniform(
-          uTexture, MakeSolidColorTextureRGB(chronosGL, "red", ColorRed))
-      ..SetUniform(uShininess, glossiness),
-    new Material("mat2")
-      ..SetUniform(
-          uTexture, MakeSolidColorTextureRGB(chronosGL, "red", ColorBlue))
-      ..SetUniform(uShininess, glossiness),
-    new Material("mat3")
-      ..SetUniform(
-          uTexture, MakeSolidColorTextureRGB(chronosGL, "red", ColorGreen))
-      ..SetUniform(uShininess, glossiness),
-  ];
-
-  for (int i = 0; i < 8; i++) {
-    double x = i & 1 == 0 ? -10.0 : 10.0;
-    double y = i & 2 == 0 ? -10.0 : 10.0;
-    double z = i & 4 == 0 ? -10.0 : 10.0;
-
-    container.add(new Node(
-        "mesh", i % 2 == 0 ? cubeMeshData : sphereMeshData, mats[i % 4])
-      ..setPos(x, y, z)
-      ..lookUp(1.0)
-      ..lookLeft(0.7));
-  }
-
-  // Subdivide plane to show Gourad shading issues
-  Node grid = new Node("grid", ShapeGrid(prog, 20, 20, 80.0, 80.0), mats[0]);
-  grid.rotX(-MATH.PI * 0.48);
-  grid.setPos(0.0, -20.0, 20.0);
-  container.add(grid);
-}
 
 void main() {
   StatsFps fps =
@@ -133,8 +94,8 @@ void main() {
     sceneFixed.add(n);
   }
 
-  Node node = new Node.Container("scene");
-  MakeSceneCubeSphere(chronosGL, sceneBlinnPhong.program, node);
+  // This will be populated when the model has loaded
+  Node node = new Node.Container("dragon");
 
   sceneGourad.add(node);
   sceneBlinnPhong.add(node);
@@ -183,18 +144,35 @@ void main() {
     orbit.animate(elapsed);
     fps.UpdateFrameCount(timeMs);
 
-    for (Node m in node.children) {
-      if (m.name != "grid") {
-        m.rollLeft(elapsed * 0.0003);
-        m.lookLeft(elapsed * 0.0003);
-      }
-    }
-
     RenderPhase phase =
         selectPhase.selectedIndex == 0 ? phaseBlinnPhong : phaseGourad;
     phase.Draw();
     HTML.window.animationFrame.then(animate);
   }
 
-  animate(0.0);
+  List<Future<Object>> futures = [
+    LoadRaw(meshFile),
+    LoadImage(textureFile),
+  ];
+
+  Future.wait(futures).then((List list) {
+    // Setup Texture
+    Texture tex = new ImageTexture(chronosGL, textureFile, list[1]);
+
+    Material mat = new Material("matDragon")
+      ..SetUniform(uTexture, tex)
+      ..SetUniform(uShininess, glossiness);
+    GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
+    print(gb);
+    MeshData md =
+        GeometryBuilderToMeshData(meshFile, sceneBlinnPhong.program, gb);
+    Node mesh = new Node(md.name, md, mat);
+    //..rotX(-3.14 / 4);
+    Node n = new Node.Container("wrapper", mesh);
+    n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+
+    node.add(n);
+    // Start
+    animate(0.0);
+  });
 }
