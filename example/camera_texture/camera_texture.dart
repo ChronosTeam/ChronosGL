@@ -1,43 +1,30 @@
 import 'dart:html' as HTML;
 import 'dart:async';
 import 'package:chronosgl/chronosgl.dart';
+import 'package:vector_math/vector_math.dart' as VM;
 
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  // Make sure canvas has full screen resolution
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+
+  ChronosGL cgl = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, 10.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  perspective.AdjustAspect(canvas.width, canvas.height);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL);
-  Scene scene = new Scene(
-      "objects",
-      new RenderProgram(
-          "solid", chronosGL, texturedVertexShader, texturedFragmentShader),
-      [perspective]);
-  phase.add(scene);
+  RenderProgram program = new RenderProgram(
+      "solid", cgl, texturedVertexShader, texturedFragmentShader);
 
-  final Material matGradient = new Material("cube");
+  final Material mat = new Material("cube")
+    ..SetUniform(uColor, ColorBlack)
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
 
-  Node cube = new Node("cube", ShapeCube(scene.program), matGradient)
-    ..setPos(-5.0, 0.0, -5.0);
-  scene.add(cube);
-
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
+  MeshData cube = ShapeCube(program);
 
   HTML.VideoElement video;
   ImageTexture texture;
@@ -49,18 +36,14 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     try {
+      // Get new image from camera and update texture with it.
       texture.Update();
     } catch (exception) {
       print(exception);
     }
-    List<DrawStats> stats = [];
-    phase.Draw(stats);
-    List<String> out = [];
-    for (DrawStats d in stats) {
-      out.add(d.toString());
-    }
+    program.Draw(cube, [perspective, mat]);
 
-    fps.UpdateFrameCount(_lastTimeMs, out.join("<br>"));
+    fps.UpdateFrameCount(_lastTimeMs);
 
     HTML.window.animationFrame.then(animate);
   }
@@ -73,10 +56,11 @@ void main() {
   Future.wait(futures).then((List list) {
     video = list[0];
     if (video == null) {
-      HTML.window.alert("Could not access camera - do you have a camera installed?");
+      HTML.window
+          .alert("Could not access camera - do you have a camera installed?");
     }
-    texture = new ImageTexture(chronosGL, "video", video, TexturePropertiesVideo);
-    matGradient.SetUniform(uTexture, texture);
+    texture = new ImageTexture(cgl, "video", video, TexturePropertiesVideo);
+    mat.SetUniform(uTexture, texture);
     animate(0.0);
   });
 }

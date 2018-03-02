@@ -93,26 +93,28 @@ Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(65.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL);
+  RenderPhase phase = new RenderPhase("main", cgl);
+  // A scene is tied to a single shader, so we must create a separate
+  // shader for each plasma type.
   List<Scene> scenes = [
     new Scene(
         "plasma1",
         new RenderProgram(
-            "plasma1", chronosGL, plasmaVertexShader1, plasmaFragmentShader1),
+            "plasma1", cgl, plasmaVertexShader1, plasmaFragmentShader1),
         [perspective]),
     new Scene(
         "plasma2",
         new RenderProgram(
-            "plasma2", chronosGL, plasmaVertexShader2, plasmaFragmentShader2),
+            "plasma2", cgl, plasmaVertexShader2, plasmaFragmentShader2),
         [perspective]),
     new Scene(
         "plasma3",
         new RenderProgram(
-            "plasma3", chronosGL, plasmaVertexShader3, plasmaFragmentShader3),
+            "plasma3", cgl, plasmaVertexShader3, plasmaFragmentShader3),
         [perspective]),
   ];
   for (Scene s in scenes) phase.add(s);
@@ -125,25 +127,29 @@ void main() {
     ..lookUp(1.0)
     ..lookLeft(0.7);
 
-  scenes[0].add(cube);
+  // The cube is initially in scene and we move it from scene to
+  // scene as the active scene changes
+  int activeScene = 0;
+  scenes[activeScene].add(cube);
 
-  int pointer = 0;
 
+  // Advance scene when an arbitrary key is pressed
   HTML.document.addEventListener('keypress', (event) {
-    scenes[pointer % 3].remove(cube);
-    scenes[(pointer + 1) % 3].add(cube);
-    pointer = (pointer + 1) % 3;
+    scenes[activeScene % 3].remove(cube);
+    scenes[(activeScene + 1) % 3].add(cube);
+    activeScene = (activeScene + 1) % 3;
   });
 
+  // Chose a specific scene
   HTML.SelectElement myselect =
       HTML.document.querySelector('#myselect') as HTML.SelectElement;
   myselect.onChange.listen((HTML.Event e) {
-    scenes[pointer].remove(cube);
-    pointer = myselect.selectedIndex;
-    scenes[(pointer)].add(cube);
+    scenes[activeScene].remove(cube);
+    activeScene = myselect.selectedIndex;
+    scenes[(activeScene)].add(cube);
   });
 
-  phase.add(MakeStarScene(chronosGL, perspective, 2000));
+  phase.add(MakeStarScene(cgl, perspective, 2000));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;

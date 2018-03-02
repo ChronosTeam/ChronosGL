@@ -48,12 +48,6 @@ class Utils {
     return canvas;
   }
 
-  static Node MakeSkycube(RenderProgram prog, Texture cubeTexture) {
-    Material mat = new Material("skycube")
-      ..SetUniform(uCubeTexture, cubeTexture);
-    MeshData md = ShapeCube(prog, x: 512.0, y: 512.0, z: 512.0);
-    return new Node("skycube", md, mat);
-  }
 
   /*
   void addSkybox(String prefix, String suffix, String nx, String px, String nz,

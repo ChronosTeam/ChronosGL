@@ -15,15 +15,15 @@ void main() {
   canvas.width = width;
   canvas.height = height;
 
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(25.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
     ..AdjustAspect(width, height);
 
   RenderProgram progDemo =
-      new RenderProgram("demo", chronosGL, demoVertexShader, demoFragmentShader);
+      new RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader);
 
-  MeshData ctLogo;
+  MeshData ctLogo;  // we be initialized when loaded
   Material material = new Material("mat")
     ..SetUniform(uColor, ColorGray8)
     ..SetUniform(uModelMatrix, new VM.Matrix4.identity()..rotateX(Math.PI / 2));

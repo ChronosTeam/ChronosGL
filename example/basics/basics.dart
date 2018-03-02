@@ -30,6 +30,7 @@ void main() {
       [perspective]);
   phase.add(scene);
 
+  // textures will be set after they are loaded
   final Material matWood = new Material("wood")
     ..SetUniform(uColor, ColorBlack);
 

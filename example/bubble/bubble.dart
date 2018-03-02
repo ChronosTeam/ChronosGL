@@ -42,17 +42,17 @@ void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
 
   OrbitCamera orbit = new OrbitCamera(5.0, 10.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  RenderPhase phase = new RenderPhase("main", chronosGL);
-  phase.add(MakeStarScene(chronosGL, perspective, 2000));
+  RenderPhase phase = new RenderPhase("main", cgl);
+  phase.add(MakeStarScene(cgl, perspective, 2000));
 
   Scene scene = new Scene(
       "spheres",
       new RenderProgram(
-          "spheres", chronosGL, sphereVertexShader, sphereFragmentShader),
+          "spheres", cgl, sphereVertexShader, sphereFragmentShader),
       [perspective]);
   phase.add(scene);
   MeshData md = ShapeIcosahedron(scene.program, 3);
@@ -89,7 +89,7 @@ void main() {
     LoadImage(textureFile),
   ];
   Future.wait(futures).then((List list) {
-    Texture bubble = new ImageTexture(chronosGL, textureFile, list[0]);
+    Texture bubble = new ImageTexture(cgl, textureFile, list[0]);
     matSphere..SetUniform(uTexture, bubble);
     animate(0.0);
   });

@@ -35,7 +35,7 @@ void main() {
 
   gLogLevel = 1;  // enable more logging
   // Create a ChronosGL object for the canvas.
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
 
   // Create camera, listening to 'body' element for control inputs.
   OrbitCamera orbit = new OrbitCamera(5.0, 0.0, 0.0, HTML.document.body);
@@ -46,7 +46,7 @@ void main() {
 
   // Create the main shader program for displaying the torus.
   RenderProgram progBasic = new RenderProgram(
-      "basic", chronosGL, demoVertexShader, demoFragmentShader);
+      "basic", cgl, demoVertexShader, demoFragmentShader);
 
   // Make a torus and add it to the first program,
   //UniformGroup uniformsBasic = new UniformGroup("torus-mat")
@@ -57,8 +57,8 @@ void main() {
   // Create the second shader program and the point sprites. The details are
   // hidden in the library functions.
   RenderProgram progSprites = new RenderProgram(
-      "basic", chronosGL, pointSpritesVertexShader, pointSpritesFragmentShader);
-  Material materialStars = Utils.MakeStarMaterial(chronosGL)
+      "basic", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
+  Material materialStars = Utils.MakeStarMaterial(cgl)
     ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
   MeshData stars = Utils.MakeStarMesh(progSprites, 2000, 100.0);
 

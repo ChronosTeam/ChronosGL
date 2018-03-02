@@ -20,20 +20,20 @@ void main() {
   canvas.width = width;
   canvas.height = height;
 
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 2520.0)
     ..AdjustAspect(width, height);
 
-  Framebuffer screen = new Framebuffer.Screen(chronosGL);
-  Framebuffer fb = new Framebuffer.Default(chronosGL, width, height);
+  Framebuffer screen = new Framebuffer.Screen(cgl);
+  Framebuffer fb = new Framebuffer.Default(cgl, width, height);
 
   RenderProgram progSolid = new RenderProgram(
-      "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader);
+      "solid", cgl, solidColorVertexShader, solidColorFragmentShader);
 
   List<ShaderObject> ssaoShader = createSSAOShader();
   RenderProgram progSSAO =
-      new RenderProgram("ssao", chronosGL, ssaoShader[0], ssaoShader[1]);
+      new RenderProgram("ssao", cgl, ssaoShader[0], ssaoShader[1]);
 
   UniformGroup uniforms = new UniformGroup("plain")
     ..SetUniform(uCameraNear, 0.1)
