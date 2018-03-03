@@ -28,8 +28,7 @@ class RenderProgram extends NamedEntity {
   Set<String> _attributesInitialized = new Set<String>();
 
   int _nextTextureUnit;
-  ShaderObject get shaderObjectV =>  _shaderObjectV;
-  ShaderObject get shaderObjectF =>  _shaderObjectF;
+
 
   RenderProgram(
       String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
@@ -48,6 +47,9 @@ class RenderProgram extends NamedEntity {
       _uniformLocations[v] = _cgl.getUniformLocation(_program, v);
     }
   }
+
+  ShaderObject get shaderObjectV =>  _shaderObjectV;
+  ShaderObject get shaderObjectF =>  _shaderObjectF;
 
   int GetTransformBindingIndex(String canonical) {
     return _shaderObjectV.GetTransformBindingIndex(canonical);
