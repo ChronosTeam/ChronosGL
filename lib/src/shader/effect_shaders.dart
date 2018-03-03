@@ -331,3 +331,120 @@ final ShaderObject luminosityHighPassFragmentShader =
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uRange, uColorAlpha, uTexture])
       ..SetBody([_luminosityHighPassFragment]);
+
+
+final ShaderObject fisheyeFragmentShader =
+    new ShaderObject("FisheyePassF")
+      ..AddVaryingVars([vTexUV])
+      ..AddUniformVars([uTexture])
+      ..SetBody(["""
+
+float fisheye_radius = 1.0;
+      
+void main() {
+    float y = (${vTexUV}.y-0.5) * 2.0; // [0,1] => [-1, 1]
+
+    float angle = asin(y/fisheye_radius); // [-pi/2, pi/2]
+    float arc_length = angle * fisheye_radius;
+
+    float max_arc_length = asin(1.0 / fisheye_radius) * fisheye_radius;
+    float normalized_arc_length = (arc_length + max_arc_length) / 
+                                  (max_arc_length * 2.0);
+    // set arc_length as y
+    vec2 uv = vec2(${vTexUV}.x, normalized_arc_length); 
+    ${oFragColor} = texture(${uTexture}, uv); 
+}
+"""]);
+
+
+final ShaderObject filmFragmentShader =
+    new ShaderObject("FilmPassF")
+      ..AddVaryingVars([vTexUV])
+      ..AddUniformVars([uTexture])
+      ..SetBody(["""
+
+vec2 translation = vec2(0.1, 0.0);
+float frame = 1.0;
+
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float vignette(vec2 uv) {
+    return min(1., 6000. * (uv.x * uv.y * (1. - uv.x) * (1. - uv.y) - pow(.2, 4.)));
+}
+
+float verticalNoise(vec2 uv) {
+    return rand(vec2(uv.x * 0.3242 + 1.4839, 1.));
+}
+
+float randomLines(vec2 uv, float a, float b, float c, float d) {
+    float discrete = floor(frame / 4.);
+    return step(0.0002 + 0.0005 * sin(discrete / a),
+            abs(uv.x - b + 0.05 * sin(discrete / c) * cos(discrete / d)));
+}
+
+vec3 scene(vec2 uv) {
+    vec3 color = texture(${uTexture}, uv).rgb;
+    color += 0.1;
+    color *= vignette(uv);
+    color *= 0.9 + 0.1 * rand(uv);
+    color *= 0.95 + 0.05 * verticalNoise(${vTexUV} + floor(frame / 4.));
+    color = 0.5 * color + color * 0.5 * randomLines(uv, 28., 0.7, 33., 58.);
+    color = color * 0.8 + color * 0.2 * randomLines(uv, 47., 0.78, 61., 27.);
+    color = color * 0.7 + color * 0.3 * randomLines(uv, 31., 0.28, 79., 43.);
+    color = pow(max(vec3(0.),color), vec3(1.5));
+    color *= 0.8 + 0.4 * rand(vec2(floor(frame / 4.), 0.2));
+    return color;
+}
+
+void main() {
+    vec2 uv = ${vTexUV};
+    uv += translation;
+    uv = vec2(${vTexUV}.x, mod(uv.y, 1.));
+    ${oFragColor} = vec4(scene(uv), 1.);
+}
+"""]);
+
+
+final VM.Matrix3 ConvolutionMatrixEmboss = new VM.Matrix3(
+    -1.0, 0.0, -1.0, 0.0, 4.0, 0.0, -1.0, 0.0, -1.0);
+final VM.Vector3 ConvolutionOffsetEmboss = new VM.Vector3(0.5, 0.5, 0.5);
+
+final VM.Matrix3 ConvolutionMatrixEmboss2 = new VM.Matrix3(
+    2.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -1.0);
+final VM.Vector3 ConvolutionOffsetEmboss2 = new VM.Vector3(0.5, 0.5, 0.5);
+
+final VM.Matrix3 ConvolutionMatrixEngrave = new VM.Matrix3(
+    -2.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0);
+final VM.Vector3 ConvolutionOffsetEngrave = new VM.Vector3(0.37, 0.37, 0.37);
+
+final VM.Matrix3 ConvolutionMatrixSharpen = new VM.Matrix3(
+    0.0, -2.0, 0.0, -2.0, 11.0, -2.0, 0.0, -2.0, 0.0)..scale(0.333);
+final VM.Vector3 ConvolutionOffsetSharpen = new VM.Vector3(0.0, 0.0, 0.0);
+
+final VM.Matrix3 ConvolutionMatrixEdges = new VM.Matrix3(
+    -1.0, -1.0, -1.0, -1.0, 8.0, -1.0, -1.0, -1.0, -1.0);
+final VM.Vector3 ConvolutionOffsetEdges = new VM.Vector3(0.0, 0.0, 0.0);
+
+final VM.Matrix3 ConvolutionMatrixBlur = new VM.Matrix3(
+    1.0, 2.0, 1.0, 2.0, 4.0, 2.0, 1.0, 2.0, 1.0)..scale(1.0 / 16.0);
+final VM.Vector3 ConvolutionOffsetBlur = new VM.Vector3(0.0, 0.0, 0.0);
+
+final ShaderObject convolution3x3FragmentShader =
+    new ShaderObject("Convolution3x3F")
+      ..AddVaryingVars([vTexUV])
+      ..AddUniformVars([uTexture, uColor, uConvolutionMatrix])
+      ..SetBody(["""
+void main() {
+    mat3 m = ${uConvolutionMatrix};
+    vec2 d = 1.0 / vec2(textureSize(${uTexture}, 0));
+    vec3 sum = vec3(0.0, 0.0, 0.0);
+    for (int x = -1; x <= 1; x++) {
+      for (int y = -1; y <= 1; y++) {
+        sum += m[x+1][y+1] * texture(${uTexture}, ${vTexUV} + d * vec2(x, y)).rgb;     
+      }
+    }
+    ${oFragColor}.rgb = ${uColor} + sum;
+}
+"""]);

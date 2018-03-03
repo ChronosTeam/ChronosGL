@@ -55,6 +55,54 @@ void RegisterEffects(ChronosGL cgl) {
   new Effect(cgl, squarePixelateFragmentShader,
       new UniformGroup("square-8")..SetUniform(uPointSize, 8.0));
 
+/*
+    m[0] = vec3(-2.0, -1.0, 0.0);
+    m[1] = vec3(-1.0, 1.0, 1.0);
+    m[2] = vec3(0.0, 1.0, 2.0);
+    float weight = 1.0;
+    */
+
+  new Effect(
+      cgl,
+      convolution3x3FragmentShader,
+      new UniformGroup("emboss")
+        ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEmboss)
+        ..SetUniform(uColor, ConvolutionOffsetEmboss));
+
+  new Effect(
+      cgl,
+      convolution3x3FragmentShader,
+      new UniformGroup("emboss2")
+        ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEmboss2)
+        ..SetUniform(uColor, ConvolutionOffsetEmboss2));
+  new Effect(
+      cgl,
+      convolution3x3FragmentShader,
+      new UniformGroup("engrave")
+        ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEngrave)
+        ..SetUniform(uColor, ConvolutionOffsetEngrave));
+
+  new Effect(
+      cgl,
+      convolution3x3FragmentShader,
+      new UniformGroup("sharpen")
+        ..SetUniform(uConvolutionMatrix, ConvolutionMatrixSharpen)
+        ..SetUniform(uColor, ConvolutionOffsetSharpen));
+
+  new Effect(
+      cgl,
+      convolution3x3FragmentShader,
+      new UniformGroup("edges")
+        ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEdges)
+        ..SetUniform(uColor, ConvolutionOffsetEdges));
+
+  new Effect(
+      cgl,
+      convolution3x3FragmentShader,
+      new UniformGroup("blur")
+        ..SetUniform(uConvolutionMatrix, ConvolutionMatrixBlur)
+        ..SetUniform(uColor, ConvolutionOffsetBlur));
+
   assert(gEffect != null);
   for (String o in Effect.all.keys) {
     gEffect.appendHtml("<option>$o</option>");
@@ -76,14 +124,10 @@ void main() {
   ImageTexture texture;
   MeshData unitQuad = ShapeQuad(Effect.all["dot"].program, 1);
 
-  double _lastTimeMs = 0.0;
   void animate(num timeMs) {
-    double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs + 0.0;
     try {
       // Get new image from camera and update texture with it.
       texture.Update();
-      print("updated texture");
     } catch (exception) {
       print(exception);
     }
@@ -94,12 +138,11 @@ void main() {
     active.program.Draw(unitQuad, [active.uniforms]);
 
     HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs);
+    fps.UpdateFrameCount(timeMs + 0.0);
   }
 
   List<Future<Object>> futures = [
     MakeVideoElementFromCamera(),
-    //LoadVideo("movie.ogv"),
   ];
 
   Future.wait(futures).then((List list) {
@@ -108,7 +151,13 @@ void main() {
       HTML.window
           .alert("Could not access camera - do you have a camera installed?");
     }
+    int w = video.videoWidth;
+    int h = video.videoHeight;
+    print("camera resolution: ${w}x${h}");
     texture = new ImageTexture(cgl, "video", video, TexturePropertiesVideo);
+    canvas.width = w;
+    canvas.height = h;
+    cgl.viewport(0, 0, w, h);
     animate(0.0);
   });
 }
