@@ -55,12 +55,6 @@ void RegisterEffects(ChronosGL cgl) {
   new Effect(cgl, squarePixelateFragmentShader,
       new UniformGroup("square-8")..SetUniform(uPointSize, 8.0));
 
-/*
-    m[0] = vec3(-2.0, -1.0, 0.0);
-    m[1] = vec3(-1.0, 1.0, 1.0);
-    m[2] = vec3(0.0, 1.0, 2.0);
-    float weight = 1.0;
-    */
 
   new Effect(
       cgl,
@@ -154,10 +148,12 @@ void main() {
     int w = video.videoWidth;
     int h = video.videoHeight;
     print("camera resolution: ${w}x${h}");
+    //  This does not seem to have any effect and/or break firefox
+    // canvas.width = w;
+    // canvas.height = h;
+    // cgl.viewport(0, 0, w, h);
     texture = new ImageTexture(cgl, "video", video, TexturePropertiesVideo);
-    canvas.width = w;
-    canvas.height = h;
-    cgl.viewport(0, 0, w, h);
+
     animate(0.0);
   });
 }
