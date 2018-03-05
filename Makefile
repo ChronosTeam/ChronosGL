@@ -52,7 +52,7 @@ publish:
 # TODO(robertm): vm tests are failing on exit:
 # Invalid argument(s): Illegal argument in isolate message : (object is a regular Dart Instance)
 start_test_server:
-	$(PUB) serve test --web-compiler=dartdevc --port 8111
+	$(PUB) serve example --web-compiler=dartdevc --port 8111
 
 browser_tests:
 	$(PUB) run test  -p chrome --pub-serve=8111 test/geometry.dart
