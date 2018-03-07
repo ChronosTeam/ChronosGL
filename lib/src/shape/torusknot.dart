@@ -1,100 +1,5 @@
 part of shape;
 
-VM.Vector3 p1 = new VM.Vector3.zero();
-VM.Vector3 p2 = new VM.Vector3.zero();
-
-GeometryBuilder ShapeTorusKnotGeometry(
-    {double radius: 20.0,
-    double tube: 4.0,
-    int segmentsR: 128,
-    int segmentsT: 16,
-    int p: 2,
-    int q: 3,
-    double heightScale: 1.0,
-    bool useQuads: true,
-    bool computeNormals: true}) {
-  List<VM.Vector3> vertices = [];
-
-  VM.Vector3 tang = new VM.Vector3.zero();
-  VM.Vector3 n = new VM.Vector3.zero();
-  VM.Vector3 bitan = new VM.Vector3.zero();
-  List<List<int>> grid = new List<List<int>>(segmentsR);
-
-  for (int i = 0; i < segmentsR; ++i) {
-    grid[i] = new List<int>(segmentsT);
-
-    double u = i / segmentsR * 2 * p * Math.PI;
-    getTorusKnotPos(u, q, p, radius, heightScale, p1);
-    getTorusKnotPos(u + 0.02, q, p, radius, heightScale, p2);
-
-    tang.x = p2.x - p1.x;
-    tang.y = p2.y - p1.y;
-    tang.z = p2.z - p1.z;
-    n.x = p2.x + p1.x;
-    n.y = p2.y + p1.y;
-    n.z = p2.z + p1.z;
-
-    bitan = tang.cross(n)..normalize();
-    n = bitan.cross(tang)..normalize();
-
-    for (int j = 0; j < segmentsT; ++j) {
-      double v = j / segmentsT * 2 * Math.PI;
-      double cx, cy;
-
-      cx = tube * Math.cos(v); // TODO: Hack: Negating it so it faces outside.
-      cy = tube * Math.sin(v);
-
-      vertices.add(new VM.Vector3(p1.x + cx * n.x + cy * bitan.x,
-          p1.y + cx * n.y + cy * bitan.y, p1.z + cx * n.z + cy * bitan.z));
-
-      grid[i][j] = vertices.length - 1;
-    }
-  }
-
-  GeometryBuilder gb = new GeometryBuilder();
-  gb.EnableAttribute(aTexUV);
-
-  for (int i = 0; i < segmentsR; ++i) {
-    for (int j = 0; j < segmentsT; ++j) {
-      final int ip = (i + 1) % segmentsR;
-      final int jp = (j + 1) % segmentsT;
-      final int a = grid[i][j];
-      final int b = grid[ip][j];
-      final int c = grid[ip][jp];
-      final int d = grid[i][jp];
-
-      final jp1 = j + 1;
-
-      /*
-      final ip1 = i + 1;
-      VM.Vector2 uva = new VM.Vector2(i / segmentsR, j / segmentsT);
-      VM.Vector2 uvb = new VM.Vector2(ip1 / segmentsR, j / segmentsT);
-      VM.Vector2 uvc = new VM.Vector2(ip1 / segmentsR, jp1 / segmentsT);
-      VM.Vector2 uvd = new VM.Vector2(i / segmentsR, jp1 / segmentsT);
-      */
-      VM.Vector2 uva = new VM.Vector2(0.0, j / segmentsT);
-      VM.Vector2 uvb = new VM.Vector2(1.0, j / segmentsT);
-      VM.Vector2 uvc = new VM.Vector2(1.0, jp1 / segmentsT);
-      VM.Vector2 uvd = new VM.Vector2(0.0, jp1 / segmentsT);
-      if (useQuads) {
-        gb.AddFaces4(1);
-        gb.AddVertices([vertices[d], vertices[c], vertices[b], vertices[a]]);
-        gb.AddAttributesVector2(aTexUV, [uva, uvb, uvc, uvd]);
-      } else {
-        gb.AddFaces3(2);
-        gb.AddVertices([vertices[a], vertices[b], vertices[c]]);
-        gb.AddVertices([vertices[a], vertices[c], vertices[d]]);
-        // TODO: explain why this choice of uvs is more appealing
-        gb.AddAttributesVector2(aTexUV, [uva, uvb, uvc]);
-        gb.AddAttributesVector2(aTexUV, [uvd, uvc, uvb]);
-        //gb.AddAttributesVector2(aTexUV, [uva, uvc, uvd]);
-      }
-    }
-  }
-  if (computeNormals) gb.GenerateNormalsAssumingTriangleMode();
-  return gb;
-}
-
 VM.Vector3 getTorusKnotPos(double u, int in_q, int in_p, double radius,
     double heightScale, VM.Vector3 vec) {
   double cu = Math.cos(u);
@@ -107,6 +12,117 @@ VM.Vector3 getTorusKnotPos(double u, int in_q, int in_p, double radius,
   vec.z = heightScale * radius * Math.sin(quOverP) * 0.5;
 
   return vec;
+}
+
+List<List<VM.Vector3>> TorusKnotVertexBands(
+    {double radius: 20.0,
+    double tube: 4.0,
+    int segmentsR: 128,
+    int segmentsT: 16,
+    int p: 2,
+    int q: 3,
+    double heightScale: 1.0}) {
+  List<List<VM.Vector3>> vertices = [];
+  VM.Vector3 p1 = new VM.Vector3.zero();
+  VM.Vector3 p2 = new VM.Vector3.zero();
+
+  VM.Vector3 tang = new VM.Vector3.zero();
+  VM.Vector3 n = new VM.Vector3.zero();
+  VM.Vector3 bitan = new VM.Vector3.zero();
+
+  for (int i = 0; i < segmentsR; ++i) {
+    List<VM.Vector3> band = [];
+    vertices.add(band);
+
+    double u = i / segmentsR * 2 * p * Math.PI;
+    getTorusKnotPos(u, q, p, radius, heightScale, p1);
+    getTorusKnotPos(u + 0.02, q, p, radius, heightScale, p2);
+
+    tang.setFrom(p2);
+    tang.sub(p1);
+
+    n.setFrom(p2);
+    n.add(p1);
+
+    bitan = tang.cross(n)..normalize();
+    n = bitan.cross(tang)..normalize();
+
+    for (int j = 0; j < segmentsT; ++j) {
+      double v = j / segmentsT * 2 * Math.PI;
+      double cx =
+          tube * Math.cos(v); // TODO: Hack: Negating it so it faces outside.
+      double cy = tube * Math.sin(v);
+
+      band.add(new VM.Vector3(p1.x + cx * n.x + cy * bitan.x,
+          p1.y + cx * n.y + cy * bitan.y, p1.z + cx * n.z + cy * bitan.z));
+    }
+  }
+  return vertices;
+}
+
+GeometryBuilder ShapeTorusKnotGeometry(
+    {double radius: 20.0,
+    double tube: 4.0,
+    int segmentsR: 128,
+    int segmentsT: 16,
+    int p: 2,
+    int q: 3,
+    double heightScale: 1.0,
+    bool useQuads: true,
+    bool computeNormals: true}) {
+  List<List<VM.Vector3>> bands = TorusKnotVertexBands(
+      radius: radius,
+      tube: tube,
+      segmentsR: segmentsR,
+      segmentsT: segmentsT,
+      p: p,
+      q: q,
+      heightScale: heightScale);
+
+  GeometryBuilder gb = new GeometryBuilder();
+  gb.EnableAttribute(aTexUV);
+
+  for (int i = 0; i < segmentsR; ++i) {
+    for (int j = 0; j < segmentsT; ++j) {
+      final int ip = (i + 1) % segmentsR;
+      final int jp = (j + 1) % segmentsT;
+      final VM.Vector3 a = bands[i][j];
+      final VM.Vector3 b = bands[ip][j];
+      final VM.Vector3 c = bands[ip][jp];
+      final VM.Vector3 d = bands[i][jp];
+
+      final jp1 = j + 1;
+
+     /*
+      final ip1 = i + 1;
+      VM.Vector2 uva = new VM.Vector2(i / segmentsR, j / segmentsT);
+      VM.Vector2 uvb = new VM.Vector2(ip1 / segmentsR, j / segmentsT);
+      VM.Vector2 uvc = new VM.Vector2(ip1 / segmentsR, jp1 / segmentsT);
+      VM.Vector2 uvd = new VM.Vector2(i / segmentsR, jp1 / segmentsT);
+      */
+
+      VM.Vector2 uva = new VM.Vector2(0.0, j / segmentsT);
+      VM.Vector2 uvb = new VM.Vector2(1.0, j / segmentsT);
+      VM.Vector2 uvc = new VM.Vector2(1.0, jp1 / segmentsT);
+      VM.Vector2 uvd = new VM.Vector2(0.0, jp1 / segmentsT);
+
+      if (useQuads) {
+        gb.AddFaces4(1);
+        gb.AddVertices([d, c, b, a]);
+        gb.AddAttributesVector2(aTexUV, [uva, uvb, uvc, uvd]);
+      } else {
+        gb.AddFaces3(2);
+        gb.AddVertices([a, b, c]);
+        gb.AddVertices([a, c, d]);
+        // TODO: explain why this choice of uvs is more appealing
+        gb.AddAttributesVector2(aTexUV, [uva, uvb, uvc]);
+        gb.AddAttributesVector2(aTexUV, [uvd, uvc, uvb]);
+        //gb.AddAttributesVector2(aTexUV, [uva, uvc, uvd]);
+      }
+    }
+  }
+  if (computeNormals) gb.GenerateNormalsAssumingTriangleMode();
+  return gb;
 }
 
 // this class lets a Camera fly through a TorusKnot like through a tunnel
