@@ -60,6 +60,21 @@ List<List<VM.Vector3>> TorusKnotVertexBands(
   return vertices;
 }
 
+List<List<VM.Vector2>> UniformUVsForVertexBands(
+    List<List<VM.Vector3>> vertices) {
+  List<List<VM.Vector2>> uvs = [];
+  final int h = vertices.length;
+  final int w = vertices[0].length;
+  for (int y = 0; y < h; ++y) {
+    List<VM.Vector2> band = [];
+    uvs.add(band);
+    for (int x = 0; x < w; ++x) {
+      band.add(new VM.Vector2(y / (h), x / (w)));
+    }
+  }
+  return uvs;
+}
+
 GeometryBuilder ShapeTorusKnotGeometry(
     {double radius: 20.0,
     double tube: 4.0,
@@ -68,9 +83,8 @@ GeometryBuilder ShapeTorusKnotGeometry(
     int p: 2,
     int q: 3,
     double heightScale: 1.0,
-    bool useQuads: true,
     bool computeNormals: true}) {
-  List<List<VM.Vector3>> bands = TorusKnotVertexBands(
+  final List<List<VM.Vector3>> bands = TorusKnotVertexBands(
       radius: radius,
       tube: tube,
       segmentsR: segmentsR,
@@ -79,8 +93,18 @@ GeometryBuilder ShapeTorusKnotGeometry(
       q: q,
       heightScale: heightScale);
 
+  final List<List<VM.Vector2>> uvs = UniformUVsForVertexBands(bands);
+
   GeometryBuilder gb = new GeometryBuilder();
   gb.EnableAttribute(aTexUV);
+  /*
+  for (List<VM.Vector3> lst in bands) {
+    gb.AddVertices(lst);
+  }
+  for (List<VM.Vector2> lst in uvs) {
+    gb.AddAttributesVector2(aTexUV, lst);
+  }
+*/
 
   for (int i = 0; i < segmentsR; ++i) {
     for (int j = 0; j < segmentsT; ++j) {
@@ -92,33 +116,15 @@ GeometryBuilder ShapeTorusKnotGeometry(
       final VM.Vector3 d = bands[i][jp];
 
       final jp1 = j + 1;
-
-     /*
       final ip1 = i + 1;
       VM.Vector2 uva = new VM.Vector2(i / segmentsR, j / segmentsT);
       VM.Vector2 uvb = new VM.Vector2(ip1 / segmentsR, j / segmentsT);
       VM.Vector2 uvc = new VM.Vector2(ip1 / segmentsR, jp1 / segmentsT);
       VM.Vector2 uvd = new VM.Vector2(i / segmentsR, jp1 / segmentsT);
-      */
 
-      VM.Vector2 uva = new VM.Vector2(0.0, j / segmentsT);
-      VM.Vector2 uvb = new VM.Vector2(1.0, j / segmentsT);
-      VM.Vector2 uvc = new VM.Vector2(1.0, jp1 / segmentsT);
-      VM.Vector2 uvd = new VM.Vector2(0.0, jp1 / segmentsT);
-
-      if (useQuads) {
-        gb.AddFaces4(1);
-        gb.AddVertices([d, c, b, a]);
-        gb.AddAttributesVector2(aTexUV, [uva, uvb, uvc, uvd]);
-      } else {
-        gb.AddFaces3(2);
-        gb.AddVertices([a, b, c]);
-        gb.AddVertices([a, c, d]);
-        // TODO: explain why this choice of uvs is more appealing
-        gb.AddAttributesVector2(aTexUV, [uva, uvb, uvc]);
-        gb.AddAttributesVector2(aTexUV, [uvd, uvc, uvb]);
-        //gb.AddAttributesVector2(aTexUV, [uva, uvc, uvd]);
-      }
+      gb.AddFaces4(1);
+      gb.AddVertices([d, c, b, a]);
+      gb.AddAttributesVector2(aTexUV, [uvd, uvc, uvb, uva]);
     }
   }
   if (computeNormals) gb.GenerateNormalsAssumingTriangleMode();

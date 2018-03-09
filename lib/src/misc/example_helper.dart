@@ -217,7 +217,6 @@ MeshData ShapeTorusKnot(RenderProgram prog,
     int p: 2,
     int q: 3,
     double heightScale: 1.0,
-    bool useQuads: true,
     bool computeNormals = true}) {
   GeometryBuilder gb = ShapeTorusKnotGeometry(
       radius: radius,
@@ -227,7 +226,6 @@ MeshData ShapeTorusKnot(RenderProgram prog,
       p: p,
       q: q,
       heightScale: heightScale,
-      useQuads: useQuads,
       computeNormals: computeNormals);
   return GeometryBuilderToMeshData("torusknot", prog, gb);
 }
