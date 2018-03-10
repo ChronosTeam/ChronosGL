@@ -86,6 +86,8 @@ GeometryBuilder CylinderGeometry(double radTop, double radBot, double height,
   return gb;
 }
 
+/// Like CylinderGeometry but with duplicate Vertices to make it possible
+///  to add aCenter attributes with GenerateWireframeCenters()
 GeometryBuilder CylinderGeometryWireframeFriendly(
     double radTop, double radBot, double height, int radialSubdivisions) {
   // Compute points on edges
@@ -133,6 +135,8 @@ GeometryBuilder CylinderGeometryWireframeFriendly(
   return gb;
 }
 
+/// Like ConeGeometry but with duplicate Vertices to make it possible
+///  to add aCenter attributes with GenerateWireframeCenters()
 GeometryBuilder ConeGeometryWireframeFrienly(
     double rad, double height, int radialSubdivisions) {
   // Compute points on edges

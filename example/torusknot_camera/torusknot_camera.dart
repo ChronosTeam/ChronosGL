@@ -36,6 +36,45 @@ void updateTorusTexture(double time, HTML.CanvasElement canvas) {
   ctx.fill();
 }
 
+final List<VM.Vector2> T1 = [
+  new VM.Vector2(1.0, 0.2),
+  new VM.Vector2(0.0, 0.7)
+];
+
+final List<VM.Vector2> T = [
+  new VM.Vector2(1.0, 0.2),
+  new VM.Vector2(0.0, 0.7),
+  new VM.Vector2(0.0, 0.7),
+];
+
+MeshData TorusKnotWithCustumUV(RenderProgram program) {
+  final List<List<VM.Vector3>> bands = TorusKnotVertexBands(wrap: true);
+  final int w = bands[0].length;
+  final int h = bands.length;
+  final List<VM.Vector2> uvs = [];
+  for (int n = 0; n < w * h; n++) {
+    uvs.add(T[n % T.length]);
+  }
+
+  final GeometryBuilder gb = new GeometryBuilder()..EnableAttribute(aTexUV);
+
+  for (List<VM.Vector3> lst in bands) {
+    gb.AddVertices(lst);
+  }
+
+  gb.AddAttributesVector2(aTexUV, uvs);
+
+  for (int i = 0; i < h; ++i) {
+    final int ip = (i + 1) % h;
+    for (int j = 0; j < w; ++j) {
+      final int jp = (j + 1) % w;
+      gb.AddFace4(i * w + j, ip * w + j, ip * w + jp, i * w + jp);
+    }
+  }
+  gb.GenerateNormalsAssumingTriangleMode();
+  return GeometryBuilderToMeshData("torusknot", program, gb);
+}
+
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL cgl = new ChronosGL(canvas);
@@ -63,8 +102,7 @@ void main() {
     ..SetUniform(uTexture, generatedTexture)
     ..SetUniform(uColor, new VM.Vector3.zero());
 
-  scene.add(
-      new Node("torus", ShapeTorusKnot(scene.program, useQuads: false), mat));
+  scene.add(new Node("torus", TorusKnotWithCustumUV(scene.program), mat));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
