@@ -123,7 +123,7 @@ void main() {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs + 0.0;
 
-    tkc.animate(elapsed);
+    tkc.animate(_lastTimeMs);
 
     updateTorusTexture(timeMs / 1000, canvas2d);
     generatedTexture.SetImageData(canvas2d);

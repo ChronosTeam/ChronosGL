@@ -1,18 +1,18 @@
 part of shape;
 
-VM.Vector3 getTorusKnotPos(double u, int in_q, int in_p, double radius,
-    double heightScale, VM.Vector3 vec) {
-  double cu = Math.cos(u);
-  double su = Math.sin(u);
-  double quOverP = in_q / in_p * u;
-  double cs = Math.cos(quOverP);
+/// Parametric representation of a TorusKnot
+void TorusKnotGetPos(
+    double u, int q, int p, double radius, double heightScale, VM.Vector3 vec) {
+  final double quOverP = q / p * u;
+  final double c = Math.cos(quOverP);
+  final double s = Math.sin(quOverP);
 
-  vec.x = radius * (2 + cs) * 0.5 * cu;
-  vec.y = radius * (2 + cs) * su * 0.5;
-  vec.z = heightScale * radius * Math.sin(quOverP) * 0.5;
-
-  return vec;
+  vec.x = radius * (2.0 + c) * 0.5 * Math.cos(u);
+  vec.y = radius * (2.0 + c) * 0.5 * Math.sin(u);
+  vec.z = heightScale * radius * s * 0.5;
 }
+
+const double _TorusEpsilon = 0.01;
 
 /// Generate Vertices for Torusknot
 ///
@@ -37,30 +37,26 @@ List<List<VM.Vector3>> TorusKnotVertexBands(
   // if we do not wrap we duplicate vertices
   final int extra = wrap ? 0 : 1;
 
-  List<List<VM.Vector3>> vertices = [];
-  VM.Vector3 p1 = new VM.Vector3.zero();
-  VM.Vector3 p2 = new VM.Vector3.zero();
-
-  VM.Vector3 tang = new VM.Vector3.zero();
-  VM.Vector3 n = new VM.Vector3.zero();
-  VM.Vector3 bitan = new VM.Vector3.zero();
+  final List<List<VM.Vector3>> vertices = [];
+  // Avoid unnecessary allocations:
+  final VM.Vector3 p1 = new VM.Vector3.zero();
+  final VM.Vector3 p2 = new VM.Vector3.zero();
+  final VM.Vector3 p3 = new VM.Vector3.zero();
+  final VM.Vector3 v1 = new VM.Vector3.zero();
+  final VM.Vector3 v2 = new VM.Vector3.zero();
 
   for (int i = 0; i < segmentsR + extra; ++i) {
     List<VM.Vector3> band = [];
     vertices.add(band);
 
     double u = i / segmentsR * 2 * p * Math.PI;
-    getTorusKnotPos(u, q, p, radius, heightScale, p1);
-    getTorusKnotPos(u + 0.02, q, p, radius, heightScale, p2);
+    TorusKnotGetPos(u, q, p, radius, heightScale, p1);
+    TorusKnotGetPos(u + _TorusEpsilon, q, p, radius, heightScale, p2);
 
-    tang.setFrom(p2);
-    tang.sub(p1);
-
-    n.setFrom(p2);
-    n.add(p1);
-
-    bitan = tang.cross(n)..normalize();
-    n = bitan.cross(tang)..normalize();
+    p2.sub(p1);
+    VM.buildPlaneVectors(p2, v1, v2);
+    v1.normalize();
+    v2.normalize();
 
     for (int j = 0; j < segmentsT + extra; ++j) {
       double v = j / segmentsT * 2 * Math.PI;
@@ -68,8 +64,11 @@ List<List<VM.Vector3>> TorusKnotVertexBands(
           tube * Math.cos(v); // TODO: Hack: Negating it so it faces outside.
       double cy = tube * Math.sin(v);
 
-      band.add(new VM.Vector3(p1.x + cx * n.x + cy * bitan.x,
-          p1.y + cx * n.y + cy * bitan.y, p1.z + cx * n.z + cy * bitan.z));
+      p3.setFrom(p1);
+      p3.addScaled(v1, cx);
+      p3.addScaled(v2, cy);
+
+      band.add(new VM.Vector3.copy(p3));
     }
   }
   return vertices;
@@ -114,7 +113,6 @@ GeometryBuilder ShapeTorusKnotGeometry(
   assert(uvs[0].length == bands[0].length);
 
   final GeometryBuilder gb = new GeometryBuilder()..EnableAttribute(aTexUV);
-
 
   for (List<VM.Vector3> lst in bands) {
     gb.AddVertices(lst);
@@ -174,24 +172,30 @@ GeometryBuilder ShapeTorusKnotGeometryWireframeFriendly(
   return gb;
 }
 
-// this class lets a Camera fly through a TorusKnot like through a tunnel
+/// Camera flying through a TorusKnot like through a tunnel
 class TorusKnotCamera extends Camera {
-  TorusKnotCamera() : super("camera:torusknot");
+  final double radius;
+  final double tube;
+  final int p;
+  final int q;
+  final double heightScale;
+
+  TorusKnotCamera(
+      {this.radius: 20.0,
+      this.tube: 4.0,
+      this.p: 2,
+      this.q: 3,
+      this.heightScale: 1.0})
+      : super("camera:torusknot");
 
   VM.Vector3 p1 = new VM.Vector3.zero();
   VM.Vector3 p2 = new VM.Vector3.zero();
-
-  int p = 2;
-  int q = 3;
-  double radius = 20.0;
-
-  double time = 0.0;
   VM.Vector3 up = new VM.Vector3.zero();
 
-  void animate(double elapsed) {
-    time += elapsed;
-    getTorusKnotPos(time / 1500, q, p, radius, 1.0, p1);
-    getTorusKnotPos((time / 1500) + 0.1, q, p, radius, 1.0, p2);
+  void animate(double timeMs) {
+    double u = timeMs / 1500;
+    TorusKnotGetPos(u, q, p, radius, heightScale, p1);
+    TorusKnotGetPos(u + _TorusEpsilon, q, p, radius, heightScale, p2);
     up
       ..setFrom(p2)
       ..normalize();
