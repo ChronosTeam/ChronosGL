@@ -20,7 +20,9 @@ void updateTorusTexture(double time, HTML.CanvasElement canvas) {
   double sint = Math.sin(time);
   double n = (sint + 1) / 2;
   ctx.rect(0, 0, canvas.width, canvas.height);
-  HTML.CanvasGradient grad = ctx.createLinearGradient(0, 0, canvas.width * n, canvas.height);
+  // Direction of gradient is diagonal
+  HTML.CanvasGradient grad =
+      ctx.createLinearGradient(0, 0, canvas.width * n, canvas.height);
   double cs1 = (360 * n).floorToDouble();
   double cs2 = (90 * n).floorToDouble();
   grad.addColorStop(0, 'hsla($cs1, 100%, 40%, 1)');
@@ -34,44 +36,73 @@ void updateTorusTexture(double time, HTML.CanvasElement canvas) {
   ctx.fill();
 }
 
+final List<VM.Vector2> T1 = [
+  new VM.Vector2(1.0, 0.2),
+  new VM.Vector2(0.0, 0.7)
+];
+
+final List<VM.Vector2> T = [
+  new VM.Vector2(1.0, 0.2),
+  new VM.Vector2(0.0, 0.7),
+  new VM.Vector2(0.0, 0.7),
+];
+
+MeshData TorusKnotWithCustumUV(RenderProgram program) {
+  final List<List<VM.Vector3>> bands = TorusKnotVertexBands(wrap: true);
+  final int w = bands[0].length;
+  final int h = bands.length;
+  final List<VM.Vector2> uvs = [];
+  for (int n = 0; n < w * h; n++) {
+    uvs.add(T[n % T.length]);
+  }
+
+  final GeometryBuilder gb = new GeometryBuilder()..EnableAttribute(aTexUV);
+
+  for (List<VM.Vector3> lst in bands) {
+    gb.AddVertices(lst);
+  }
+
+  gb.AddAttributesVector2(aTexUV, uvs);
+
+  for (int i = 0; i < h; ++i) {
+    final int ip = (i + 1) % h;
+    for (int j = 0; j < w; ++j) {
+      final int jp = (j + 1) % w;
+      gb.AddFace4(i * w + j, ip * w + j, ip * w + jp, i * w + jp);
+    }
+  }
+  gb.GenerateNormalsAssumingTriangleMode();
+  return GeometryBuilderToMeshData("torusknot", program, gb);
+}
+
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
   TorusKnotCamera tkc = new TorusKnotCamera();
   Perspective perspective = new Perspective(tkc, 0.1, 1000.0);
-  RenderPhase phase = new RenderPhase("main", chronosGL);
 
-  Scene scene = new Scene(
+  final Scene scene = new Scene(
       "objects",
       new RenderProgram(
-          "textured", chronosGL, texturedVertexShader, texturedFragmentShader),
+          "textured", cgl, texturedVertexShader, texturedFragmentShader),
       [perspective]);
-  phase.add(scene);
+
+  final RenderPhase phase = new RenderPhase("main", cgl)
+    ..add(MakeStarScene(cgl, perspective, 2000))
+    ..add(scene);
 
   int d = 512;
-  HTML.CanvasElement canvas2d = new HTML.CanvasElement(width: d, height: d);
-
+  //HTML.CanvasElement canvas2d = new HTML.CanvasElement(width: d, height: d);
+  final HTML.CanvasElement canvas2d = HTML.document.querySelector('#texture');
   updateTorusTexture(0.0, canvas2d);
-  Texture generatedTexture = new ImageTexture(chronosGL, "gen", canvas2d);
+  final ImageTexture generatedTexture = new ImageTexture(cgl, "gen", canvas2d);
 
   // Maybe disable depth test?
-  Material mat = new Material.Transparent("torus", BlendEquationStandard)
+  final Material mat = new Material.Transparent("torus", BlendEquationMix)
     ..SetUniform(uTexture, generatedTexture)
     ..SetUniform(uColor, new VM.Vector3.zero());
 
-  scene.add(
-      new Node("torus", ShapeTorusKnot(scene.program, useQuads: false), mat));
-
-  int p = 2;
-  int q = 3;
-  double radius = 20.0;
-  for (int i = 0; i < 128; ++i) {
-    double u = i / 128 * 2 * p * Math.PI;
-    getTorusKnotPos(u, q, p, radius, 1.0, p1);
-    //chronosGL.programs['point_sprites'].add(new PointSprites.fromVertex(p1, textureCache.get("textures/particle.bmp")));
-  }
-
-  phase.add(MakeStarScene(chronosGL, perspective, 2000));
+  scene.add(new Node("torus", TorusKnotWithCustumUV(scene.program), mat));
 
   void resolutionChange(HTML.Event ev) {
     int w = canvas.clientWidth;
@@ -95,9 +126,7 @@ void main() {
     tkc.animate(elapsed);
 
     updateTorusTexture(timeMs / 1000, canvas2d);
-    chronosGL.bindTexture(GL_TEXTURE_2D, generatedTexture.GetTexture());
-    chronosGL.texImage2Dweb(
-        GL_TEXTURE_2D, 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, canvas2d);
+    generatedTexture.SetImageData(canvas2d);
 
     phase.Draw();
     HTML.window.animationFrame.then(animate);

@@ -145,6 +145,7 @@ const String uTransformationMatrix = "uTransformationMatrix";
 //const String uModelViewMatrix = "uModelViewMatrix";
 //const String uViewMatrix = "uViewMatrix";
 const String uNormalMatrix = "uNormalMatrix";
+const String uConvolutionMatrix = "uConvolutionMatrix";
 
 const String uPerspectiveViewMatrix = "uPerspectiveViewMatrix";
 const String uLightPerspectiveViewMatrix = "uLightPerspectiveViewMatrix";
@@ -244,6 +245,8 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   uModelMatrix: new ShaderVarDesc(VarTypeMat4, ""),
   //uViewMatrix: new ShaderVarDesc(VarTypeMat4, ""),
   uNormalMatrix: new ShaderVarDesc(VarTypeMat3, ""),
+  uConvolutionMatrix: new ShaderVarDesc(VarTypeMat3, ""),
+
   //uPerspectiveMatrix: new ShaderVarDesc(VarTypeMat4, ""),
   uPerspectiveViewMatrix: new ShaderVarDesc(VarTypeMat4, ""),
   uLightPerspectiveViewMatrix: new ShaderVarDesc(VarTypeMat4, ""),
@@ -286,6 +289,7 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   uMaterial: new ShaderVarDesc(VarTypeMat4, ""),
   uRange: new ShaderVarDesc(VarTypeVec2, ""),
   uDirection: new ShaderVarDesc(VarTypeVec2, ""),
+
 
   uBoneMatrices: new ShaderVarDesc(VarTypeMat4, "", arraySize: kMaxBones),
 

@@ -161,6 +161,48 @@ void RegisterEffects(ChronosGL cgl, Texture fb) {
 
   new Effect(cgl, filmFragmentShader,
       new UniformGroup("film")..SetUniform(uTexture, fb));
+
+  new Effect(
+      cgl,
+      convolution3x3FragmentShader,
+      new UniformGroup("emboss")
+        ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEmboss)
+        ..SetUniform(uColor, ConvolutionOffsetEmboss));
+
+  new Effect(
+      cgl,
+      convolution3x3FragmentShader,
+      new UniformGroup("emboss2")
+        ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEmboss2)
+        ..SetUniform(uColor, ConvolutionOffsetEmboss2));
+  new Effect(
+      cgl,
+      convolution3x3FragmentShader,
+      new UniformGroup("engrave")
+        ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEngrave)
+        ..SetUniform(uColor, ConvolutionOffsetEngrave));
+
+  new Effect(
+      cgl,
+      convolution3x3FragmentShader,
+      new UniformGroup("sharpen")
+        ..SetUniform(uConvolutionMatrix, ConvolutionMatrixSharpen)
+        ..SetUniform(uColor, ConvolutionOffsetSharpen));
+
+  new Effect(
+      cgl,
+      convolution3x3FragmentShader,
+      new UniformGroup("edges")
+        ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEdges)
+        ..SetUniform(uColor, ConvolutionOffsetEdges));
+
+  new Effect(
+      cgl,
+      convolution3x3FragmentShader,
+      new UniformGroup("blur")
+        ..SetUniform(uConvolutionMatrix, ConvolutionMatrixBlur)
+        ..SetUniform(uColor, ConvolutionOffsetBlur));
+
   assert(gEffect != null);
 
   for (String o in Effect.all.keys) {

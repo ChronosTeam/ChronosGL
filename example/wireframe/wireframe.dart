@@ -76,7 +76,7 @@ void main() {
   }
 
   {
-    GeometryBuilder gb = ShapeTorusKnotGeometry(radius: 1.0, tube: 0.4)
+    GeometryBuilder gb = ShapeTorusKnotGeometryWireframeFriendly(radius: 1.0, tube: 0.4)
       ..GenerateWireframeCenters();
     Node torus = new Node("torus",
         GeometryBuilderToMeshData("torus", scene.program, gb), matWireframe)
@@ -109,7 +109,7 @@ void main() {
     phase.Draw();
 
     HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   animate(0.0);

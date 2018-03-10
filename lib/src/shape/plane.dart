@@ -1,5 +1,9 @@
 part of shape;
 
+/// Produces single square: -1 <= x,y  <= 1, z == 0
+///
+/// This is mostly useful for processing the whole screen
+/// in the fragment shader
 GeometryBuilder QuadGeometry(num size) {
   List<VM.Vector3> vertices = [
     new VM.Vector3(-1.0 * size, -1.0 * size, 0.0),
@@ -27,6 +31,8 @@ GeometryBuilder QuadGeometry(num size) {
   return gb;
 }
 
+/// Checkerboard with xstrips X ystrips fields of dim xlen X ylen centered
+/// around the origin
 GeometryBuilder GridGeometry(int xstrips, int ystrips, double xlen, double ylen) {
   final double xoffset = xlen * 0.5;
   final double yoffset = ylen * 0.5;
