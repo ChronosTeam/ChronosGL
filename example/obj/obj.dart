@@ -23,7 +23,7 @@ void main() {
   RenderProgram progDemo =
       new RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader);
 
-  MeshData ctLogo;  // we be initialized when loaded
+  MeshData ctLogo; // we be initialized when loaded
   Material material = new Material("mat")
     ..SetUniform(uColor, ColorGray8)
     ..SetUniform(uModelMatrix, new VM.Matrix4.identity()..rotateX(Math.PI / 2));
@@ -34,9 +34,9 @@ void main() {
     _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
     progDemo.Draw(ctLogo, [perspective, material]);
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   List<Future<Object>> futures = [

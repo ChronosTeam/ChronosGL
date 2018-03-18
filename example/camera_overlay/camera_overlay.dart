@@ -11,8 +11,8 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(15.0, 10.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
-  // We only have one phase writing to the screen
-  RenderPhase phase = new RenderPhase("main", cgl);
+  final RenderPhaseResizeAware phase =
+      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
   // This scene is responsible for filling the entire screen with a texture
   // gleaned from the camera

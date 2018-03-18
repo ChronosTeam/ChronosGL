@@ -2,28 +2,22 @@ import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 import 'dart:math' as Math;
 
-
-
 Node Triangle(RenderProgram program) {
+  final Material mat1 = new Material("mat1")..SetUniform(uColor, ColorBlue);
 
-    final Material mat1 = new Material("mat1")
-    ..SetUniform(uColor, ColorBlue);
+  final Material mat2 = new Material("mat2")..SetUniform(uColor, ColorRed);
 
-  final Material mat2 = new Material("mat2")
-    ..SetUniform(uColor, ColorRed);
-
-  final Material mat3 = new Material("mat3")
-    ..SetUniform(uColor, ColorGreen);
+  final Material mat3 = new Material("mat3")..SetUniform(uColor, ColorGreen);
 
   double thickness = 3.0;
   double length = 5.0 * thickness;
 
-  Node side1 = new Node("side1",
-      ShapeCube(program, x: length, y: thickness, z: thickness), mat1)
+  Node side1 = new Node(
+      "side1", ShapeCube(program, x: length, y: thickness, z: thickness), mat1)
     ..setPos(-thickness, 0.0, 0.0);
 
-  Node side2 = new Node("side2",
-      ShapeCube(program, x: thickness, y: thickness, z: length), mat2)
+  Node side2 = new Node(
+      "side2", ShapeCube(program, x: thickness, y: thickness, z: length), mat2)
     ..setPos(-length, 0.0, length + thickness);
 
   double length3 = length - thickness;
@@ -37,26 +31,27 @@ Node Triangle(RenderProgram program) {
     ..setPos(length, length + length3 - thickness, 0.0);
 
   return new Node.Container("triangle")
-  ..add(side1)
-  ..add(side2)
-  ..add(side3a)
-  ..add(side3b);
+    ..add(side1)
+    ..add(side2)
+    ..add(side3a)
+    ..add(side3b);
 }
 
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
 
   OrbitCamera orbit = new OrbitCamera(20.0, 0.0, 0.0, canvas);
   double d = 40.0;
   Orthographic orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
-  RenderPhase phase = new RenderPhase("shadow", chronosGL);
+  RenderPhase phase = new RenderPhase("shadow", cgl);
+
   Scene scene = new Scene(
       "objects",
       new RenderProgram(
-          "textured", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+          "textured", cgl, solidColorVertexShader, solidColorFragmentShader),
       [orthographic]);
   phase.add(scene);
 

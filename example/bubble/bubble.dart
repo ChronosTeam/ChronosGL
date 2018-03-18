@@ -46,32 +46,20 @@ void main() {
 
   OrbitCamera orbit = new OrbitCamera(5.0, 10.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  RenderPhase phase = new RenderPhase("main", cgl);
-  phase.add(MakeStarScene(cgl, perspective, 2000));
 
   Scene scene = new Scene(
       "spheres",
       new RenderProgram(
           "spheres", cgl, sphereVertexShader, sphereFragmentShader),
       [perspective]);
-  phase.add(scene);
   MeshData md = ShapeIcosahedron(scene.program, 3);
   scene.add(new Node("sphere", md, matSphere)..setPos(0.0, 0.0, 0.0));
   scene.add(new Node("sphere", md, matSphere)..setPos(1.5, 0.0, 0.0));
 
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
+  final RenderPhaseResizeAware phase =
+      new RenderPhaseResizeAware("main", cgl, canvas, perspective)
+        ..add(MakeStarScene(cgl, perspective, 2000))
+        ..add(scene);
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
@@ -82,7 +70,7 @@ void main() {
     phase.Draw();
 
     HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   List<Future<Object>> futures = [

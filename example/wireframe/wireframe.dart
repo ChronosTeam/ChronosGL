@@ -9,22 +9,22 @@ import 'package:chronosgl/chronosgl.dart';
 final HTML.InputElement gOpaque =
     HTML.document.querySelector('#opaque') as HTML.InputElement;
 
-
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  RenderPhase phase = new RenderPhase("main", chronosGL);
+  final RenderPhaseResizeAware phase =
+      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
   Scene scene = new Scene(
       "wireframe",
       new RenderProgram(
-          "main", chronosGL, wireframeVertexShader, wireframeFragmentShader),
+          "main", cgl, wireframeVertexShader, wireframeFragmentShader),
       [perspective]);
   phase.add(scene);
 
@@ -76,8 +76,9 @@ void main() {
   }
 
   {
-    GeometryBuilder gb = ShapeTorusKnotGeometryWireframeFriendly(radius: 1.0, tubeRadius: 0.4)
-      ..GenerateWireframeCenters();
+    GeometryBuilder gb =
+        ShapeTorusKnotGeometryWireframeFriendly(radius: 1.0, tubeRadius: 0.4)
+          ..GenerateWireframeCenters();
     Node torus = new Node("torus",
         GeometryBuilderToMeshData("torus", scene.program, gb), matWireframe)
       ..setPos(5.0, 0.0, 5.0);

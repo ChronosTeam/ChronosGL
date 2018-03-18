@@ -34,6 +34,8 @@ final ShaderObject skyScraperFragmentShader = new ShaderObject("SkyScraperF")
   ]);
 
 void main() {
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   int w = canvas.clientWidth;
   int h = canvas.clientHeight;
@@ -42,13 +44,11 @@ void main() {
   ChronosGL cgl = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(25.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  perspective.AdjustAspect(w, h);
 
-  RenderPhase phase = new RenderPhase("main", cgl);
-  phase.viewPortW = w;
-  phase.viewPortH = h;
+  final RenderPhaseResizeAware phase =
+      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
- Scene sceneBuilding = new Scene(
+  Scene sceneBuilding = new Scene(
       "building",
       new RenderProgram(
           "building", cgl, skyScraperVertexShader, skyScraperFragmentShader),
@@ -57,8 +57,7 @@ void main() {
 
   Scene sceneSky = new Scene(
       "sky",
-      new RenderProgram(
-          "sky", cgl, demoVertexShader, demoFragmentShader),
+      new RenderProgram("sky", cgl, demoVertexShader, demoFragmentShader),
       [perspective]);
   phase.add(sceneSky);
 
@@ -69,7 +68,6 @@ void main() {
   Node m = new Node(md.name, md, mat)..transform.scale(100.0);
   sceneSky.add(m);
 
-
   // 0.01 and 0.99 is to remove some artifacts on the edges
   VM.Vector2 q = new VM.Vector2(0.01, 0.01);
   GeometryBuilder gb = CubeGeometry(
@@ -79,7 +77,8 @@ void main() {
   for (int i = 2 * 4; i < 4 * 4; i++) {
     uvs[i].setFrom(q);
   }
-  MeshData house = GeometryBuilderToMeshData("house", sceneBuilding.program, gb);
+  MeshData house =
+      GeometryBuilderToMeshData("house", sceneBuilding.program, gb);
 
   for (int x = -10; x < 10; x += 4) {
     for (int z = -10; z < 10; z += 4) {
@@ -97,6 +96,7 @@ void main() {
     orbit.animate(elapsed);
     phase.Draw();
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   animate(0.0);

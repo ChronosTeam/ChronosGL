@@ -13,16 +13,20 @@ Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
 }
 
 void main() {
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL);
+  final RenderPhaseResizeAware phase =
+      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
+
   Scene scene = new Scene(
       "objects",
       new RenderProgram(
-          "solid", chronosGL, cubeMapVertexShader, cubeMapFragmentShader),
+          "solid", cgl, cubeMapVertexShader, cubeMapFragmentShader),
       [perspective]);
   phase.add(scene);
 
@@ -33,21 +37,8 @@ void main() {
   MeshData mdSky = ShapeCube(scene.program, x: 512.0, y: 512.0, z: 512.0);
   scene.add(new Node("sky", mdSky, mat));
 
-  phase.add(MakeStarScene(chronosGL, perspective, 2000));
+  phase.add(MakeStarScene(cgl, perspective, 2000));
 
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
@@ -57,12 +48,13 @@ void main() {
     phase.Draw();
 
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   List<Future<Object>> futures = LoadCubeImages("skybox_", ".png");
 
   Future.wait(futures).then((List list) {
-    Texture cubeTex = new CubeTexture(chronosGL, "stars", list);
+    Texture cubeTex = new CubeTexture(cgl, "stars", list);
     mat.SetUniform(uCubeTexture, cubeTex);
     animate(0.0);
   });

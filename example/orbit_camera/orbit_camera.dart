@@ -44,32 +44,19 @@ void main() {
   ChronosGL cgl = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  RenderPhase phase = new RenderPhase("main", cgl);
 
-  Scene scene = new Scene(
+  final Scene scene = new Scene(
       "objects",
       new RenderProgram(
           "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective]);
-  phase.add(scene);
 
   scene.add(MakeHead(scene.program));
 
-  phase.add(MakeStarScene(cgl, perspective, 2000));
-
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
+  final RenderPhaseResizeAware phase =
+      new RenderPhaseResizeAware("main", cgl, canvas, perspective)
+        ..add(scene)
+        ..add(MakeStarScene(cgl, perspective, 2000));
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {

@@ -43,7 +43,7 @@ final List<VM.Vector2> T = [
 ];
 
 MeshData TorusKnotWithCustumUV(RenderProgram program) {
-  final int w = 17;    // Try different values
+  final int w = 17; // Try different values
   final int h = 128;
 
   final GeometryBuilder gb = ShapeTorusKnotGeometry(
@@ -76,13 +76,13 @@ void main() {
       new RenderProgram(
           "textured", cgl, texturedVertexShader, texturedFragmentShader),
       [perspective]);
+  final RenderPhaseResizeAware phase =
+      new RenderPhaseResizeAware("main", cgl, canvas, perspective)
+        ..add(MakeStarScene(cgl, perspective, 2000))
+        ..add(scene);
 
-  final RenderPhase phase = new RenderPhase("main", cgl)
-    ..add(MakeStarScene(cgl, perspective, 2000))
-    ..add(scene);
-
-  int d = 512;
-  //HTML.CanvasElement canvas2d = new HTML.CanvasElement(width: d, height: d);
+  // int d = 512;
+  // HTML.CanvasElement canvas2d = new HTML.CanvasElement(width: d, height: d);
   final HTML.CanvasElement canvas2d = HTML.document.querySelector('#texture');
   updateTorusTexture(0.0, canvas2d);
   final ImageTexture generatedTexture = new ImageTexture(cgl, "gen", canvas2d);
@@ -93,20 +93,6 @@ void main() {
     ..SetUniform(uColor, new VM.Vector3.zero());
 
   scene.add(new Node("torus", TorusKnotWithCustumUV(scene.program), mat));
-
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {

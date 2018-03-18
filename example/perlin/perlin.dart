@@ -16,10 +16,11 @@ Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
 }
 
 void main() {
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  canvas.width  = canvas.clientWidth;
+  canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
-
 
   ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(165.0, 0.0, 0.0, canvas);
@@ -42,7 +43,6 @@ void main() {
     ..SetUniform(uModelMatrix,
         new VM.Matrix4.identity()..setTranslationRaw(50.0, 0.0, 0.0));
 
-
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
@@ -54,6 +54,7 @@ void main() {
     programPerlin.Draw(torus, [perspective, matPerlin]);
 
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   List<Future<Object>> futures = [
