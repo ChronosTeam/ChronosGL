@@ -164,7 +164,7 @@ void AddShapesToScene(Scene scene) {
     ..setPos(5.0, 0.0, -5.0));
 
   scene.add(new Node(
-      "torusknot", ShapeTorusKnot(scene.program, radius: 1.0, tube: 0.4), matObjects)
+      "torusknot", ShapeTorusKnot(scene.program, radius: 1.0, tubeRadius: 0.4), matObjects)
     ..setPos(5.0, 0.0, 5.0));
 
   scene.add(new Node(

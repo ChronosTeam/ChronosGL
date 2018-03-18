@@ -155,18 +155,6 @@ class Utils {
     MeshData md = MakeStarMesh(prog, numPoints, dimension);
     return new Node(md.name, md, mat);
   }
-
-  static String getQueryVariable(String name) {
-    String query = HTML.window.location.search.substring(1);
-    List<String> vars = query.split("&");
-    for (int i = 0; i < vars.length; i++) {
-      List<String> pair = vars[i].split("=");
-      if (pair[0] == name) {
-        return Uri.decodeComponent(pair[1]);
-      }
-    }
-    return null;
-  }
 }
 
 MeshData ShapeCube(RenderProgram prog,
@@ -211,7 +199,7 @@ MeshData ShapeIcosahedron(RenderProgram prog,
 
 MeshData ShapeTorusKnot(RenderProgram prog,
     {double radius: 20.0,
-    double tube: 4.0,
+    double tubeRadius: 4.0,
     int segmentsR: 128,
     int segmentsT: 16,
     int p: 2,
@@ -220,7 +208,7 @@ MeshData ShapeTorusKnot(RenderProgram prog,
     bool computeNormals = true}) {
   GeometryBuilder gb = ShapeTorusKnotGeometry(
       radius: radius,
-      tube: tube,
+      tubeRadius: tubeRadius,
       segmentsR: segmentsR,
       segmentsT: segmentsT,
       p: p,

@@ -35,7 +35,7 @@ void main() {
     new Node("cube", ShapeCube(prog), mat2)..setPos(-5.0, 0.0, -5.0),
     new Node("cylinder", ShapeCylinder(prog, 3.0, 6.0, 2.0, 32), mat3)
       ..setPos(5.0, 0.0, -5.0),
-    new Node("torus", ShapeTorusKnot(prog, radius: 1.0, tube: 0.4), mat4)
+    new Node("torus", ShapeTorusKnot(prog, radius: 1.0, tubeRadius: 0.4), mat4)
       ..setPos(5.0, 0.0, 5.0),
     new Node("cube", ShapeCube(prog, x: 20.0, y: 0.1, z: 20.0), mat5)
       ..setPos(0.0, -10.0, 0.0),

@@ -163,7 +163,7 @@ class GeometryBuilder {
     }
   }
 
-  void AddVerticesFace3TakeOwnershipt(List<VM.Vector3> vs) {
+  void AddVerticesFace3TakeOwnership(List<VM.Vector3> vs) {
     assert(vs.length == 3);
     int i = vertices.length;
     _faces3.add(new Face3(i + 0, i + 1, i + 2));
@@ -452,6 +452,40 @@ class GeometryBuilder {
       center[f.d] = d4.clone();
     }
     attributes[aCenter] = center;
+  }
+
+  /// w: num horizontal points
+  /// h: num vertical points
+  void GenerateRegularGridUV(int w, int h) {
+    assert(vertices.length == w * h);
+    List<VM.Vector2> uvs = [];
+    attributes[aTexUV] = uvs;
+
+    for (int y = 0; y < h; ++y) {
+      for (int x = 0; x < w; ++x) {
+        // we interchange x and y for historical reasons here
+        uvs.add(new VM.Vector2(y / (h - 1), x / (w - 1)));
+      }
+    }
+    assert(uvs.length == w * h);
+  }
+
+  void GenerateRegularGridFaces(int w, int h, bool wrapped) {
+    assert(vertices.length == w * h);
+    for (int i = 0; i < h - (wrapped ? 0 : 1); ++i) {
+      for (int j = 0; j < w - (wrapped ? 0 : 1); ++j) {
+        int ip = i + 1;
+        int jp = j + 1;
+        if (wrapped) {
+          ip = ip % h;
+          jp = jp % w;
+        }
+        AddFace4(i * w + jp, ip * w + jp, ip * w + j, i * w + j);
+      }
+    }
+    if (wrapped) {
+      assert (_faces4.length == w * h);
+    }
   }
 
   @override

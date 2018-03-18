@@ -66,7 +66,7 @@ void main() {
   }
   {
     Node torus = new Node("torus",
-        ShapeTorusKnot(scene.program, radius: 1.0, tube: 0.4), matGradient)
+        ShapeTorusKnot(scene.program, radius: 1.0, tubeRadius: 0.4), matGradient)
       ..setPos(5.0, 0.0, 5.0);
     scene.add(torus);
   }
@@ -102,7 +102,7 @@ void main() {
     }
 
     HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs, out.join("<br>"));
+    fps.UpdateFrameCount(_lastTimeMs, out.join("<br>"));
   }
 
   List<Future<Object>> futures = [

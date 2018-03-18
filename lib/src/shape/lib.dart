@@ -16,3 +16,4 @@ part "cylinder.dart";
 part "cube.dart";
 part "torusknot.dart";
 part "icosahedron.dart";
+part "tube.dart";

@@ -52,7 +52,7 @@ void main() {
   //UniformGroup uniformsBasic = new UniformGroup("torus-mat")
   Material materialBasic = new Material("torus-mat")
     ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
-  MeshData torus = ShapeTorusKnot(progBasic, radius: 1.0, tube: 0.4);
+  MeshData torus = ShapeTorusKnot(progBasic, radius: 1.0, tubeRadius: 0.4);
 
   // Create the second shader program and the point sprites. The details are
   // hidden in the library functions.

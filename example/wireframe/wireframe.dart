@@ -76,7 +76,7 @@ void main() {
   }
 
   {
-    GeometryBuilder gb = ShapeTorusKnotGeometryWireframeFriendly(radius: 1.0, tube: 0.4)
+    GeometryBuilder gb = ShapeTorusKnotGeometryWireframeFriendly(radius: 1.0, tubeRadius: 0.4)
       ..GenerateWireframeCenters();
     Node torus = new Node("torus",
         GeometryBuilderToMeshData("torus", scene.program, gb), matWireframe)
