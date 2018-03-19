@@ -50,7 +50,7 @@ void main() {
     phase.Draw();
 
     HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   List<Future<Object>> futures = [

@@ -126,7 +126,7 @@ void main() {
     }
 
     HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs, out.join("<br>"));
+    fps.UpdateFrameCount(_lastTimeMs, out.join("<br>"));
   }
 
   animate(0.0);

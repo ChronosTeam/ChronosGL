@@ -166,6 +166,7 @@ void main() {
 
     phase.Draw();
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   animate(0.0);

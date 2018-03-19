@@ -19,12 +19,11 @@ void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  canvas.width = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
 
   ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(165.0, 0.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  PerspectiveResizeAware perspective =
+      new PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
   final RenderProgram programTexture = new RenderProgram(
       "textured", cgl, texturedVertexShader, texturedFragmentShader);

@@ -60,7 +60,6 @@ void main() {
   }
   {
     Node quad = new Node("quad", ShapeQuad(scene.program, 2), matTrans)
-      //quad.blend_dFactor = chronosGL.blendConstants.ONE_MINUS_SRC_ALPHA;
       ..setPos(-5.0, 0.0, 5.0);
     scene.add(quad);
   }

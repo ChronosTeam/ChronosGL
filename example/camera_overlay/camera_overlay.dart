@@ -41,20 +41,6 @@ void main() {
     ..setPos(-5.0, 0.0, -5.0);
   sceneCube.add(cube);
 
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
-
   HTML.VideoElement video;
   ImageTexture texture;
 

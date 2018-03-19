@@ -8,14 +8,10 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  // Make sure canvas has full screen resolution
-  canvas.width = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
-
   ChronosGL cgl = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, 10.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  perspective.AdjustAspect(canvas.width, canvas.height);
+  PerspectiveResizeAware perspective =
+      new PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
   RenderProgram program = new RenderProgram(
       "solid", cgl, texturedVertexShader, texturedFragmentShader);

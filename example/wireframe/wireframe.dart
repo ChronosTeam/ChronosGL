@@ -85,20 +85,6 @@ void main() {
     scene.add(torus);
   }
 
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
-
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;

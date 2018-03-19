@@ -72,10 +72,10 @@ void main() {
     _lastTimeMs = timeMs + 0.0;
     //orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
     phaseOrthograhic.Draw();
     phasePerspective.Draw();
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   animate(0.0);

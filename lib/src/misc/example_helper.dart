@@ -205,3 +205,27 @@ class RenderPhaseResizeAware extends RenderPhase {
     viewPortH = h;
   }
 }
+
+
+class PerspectiveResizeAware extends Perspective {
+  final HTML.CanvasElement _canvas;
+  final ChronosGL _cgl;
+
+  PerspectiveResizeAware(
+      this._cgl, this._canvas, Camera camera, double near, double far)
+      : super(camera, near, far) {
+    resolutionChange(null);
+    HTML.window.onResize.listen(resolutionChange);
+  }
+
+  void resolutionChange(HTML.Event ev) {
+    int w = _canvas.clientWidth;
+    int h = _canvas.clientHeight;
+    _canvas.width = w;
+    _canvas.height = h;
+    print("size change $w $h");
+    AdjustAspect(w, h);
+
+    _cgl. viewport(0, 0, w, h);
+  }
+}

@@ -179,7 +179,7 @@ void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: false);
+  ChronosGL cgl = new ChronosGL(canvas, faceCulling: false);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
 
@@ -193,7 +193,7 @@ void main() {
     illumination.AddLight(l);
   }
 
-  ShadowMap shadowMap = new ShadowMap(chronosGL, 512, 512, 0.5, 20.0);
+  ShadowMap shadowMap = new ShadowMap(cgl, 512, 512, 0.5, 20.0);
 
   UniformGroup uniforms = new UniformGroup("plain")
     ..SetUniform(uShadowMap, shadowMap.GetMapTexture())
@@ -201,12 +201,12 @@ void main() {
     ..SetUniform(uShadowBias, 0.03);
 
   // display scene with shadow on left part of screen.
-  RenderPhase phaseMain = new RenderPhase("main", chronosGL);
+  RenderPhase phaseMain = new RenderPhase("main", cgl);
   Scene sceneBasic = new Scene(
       "solid",
       new RenderProgram(
           "solid",
-          chronosGL,
+          cgl,
           lightVertexShaderBlinnPhongWithShadow,
           lightFragmentShaderBlinnPhongWithShadow),
       [perspective, illumination, uniforms]);
@@ -215,7 +215,7 @@ void main() {
   Scene sceneFixed = new Scene(
       "solid",
       new RenderProgram(
-          "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+          "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective, illumination]);
   phaseMain.add(sceneFixed);
 
@@ -303,7 +303,7 @@ void main() {
     shadowMap.Visualize();
 
     HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   animate(0.0);

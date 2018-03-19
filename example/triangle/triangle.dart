@@ -89,7 +89,7 @@ void main() {
     phase.Draw();
 
     HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs, "${polar}<br>${azimuth}");
+    fps.UpdateFrameCount(_lastTimeMs, "${polar}<br>${azimuth}");
   }
 
   animate(0.0);
