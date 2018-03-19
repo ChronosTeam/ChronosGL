@@ -220,20 +220,20 @@ void main() {
   canvas.width = width;
   canvas.height = height;
 
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
 
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 2520.0)
     ..AdjustAspect(width, height);
 
-  Framebuffer screen = new Framebuffer.Screen(chronosGL);
+  Framebuffer screen = new Framebuffer.Screen(cgl);
 
-  Framebuffer fb = new Framebuffer.Default(chronosGL, width, height);
+  Framebuffer fb = new Framebuffer.Default(cgl, width, height);
 
-  RegisterEffects(chronosGL, fb.colorTexture);
+  RegisterEffects(cgl, fb.colorTexture);
 
-  RenderProgram progDemo = new RenderProgram(
-      "demo", chronosGL, demoVertexShader, demoFragmentShader);
+  RenderProgram progDemo =
+      new RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader);
 
   MeshData unitQuad = ShapeQuad(Effect.all["dot"].program, 1);
   MeshData ctLogo;
@@ -242,14 +242,12 @@ void main() {
     ..SetUniform(uColor, ColorGray8)
     ..SetUniform(uModelMatrix, new VM.Matrix4.identity()..rotateX(Math.PI / 2));
 
-
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.01;
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
 
     Effect active = Effect.all[gEffect.value];
     final double timeSec = timeMs / 1000.0;
@@ -276,6 +274,7 @@ void main() {
     active.program.Draw(unitQuad, [active.uniforms]);
 
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   List<Future<Object>> futures = [

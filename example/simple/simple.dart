@@ -29,11 +29,7 @@ void main() {
   // The canvas is what we render the 3d scene into.
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
 
-  // Make sure canvas has full screen resolution
-  canvas.width  = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
-
-  gLogLevel = 1;  // enable more logging
+  gLogLevel = 1; // enable more logging
   // Create a ChronosGL object for the canvas.
   ChronosGL cgl = new ChronosGL(canvas);
 
@@ -41,18 +37,20 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(5.0, 0.0, 0.0, HTML.document.body);
   // Create a perspective. We use a combined view+perspective matrix,
   // so the camera is part of the perspective.
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  perspective.AdjustAspect(canvas.width, canvas.height);
+  // The perspective also make sure canvas has full screen resolution
+  // and that we respond to resize events.
+  PerspectiveResizeAware perspective =
+      new PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
   // Create the main shader program for displaying the torus.
-  RenderProgram progBasic = new RenderProgram(
-      "basic", cgl, demoVertexShader, demoFragmentShader);
+  RenderProgram progBasic =
+      new RenderProgram("basic", cgl, demoVertexShader, demoFragmentShader);
 
   // Make a torus and add it to the first program,
   //UniformGroup uniformsBasic = new UniformGroup("torus-mat")
   Material materialBasic = new Material("torus-mat")
     ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
-  MeshData torus = ShapeTorusKnot(progBasic, radius: 1.0, tube: 0.4);
+  MeshData torus = ShapeTorusKnot(progBasic, radius: 1.0, tubeRadius: 0.4);
 
   // Create the second shader program and the point sprites. The details are
   // hidden in the library functions.

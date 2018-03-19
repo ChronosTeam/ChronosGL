@@ -5,11 +5,11 @@ import 'package:chronosgl/chronosgl.dart';
 import 'dart:math' as Math;
 import 'package:vector_math/vector_math.dart' as VM;
 
-Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective,int num) {
+Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
   Scene scene = new Scene(
       "stars",
-      new RenderProgram("stars", cgl, pointSpritesVertexShader,
-          pointSpritesFragmentShader),
+      new RenderProgram(
+          "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
       [perspective]);
   scene.add(Utils.MakeParticles(scene.program, num));
   return scene;
@@ -51,33 +51,19 @@ const String modelFile = "../ct_logo.obj";
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3, canvas);
   Perspective perspective = new Perspective(orbit, 1.0, 1000.0);
-  RenderPhase phase = new RenderPhase("main", chronosGL);
+  final RenderPhaseResizeAware phase =
+      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
   Scene scene = new Scene(
       "demo",
-      new RenderProgram(
-          "demo", chronosGL, demoVertexShader, demoFragmentShader),
+      new RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader),
       [perspective]);
   phase.add(scene);
 
-  phase.add(MakeStarScene(chronosGL, perspective, 2000));
-
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
+  phase.add(MakeStarScene(cgl, perspective, 2000));
 
   Material mat = new Material("mat");
   Math.Random rng = new Math.Random();
@@ -131,8 +117,6 @@ void main() {
     }
 
     scene.add(node);
-
-
 
     double _lastTimeMs = 0.0;
     void animate(num timeMs) {

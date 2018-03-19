@@ -74,36 +74,37 @@ void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
 
   OrbitCamera orbit = new OrbitCamera(20.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL);
-
-  Scene sceneAnim = new Scene(
+  final Scene sceneAnim = new Scene(
       "animation",
-      new RenderProgram("animation", chronosGL, animationVertexShader,
+      new RenderProgram("animation", cgl, animationVertexShader,
           animationFragmentShader),
       [perspective]);
-  phase.add(sceneAnim);
 
-  Scene sceneSkeleton = new Scene(
+  final Scene sceneSkeleton = new Scene(
       "solid",
       new RenderProgram(
-          "solid", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+          "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective]);
-  phase.add(sceneSkeleton);
 
-  Scene sceneDemo = new Scene(
+  final Scene sceneDemo = new Scene(
       "demo",
       new RenderProgram(
-          "demo", chronosGL, demoVertexShader, demoFragmentShader),
+          "demo", cgl, demoVertexShader, demoFragmentShader),
       [perspective]);
-  phase.add(sceneDemo);
 
   assert(sceneSkeleton.program
       .HasDownwardCompatibleAttributesTo(sceneAnim.program));
+
+   final RenderPhaseResizeAware phase =
+      new RenderPhaseResizeAware("main", cgl, canvas, perspective)
+        ..add(sceneSkeleton)
+        ..add(sceneAnim)
+        ..add(sceneDemo);
 
   final Material matWire = new Material("wire")
     ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
@@ -113,20 +114,6 @@ void main() {
   List<double> animationSteps;
 
   Material mat = new Material("mat");
-
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
 
   Map<String, RenderProgram> programMap = {
     "idSkeleton": sceneSkeleton.program,
@@ -158,7 +145,7 @@ void main() {
     phase.Draw([]);
 
     HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs);
+    fps.UpdateFrameCount(_lastTimeMs);
 
     int step =
         ((timeMs / 1000.0) / kAnimTimeStep).floor() % animationSteps.length;
@@ -194,7 +181,7 @@ void main() {
       }
       Float32List animationData = CreateAnimationTable(
           skeleton, globalOffsetTransform, anim, animationSteps);
-      animationTable = new TypedTextureMutable(chronosGL, "anim", skeleton.length * 4,
+      animationTable = new TypedTextureMutable(cgl, "anim", skeleton.length * 4,
           animationSteps.length, GL_RGBA32F, TexturePropertiesFramebuffer,GL_RGBA, GL_FLOAT, animationData);
       mat.SetUniform(uAnimationTable, animationTable);
     }

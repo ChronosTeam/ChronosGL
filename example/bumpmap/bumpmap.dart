@@ -62,7 +62,7 @@ void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
 
   OrbitCamera orbit = new OrbitCamera(0.5, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
@@ -77,11 +77,13 @@ void main() {
   Illumination illumination = new Illumination();
   illumination.AddLight(light);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL);
+  final RenderPhaseResizeAware phase =
+      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
+
   Scene sceneFixed = new Scene(
       "Fixed",
       new RenderProgram(
-          "Fixed", chronosGL, solidColorVertexShader, solidColorFragmentShader),
+          "Fixed", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective, illumination]);
   phase.add(sceneFixed);
 
@@ -91,23 +93,9 @@ void main() {
 
   Scene sceneMain = new Scene(
       "main",
-      new RenderProgram("main", chronosGL, vertexShader, fragmentShader),
+      new RenderProgram("main", cgl, vertexShader, fragmentShader),
       [perspective, illumination]);
   phase.add(sceneMain);
-
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
@@ -118,7 +106,7 @@ void main() {
     phase.Draw();
 
     HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   Material mat = new Material("mat")
@@ -132,7 +120,7 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Bumpmap
-    Texture bumpmap = new ImageTexture(chronosGL, bumpmapFile, list[1]);
+    Texture bumpmap = new ImageTexture(cgl, bumpmapFile, list[1]);
     mat.SetUniform(uBumpMap, bumpmap);
     mat.SetUniform(uBumpScale, 12.0);
     // Setup Mesh

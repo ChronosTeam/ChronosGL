@@ -36,11 +36,6 @@ void updateTorusTexture(double time, HTML.CanvasElement canvas) {
   ctx.fill();
 }
 
-final List<VM.Vector2> T1 = [
-  new VM.Vector2(1.0, 0.2),
-  new VM.Vector2(0.0, 0.7)
-];
-
 final List<VM.Vector2> T = [
   new VM.Vector2(1.0, 0.2),
   new VM.Vector2(0.0, 0.7),
@@ -48,30 +43,25 @@ final List<VM.Vector2> T = [
 ];
 
 MeshData TorusKnotWithCustumUV(RenderProgram program) {
-  final List<List<VM.Vector3>> bands = TorusKnotVertexBands(wrap: true);
-  final int w = bands[0].length;
-  final int h = bands.length;
+  final int w = 17; // Try different values
+  final int h = 128;
+
+  final GeometryBuilder gb = ShapeTorusKnotGeometry(
+      segmentsR: h,
+      segmentsT: w,
+      computeUVs: false,
+      computeNormals: false,
+      wrap: true);
+  //assert(gb.vertices.length == w * h);
+
+  gb.EnableAttribute(aTexUV);
   final List<VM.Vector2> uvs = [];
-  for (int n = 0; n < w * h; n++) {
+  for (int n = 0; n < gb.vertices.length; n++) {
     uvs.add(T[n % T.length]);
-  }
-
-  final GeometryBuilder gb = new GeometryBuilder()..EnableAttribute(aTexUV);
-
-  for (List<VM.Vector3> lst in bands) {
-    gb.AddVertices(lst);
   }
 
   gb.AddAttributesVector2(aTexUV, uvs);
 
-  for (int i = 0; i < h; ++i) {
-    final int ip = (i + 1) % h;
-    for (int j = 0; j < w; ++j) {
-      final int jp = (j + 1) % w;
-      gb.AddFace4(i * w + j, ip * w + j, ip * w + jp, i * w + jp);
-    }
-  }
-  gb.GenerateNormalsAssumingTriangleMode();
   return GeometryBuilderToMeshData("torusknot", program, gb);
 }
 
@@ -86,13 +76,13 @@ void main() {
       new RenderProgram(
           "textured", cgl, texturedVertexShader, texturedFragmentShader),
       [perspective]);
+  final RenderPhaseResizeAware phase =
+      new RenderPhaseResizeAware("main", cgl, canvas, perspective)
+        ..add(MakeStarScene(cgl, perspective, 2000))
+        ..add(scene);
 
-  final RenderPhase phase = new RenderPhase("main", cgl)
-    ..add(MakeStarScene(cgl, perspective, 2000))
-    ..add(scene);
-
-  int d = 512;
-  //HTML.CanvasElement canvas2d = new HTML.CanvasElement(width: d, height: d);
+  // int d = 512;
+  // HTML.CanvasElement canvas2d = new HTML.CanvasElement(width: d, height: d);
   final HTML.CanvasElement canvas2d = HTML.document.querySelector('#texture');
   updateTorusTexture(0.0, canvas2d);
   final ImageTexture generatedTexture = new ImageTexture(cgl, "gen", canvas2d);
@@ -104,26 +94,11 @@ void main() {
 
   scene.add(new Node("torus", TorusKnotWithCustumUV(scene.program), mat));
 
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
-
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
-    double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs + 0.0;
 
-    tkc.animate(elapsed);
+    tkc.animate(_lastTimeMs);
 
     updateTorusTexture(timeMs / 1000, canvas2d);
     generatedTexture.SetImageData(canvas2d);

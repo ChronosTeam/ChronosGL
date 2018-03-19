@@ -1,68 +1,51 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
+import 'package:vector_math/vector_math.dart' as VM;
+
 import "dart:async";
 
-Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
-  Scene scene = new Scene(
-      "stars",
-      new RenderProgram(
-          "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
-      [perspective]);
-  scene.add(Utils.MakeParticles(scene.program, num));
-  return scene;
-}
-
 void main() {
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL chronosGL = new ChronosGL(canvas);
+  ChronosGL cgl = new ChronosGL(canvas);
   OrbitCamera orbit = new OrbitCamera(15.0, 0.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  PerspectiveResizeAware perspective =
+      new PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
-  RenderPhase phase = new RenderPhase("main", chronosGL);
-  Scene scene = new Scene(
-      "objects",
-      new RenderProgram(
-          "solid", chronosGL, cubeMapVertexShader, cubeMapFragmentShader),
-      [perspective]);
-  phase.add(scene);
+  final RenderProgram progCube = new RenderProgram(
+      "solid", cgl, cubeMapVertexShader, cubeMapFragmentShader);
 
   // The Skybox and the cube use the same material
-  Material mat = new Material("cubemap");
-  MeshData mdCube = ShapeCube(scene.program, x: 2.0, y: 2.0, z: 2.0);
-  scene.add(new Node("cube", mdCube, mat));
-  MeshData mdSky = ShapeCube(scene.program, x: 512.0, y: 512.0, z: 512.0);
-  scene.add(new Node("sky", mdSky, mat));
+  final Material mat = new Material("cubemap")
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
+  final MeshData mdCube = ShapeCube(progCube, x: 2.0, y: 2.0, z: 2.0);
+  final MeshData mdSky = ShapeCube(progCube, x: 512.0, y: 512.0, z: 512.0);
 
-  phase.add(MakeStarScene(chronosGL, perspective, 2000));
+  final RenderProgram progStars = new RenderProgram(
+      "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
+  final Material matStars = Utils.MakeStarMaterial(cgl)
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
+  final MeshData mdStars = Utils.MakeStarMesh(progStars, 2000, 100.0);
 
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    phase.Draw();
+    progCube.Draw(mdCube, [mat, perspective]);
+    progCube.Draw(mdSky, [mat, perspective]);
+    progStars.Draw(mdStars, [matStars, perspective]);
 
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   List<Future<Object>> futures = LoadCubeImages("skybox_", ".png");
 
   Future.wait(futures).then((List list) {
-    Texture cubeTex = new CubeTexture(chronosGL, "stars", list);
+    Texture cubeTex = new CubeTexture(cgl, "stars", list);
     mat.SetUniform(uCubeTexture, cubeTex);
     animate(0.0);
   });

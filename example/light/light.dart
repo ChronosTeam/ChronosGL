@@ -26,27 +26,22 @@ final Map<String, Light> gLightSources = {
       ColorWhite, range, angle, 2.0, 1.0, 40.0)
 };
 
-void MakeSceneCubeSphere(
-    ChronosGL chronosGL, RenderProgram prog, Node container) {
+void MakeSceneCubeSphere(ChronosGL cgl, RenderProgram prog, Node container) {
   MeshData cubeMeshData = ShapeCube(prog, x: 2.0, y: 2.0, z: 2.0);
   MeshData sphereMeshData = ShapeIcosahedron(prog);
 
   List<Material> mats = [
     new Material("mat0")
-      ..SetUniform(
-          uTexture, MakeSolidColorTextureRGB(chronosGL, "gray", ColorGray4))
+      ..SetUniform(uTexture, MakeSolidColorTextureRGB(cgl, "gray", ColorGray4))
       ..SetUniform(uShininess, glossiness),
     new Material("mat1")
-      ..SetUniform(
-          uTexture, MakeSolidColorTextureRGB(chronosGL, "red", ColorRed))
+      ..SetUniform(uTexture, MakeSolidColorTextureRGB(cgl, "red", ColorRed))
       ..SetUniform(uShininess, glossiness),
     new Material("mat2")
-      ..SetUniform(
-          uTexture, MakeSolidColorTextureRGB(chronosGL, "red", ColorBlue))
+      ..SetUniform(uTexture, MakeSolidColorTextureRGB(cgl, "red", ColorBlue))
       ..SetUniform(uShininess, glossiness),
     new Material("mat3")
-      ..SetUniform(
-          uTexture, MakeSolidColorTextureRGB(chronosGL, "red", ColorGreen))
+      ..SetUniform(uTexture, MakeSolidColorTextureRGB(cgl, "red", ColorGreen))
       ..SetUniform(uShininess, glossiness),
   ];
 
@@ -178,7 +173,6 @@ void main() {
     _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    fps.UpdateFrameCount(timeMs);
 
     for (Node m in node.children) {
       if (m.name != "grid") {
@@ -191,6 +185,7 @@ void main() {
         selectPhase.selectedIndex == 0 ? phaseBlinnPhong : phaseGourad;
     phase.Draw();
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   animate(0.0);

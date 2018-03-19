@@ -88,7 +88,8 @@ class MeshData extends NamedEntity {
       assert(
           data.length ~/ width == _instances, "ChangeAttribute ${_instances}");
     } else {
-      assert(data.length ~/ width == _vertices.length ~/ 3);
+      assert(data.length ~/ width == _vertices.length ~/ 3,
+          "wrong size for attribute: ${canonical} expected: ${_vertices.length ~/ 3} got: ${data.length ~/ width}");
     }
     _attributes[canonical] = data;
     _cgl.ChangeArrayBuffer(_buffers[canonical], data);

@@ -92,12 +92,15 @@ Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
 }
 
 void main() {
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(65.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
-  RenderPhase phase = new RenderPhase("main", cgl);
+  final RenderPhaseResizeAware phase =
+      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
   // A scene is tied to a single shader, so we must create a separate
   // shader for each plasma type.
   List<Scene> scenes = [
@@ -132,7 +135,6 @@ void main() {
   int activeScene = 0;
   scenes[activeScene].add(cube);
 
-
   // Advance scene when an arbitrary key is pressed
   HTML.document.addEventListener('keypress', (event) {
     scenes[activeScene % 3].remove(cube);
@@ -151,20 +153,6 @@ void main() {
 
   phase.add(MakeStarScene(cgl, perspective, 2000));
 
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
-
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
@@ -178,6 +166,7 @@ void main() {
 
     phase.Draw();
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   animate(0.0);

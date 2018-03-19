@@ -205,15 +205,15 @@ void main() {
   canvas.width = width;
   canvas.height = height;
 
-  final ChronosGL chronosGL = new ChronosGL(canvas);
+  final ChronosGL cgl = new ChronosGL(canvas);
   final OrbitCamera orbit = new OrbitCamera(15.0, 0.5, 0.5, canvas);
   final Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
     ..AdjustAspect(width, height);
 
   final RenderProgram programJS = new RenderProgram(
-      "CPU", chronosGL, pointSpritesVertexShader, pointSpritesFragmentShader);
+      "CPU", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
   final RenderProgram programGPU = new RenderProgram(
-      "GPU", chronosGL, particleVertexShader, particleFragmentShader);
+      "GPU", cgl, particleVertexShader, particleFragmentShader);
   final int bindingIndex = programGPU.GetTransformBindingIndex(tPosition);
   print ("@@@@ ${bindingIndex}");
 
@@ -228,7 +228,7 @@ void main() {
 
   // JS version setup
   Material matJS = new Material.Transparent("stars", BlendEquationMix)
-    ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
+    ..SetUniform(uTexture, Utils.createParticleTexture(cgl))
     ..SetUniform(uModelMatrix, new VM.Matrix4.identity())
     ..SetUniform(uPointSize, 200.0);
   MeshData mdJS = programJS.MakeMeshData("mdJS", GL_POINTS)
@@ -236,7 +236,7 @@ void main() {
 
   // GPU version setup
   Material matGPU = new Material.Transparent("stars", BlendEquationMix)
-    ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
+    ..SetUniform(uTexture, Utils.createParticleTexture(cgl))
     ..SetUniform(uModelMatrix, new VM.Matrix4.identity())
     ..SetUniform(uPointSize, 200.0)
     ..SetUniform(uSources, ExtractPolePos(srcPoles))
@@ -257,11 +257,11 @@ void main() {
     }
     ionsPos = new Float32List(3 * n);
     ExtractIonPos(ions, ionsPos);
-    chronosGL.bindBuffer(GL_ARRAY_BUFFER, null);
-    chronosGL.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex, null);
+    cgl.bindBuffer(GL_ARRAY_BUFFER, null);
+    cgl.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex, null);
     mdOut.ChangeVertices(ionsPos);
     mdIn.ChangeVertices(ionsPos);
-    chronosGL.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex,
+    cgl.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex,
         mdOut.GetBuffer(aPosition));
   }
 
@@ -273,8 +273,8 @@ void main() {
     mdJS.ChangeVertices(ionsPos);
   }
 
-  var transform = chronosGL.createTransformFeedback();
-  chronosGL.bindTransformFeedback(transform);
+  var transform = cgl.createTransformFeedback();
+  cgl.bindTransformFeedback(transform);
 
   ResizeIons(null);
 
@@ -288,14 +288,14 @@ void main() {
     } else {
       programGPU.Draw(mdIn, [perspective, matGPU]);
       // use vertex shader output as input for next round
-      chronosGL.bindBuffer(GL_ARRAY_BUFFER, mdIn.GetBuffer(aPosition));
-      chronosGL.bindBuffer(
+      cgl.bindBuffer(GL_ARRAY_BUFFER, mdIn.GetBuffer(aPosition));
+      cgl.bindBuffer(
           GL_TRANSFORM_FEEDBACK_BUFFER, mdOut.GetBuffer(aPosition));
-      chronosGL.copyBufferSubData(
+      cgl.copyBufferSubData(
           GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0, ions.length * 3 * 4);
     }
     HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs);
+    fps.UpdateFrameCount(timeMs + 0.0);
   }
 
   gParticles.onChange.listen(ResizeIons);

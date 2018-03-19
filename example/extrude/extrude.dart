@@ -36,16 +36,12 @@ void main() {
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  int w = canvas.clientWidth;
-  int h = canvas.clientHeight;
-  canvas.width = w;
-  canvas.height = h;
   ChronosGL cgl = new ChronosGL(canvas);
 
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
-    ..AdjustAspect(w, h);
-  RenderProgram prog = new RenderProgram(
+  final PerspectiveResizeAware perspective =
+      new PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
+  final RenderProgram prog = new RenderProgram(
       "basic", cgl, solidColorVertexShader, solidColorFragmentShader);
 
   final Material matWire = new Material("wire")
@@ -62,7 +58,7 @@ void main() {
     prog.Draw(wire, [perspective, matWire]);
 
     HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   animate(0.0);

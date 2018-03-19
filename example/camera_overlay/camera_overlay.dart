@@ -11,8 +11,8 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(15.0, 10.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
-  // We only have one phase writing to the screen
-  RenderPhase phase = new RenderPhase("main", cgl);
+  final RenderPhaseResizeAware phase =
+      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
   // This scene is responsible for filling the entire screen with a texture
   // gleaned from the camera
@@ -40,20 +40,6 @@ void main() {
       "cube", ShapeCube(sceneCube.program, x: dim, y: dim, z: dim), matCube)
     ..setPos(-5.0, 0.0, -5.0);
   sceneCube.add(cube);
-
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
 
   HTML.VideoElement video;
   ImageTexture texture;

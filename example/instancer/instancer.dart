@@ -72,11 +72,12 @@ void main() {
   OrbitCamera orbit = new OrbitCamera(265.0, 0.0, 0.0, canvas);
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
 
-  RenderPhase phase = new RenderPhase("main", cgl);
+  final RenderPhaseResizeAware phase =
+      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
   Scene scene = new Scene(
       "instanced",
-      new RenderProgram("instanced", cgl, instancedVertexShader,
-          instancedFragmentShader),
+      new RenderProgram(
+          "instanced", cgl, instancedVertexShader, instancedFragmentShader),
       [perspective]);
   phase.add(scene);
 
@@ -87,20 +88,6 @@ void main() {
 
   phase.add(MakeStarScene(cgl, perspective, 2000));
 
-  void resolutionChange(HTML.Event ev) {
-    int w = canvas.clientWidth;
-    int h = canvas.clientHeight;
-    canvas.width = w;
-    canvas.height = h;
-    print("size change $w $h");
-    perspective.AdjustAspect(w, h);
-    phase.viewPortW = w;
-    phase.viewPortH = h;
-  }
-
-  resolutionChange(null);
-  HTML.window.onResize.listen(resolutionChange);
-
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
@@ -110,7 +97,7 @@ void main() {
     phase.Draw();
 
     HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   animate(0.0);

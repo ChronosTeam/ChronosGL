@@ -86,7 +86,7 @@ void main() {
     ..setPos(5.0, 0.0, -5.0));
 
   scene.add(new Node("torus",
-      ShapeTorusKnot(scene.program, radius: 1.0, tube: 0.4), matBlueStencil)
+      ShapeTorusKnot(scene.program, radius: 1.0, tubeRadius: 0.4), matBlueStencil)
     ..setPos(5.0, 0.0, 5.0));
 
   // using a phase for this simple effect is overkill - this is just
@@ -126,7 +126,7 @@ void main() {
     }
 
     HTML.window.animationFrame.then(animate);
-    fps.UpdateFrameCount(timeMs, out.join("<br>"));
+    fps.UpdateFrameCount(_lastTimeMs, out.join("<br>"));
   }
 
   animate(0.0);

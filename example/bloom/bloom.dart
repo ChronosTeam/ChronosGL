@@ -8,6 +8,8 @@ final HTML.InputElement gIntensity = HTML.document.querySelector('#intensity');
 const int radius = 6;
 
 void main() {
+  StatsFps fps =
+      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(165.0, 0.0, 0.0, canvas);
@@ -101,6 +103,7 @@ void main() {
     progApplyBloom.Draw(unitQuad, [perspective, uniformsApply]);
 
     HTML.window.animationFrame.then(animate);
+    fps.UpdateFrameCount(_lastTimeMs);
   }
 
   animate(0.0);
