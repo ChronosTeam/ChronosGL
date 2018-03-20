@@ -199,7 +199,10 @@ const String uLightDescs = "uLightDescs";
 const String uLightCount = "uLightCount";
 const String uLightTypes = "uLightTypes";
 
-const Map<String, ShaderVarDesc> _VarsDb = const {
+/// This map can be augmented with custom entries via
+/// IntroduceNewShaderVar()
+/// All shaders-vars associated with shaders must be in this map.
+final Map<String, ShaderVarDesc> _VarsDb = {
   // controls
   cBlendEquation: const ShaderVarDesc("", ""),
   cDepthWrite: const ShaderVarDesc("", ""),
@@ -290,7 +293,6 @@ const Map<String, ShaderVarDesc> _VarsDb = const {
   uRange: const ShaderVarDesc(VarTypeVec2, ""),
   uDirection: const ShaderVarDesc(VarTypeVec2, ""),
 
-
   uBoneMatrices: const ShaderVarDesc(VarTypeMat4, "", arraySize: kMaxBones),
 
   uLightDescs: const ShaderVarDesc(VarTypeMat4, "", arraySize: kMaxLights),
@@ -302,7 +304,8 @@ const Map<String, ShaderVarDesc> _VarsDb = const {
 };
 
 void IntroduceNewShaderVar(String canonical, ShaderVarDesc desc) {
-  assert(!_VarsDb.containsKey(canonical), "duplicate shader variable ${canonical}");
+  assert(!_VarsDb.containsKey(canonical),
+      "duplicate shader variable ${canonical}");
   _VarsDb[canonical] = desc;
 }
 
@@ -328,9 +331,11 @@ class ShaderObject {
 
   ShaderObject(this.name);
 
-  int GetAttributeLayoutPos(String canonical) => _canonicalToLayoutPos[canonical];
+  int GetAttributeLayoutPos(String canonical) =>
+      _canonicalToLayoutPos[canonical];
 
-  int GetTransformBindingIndex(String canonical) => transformVars.indexOf(canonical);
+  int GetTransformBindingIndex(String canonical) =>
+      transformVars.indexOf(canonical);
 
   Map<String, int> GetAttributeLayoutMap() => _canonicalToLayoutPos;
 

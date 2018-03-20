@@ -1,42 +1,42 @@
 part of core;
 
+/// Helper class for holding info produced by RenderProgram::Draw().
 class DrawStats {
-  String name;
-  int numInstances;
-  int numItems;
-  int drawMode;
-  Duration duration;
+  final String name;
+  final int numInstances;
+  final int numItems;
+  final int drawMode;
+  final Duration duration;
 
-  DrawStats(
-      this.name, this.numInstances, this.numItems, this.drawMode, this.duration);
+  DrawStats(this.name, this.numInstances, this.numItems, this.drawMode,
+      this.duration);
 
   @override
-  String toString() => "[${name}] ${numInstances} ${numItems} mode:${drawMode} [${duration.inMicroseconds}usec]";
+  String toString() =>
+      "[${name}] ${numInstances} ${numItems} mode:${drawMode} [${duration.inMicroseconds}usec]";
 }
 
 /// ## Class RenderProgram (is a NamedEntity)
 /// represents program running on the GPU with an API to invoke it.
 class RenderProgram extends NamedEntity {
-  ChronosGL _cgl;
-  ShaderObject _shaderObjectV;
-  ShaderObject _shaderObjectF;
-  Object /* gl  Program */ _program;
+  final ChronosGL _cgl;
+  final ShaderObject _shaderObjectV;
+  final ShaderObject _shaderObjectF;
+  final Object /* gl  Program */ _program;
 
-  Set<String> _attributes;
-  Map<String, Object /* WEBGL.UniformLocation */ > _uniformLocations = {};
-  Map<String, String> _uniformsInitialized = {};
-  Set<String> _attributesInitialized = new Set<String>();
+  final Set<String> _attributes;
+  final Map<String, Object /* WEBGL.UniformLocation */ > _uniformLocations = {};
+  final Map<String, String> _uniformsInitialized = {};
+  final Set<String> _attributesInitialized = new Set<String>();
 
   int _nextTextureUnit;
 
-
   RenderProgram(
       String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
-      : super(name) {
-    _program = _cgl.CompileWholeProgram(_shaderObjectV.shader,
-        _shaderObjectF.shader, _shaderObjectV.transformVars);
-
-    _attributes = new Set.from(_shaderObjectV.attributeVars);
+      : _program = _cgl.CompileWholeProgram(_shaderObjectV.shader,
+            _shaderObjectF.shader, _shaderObjectV.transformVars),
+        _attributes = new Set.from(_shaderObjectV.attributeVars),
+        super(name) {
     for (String v in _shaderObjectV.uniformVars) {
       _uniformLocations[v] = _cgl.getUniformLocation(_program, v);
     }
@@ -48,8 +48,8 @@ class RenderProgram extends NamedEntity {
     }
   }
 
-  ShaderObject get shaderObjectV =>  _shaderObjectV;
-  ShaderObject get shaderObjectF =>  _shaderObjectF;
+  ShaderObject get shaderObjectV => _shaderObjectV;
+  ShaderObject get shaderObjectF => _shaderObjectF;
 
   int GetTransformBindingIndex(String canonical) {
     return _shaderObjectV.GetTransformBindingIndex(canonical);
@@ -60,6 +60,8 @@ class RenderProgram extends NamedEntity {
         name, _cgl, drawMode, _shaderObjectV.GetAttributeLayoutMap());
   }
 
+  /// If you want to re-use meshes across programs you can use
+  /// this predicate to assert that two programs are compatible.
   bool HasCompatibleAttributesTo(RenderProgram other) {
     var a = _shaderObjectV.GetAttributeLayoutMap();
     var b = other._shaderObjectV.GetAttributeLayoutMap();
@@ -70,6 +72,9 @@ class RenderProgram extends NamedEntity {
     return true;
   }
 
+  /// If you want to re-use meshes across programs you can use
+  /// this predicate to assert that any mesh for `other` will work
+  /// for `this`.
   bool HasDownwardCompatibleAttributesTo(RenderProgram other) {
     var a = _shaderObjectV.GetAttributeLayoutMap();
     var b = other._shaderObjectV.GetAttributeLayoutMap();
@@ -128,8 +133,7 @@ class RenderProgram extends NamedEntity {
   void _SetUniform(String group, String canonical, Object val) {
     // enable only for debug
     if (_uniformsInitialized.containsKey(canonical)) {
-      LogError(
-          "${canonical} : group [${group}] overwrites [${canonical}]");
+      LogError("${canonical} : group [${group}] overwrites [${canonical}]");
     }
     _uniformsInitialized[canonical] = group;
 
@@ -248,8 +252,7 @@ class RenderProgram extends NamedEntity {
     LogDebug("setting ${count} var in ${delta}");
   }
 
-  void Draw(MeshData md, List<UniformGroup> uniforms,
-      [List<DrawStats> stats]) {
+  void Draw(MeshData md, List<UniformGroup> uniforms, [List<DrawStats> stats]) {
     final DateTime start = new DateTime.now();
     _cgl.useProgram(_program);
     _ClearState();
