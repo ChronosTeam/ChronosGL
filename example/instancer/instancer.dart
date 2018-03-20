@@ -29,16 +29,6 @@ final ShaderObject instancedFragmentShader = new ShaderObject("InstancedF")
   ..AddVaryingVars([vColor])
   ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1. );"]);
 
-Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
-  Scene scene = new Scene(
-      "stars",
-      new RenderProgram(
-          "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
-      [perspective]);
-  scene.add(Utils.MakeParticles(scene.program, num));
-  return scene;
-}
-
 void AddInstanceData(MeshData md) {
   int count = 1000;
   Float32List translations = new Float32List(count * 3);
@@ -70,23 +60,21 @@ void main() {
 
   ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = new OrbitCamera(265.0, 0.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  final PerspectiveResizeAware perspective =
+      new PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
-  final RenderPhaseResizeAware phase =
-      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
-  Scene scene = new Scene(
-      "instanced",
-      new RenderProgram(
-          "instanced", cgl, instancedVertexShader, instancedFragmentShader),
-      [perspective]);
-  phase.add(scene);
-
-  Material mat = new Material("mat");
-  MeshData md = ShapeTorusKnot(scene.program, radius: 12.0);
+  final RenderProgram progInstanced = new RenderProgram(
+      "instanced", cgl, instancedVertexShader, instancedFragmentShader);
+  final Material mat = new Material("mat")
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
+  final MeshData md = ShapeTorusKnot(progInstanced, radius: 12.0);
   AddInstanceData(md);
-  scene.add(new Node("torus", md, mat));
 
-  phase.add(MakeStarScene(cgl, perspective, 2000));
+  final RenderProgram progStars = new RenderProgram(
+      "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
+  final Material matStars = Utils.MakeStarMaterial(cgl)
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
+  final MeshData mdStars = Utils.MakeStarMesh(progStars, 2000, 100.0);
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
@@ -94,7 +82,9 @@ void main() {
     _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    phase.Draw();
+
+    progInstanced.Draw(md, [mat, perspective]);
+    progStars.Draw(mdStars, [matStars, perspective]);
 
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(_lastTimeMs);

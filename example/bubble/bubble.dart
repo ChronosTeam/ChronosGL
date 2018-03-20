@@ -1,6 +1,7 @@
 import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 import "dart:async";
+import 'package:vector_math/vector_math.dart' as VM;
 
 String textureFile = "sphere.png";
 // https://cycling74.com/forums/topic/shader-help-recreating-gl_sphere_map/
@@ -26,18 +27,6 @@ ShaderObject sphereFragmentShader = new ShaderObject("sphereF")
   ..AddUniformVars([uTexture])
   ..SetBodyWithMain(["${oFragColor} = texture(${uTexture}, ${vTexUV});"]);
 
-Material matSphere = new Material.Transparent("sphere", BlendEquationMix);
-
-Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
-  Scene scene = new Scene(
-      "stars",
-      new RenderProgram(
-          "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
-      [perspective]);
-  scene.add(Utils.MakeParticles(scene.program, num));
-  return scene;
-}
-
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -45,21 +34,25 @@ void main() {
   ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
 
   OrbitCamera orbit = new OrbitCamera(5.0, 10.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  PerspectiveResizeAware perspective =
+      new PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
-  Scene scene = new Scene(
-      "spheres",
-      new RenderProgram(
-          "spheres", cgl, sphereVertexShader, sphereFragmentShader),
-      [perspective]);
-  MeshData md = ShapeIcosahedron(scene.program, 3);
-  scene.add(new Node("sphere", md, matSphere)..setPos(0.0, 0.0, 0.0));
-  scene.add(new Node("sphere", md, matSphere)..setPos(1.5, 0.0, 0.0));
+  final RenderProgram progSphere = new RenderProgram(
+      "spheres", cgl, sphereVertexShader, sphereFragmentShader);
+  final MeshData mdSphere = ShapeIcosahedron(progSphere, 3);
+  final VM.Matrix4 modelMat = new VM.Matrix4.identity();
+  final VM.Matrix3 normalMat = new VM.Matrix3.identity();
 
-  final RenderPhaseResizeAware phase =
-      new RenderPhaseResizeAware("main", cgl, canvas, perspective)
-        ..add(MakeStarScene(cgl, perspective, 2000))
-        ..add(scene);
+  final Material matSphere =
+      new Material.Transparent("sphere", BlendEquationMix)
+        ..SetUniform(uNormalMatrix, normalMat)
+        ..SetUniform(uModelMatrix, modelMat);
+
+  final RenderProgram progStars = new RenderProgram(
+      "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
+  final Material matStars = Utils.MakeStarMaterial(cgl)
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
+  final MeshData mdStars = Utils.MakeStarMesh(progStars, 2000, 100.0);
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
@@ -67,7 +60,11 @@ void main() {
     _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    phase.Draw();
+    modelMat.setIdentity();
+    progSphere.Draw(mdSphere, [matSphere, perspective]);
+    modelMat.setTranslationRaw(1.5, 0.0, 0.0);
+    progSphere.Draw(mdSphere, [matSphere, perspective]);
+    progStars.Draw(mdStars, [matStars, perspective]);
 
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(_lastTimeMs);
@@ -78,7 +75,7 @@ void main() {
   ];
   Future.wait(futures).then((List list) {
     Texture bubble = new ImageTexture(cgl, textureFile, list[0]);
-    matSphere..SetUniform(uTexture, bubble);
+    matSphere.SetUniform(uTexture, bubble);
     animate(0.0);
   });
 }
