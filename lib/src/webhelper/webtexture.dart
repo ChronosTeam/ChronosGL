@@ -8,7 +8,7 @@ Future<HTML.VideoElement> MakeVideoElementFromCamera() {
       .then((HTML.MediaStream stream) {
     HTML.VideoElement video = new HTML.VideoElement()..autoplay = true;
     video.onPlaying.first.then((_) => c.complete(video));
-    video.src = HTML.Url.createObjectUrl(stream);
+    video.srcObject = stream;
   }).catchError((Object error) {
     LogError("Camera open error ${error}");
     c.complete(null);
