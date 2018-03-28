@@ -1,8 +1,8 @@
 part of importer;
 
 int _FindSkinMultiplier(Map json) {
-  final List<int> SkinIndex = json["skinIndices"];
-  final List<int> SkinWeight = json["skinWeights"];
+  final List SkinIndex = json["skinIndices"];
+  final List SkinWeight = json["skinWeights"];
   if (SkinIndex == null || SkinIndex.length == 0) return 0;
   final int vertexLength = json["vertices"].length ~/ 3;
   final int skinMultiplier = SkinIndex.length ~/ vertexLength;
@@ -18,7 +18,7 @@ List<GeometryBuilder> ImportGeometryFromThreeJsJson(Map json) {
   List<GeometryBuilder> out = [];
   //
   final int skinMultiplier = _FindSkinMultiplier(json);
-  final List<int> Faces = json["faces"];
+  final List<int> Faces = _Intify(json["faces"]);
   print("faces: ${Faces.length}");
 
   final List<VM.Vector3> Vertices = ConvertToVector3List(json["vertices"]);
@@ -29,7 +29,7 @@ List<GeometryBuilder> ImportGeometryFromThreeJsJson(Map json) {
 
   final List<VM.Vector4> SkinWeight = skinMultiplier == 0
       ? null
-      : ConvertToVector4List(skinMultiplier, json["skinWeights"]);
+      : ConvertToVector4List(skinMultiplier, _Floatify(json["skinWeights"]));
   if (SkinWeight != null) {
     for (VM.Vector4 v in SkinWeight) {
       final double d = v.x + v.y + v.z + v.w;
@@ -150,9 +150,10 @@ List<GeometryBuilder> ImportGeometryFromThreeJsJson(Map json) {
   return out;
 }
 
-SkeletalAnimation ImportAnimationFromThreeJsJson(Map json, List<Bone> skeleton) {
+SkeletalAnimation ImportAnimationFromThreeJsJson(
+    Map json, List<Bone> skeleton) {
   final Map animation = json["animation"];
-  final List<Map> hierarchy = animation["hierarchy"];
+  final List hierarchy = animation["hierarchy"];
   SkeletalAnimation s = new SkeletalAnimation(
       animation["name"], animation["length"], hierarchy.length);
   assert(hierarchy.length == json["bones"].length);
@@ -191,8 +192,8 @@ SkeletalAnimation ImportAnimationFromThreeJsJson(Map json, List<Bone> skeleton) 
 
 List<Bone> ImportSkeletonFromThreeJsJson(Map json) {
   final Map metadata = json["metadata"];
-  final List<Map> Bones = json["bones"];
-  List<Bone> bones = new List<Bone>(metadata["bones"]);
+  final List Bones = json["bones"];
+  List<Bone> out = new List<Bone>(metadata["bones"]);
   for (int i = 0; i < Bones.length; i++) {
     Map m = Bones[i];
     String name = m["name"];
@@ -205,9 +206,9 @@ List<Bone> ImportSkeletonFromThreeJsJson(Map json) {
     if (i != 0 && parent < 0) {
       print("found unusal root node ${i} ${parent}");
     }
-    bones[i] = new Bone(name, i, parent, mat, new VM.Matrix4.identity());
+    out[i] = new Bone(name, i, parent, mat, new VM.Matrix4.identity());
   }
-  print("bones: ${bones.length}");
-  RecomputeLocalOffsets(bones);
-  return bones;
+  print("bones: ${out.length}");
+  RecomputeLocalOffsets(out);
+  return out;
 }
