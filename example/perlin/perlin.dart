@@ -5,7 +5,6 @@ import "dart:async";
 
 String textureFile = "../gradient.jpg";
 
-
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -30,6 +29,7 @@ void main() {
     ..SetUniform(uColor, new VM.Vector3.zero());
 
   final Material matPerlin = new Material("perlin")
+    ..SetUniform(uTransformationMatrix, new VM.Matrix4.zero())
     ..SetUniform(uModelMatrix,
         new VM.Matrix4.identity()..setTranslationRaw(50.0, 0.0, 0.0));
 
@@ -48,7 +48,7 @@ void main() {
     matPerlin.ForceUniform(uTime, timeMs / 1000.0);
     programTexture.Draw(torus, [perspective, matTexture]);
     programPerlin.Draw(torus, [perspective, matPerlin]);
-  progStars.Draw(mdStars, [matStars, perspective]);
+    progStars.Draw(mdStars, [matStars, perspective]);
 
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(_lastTimeMs);
