@@ -175,11 +175,17 @@ class ShadowMap {
     // Total hack! TextureSamplers could make this nicer
     _cgl.bindTexture(GL_TEXTURE_2D, _depthTexture.GetTexture());
     _cgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+    // Should we have chosen GL_NEAREST when we set up the texture?
+    _cgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    _cgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     _cgl.bindTexture(GL_TEXTURE_2D, null);
     _phaseVisualize.Draw([]);
+
     _cgl.bindTexture(GL_TEXTURE_2D, _depthTexture.GetTexture());
     _cgl.texParameteri(
         GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+    _cgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    _cgl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     _cgl.bindTexture(GL_TEXTURE_2D, null);
   }
 
