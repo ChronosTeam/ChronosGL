@@ -151,13 +151,13 @@ void main(List<String> arguments) {
 
     print("reading mesh from: ${p}");
     var meshData = new File(p).readAsStringSync();
-    Object json = JSON.decode(meshData);
-    ShowInfo(json);
-    DumpFaces(json, argResults['faces']);
+    Object jsonData = json.decode(meshData);
+    ShowInfo(jsonData);
+    DumpFaces(jsonData, argResults['faces']);
 
-    List<GeometryBuilder> gb = ImportGeometryFromThreeJsJson(json);
+    List<GeometryBuilder> gb = ImportGeometryFromThreeJsJson(jsonData);
     print(gb);
-    List<Bone> skeleton = ImportSkeletonFromThreeJsJson(json);
+    List<Bone> skeleton = ImportSkeletonFromThreeJsJson(jsonData);
 
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(">>>>>>>>>> Bones");
@@ -165,7 +165,7 @@ void main(List<String> arguments) {
     for (Bone b in skeleton) {
       print(b);
     }
-    SkeletalAnimation anim = ImportAnimationFromThreeJsJson(json, skeleton);
+    SkeletalAnimation anim = ImportAnimationFromThreeJsJson(jsonData, skeleton);
 
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(">>>>>>>>>> BoneAnims");
