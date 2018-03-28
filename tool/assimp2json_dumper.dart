@@ -2,6 +2,7 @@
 
 import 'dart:io';
 import 'dart:convert';
+
 import 'package:args/args.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -32,16 +33,16 @@ void main(List<String> arguments) {
 
     print("reading mesh from: ${p}");
     String meshData = new File(p).readAsStringSync();
-    Map<String, List> json = JSON.decode(meshData);
+    Map<String, List> jsonData = json.decode(meshData);
 
-    List<Bone> skeleton = ImportSkeletonFromAssimp2Json(json);
+    List<Bone> skeleton = ImportSkeletonFromAssimp2Json(jsonData);
 
     print("Bones: ${skeleton.length}");
-    GeometryBuilder gb = ImportGeometryFromAssimp2JsonMesh(json["meshes"][0], skeleton);
+    GeometryBuilder gb = ImportGeometryFromAssimp2JsonMesh(jsonData["meshes"][0], skeleton);
     print(gb);
 
     SkeletalAnimation anim =
-        ImportAnimationFromAssimp2Json(json["animations"][0], skeleton);
+        ImportAnimationFromAssimp2Json(jsonData["animations"][0], skeleton);
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(">>>>>>>>>> Bones");
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");

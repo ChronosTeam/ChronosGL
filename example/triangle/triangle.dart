@@ -34,7 +34,8 @@ Node Triangle(RenderProgram program) {
     ..add(side1)
     ..add(side2)
     ..add(side3a)
-    ..add(side3b);
+    ..add(side3b)
+      ..moveDown(20.0);
 }
 
 void main() {

@@ -77,7 +77,7 @@ final TextureProperties TexturePropertiesShadowMap = new TextureProperties()
   ..clamp = true
   ..mipmap = false
   ..shadow = true;
-  //..SetFilterNearest();
+//..SetFilterNearest();
 
 bool IsCubeChildTextureType(int t) {
   switch (t) {
@@ -105,20 +105,18 @@ class Texture {
   Texture(this._cgl, this._textureType, this._url, this.properties)
       : _texture = _cgl.createTexture();
 
-
   void CopyFromFramebuffer2D(int x, int y, int w, int h) {
-     _cgl.bindTexture(_textureType, _texture);
-     _cgl.copyTexImage2D(_textureType, 0, GL_RGBA, x, y, w, h);
+    _cgl.bindTexture(_textureType, _texture);
+    _cgl.copyTexImage2D(_textureType, 0, GL_RGBA, x, y, w, h);
     Install();
   }
 
   void Install() {
-      _cgl.bindTexture(_textureType, _texture);
-      properties.InstallLate(_cgl, _textureType);
-      int err = _cgl.getError();
-      assert(err == GL_NO_ERROR);
+    _cgl.bindTexture(_textureType, _texture);
+    properties.InstallLate(_cgl, _textureType);
+    int err = _cgl.getError();
+    assert(err == GL_NO_ERROR);
   }
-
 
   int GetTextureType() => _textureType;
 
@@ -234,7 +232,7 @@ class ImageTexture extends Texture {
   }
 }
 
-final List<int> _kCubeModifier = [
+const List<int> _kCubeModifier = const [
   GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
   GL_TEXTURE_CUBE_MAP_POSITIVE_X,
   GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
@@ -245,7 +243,8 @@ final List<int> _kCubeModifier = [
 
 class CubeTexture extends Texture {
   CubeTexture(ChronosGL cgl, String url, List images)
-      : super(cgl, GL_TEXTURE_CUBE_MAP, url, new TextureProperties()) {
+      : super(cgl, GL_TEXTURE_CUBE_MAP, url,
+            new TextureProperties()..clamp = true) {
     assert(images.length == _kCubeModifier.length);
     properties.InstallEarly(_cgl, _textureType);
 

@@ -5,16 +5,6 @@ import "dart:async";
 
 String textureFile = "../gradient.jpg";
 
-Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
-  Scene scene = new Scene(
-      "stars",
-      new RenderProgram(
-          "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
-      [perspective]);
-  scene.add(Utils.MakeParticles(scene.program, num));
-  return scene;
-}
-
 void main() {
   StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -39,8 +29,15 @@ void main() {
     ..SetUniform(uColor, new VM.Vector3.zero());
 
   final Material matPerlin = new Material("perlin")
+    ..SetUniform(uTransformationMatrix, new VM.Matrix4.zero())
     ..SetUniform(uModelMatrix,
         new VM.Matrix4.identity()..setTranslationRaw(50.0, 0.0, 0.0));
+
+  final RenderProgram progStars = new RenderProgram(
+      "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
+  final Material matStars = Utils.MakeStarMaterial(cgl)
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
+  final MeshData mdStars = Utils.MakeStarMesh(progStars, 2000, 200.0);
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
@@ -51,6 +48,7 @@ void main() {
     matPerlin.ForceUniform(uTime, timeMs / 1000.0);
     programTexture.Draw(torus, [perspective, matTexture]);
     programPerlin.Draw(torus, [perspective, matPerlin]);
+    progStars.Draw(mdStars, [matStars, perspective]);
 
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(_lastTimeMs);

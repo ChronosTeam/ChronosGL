@@ -3,11 +3,33 @@
 // Online converter: http://www.greentoken.de/onlineconv/
 part of importer;
 
-List<double> _Floatify(List<num> lst) {
+List<double> _Floatify(List lst) {
+  List<double> out = new List<double>(lst.length);
   for (int i = 0; i < lst.length; ++i) {
-    if (lst[i] is int) lst[i] = lst[i].toDouble();
+    if (lst[i] is int)
+      out[i] = lst[i].toDouble();
+    else if (lst[i] is double)
+      out[i] = lst[i];
+    else
+      assert(false, "bad numeric type [${lst[i]}]");
   }
-  return lst;
+  return out;
+}
+
+List<int> _Intify(List lst) {
+  List<int> out = new List<int>(lst.length);
+  for (int i = 0; i < lst.length; ++i) {
+    out[i] = lst[i];
+  }
+  return out;
+}
+
+List<List<int>> _ListIntify(List lst) {
+  List<List<int>> out = new List<List<int>>(lst.length);
+  for (int i = 0; i < lst.length; ++i) {
+    out[i] = _Intify(lst[i]);
+  }
+  return out;
 }
 
 //Also fills in the offsets for skeleton
@@ -37,7 +59,7 @@ GeometryBuilder ImportGeometryFromAssimp2JsonMesh(
     gb.AddAttributesVector3(
         aBitangent, ConvertToVector3List(mesh['bitangents']));
   }
-  List<List<int>> faces = mesh['faces'];
+  List<List<int>> faces = _ListIntify(mesh['faces']);
   assert(faces != null, "no faces");
   for (List<int> f in faces) {
     assert(f.length == 3);
@@ -57,14 +79,13 @@ GeometryBuilder ImportGeometryFromAssimp2JsonMesh(
     for (Map<String, dynamic> b in mesh["bones"]) {
       assert(name2bone.containsKey(b["name"]));
       final Bone bone = name2bone[b["name"]];
-      List<num> tnum = b["offsetmatrix"];
       // Note: Surprising side-effect
-      bone.offsetTransform.copyFromArray(_Floatify(tnum));
+      bone.offsetTransform.copyFromArray(_Floatify(b["offsetmatrix"]));
       bone.offsetTransform.transpose();
       if (b.containsKey("weights")) {
         final double boneIndex = bone.boneIndex.toDouble();
 
-        for (List<num> w in b["weights"]) {
+        for (List w in b["weights"]) {
           final int vertex = w[0];
           int pos;
           for (pos = 0; pos < 4; ++pos) {
@@ -91,11 +112,13 @@ List<Bone> ImportSkeletonFromAssimp2Json(Map<String, dynamic> json) {
   int count = 0;
 
   void dfs(Map<String, dynamic> node, int parent) {
-    String name = node["name"];
-    List<num> tnum = node["transformation"];
-    VM.Matrix4 transform = new VM.Matrix4.fromList(_Floatify(tnum));
+    final String name = node["name"];
+
+    final VM.Matrix4 transform =
+        new VM.Matrix4.fromList(_Floatify(node["transformation"]));
     transform.transpose();
-    VM.Matrix4 offset = new VM.Matrix4.identity();
+
+    final VM.Matrix4 offset = new VM.Matrix4.identity();
     Bone bone = new Bone(name, count, parent, transform, offset);
     count++;
     out.add(bone);
@@ -125,7 +148,7 @@ SkeletalAnimation ImportAnimationFromAssimp2Json(
   String name = json["name"];
   double tickspersecond = json["tickspersecond"].toDouble();
   double duration = json["duration"];
-  List<Map<String, dynamic>> channels = json["channels"];
+  List channels = json["channels"];
   assert(channels != null);
   SkeletalAnimation anim =
       new SkeletalAnimation(name, duration, skeleton.length);
@@ -138,7 +161,7 @@ SkeletalAnimation ImportAnimationFromAssimp2Json(
     List<VM.Vector3> positionValues = [];
     for (List pos in c["positionkeys"]) {
       positionTimes.add(pos[0] / tickspersecond);
-      positionValues.add(new VM.Vector3.array(_Floatify(pos[1])));
+      positionValues.add(MakeVector3(pos[1]));
     }
 
     List<double> rotationTimes = [];
@@ -153,7 +176,7 @@ SkeletalAnimation ImportAnimationFromAssimp2Json(
     List<VM.Vector3> scaleValues = [];
     for (List sca in c["scalingkeys"]) {
       scaleTimes.add(sca[0] / tickspersecond);
-      scaleValues.add(new VM.Vector3.array(_Floatify(sca[1])));
+      scaleValues.add(MakeVector3(sca[1]));
     }
 
     anim.InsertBone(new BoneAnimation(bone, positionTimes, positionValues,

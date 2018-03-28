@@ -26,7 +26,13 @@ th.active {
 <p>
     <iframe id='iframe' width="100%" height="750" src="animation/animation.html"></iframe>
 </p>
+<b>
+    <button id="next">&darr;</button>
+    <button id="prev">&uarr;</button>
+    <span id="current">Current</span>
+</b>
 
+<hr>
 <table>
     <tbody id="examples">
 
@@ -43,12 +49,9 @@ As of version 3.0.0 ChronosGL requires <b>WebGL2</b>.
 (Check browser compatibility at: <a href="http://webglreport.com/?v=2">webglreport.com</a>)
 </p>
 <p>
-    If you use Dartium (50), make sure you launch it with the
-    <tt>--enable-unsafe-es3-apis</tt> option.
-</p>
-<p>
-    You can also use regular Chrome or Firefox via:
-    <tt>/pub serve --web-compiler dartdevc example/</tt>
+    To serve this page and the examples straight from the
+    checked-out source run
+    <tt>$ pub serve --web-compiler dartdevc example/</tt>
 </p>
 
 If there are problems check the <b>JavaScript console</b> for output.
@@ -149,6 +152,7 @@ function setActive(n) {
         all[i].className = (i == n) ? 'active' : '';
         if (i == n) {
            iframe.src = examples[i][0] + "/" + examples[i][0] + ".html";
+           document.getElementById("current").innerHTML = examples[i][1];
         }
     }
 }
@@ -161,20 +165,27 @@ function handleClick(ev) {
     setActive(n);
 }
 
+function prevExample(ev) {
+    let active = getActiveRow();
+    window.console.log(`up arrow ${active}`);
+    if (active > 0) setActive(active - 1);
+    ev.preventDefault();
+}
+
+function nextExample(ev) {
+    let active = getActiveRow();
+    window.console.log(`down arrow ${active}`);
+    if (active < examples.length - 1) setActive(active + 1);
+    ev.preventDefault();
+}
+
 function handleKey(ev) {
     window.console.log(`key: ${ev.keyCode}`);
     if (ev.keyCode == '38') {
-        let active = getActiveRow();
-        window.console.log(`up arrow ${active}`);
-        if (active > 0) setActive(active - 1);
-        ev.preventDefault();
+        nextExample(ev);
     }
     else if (ev.keyCode == '40') {
-        window.console.log("down arrow");
-        let active = getActiveRow();
-        window.console.log(`down arrow ${active}`);
-        if (active < examples.length - 1) setActive(active + 1);
-        ev.preventDefault();
+        prevExample(ev);
     }
 }
 populateExamples();
@@ -186,6 +197,8 @@ for (let i = 0 ; i < all.length; ++i) {
 }
 
 document.onkeydown = handleKey;
+document.getElementById("next").addEventListener("click", nextExample);
+document.getElementById("prev").addEventListener("click", prevExample);
 
 window.console.log("active: " + getActiveRow());;
 

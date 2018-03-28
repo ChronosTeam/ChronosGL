@@ -19,6 +19,30 @@ int TextureChannelsByType(int format) {
   }
 }
 
+String _FormatName(int format) {
+  switch (format) {
+    case GL_LUMINANCE:
+      return "GL_LUMINANCE";
+    case GL_LUMINANCE_ALPHA:
+      return "GL_LUMINANCE_ALPHA";
+    case GL_RGB:
+      return "GL_RGB";
+    case GL_RGBA:
+      return "GL_RGBA";
+    default:
+      return "${format}";
+  }
+}
+
+String _TypeName(int code) {
+  switch (code) {
+    case GL_UNSIGNED_BYTE:
+      return "GL_UNSIGNED_BYTE";
+    default:
+      return "${code}";
+  }
+}
+
 class FramebufferFormat {
   final int format;
   int channels;
@@ -34,7 +58,7 @@ class FramebufferFormat {
 
   @override
   String toString() {
-    return "FB-FMT: ${format} [${channels}] ${type}";
+    return "FB-FMT: ${_FormatName(format)} [${channels}] ${_TypeName(type)}";
   }
 }
 
@@ -107,12 +131,14 @@ class Framebuffer {
   Float32List ExtractFloatData(Float32List buf, int x, int y, int w, int h) {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     final FramebufferFormat f = new FramebufferFormat.fromActive(_cgl);
-    print("$f");
-    assert(f.type == GL_FLOAT);
+    print("READ FORMAT $f");
+    if (f.type != GL_FLOAT) {
+      print("unexpcted non float type: $f");
+    }
     if (buf == null) {
       buf = new Float32List(f.channels * w * h);
     }
-    _cgl.readPixels(x, y, w, h, f.format, f.type, buf);
+    _cgl.readPixels(x, y, w, h, f.format, GL_FLOAT, buf);
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
     return buf;
   }
@@ -120,14 +146,13 @@ class Framebuffer {
   Uint8List ExtractByteData(Uint8List buf, int x, int y, int w, int h) {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     final FramebufferFormat f = new FramebufferFormat.fromActive(_cgl);
-    print("$f");
+    print("READ FORMAT $f");
     assert(f.type == GL_UNSIGNED_BYTE);
     if (buf == null) {
       buf = new Uint8List(f.channels * w * h);
     }
     _cgl.readPixels(x, y, w, h, f.format, f.type, buf);
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
-
     return buf;
   }
 }

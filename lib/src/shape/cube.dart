@@ -1,6 +1,6 @@
 part of shape;
 
-List<VM.Vector3> _CubeNormals = [
+final List<VM.Vector3> _CubeNormals = [
   // Front face
   new VM.Vector3(0.0, 0.0, 1.0),
   // Back face
@@ -15,6 +15,8 @@ List<VM.Vector3> _CubeNormals = [
   new VM.Vector3(-1.0, 0.0, 0.0)
 ];
 
+/// Returns a GeometryBuilder for Cube with TexUVs and optionally
+/// Normals.
 GeometryBuilder CubeGeometry(
     {double x: 1.0,
     double y: 1.0,
@@ -128,8 +130,8 @@ final List<VM.Vector3> _WedgeNormals = [
   new VM.Vector3(-1.0, 0.0, 0.0)
 ];
 
-// A Wedge is the lower partof a cube that was cut in half
-// through the plane: (-x, y, -z) (-x, y, z), (x, -y, -z), (x, -y, z)
+/// A Wedge is the lower part of a cube that was cut in half
+/// through the plane: (-x, y, -z) (-x, y, z), (x, -y, -z), (x, -y, z)
 GeometryBuilder WedgeGeometry(
     {double x: 1.0,
     double y: 1.0,

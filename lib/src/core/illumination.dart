@@ -58,8 +58,6 @@ class PointLight extends Light {
   }
 }
 
-const double _orthoDim = 40.0;
-
 class DirectionalLight extends Light {
   VM.Vector3 dir;
   final VM.Vector3 _colDiffuse;

@@ -16,7 +16,7 @@ Future<Map> LoadJson(String url) {
   HTML.HttpRequest hr = new HTML.HttpRequest();
   hr.open("GET", url);
   hr.onLoadEnd.listen((e) {
-    c.complete(JSON.decode(hr.response));
+    c.complete(json.decode(hr.response));
   });
   hr.send('');
   return c.future;
