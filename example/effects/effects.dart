@@ -240,7 +240,7 @@ void main() {
 
   Material material = new Material("mat")
     ..SetUniform(uColor, ColorGray8)
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity()..rotateX(Math.PI / 2));
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity()..rotateX(Math.pi / 2));
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {

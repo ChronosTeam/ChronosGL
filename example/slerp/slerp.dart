@@ -104,7 +104,7 @@ void main() {
         if (rng.nextBool()) {
           axis..setValues(rng.nextDouble(), rng.nextDouble(), rng.nextDouble());
           axis.normalize();
-          angle = 2 * Math.PI * rng.nextDouble();
+          angle = 2 * Math.pi * rng.nextDouble();
         } else {
           // TODO(rhulha): the original value was all zero which caused the animation to stop.
           axis.setValues(1.0, 0.0, 0.0);

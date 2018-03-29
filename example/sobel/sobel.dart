@@ -43,7 +43,7 @@ void main() {
   MeshData unitQuad = ShapeQuad(progSobel, 1);
   MeshData ctLogo;
   Material material = new Material("mat")
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity()..rotateX(Math.PI / 2));
+    ..SetUniform(uModelMatrix, new VM.Matrix4.identity()..rotateX(Math.pi / 2));
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
