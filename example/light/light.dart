@@ -10,7 +10,7 @@ final VM.Vector3 dirLight = new VM.Vector3(0.0, -50.0, 0.0);
 final VM.Vector3 spotDirLight = new VM.Vector3(-11.0, -30.0, 0.0);
 
 final double range = 50.0;
-final double angle = MATH.PI / 7.0;
+final double angle = MATH.pi / 7.0;
 final double glossiness = 10.0;
 
 // These must be in-sync with the .html file
@@ -59,7 +59,7 @@ void MakeSceneCubeSphere(ChronosGL cgl, RenderProgram prog, Node container) {
 
   // Subdivide plane to show Gourad shading issues
   Node grid = new Node("grid", ShapeGrid(prog, 20, 20, 80.0, 80.0), mats[0]);
-  grid.rotX(-MATH.PI * 0.48);
+  grid.rotX(-MATH.pi * 0.48);
   grid.setPos(0.0, -20.0, 20.0);
   container.add(grid);
 }

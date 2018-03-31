@@ -65,7 +65,7 @@ final VM.Vector3 posLight = new VM.Vector3(11.0, 20.0, 0.0);
 final VM.Vector3 dirLight = new VM.Vector3(0.0, -30.0, 0.0);
 
 final double range = 40.0;
-final double angle = Math.PI / 6.0;
+final double angle = Math.pi / 6.0;
 final double glossiness = 10.0;
 
 // These must be in-sync with the .html file

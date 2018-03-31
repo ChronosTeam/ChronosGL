@@ -56,7 +56,7 @@ final VM.Vector3 colSpecular = new VM.Vector3.all(0.133);
 
 final double glossiness = 2.0;
 final double range = 1.0;
-final double angle = MATH.PI / 6.0;
+final double angle = MATH.pi / 6.0;
 
 void main() {
   StatsFps fps =

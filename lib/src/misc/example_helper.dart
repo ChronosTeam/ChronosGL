@@ -43,7 +43,7 @@ class Utils {
 
     ctx.globalAlpha = 0.9;
     ctx.fillStyle = gradient;
-    ctx.arc(x, y, 4, 0, 2 * Math.PI);
+    ctx.arc(x, y, 4, 0, 2 * Math.pi);
     ctx.fill();
     return canvas;
   }

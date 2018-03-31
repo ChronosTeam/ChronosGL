@@ -23,8 +23,8 @@ GeometryBuilder CylinderGeometry(double radTop, double radBot, double height,
   for (int i = 0; i < radialSubdivisions; i++) {
     double u = i / radialSubdivisions;
 
-    double x = Math.sin(u * Math.PI * 2);
-    double z = Math.cos(u * Math.PI * 2);
+    double x = Math.sin(u * Math.pi * 2);
+    double z = Math.cos(u * Math.pi * 2);
 
     vertices.add(new VM.Vector3(x * radTop, halfHeight, z * radTop));
     uvs.add(new VM.Vector2(u, 1.0));
@@ -95,7 +95,7 @@ GeometryBuilder CylinderGeometryWireframeFriendly(
   List<VM.Vector3> top = [];
   List<VM.Vector3> bot = [];
   for (int i = 0; i < radialSubdivisions; i++) {
-    double u = i / radialSubdivisions * Math.PI * 2.0;
+    double u = i / radialSubdivisions * Math.pi * 2.0;
     double x = Math.sin(u);
     double z = Math.cos(u);
     top.add(new VM.Vector3(radTop * x, halfHeight, radTop * z));
@@ -145,7 +145,7 @@ GeometryBuilder ConeGeometryWireframeFrienly(
 
   List<VM.Vector3> bot = [];
   for (int i = 0; i < radialSubdivisions; i++) {
-    double u = i / radialSubdivisions * Math.PI * 2.0;
+    double u = i / radialSubdivisions * Math.pi * 2.0;
     double x = Math.sin(u);
     double z = Math.cos(u);
     bot.add(new VM.Vector3(rad * x, -halfHeight, rad * z));

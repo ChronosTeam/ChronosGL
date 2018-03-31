@@ -28,9 +28,9 @@ xxxxxxxxxxxxxxxxxxxxx |
 // References:
 // http://gizma.com/easing/
 
-double EasingCosine(double t) => 1.0 - Math.cos(t * Math.PI / 2);
+double EasingCosine(double t) => 1.0 - Math.cos(t * Math.pi / 2);
 
-double EasingSine(double t) => Math.sin(t * Math.PI / 2);
+double EasingSine(double t) => Math.sin(t * Math.pi / 2);
 
 double EasingLinear(double t) => t;
 

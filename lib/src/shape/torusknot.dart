@@ -36,7 +36,7 @@ GeometryBuilder ShapeTorusKnotGeometry(
   final int h = segmentsR + extra;
 
   final List<VM.Vector3> pointsAndTangents =
-      ParametricCurvePointsAndTangents(curveFunc, 0.0, 2.0 * Math.PI, h, wrap);
+      ParametricCurvePointsAndTangents(curveFunc, 0.0, 2.0 * Math.pi, h, wrap);
 
   assert(pointsAndTangents.length == 2 * h);
 
@@ -93,7 +93,7 @@ GeometryBuilder ShapeTorusKnotGeometryWireframeFriendly(
   final int h = segmentsR + 1;
 
   final List<VM.Vector3> pointsAndTangents =
-      ParametricCurvePointsAndTangents(curveFunc, 0.0, 2.0 * Math.PI, h, false);
+      ParametricCurvePointsAndTangents(curveFunc, 0.0, 2.0 * Math.pi, h, false);
 
   assert(pointsAndTangents.length == 2 * h);
 

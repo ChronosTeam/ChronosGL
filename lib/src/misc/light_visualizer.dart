@@ -71,7 +71,7 @@ void UpdateSpotLightVisualizer(
     ..scale(Math.tan(angle) * range);
   for (int i = 0; i < kSpines; i++) {
     VM.Vector3 p = ortho.clone()
-      ..applyAxisAngle(dir, i * 2.0 * Math.PI / kSpines)
+      ..applyAxisAngle(dir, i * 2.0 * Math.pi / kSpines)
       ..add(center);
     points.add(p);
   }

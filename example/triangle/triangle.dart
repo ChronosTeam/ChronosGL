@@ -27,7 +27,7 @@ Node Triangle(RenderProgram program) {
 
   Node side3b = new Node("side3b",
       ShapeWedge(program, x: thickness, y: thickness, z: thickness), mat3)
-    ..rotY(Math.PI)
+    ..rotY(Math.pi)
     ..setPos(length, length + length3 - thickness, 0.0);
 
   return new Node.Container("triangle")
@@ -75,8 +75,8 @@ void main() {
   // 35deg is slightly too large.
   // Need to find a math reference for actual real angle.
   // E.g.: http://www.cse.ust.hk/~pang/papers/Impossible_Figures_ToG.pdf
-  orbit.polar = 35.0 * Math.PI / 180.0;
-  orbit.azimuth = -45.0 * Math.PI / 180.0;
+  orbit.polar = 35.0 * Math.pi / 180.0;
+  orbit.azimuth = -45.0 * Math.pi / 180.0;
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
@@ -85,8 +85,8 @@ void main() {
     //orbit.rotZ(0.001);
     orbit.animate(elapsed);
     orbit.roll += 0.01;
-    double polar = orbit.polar * 180.0 / Math.PI;
-    double azimuth = orbit.azimuth * 180.0 / Math.PI;
+    double polar = orbit.polar * 180.0 / Math.pi;
+    double azimuth = orbit.azimuth * 180.0 / Math.pi;
     phase.Draw();
 
     HTML.window.animationFrame.then(animate);
