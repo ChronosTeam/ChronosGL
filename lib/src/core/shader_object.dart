@@ -97,7 +97,7 @@ const String tForce = "tForce";
 // ===========================================================
 const int prefixAttribute = 0x61; // 'a';
 
-const String aColor = "aColors";
+const String aColor = "aColor";
 const String aColorAlpha = "aColorAlpha";
 const String aPosition = "aPosition";
 const String aTexUV = "aTexUV";
