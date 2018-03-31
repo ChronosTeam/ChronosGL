@@ -1,71 +1,39 @@
 part of chronosgl;
 
-Map<int, bool> currentlyPressedKeys = <int, bool>{};
-Map<String, bool> currentlyPressedMouseButtons = <String, bool>{};
+/// HTML keyboard handling
+class Keyboard {
+  final Set<int> _currentlyPressedKeys = new Set<int>();
+  final Set<int> _justPressedKeys = new Set<int>();
+  final Set<int> _justReleasedKeys = new Set<int>();
 
-int clientX = 0;
-int clientY = 0;
-int mouseX = 0;
-int mouseY = 0;
-int mouseDownX = 0;
-int mouseDownY = 0;
-bool skipDefaultMouseMoveListener = false;
+  Keyboard(dynamic elem) {
+    if (elem == null) elem = HTML.document;
 
-void setUpEventCapture(HTML.CanvasElement canvas) {
-  HTML.document.onKeyDown.listen((HTML.KeyboardEvent e) {
-    currentlyPressedKeys[e.which] = true;
-  });
-  HTML.document.onKeyUp.listen((HTML.KeyboardEvent e) {
-    currentlyPressedKeys[e.which] = null;  // remove from map
-  });
+    elem.onKeyDown.listen((HTML.KeyboardEvent e) {
+      _currentlyPressedKeys.add(e.which);
+      _justPressedKeys.add(e.which);
+    });
 
-  if (!skipDefaultMouseMoveListener) {
-    HTML.document.onMouseMove.listen((HTML.MouseEvent e) {
-      //e.preventDefault();
-      clientX = e.client.x;
-      clientY = HTML.window.innerHeight - e.client.y;
-      mouseX = e.client.x - (HTML.window.innerWidth ~/ 2);
-      mouseY = -(e.client.y - (HTML.window.innerHeight ~/ 2));
+    elem.onKeyUp.listen((HTML.KeyboardEvent e) {
+      _currentlyPressedKeys.remove(e.which);
+      _justReleasedKeys.add(e.which);
     });
   }
 
-  HTML.document.onMouseDown.listen((HTML.MouseEvent e) {
-    //e.preventDefault();
-    mouseDownX = e.client.x - (HTML.window.innerWidth ~/ 2);
-    mouseDownY = -(e.client.y - (HTML.window.innerHeight ~/ 2));
-    bool rightclick = e.button == 2;
-    if (rightclick) {
-      currentlyPressedMouseButtons['right'] = true;
-    } else {
-      currentlyPressedMouseButtons['left'] = true;
-    }
-  });
+  bool currentlyPressedKey(int key) => _currentlyPressedKeys.contains(key);
 
-  /*
-  canvas.onContextMenu.listen((HTML.MouseEvent e) {
-    e.preventDefault();
-    //e.stopPropagation();
-    //e.cancelBubble = true;
-  });
+  // if you use this function make sure you call AfterFrameCleanup
+  bool justPressedKey(int key) => _justPressedKeys.contains(key);
 
-    canvas.onDragStart.listen((HTML.MouseEvent event) {
-      event.preventDefault();
-    });
-    */
+  // if you use this function make sure you call AfterFrameCleanup
+  bool justReleasedKey(int key) => _justReleasedKeys.contains(key);
 
-  HTML.document.onMouseUp.listen((HTML.MouseEvent e) {
-    //e.preventDefault();
-    bool rightclick = e.button == 2;
-    if (rightclick) {
-      currentlyPressedMouseButtons['right'] = null;  // remove from map
-    } else {
-      currentlyPressedMouseButtons['left'] = null;  // remove from map
-    }
-  });
-}
+  void AfterFrameCleanup() {
+    _justReleasedKeys.clear();
+    _justPressedKeys.clear();
+  }
 
 // See http://keycode.info/
-abstract class Key {
   static const int PAGEUP = 33;
   static const int PAGEDOWN = 34;
   static const int END = 35;
@@ -120,44 +88,56 @@ abstract class Key {
   static const int F12 = 123;
 }
 
-class OrbitCamera extends Camera {
-  double _radius;
-  double azimuth;
-  double polar;
-  double roll = 0.0;
-  final VM.Vector3 _lookAtPos = new VM.Vector3.zero();
-  num mouseWheelFactor = -0.02;
+class Mouse {
+  static const int RIGHT = 2;
+  static const int MIDDLE = 1;
+  static const int LEFT = 0;
 
-  Map<int, bool> _cpk = currentlyPressedKeys;
-  Map<String, bool> _cpmb = currentlyPressedMouseButtons;
+  final Set<int> _currentlyPressedMouseButtons = new Set<int>();
 
-  /// OrbitCamera initializes an orbiting camera
-  ///
-  /// @param this._radius blah
-  /// @param this._polar blah
-  OrbitCamera(this._radius, this.azimuth, this.polar, HTML.Element eventElement)
-      : super("camera:orbit") {
-    eventElement.onMouseWheel.listen((HTML.WheelEvent e) {
+  int moveDeltaX = 0;
+  int moveDeltaY = 0;
+  int wheelDeltaY = 0;
+
+  Mouse(dynamic elem) {
+    if (elem == null) elem = HTML.document;
+
+    elem.onMouseMove.listen((HTML.MouseEvent e) {
       e.preventDefault();
-      try {
-        double d = e.deltaY * mouseWheelFactor;
-        if (_radius - d > 0) _radius -= d;
-      } catch (e) {
-        print(e);
-      }
+
+      moveDeltaX = e.movement.x;
+      moveDeltaY = e.movement.y;
+      //print ("MOVE ${moveDeltaX}x${moveDeltaY}");
     });
 
-    eventElement.onMouseMove.listen((HTML.MouseEvent e) {
+    elem.onMouseDown.listen((HTML.MouseEvent e) {
       e.preventDefault();
-      if (_cpmb['left'] != null) {
-        //azimuth += e.movement.x*0.01;
-        //polar += e.movement.y*0.01;
-        azimuth += (mouseX - mouseDownX) * 0.01;
-        polar += (mouseDownY - mouseY) * 0.01;
-        mouseDownX = mouseX;
-        mouseDownY = mouseY;
-      }
+      print("BUTTON ${e.button}");
+      _currentlyPressedMouseButtons.add(e.button);
     });
+
+    elem.onMouseUp.listen((HTML.MouseEvent e) {
+      e.preventDefault();
+      _currentlyPressedMouseButtons.remove(e.button);
+    });
+
+    elem.onMouseWheel.listen((HTML.WheelEvent e) {
+      e.preventDefault();
+      wheelDeltaY = e.deltaY;
+    });
+
+    /*
+  canvas.onContextMenu.listen((HTML.MouseEvent e) {
+    e.preventDefault();
+    //e.stopPropagation();
+    //e.cancelBubble = true;
+  });
+
+    canvas.onDragStart.listen((HTML.MouseEvent event) {
+      event.preventDefault();
+    });
+    */
+    /*
 
     eventElement.onTouchStart.listen((HTML.TouchEvent e) {
       mouseDownX = e.touches[0].client.x;
@@ -175,7 +155,37 @@ class OrbitCamera extends Camera {
     });
 
     setUpEventCapture(null);
+    */
   }
+
+  bool currentlyPressedMouseButton(int key) =>
+      _currentlyPressedMouseButtons.contains(key);
+
+  void AfterFrameCleanup() {
+    moveDeltaY = 0;
+    moveDeltaX = 0;
+    wheelDeltaY = 0;
+  }
+}
+
+class OrbitCamera extends Camera {
+  double _radius;
+  double azimuth;
+  double polar;
+  double roll = 0.0;
+  final VM.Vector3 _lookAtPos = new VM.Vector3.zero();
+  num mouseWheelFactor = -0.02;
+  final Keyboard _keyboard;
+  final Mouse _mouse;
+
+  /// OrbitCamera initializes an orbiting camera
+  ///
+  /// @param this._radius blah
+  /// @param this._polar blah
+  OrbitCamera(this._radius, this.azimuth, this.polar, HTML.Element eventElement)
+      : _keyboard = new Keyboard(eventElement),
+        _mouse = new Mouse(eventElement),
+        super("camera:orbit");
 
   void setLookAt(VM.Vector3 v) {
     _lookAtPos.setFrom(v);
@@ -186,36 +196,51 @@ class OrbitCamera extends Camera {
   }
 
   void animate(double elapsed) {
-    if (_cpk[Key.LEFT] != null) {
+    if (_mouse.currentlyPressedMouseButton(Mouse.LEFT) ||
+        _mouse.currentlyPressedMouseButton(Mouse.MIDDLE)) {
+      //azimuth += e.movement.x*0.01;
+      //polar += e.movement.y*0.01;
+      azimuth += _mouse.moveDeltaX * 0.01;
+      polar += _mouse.moveDeltaY * 0.01;
+    }
+
+    if (_keyboard.currentlyPressedKey(Keyboard.LEFT)) {
       azimuth += (0.03);
-    } else if (_cpk[Key.RIGHT] != null) {
+    } else if (_keyboard.currentlyPressedKey(Keyboard.RIGHT)) {
       azimuth -= (0.03);
     }
 
-    if (_cpk[Key.UP] != null) {
+    if (_keyboard.currentlyPressedKey(Keyboard.UP)) {
       polar += (0.03);
-    } else if (_cpk[Key.DOWN] != null) {
+    } else if (_keyboard.currentlyPressedKey(Keyboard.DOWN)) {
       polar -= (0.03);
     }
 
-    if (_cpk[Key.PAGEUP] != null) {
+    if (_keyboard.currentlyPressedKey(Keyboard.PAGEUP)) {
       _radius *= 0.99;
-    } else if (_cpk[Key.PAGEDOWN] != null) {
+    } else if (_keyboard.currentlyPressedKey(Keyboard.PAGEDOWN)) {
       _radius *= 1.01;
     }
 
-    if (_cpk[Key.SPACE] != null) {
+    if (_keyboard.currentlyPressedKey(Keyboard.SPACE)) {
       azimuth = 0.0;
       polar = 0.0;
     }
-    polar = polar.clamp(-Math.PI / 2 + 0.1, Math.PI / 2 - 0.1);
+
+    double d = _mouse.wheelDeltaY * mouseWheelFactor;
+    if (_radius - d > 0) _radius -= d;
+
+    polar = polar.clamp(-Math.pi / 2 + 0.1, Math.pi / 2 - 0.1);
     setPosFromSpherical(_radius, azimuth, polar);
     addPosFromVec(_lookAtPos);
     lookAt(_lookAtPos);
     rollLeft(roll);
+    _keyboard.AfterFrameCleanup();
+    _mouse.AfterFrameCleanup();
   }
 }
 
+/*
 class FlyingCamera extends Camera {
   VM.Vector3 momentum_ = new VM.Vector3.zero();
 
@@ -357,3 +382,5 @@ class FPSCamera extends Camera {
     movementY = 0;
   }
 }
+
+*/
