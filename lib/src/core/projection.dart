@@ -72,7 +72,7 @@ class Perspective extends UniformGroup {
   }
 
   void Update() {
-    VM.setPerspectiveMatrix(_mat, _fov * Math.PI / 180.0, _aspect, _near, _far);
+    VM.setPerspectiveMatrix(_mat, _fov * Math.pi / 180.0, _aspect, _near, _far);
   }
 
   void UpdateFov(double fov) {

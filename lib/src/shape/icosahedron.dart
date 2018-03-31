@@ -1,11 +1,11 @@
 part of shape;
 
 double getU2(double z, double x) {
-  return 0.5 * (1.0 + Math.atan2(z, x) * (1 / Math.PI));
+  return 0.5 * (1.0 + Math.atan2(z, x) * (1 / Math.pi));
 }
 
 double getV2(double y) {
-  return Math.acos(y) * (1 / Math.PI);
+  return Math.acos(y) * (1 / Math.pi);
 }
 
 /*

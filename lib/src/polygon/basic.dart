@@ -21,10 +21,10 @@ double GetSignedArea(final List<VM.Vector2> contour) {
 }
 
 VM.Vector4 GetBounds(final List<VM.Vector2> contour) {
-  double maxX = double.NEGATIVE_INFINITY;
-  double minX = double.INFINITY;
-  double maxY = double.NEGATIVE_INFINITY;
-  double minY = double.INFINITY;
+  double maxX = double.negativeInfinity;
+  double minX = double.infinity;
+  double maxY = double.negativeInfinity;
+  double minY = double.infinity;
 
   for (VM.Vector2 v in contour) {
     maxX = Math.max(maxX, v.x);
@@ -180,7 +180,7 @@ List<VM.Vector2> ContourCircle(int nSegmemts, double radius,
     [bool ccw = true]) {
   List<VM.Vector2> out = new List<VM.Vector2>(nSegmemts);
   for (int i = 0; i < nSegmemts; ++i) {
-    double angle = Math.PI * 2 * i / nSegmemts * (ccw ? 1.0 : -1.0);
+    double angle = Math.pi * 2 * i / nSegmemts * (ccw ? 1.0 : -1.0);
     out[i] = new VM.Vector2(radius * Math.cos(angle), radius * Math.sin(angle));
   }
   return out;

@@ -59,7 +59,7 @@ void MakeSceneCubeSphere(ChronosGL cgl, RenderProgram prog, Node container) {
 
   // Subdivide plane to show Gourad shading issues
   Node grid = new Node("grid", ShapeGrid(prog, 20, 20, 80.0, 80.0), mats[0]);
-  grid.rotX(-MATH.pigit stat * 0.48);
+  grid.rotX(-MATH.pi * 0.48);
   grid.setPos(0.0, -20.0, 20.0);
   container.add(grid);
 }

@@ -25,7 +25,7 @@ List<List<VM.Vector3>> TubeHullBands(List<VM.Vector3> pointsAndTangents,
     v2.normalize();
 
     for (int j = 0; j < segments + extra; ++j) {
-      double v = j / segments * 2 * Math.PI;
+      double v = j / segments * 2 * Math.pi;
       double cx = radius * Math.cos(v);
       double cy = radius * Math.sin(v);
 
