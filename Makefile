@@ -5,6 +5,8 @@ export PATH := $(PATH):.
 PUB=/usr/lib/dart/bin/pub
 PORT=8000
 
+VERSION := $(shell grep version pubspec.yaml | cut -f 2 -d\ )
+
 documentation:
 	dart  tool/generate_documentation.dart > class_glossary.md
 
@@ -45,6 +47,10 @@ webserver_ddc:
 
 publish:
 	$(PUB) publish
+
+tag:
+	git tag $(VERSION) -m "$(VERSION)"
+        git show $(VERSION)
 
 ############################################################
 # TESTING
