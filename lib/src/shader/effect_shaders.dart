@@ -72,11 +72,9 @@ vec3 HSVtoRGB(vec3 hsv) {
 // http://coding-experiments.blogspot.sg/2011/01/toon-pixel-shader.html
 String _toonFragment = """
 
-float nearestLevel(float col, int mode) {
-   if (mode==0) return ceil(col / 80.0) * 80.0;
-	 else if (mode==1) return ceil(col * 6.0) / 6.0;
-	 else return ceil(col * 3.0) / 3.0;
-}
+vec3 config = vec3(1.0 / 80.0, 6.0, 3.0);
+// vec3 config = vec3(0.2, 2.0, 2.0);
+
 
 // averaged pixel intensity from 3 color channels
 float avg3(vec3 pix) {
@@ -87,7 +85,8 @@ vec3 get_pixel(vec2 coords, float dx, float dy) {
  return texture(${uTexture}, coords + vec2(dx, dy)).rgb;
 }
 
-// returns pixel color
+// returns pixel color using a strange kernel
+
 float IsEdge(vec2 coords, vec2 dim) {
   vec2 d = vec2(1.0, 1.0) / dim;
 
@@ -113,11 +112,11 @@ void main() {
     vec2 texdim = vec2(textureSize(${uTexture}, 0));
     vec4 colorOrg = texture(${uTexture}, ${vTexUV});
     vec3 vHSV =  RGBtoHSV(colorOrg.rgb);
-    vHSV.x = nearestLevel(vHSV.x, 0);
-    vHSV.y = nearestLevel(vHSV.y, 1);
-    vHSV.z = nearestLevel(vHSV.z, 2);
+    // find nearest level
+    vHSV =  ceil(vHSV * config) / config;
     float edg = IsEdge(${vTexUV}, texdim);
     vec3 vRGB = (edg >= 0.3) ? vec3(0.0,0.0,0.0) : HSVtoRGB(vHSV);
+    //vec3 vRGB = (edg >= 0.3) ? vec3(1.0, 1.0, 1.0) : vec3(0.0, 0.0, 0.0);
     //vec3 vRGB = HSVtoRGB(vHSV);
     ${oFragColor} = vec4(vRGB, 1.0);
 }
