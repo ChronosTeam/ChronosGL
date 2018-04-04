@@ -446,4 +446,51 @@ void main() {
     }
     ${oFragColor}.rgb = ${uColor} + sum;
 }
+
+"""]);
+
+final ShaderObject scanlineFragmentShader =
+    new ShaderObject("ScanlinePixelateF")
+      ..AddVaryingVars([vTexUV])
+      ..AddUniformVars([uTexture, uRange])
+      ..SetBody(["""
+      
+// const vec3 comp = vec3(0.05, 0.15, 0.95);
+const vec3 comp = vec3(0.1, 0.30, 0.85);
+
+void main() {
+    // number scan lines: texture height * 
+    vec2 sine_coord = ${uRange} * 2.0 * 3.1415;
+                        
+    sine_coord.x = 0.0;
+    vec3 color =  texture(${uTexture}, ${vTexUV}).xyz;
+    float m = comp.z + 
+              dot(comp.xy * sin(${vTexUV} * sine_coord), vec2(1.0, 1.0));
+    ${oFragColor} = vec4(color * m, 1.0);
+}
+"""]);
+
+final ShaderObject waterFragmentShader =
+    new ShaderObject("WaterPixelateF")
+      ..AddVaryingVars([vTexUV])
+      ..AddUniformVars([uTexture, uTime])
+      ..SetBody(["""
+float wave(vec2 pos, float srcX, float srcY, float t) {
+   float dist = 300.0 * length(pos - vec2(srcX, srcY));
+   return sin(dist - 0.15 * t);
+}
+
+void main() {
+    vec3 color =  texture(${uTexture}, ${vTexUV}).xyz;
+    float t =  ${uTime} * 20.0;
+    float res = 0.0;
+    res += wave(${vTexUV}, 0.6, 0.7, t);
+    res += wave(${vTexUV}, 0.9, 0.9, t);
+    res += wave(${vTexUV}, -0.6, 0.3, t);
+    res += wave(${vTexUV}, 0.1, 0.4, t);
+    // res += wave(${vTexUV}, 0.1, 0.4, t);
+    res += wave(${vTexUV}, 0.5, 0.5, t);
+    res += wave(${vTexUV}, -1.0, 1.4, t);
+    ${oFragColor} = vec4(color * (0.9 + 0.012 * res), 1.0);
+}
 """]);

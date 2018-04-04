@@ -55,6 +55,13 @@ void RegisterEffects(ChronosGL cgl) {
   new Effect(cgl, squarePixelateFragmentShader,
       new UniformGroup("square-8")..SetUniform(uPointSize, 8.0));
 
+  new Effect(
+      cgl,
+      scanlineFragmentShader,
+      new UniformGroup("scanline")
+        ..SetUniform(uRange, new VM.Vector2(120.0, 240.0)));
+
+  new Effect(cgl, waterFragmentShader, new UniformGroup("water"));
 
   new Effect(
       cgl,
