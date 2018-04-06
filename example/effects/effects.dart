@@ -158,6 +158,9 @@ void RegisterEffects(ChronosGL cgl, Texture fb) {
   new Effect(cgl, waterFragmentShader,
       new UniformGroup("water")..SetUniform(uTexture, fb));
 
+  new Effect(cgl, CrosshatchFragmentShader(0),
+      new UniformGroup("crosshatch")..SetUniform(uTexture, fb));
+
   new Effect(
       cgl,
       luminosityHighPassFragmentShader,

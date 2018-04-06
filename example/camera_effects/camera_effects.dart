@@ -63,6 +63,9 @@ void RegisterEffects(ChronosGL cgl) {
 
   new Effect(cgl, waterFragmentShader, new UniformGroup("water"));
 
+  new Effect(cgl, CrosshatchFragmentShader(0),
+      new UniformGroup("crosshatch"));
+
   new Effect(
       cgl,
       convolution3x3FragmentShader,
