@@ -484,7 +484,7 @@ float wave(vec2 pos, float srcX, float srcY, float t) {
 
 void main() {
     vec3 color =  texture(${uTexture}, ${vTexUV}).xyz;
-    float t =  ${uTime} * 20.0;
+    float t =  ${uTime} * 50.0;
     float res = 0.0;
     res += wave(${vTexUV}, 0.6, 0.7, t);
     res += wave(${vTexUV}, 0.9, 0.9, t);
@@ -559,6 +559,130 @@ void main()  {
 """
     ]);
 }
+
+// Technicolor effect from
+// http://001.vade.info/
+//
+// Sepia
+// http://www.nutty.ca/?page_id=352&link=old_film
+const String photoEffectHelper = """
+
+vec3 SepiaColor(float gray, float sepiaFactor) {
+    vec3 sepiaColor = vec3(112.0 / 255.0, 66.0 / 255.0, 20.0 / 255.0);
+    vec3 one3 = vec3(1.0);
+    vec3 color = gray <= 0.5 ?
+                 sepiaColor * 2.0 * gray :
+                 one3 - 2.0 * (1.0 - gray) * (one3 - sepiaColor);
+
+    return vec3(gray) + sepiaFactor * (color - vec3(gray));
+}
+
+// additive blend of red and blue channels
+vec3 Technicolor1(vec3 inColor, float amount) {	
+     vec2 bgFilter = vec2(1.0, 0.7);
+     float bg = dot(inColor.bg, bgFilter) * 0.5;
+     return mix(inColor, vec3(inColor.r, vec2(bg) * bgFilter), amount);
+}
+
+// multiplicative blend of red and blue channels
+vec3 Technicolor2(vec3 inColor, float amount) {	
+    // TODO: simply this mess
+    vec3 redfilter       = vec3(1.0, 0.0, 0.0);
+    vec3 bluegreenfilter = vec3(0.0, 1.0, 1.0);
+    vec3 cyanfilter      = vec3(0.0, 1.0, 0.5);
+    vec3 magentafilter   = vec3(1.0, 0.0, 0.25);
+
+	  vec3 redrecord       = inColor * redfilter;
+	  vec3 bluegreenrecord = inColor * bluegreenfilter;
+	
+	  vec3 rednegative = vec3(redrecord.r);
+	  vec3 bluegreennegative = vec3((bluegreenrecord.g + bluegreenrecord.b) * 0.5);
+	
+	  vec3 redoutput = rednegative + cyanfilter;
+	  vec3 bluegreenoutput = bluegreennegative + magentafilter;
+	
+	  vec3 result = redoutput * bluegreenoutput;
+	
+	  return mix(inColor, result, amount);
+}
+
+//  matting between all channels.
+vec3 Technicolor3(vec3 inColor, float amount) {		
+  vec3 matte = vec3(1.0) - inColor + (inColor.gbr + inColor.brg) * 0.5;
+ 	return mix(inColor, inColor * matte.gbr * matte.brg, amount);
+}
+
+// cyan, magenta, yellow and red/orange filters
+vec3 Technicolor4(vec3 inColor, float amount) {		
+    // TODO: simply this mess
+    vec3 greenfilter     = vec3(0.0, 1.0, 0.0);
+    vec3 magentafilter   = vec3(1.0, 0.0, 1.0);
+    vec3 redorangefilter = vec3(0.99, 0.263, 0.0);
+    vec3 cyanfilter      = vec3(0.0, 1.0, 1.0);
+    vec3 yellowfilter    = vec3(1.0, 1.0, 0.0);
+    
+    vec3 greenrecord = inColor * greenfilter;
+	  vec3 bluerecord  = inColor * magentafilter;
+    vec3 redrecord   = inColor * redorangefilter;
+    
+    vec3 rednegative   = vec3((redrecord.r + redrecord.g + redrecord.b) / 3.0);
+	  vec3 greennegative = vec3((greenrecord.r + greenrecord.g + greenrecord.b) / 3.0);
+	  vec3 bluenegative  = vec3((bluerecord.r + bluerecord.g + bluerecord.b ) / 3.0);
+	
+	  vec3 redoutput   = rednegative + cyanfilter;
+	  vec3 greenoutput = greennegative + magentafilter;
+	  vec3 blueoutput  =  bluenegative + yellowfilter;
+	
+	  vec3 result = redoutput * greenoutput * blueoutput;
+    return mix(inColor, result, amount);
+}
+
+float VignettingFactor(vec2 uv, float innerRadius, float outerRadius) {		
+	float d = distance(vec2(0.5, 0.5), uv) * 1.414213;
+	return clamp((outerRadius - d) / (outerRadius - innerRadius), 0.0, 1.0);
+}
+
+""";
+
+
+final ShaderObject sepiaFragmentShader =
+    new ShaderObject("sepiaPixelateF")
+      ..AddVaryingVars([vTexUV])
+      ..AddUniformVars([uTexture, uScale])
+      ..SetBody([photoEffectHelper,
+        """
+void main() { 
+    vec3 color = texture(${uTexture}, ${vTexUV}).rgb;
+    float gray = dot(color, vec3(0.3333));
+    // float gray = dot(color, vec3(0.2126, 0.7152, 0.0723));
+    ${oFragColor} = vec4(SepiaColor(gray, ${uScale}), 1.0);
+}
+"""]);
+
+final ShaderObject techicolorFragmentShader =
+    new ShaderObject("technicolorPixelateF")
+      ..AddVaryingVars([vTexUV])
+      ..AddUniformVars([uTexture, uScale])
+      ..SetBody([photoEffectHelper,
+        """
+void main() { 
+    vec3 color = texture(${uTexture}, ${vTexUV}).rgb;
+    ${oFragColor} = vec4(Technicolor3(color, 0.5), 1.0);
+}
+"""]);
+
+final ShaderObject vignettingFragmentShader =
+    new ShaderObject("vignettingPixelateF")
+      ..AddVaryingVars([vTexUV])
+      ..AddUniformVars([uTexture, uRange])
+      ..SetBody([photoEffectHelper,
+        """
+void main() { 
+    vec3 color = texture(${uTexture}, ${vTexUV}).rgb;
+    float v = VignettingFactor(${vTexUV}, ${uRange}.x, ${uRange}.y);
+    ${oFragColor} = vec4(color * v, 1.0);
+}
+"""]);
 
 /*
 // DOES NOT WORK YET
