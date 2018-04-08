@@ -26,3 +26,14 @@ html, body {
 	color: yellow;
 	background: white;
 }
+
+#info {
+	z-index: 10;
+	position: absolute;
+	right: 30%;
+	bottom: 5%;
+	color: white;
+	background: black;
+	font-size: 200%;
+	font-weight: bold;
+}
