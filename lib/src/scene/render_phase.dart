@@ -95,6 +95,7 @@ class RenderPhase extends NamedEntity {
     _scenes.add(s);
   }
 
+  // Draw all scenes in order of registration
   void Draw([List<DrawStats> stats]) {
     _framebuffer.Activate(
         _clear_mode, viewPortX, viewPortY, viewPortW, viewPortH);
