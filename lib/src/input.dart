@@ -93,17 +93,24 @@ class Mouse {
   static const int MIDDLE = 1;
   static const int LEFT = 0;
 
-  final Set<int> _currentlyPressedMouseButtons = new Set<int>();
+  final Set<int> _currentlyPressedButtons = new Set<int>();
+  final Set<int> _justPressedButtons = new Set<int>();
+  final Set<int> _justReleasedButtons = new Set<int>();
 
   int moveDeltaX = 0;
   int moveDeltaY = 0;
   int wheelDeltaY = 0;
+  int currentX = 0;
+  int currentY = 0;
 
   Mouse(dynamic elem) {
     if (elem == null) elem = HTML.document;
 
     elem.onMouseMove.listen((HTML.MouseEvent e) {
       e.preventDefault();
+
+      currentX = e.offset.x;
+      currentY = e.offset.y;
 
       moveDeltaX = e.movement.x;
       moveDeltaY = e.movement.y;
@@ -113,12 +120,14 @@ class Mouse {
     elem.onMouseDown.listen((HTML.MouseEvent e) {
       e.preventDefault();
       print("BUTTON ${e.button}");
-      _currentlyPressedMouseButtons.add(e.button);
+      _currentlyPressedButtons.add(e.button);
+      _justPressedButtons.add(e.button);
     });
 
     elem.onMouseUp.listen((HTML.MouseEvent e) {
       e.preventDefault();
-      _currentlyPressedMouseButtons.remove(e.button);
+      _currentlyPressedButtons.remove(e.button);
+      _justReleasedButtons.add(e.button);
     });
 
     elem.onMouseWheel.listen((HTML.WheelEvent e) {
@@ -158,13 +167,21 @@ class Mouse {
     */
   }
 
-  bool currentlyPressedMouseButton(int key) =>
-      _currentlyPressedMouseButtons.contains(key);
+  bool currentlyPressedButton(int key) =>
+      _currentlyPressedButtons.contains(key);
+
+  // if you use this function make sure you call AfterFrameCleanup
+  bool justPressedButton(int key) => _justPressedButtons.contains(key);
+
+  // if you use this function make sure you call AfterFrameCleanup
+  bool justReleasedButton(int key) => _justReleasedButtons.contains(key);
 
   void AfterFrameCleanup() {
     moveDeltaY = 0;
     moveDeltaX = 0;
     wheelDeltaY = 0;
+    _justReleasedButtons.clear();
+    _justPressedButtons.clear();
   }
 }
 
@@ -175,16 +192,16 @@ class OrbitCamera extends Camera {
   double roll = 0.0;
   final VM.Vector3 _lookAtPos = new VM.Vector3.zero();
   num mouseWheelFactor = -0.02;
-  final Keyboard _keyboard;
-  final Mouse _mouse;
+  final Keyboard keyboard;
+  final Mouse mouse;
 
   /// OrbitCamera initializes an orbiting camera
   ///
   /// @param this._radius blah
   /// @param this._polar blah
   OrbitCamera(this._radius, this.azimuth, this.polar, HTML.Element eventElement)
-      : _keyboard = new Keyboard(eventElement),
-        _mouse = new Mouse(eventElement),
+      : keyboard = new Keyboard(null),
+        mouse = new Mouse(eventElement),
         super("camera:orbit");
 
   void setLookAt(VM.Vector3 v) {
@@ -196,38 +213,38 @@ class OrbitCamera extends Camera {
   }
 
   void animate(double elapsed) {
-    if (_mouse.currentlyPressedMouseButton(Mouse.LEFT) ||
-        _mouse.currentlyPressedMouseButton(Mouse.MIDDLE)) {
+    if (mouse.currentlyPressedButton(Mouse.LEFT) ||
+        mouse.currentlyPressedButton(Mouse.MIDDLE)) {
       //azimuth += e.movement.x*0.01;
       //polar += e.movement.y*0.01;
-      azimuth += _mouse.moveDeltaX * 0.01;
-      polar += _mouse.moveDeltaY * 0.01;
+      azimuth += mouse.moveDeltaX * 0.01;
+      polar += mouse.moveDeltaY * 0.01;
     }
 
-    if (_keyboard.currentlyPressedKey(Keyboard.LEFT)) {
+    if (keyboard.currentlyPressedKey(Keyboard.LEFT)) {
       azimuth += (0.03);
-    } else if (_keyboard.currentlyPressedKey(Keyboard.RIGHT)) {
+    } else if (keyboard.currentlyPressedKey(Keyboard.RIGHT)) {
       azimuth -= (0.03);
     }
 
-    if (_keyboard.currentlyPressedKey(Keyboard.UP)) {
+    if (keyboard.currentlyPressedKey(Keyboard.UP)) {
       polar += (0.03);
-    } else if (_keyboard.currentlyPressedKey(Keyboard.DOWN)) {
+    } else if (keyboard.currentlyPressedKey(Keyboard.DOWN)) {
       polar -= (0.03);
     }
 
-    if (_keyboard.currentlyPressedKey(Keyboard.PAGEUP)) {
+    if (keyboard.currentlyPressedKey(Keyboard.PAGEUP)) {
       _radius *= 0.99;
-    } else if (_keyboard.currentlyPressedKey(Keyboard.PAGEDOWN)) {
+    } else if (keyboard.currentlyPressedKey(Keyboard.PAGEDOWN)) {
       _radius *= 1.01;
     }
 
-    if (_keyboard.currentlyPressedKey(Keyboard.SPACE)) {
+    if (keyboard.currentlyPressedKey(Keyboard.SPACE)) {
       azimuth = 0.0;
       polar = 0.0;
     }
 
-    double d = _mouse.wheelDeltaY * mouseWheelFactor;
+    double d = mouse.wheelDeltaY * mouseWheelFactor;
     if (_radius - d > 0) _radius -= d;
 
     polar = polar.clamp(-Math.pi / 2 + 0.1, Math.pi / 2 - 0.1);
@@ -235,8 +252,8 @@ class OrbitCamera extends Camera {
     addPosFromVec(_lookAtPos);
     lookAt(_lookAtPos);
     rollLeft(roll);
-    _keyboard.AfterFrameCleanup();
-    _mouse.AfterFrameCleanup();
+    keyboard.AfterFrameCleanup();
+    mouse.AfterFrameCleanup();
   }
 }
 
