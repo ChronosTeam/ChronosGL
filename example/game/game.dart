@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:math' as Math;
 import 'dart:html' as HTML;
+import 'dart:js' as JS;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -167,6 +168,48 @@ void ExtractSpriteSizes(List<Sprite> sprites, Float32List out) {
   }
 }
 
+/*
+class Gamepad {
+  int _index;
+  dynamic _gp;
+
+  // index zero is always null!
+  Gamepad([this._index = -1]);
+
+  bool _LazyInitialize() {
+    if (_gp != null) return true;
+    dynamic nav = JS.context["navigator"];
+    dynamic pads = nav.callMethod("getGamepads");
+    final int n = pads["length"];
+    print (pads);
+    print (pads["length"]);
+    for (int i = 0; i < n; i++) {
+      dynamic p = pads.callMethod("item", [i]);
+      // print("${_index} $p");
+      if ((i == _index || _index == -1) && p != null) {
+        print('found gamepad: ${p["id"]} ${p["mapping"]}');
+        print('buttons: ${p["buttons"]} axes: ${p["axes"]}');
+        _gp = p;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void Try() {
+    if (!_LazyInitialize()) return;
+   dynamic axes = _gp["axes"];
+   dynamic buttons = _gp["buttons"];
+    print("axis: ${axes}");
+    print("pressed: ${buttons[0]["pressed"]} ${buttons[1]["pressed"]}");
+  }
+
+  void AfterFrameCleanup() {}
+}
+*/
+
+final HTML.DivElement info = HTML.document.querySelector('#info');
+
 class Gamepad {
   int _index;
   HTML.Gamepad _gp;
@@ -193,13 +236,14 @@ class Gamepad {
 
   void Try() {
     if (!_LazyInitialize()) return;
-
-    print("axis: ${_gp.axes}");
-    print("pressed: ${_gp.buttons[0].pressed} ${_gp.buttons[1].pressed}");
+    List<bool> bs = [];
+    for (var b in _gp.buttons) bs.add(b.pressed);
+    info.innerHtml = "device: ${_gp.id}<br>axes: ${_gp.axes}<br>buttons: ${bs}";
   }
 
   void AfterFrameCleanup() {}
 }
+
 
 void HandleUseInput(Keyboard input, Gamepad gamepad, List<Sprite> sprites) {
   if (input.currentlyPressedKey(Keyboard.LEFT)) {

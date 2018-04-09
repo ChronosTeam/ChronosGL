@@ -12,13 +12,15 @@ Map<String, VM.Vector3> ShapeToColor = {
 };
 
 void main() {
-  HTML.DivElement info = HTML.document.querySelector('#info');
+  final HTML.DivElement info = HTML.document.querySelector('#info');
 
   final StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
+  final Object ext = cgl.getExtension("WEBGL_get_buffer_sub_data_async");
+  print("Ext ${ext}");
   OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
 
   Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
@@ -84,28 +86,38 @@ void main() {
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
 
-  List<String> out = [
-    "<h2>&nbsp;Press shift to pick object under cursor&nbsp;</h2>",
-    ""
-  ];
-
   final Uint8List pixelData = new Uint8List(1 * 4);
+  final Object pbo = cgl.createBuffer();
+  cgl.BufferDataSetSize(GL_PIXEL_PACK_BUFFER, pbo, 4, GL_DYNAMIC_READ);
 
   String getShapeUnderCusorInfo() {
+    DateTime start = new DateTime.now();
     int x = orbit.mouse.currentX;
     int y = canvas.clientHeight - orbit.mouse.currentY;
-    // This also works
-    //new Framebuffer.Screen(cgl).ExtractByteData(pixelData, x, y, 1, 1);
-    cgl.readPixels(x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixelData);
-    VM.Vector3 pick = new VM.Vector3(
-        pixelData[0] + 0.0, pixelData[1] + 0.0, pixelData[2] + 0.0)
-      ..scale(1.0 / 255.0);
+    VM.Vector3 pick;
+    if (ext != null && false) {
+      cgl.bindBuffer(GL_PIXEL_PACK_BUFFER, pbo);
+      cgl.readPixelsToBuffer(x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+      cgl.bindBuffer(GL_PIXEL_PACK_BUFFER, null);
+      //print("@@@@ promise ${promise}");
+      return "@@TEXT ${x}.${y}";
+    } else {
+      // This also works
+      //new Framebuffer.Screen(cgl).ExtractByteData(pixelData, x, y, 1, 1);
+      cgl.readPixels(x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixelData);
+      pick = new VM.Vector3(
+          pixelData[0] + 0.0, pixelData[1] + 0.0, pixelData[2] + 0.0)
+        ..scale(1.0 / 255.0);
+    }
+    String shape = "NONE";
     for (String name in ShapeToColor.keys) {
       if (ShapeToColor[name] == pick) {
-        return "${x}.${y} ${pixelData}: ${name}";
+        shape = name;
+        break;
       }
     }
-    return "${x}.${y} ${pixelData}: NONE";
+    Duration dur = new DateTime.now().difference(start);
+    return "${shape}<br>${x}.${y}<br>${pixelData}<br>${dur.inMicroseconds}us";
   }
 
   double _lastTimeMs = 0.0;

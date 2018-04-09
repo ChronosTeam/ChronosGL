@@ -30,8 +30,8 @@ html, body {
 #info {
 	z-index: 10;
 	position: absolute;
-	right: 30%;
-	bottom: 5%;
+	left: 5%;
+	top: 5%;
 	color: white;
 	background: black;
 	font-size: 200%;
