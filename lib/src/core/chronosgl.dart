@@ -108,6 +108,12 @@ class ChronosGL {
     _gl.getBufferSubData(GL_ARRAY_BUFFER, 0, data);
   }
 
+  void BufferDataSetSize(int kind, WEBGL.Buffer buf, int size, int usage) {
+    _gl.bindBuffer(kind, buf);
+    _gl.bufferData(kind, size, usage);
+    _gl.bindBuffer(kind, null);
+  }
+
   void GetTransformBuffer(WEBGL.Buffer buf, TypedData data) {
     _gl.bindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, buf);
     _gl.getBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, data.buffer);
@@ -328,6 +334,11 @@ class ChronosGL {
   void readPixels(
       int x, int y, int w, int h, int implFormat, int implType, TypedData buf) {
     _gl.readPixels(x, y, w, h, implFormat, implType, buf);
+  }
+
+  void readPixelsToBuffer(
+      int x, int y, int w, int h, int implFormat, int implType, int offset) {
+    _gl.readPixels(x, y, w, h, implFormat, implType, offset);
   }
 
   String getProgramInfoLog(WEBGL.Program program) {
