@@ -72,11 +72,9 @@ vec3 HSVtoRGB(vec3 hsv) {
 // http://coding-experiments.blogspot.sg/2011/01/toon-pixel-shader.html
 String _toonFragment = """
 
-float nearestLevel(float col, int mode) {
-   if (mode==0) return ceil(col / 80.0) * 80.0;
-	 else if (mode==1) return ceil(col * 6.0) / 6.0;
-	 else return ceil(col * 3.0) / 3.0;
-}
+vec3 config = vec3(1.0 / 80.0, 6.0, 3.0);
+// vec3 config = vec3(0.2, 2.0, 2.0);
+
 
 // averaged pixel intensity from 3 color channels
 float avg3(vec3 pix) {
@@ -87,7 +85,8 @@ vec3 get_pixel(vec2 coords, float dx, float dy) {
  return texture(${uTexture}, coords + vec2(dx, dy)).rgb;
 }
 
-// returns pixel color
+// returns pixel color using a strange kernel
+
 float IsEdge(vec2 coords, vec2 dim) {
   vec2 d = vec2(1.0, 1.0) / dim;
 
@@ -113,11 +112,11 @@ void main() {
     vec2 texdim = vec2(textureSize(${uTexture}, 0));
     vec4 colorOrg = texture(${uTexture}, ${vTexUV});
     vec3 vHSV =  RGBtoHSV(colorOrg.rgb);
-    vHSV.x = nearestLevel(vHSV.x, 0);
-    vHSV.y = nearestLevel(vHSV.y, 1);
-    vHSV.z = nearestLevel(vHSV.z, 2);
+    // find nearest level
+    vHSV =  ceil(vHSV * config) / config;
     float edg = IsEdge(${vTexUV}, texdim);
     vec3 vRGB = (edg >= 0.3) ? vec3(0.0,0.0,0.0) : HSVtoRGB(vHSV);
+    //vec3 vRGB = (edg >= 0.3) ? vec3(1.0, 1.0, 1.0) : vec3(0.0, 0.0, 0.0);
     //vec3 vRGB = HSVtoRGB(vHSV);
     ${oFragColor} = vec4(vRGB, 1.0);
 }
@@ -241,11 +240,10 @@ void main() {
 }
 """;
 
-final ShaderObject tvDistortionFragmentShader =
-    new ShaderObject("DotF")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uScale, uTime, uTexture])
-      ..SetBody([_tvDistortionFragment]);
+final ShaderObject tvDistortionFragmentShader = new ShaderObject("DotF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uScale, uTime, uTexture])
+  ..SetBody([_tvDistortionFragment]);
 
 const String _kaleidoscopeFragment = """
 vec2 kaleidoscope( vec2 uv, float n) {
@@ -263,11 +261,10 @@ void main() {
 }
 """;
 
-final ShaderObject kaleidoscopeShader =
-    new ShaderObject("KaleidoscopeF")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uScale, uCenter2, uTexture])
-      ..SetBody([_kaleidoscopeFragment]);
+final ShaderObject kaleidoscopeShader = new ShaderObject("KaleidoscopeF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uScale, uCenter2, uTexture])
+  ..SetBody([_kaleidoscopeFragment]);
 
 // Inspired by https://www.shadertoy.com/view/MtcXRB
 const String _lumidotsFragment = """
@@ -290,11 +287,10 @@ void main() {
 }
 """;
 
-final ShaderObject lumidotsFragmentShader =
-    new ShaderObject("LumidotsF")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uPointSize, uTexture])
-      ..SetBody([_lumidotsFragment]);
+final ShaderObject lumidotsFragmentShader = new ShaderObject("LumidotsF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uPointSize, uTexture])
+  ..SetBody([_lumidotsFragment]);
 
 const String _squarePixelateFragment = """
 void main() {
@@ -332,12 +328,11 @@ final ShaderObject luminosityHighPassFragmentShader =
       ..AddUniformVars([uRange, uColorAlpha, uTexture])
       ..SetBody([_luminosityHighPassFragment]);
 
-
-final ShaderObject fisheyeFragmentShader =
-    new ShaderObject("FisheyePassF")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uTexture])
-      ..SetBody(["""
+final ShaderObject fisheyeFragmentShader = new ShaderObject("FisheyePassF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uTexture])
+  ..SetBody([
+    """
 
 float fisheye_radius = 1.0;
       
@@ -354,14 +349,14 @@ void main() {
     vec2 uv = vec2(${vTexUV}.x, normalized_arc_length); 
     ${oFragColor} = texture(${uTexture}, uv); 
 }
-"""]);
+"""
+  ]);
 
-
-final ShaderObject filmFragmentShader =
-    new ShaderObject("FilmPassF")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uTexture])
-      ..SetBody(["""
+final ShaderObject filmFragmentShader = new ShaderObject("FilmPassF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uTexture])
+  ..SetBody([
+    """
 
 vec2 translation = vec2(0.1, 0.0);
 float frame = 1.0;
@@ -404,38 +399,41 @@ void main() {
     uv = vec2(${vTexUV}.x, mod(uv.y, 1.));
     ${oFragColor} = vec4(scene(uv), 1.);
 }
-"""]);
+"""
+  ]);
 
-
-final VM.Matrix3 ConvolutionMatrixEmboss = new VM.Matrix3(
-    -1.0, 0.0, -1.0, 0.0, 4.0, 0.0, -1.0, 0.0, -1.0);
+final VM.Matrix3 ConvolutionMatrixEmboss =
+    new VM.Matrix3(-1.0, 0.0, -1.0, 0.0, 4.0, 0.0, -1.0, 0.0, -1.0);
 final VM.Vector3 ConvolutionOffsetEmboss = new VM.Vector3(0.5, 0.5, 0.5);
 
-final VM.Matrix3 ConvolutionMatrixEmboss2 = new VM.Matrix3(
-    2.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -1.0);
+final VM.Matrix3 ConvolutionMatrixEmboss2 =
+    new VM.Matrix3(2.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -1.0);
 final VM.Vector3 ConvolutionOffsetEmboss2 = new VM.Vector3(0.5, 0.5, 0.5);
 
-final VM.Matrix3 ConvolutionMatrixEngrave = new VM.Matrix3(
-    -2.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0);
+final VM.Matrix3 ConvolutionMatrixEngrave =
+    new VM.Matrix3(-2.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0);
 final VM.Vector3 ConvolutionOffsetEngrave = new VM.Vector3(0.37, 0.37, 0.37);
 
-final VM.Matrix3 ConvolutionMatrixSharpen = new VM.Matrix3(
-    0.0, -2.0, 0.0, -2.0, 11.0, -2.0, 0.0, -2.0, 0.0)..scale(0.333);
+final VM.Matrix3 ConvolutionMatrixSharpen =
+    new VM.Matrix3(0.0, -2.0, 0.0, -2.0, 11.0, -2.0, 0.0, -2.0, 0.0)
+      ..scale(0.333);
 final VM.Vector3 ConvolutionOffsetSharpen = new VM.Vector3(0.0, 0.0, 0.0);
 
-final VM.Matrix3 ConvolutionMatrixEdges = new VM.Matrix3(
-    -1.0, -1.0, -1.0, -1.0, 8.0, -1.0, -1.0, -1.0, -1.0);
+final VM.Matrix3 ConvolutionMatrixEdges =
+    new VM.Matrix3(-1.0, -1.0, -1.0, -1.0, 8.0, -1.0, -1.0, -1.0, -1.0);
 final VM.Vector3 ConvolutionOffsetEdges = new VM.Vector3(0.0, 0.0, 0.0);
 
-final VM.Matrix3 ConvolutionMatrixBlur = new VM.Matrix3(
-    1.0, 2.0, 1.0, 2.0, 4.0, 2.0, 1.0, 2.0, 1.0)..scale(1.0 / 16.0);
+final VM.Matrix3 ConvolutionMatrixBlur =
+    new VM.Matrix3(1.0, 2.0, 1.0, 2.0, 4.0, 2.0, 1.0, 2.0, 1.0)
+      ..scale(1.0 / 16.0);
 final VM.Vector3 ConvolutionOffsetBlur = new VM.Vector3(0.0, 0.0, 0.0);
 
 final ShaderObject convolution3x3FragmentShader =
     new ShaderObject("Convolution3x3F")
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTexture, uColor, uConvolutionMatrix])
-      ..SetBody(["""
+      ..SetBody([
+        """
 void main() {
     mat3 m = ${uConvolutionMatrix};
     vec2 d = 1.0 / vec2(textureSize(${uTexture}, 0));
@@ -447,4 +445,288 @@ void main() {
     }
     ${oFragColor}.rgb = ${uColor} + sum;
 }
+
+"""
+      ]);
+
+final ShaderObject scanlineFragmentShader =
+    new ShaderObject("ScanlinePixelateF")
+      ..AddVaryingVars([vTexUV])
+      ..AddUniformVars([uTexture, uRange])
+      ..SetBody([
+        """
+      
+// const vec3 comp = vec3(0.05, 0.15, 0.95);
+const vec3 comp = vec3(0.1, 0.30, 0.85);
+
+void main() {
+    // number scan lines: texture height * 
+    vec2 sine_coord = ${uRange} * 2.0 * 3.1415;
+                        
+    sine_coord.x = 0.0;
+    vec3 color =  texture(${uTexture}, ${vTexUV}).xyz;
+    float m = comp.z + 
+              dot(comp.xy * sin(${vTexUV} * sine_coord), vec2(1.0, 1.0));
+    ${oFragColor} = vec4(color * m, 1.0);
+}
+"""
+      ]);
+
+final ShaderObject waterFragmentShader = new ShaderObject("WaterPixelateF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uTexture, uTime])
+  ..SetBody([
+    """
+float wave(vec2 pos, float srcX, float srcY, float t) {
+   float dist = 300.0 * length(pos - vec2(srcX, srcY));
+   return sin(dist - 0.15 * t);
+}
+
+void main() {
+    vec3 color =  texture(${uTexture}, ${vTexUV}).xyz;
+    float t =  ${uTime} * 50.0;
+    float res = 0.0;
+    res += wave(${vTexUV}, 0.6, 0.7, t);
+    res += wave(${vTexUV}, 0.9, 0.9, t);
+    res += wave(${vTexUV}, -0.6, 0.3, t);
+    res += wave(${vTexUV}, 0.1, 0.4, t);
+    // res += wave(${vTexUV}, 0.1, 0.4, t);
+    res += wave(${vTexUV}, 0.5, 0.5, t);
+    res += wave(${vTexUV}, -1.0, 1.4, t);
+    ${oFragColor} = vec4(color * (0.9 + 0.012 * res), 1.0);
+}
+"""
+  ]);
+
+ShaderObject CrosshatchFragmentShader(int mode) {
+  return new ShaderObject("crosshatchPixelateF")
+    ..AddVaryingVars([vTexUV])
+    ..AddUniformVars([uTexture])
+    ..SetBody(["#define MODE ${mode}",
+    """
+float level1 = 1.0;
+float level2 = 0.7;
+float level3 = 0.5;
+float level4 = 0.3;
+
+float dist = 10.0;
+float thickness = 0.5;
+
+#if MODE == 0
+// diagonal crosshach
+vec2 slope = vec2(1.0, 1.0);
+#elif MODE == 1
+// regular crosshatch
+vec2 slope = vec2(1.0, 0.0);
+#else
+ERROR
+#endif
+
+float PixelColor(vec2 pixel, float lum) {
+    if (lum < level1) {
+        // main anti diagonal
+        if (mod(pixel.x * slope.x + pixel.y * slope.y, dist) <= thickness) return 0.0; 
+    }  
+  
+    if (lum < level2) { 
+        // main diagonal
+        if (mod(pixel.x * slope.y - pixel.y * slope.x, dist) <= thickness) return 0.0;
+    }  
+  
+    if (lum < level3) {
+        // inbetween anti diagonals
+        if (mod(pixel.x * slope.x + pixel.y * slope.y - dist * 0.5, dist) <= thickness) return 0.0;
+    }  
+  
+    if (lum < level4) {
+        // inbetween main diagonals
+        if (mod(pixel.x * slope.y - pixel.y * slope.x - dist * 0.5, dist) <= thickness) return 0.0;
+    } 
+    
+    return 1.0;
+}       
+       
+void main()  { 
+    vec2 pixel = gl_FragCoord.xy;  // this is really pixel + 0.5
+   
+    float lum = dot(vec3(0.2126, 0.7152, 0.0723), 
+                    texture(${uTexture}, ${vTexUV}).rgb);
+    
+    float color = PixelColor(pixel, lum);
+    ${oFragColor} = vec4(vec3(color), 1.0);  
+}      
+
+"""
+    ]);
+}
+
+// Technicolor effect from
+// http://001.vade.info/
+//
+// Sepia
+// http://www.nutty.ca/?page_id=352&link=old_film
+const String photoEffectHelper = """
+
+vec3 SepiaColor(float gray, float sepiaFactor) {
+    vec3 sepiaColor = vec3(112.0 / 255.0, 66.0 / 255.0, 20.0 / 255.0);
+    vec3 one3 = vec3(1.0);
+    vec3 color = gray <= 0.5 ?
+                 sepiaColor * 2.0 * gray :
+                 one3 - 2.0 * (1.0 - gray) * (one3 - sepiaColor);
+
+    return vec3(gray) + sepiaFactor * (color - vec3(gray));
+}
+
+// additive blend of red and blue channels
+vec3 Technicolor1(vec3 inColor, float amount) {	
+     vec2 bgFilter = vec2(1.0, 0.7);
+     float bg = dot(inColor.bg, bgFilter) * 0.5;
+     return mix(inColor, vec3(inColor.r, vec2(bg) * bgFilter), amount);
+}
+
+// multiplicative blend of red and blue channels
+vec3 Technicolor2(vec3 inColor, float amount) {	
+    // TODO: simply this mess
+    vec3 redfilter       = vec3(1.0, 0.0, 0.0);
+    vec3 bluegreenfilter = vec3(0.0, 1.0, 1.0);
+    vec3 cyanfilter      = vec3(0.0, 1.0, 0.5);
+    vec3 magentafilter   = vec3(1.0, 0.0, 0.25);
+
+	  vec3 redrecord       = inColor * redfilter;
+	  vec3 bluegreenrecord = inColor * bluegreenfilter;
+	
+	  vec3 rednegative = vec3(redrecord.r);
+	  vec3 bluegreennegative = vec3((bluegreenrecord.g + bluegreenrecord.b) * 0.5);
+	
+	  vec3 redoutput = rednegative + cyanfilter;
+	  vec3 bluegreenoutput = bluegreennegative + magentafilter;
+	
+	  vec3 result = redoutput * bluegreenoutput;
+	
+	  return mix(inColor, result, amount);
+}
+
+//  matting between all channels.
+vec3 Technicolor3(vec3 inColor, float amount) {		
+  vec3 matte = vec3(1.0) - inColor + (inColor.gbr + inColor.brg) * 0.5;
+ 	return mix(inColor, inColor * matte.gbr * matte.brg, amount);
+}
+
+// cyan, magenta, yellow and red/orange filters
+vec3 Technicolor4(vec3 inColor, float amount) {		
+    // TODO: simply this mess
+    vec3 greenfilter     = vec3(0.0, 1.0, 0.0);
+    vec3 magentafilter   = vec3(1.0, 0.0, 1.0);
+    vec3 redorangefilter = vec3(0.99, 0.263, 0.0);
+    vec3 cyanfilter      = vec3(0.0, 1.0, 1.0);
+    vec3 yellowfilter    = vec3(1.0, 1.0, 0.0);
+    
+    vec3 greenrecord = inColor * greenfilter;
+	  vec3 bluerecord  = inColor * magentafilter;
+    vec3 redrecord   = inColor * redorangefilter;
+    
+    vec3 rednegative   = vec3((redrecord.r + redrecord.g + redrecord.b) / 3.0);
+	  vec3 greennegative = vec3((greenrecord.r + greenrecord.g + greenrecord.b) / 3.0);
+	  vec3 bluenegative  = vec3((bluerecord.r + bluerecord.g + bluerecord.b ) / 3.0);
+	
+	  vec3 redoutput   = rednegative + cyanfilter;
+	  vec3 greenoutput = greennegative + magentafilter;
+	  vec3 blueoutput  =  bluenegative + yellowfilter;
+	
+	  vec3 result = redoutput * greenoutput * blueoutput;
+    return mix(inColor, result, amount);
+}
+
+float VignettingFactor(vec2 uv, float innerRadius, float outerRadius) {		
+	float d = distance(vec2(0.5, 0.5), uv) * 1.414213;
+	return clamp((outerRadius - d) / (outerRadius - innerRadius), 0.0, 1.0);
+}
+
+""";
+
+
+final ShaderObject sepiaFragmentShader =
+    new ShaderObject("sepiaPixelateF")
+      ..AddVaryingVars([vTexUV])
+      ..AddUniformVars([uTexture, uScale])
+      ..SetBody([photoEffectHelper,
+        """
+void main() { 
+    vec3 color = texture(${uTexture}, ${vTexUV}).rgb;
+    float gray = dot(color, vec3(0.3333));
+    // float gray = dot(color, vec3(0.2126, 0.7152, 0.0723));
+    ${oFragColor} = vec4(SepiaColor(gray, ${uScale}), 1.0);
+}
 """]);
+
+final ShaderObject techicolorFragmentShader =
+    new ShaderObject("technicolorPixelateF")
+      ..AddVaryingVars([vTexUV])
+      ..AddUniformVars([uTexture, uScale])
+      ..SetBody([photoEffectHelper,
+        """
+void main() { 
+    vec3 color = texture(${uTexture}, ${vTexUV}).rgb;
+    ${oFragColor} = vec4(Technicolor3(color, 0.5), 1.0);
+}
+"""]);
+
+final ShaderObject vignettingFragmentShader =
+    new ShaderObject("vignettingPixelateF")
+      ..AddVaryingVars([vTexUV])
+      ..AddUniformVars([uTexture, uRange])
+      ..SetBody([photoEffectHelper,
+        """
+void main() { 
+    vec3 color = texture(${uTexture}, ${vTexUV}).rgb;
+    float v = VignettingFactor(${vTexUV}, ${uRange}.x, ${uRange}.y);
+    ${oFragColor} = vec4(color * v, 1.0);
+}
+"""]);
+
+/*
+// DOES NOT WORK YET
+final ShaderObject waterColorFragmentShader =
+    new ShaderObject("WaterColorPixelateF")
+      ..AddVaryingVars([vTexUV])
+      ..AddUniformVars([uTexture])
+      ..SetBody([
+        """
+      
+vec3 compress(vec3 color, float threshold, float ratio) {
+   vec3 diff = clamp(color - vec3(threshold), 0.0, 100.0);
+   return clamp(color - diff * (1.0 - 1.0/ratio), 0.0, 1.0);
+}
+
+void main() {
+    vec2 d = 0.5 / vec2(textureSize(${uTexture}, 0));
+    float dx = d.x;
+    float dy = d.y;
+    vec2 pixel = ${vTexUV} * vec2(textureSize(${uTexture}, 0)) + vec2(0.5);
+  
+    vec3 first = mix(texture(${uTexture}, ${vTexUV} + vec2(-dx, -dy)).rgb,
+                     texture(${uTexture}, ${vTexUV} + vec2(dx, -dy)).rgb,
+                     fract(pixel.x));
+   
+    vec3 second = mix(texture(${uTexture}, ${vTexUV} + vec2(-dx, dy)).rgb,
+                      texture(${uTexture}, ${vTexUV} + vec2(dx, dy)).rgb,
+                      fract(pixel.x));
+
+    vec3 mid_horiz = mix(texture(${uTexture}, ${vTexUV} + vec2(-dx, 0.0)).rgb,
+                         texture(${uTexture}, ${vTexUV} + vec2(dx, 0.0)).rgb,
+                         fract(pixel.x));
+  
+    vec3 mid_vert = mix(texture(${uTexture}, ${vTexUV} + vec2(0.0, -dy)).rgb,
+                        texture(${uTexture}, ${vTexUV} + vec2(0.0, dy)).rgb,
+                        fract(pixel.y));
+
+    vec3 res = mix(first, second, fract(pixel.y));
+    vec3 final = 0.26 * (res + mid_horiz + mid_vert) + 
+                 3.5 * abs(res - mix(mid_horiz, mid_vert, 0.5));
+    ${oFragColor} = vec4(compress(final, 0.8, 5.0), 1.0);
+    
+}
+
+"""
+      ]);
+*/

@@ -150,6 +150,19 @@ void RegisterEffects(ChronosGL cgl, Texture fb) {
 
   new Effect(
       cgl,
+      scanlineFragmentShader,
+      new UniformGroup("scanline")
+        ..SetUniform(uRange, new VM.Vector2(120.0, 240.0))
+        ..SetUniform(uTexture, fb));
+
+  new Effect(cgl, waterFragmentShader,
+      new UniformGroup("water")..SetUniform(uTexture, fb));
+
+  new Effect(cgl, CrosshatchFragmentShader(0),
+      new UniformGroup("crosshatch")..SetUniform(uTexture, fb));
+
+  new Effect(
+      cgl,
       luminosityHighPassFragmentShader,
       new UniformGroup("luminosity-highpass")
         ..SetUniform(uRange, new VM.Vector2(0.85, 0.86))
@@ -263,6 +276,8 @@ void main() {
     } else if (gEffect.value == "lumidots-varying") {
       active.uniforms
           .ForceUniform(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
+    } else if (gEffect.value == "water") {
+      active.uniforms.ForceUniform(uTime,  _lastTimeMs / 1000.0);
     }
 
     // Draw logo to fb

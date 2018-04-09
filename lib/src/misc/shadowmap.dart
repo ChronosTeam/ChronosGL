@@ -108,6 +108,9 @@ class ShadowMap {
   ShadowMap(this._cgl, int w, int h, double near, double far,
       {int format = GL_DEPTH_COMPONENT24}) {
     _mapSize = new VM.Vector2(w + 0.0, h + 0.0);
+    // We do not really need a proper frame buffer texture as we are only
+    // concerned about updated the depth buffer.
+    // TODO: is there a way to disable the framebuffer writes altogether?
     Texture dummy = new TypedTexture(
         _cgl, "frame::color", w, h, GL_RGBA8, TexturePropertiesFramebuffer);
     _depthTexture = new TypedTexture(

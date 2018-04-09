@@ -30,9 +30,9 @@ void RegisterEffects(ChronosGL cgl) {
   new Effect(
       cgl,
       hexPixelateFragmentShader,
-      new UniformGroup("hexalate-10")
+      new UniformGroup("hexalate-6")
         ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
-        ..SetUniform(uPointSize, 10.0));
+        ..SetUniform(uPointSize, 6.0));
 
   new Effect(
       cgl,
@@ -50,11 +50,31 @@ void RegisterEffects(ChronosGL cgl) {
         ..SetUniform(uTime, 0.0));
 
   new Effect(cgl, lumidotsFragmentShader,
-      new UniformGroup("lumidots-8")..SetUniform(uPointSize, 8.0));
+      new UniformGroup("lumidots-4")..SetUniform(uPointSize, 4.0));
 
   new Effect(cgl, squarePixelateFragmentShader,
-      new UniformGroup("square-8")..SetUniform(uPointSize, 8.0));
+      new UniformGroup("square-4")..SetUniform(uPointSize, 4.0));
 
+  new Effect(
+      cgl,
+      scanlineFragmentShader,
+      new UniformGroup("scanline")
+        ..SetUniform(uRange, new VM.Vector2(120.0, 240.0)));
+
+  new Effect(cgl, waterFragmentShader, new UniformGroup("water"));
+
+  new Effect(cgl, CrosshatchFragmentShader(0), new UniformGroup("crosshatch"));
+
+  new Effect(cgl, sepiaFragmentShader,
+      new UniformGroup("sepia")..SetUniform(uScale, 0.5));
+
+  new Effect(cgl, techicolorFragmentShader, new UniformGroup("technicolor"));
+
+  new Effect(
+      cgl,
+      vignettingFragmentShader,
+      new UniformGroup("vigenetting")
+        ..SetUniform(uRange, new VM.Vector2(0.4, 0.7)));
 
   new Effect(
       cgl,
