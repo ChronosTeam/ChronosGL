@@ -338,7 +338,7 @@ class ChronosGL {
 
   void readPixelsToBuffer(
       int x, int y, int w, int h, int implFormat, int implType, int offset) {
-    _gl.readPixels(x, y, w, h, implFormat, implType, offset);
+    _gl.readPixels2(x, y, w, h, implFormat, implType, offset);
   }
 
   String getProgramInfoLog(WEBGL.Program program) {

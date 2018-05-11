@@ -1,4 +1,4 @@
-export PATH := $(PATH):.
+export PATH := $(PATH):$(HOME)/.pub-cache/bin:.
 
 .PHONY=documentation examples tests presubmit buildall
 
@@ -42,15 +42,18 @@ simple_example:
 	@echo example can be found in "file://${PWD}/build/example/simple/simple.html"
 	@echo
 
-webserver_ddc:
-	$(PUB) serve example/ --web-compiler=dartdevc
+serve:
+	webdev serve example/ 
 
 publish:
 	$(PUB) publish
 
+get:
+	$(PUB) get
+
 tag:
 	git tag $(VERSION) -m "$(VERSION)"
-        git show $(VERSION)
+	git show $(VERSION)
 
 ############################################################
 # TESTING

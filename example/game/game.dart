@@ -168,53 +168,18 @@ void ExtractSpriteSizes(List<Sprite> sprites, Float32List out) {
   }
 }
 
-/*
-class Gamepad {
-  int _index;
-  dynamic _gp;
-
-  // index zero is always null!
-  Gamepad([this._index = -1]);
-
-  bool _LazyInitialize() {
-    if (_gp != null) return true;
-    dynamic nav = JS.context["navigator"];
-    dynamic pads = nav.callMethod("getGamepads");
-    final int n = pads["length"];
-    print (pads);
-    print (pads["length"]);
-    for (int i = 0; i < n; i++) {
-      dynamic p = pads.callMethod("item", [i]);
-      // print("${_index} $p");
-      if ((i == _index || _index == -1) && p != null) {
-        print('found gamepad: ${p["id"]} ${p["mapping"]}');
-        print('buttons: ${p["buttons"]} axes: ${p["axes"]}');
-        _gp = p;
-        return true;
-      }
-    }
-    return false;
-  }
-
-  void Try() {
-    if (!_LazyInitialize()) return;
-   dynamic axes = _gp["axes"];
-   dynamic buttons = _gp["buttons"];
-    print("axis: ${axes}");
-    print("pressed: ${buttons[0]["pressed"]} ${buttons[1]["pressed"]}");
-  }
-
-  void AfterFrameCleanup() {}
-}
-*/
 
 final HTML.DivElement info = HTML.document.querySelector('#info');
 
 class Gamepad {
   int _index;
   HTML.Gamepad _gp;
+  double x = 0.0;
+  double y = 0.0;
+  bool button = false;
+  bool justPressed = false;
+  bool justReleased = false;
 
-  // index zero is always null!
   Gamepad([this._index = -1]);
 
   bool _LazyInitialize() {
@@ -227,6 +192,7 @@ class Gamepad {
         print("found gamepad: ${p.id} ${p.mapping}");
         print("buttons: ${p.buttons.length} axes: ${p.axes.length}");
         _gp = p;
+        _index = count;
         return true;
       }
       count++;
@@ -234,27 +200,49 @@ class Gamepad {
     return false;
   }
 
-  void Try() {
-    if (!_LazyInitialize()) return;
+  void Poll() {
+    if (!_LazyInitialize()) {
+      info.innerHtml = "no joystick detected";
+      return;
+    }
+    // This reloading should not be necessary
+    _gp = HTML.window.navigator.getGamepads()[_index];
     List<bool> bs = [];
-    for (var b in _gp.buttons) bs.add(b.pressed);
-    info.innerHtml = "device: ${_gp.id}<br>axes: ${_gp.axes}<br>buttons: ${bs}";
+    for (var b in _gp.buttons) {
+      bs.add(b.pressed);
+    }
+    info.innerHtml =
+        "device[${_index}]: ${_gp.id}<br>axes: ${_gp.axes}<br>buttons: ${bs}";
+    x = _gp.axes[0] + 0.0;
+    y = _gp.axes[1] + 0.0;
+    if (button != _gp.buttons[0].pressed) {
+      if (button) {
+        justReleased = true;
+      } else {
+        justPressed = true;
+      }
+    }
+    button = _gp.buttons[0].pressed;
   }
 
-  void AfterFrameCleanup() {}
+  void AfterFrameCleanup() {
+    justPressed = false;
+    justReleased = false;
+  }
 }
 
-
 void HandleUseInput(Keyboard input, Gamepad gamepad, List<Sprite> sprites) {
-  if (input.currentlyPressedKey(Keyboard.LEFT)) {
+    gamepad.Poll();
+
+  if (input.currentlyPressedKey(Keyboard.LEFT) || gamepad.x < -0.5) {
     sprites[0].TurnLeft();
-  } else if (input.currentlyPressedKey(Keyboard.RIGHT)) {
+  } else if (input.currentlyPressedKey(Keyboard.RIGHT) || gamepad.x > 0.5) {
     sprites[0].TurnRight();
-  } else if (input.currentlyPressedKey(Keyboard.UP)) {
+  } else if (input.currentlyPressedKey(Keyboard.UP) || gamepad.y < -0.5) {
     sprites[0].Accelerate();
-  } else if (input.currentlyPressedKey(Keyboard.DOWN)) {
+  } else if (input.currentlyPressedKey(Keyboard.DOWN) || gamepad.y > 0.5) {
     sprites[0].Break();
-  } else if (input.justPressedKey(Keyboard.SPACE)) {
+  } else if (input.justPressedKey(Keyboard.SPACE) || gamepad.justPressed) {
     print("fire");
     for (Sprite s in sprites) {
       Sprite ship = sprites[0];
@@ -266,7 +254,7 @@ void HandleUseInput(Keyboard input, Gamepad gamepad, List<Sprite> sprites) {
       }
     }
   }
-  gamepad.Try();
+  gamepad.AfterFrameCleanup();
   input.AfterFrameCleanup();
 }
 

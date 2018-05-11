@@ -30,8 +30,8 @@ final ShaderObject fragmentShader = new ShaderObject("LightBlinnPhongFancyF")
   ..SetBodyWithMain([
     """
 vec2 uv = dHdxy_fwd(${vTexUV}, ${uBumpScale}, ${uBumpMap});
-vec3 normal = perturbNormalArb(${vPosition}, vNormal, uv);
-
+vec3 normal =normalize(${vNormal});
+normal = perturbNormalArb(${vPosition} - ${uEyePosition}, normal, uv);
 ColorComponents acc = CombinedLight(${vPosition} - ${uEyePosition},
                                     normal,
                                     ${uEyePosition},
@@ -54,7 +54,7 @@ final VM.Vector3 dirLight = new VM.Vector3(-1.0, -1.0, 0.0);
 final VM.Vector3 colDiffuse = new VM.Vector3.all(0.3);
 final VM.Vector3 colSpecular = new VM.Vector3.all(0.133);
 
-final double glossiness = 2.0;
+final double glossiness = 10.0;
 final double range = 1.0;
 final double angle = MATH.pi / 6.0;
 
@@ -64,8 +64,8 @@ void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
 
-  OrbitCamera orbit = new OrbitCamera(0.5, 0.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  OrbitCamera orbit = new OrbitCamera(0.3, 0.0, 0.0, canvas);
+  Perspective perspective = new Perspective(orbit, 0.01, 1000.0);
 
   DirectionalLight dl =
       new DirectionalLight("dir", dirLight, colDiffuse, colSpecular, 40.0);
@@ -109,10 +109,6 @@ void main() {
     fps.UpdateFrameCount(_lastTimeMs);
   }
 
-  Material mat = new Material("mat")
-    ..SetUniform(uColor, colSkin)
-    ..SetUniform(uShininess, glossiness);
-
   List<Future<Object>> futures = [
     LoadJson(modelFile),
     LoadImage(bumpmapFile),
@@ -121,8 +117,11 @@ void main() {
   Future.wait(futures).then((List list) {
     // Setup Bumpmap
     Texture bumpmap = new ImageTexture(cgl, bumpmapFile, list[1]);
-    mat.SetUniform(uBumpMap, bumpmap);
-    mat.SetUniform(uBumpScale, 12.0);
+    Material mat = new Material("mat")
+      ..SetUniform(uColor, colSkin)
+      ..SetUniform(uShininess, glossiness)
+      ..SetUniform(uBumpMap, bumpmap)
+      ..SetUniform(uBumpScale, 12.0);
     // Setup Mesh
     List<GeometryBuilder> gbs = ImportGeometryFromThreeJsJson(list[0]);
     print(gbs[0]);
