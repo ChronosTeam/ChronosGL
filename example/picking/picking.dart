@@ -100,7 +100,7 @@ void main() {
       cgl.readPixelsToBuffer(x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, 0);
       cgl.bindBuffer(GL_PIXEL_PACK_BUFFER, null);
       //print("@@@@ promise ${promise}");
-      return "@@TEXT ${x}.${y}";
+      pick = new VM.Vector3.zero();
     } else {
       // This also works
       //new Framebuffer.Screen(cgl).ExtractByteData(pixelData, x, y, 1, 1);
