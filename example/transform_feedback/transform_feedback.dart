@@ -119,11 +119,13 @@ class Ion {
   void Update(List<Pole> srcs, List<Pole> dsts, Math.Random rng, double dt) {
     VM.Vector3 force = new VM.Vector3.zero();
 
-    for (Pole pole in srcs) {  // accumulate pushing forces
+    for (Pole pole in srcs) {
+      // accumulate pushing forces
       VM.Vector3 t = _pos - pole.Pos();
       final double dist = t.length;
       if (dist <= kMinDistance) continue;
-      if (dist > kMaxDistance) {  // too far away
+      if (dist > kMaxDistance) {
+        // too far away
         Pole p = srcs[rng.nextInt(srcs.length)];
         _pos = p.Pos() + RandomVector(rng, 0.35);
         return;
@@ -131,10 +133,12 @@ class Ion {
       force += t / (dist * dist);
     }
 
-    for (Pole pole in dsts) {  // accumulate pulling forces
+    for (Pole pole in dsts) {
+      // accumulate pulling forces
       VM.Vector3 t = pole.Pos() - _pos; //
       final double dist = t.length;
-      if (dist <= kMinDistance) {  // too close to dst pole
+      if (dist <= kMinDistance) {
+        // too close to dst pole
         Pole p = srcs[rng.nextInt(srcs.length)];
         _pos = p.Pos() + RandomVector(rng, 0.35);
         return;
@@ -189,9 +193,9 @@ void ExtractIonPos(List<Ion> ions, Float32List out) {
 
 void main() {
   IntroduceNewShaderVar(
-      uSources, new ShaderVarDesc(VarTypeVec3, "", arraySize: 5));
+      uSources, const ShaderVarDesc(VarTypeVec3, "", arraySize: 5));
   IntroduceNewShaderVar(
-      uSinks, new ShaderVarDesc(VarTypeVec3, "", arraySize: 5));
+      uSinks, const ShaderVarDesc(VarTypeVec3, "", arraySize: 5));
 
   final StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -215,7 +219,7 @@ void main() {
   final RenderProgram programGPU = new RenderProgram(
       "GPU", cgl, particleVertexShader, particleFragmentShader);
   final int bindingIndex = programGPU.GetTransformBindingIndex(tPosition);
-  print ("@@@@ ${bindingIndex}");
+  print("@@@@ ${bindingIndex}");
 
   final List<Pole> srcPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, 2.0, 3.0);
@@ -261,8 +265,8 @@ void main() {
     cgl.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex, null);
     mdOut.ChangeVertices(ionsPos);
     mdIn.ChangeVertices(ionsPos);
-    cgl.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex,
-        mdOut.GetBuffer(aPosition));
+    cgl.bindBufferBase(
+        GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex, mdOut.GetBuffer(aPosition));
   }
 
   void UpdateIonsJS(double t) {
@@ -289,10 +293,9 @@ void main() {
       programGPU.Draw(mdIn, [perspective, matGPU]);
       // use vertex shader output as input for next round
       cgl.bindBuffer(GL_ARRAY_BUFFER, mdIn.GetBuffer(aPosition));
-      cgl.bindBuffer(
-          GL_TRANSFORM_FEEDBACK_BUFFER, mdOut.GetBuffer(aPosition));
-      cgl.copyBufferSubData(
-          GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0, ions.length * 3 * 4);
+      cgl.bindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, mdOut.GetBuffer(aPosition));
+      cgl.copyBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0,
+          ions.length * 3 * 4);
     }
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(timeMs + 0.0);
