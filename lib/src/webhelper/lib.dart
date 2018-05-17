@@ -3,7 +3,7 @@ library webhelper;
 import 'dart:html' as HTML;
 import "dart:async";
 import 'dart:convert';
-
+import 'dart:math' as Math;
 import 'package:vector_math/vector_math.dart' as VM;
 
 import '../core/lib.dart';
@@ -14,3 +14,5 @@ import '../core/lib.dart';
 
 part "http_request.dart";
 part "webtexture.dart";
+part "input.dart";
+part "interactive_camera.dart";
