@@ -15,3 +15,4 @@ import '../core/lib.dart';
 part "http_request.dart";
 part "webtexture.dart";
 part "input.dart";
+part "interactive_camera.dart";
