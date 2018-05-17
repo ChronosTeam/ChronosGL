@@ -1,4 +1,4 @@
-part of chronosgl;
+part of webhelper;
 
 /// HTML keyboard handling
 class Keyboard {

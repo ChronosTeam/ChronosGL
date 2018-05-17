@@ -17,6 +17,4 @@ export 'src/webhelper/lib.dart';
 export 'src/misc/lib.dart';
 export 'src/scene/lib.dart';
 
-part "src/pickray.dart";
-part "src/input.dart";
 
