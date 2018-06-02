@@ -55,7 +55,7 @@ final ShaderObject perlinNoiseVertexShader = new ShaderObject("PerlinNoiseV")
   ..AddVaryingVars([vNormal])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uTime])
   ..SetBody([
-    perlinNoisefunctions,
+    PerlinNoiseFunctions,
     """
 void main() {
     vec3 normal = normalize( ${aPosition});
@@ -81,7 +81,7 @@ ShaderObject makePerlinNoiseColorFragmentShader(bool blackVariant) {
     ..AddUniformVars([uTime, uTransformationMatrix])
     ..SetBody([
       define,
-      perlinNoisefunctions,
+      PerlinNoiseFunctions,
       """
 #define VARIANT 1
 
