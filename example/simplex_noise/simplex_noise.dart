@@ -10,6 +10,7 @@ const String uAmpl1 = "uAmpl1";
 const String uAmpl2 = "uAmpl2";
 const String uAmpl3 = "uAmpl3";
 const String uMode = "uMode";
+const String uSpeed = "uSpeed";
 
 final ShaderObject nullVertexShader = new ShaderObject("nullShaderV")
   ..AddAttributeVars([aPosition])
@@ -17,17 +18,17 @@ final ShaderObject nullVertexShader = new ShaderObject("nullShaderV")
 
 String shader = """
    #define D 3
- 
-   const float freqs[D] = float[](1.0, 2.0, 4.0);
+   // default:
    // const float ampls[D] = float[](1.0, 0.5, 0.25);
+
+   const float freqs[D] = float[](1.0, 2.0, 4.0);
   
- 
    float ComplexNoise(vec2 xy, 
                       float baseFreq, float freqs[D], 
                       float baseAmpl, float ampls[D]) {
        float total = 0.0;
        for(int i = 0; i < D; i++) {
-           total += baseAmpl * ampls[i] * snoise2(xy * baseFreq * freqs[i]);
+           total += baseAmpl * ampls[i] * snoise3(vec3(xy * baseFreq * freqs[i], ${uTime} * ${uSpeed}));
        }             
        return total;
    }
@@ -37,11 +38,17 @@ String shader = """
        return ComplexNoise(xy, ${uFreqMul}, freqs, ${uAmplMul}, ampls);
    }
  
+   float Marble(vec2 xy) {
+       float ampls[D] = float[](${uAmpl1}, ${uAmpl2}, ${uAmpl3});
+       float n = ComplexNoise(xy, ${uFreqMul}, freqs, ${uAmplMul}, ampls);
+       return abs(cos(xy.x * 0.008 + xy.y * 0.008 + 4.0 * n)); 
+   }
+   
    float Wood(vec2 xy) {
        float ampls[D] = float[](${uAmpl1}, ${uAmpl2}, ${uAmpl3});
        vec2 p = xy / 40.0;
        float n = ComplexNoise(xy, ${uFreqMul}, freqs, ${uAmplMul}, ampls);
-       return cos((length(p) + n) * 8.0); 
+       return cos((length(p) + n) * 4.0); 
    
        //float n = 0.4 * snoise2(xy * 0.005);   
        //float n = ComplexNoise(xy, 0.01, freqs, 0.2, ampls);
@@ -52,12 +59,14 @@ String shader = """
        float n = ComplexNoise(xy, ${uFreqMul}, freqs, ${uAmplMul}, ampls);
        return HSLtoRGB(vec3(0.66, 1.0, 0.75 + n / 4.0));
    }  
-
+   
    void main() {
        // This are pixel coordinates  0, 0 being lowel left
        vec2 xy = gl_FragCoord.xy - 0.5 * ${uCanvasSize};
-       if (${uMode} == 4.0) {
        
+       // see simple_noise.html for mode coding 
+       if (${uMode} == 4.0) {
+           ${oFragColor}.g = Marble(xy);
        } else if (${uMode} == 3.0) {
            ${oFragColor}.rgb = Cloud(xy);
        } else if (${uMode} == 2.0) {
@@ -69,10 +78,19 @@ String shader = """
  """;
 
 final ShaderObject noiseFragmentShader = new ShaderObject("noiseShaderF")
-  ..AddUniformVars(
-      [uTime, uCanvasSize, uAmpl1, uAmpl2, uAmpl3, uAmplMul, uFreqMul, uMode])
+  ..AddUniformVars([
+    uTime,
+    uCanvasSize,
+    uAmpl1,
+    uAmpl2,
+    uAmpl3,
+    uAmplMul,
+    uFreqMul,
+    uMode,
+    uSpeed
+  ])
   ..SetBody(
-      [ColorFunctions, SimplexNoiseHelpers, SimplexNoiseFunction2, shader]);
+      [ColorFunctions, SimplexNoiseHelpers, SimplexNoiseFunction3, shader]);
 
 void main() {
   IntroduceNewShaderVar(uFreqMul, const ShaderVarDesc("float", ""));
@@ -81,6 +99,7 @@ void main() {
   IntroduceNewShaderVar(uAmpl2, const ShaderVarDesc("float", ""));
   IntroduceNewShaderVar(uAmpl3, const ShaderVarDesc("float", ""));
   IntroduceNewShaderVar(uMode, const ShaderVarDesc("float", ""));
+  IntroduceNewShaderVar(uSpeed, const ShaderVarDesc("float", ""));
 
   final StatsFps fps =
       new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -91,7 +110,7 @@ void main() {
   canvas.width = w;
   canvas.height = h;
 
-  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
+  final ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
 
   final RenderProgram programPerlin =
       new RenderProgram("perlin", cgl, nullVertexShader, noiseFragmentShader);
@@ -108,7 +127,7 @@ void main() {
       HTML.InputElement input = e.target as HTML.InputElement;
       if (input.type == "range") {
         HTML.OutputElement output =
-            HTML.document.getElementById(input.name + "2");
+            HTML.document.getElementById(input.name);
         uniforms.ForceUniform(input.name, double.parse(input.value));
         output.value = input.value;
       }
