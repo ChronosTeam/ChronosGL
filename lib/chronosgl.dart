@@ -1,12 +1,5 @@
 library chronosgl;
 
-import 'dart:html' as HTML;
-import 'dart:math' as Math;
-
-import 'package:vector_math/vector_math.dart' as VM;
-
-import 'src/core/lib.dart';
-
 export 'src/core/lib.dart';
 export 'src/shape/lib.dart';
 export 'src/polygon/lib.dart';

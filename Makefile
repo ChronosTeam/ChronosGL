@@ -11,15 +11,15 @@ documentation:
 	dart  tool/generate_documentation.dart > class_glossary.md
 
 examples:
-	webdev build --output web:build 
+	webdev build --output example:build_example
 	@echo
-	@echo example can be found in "file://${PWD}/build/example/"
+	@echo example can be found in "file://${PWD}/build_example/example/"
 	@echo
 
 examples_debug:
-	webdev build --mode=debug 
+	webdev build --mode=debug --output example:build_example
 	@echo
-	@echo example can be found in "file://${PWD}/build/example/"
+	@echo example can be found in "file://${PWD}/build_example/example/"
 	@echo
 
 buildall:
