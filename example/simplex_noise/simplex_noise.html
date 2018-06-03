@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Simplex-Noise</title>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <div id="stats"></div>
+    <div style="position:absolute; color: white">
+        <input type="radio" name=uMode value="1.0">Standard
+        <input type="radio" name=uMode value="2.0" checked>Wood
+        <input type="radio" name=uMode value="3.0">Cloud
+        <input type="radio" name=uMode value="4.0">Marble
+
+        <br /> <br />
+
+        <input name="uFreqMul" type="range" min="0.001" max="2.0"step="0.001"
+              value="0.01">
+       FreqMul <output id="uFreqMul2"></output><br/>
+
+       <input name="uAmplMul" type="range" min="0.01" max="2.0" step="0.01"
+              value="0.2">
+       AmplMul <output id="uAmplMul2"></output><br/>
+
+       <input name="uAmpl1" type="range" min="0.0" max="4.0" step="0.01"
+              value="1.0">
+       Ampl1 <output id="uAmpl12"></output><br/>
+
+       <input name="uAmpl2" type="range" min="0.0" max="4.0" step="0.01"
+              value="0.5">
+       Ampl2 <output id="uAmpl22"></output><br/>
+
+        <input name="uAmpl3" type="range" min="0.0" max="4.0" step="0.01"
+              value="0.25">
+        Ampl3 <output id="uAmpl32"></output><br/>
+    </div>
+
+    <canvas id="webgl-canvas" style="cursor:crosshair"></canvas>
+    <script defer src="simplex_noise.dart.js"></script>
+  </body>
+</html>
