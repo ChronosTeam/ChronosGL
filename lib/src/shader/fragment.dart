@@ -3,6 +3,9 @@ part of chronosshader;
 const String StdVertexBody =
     "gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(${aPosition}, 1.0);";
 
+const String StdVertexNormalForward =
+ "${vNormal} = ${uNormalMatrix} * ${aNormal};";
+
 const String StdVertexTextureForward =
     "${vTexUV} = ${aTexUV};";
 

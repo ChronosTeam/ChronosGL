@@ -11,21 +11,21 @@ documentation:
 	dart  tool/generate_documentation.dart > class_glossary.md
 
 examples:
-	$(PUB) build example/
+	webdev build --output example:build_example
 	@echo
-	@echo example can be found in "file://${PWD}/build/example/"
+	@echo example can be found in "file://${PWD}/build_example/example/"
 	@echo
 
 examples_debug:
-	$(PUB) build --mode=debug example/
+	webdev build --mode=debug --output example:build_example
 	@echo
-	@echo example can be found in "file://${PWD}/build/example/"
+	@echo example can be found in "file://${PWD}/build_example/example/"
 	@echo
 
 buildall:
-	$(PUB) build example/
-	$(PUB)/bin/pub build tool/
-	$(PUB) build test/
+	webdev build --output web:build
+	webdev build --output web:build tool/
+	webdev build --output web:build test/
 
 
 presubmit: tests buildall
@@ -50,6 +50,7 @@ publish:
 
 get:
 	$(PUB) get
+	${PUB} global activate webdev
 
 tag:
 	git tag $(VERSION) -m "$(VERSION)"
