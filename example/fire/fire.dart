@@ -61,7 +61,7 @@ void main() {
 final ShaderObject colorFragmentShader = new ShaderObject("colorShaderF")
   ..AddUniformVars([uTexture])
   ..SetBody([
-    colorLib,
+    ColorFunctions,
     """ 
 float get(vec2 xy) {
     vec2 DIM = vec2(textureSize(${uTexture}, 0));  

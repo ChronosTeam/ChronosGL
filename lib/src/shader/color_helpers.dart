@@ -1,4 +1,4 @@
-part of 'chronoshader';
+part of chronosshader;
 
 // http://www.chilliant.com/rgb2hsv.html
 String ColorFunctions = """
