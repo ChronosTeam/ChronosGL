@@ -84,6 +84,7 @@ let examples = [
   ["cubemap", "Cubemap demo", "cube map textures"],
   ["effects", "Effects", "postprocessing, wave import"],
   ["extrude", "Extrude", "contours"],
+  ["fire", "Fire", "custom shader, 2D, ping-pong, cellular automaton"],
   ["fireworks", "Fireworks", "custom shader"],
   ["gyroid", "Cool Gyroid demo", "shadertoy shader reuse"],
   ["instancer", "Instancer", "instancing"],
@@ -92,13 +93,13 @@ let examples = [
   ["obj", "Lightwave obj Viewer", "wave import"],
   ["orbit_camera", "Orbit Camera", "scenegraph"],
   ["ortho", "Othographic vs Perspective", "scenegraph, orthogrpahic, split screen"],
-
   ["perlin", "Perlin Noise Torusknot", "animated perlin noise"],
+
   ["plasma", "Plasma Shader", "animated textures"],
   ["generateNormals", "Generate normals", "scenegraph"],
   ["shadow", "Shadows", "scenegraph, split screen"],
+  ["simplex_noise", "Simplex Noise Texture Explorer", "simplex noise, texture, 2D"],
   ["slerp", "Quaternion Spherical Linear Interpolation (slerp)", ""],
-
   ["sobel", "Sobel Edge Detection", "custom shader"],
   ["ssao", "Screen Space Ambient Occlusion (SSAO)", "custom shader"],
   ["stencil", "Stencil Buffer", "stencil buffer"],
@@ -113,6 +114,8 @@ let examples = [
   ["camera_overlay", "Camera Overlay demo", "camera input"],
   ["camera_texture", "Camera Texture demo", "animated textures, camera input"],
   ["camera_effects", "Camera Effects demo", "animated textures, camera input, postprocessing"],
+  ["game", "Game", "interactive, 2D, joystick"],
+  ["picking", "Picking Objects", "interactive"],
   //
   ["bumpmap", "Bump Map", "work-in-progress, experimental"],
   ["normalmap", "Normal Map", "work-in-progress, experimental"],
@@ -182,10 +185,10 @@ function nextExample(ev) {
 function handleKey(ev) {
     window.console.log(`key: ${ev.keyCode}`);
     if (ev.keyCode == '38') {
-        nextExample(ev);
+        prevExample(ev);
     }
     else if (ev.keyCode == '40') {
-        prevExample(ev);
+        nextExample(ev);
     }
 }
 populateExamples();
