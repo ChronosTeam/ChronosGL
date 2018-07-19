@@ -6,7 +6,7 @@ class OrbitCamera extends Camera {
   double azimuth;
   double polar;
   double roll = 0.0;
-  final VM.Vector3 _lookAtPos = new VM.Vector3.zero();
+  final VM.Vector3 _lookAtPos = VM.Vector3.zero();
   num mouseWheelFactor = -0.02;
   final Keyboard keyboard;
   final Mouse mouse;
@@ -16,8 +16,8 @@ class OrbitCamera extends Camera {
   /// @param this._radius blah
   /// @param this._polar blah
   OrbitCamera(this._radius, this.azimuth, this.polar, HTML.Element eventElement)
-      : keyboard = new Keyboard(null),
-        mouse = new Mouse(eventElement),
+      : keyboard = Keyboard(null),
+        mouse = Mouse(eventElement),
         super("camera:orbit");
 
   void setLookAt(VM.Vector3 v) {

@@ -16,14 +16,14 @@ class Spatial extends NamedEntity {
   // Might be better to use Quaternions anyways
   // regular lookAt calls could "repair" the matrix
   // ( or an optimized variant of lookAt).
-  final VM.Matrix4 transform = new VM.Matrix4.identity();
+  final VM.Matrix4 transform = VM.Matrix4.identity();
 
   // temp variables to avoid creating new objects:
   // CHANGES TO THE VALUES WILL NOT IMPACT THE MATRIX AND MIGHT BE SHARED WITH OTHER USERS
-  final VM.Vector3 _pos = new VM.Vector3.zero();
-  final VM.Vector3 _back = new VM.Vector3.zero();
-  final VM.Vector3 _up = new VM.Vector3.zero();
-  final VM.Vector3 _right = new VM.Vector3.zero();
+  final VM.Vector3 _pos = VM.Vector3.zero();
+  final VM.Vector3 _back = VM.Vector3.zero();
+  final VM.Vector3 _up = VM.Vector3.zero();
+  final VM.Vector3 _right = VM.Vector3.zero();
 
   VM.Vector3 getPos() {
     _pos[0] = transform[POSX];
@@ -175,7 +175,7 @@ class Spatial extends NamedEntity {
     double x = transform[12];
     double y = transform[13];
     double z = transform[14];
-    if (up == null) up = new VM.Vector3(0.0, 1.0, 0.0);
+    if (up == null) up = VM.Vector3(0.0, 1.0, 0.0);
     VM.setViewMatrix(transform, getPos(), target, up);
     transform[12] = x;
     transform[13] = y;

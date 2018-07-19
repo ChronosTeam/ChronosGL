@@ -4,7 +4,7 @@
 part of importer;
 
 List<double> _Floatify(List lst) {
-  List<double> out = new List<double>(lst.length);
+  List<double> out = List<double>(lst.length);
   for (int i = 0; i < lst.length; ++i) {
     if (lst[i] is int)
       out[i] = lst[i].toDouble();
@@ -17,7 +17,7 @@ List<double> _Floatify(List lst) {
 }
 
 List<int> _Intify(List lst) {
-  List<int> out = new List<int>(lst.length);
+  List<int> out = List<int>(lst.length);
   for (int i = 0; i < lst.length; ++i) {
     out[i] = lst[i];
   }
@@ -25,7 +25,7 @@ List<int> _Intify(List lst) {
 }
 
 List<List<int>> _ListIntify(List lst) {
-  List<List<int>> out = new List<List<int>>(lst.length);
+  List<List<int>> out = List<List<int>>(lst.length);
   for (int i = 0; i < lst.length; ++i) {
     out[i] = _Intify(lst[i]);
   }
@@ -35,7 +35,7 @@ List<List<int>> _ListIntify(List lst) {
 //Also fills in the offsets for skeleton
 GeometryBuilder ImportGeometryFromAssimp2JsonMesh(
     Map<String, dynamic> mesh, List<Bone> skeleton) {
-  GeometryBuilder gb = new GeometryBuilder();
+  GeometryBuilder gb = GeometryBuilder();
   String name = mesh['name'];
 
   assert(mesh.containsKey("vertices"), "no vertices");
@@ -70,11 +70,11 @@ GeometryBuilder ImportGeometryFromAssimp2JsonMesh(
     Map<String, Bone> name2bone = <String, Bone>{};
     skeleton.forEach((b) => name2bone[b.boneName] = b);
     final int n = mesh['normals'].length ~/ 3;
-    List<VM.Vector4> indices = new List<VM.Vector4>(n);
-    List<VM.Vector4> weights = new List<VM.Vector4>(n);
+    List<VM.Vector4> indices = List<VM.Vector4>(n);
+    List<VM.Vector4> weights = List<VM.Vector4>(n);
     for (int i = 0; i < n; ++i) {
-      indices[i] = new VM.Vector4.zero();
-      weights[i] = new VM.Vector4.zero();
+      indices[i] = VM.Vector4.zero();
+      weights[i] = VM.Vector4.zero();
     }
     for (Map<String, dynamic> b in mesh["bones"]) {
       assert(name2bone.containsKey(b["name"]));
@@ -115,11 +115,11 @@ List<Bone> ImportSkeletonFromAssimp2Json(Map<String, dynamic> json) {
     final String name = node["name"];
 
     final VM.Matrix4 transform =
-        new VM.Matrix4.fromList(_Floatify(node["transformation"]));
+        VM.Matrix4.fromList(_Floatify(node["transformation"]));
     transform.transpose();
 
-    final VM.Matrix4 offset = new VM.Matrix4.identity();
-    Bone bone = new Bone(name, count, parent, transform, offset);
+    final VM.Matrix4 offset = VM.Matrix4.identity();
+    Bone bone = Bone(name, count, parent, transform, offset);
     count++;
     out.add(bone);
     if (node.containsKey("children")) {
@@ -150,8 +150,7 @@ SkeletalAnimation ImportAnimationFromAssimp2Json(
   double duration = json["duration"];
   List channels = json["channels"];
   assert(channels != null);
-  SkeletalAnimation anim =
-      new SkeletalAnimation(name, duration, skeleton.length);
+  SkeletalAnimation anim = SkeletalAnimation(name, duration, skeleton.length);
   print("animated bones: ${channels.length}");
   for (Map<String, dynamic> c in channels) {
     assert(name2bone.containsKey(c["name"]));
@@ -169,7 +168,7 @@ SkeletalAnimation ImportAnimationFromAssimp2Json(
     for (List rot in c["rotationkeys"]) {
       rotationTimes.add(rot[0] / tickspersecond);
       List<double> q = _Floatify(rot[1]);
-      rotationValues.add(new VM.Quaternion(q[1], q[2], q[3], q[0]));
+      rotationValues.add(VM.Quaternion(q[1], q[2], q[3], q[0]));
     }
 
     List<double> scaleTimes = [];
@@ -179,7 +178,7 @@ SkeletalAnimation ImportAnimationFromAssimp2Json(
       scaleValues.add(MakeVector3(sca[1]));
     }
 
-    anim.InsertBone(new BoneAnimation(bone, positionTimes, positionValues,
+    anim.InsertBone(BoneAnimation(bone, positionTimes, positionValues,
         rotationTimes, rotationValues, scaleTimes, scaleValues));
   }
 

@@ -21,12 +21,12 @@ class Utils {
 
   static Texture createParticleTexture(ChronosGL cgl,
       [String name = "Utils::Particles"]) {
-    return new ImageTexture(cgl, name, createParticleCanvas());
+    return ImageTexture(cgl, name, createParticleCanvas());
   }
 
   static HTML.CanvasElement createParticleCanvas() {
     int d = 64;
-    HTML.CanvasElement canvas = new HTML.CanvasElement(width: d, height: d);
+    HTML.CanvasElement canvas = HTML.CanvasElement(width: d, height: d);
     HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
     int x = d ~/ 2, y = d ~/ 2;
 
@@ -50,12 +50,12 @@ class Utils {
 
   static int id = 1;
 
-  static Math.Random rand = new Math.Random();
+  static Math.Random rand = Math.Random();
 
   static MeshData MakeStarMesh(
       RenderProgram prog, int numPoints, double dimension) {
     final String name = 'stars_${numPoints}';
-    Float32List pos = new Float32List(numPoints * 3);
+    Float32List pos = Float32List(numPoints * 3);
     for (var i = 0; i < numPoints * 3; i++) {
       pos[i] = (rand.nextDouble() - 0.5) * dimension;
     }
@@ -63,7 +63,7 @@ class Utils {
   }
 
   static Material MakeStarMaterial(ChronosGL cgl, [double size = 1000.0]) {
-    return new Material.Transparent("stars", BlendEquationMix)
+    return Material.Transparent("stars", BlendEquationMix)
       ..SetUniform(uTexture, createParticleTexture(cgl))
       ..SetUniform(uPointSize, size);
   }
@@ -72,31 +72,31 @@ class Utils {
       [double dimension = 100.0]) {
     Material mat = MakeStarMaterial(prog.getContext());
     MeshData md = MakeStarMesh(prog, numPoints, dimension);
-    return new Node(md.name, md, mat);
+    return Node(md.name, md, mat);
   }
 }
 
 MeshData ShapeCube(RenderProgram prog,
-    {double x: 1.0,
-    double y: 1.0,
-    double z: 1.0,
-    double uMin: 0.0,
-    double uMax: 1.0,
-    double vMin: 0.0,
-    double vMax: 1.0}) {
+    {double x = 1.0,
+    double y = 1.0,
+    double z = 1.0,
+    double uMin = 0.0,
+    double uMax = 1.0,
+    double vMin = 0.0,
+    double vMax = 1.0}) {
   GeometryBuilder gb = CubeGeometry(
       x: x, y: y, z: z, uMin: uMin, uMax: uMax, vMin: vMin, vMax: vMax);
   return GeometryBuilderToMeshData("cube", prog, gb);
 }
 
 MeshData ShapeWedge(RenderProgram prog,
-    {double x: 1.0,
-    double y: 1.0,
-    double z: 1.0,
-    double uMin: 0.0,
-    double uMax: 1.0,
-    double vMin: 0.0,
-    double vMax: 1.0}) {
+    {double x = 1.0,
+    double y = 1.0,
+    double z = 1.0,
+    double uMin = 0.0,
+    double uMax = 1.0,
+    double vMin = 0.0,
+    double vMax = 1.0}) {
   GeometryBuilder gb = WedgeGeometry(
       x: x, y: y, z: z, uMin: uMin, uMax: uMax, vMin: vMin, vMax: vMax);
   return GeometryBuilderToMeshData("wedge", prog, gb);
@@ -117,13 +117,13 @@ MeshData ShapeIcosahedron(RenderProgram prog,
 }
 
 MeshData ShapeTorusKnot(RenderProgram prog,
-    {double radius: 20.0,
-    double tubeRadius: 4.0,
-    int segmentsR: 128,
-    int segmentsT: 16,
-    int p: 2,
-    int q: 3,
-    double heightScale: 1.0,
+    {double radius = 20.0,
+    double tubeRadius = 4.0,
+    int segmentsR = 128,
+    int segmentsT = 16,
+    int p = 2,
+    int q = 3,
+    double heightScale = 1.0,
     bool computeNormals = true}) {
   GeometryBuilder gb = ShapeTorusKnotGeometry(
       radius: radius,
@@ -148,37 +148,37 @@ MeshData ShapeGrid(
   return GeometryBuilderToMeshData("strips", prog, gb);
 }
 
-final Material EmptyMaterial = new Material("empty-mat");
+final Material EmptyMaterial = Material("empty-mat");
 
 Node UnitNode(RenderProgram prog) {
   final MeshData UnitQuad = ShapeQuad(prog, 1);
-  return new Node("unit-mesh", UnitQuad, EmptyMaterial);
+  return Node("unit-mesh", UnitQuad, EmptyMaterial);
 }
 
-final VM.Vector3 ColorWhite = new VM.Vector3(1.0, 1.0, 1.0);
-final VM.Vector3 ColorGray8 = new VM.Vector3(0.8, 0.8, 0.8);
-final VM.Vector3 ColorGray6 = new VM.Vector3(0.6, 0.6, 0.6);
-final VM.Vector3 ColorGray4 = new VM.Vector3(0.4, 0.4, 0.4);
-final VM.Vector3 ColorGray2 = new VM.Vector3(0.2, 0.2, 0.2);
-final VM.Vector3 ColorBlack = new VM.Vector3(0.0, 0.0, 0.0);
+final VM.Vector3 ColorWhite = VM.Vector3(1.0, 1.0, 1.0);
+final VM.Vector3 ColorGray8 = VM.Vector3(0.8, 0.8, 0.8);
+final VM.Vector3 ColorGray6 = VM.Vector3(0.6, 0.6, 0.6);
+final VM.Vector3 ColorGray4 = VM.Vector3(0.4, 0.4, 0.4);
+final VM.Vector3 ColorGray2 = VM.Vector3(0.2, 0.2, 0.2);
+final VM.Vector3 ColorBlack = VM.Vector3(0.0, 0.0, 0.0);
 
-final VM.Vector3 ColorBlue = new VM.Vector3(0.0, 0.0, 1.0);
-final VM.Vector3 ColorLiteBlue = new VM.Vector3(0.0, 0.0, 0.5);
+final VM.Vector3 ColorBlue = VM.Vector3(0.0, 0.0, 1.0);
+final VM.Vector3 ColorLiteBlue = VM.Vector3(0.0, 0.0, 0.5);
 
-final VM.Vector3 ColorRed = new VM.Vector3(1.0, 0.0, 0.0);
-final VM.Vector3 ColorLiteRed = new VM.Vector3(0.5, 0.0, 0.0);
+final VM.Vector3 ColorRed = VM.Vector3(1.0, 0.0, 0.0);
+final VM.Vector3 ColorLiteRed = VM.Vector3(0.5, 0.0, 0.0);
 
-final VM.Vector3 ColorGreen = new VM.Vector3(0.0, 1.0, 0.0);
-final VM.Vector3 ColorLiteGreen = new VM.Vector3(0.0, 0.5, 0.0);
+final VM.Vector3 ColorGreen = VM.Vector3(0.0, 1.0, 0.0);
+final VM.Vector3 ColorLiteGreen = VM.Vector3(0.0, 0.5, 0.0);
 
-final VM.Vector3 ColorYellow = new VM.Vector3(1.0, 1.0, 0.0);
-final VM.Vector3 ColorLiteYellow = new VM.Vector3(0.5, 0.5, 0.0);
+final VM.Vector3 ColorYellow = VM.Vector3(1.0, 1.0, 0.0);
+final VM.Vector3 ColorLiteYellow = VM.Vector3(0.5, 0.5, 0.0);
 
-final VM.Vector3 ColorMagenta = new VM.Vector3(1.0, 0.0, 1.0);
-final VM.Vector3 ColorLiteMagenta = new VM.Vector3(0.5, 0.0, 0.5);
+final VM.Vector3 ColorMagenta = VM.Vector3(1.0, 0.0, 1.0);
+final VM.Vector3 ColorLiteMagenta = VM.Vector3(0.5, 0.0, 0.5);
 
-final VM.Vector3 ColorCyan = new VM.Vector3(0.0, 1.0, 1.0);
-final VM.Vector3 ColorLiteCyan = new VM.Vector3(0.0, 0.5, 0.5);
+final VM.Vector3 ColorCyan = VM.Vector3(0.0, 1.0, 1.0);
+final VM.Vector3 ColorLiteCyan = VM.Vector3(0.0, 0.5, 0.5);
 
 /// RenderPhaseResizeAware is a RenderPhase which automatically
 ///  updates perspective and viewport when the window size is changed.
@@ -206,7 +206,6 @@ class RenderPhaseResizeAware extends RenderPhase {
   }
 }
 
-
 class PerspectiveResizeAware extends Perspective {
   final HTML.CanvasElement _canvas;
   final ChronosGL _cgl;
@@ -226,6 +225,6 @@ class PerspectiveResizeAware extends Perspective {
     print("size change $w $h");
     AdjustAspect(w, h);
 
-    _cgl. viewport(0, 0, w, h);
+    _cgl.viewport(0, 0, w, h);
   }
 }

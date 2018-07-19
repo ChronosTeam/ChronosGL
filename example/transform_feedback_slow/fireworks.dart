@@ -16,9 +16,9 @@ String DumpVec(VM.Vector3 v) {
 // Source or Sink for Ions.
 // Can move themselves - currently not used.
 class Pole {
-  VM.Vector3 _pos = new VM.Vector3.zero();
-  VM.Vector3 _src = new VM.Vector3.zero();
-  VM.Vector3 _dst = new VM.Vector3.zero();
+  VM.Vector3 _pos = VM.Vector3.zero();
+  VM.Vector3 _src = VM.Vector3.zero();
+  VM.Vector3 _dst = VM.Vector3.zero();
   double _t = 0.0;
 
   Pole(VM.Vector3 dst) {
@@ -59,7 +59,7 @@ class Ion {
 
   // Update position based on distance Source/Sink Poles
   void Update(List<Pole> srcs, List<Pole> dsts, Math.Random rng, double dt) {
-    VM.Vector3 force = new VM.Vector3.zero();
+    VM.Vector3 force = VM.Vector3.zero();
 
     for (Pole pole in srcs) {
       VM.Vector3 t = _pos - pole.Pos(); // pushing force
@@ -95,23 +95,23 @@ class Ion {
 }
 
 VM.Vector3 RandomVector(Math.Random rng, double d) {
-  return new VM.Vector3((rng.nextDouble() - 0.5) * d,
-      (rng.nextDouble() - 0.5) * d, (rng.nextDouble() - 0.5) * d);
+  return VM.Vector3((rng.nextDouble() - 0.5) * d, (rng.nextDouble() - 0.5) * d,
+      (rng.nextDouble() - 0.5) * d);
 }
 
 List<Pole> MakeRowOfPoles(List<double> xx, double y, double z, double scale) {
   List<Pole> out = [];
   for (double x in xx) {
-    out.add(new Pole(new VM.Vector3(x, y, z) * scale)..Update(1.0));
+    out.add(Pole(VM.Vector3(x, y, z) * scale)..Update(1.0));
   }
   return out;
 }
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
-  final Math.Random rng = new Math.Random(0);
+  final Math.Random rng = Math.Random(0);
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   final int width = canvas.clientWidth;
@@ -119,12 +119,12 @@ void main() {
   canvas.width = width;
   canvas.height = height;
 
-  ChronosGL chronosGL = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(15.0, 0.5, 0.5, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
+  ChronosGL chronosGL = ChronosGL(canvas);
+  OrbitCamera orbit = OrbitCamera(15.0, 0.5, 0.5, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 1000.0)
     ..AdjustAspect(width, height);
 
-  final RenderProgram program = new RenderProgram(
+  final RenderProgram program = RenderProgram(
       "CPU", chronosGL, pointSpritesVertexShader, pointSpritesFragmentShader);
 
   List<Pole> srcPoles =
@@ -132,20 +132,20 @@ void main() {
   List<Pole> dstPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, -2.0, 3.0);
 
-  VM.Vector3 outOfBounds = new VM.Vector3.all(kMaxDistance * 100.0);
+  VM.Vector3 outOfBounds = VM.Vector3.all(kMaxDistance * 100.0);
   List<Ion> ions = [];
   for (int i = 0; i < kIons; i++) {
-    Ion ion = new Ion(2.0, outOfBounds);
+    Ion ion = Ion(2.0, outOfBounds);
     ions.add(ion);
   }
-  Float32List vertices = new Float32List(3 * kIons);
-  Material mat = new Material.Transparent("stars", BlendEquationMix)
+  Float32List vertices = Float32List(3 * kIons);
+  Material mat = Material.Transparent("stars", BlendEquationMix)
     ..SetUniform(uTexture, Utils.createParticleTexture(chronosGL))
     ..SetUniform(uPointSize, 200.0)
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
-  GeometryBuilder gb = new GeometryBuilder(true);
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity());
+  GeometryBuilder gb = GeometryBuilder(true);
   for (var i = 0; i < kIons; i++) {
-    gb.AddVertex(new VM.Vector3.zero());
+    gb.AddVertex(VM.Vector3.zero());
   }
   MeshData md = GeometryBuilderToMeshData("", program, gb);
 

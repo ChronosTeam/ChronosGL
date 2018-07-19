@@ -2,9 +2,9 @@ part of webhelper;
 
 /// HTML keyboard handling
 class Keyboard {
-  final Set<int> _currentlyPressedKeys = new Set<int>();
-  final Set<int> _justPressedKeys = new Set<int>();
-  final Set<int> _justReleasedKeys = new Set<int>();
+  final Set<int> _currentlyPressedKeys = Set<int>();
+  final Set<int> _justPressedKeys = Set<int>();
+  final Set<int> _justReleasedKeys = Set<int>();
 
   Keyboard(dynamic elem) {
     if (elem == null) elem = HTML.document;
@@ -93,9 +93,9 @@ class Mouse {
   static const int MIDDLE = 1;
   static const int LEFT = 0;
 
-  final Set<int> _currentlyPressedButtons = new Set<int>();
-  final Set<int> _justPressedButtons = new Set<int>();
-  final Set<int> _justReleasedButtons = new Set<int>();
+  final Set<int> _currentlyPressedButtons = Set<int>();
+  final Set<int> _justPressedButtons = Set<int>();
+  final Set<int> _justReleasedButtons = Set<int>();
 
   int moveDeltaX = 0;
   int moveDeltaY = 0;

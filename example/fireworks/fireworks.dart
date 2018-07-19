@@ -4,7 +4,7 @@ import 'dart:html' as HTML;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-final ShaderObject fireworksVertexShader = new ShaderObject("FireWorksV")
+final ShaderObject fireworksVertexShader = ShaderObject("FireWorksV")
   ..AddAttributeVars([aPosition, aNormal])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uTime])
   ..SetBodyWithMain([
@@ -22,7 +22,7 @@ final ShaderObject fireworksVertexShader = new ShaderObject("FireWorksV")
 """
   ]);
 
-final ShaderObject fireworksFragmentShader = new ShaderObject("FireWorksF")
+final ShaderObject fireworksFragmentShader = ShaderObject("FireWorksF")
   ..AddUniformVars([uTime, uColor, uTexture])
   ..SetBodyWithMain([
     """
@@ -39,13 +39,13 @@ final ShaderObject fireworksFragmentShader = new ShaderObject("FireWorksF")
 
 MeshData getRocket(RenderProgram prog) {
   int numPoints = 200;
-  Math.Random rand = new Math.Random();
+  Math.Random rand = Math.Random();
 
   List<VM.Vector3> vertices = [];
   List<VM.Vector3> normals = [];
   for (var i = 0; i < numPoints; i++) {
-    vertices.add(new VM.Vector3(0.0, 0.0, 0.0));
-    normals.add(new VM.Vector3(rand.nextDouble() - 0.5, rand.nextDouble() - 0.5,
+    vertices.add(VM.Vector3(0.0, 0.0, 0.0));
+    normals.add(VM.Vector3(rand.nextDouble() - 0.5, rand.nextDouble() - 0.5,
         rand.nextDouble() - 0.5));
   }
 
@@ -62,20 +62,20 @@ void main() {
   canvas.width = w;
   canvas.height = h;
 
-  ChronosGL cgl = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(15.0, 0.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  ChronosGL cgl = ChronosGL(canvas);
+  OrbitCamera orbit = OrbitCamera(15.0, 0.0, 0.0, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
   perspective.AdjustAspect(w, h);
 
-  final RenderProgram progSprites = new RenderProgram(
+  final RenderProgram progSprites = RenderProgram(
       "basic", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
 
-  final RenderProgram progFireworks = new RenderProgram(
+  final RenderProgram progFireworks = RenderProgram(
       "fireworks", cgl, fireworksVertexShader, fireworksFragmentShader);
 
   // used for both stars and fireworks
   final Material material = Utils.MakeStarMaterial(cgl)
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity())
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity())
     ..SetUniform(uColor, ColorRed);
 
   final MeshData stars = Utils.MakeStarMesh(progSprites, 2000, 100.0);

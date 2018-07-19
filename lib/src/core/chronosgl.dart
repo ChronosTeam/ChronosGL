@@ -45,9 +45,9 @@ class ChronosGL {
   final dynamic _canvas;
 
   ChronosGL(this._canvas,
-      {bool preserveDrawingBuffer: false,
-      bool faceCulling: false,
-      bool antialiasing: true}) {
+      {bool preserveDrawingBuffer = false,
+      bool faceCulling = false,
+      bool antialiasing = true}) {
     Map<String, Object> attributes = {
       "alpha": false,
       "depth": true,
@@ -60,7 +60,7 @@ class ChronosGL {
 
     _gl = _canvas.getContext("webgl2", attributes);
     if (_gl == null) {
-      throw new Exception(NO_WEBGL_MESSAGE);
+      throw Exception(NO_WEBGL_MESSAGE);
     }
 
     dynamic actual = _gl.getContextAttributes();

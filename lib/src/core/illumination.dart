@@ -1,7 +1,7 @@
 part of core;
 
-final VM.Vector3 _up = new VM.Vector3(0.0, 1.0, 0.0);
-final VM.Vector3 _up2 = new VM.Vector3(0.0, 0.0, 1.0);
+final VM.Vector3 _up = VM.Vector3(0.0, 1.0, 0.0);
+final VM.Vector3 _up2 = VM.Vector3(0.0, 0.0, 1.0);
 
 /// ## Class Light
 /// represents a light source with helpers for
@@ -49,7 +49,7 @@ class PointLight extends Light {
   @override
   VM.Matrix4 ExtractShadowProjViewMatrix() {
     assert(false, "NYI");
-    return new VM.Matrix4.zero();
+    return VM.Matrix4.zero();
   }
 
   @override
@@ -64,8 +64,8 @@ class DirectionalLight extends Light {
   final VM.Vector3 _colSpecular;
   final double dim;
 
-  VM.Matrix4 _projViewMat = new VM.Matrix4.zero();
-  VM.Matrix4 _tmpMat = new VM.Matrix4.zero();
+  VM.Matrix4 _projViewMat = VM.Matrix4.zero();
+  VM.Matrix4 _tmpMat = VM.Matrix4.zero();
 
   DirectionalLight(String name, VM.Vector3 this.dir, this._colDiffuse,
       this._colSpecular, this.dim)
@@ -92,7 +92,7 @@ class DirectionalLight extends Light {
     VM.setOrthographicMatrix(_projViewMat, -dim, dim, -dim, dim, -dim, dim);
 
     VM.Vector3 up = (dir.x == 0.0 && dir.z == 0.0) ? _up2 : _up;
-    VM.setViewMatrix(_tmpMat, new VM.Vector3.zero(), dir, up);
+    VM.setViewMatrix(_tmpMat, VM.Vector3.zero(), dir, up);
     _projViewMat.multiply(_tmpMat);
     return _projViewMat;
   }
@@ -116,8 +116,8 @@ class SpotLight extends Light {
   double _aspect = 1.0;
   double _near;
   double _far;
-  VM.Matrix4 _m1 = new VM.Matrix4.zero();
-  VM.Matrix4 _m2 = new VM.Matrix4.zero();
+  VM.Matrix4 _m1 = VM.Matrix4.zero();
+  VM.Matrix4 _m2 = VM.Matrix4.zero();
 
   SpotLight(
     String name,
@@ -130,8 +130,7 @@ class SpotLight extends Light {
     this._spotFocus,
     this._near,
     this._far,
-  )
-      : super(name, lightTypeSpot);
+  ) : super(name, lightTypeSpot);
 
   // Must be in sync with UnpackSpotLightInfo
   @override
@@ -201,8 +200,8 @@ class HemisphericalLight implements Light {
 /// represents a collection of Lights.
 class Illumination extends UniformGroup {
   final List<Light> _lights = [];
-  final Float32List _lightDescs = new Float32List(16 * kMaxLights);
-  final Float32List _lightTypes = new Float32List(kMaxLights);
+  final Float32List _lightDescs = Float32List(16 * kMaxLights);
+  final Float32List _lightTypes = Float32List(kMaxLights);
 
   Illumination() : super("illumination");
 

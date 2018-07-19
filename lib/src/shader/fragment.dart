@@ -4,10 +4,9 @@ const String StdVertexBody =
     "gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(${aPosition}, 1.0);";
 
 const String StdVertexNormalForward =
- "${vNormal} = ${uNormalMatrix} * ${aNormal};";
+    "${vNormal} = ${uNormalMatrix} * ${aNormal};";
 
-const String StdVertexTextureForward =
-    "${vTexUV} = ${aTexUV};";
+const String StdVertexTextureForward = "${vTexUV} = ${aTexUV};";
 
 const String NullVertexBody = "gl_Position = vec4(${aPosition}, 1.0);";
 
@@ -304,4 +303,3 @@ float unpackDepth(vec4 rgba_depth) {
 }
 
 """;
-

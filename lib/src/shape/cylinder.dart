@@ -11,13 +11,13 @@ GeometryBuilder CylinderGeometry(double radTop, double radBot, double height,
   List<VM.Vector2> uvs = [];
   List<VM.Vector3> normal = [];
   // top center
-  vertices.add(new VM.Vector3(0.0, halfHeight, 0.0));
-  uvs.add(new VM.Vector2(0.0, 0.0));
-  if (computeNormals) normal.add(new VM.Vector3(0.0, 1.0, 0.0));
+  vertices.add(VM.Vector3(0.0, halfHeight, 0.0));
+  uvs.add(VM.Vector2(0.0, 0.0));
+  if (computeNormals) normal.add(VM.Vector3(0.0, 1.0, 0.0));
   // bottom center
-  vertices.add(new VM.Vector3(0.0, -halfHeight, 0.0));
-  uvs.add(new VM.Vector2(1.0, 1.0));
-  if (computeNormals) normal.add(new VM.Vector3(0.0, -1.0, 0.0));
+  vertices.add(VM.Vector3(0.0, -halfHeight, 0.0));
+  uvs.add(VM.Vector2(1.0, 1.0));
+  if (computeNormals) normal.add(VM.Vector3(0.0, -1.0, 0.0));
 
   // First round for disks
   for (int i = 0; i < radialSubdivisions; i++) {
@@ -26,12 +26,12 @@ GeometryBuilder CylinderGeometry(double radTop, double radBot, double height,
     double x = Math.sin(u * Math.pi * 2);
     double z = Math.cos(u * Math.pi * 2);
 
-    vertices.add(new VM.Vector3(x * radTop, halfHeight, z * radTop));
-    uvs.add(new VM.Vector2(u, 1.0));
-    if (computeNormals) normal.add(new VM.Vector3(0.0, 1.0, 0.0));
-    vertices.add(new VM.Vector3(x * radBot, -halfHeight, z * radBot));
-    uvs.add(new VM.Vector2(u, 0.0));
-    if (computeNormals) normal.add(new VM.Vector3(0.0, -1.0, 0.0));
+    vertices.add(VM.Vector3(x * radTop, halfHeight, z * radTop));
+    uvs.add(VM.Vector2(u, 1.0));
+    if (computeNormals) normal.add(VM.Vector3(0.0, 1.0, 0.0));
+    vertices.add(VM.Vector3(x * radBot, -halfHeight, z * radBot));
+    uvs.add(VM.Vector2(u, 0.0));
+    if (computeNormals) normal.add(VM.Vector3(0.0, -1.0, 0.0));
   }
 
   if (computeNormals) {
@@ -48,8 +48,8 @@ GeometryBuilder CylinderGeometry(double radTop, double radBot, double height,
       VM.Vector3 b = vertices[i + 3];
       // note: we added vertices so we will not access out  of bounds
       VM.Vector3 c = vertices[i + 4];
-      VM.Vector3 temp = new VM.Vector3.zero();
-      VM.Vector3 norm = new VM.Vector3.zero();
+      VM.Vector3 temp = VM.Vector3.zero();
+      VM.Vector3 norm = VM.Vector3.zero();
       NormalFromPoints(a, b, c, temp, norm);
       normal.add(norm);
       normal.add(norm);
@@ -58,7 +58,7 @@ GeometryBuilder CylinderGeometry(double radTop, double radBot, double height,
   } else {
     assert(vertices.length == 2 + 2 * radialSubdivisions);
   }
-  GeometryBuilder gb = new GeometryBuilder();
+  GeometryBuilder gb = GeometryBuilder();
   gb.EnableAttribute(aTexUV);
   gb.AddVertices(vertices);
   gb.AddAttributesVector2(aTexUV, uvs);
@@ -98,8 +98,8 @@ GeometryBuilder CylinderGeometryWireframeFriendly(
     double u = i / radialSubdivisions * Math.pi * 2.0;
     double x = Math.sin(u);
     double z = Math.cos(u);
-    top.add(new VM.Vector3(radTop * x, halfHeight, radTop * z));
-    bot.add(new VM.Vector3(radBot * x, -halfHeight, radBot * z));
+    top.add(VM.Vector3(radTop * x, halfHeight, radTop * z));
+    bot.add(VM.Vector3(radBot * x, -halfHeight, radBot * z));
   }
   // repeat three first point so we can safely index with +1
   top.add(top[0]);
@@ -107,11 +107,11 @@ GeometryBuilder CylinderGeometryWireframeFriendly(
   assert(top.length == radialSubdivisions + 1);
   assert(bot.length == radialSubdivisions + 1);
 
-  final VM.Vector2 zero = new VM.Vector2(0.0, 0.0);
-  final VM.Vector3 centerTop = new VM.Vector3(0.0, halfHeight, 0.0);
-  final VM.Vector3 centerBot = new VM.Vector3(0.0, -halfHeight, 0.0);
+  final VM.Vector2 zero = VM.Vector2(0.0, 0.0);
+  final VM.Vector3 centerTop = VM.Vector3(0.0, halfHeight, 0.0);
+  final VM.Vector3 centerBot = VM.Vector3(0.0, -halfHeight, 0.0);
 
-  GeometryBuilder gb = new GeometryBuilder();
+  GeometryBuilder gb = GeometryBuilder();
   gb.EnableAttribute(aTexUV);
 
   // Q: Why do we have to repeat the vertices?
@@ -141,23 +141,23 @@ GeometryBuilder ConeGeometryWireframeFrienly(
     double rad, double height, int radialSubdivisions) {
   // Compute points on edges
   final double halfHeight = height / 2;
-  VM.Vector3 top = new VM.Vector3(0.0, halfHeight, 0.0);
+  VM.Vector3 top = VM.Vector3(0.0, halfHeight, 0.0);
 
   List<VM.Vector3> bot = [];
   for (int i = 0; i < radialSubdivisions; i++) {
     double u = i / radialSubdivisions * Math.pi * 2.0;
     double x = Math.sin(u);
     double z = Math.cos(u);
-    bot.add(new VM.Vector3(rad * x, -halfHeight, rad * z));
+    bot.add(VM.Vector3(rad * x, -halfHeight, rad * z));
   }
   // repeat three first point so we can safely index with +1
   bot.add(bot[0]);
   assert(bot.length == radialSubdivisions + 1);
 
-  final VM.Vector2 zero = new VM.Vector2(0.0, 0.0);
-  final VM.Vector3 centerBot = new VM.Vector3(0.0, -halfHeight, 0.0);
+  final VM.Vector2 zero = VM.Vector2(0.0, 0.0);
+  final VM.Vector3 centerBot = VM.Vector3(0.0, -halfHeight, 0.0);
 
-  GeometryBuilder gb = new GeometryBuilder();
+  GeometryBuilder gb = GeometryBuilder();
   gb.EnableAttribute(aTexUV);
 
   // Q: Why do we have to repeat the vertices?

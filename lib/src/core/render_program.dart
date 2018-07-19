@@ -27,7 +27,7 @@ class RenderProgram extends NamedEntity {
   final Set<String> _attributes;
   final Map<String, Object /* WEBGL.UniformLocation */ > _uniformLocations = {};
   final Map<String, String> _uniformsInitialized = {};
-  final Set<String> _attributesInitialized = new Set<String>();
+  final Set<String> _attributesInitialized = Set<String>();
 
   int _nextTextureUnit;
 
@@ -35,7 +35,7 @@ class RenderProgram extends NamedEntity {
       String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
       : _program = _cgl.CompileWholeProgram(_shaderObjectV.shader,
             _shaderObjectF.shader, _shaderObjectV.transformVars),
-        _attributes = new Set.from(_shaderObjectV.attributeVars),
+        _attributes = Set.from(_shaderObjectV.attributeVars),
         super(name) {
     for (String v in _shaderObjectV.uniformVars) {
       _uniformLocations[v] = _cgl.getUniformLocation(_program, v);
@@ -56,7 +56,7 @@ class RenderProgram extends NamedEntity {
   }
 
   MeshData MakeMeshData(String name, int drawMode) {
-    return new MeshData(
+    return MeshData(
         name, _cgl, drawMode, _shaderObjectV.GetAttributeLayoutMap());
   }
 
@@ -232,7 +232,7 @@ class RenderProgram extends NamedEntity {
 
   void _ActivateUniforms(String group, Map<String, Object> inputs) {
     int count = 0;
-    final DateTime start = new DateTime.now();
+    final DateTime start = DateTime.now();
 
     for (String canonical in inputs.keys) {
       switch (canonical.codeUnitAt(0)) {
@@ -248,12 +248,12 @@ class RenderProgram extends NamedEntity {
           break;
       }
     }
-    final Duration delta = new DateTime.now().difference(start);
+    final Duration delta = DateTime.now().difference(start);
     LogDebug("setting ${count} var in ${delta}");
   }
 
   void Draw(MeshData md, List<UniformGroup> uniforms, [List<DrawStats> stats]) {
-    final DateTime start = new DateTime.now();
+    final DateTime start = DateTime.now();
     _cgl.useProgram(_program);
     _ClearState();
 
@@ -285,8 +285,8 @@ class RenderProgram extends NamedEntity {
         md.GetNumInstances(), hasTransforms);
     if (debug) print(_cgl.getProgramInfoLog(_program));
     if (stats != null) {
-      stats.add(new DrawStats(name, md.GetNumInstances(), md.GetNumItems(),
-          md.drawMode, new DateTime.now().difference(start)));
+      stats.add(DrawStats(name, md.GetNumInstances(), md.GetNumItems(),
+          md.drawMode, DateTime.now().difference(start)));
     }
   }
 }

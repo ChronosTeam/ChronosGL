@@ -4,39 +4,39 @@ import 'package:chronosgl/chronosgl.dart';
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(15.0, 10.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  ChronosGL cgl = ChronosGL(canvas);
+  OrbitCamera orbit = OrbitCamera(15.0, 10.0, 0.0, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
 
   final RenderPhaseResizeAware phase =
-      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
+      RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
   // This scene is responsible for filling the entire screen with a texture
   // gleaned from the camera
-  Scene sceneBackground = new Scene("bg",
-      new RenderProgram("bg", cgl, copyVertexShader, copyFragmentShader), []);
+  Scene sceneBackground = Scene(
+      "bg", RenderProgram("bg", cgl, copyVertexShader, copyFragmentShader), []);
   phase.add(sceneBackground);
 
-  final Material matBackground = new Material("bg")
+  final Material matBackground = Material("bg")
     ..ForceUniform(cDepthWrite, false);
-  sceneBackground.add(
-      new Node("bg", ShapeQuad(sceneBackground.program, 1), matBackground));
+  sceneBackground
+      .add(Node("bg", ShapeQuad(sceneBackground.program, 1), matBackground));
 
   // This scene renders the a red cube in front of the background
-  Scene sceneCube = new Scene(
+  Scene sceneCube = Scene(
       "objects",
-      new RenderProgram(
+      RenderProgram(
           "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective]);
   phase.add(sceneCube);
 
-  final Material matCube = new Material("cube")..SetUniform(uColor, ColorRed);
+  final Material matCube = Material("cube")..SetUniform(uColor, ColorRed);
 
   double dim = 0.2;
-  Node cube = new Node(
+  Node cube = Node(
       "cube", ShapeCube(sceneCube.program, x: dim, y: dim, z: dim), matCube)
     ..setPos(-5.0, 0.0, -5.0);
   sceneCube.add(cube);
@@ -79,7 +79,7 @@ void main() {
       HTML.window
           .alert("Could not access camera - do you have a camera installed?");
     }
-    texture = new ImageTexture(cgl, "video", video, TexturePropertiesVideo);
+    texture = ImageTexture(cgl, "video", video, TexturePropertiesVideo);
     matBackground.SetUniform(uTexture, texture);
     animate(0.0);
   });

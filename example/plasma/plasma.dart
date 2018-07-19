@@ -7,13 +7,13 @@ import 'package:chronosgl/chronosgl.dart';
 
 // TODO: Add www.shadertoy.com/view/4dlGDN www.shadertoy.com/view/lsfGzr
 
-final ShaderObject plasmaVertexShader1 = new ShaderObject("Plasma1V")
+final ShaderObject plasmaVertexShader1 = ShaderObject("Plasma1V")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..AddVaryingVars([vTexUV])
   ..SetBodyWithMain([StdVertexBody, "${vTexUV} = ${aTexUV};"]);
 
-final ShaderObject plasmaFragmentShader1 = new ShaderObject("Plasma1F")
+final ShaderObject plasmaFragmentShader1 = ShaderObject("Plasma1F")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uTime])
   ..SetBodyWithMain([
@@ -37,13 +37,13 @@ final ShaderObject plasmaFragmentShader1 = new ShaderObject("Plasma1F")
 """
   ]);
 
-final ShaderObject plasmaVertexShader2 = new ShaderObject("Plasma2V")
+final ShaderObject plasmaVertexShader2 = ShaderObject("Plasma2V")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..AddVaryingVars([vTexUV])
   ..SetBodyWithMain([StdVertexBody, "${vTexUV} = ${aTexUV};"]);
 
-final ShaderObject plasmaFragmentShader2 = new ShaderObject("Plasma2F")
+final ShaderObject plasmaFragmentShader2 = ShaderObject("Plasma2F")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uTime])
   ..SetBodyWithMain([
@@ -57,13 +57,13 @@ final ShaderObject plasmaFragmentShader2 = new ShaderObject("Plasma2F")
   """
   ]);
 
-final ShaderObject plasmaVertexShader3 = new ShaderObject("Plasma3V")
+final ShaderObject plasmaVertexShader3 = ShaderObject("Plasma3V")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..AddVaryingVars([vTexUV])
   ..SetBodyWithMain([StdVertexBody, "${vTexUV} = ${aTexUV};"]);
 
-final ShaderObject plasmaFragmentShader3 = new ShaderObject("Plasma3F")
+final ShaderObject plasmaFragmentShader3 = ShaderObject("Plasma3F")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uTime])
   ..SetBodyWithMain([
@@ -82,9 +82,9 @@ final ShaderObject plasmaFragmentShader3 = new ShaderObject("Plasma3F")
   ]);
 
 Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
-  Scene scene = new Scene(
+  Scene scene = Scene(
       "stars",
-      new RenderProgram(
+      RenderProgram(
           "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
       [perspective]);
   scene.add(Utils.MakeParticles(scene.program, num));
@@ -93,39 +93,39 @@ Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
-  OrbitCamera orbit = new OrbitCamera(65.0, 0.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
+  OrbitCamera orbit = OrbitCamera(65.0, 0.0, 0.0, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
 
   final RenderPhaseResizeAware phase =
-      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
+      RenderPhaseResizeAware("main", cgl, canvas, perspective);
   // A scene is tied to a single shader, so we must create a separate
   // shader for each plasma type.
   List<Scene> scenes = [
-    new Scene(
+    Scene(
         "plasma1",
-        new RenderProgram(
+        RenderProgram(
             "plasma1", cgl, plasmaVertexShader1, plasmaFragmentShader1),
         [perspective]),
-    new Scene(
+    Scene(
         "plasma2",
-        new RenderProgram(
+        RenderProgram(
             "plasma2", cgl, plasmaVertexShader2, plasmaFragmentShader2),
         [perspective]),
-    new Scene(
+    Scene(
         "plasma3",
-        new RenderProgram(
+        RenderProgram(
             "plasma3", cgl, plasmaVertexShader3, plasmaFragmentShader3),
         [perspective]),
   ];
   for (Scene s in scenes) phase.add(s);
 
-  Material mat = new Material("mat");
+  Material mat = Material("mat");
   MeshData md = ShapeCube(scenes[0].program, x: 10.0, y: 10.0, z: 10.0);
 
-  Node cube = new Node(md.name, md, mat)
+  Node cube = Node(md.name, md, mat)
     ..setPos(0.0, 0.0, 0.0)
     ..lookUp(1.0)
     ..lookLeft(0.7);

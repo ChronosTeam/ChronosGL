@@ -4,9 +4,9 @@ import 'package:chronosgl/chronosgl.dart';
 import "dart:async";
 
 Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
-  Scene scene = new Scene(
+  Scene scene = Scene(
       "stars",
-      new RenderProgram(
+      RenderProgram(
           "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
       [perspective]);
   scene.add(Utils.MakeParticles(scene.program, num));
@@ -15,56 +15,56 @@ Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
-  OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
+  OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
 
   final RenderPhaseResizeAware phase =
-      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
-  final Scene scene = new Scene(
+      RenderPhaseResizeAware("main", cgl, canvas, perspective);
+  final Scene scene = Scene(
       "objects",
-      new RenderProgram(
+      RenderProgram(
           "textured", cgl, texturedVertexShader, texturedFragmentShader),
       [perspective]);
   phase.add(scene);
 
   // textures will be set after they are loaded
-  final Material matWood = new Material("wood")..SetUniform(uColor, ColorBlack);
+  final Material matWood = Material("wood")..SetUniform(uColor, ColorBlack);
 
-  final Material matGradient = new Material("gradient")
+  final Material matGradient = Material("gradient")
     ..SetUniform(uColor, ColorRed);
 
-  final Material matTrans = new Material("trans")
+  final Material matTrans = Material("trans")
     ..SetUniform(uColor, ColorGray4)
     ..ForceUniform(cBlendEquation, BlendEquationStandard);
 
   {
-    Node ico = new Node("sphere", ShapeIcosahedron(scene.program, 3), matWood)
+    Node ico = Node("sphere", ShapeIcosahedron(scene.program, 3), matWood)
       ..setPos(0.0, 0.0, 0.0);
     scene.add(ico);
   }
   {
-    Node cube = new Node("cube", ShapeCube(scene.program), matGradient)
+    Node cube = Node("cube", ShapeCube(scene.program), matGradient)
       ..setPos(-5.0, 0.0, -5.0);
     scene.add(cube);
   }
 
   {
-    Node cyl = new Node(
+    Node cyl = Node(
         "cylinder", ShapeCylinder(scene.program, 3.0, 6.0, 2.0, 32), matTrans)
       ..setPos(5.0, 0.0, -5.0);
     scene.add(cyl);
   }
   {
-    Node quad = new Node("quad", ShapeQuad(scene.program, 2), matTrans)
+    Node quad = Node("quad", ShapeQuad(scene.program, 2), matTrans)
       ..setPos(-5.0, 0.0, 5.0);
     scene.add(quad);
   }
   {
-    Node torus = new Node(
+    Node torus = Node(
         "torus",
         ShapeTorusKnot(scene.program, radius: 1.0, tubeRadius: 0.4),
         matGradient)
@@ -99,12 +99,12 @@ void main() {
   ];
 
   Future.wait(futures).then((List list) {
-    Texture gradient = new ImageTexture(cgl, "../gradient.jpg", list[0]);
+    Texture gradient = ImageTexture(cgl, "../gradient.jpg", list[0]);
     matGradient.SetUniform(uTexture, gradient);
-    Texture trans = new ImageTexture(cgl, "../transparent.png", list[1]);
+    Texture trans = ImageTexture(cgl, "../transparent.png", list[1]);
     matTrans.SetUniform(uTexture, trans);
 
-    Texture wood = new ImageTexture(cgl, "../wood.jpg", list[2]);
+    Texture wood = ImageTexture(cgl, "../wood.jpg", list[2]);
     matWood.SetUniform(uTexture, wood);
     animate(0.0);
   });

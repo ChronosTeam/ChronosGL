@@ -111,9 +111,9 @@ class Framebuffer {
   Framebuffer.Default(ChronosGL cgl, int w, int h)
       : this(
             cgl,
-            new TypedTexture(cgl, "frame::color", w, h, GL_RGBA8,
+            TypedTexture(cgl, "frame::color", w, h, GL_RGBA8,
                 TexturePropertiesFramebuffer),
-            new TypedTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
+            TypedTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
                 TexturePropertiesFramebuffer));
 
   void Activate(int clear_mode, int viewPortX, int viewPortY, int viewPortW,
@@ -130,13 +130,13 @@ class Framebuffer {
 
   Float32List ExtractFloatData(Float32List buf, int x, int y, int w, int h) {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-    final FramebufferFormat f = new FramebufferFormat.fromActive(_cgl);
+    final FramebufferFormat f = FramebufferFormat.fromActive(_cgl);
     print("READ FORMAT $f");
     if (f.type != GL_FLOAT) {
       print("unexpcted non float type: $f");
     }
     if (buf == null) {
-      buf = new Float32List(f.channels * w * h);
+      buf = Float32List(f.channels * w * h);
     }
     _cgl.readPixels(x, y, w, h, f.format, GL_FLOAT, buf);
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
@@ -145,11 +145,11 @@ class Framebuffer {
 
   Uint8List ExtractByteData(Uint8List buf, int x, int y, int w, int h) {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-    final FramebufferFormat f = new FramebufferFormat.fromActive(_cgl);
+    final FramebufferFormat f = FramebufferFormat.fromActive(_cgl);
     print("READ FORMAT $f");
     assert(f.type == GL_UNSIGNED_BYTE);
     if (buf == null) {
-      buf = new Uint8List(f.channels * w * h);
+      buf = Uint8List(f.channels * w * h);
     }
     _cgl.readPixels(x, y, w, h, f.format, f.type, buf);
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);

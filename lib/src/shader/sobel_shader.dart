@@ -2,11 +2,11 @@ part of chronosshader;
 
 List<ShaderObject> createSobelShader() {
   return [
-    new ShaderObject("SobelV")
+    ShaderObject("SobelV")
       ..AddAttributeVars([aPosition, aTexUV])
       ..AddVaryingVars([vTexUV])
       ..SetBodyWithMain([NullVertexBody, StdVertexTextureForward]),
-    new ShaderObject("SobelF")
+    ShaderObject("SobelF")
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTexture, uCanvasSize])
       ..SetBody([

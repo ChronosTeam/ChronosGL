@@ -7,36 +7,36 @@ String textureFile = "../gradient.jpg";
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
 
-  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
-  OrbitCamera orbit = new OrbitCamera(165.0, 0.0, 0.0, canvas);
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
+  OrbitCamera orbit = OrbitCamera(165.0, 0.0, 0.0, canvas);
   PerspectiveResizeAware perspective =
-      new PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
+      PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
-  final RenderProgram programTexture = new RenderProgram(
+  final RenderProgram programTexture = RenderProgram(
       "textured", cgl, texturedVertexShader, texturedFragmentShader);
-  final RenderProgram programPerlin = new RenderProgram("perlin", cgl,
+  final RenderProgram programPerlin = RenderProgram("perlin", cgl,
       perlinNoiseVertexShader, makePerlinNoiseColorFragmentShader(false));
 
   final MeshData torus = ShapeTorusKnot(programTexture);
 
   // A gradient texture will be added after it has loaded.
-  final Material matTexture = new Material("texture")
-    ..SetUniform(uModelMatrix,
-        new VM.Matrix4.identity()..setTranslationRaw(-50.0, 0.0, 0.0))
-    ..SetUniform(uColor, new VM.Vector3.zero());
+  final Material matTexture = Material("texture")
+    ..SetUniform(
+        uModelMatrix, VM.Matrix4.identity()..setTranslationRaw(-50.0, 0.0, 0.0))
+    ..SetUniform(uColor, VM.Vector3.zero());
 
-  final Material matPerlin = new Material("perlin")
-    ..SetUniform(uTransformationMatrix, new VM.Matrix4.zero())
-    ..SetUniform(uModelMatrix,
-        new VM.Matrix4.identity()..setTranslationRaw(50.0, 0.0, 0.0));
+  final Material matPerlin = Material("perlin")
+    ..SetUniform(uTransformationMatrix, VM.Matrix4.zero())
+    ..SetUniform(
+        uModelMatrix, VM.Matrix4.identity()..setTranslationRaw(50.0, 0.0, 0.0));
 
-  final RenderProgram progStars = new RenderProgram(
+  final RenderProgram progStars = RenderProgram(
       "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
   final Material matStars = Utils.MakeStarMaterial(cgl)
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity());
   final MeshData mdStars = Utils.MakeStarMesh(progStars, 2000, 200.0);
 
   double _lastTimeMs = 0.0;
@@ -59,7 +59,7 @@ void main() {
   ];
 
   Future.wait(futures).then((List list) {
-    Texture tex = new ImageTexture(cgl, textureFile, list[0]);
+    Texture tex = ImageTexture(cgl, textureFile, list[0]);
     matTexture..SetUniform(uTexture, tex);
     animate(0.0);
   });

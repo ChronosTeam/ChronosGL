@@ -3,7 +3,7 @@ part of importer;
 // https://en.wikipedia.org/wiki/Wavefront_.obj_file
 
 GeometryBuilder ImportGeometryFromWavefront(String text) {
-  GeometryBuilder gb = new GeometryBuilder();
+  GeometryBuilder gb = GeometryBuilder();
   gb.EnableAttribute(aTexUV);
   gb.EnableAttribute(aNormal);
 
@@ -21,10 +21,10 @@ GeometryBuilder ImportGeometryFromWavefront(String text) {
   List<VM.Vector3> normals = [];
   List<VM.Vector2> uvs = [];
 
-  final DateTime start = new DateTime.now();
+  final DateTime start = DateTime.now();
 
-  final dynamic sep = new RegExp(r"\s+");
-  final dynamic trail = new RegExp(r'\s\s*\$');
+  final dynamic sep = RegExp(r"\s+");
+  final dynamic trail = RegExp(r'\s\s*\$');
   for (String line2 in lines) {
     String line = line2.replaceAll(sep, " ").replaceFirst(trail, "");
     // ignore comments
@@ -35,12 +35,12 @@ GeometryBuilder ImportGeometryFromWavefront(String text) {
     if (array[0] == "g") {
       groups[array[1]] = vertices.length;
     } else if (array[0] == "v") {
-      vertices.add(new VM.Vector3(double.parse(array[1]),
-          double.parse(array[2]), double.parse(array[3])));
+      vertices.add(VM.Vector3(double.parse(array[1]), double.parse(array[2]),
+          double.parse(array[3])));
     } else if (array[0] == "vt") {
-      uvs.add(new VM.Vector2(double.parse(array[1]), double.parse(array[2])));
+      uvs.add(VM.Vector2(double.parse(array[1]), double.parse(array[2])));
     } else if (array[0] == "vn") {
-      normals.add(new VM.Vector3(double.parse(array[1]), double.parse(array[2]),
+      normals.add(VM.Vector3(double.parse(array[1]), double.parse(array[2]),
           double.parse(array[3])));
     } else if (array[0] == "f") {
       // face
@@ -66,20 +66,20 @@ GeometryBuilder ImportGeometryFromWavefront(String text) {
         if (vtx < vertices.length) {
           faceVertices.add(vertices[vtx]);
         } else {
-          faceVertices.add(new VM.Vector3.zero());
+          faceVertices.add(VM.Vector3.zero());
         }
 
         if (tex != -1 && tex < uvs.length) {
           faceUvs.add(uvs[tex]);
         } else {
           print("problem uv $i ${tex}");
-          faceUvs.add(new VM.Vector2.zero());
+          faceUvs.add(VM.Vector2.zero());
         }
         if (nor != -1 && nor < normals.length) {
           faceNormal.add(normals[nor]);
         } else {
           print("problem normals $i ${nor}");
-          faceNormal.add(new VM.Vector3.zero());
+          faceNormal.add(VM.Vector3.zero());
         }
       }
       if (array.length == 4) {
@@ -91,7 +91,7 @@ GeometryBuilder ImportGeometryFromWavefront(String text) {
       gb.AddAttributesVector2(aTexUV, faceUvs);
     }
   }
-  final Duration delta = new DateTime.now().difference(start);
+  final Duration delta = DateTime.now().difference(start);
   print("loaded (${delta}) ${gb}");
   return gb;
 }

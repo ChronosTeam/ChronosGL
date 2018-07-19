@@ -2,7 +2,7 @@ part of chronosshader;
 
 List<ShaderObject> createPlane2GreyShader() {
   return [
-    new ShaderObject("Plane2GreyV")
+    ShaderObject("Plane2GreyV")
       ..AddAttributeVars([aPosition, aNormal])
       ..AddVaryingVars([vColor])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
@@ -11,7 +11,7 @@ List<ShaderObject> createPlane2GreyShader() {
         "${vColor} = vec3(d,d,d);",
         StdVertexBody,
       ]),
-    new ShaderObject("Plane2GreyF")
+    ShaderObject("Plane2GreyF")
       ..AddVaryingVars([vColor])
       ..SetBodyWithMain(["${oFragColor} = vec4(${vColor}, 1.0);"])
   ];
@@ -46,12 +46,12 @@ void main(void) {
 
 List<ShaderObject> createPlane2ColorShader() {
   return [
-    new ShaderObject("Plane2ColorV")
+    ShaderObject("Plane2ColorV")
       ..AddAttributeVars([aPosition, aNormal])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
       ..AddVaryingVars([vColor])
       ..SetBody([_VertexShaderPlane2ColorV]),
-    new ShaderObject("Plane2ColorF")
+    ShaderObject("Plane2ColorF")
       ..AddVaryingVars([vColor])
       ..SetBodyWithMain(["${oFragColor} = vec4( vColor, 1.0 );"])
   ];

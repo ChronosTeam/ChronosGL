@@ -1,6 +1,5 @@
 part of misc;
 
-
 List<VM.Vector3> BonePosFromSkeleton(List<Bone> bones) {
   List<VM.Vector3> out = [];
 
@@ -31,7 +30,7 @@ List<VM.Vector3> BonePosFromAnimatedSkeleton(
 }
 
 class BoneVisualizer {
-  VM.Matrix4 _globalOffsetTransform = new VM.Matrix4.identity();
+  VM.Matrix4 _globalOffsetTransform = VM.Matrix4.identity();
   MeshData _mdWire;
   List<Bone> _skeleton;
   SkeletalAnimation _anim;
@@ -40,12 +39,12 @@ class BoneVisualizer {
   Node mesh;
 
   BoneVisualizer(RenderProgram prog, Material mat, this._skeleton, this._anim) {
-    _animatedSkeleton = new AnimatedSkeleton(_skeleton.length);
+    _animatedSkeleton = AnimatedSkeleton(_skeleton.length);
     UpdateAnimatedSkeleton(
         _skeleton, _globalOffsetTransform, _anim, _animatedSkeleton, 0.0);
-    _mdWire = LineEndPointsToMeshData(
-        "wire", prog, BonePosFromAnimatedSkeleton(_skeleton, _animatedSkeleton));
-    mesh = new Node(_mdWire.name, _mdWire, mat);
+    _mdWire = LineEndPointsToMeshData("wire", prog,
+        BonePosFromAnimatedSkeleton(_skeleton, _animatedSkeleton));
+    mesh = Node(_mdWire.name, _mdWire, mat);
   }
 
   void Update(double time) {

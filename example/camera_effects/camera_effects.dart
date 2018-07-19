@@ -17,103 +17,97 @@ class Effect {
   Effect(ChronosGL cgl, ShaderObject shader, this.uniforms)
       : name = uniforms.name,
         program =
-            new RenderProgram(uniforms.name, cgl, effectVertexShader, shader) {
+            RenderProgram(uniforms.name, cgl, effectVertexShader, shader) {
     all[uniforms.name] = this;
   }
 }
 
 void RegisterEffects(ChronosGL cgl) {
-  new Effect(cgl, copyFragmentShader, new UniformGroup("none"));
+  Effect(cgl, copyFragmentShader, UniformGroup("none"));
 
-  new Effect(cgl, toonFragmentShader, new UniformGroup("toon"));
+  Effect(cgl, toonFragmentShader, UniformGroup("toon"));
 
-  new Effect(
+  Effect(
       cgl,
       hexPixelateFragmentShader,
-      new UniformGroup("hexalate-6")
-        ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
+      UniformGroup("hexalate-6")
+        ..SetUniform(uCenter2, VM.Vector2(0.5, 0.5))
         ..SetUniform(uPointSize, 6.0));
 
-  new Effect(
+  Effect(
       cgl,
       dotFragmentShader,
-      new UniformGroup("dot")
-        ..SetUniform(uCenter2, new VM.Vector2(0.0, 0.0))
+      UniformGroup("dot")
+        ..SetUniform(uCenter2, VM.Vector2(0.0, 0.0))
         ..SetUniform(uScale, 0.8)
         ..SetUniform(uAngle, 0.5));
 
-  new Effect(
+  Effect(
       cgl,
       tvDistortionFragmentShader,
-      new UniformGroup("tv-distortion")
+      UniformGroup("tv-distortion")
         ..SetUniform(uScale, 0.0009)
         ..SetUniform(uTime, 0.0));
 
-  new Effect(cgl, lumidotsFragmentShader,
-      new UniformGroup("lumidots-4")..SetUniform(uPointSize, 4.0));
+  Effect(cgl, lumidotsFragmentShader,
+      UniformGroup("lumidots-4")..SetUniform(uPointSize, 4.0));
 
-  new Effect(cgl, squarePixelateFragmentShader,
-      new UniformGroup("square-4")..SetUniform(uPointSize, 4.0));
+  Effect(cgl, squarePixelateFragmentShader,
+      UniformGroup("square-4")..SetUniform(uPointSize, 4.0));
 
-  new Effect(
-      cgl,
-      scanlineFragmentShader,
-      new UniformGroup("scanline")
-        ..SetUniform(uRange, new VM.Vector2(120.0, 240.0)));
+  Effect(cgl, scanlineFragmentShader,
+      UniformGroup("scanline")..SetUniform(uRange, VM.Vector2(120.0, 240.0)));
 
-  new Effect(cgl, waterFragmentShader, new UniformGroup("water"));
+  Effect(cgl, waterFragmentShader, UniformGroup("water"));
 
-  new Effect(cgl, CrosshatchFragmentShader(0), new UniformGroup("crosshatch"));
+  Effect(cgl, CrosshatchFragmentShader(0), UniformGroup("crosshatch"));
 
-  new Effect(cgl, sepiaFragmentShader,
-      new UniformGroup("sepia")..SetUniform(uScale, 0.5));
+  Effect(
+      cgl, sepiaFragmentShader, UniformGroup("sepia")..SetUniform(uScale, 0.5));
 
-  new Effect(cgl, techicolorFragmentShader, new UniformGroup("technicolor"));
+  Effect(cgl, techicolorFragmentShader, UniformGroup("technicolor"));
 
-  new Effect(
-      cgl,
-      vignettingFragmentShader,
-      new UniformGroup("vigenetting")
-        ..SetUniform(uRange, new VM.Vector2(0.4, 0.7)));
+  Effect(cgl, vignettingFragmentShader,
+      UniformGroup("vigenetting")..SetUniform(uRange, VM.Vector2(0.4, 0.7)));
 
-  new Effect(
+  Effect(
       cgl,
       convolution3x3FragmentShader,
-      new UniformGroup("emboss")
+      UniformGroup("emboss")
         ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEmboss)
         ..SetUniform(uColor, ConvolutionOffsetEmboss));
 
-  new Effect(
+  Effect(
       cgl,
       convolution3x3FragmentShader,
-      new UniformGroup("emboss2")
+      UniformGroup("emboss2")
         ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEmboss2)
         ..SetUniform(uColor, ConvolutionOffsetEmboss2));
-  new Effect(
+  Effect(
       cgl,
       convolution3x3FragmentShader,
-      new UniformGroup("engrave")
+      UniformGroup("engrave")
         ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEngrave)
         ..SetUniform(uColor, ConvolutionOffsetEngrave));
 
-  new Effect(
+  Effect(
       cgl,
       convolution3x3FragmentShader,
-      new UniformGroup("sharpen")
+      UniformGroup("sharpen")
         ..SetUniform(uConvolutionMatrix, ConvolutionMatrixSharpen)
         ..SetUniform(uColor, ConvolutionOffsetSharpen));
 
-  new Effect(
+  Effect(
       cgl,
       convolution3x3FragmentShader,
-      new UniformGroup("edges")
+      UniformGroup("edges")
         ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEdges)
         ..SetUniform(uColor, ConvolutionOffsetEdges));
 
-  new Effect(
+  Effect(
       cgl,
       convolution3x3FragmentShader,
-      new UniformGroup("blur")
+      UniformGroup("blur")
         ..SetUniform(uConvolutionMatrix, ConvolutionMatrixBlur)
         ..SetUniform(uColor, ConvolutionOffsetBlur));
 
@@ -125,13 +119,13 @@ void RegisterEffects(ChronosGL cgl) {
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   // Make sure canvas has full screen resolution
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
 
-  ChronosGL cgl = new ChronosGL(canvas);
+  ChronosGL cgl = ChronosGL(canvas);
   RegisterEffects(cgl);
 
   HTML.VideoElement video;
@@ -172,7 +166,7 @@ void main() {
     // canvas.width = w;
     // canvas.height = h;
     // cgl.viewport(0, 0, w, h);
-    texture = new ImageTexture(cgl, "video", video, TexturePropertiesVideo);
+    texture = ImageTexture(cgl, "video", video, TexturePropertiesVideo);
 
     animate(0.0);
   });

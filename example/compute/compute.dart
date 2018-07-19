@@ -4,19 +4,18 @@ import 'package:chronosgl/chronosgl.dart';
 
 const int kDim = 500;
 
-final ShaderObject computeVertexShader = new ShaderObject("computeVertexShader")
+final ShaderObject computeVertexShader = ShaderObject("computeVertexShader")
   ..AddAttributeVars([aPosition])
   ..SetBodyWithMain([NullVertexBody]);
 
-final ShaderObject computeFragmentShader =
-    new ShaderObject("computeFragmentShader")
-      ..SetBodyWithMain([
-        """
+final ShaderObject computeFragmentShader = ShaderObject("computeFragmentShader")
+  ..SetBodyWithMain([
+    """
 ${oFragColor}.b = gl_FragCoord.x / ${kDim}.0;
 ${oFragColor}.g = gl_FragCoord.y / ${kDim}.0;
 ${oFragColor}.r = 0.0;
     """
-      ]);
+  ]);
 
 String ExtractAndSummarizeBytes(Framebuffer fb, int w, int h) {
   Uint8List buf = fb.ExtractByteData(null, 0, 0, w, h);
@@ -60,15 +59,15 @@ void main() {
     ..width = kDim
     ..height = kDim;
 
-  ChronosGL cgl = new ChronosGL(canvas);
+  ChronosGL cgl = ChronosGL(canvas);
 
-  RenderProgram program = new RenderProgram(
-      "program", cgl, computeVertexShader, computeFragmentShader);
+  RenderProgram program =
+      RenderProgram("program", cgl, computeVertexShader, computeFragmentShader);
 
   MeshData unitQuad = ShapeQuad(program, 1);
 
   {
-    Framebuffer fb = new Framebuffer.Default(cgl, kDim, kDim);
+    Framebuffer fb = Framebuffer.Default(cgl, kDim, kDim);
 
     results.innerHtml += "<h3>Drawing into default format FB</h3>";
     fb.Activate(GL_CLEAR_ALL, 0, 0, kDim, kDim);
@@ -82,10 +81,10 @@ void main() {
     if (ext == null) {
       results.innerHtml += "extension not available: EXT_color_buffer_float";
     }
-    TypedTexture tex = new TypedTexture(
+    TypedTexture tex = TypedTexture(
         cgl, "float", kDim, kDim, GL_RGBA32F, TexturePropertiesFramebuffer);
 
-    Framebuffer fb = new Framebuffer(cgl, tex);
+    Framebuffer fb = Framebuffer(cgl, tex);
     fb.Activate(GL_CLEAR_ALL, 0, 0, kDim, kDim);
     program.Draw(unitQuad, []);
     results.innerHtml += ExtractAndSummarizeFloat(fb, kDim, kDim) + "\n";

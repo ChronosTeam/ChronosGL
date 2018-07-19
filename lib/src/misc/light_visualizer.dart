@@ -2,7 +2,7 @@ part of misc;
 
 MeshData EmptyLightVisualizer(RenderProgram prog, String name) {
   MeshData md = prog.MakeMeshData(name, GL_LINES);
-  md.AddVertices(new Float32List(3));
+  md.AddVertices(Float32List(3));
   md.AddFaces([0, 0]);
   return md;
 }
@@ -21,8 +21,8 @@ void UpdateDirectionalLightVisualizer(
     for (double z = start; z <= end; z += delta) {
       // we have an intersection  point with xz plane, now get the
       // intersection with the top and bottom face of the cube
-      points.add(new VM.Vector3(x, 0.0, z)..add(dir2y));
-      points.add(new VM.Vector3(x, 0.0, z)..sub(dir2y));
+      points.add(VM.Vector3(x, 0.0, z)..add(dir2y));
+      points.add(VM.Vector3(x, 0.0, z)..sub(dir2y));
     }
   }
   for (int i = 0; i < 8; ++i) {
@@ -30,34 +30,34 @@ void UpdateDirectionalLightVisualizer(
     int y = ((i & 2) == 2) ? 1 : -1;
     int z = ((i & 4) == 4) ? 1 : -1;
     if (x > 0) {
-      points.add(new VM.Vector3(x * d, y * d, z * d));
-      points.add(new VM.Vector3(-x * d, y * d, z * d));
+      points.add(VM.Vector3(x * d, y * d, z * d));
+      points.add(VM.Vector3(-x * d, y * d, z * d));
     }
     if (y > 0) {
-      points.add(new VM.Vector3(x * d, y * d, z * d));
-      points.add(new VM.Vector3(x * d, -y * d, z * d));
+      points.add(VM.Vector3(x * d, y * d, z * d));
+      points.add(VM.Vector3(x * d, -y * d, z * d));
     }
     if (z > 0) {
-      points.add(new VM.Vector3(x * d, y * d, z * d));
-      points.add(new VM.Vector3(x * d, y * d, -z * d));
+      points.add(VM.Vector3(x * d, y * d, z * d));
+      points.add(VM.Vector3(x * d, y * d, -z * d));
     }
   }
 
   md.ChangeVertices(FlattenVector3List(points));
-  List<int> faces = new List<int>(points.length);
+  List<int> faces = List<int>(points.length);
   for (int i = 0; i < points.length; ++i) faces[i] = i;
   md.ChangeFaces(faces);
 }
 
 VM.Vector3 GetOrthogonalVector3(VM.Vector3 dir) {
   if (dir.x != 0.0) {
-    if (dir.y != 0.0) return new VM.Vector3(-dir.y, dir.x, 0.0);
-    if (dir.z != 0.0) return new VM.Vector3(-dir.z, 0.0, dir.x);
-    return new VM.Vector3(0.0, 1.0, 1.0);
+    if (dir.y != 0.0) return VM.Vector3(-dir.y, dir.x, 0.0);
+    if (dir.z != 0.0) return VM.Vector3(-dir.z, 0.0, dir.x);
+    return VM.Vector3(0.0, 1.0, 1.0);
   } else {
-    if (dir.y == 0.0) return new VM.Vector3(1.0, 1.0, 0.0);
-    if (dir.z == 0.0) return new VM.Vector3(1.0, 0.0, 1.0);
-    return new VM.Vector3(0.0, -dir.z, dir.y);
+    if (dir.y == 0.0) return VM.Vector3(1.0, 1.0, 0.0);
+    if (dir.z == 0.0) return VM.Vector3(1.0, 0.0, 1.0);
+    return VM.Vector3(0.0, -dir.z, dir.y);
   }
 }
 

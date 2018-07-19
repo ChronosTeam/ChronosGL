@@ -25,28 +25,28 @@ MeshData MakeBevelMesh(RenderProgram prog) {
   List<VM.Vector2> supports = BevelSupportPoints(width, height, segments,
       widthEasing: easingWidth, heightEasing: easingHeight);
   List<List<VM.Vector3>> strips =
-      BevelStrips(gBase, gGrad, supports, new VM.Matrix3.identity());
-  GeometryBuilder gb = new GeometryBuilder();
+      BevelStrips(gBase, gGrad, supports, VM.Matrix3.identity());
+  GeometryBuilder gb = GeometryBuilder();
   gb.AddFaces4Strips(strips, true);
   return GeometryBuilderToMeshDataWireframe("", prog, gb);
 }
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas);
+  ChronosGL cgl = ChronosGL(canvas);
 
-  OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
+  OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
   final PerspectiveResizeAware perspective =
-      new PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
-  final RenderProgram prog = new RenderProgram(
+      PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
+  final RenderProgram prog = RenderProgram(
       "basic", cgl, solidColorVertexShader, solidColorFragmentShader);
 
-  final Material matWire = new Material("wire")
+  final Material matWire = Material("wire")
     ..SetUniform(uColor, ColorYellow)
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity());
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {

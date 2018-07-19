@@ -15,26 +15,24 @@ HTML.InputElement gShowWires =
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
 
-  OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
   final RenderPhaseResizeAware phase =
-      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
-  Scene scene = new Scene(
+      RenderPhaseResizeAware("main", cgl, canvas, perspective);
+  Scene scene = Scene(
       "solid",
-      new RenderProgram(
+      RenderProgram(
           "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective]);
   phase.add(scene);
 
-  final Material matWire = new Material("wire")
-    ..SetUniform(uColor, ColorYellow);
-  final Material matNorm = new Material("normal")
-    ..SetUniform(uColor, ColorBlue);
+  final Material matWire = Material("wire")..SetUniform(uColor, ColorYellow);
+  final Material matNorm = Material("normal")..SetUniform(uColor, ColorBlue);
 
   Node nodeWire;
   Node nodeNorm;
@@ -64,14 +62,14 @@ void main() {
         GeometryBuilderToMeshDataWireframe(meshFile, scene.program, gb);
     print(mdWire);
 
-    nodeWire = new Node(mdWire.name, mdWire, matWire);
-    nodeWire.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+    nodeWire = Node(mdWire.name, mdWire, matWire);
+    nodeWire.lookAt(VM.Vector3(100.0, 0.0, 0.0));
     scene.add(nodeWire);
 
     MeshData mdNorm =
         GeometryBuilderToWireframeNormals(scene.program, gb, 0.05);
-    nodeNorm = new Node(mdNorm.name, mdNorm, matNorm);
-    nodeNorm.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+    nodeNorm = Node(mdNorm.name, mdNorm, matNorm);
+    nodeNorm.lookAt(VM.Vector3(100.0, 0.0, 0.0));
     scene.add(nodeNorm);
 
     // Start

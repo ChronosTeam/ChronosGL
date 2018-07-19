@@ -3,12 +3,12 @@ import 'dart:math' as Math;
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
-VM.Vector3 p1 = new VM.Vector3.zero();
+VM.Vector3 p1 = VM.Vector3.zero();
 
 Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
-  Scene scene = new Scene(
+  Scene scene = Scene(
       "stars",
-      new RenderProgram(
+      RenderProgram(
           "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
       [perspective]);
   scene.add(Utils.MakeParticles(scene.program, num));
@@ -37,9 +37,9 @@ void updateTorusTexture(double time, HTML.CanvasElement canvas) {
 }
 
 final List<VM.Vector2> T = [
-  new VM.Vector2(1.0, 0.2),
-  new VM.Vector2(0.0, 0.7),
-  new VM.Vector2(0.0, 0.7),
+  VM.Vector2(1.0, 0.2),
+  VM.Vector2(0.0, 0.7),
+  VM.Vector2(0.0, 0.7),
 ];
 
 MeshData TorusKnotWithCustumUV(RenderProgram program) {
@@ -67,17 +67,17 @@ MeshData TorusKnotWithCustumUV(RenderProgram program) {
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas);
-  TorusKnotCamera tkc = new TorusKnotCamera();
-  Perspective perspective = new Perspective(tkc, 0.1, 1000.0);
+  ChronosGL cgl = ChronosGL(canvas);
+  TorusKnotCamera tkc = TorusKnotCamera();
+  Perspective perspective = Perspective(tkc, 0.1, 1000.0);
 
-  final Scene scene = new Scene(
+  final Scene scene = Scene(
       "objects",
-      new RenderProgram(
+      RenderProgram(
           "textured", cgl, texturedVertexShader, texturedFragmentShader),
       [perspective]);
   final RenderPhaseResizeAware phase =
-      new RenderPhaseResizeAware("main", cgl, canvas, perspective)
+      RenderPhaseResizeAware("main", cgl, canvas, perspective)
         ..add(MakeStarScene(cgl, perspective, 2000))
         ..add(scene);
 
@@ -85,14 +85,14 @@ void main() {
   // HTML.CanvasElement canvas2d = new HTML.CanvasElement(width: d, height: d);
   final HTML.CanvasElement canvas2d = HTML.document.querySelector('#texture');
   updateTorusTexture(0.0, canvas2d);
-  final ImageTexture generatedTexture = new ImageTexture(cgl, "gen", canvas2d);
+  final ImageTexture generatedTexture = ImageTexture(cgl, "gen", canvas2d);
 
   // Maybe disable depth test?
-  final Material mat = new Material.Transparent("torus", BlendEquationMix)
+  final Material mat = Material.Transparent("torus", BlendEquationMix)
     ..SetUniform(uTexture, generatedTexture)
-    ..SetUniform(uColor, new VM.Vector3.zero());
+    ..SetUniform(uColor, VM.Vector3.zero());
 
-  scene.add(new Node("torus", TorusKnotWithCustumUV(scene.program), mat));
+  scene.add(Node("torus", TorusKnotWithCustumUV(scene.program), mat));
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {

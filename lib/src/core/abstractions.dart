@@ -17,8 +17,7 @@ class UnknownEntity extends NamedEntity {
   UnknownEntity() : super("UnknownEntity");
 }
 
-final NamedEntity kUnknownEntity = new UnknownEntity();
-
+final NamedEntity kUnknownEntity = UnknownEntity();
 
 /// ## Class UniformGroup (is a NamedEntity)
 /// is an abstraction for a set of uniforms
@@ -34,7 +33,7 @@ class UniformGroup extends NamedEntity {
 
   void SetUniform(String canonical, Object val) {
     assert(
-    !_uniforms.containsKey(canonical), "uniform ${canonical} already set");
+        !_uniforms.containsKey(canonical), "uniform ${canonical} already set");
     ForceUniform(canonical, val);
   }
 

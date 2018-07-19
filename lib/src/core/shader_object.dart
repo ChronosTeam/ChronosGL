@@ -34,7 +34,7 @@ class ShaderVarDesc {
   final String purpose;
   final int arraySize;
 
-  const ShaderVarDesc(this.type, this.purpose, {this.arraySize: 0});
+  const ShaderVarDesc(this.type, this.purpose, {this.arraySize = 0});
 
   int GetSize() {
     switch (type) {

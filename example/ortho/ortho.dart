@@ -3,41 +3,41 @@ import 'dart:html' as HTML;
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas);
+  ChronosGL cgl = ChronosGL(canvas);
 
-  OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
+  OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
   double d = 20.0;
 
-  RenderProgram prog = new RenderProgram(
+  RenderProgram prog = RenderProgram(
       "textured", cgl, solidColorVertexShader, solidColorFragmentShader);
 
-  Orthographic orthographic = new Orthographic(orbit, -d, d, -d, -d, 100.0);
-  RenderPhase phaseOrthograhic = new RenderPhase("shadow", cgl);
-  Scene sceneOrthographic = new Scene("objects", prog, [orthographic]);
+  Orthographic orthographic = Orthographic(orbit, -d, d, -d, -d, 100.0);
+  RenderPhase phaseOrthograhic = RenderPhase("shadow", cgl);
+  Scene sceneOrthographic = Scene("objects", prog, [orthographic]);
   phaseOrthograhic.add(sceneOrthographic);
 
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
-  RenderPhase phasePerspective = new RenderPhase("perspective", cgl);
+  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
+  RenderPhase phasePerspective = RenderPhase("perspective", cgl);
   phasePerspective.clearColorBuffer = false;
-  Scene scenePerspective = new Scene("objects", prog, [perspective]);
+  Scene scenePerspective = Scene("objects", prog, [perspective]);
   phasePerspective.add(scenePerspective);
 
-  final Material mat1 = new Material("mat1")..SetUniform(uColor, ColorBlue);
-  final Material mat2 = new Material("mat2")..SetUniform(uColor, ColorRed);
-  final Material mat3 = new Material("mat3")..SetUniform(uColor, ColorGreen);
-  final Material mat4 = new Material("mat4")..SetUniform(uColor, ColorCyan);
-  final Material mat5 = new Material("plane")..SetUniform(uColor, ColorGray8);
+  final Material mat1 = Material("mat1")..SetUniform(uColor, ColorBlue);
+  final Material mat2 = Material("mat2")..SetUniform(uColor, ColorRed);
+  final Material mat3 = Material("mat3")..SetUniform(uColor, ColorGreen);
+  final Material mat4 = Material("mat4")..SetUniform(uColor, ColorCyan);
+  final Material mat5 = Material("plane")..SetUniform(uColor, ColorGray8);
 
   final List<Node> nodes = [
-    new Node("sphere", ShapeIcosahedron(prog, 3), mat1)..setPos(0.0, 0.0, 0.0),
-    new Node("cube", ShapeCube(prog), mat2)..setPos(-5.0, 0.0, -5.0),
-    new Node("cylinder", ShapeCylinder(prog, 3.0, 6.0, 2.0, 32), mat3)
+    Node("sphere", ShapeIcosahedron(prog, 3), mat1)..setPos(0.0, 0.0, 0.0),
+    Node("cube", ShapeCube(prog), mat2)..setPos(-5.0, 0.0, -5.0),
+    Node("cylinder", ShapeCylinder(prog, 3.0, 6.0, 2.0, 32), mat3)
       ..setPos(5.0, 0.0, -5.0),
-    new Node("torus", ShapeTorusKnot(prog, radius: 1.0, tubeRadius: 0.4), mat4)
+    Node("torus", ShapeTorusKnot(prog, radius: 1.0, tubeRadius: 0.4), mat4)
       ..setPos(5.0, 0.0, 5.0),
-    new Node("cube", ShapeCube(prog, x: 20.0, y: 0.1, z: 20.0), mat5)
+    Node("cube", ShapeCube(prog, x: 20.0, y: 0.1, z: 20.0), mat5)
       ..setPos(0.0, -10.0, 0.0),
   ];
 

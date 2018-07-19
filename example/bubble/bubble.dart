@@ -16,42 +16,41 @@ String _SphereV = """
   ${vTexUV} = vec2(r.x/m + 0.5, r.y/m + 0.5);
 """;
 
-ShaderObject sphereVertexShader = new ShaderObject("sphereV")
+ShaderObject sphereVertexShader = ShaderObject("sphereV")
   ..AddAttributeVars([aPosition, aNormal])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
   ..AddVaryingVars([vTexUV])
   ..SetBodyWithMain([StdVertexBody, _SphereV]);
 
-ShaderObject sphereFragmentShader = new ShaderObject("sphereF")
+ShaderObject sphereFragmentShader = ShaderObject("sphereF")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uTexture])
   ..SetBodyWithMain(["${oFragColor} = texture(${uTexture}, ${vTexUV});"]);
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
 
-  OrbitCamera orbit = new OrbitCamera(5.0, 10.0, 0.0, canvas);
+  OrbitCamera orbit = OrbitCamera(5.0, 10.0, 0.0, canvas);
   PerspectiveResizeAware perspective =
-      new PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
+      PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
-  final RenderProgram progSphere = new RenderProgram(
-      "spheres", cgl, sphereVertexShader, sphereFragmentShader);
+  final RenderProgram progSphere =
+      RenderProgram("spheres", cgl, sphereVertexShader, sphereFragmentShader);
   final MeshData mdSphere = ShapeIcosahedron(progSphere, 3);
-  final VM.Matrix4 modelMat = new VM.Matrix4.identity();
-  final VM.Matrix3 normalMat = new VM.Matrix3.identity();
+  final VM.Matrix4 modelMat = VM.Matrix4.identity();
+  final VM.Matrix3 normalMat = VM.Matrix3.identity();
 
-  final Material matSphere =
-      new Material.Transparent("sphere", BlendEquationMix)
-        ..SetUniform(uNormalMatrix, normalMat)
-        ..SetUniform(uModelMatrix, modelMat);
+  final Material matSphere = Material.Transparent("sphere", BlendEquationMix)
+    ..SetUniform(uNormalMatrix, normalMat)
+    ..SetUniform(uModelMatrix, modelMat);
 
-  final RenderProgram progStars = new RenderProgram(
+  final RenderProgram progStars = RenderProgram(
       "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
   final Material matStars = Utils.MakeStarMaterial(cgl)
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity());
   final MeshData mdStars = Utils.MakeStarMesh(progStars, 2000, 100.0);
 
   double _lastTimeMs = 0.0;
@@ -74,7 +73,7 @@ void main() {
     LoadImage(textureFile),
   ];
   Future.wait(futures).then((List list) {
-    Texture bubble = new ImageTexture(cgl, textureFile, list[0]);
+    Texture bubble = ImageTexture(cgl, textureFile, list[0]);
     matSphere.SetUniform(uTexture, bubble);
     animate(0.0);
   });

@@ -1,58 +1,56 @@
 part of chronosshader;
 
-final ShaderObject texturedVertexShader = new ShaderObject("Textured")
+final ShaderObject texturedVertexShader = ShaderObject("Textured")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..AddVaryingVars([vTexUV])
   ..SetBodyWithMain([StdVertexBody, StdVertexTextureForward]);
 
-final ShaderObject texturedFragmentShader = new ShaderObject("TexturedF")
+final ShaderObject texturedFragmentShader = ShaderObject("TexturedF")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uColor, uTexture])
   ..SetBodyWithMain([
     "${oFragColor} = texture(${uTexture}, ${vTexUV}) + vec4( ${uColor}, 0.0 );"
   ]);
 
-final ShaderObject solidColorVertexShader = new ShaderObject("SolidColor")
+final ShaderObject solidColorVertexShader = ShaderObject("SolidColor")
   ..AddAttributeVars([aPosition])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..SetBodyWithMain([StdVertexBody]);
 
-final ShaderObject solidColorFragmentShader = new ShaderObject("SolidColorF")
+final ShaderObject solidColorFragmentShader = ShaderObject("SolidColorF")
   ..AddUniformVars([uColor])
   ..SetBodyWithMain(["${oFragColor} = vec4( ${uColor}, 1.0 );"]);
 
 // this shader works well for cube shapes,
 // for other shapes it might be better to use the normals attribute
 // to sample the cube texture
-final ShaderObject cubeMapVertexShader = new ShaderObject("CubeMap")
+final ShaderObject cubeMapVertexShader = ShaderObject("CubeMap")
   ..AddAttributeVars([aPosition])
   ..AddVaryingVars([vPosition])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-  ..SetBodyWithMain(
-      [StdVertexBody, "${vPosition} = normalize(${aPosition});"]);
+  ..SetBodyWithMain([StdVertexBody, "${vPosition} = normalize(${aPosition});"]);
 
-final ShaderObject cubeMapFragmentShader = new ShaderObject("CubeMapF")
+final ShaderObject cubeMapFragmentShader = ShaderObject("CubeMapF")
   ..AddVaryingVars([vPosition])
   ..AddUniformVars([uCubeTexture])
   ..SetBodyWithMain(
       ["${oFragColor} = texture( ${uCubeTexture}, ${vPosition} );"]);
 
-final ShaderObject pointSpritesVertexShader = new ShaderObject("PointSpritesV")
+final ShaderObject pointSpritesVertexShader = ShaderObject("PointSpritesV")
   ..AddAttributeVars([aPosition])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uPointSize])
   ..SetBodyWithMain(
       [StdVertexBody, "gl_PointSize = ${uPointSize}/gl_Position.z;"]);
 
-final ShaderObject pointSpritesFragmentShader = new ShaderObject(
-    "PointSpritesF")
+final ShaderObject pointSpritesFragmentShader = ShaderObject("PointSpritesF")
   ..AddUniformVars([uTexture])
   ..SetBodyWithMain(["${oFragColor} = texture( ${uTexture},  gl_PointCoord);"]);
 
 List<ShaderObject> createPointSpritesShader() =>
     [pointSpritesVertexShader, pointSpritesFragmentShader];
 
-final ShaderObject demoVertexShader = new ShaderObject("FixedVertexColorV")
+final ShaderObject demoVertexShader = ShaderObject("FixedVertexColorV")
   ..AddAttributeVars([aPosition])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..AddVaryingVars([vColor])
@@ -63,6 +61,6 @@ final ShaderObject demoVertexShader = new ShaderObject("FixedVertexColorV")
     StdLibShader
   ]);
 
-final ShaderObject demoFragmentShader = new ShaderObject("FixedVertexColorF")
+final ShaderObject demoFragmentShader = ShaderObject("FixedVertexColorF")
   ..AddVaryingVars([vColor])
   ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1.0 );"]);

@@ -1,7 +1,7 @@
 part of core;
 
 Float32List FlattenVector3List(List<VM.Vector3> v, [Float32List data]) {
-  if (data == null) data = new Float32List(v.length * 3);
+  if (data == null) data = Float32List(v.length * 3);
   for (int i = 0; i < v.length; ++i) {
     data[i * 3 + 0] = v[i].x;
     data[i * 3 + 1] = v[i].y;
@@ -11,7 +11,7 @@ Float32List FlattenVector3List(List<VM.Vector3> v, [Float32List data]) {
 }
 
 Float32List FlattenVector2List(List<VM.Vector2> v, [Float32List data]) {
-  if (data == null) data = new Float32List(v.length * 2);
+  if (data == null) data = Float32List(v.length * 2);
   for (int i = 0; i < v.length; ++i) {
     data[i * 2 + 0] = v[i].x;
     data[i * 2 + 1] = v[i].y;
@@ -20,7 +20,7 @@ Float32List FlattenVector2List(List<VM.Vector2> v, [Float32List data]) {
 }
 
 Float32List FlattenVector4List(List<VM.Vector4> v, [Float32List data]) {
-  if (data == null) data = new Float32List(v.length * 4);
+  if (data == null) data = Float32List(v.length * 4);
   for (int i = 0; i < v.length; ++i) {
     data[i * 4 + 0] = v[i].x;
     data[i * 4 + 1] = v[i].y;
@@ -31,7 +31,7 @@ Float32List FlattenVector4List(List<VM.Vector4> v, [Float32List data]) {
 }
 
 Uint32List FlattenUvec4List(List<List<int>> v, [Uint32List data]) {
-  if (data == null) data = new Uint32List(v.length * 4);
+  if (data == null) data = Uint32List(v.length * 4);
   for (int i = 0; i < v.length; ++i) {
     data[i * 4 + 0] = v[i][0];
     data[i * 4 + 1] = v[i][1];
@@ -42,7 +42,7 @@ Uint32List FlattenUvec4List(List<List<int>> v, [Uint32List data]) {
 }
 
 Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data]) {
-  if (data == null) data = new Float32List(v.length * 16);
+  if (data == null) data = Float32List(v.length * 16);
   for (int i = 0; i < v.length; ++i) {
     VM.Matrix4 m = v[i];
     for (int j = 0; j < 16; ++j) data[i * 16 + j] = m[j];
@@ -164,13 +164,13 @@ class MeshData extends NamedEntity {
   void ChangeFaces(List<int> faces) {
     assert(_vertices != null);
     if (_vertices.length < 3 * 256) {
-      _faces = new Uint8List.fromList(faces);
+      _faces = Uint8List.fromList(faces);
       _indexBufferType = GL_UNSIGNED_BYTE;
     } else if (_vertices.length < 3 * 65536) {
-      _faces = new Uint16List.fromList(faces);
+      _faces = Uint16List.fromList(faces);
       _indexBufferType = GL_UNSIGNED_SHORT;
     } else {
-      _faces = new Uint32List.fromList(faces);
+      _faces = Uint32List.fromList(faces);
       _indexBufferType = GL_UNSIGNED_INT;
     }
 
@@ -228,7 +228,7 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
         break;
       case VarTypeFloat:
         md.AddAttribute(
-            canonical, new Float32List.fromList(lst as List<double>), 1);
+            canonical, Float32List.fromList(lst as List<double>), 1);
         break;
       case VarTypeUvec4:
         md.AddAttribute(canonical, FlattenUvec4List(lst as List<List<int>>), 4);
@@ -253,7 +253,7 @@ MeshData GeometryBuilderToMeshData(
 MeshData _ExtractWireframeNormals(
     MeshData out, List<double> vertices, List<double> normals, double scale) {
   assert(vertices.length == normals.length);
-  Float32List v = new Float32List(2 * vertices.length);
+  Float32List v = Float32List(2 * vertices.length);
   for (int i = 0; i < vertices.length; i += 3) {
     v[2 * i + 0] = vertices[i + 0];
     v[2 * i + 1] = vertices[i + 1];
@@ -265,7 +265,7 @@ MeshData _ExtractWireframeNormals(
   out.AddVertices(v);
 
   final int n = 2 * vertices.length ~/ 3;
-  List<int> lines = new List<int>(n);
+  List<int> lines = List<int>(n);
   for (int i = 0; i < n; i++) {
     lines[i] = i;
   }
@@ -296,7 +296,7 @@ MeshData LineEndPointsToMeshData(
     String name, RenderProgram prog, List<VM.Vector3> points) {
   MeshData md = prog.MakeMeshData(name, GL_LINES);
   md.AddVertices(FlattenVector3List(points));
-  List<int> faces = new List<int>(points.length);
+  List<int> faces = List<int>(points.length);
   for (int i = 0; i < points.length; ++i) faces[i] = i;
   md.AddFaces(faces);
   return md;
@@ -316,7 +316,7 @@ MeshData ExtractWireframe(RenderProgram prog, MeshData md) {
   MeshData out = prog.MakeMeshData(md.name, GL_LINES);
   out.AddVertices(md._vertices);
   final List<int> faces = md._faces;
-  List<int> lines = new List<int>(faces.length * 2);
+  List<int> lines = List<int>(faces.length * 2);
   for (int i = 0; i < faces.length; i += 3) {
     lines[i * 2 + 0] = faces[i + 0];
     lines[i * 2 + 1] = faces[i + 1];

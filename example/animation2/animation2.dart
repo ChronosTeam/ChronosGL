@@ -51,7 +51,7 @@ void main() {
 }
 """;
 
-final ShaderObject animationVertexShader = new ShaderObject("AnimationV")
+final ShaderObject animationVertexShader = ShaderObject("AnimationV")
   ..AddAttributeVars([aPosition, aBoneIndex, aBoneWeight])
   //..AddAttributeVar(aNormal)
   //..AddAttributeVar(aTexUV)
@@ -62,7 +62,7 @@ final ShaderObject animationVertexShader = new ShaderObject("AnimationV")
       [uPerspectiveViewMatrix, uModelMatrix, uAnimationTable, uTime])
   ..SetBody([skinningVertexShader]);
 
-final ShaderObject animationFragmentShader = new ShaderObject("AnimationV")
+final ShaderObject animationFragmentShader = ShaderObject("AnimationV")
   ..AddVaryingVars([vColor])
   //..AddVaryingVar(vTexUV)
   //..AddUniformVar(uTextureSampler)
@@ -72,48 +72,47 @@ final double kAnimTimeStep = 0.0333;
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas);
+  ChronosGL cgl = ChronosGL(canvas);
 
-  OrbitCamera orbit = new OrbitCamera(20.0, 0.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  OrbitCamera orbit = OrbitCamera(20.0, 0.0, 0.0, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
 
-  final Scene sceneAnim = new Scene(
+  final Scene sceneAnim = Scene(
       "animation",
-      new RenderProgram("animation", cgl, animationVertexShader,
-          animationFragmentShader),
+      RenderProgram(
+          "animation", cgl, animationVertexShader, animationFragmentShader),
       [perspective]);
 
-  final Scene sceneSkeleton = new Scene(
+  final Scene sceneSkeleton = Scene(
       "solid",
-      new RenderProgram(
+      RenderProgram(
           "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective]);
 
-  final Scene sceneDemo = new Scene(
+  final Scene sceneDemo = Scene(
       "demo",
-      new RenderProgram(
-          "demo", cgl, demoVertexShader, demoFragmentShader),
+      RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader),
       [perspective]);
 
   assert(sceneSkeleton.program
       .HasDownwardCompatibleAttributesTo(sceneAnim.program));
 
-   final RenderPhaseResizeAware phase =
-      new RenderPhaseResizeAware("main", cgl, canvas, perspective)
+  final RenderPhaseResizeAware phase =
+      RenderPhaseResizeAware("main", cgl, canvas, perspective)
         ..add(sceneSkeleton)
         ..add(sceneAnim)
         ..add(sceneDemo);
 
-  final Material matWire = new Material("wire")
-    ..SetUniform(uColor, new VM.Vector3(1.0, 1.0, 0.0));
+  final Material matWire = Material("wire")
+    ..SetUniform(uColor, VM.Vector3(1.0, 1.0, 0.0));
 
   BoneVisualizer boneVisualizer;
   TypedTextureMutable animationTable;
   List<double> animationSteps;
 
-  Material mat = new Material("mat");
+  Material mat = Material("mat");
 
   Map<String, RenderProgram> programMap = {
     "idSkeleton": sceneSkeleton.program,
@@ -131,7 +130,7 @@ void main() {
 
   for (HTML.Element e in HTML.document.getElementsByTagName("input")) {
     print("initialize inputs ${e.id}");
-    e.dispatchEvent(new HTML.Event("change"));
+    e.dispatchEvent(HTML.Event("change"));
   }
 
   double _lastTimeMs = 0.0;
@@ -159,7 +158,7 @@ void main() {
   ];
 
   Future.wait(futures).then((List list) {
-    VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
+    VM.Matrix4 globalOffsetTransform = VM.Matrix4.identity();
     // Setup Mesh
     List<GeometryBuilder> gb = ImportGeometryFromThreeJsJson(list[0]);
     List<Bone> skeleton = ImportSkeletonFromThreeJsJson(list[0]);
@@ -168,9 +167,9 @@ void main() {
     {
       MeshData md =
           GeometryBuilderToMeshData(meshFile, sceneAnim.program, gb[0]);
-      Node mesh = new Node(md.name, md, mat)..rotX(-3.14 / 4);
-      Node n = new Node.Container("wrapper", mesh);
-      n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+      Node mesh = Node(md.name, md, mat)..rotX(-3.14 / 4);
+      Node n = Node.Container("wrapper", mesh);
+      n.lookAt(VM.Vector3(100.0, 0.0, 0.0));
       sceneDemo.add(n);
       sceneAnim.add(n);
     }
@@ -181,17 +180,25 @@ void main() {
       }
       Float32List animationData = CreateAnimationTable(
           skeleton, globalOffsetTransform, anim, animationSteps);
-      animationTable = new TypedTextureMutable(cgl, "anim", skeleton.length * 4,
-          animationSteps.length, GL_RGBA32F, TexturePropertiesFramebuffer,GL_RGBA, GL_FLOAT, animationData);
+      animationTable = TypedTextureMutable(
+          cgl,
+          "anim",
+          skeleton.length * 4,
+          animationSteps.length,
+          GL_RGBA32F,
+          TexturePropertiesFramebuffer,
+          GL_RGBA,
+          GL_FLOAT,
+          animationData);
       mat.SetUniform(uAnimationTable, animationTable);
     }
     // bone wire mesh
     {
       boneVisualizer =
-          new BoneVisualizer(sceneSkeleton.program, matWire, skeleton, anim);
+          BoneVisualizer(sceneSkeleton.program, matWire, skeleton, anim);
       Node mesh = boneVisualizer.mesh..rotX(3.14 / 4);
-      Node n = new Node.Container("wrapper", mesh);
-      n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+      Node n = Node.Container("wrapper", mesh);
+      n.lookAt(VM.Vector3(100.0, 0.0, 0.0));
       sceneSkeleton.add(n);
     }
 

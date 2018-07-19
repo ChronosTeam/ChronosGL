@@ -6,9 +6,9 @@ import 'dart:math' as Math;
 import 'package:vector_math/vector_math.dart' as VM;
 
 Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
-  Scene scene = new Scene(
+  Scene scene = Scene(
       "stars",
-      new RenderProgram(
+      RenderProgram(
           "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
       [perspective]);
   scene.add(Utils.MakeParticles(scene.program, num));
@@ -43,7 +43,7 @@ VM.Quaternion slerp(VM.Quaternion a, VM.Quaternion b, double t) {
     scale0 = 1.0 - t;
     scale1 = t;
   }
-  return new VM.Quaternion(scale0 * ax + scale1 * bx, scale0 * ay + scale1 * by,
+  return VM.Quaternion(scale0 * ax + scale1 * bx, scale0 * ay + scale1 * by,
       scale0 * az + scale1 * bz, scale0 * aw + scale1 * bw);
 }
 
@@ -51,22 +51,22 @@ const String modelFile = "../ct_logo.obj";
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3, canvas);
-  Perspective perspective = new Perspective(orbit, 1.0, 1000.0);
+  ChronosGL cgl = ChronosGL(canvas);
+  OrbitCamera orbit = OrbitCamera(15.0, -45.0, 0.3, canvas);
+  Perspective perspective = Perspective(orbit, 1.0, 1000.0);
   final RenderPhaseResizeAware phase =
-      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
+      RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
-  Scene scene = new Scene(
+  Scene scene = Scene(
       "demo",
-      new RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader),
+      RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader),
       [perspective]);
   phase.add(scene);
 
   phase.add(MakeStarScene(cgl, perspective, 2000));
 
-  Material mat = new Material("mat");
-  Math.Random rng = new Math.Random();
+  Material mat = Material("mat");
+  Math.Random rng = Math.Random();
 
   List<Future<Object>> futures = [
     LoadRaw(modelFile),
@@ -76,18 +76,18 @@ void main() {
     // Setup Mesh
     GeometryBuilder ctLogo = ImportGeometryFromWavefront(list[0]);
     MeshData md = GeometryBuilderToMeshData("", scene.program, ctLogo);
-    Node mesh = new Node(md.name, md, mat)
+    Node mesh = Node(md.name, md, mat)
       ..rotX(3.14 / 2)
       ..rotZ(3.14);
-    Node node = new Node.Container("wrapper", mesh);
+    Node node = Node.Container("wrapper", mesh);
     //n.invert = true;
-    node.lookAt(new VM.Vector3(100.0, 0.0, -100.0));
+    node.lookAt(VM.Vector3(100.0, 0.0, -100.0));
     //n.matrix.scale(0.02);
 
-    VM.Vector3 axis = new VM.Vector3(0.0, 0.0, 1.0);
-    VM.Quaternion start = new VM.Quaternion.identity();
+    VM.Vector3 axis = VM.Vector3(0.0, 0.0, 1.0);
+    VM.Quaternion start = VM.Quaternion.identity();
     start.setFromRotation(node.transform.getRotation());
-    VM.Quaternion end = new VM.Quaternion.identity();
+    VM.Quaternion end = VM.Quaternion.identity();
     end.setAxisAngle(axis, 3.14);
     double time = 0.0;
 
