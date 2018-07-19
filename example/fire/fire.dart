@@ -8,15 +8,14 @@ const String uFlameThrottle = "uFlameThrottle";
 
 const String uRandomSeed = "uRandomSeed";
 
-
 // Background:
 // http://lodev.org/cgtutor/fire.html
 
-final ShaderObject nullVertexShader = new ShaderObject("nullShaderV")
+final ShaderObject nullVertexShader = ShaderObject("nullShaderV")
   ..AddAttributeVars([aPosition])
   ..SetBodyWithMain([NullVertexBody]);
 
-final ShaderObject fireFragmentShader = new ShaderObject("fireShaderF")
+final ShaderObject fireFragmentShader = ShaderObject("fireShaderF")
   ..AddUniformVars([
     uTexture,
     uFlameThrottle,
@@ -58,7 +57,7 @@ void main() {
 """
   ]);
 
-final ShaderObject colorFragmentShader = new ShaderObject("colorShaderF")
+final ShaderObject colorFragmentShader = ShaderObject("colorShaderF")
   ..AddUniformVars([uTexture])
   ..SetBody([
     ColorFunctions,
@@ -85,34 +84,34 @@ void main() {
   IntroduceNewShaderVar(uRandomSeed, const ShaderVarDesc("float", ""));
 
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   final int w = canvas.clientWidth;
   final int h = canvas.clientHeight;
   canvas.width = w;
   canvas.height = h;
 
-  final ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
-  final Framebuffer screen = new Framebuffer.Screen(cgl);
+  final ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
+  final Framebuffer screen = Framebuffer.Screen(cgl);
 
-  final TypedTextureMutable t1 = new TypedTextureMutable(cgl, "t1", w, h,
-      GL_RGBA, TexturePropertiesFramebuffer, GL_RGBA, GL_UNSIGNED_BYTE, null);
+  final TypedTextureMutable t1 = TypedTextureMutable(cgl, "t1", w, h, GL_RGBA,
+      TexturePropertiesFramebuffer, GL_RGBA, GL_UNSIGNED_BYTE, null);
 
-  final TypedTextureMutable t2 = new TypedTextureMutable(cgl, "t2", w, h,
-      GL_RGBA, TexturePropertiesFramebuffer, GL_RGBA, GL_UNSIGNED_BYTE, null);
+  final TypedTextureMutable t2 = TypedTextureMutable(cgl, "t2", w, h, GL_RGBA,
+      TexturePropertiesFramebuffer, GL_RGBA, GL_UNSIGNED_BYTE, null);
 
   final RenderProgram programFire =
-      new RenderProgram("fire", cgl, nullVertexShader, fireFragmentShader);
+      RenderProgram("fire", cgl, nullVertexShader, fireFragmentShader);
 
   final RenderProgram programColor =
-      new RenderProgram("color", cgl, nullVertexShader, colorFragmentShader);
+      RenderProgram("color", cgl, nullVertexShader, colorFragmentShader);
 
   final MeshData unit = ShapeQuad(programFire, 1);
 
   // Set up Ping-Ponging
-  final Framebuffer fb1 = new Framebuffer(cgl, t1);
-  final Framebuffer fb2 = new Framebuffer(cgl, t2);
-  final UniformGroup ug = new UniformGroup("ug")
+  final Framebuffer fb1 = Framebuffer(cgl, t1);
+  final Framebuffer fb2 = Framebuffer(cgl, t2);
+  final UniformGroup ug = UniformGroup("ug")
     ..ForceUniform(uRandomSeed, 0.0)
     ..ForceUniform(uFlameTurbulence, 0.2)
     ..ForceUniform(uFlameHeight, 3.5)
@@ -134,7 +133,7 @@ void main() {
 
   // Trigger handlers
   for (HTML.Element e in HTML.document.getElementsByTagName("input")) {
-    e.dispatchEvent(new HTML.Event("change"));
+    e.dispatchEvent(HTML.Event("change"));
   }
 
   double _lastTimeMs = 0.0;

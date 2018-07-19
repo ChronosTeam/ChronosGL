@@ -151,14 +151,14 @@ String _SSAOShaderImpl = """
 
 List<ShaderObject> createSSAOShader() {
   return [
-    new ShaderObject("SSAOV")
+    ShaderObject("SSAOV")
       ..AddAttributeVars([aPosition, aTexUV])
       ..AddVaryingVars([vTexUV])
       ..SetBodyWithMain([
         NullVertexBody,
         StdVertexTextureForward,
       ]),
-    new ShaderObject("SSAOF")
+    ShaderObject("SSAOF")
       ..AddVaryingVars([vTexUV])
       //..AddUniformVar(uFogEnabled)
       //..AddUniformVar(uFogNear)

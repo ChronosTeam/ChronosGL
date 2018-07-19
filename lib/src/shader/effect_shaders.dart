@@ -1,13 +1,13 @@
 part of chronosshader;
 
-final ShaderObject effectVertexShader = new ShaderObject("uv-passthru")
+final ShaderObject effectVertexShader = ShaderObject("uv-passthru")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddVaryingVars([vTexUV])
   ..SetBodyWithMain([NullVertexBody, "${vTexUV} = ${aTexUV};"]);
 
 final ShaderObject copyVertexShader = effectVertexShader;
 
-final ShaderObject copyFragmentShader = new ShaderObject("copyF")
+final ShaderObject copyFragmentShader = ShaderObject("copyF")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uTexture])
   ..SetBodyWithMain(["${oFragColor} = texture(${uTexture}, ${vTexUV});"]);
@@ -122,7 +122,7 @@ void main() {
 }
 """;
 
-final ShaderObject toonFragmentShader = new ShaderObject("ToonF")
+final ShaderObject toonFragmentShader = ShaderObject("ToonF")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uTexture])
   ..SetBody([_libFragment, _toonFragment]);
@@ -178,7 +178,7 @@ void main() {
 }
 """;
 
-final ShaderObject hexPixelateFragmentShader = new ShaderObject("HexPixelateF")
+final ShaderObject hexPixelateFragmentShader = ShaderObject("HexPixelateF")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uCenter2, uPointSize, uTexture])
   ..SetBody([_hexPixelateFragment]);
@@ -201,7 +201,7 @@ void main() {
 }
 """;
 
-final ShaderObject dotFragmentShader = new ShaderObject("DotF")
+final ShaderObject dotFragmentShader = ShaderObject("DotF")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uCenter2, uScale, uAngle, uTexture])
   ..SetBody([_dotFragment]);
@@ -240,7 +240,7 @@ void main() {
 }
 """;
 
-final ShaderObject tvDistortionFragmentShader = new ShaderObject("DotF")
+final ShaderObject tvDistortionFragmentShader = ShaderObject("DotF")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uScale, uTime, uTexture])
   ..SetBody([_tvDistortionFragment]);
@@ -261,7 +261,7 @@ void main() {
 }
 """;
 
-final ShaderObject kaleidoscopeShader = new ShaderObject("KaleidoscopeF")
+final ShaderObject kaleidoscopeShader = ShaderObject("KaleidoscopeF")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uScale, uCenter2, uTexture])
   ..SetBody([_kaleidoscopeFragment]);
@@ -287,7 +287,7 @@ void main() {
 }
 """;
 
-final ShaderObject lumidotsFragmentShader = new ShaderObject("LumidotsF")
+final ShaderObject lumidotsFragmentShader = ShaderObject("LumidotsF")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uPointSize, uTexture])
   ..SetBody([_lumidotsFragment]);
@@ -303,7 +303,7 @@ void main() {
 """;
 
 final ShaderObject squarePixelateFragmentShader =
-    new ShaderObject("SquarePixelateF")
+    ShaderObject("SquarePixelateF")
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uPointSize, uTexture])
       ..SetBody([_squarePixelateFragment]);
@@ -323,12 +323,12 @@ void main() {
 """;
 
 final ShaderObject luminosityHighPassFragmentShader =
-    new ShaderObject("LuminosityHighPassF")
+    ShaderObject("LuminosityHighPassF")
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uRange, uColorAlpha, uTexture])
       ..SetBody([_luminosityHighPassFragment]);
 
-final ShaderObject fisheyeFragmentShader = new ShaderObject("FisheyePassF")
+final ShaderObject fisheyeFragmentShader = ShaderObject("FisheyePassF")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uTexture])
   ..SetBody([
@@ -352,7 +352,7 @@ void main() {
 """
   ]);
 
-final ShaderObject filmFragmentShader = new ShaderObject("FilmPassF")
+final ShaderObject filmFragmentShader = ShaderObject("FilmPassF")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uTexture])
   ..SetBody([
@@ -403,33 +403,31 @@ void main() {
   ]);
 
 final VM.Matrix3 ConvolutionMatrixEmboss =
-    new VM.Matrix3(-1.0, 0.0, -1.0, 0.0, 4.0, 0.0, -1.0, 0.0, -1.0);
-final VM.Vector3 ConvolutionOffsetEmboss = new VM.Vector3(0.5, 0.5, 0.5);
+    VM.Matrix3(-1.0, 0.0, -1.0, 0.0, 4.0, 0.0, -1.0, 0.0, -1.0);
+final VM.Vector3 ConvolutionOffsetEmboss = VM.Vector3(0.5, 0.5, 0.5);
 
 final VM.Matrix3 ConvolutionMatrixEmboss2 =
-    new VM.Matrix3(2.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -1.0);
-final VM.Vector3 ConvolutionOffsetEmboss2 = new VM.Vector3(0.5, 0.5, 0.5);
+    VM.Matrix3(2.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -1.0);
+final VM.Vector3 ConvolutionOffsetEmboss2 = VM.Vector3(0.5, 0.5, 0.5);
 
 final VM.Matrix3 ConvolutionMatrixEngrave =
-    new VM.Matrix3(-2.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0);
-final VM.Vector3 ConvolutionOffsetEngrave = new VM.Vector3(0.37, 0.37, 0.37);
+    VM.Matrix3(-2.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0);
+final VM.Vector3 ConvolutionOffsetEngrave = VM.Vector3(0.37, 0.37, 0.37);
 
 final VM.Matrix3 ConvolutionMatrixSharpen =
-    new VM.Matrix3(0.0, -2.0, 0.0, -2.0, 11.0, -2.0, 0.0, -2.0, 0.0)
-      ..scale(0.333);
-final VM.Vector3 ConvolutionOffsetSharpen = new VM.Vector3(0.0, 0.0, 0.0);
+    VM.Matrix3(0.0, -2.0, 0.0, -2.0, 11.0, -2.0, 0.0, -2.0, 0.0)..scale(0.333);
+final VM.Vector3 ConvolutionOffsetSharpen = VM.Vector3(0.0, 0.0, 0.0);
 
 final VM.Matrix3 ConvolutionMatrixEdges =
-    new VM.Matrix3(-1.0, -1.0, -1.0, -1.0, 8.0, -1.0, -1.0, -1.0, -1.0);
-final VM.Vector3 ConvolutionOffsetEdges = new VM.Vector3(0.0, 0.0, 0.0);
+    VM.Matrix3(-1.0, -1.0, -1.0, -1.0, 8.0, -1.0, -1.0, -1.0, -1.0);
+final VM.Vector3 ConvolutionOffsetEdges = VM.Vector3(0.0, 0.0, 0.0);
 
 final VM.Matrix3 ConvolutionMatrixBlur =
-    new VM.Matrix3(1.0, 2.0, 1.0, 2.0, 4.0, 2.0, 1.0, 2.0, 1.0)
-      ..scale(1.0 / 16.0);
-final VM.Vector3 ConvolutionOffsetBlur = new VM.Vector3(0.0, 0.0, 0.0);
+    VM.Matrix3(1.0, 2.0, 1.0, 2.0, 4.0, 2.0, 1.0, 2.0, 1.0)..scale(1.0 / 16.0);
+final VM.Vector3 ConvolutionOffsetBlur = VM.Vector3(0.0, 0.0, 0.0);
 
 final ShaderObject convolution3x3FragmentShader =
-    new ShaderObject("Convolution3x3F")
+    ShaderObject("Convolution3x3F")
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTexture, uColor, uConvolutionMatrix])
       ..SetBody([
@@ -449,12 +447,11 @@ void main() {
 """
       ]);
 
-final ShaderObject scanlineFragmentShader =
-    new ShaderObject("ScanlinePixelateF")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uTexture, uRange])
-      ..SetBody([
-        """
+final ShaderObject scanlineFragmentShader = ShaderObject("ScanlinePixelateF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uTexture, uRange])
+  ..SetBody([
+    """
       
 // const vec3 comp = vec3(0.05, 0.15, 0.95);
 const vec3 comp = vec3(0.1, 0.30, 0.85);
@@ -470,9 +467,9 @@ void main() {
     ${oFragColor} = vec4(color * m, 1.0);
 }
 """
-      ]);
+  ]);
 
-final ShaderObject waterFragmentShader = new ShaderObject("WaterPixelateF")
+final ShaderObject waterFragmentShader = ShaderObject("WaterPixelateF")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uTexture, uTime])
   ..SetBody([
@@ -499,11 +496,12 @@ void main() {
   ]);
 
 ShaderObject CrosshatchFragmentShader(int mode) {
-  return new ShaderObject("crosshatchPixelateF")
+  return ShaderObject("crosshatchPixelateF")
     ..AddVaryingVars([vTexUV])
     ..AddUniformVars([uTexture])
-    ..SetBody(["#define MODE ${mode}",
-    """
+    ..SetBody([
+      "#define MODE ${mode}",
+      """
 float level1 = 1.0;
 float level2 = 0.7;
 float level3 = 0.5;
@@ -644,45 +642,49 @@ float VignettingFactor(vec2 uv, float innerRadius, float outerRadius) {
 
 """;
 
-
-final ShaderObject sepiaFragmentShader =
-    new ShaderObject("sepiaPixelateF")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uTexture, uScale])
-      ..SetBody([photoEffectHelper,
-        """
+final ShaderObject sepiaFragmentShader = ShaderObject("sepiaPixelateF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uTexture, uScale])
+  ..SetBody([
+    photoEffectHelper,
+    """
 void main() { 
     vec3 color = texture(${uTexture}, ${vTexUV}).rgb;
     float gray = dot(color, vec3(0.3333));
     // float gray = dot(color, vec3(0.2126, 0.7152, 0.0723));
     ${oFragColor} = vec4(SepiaColor(gray, ${uScale}), 1.0);
 }
-"""]);
+"""
+  ]);
 
 final ShaderObject techicolorFragmentShader =
-    new ShaderObject("technicolorPixelateF")
+    ShaderObject("technicolorPixelateF")
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTexture, uScale])
-      ..SetBody([photoEffectHelper,
+      ..SetBody([
+        photoEffectHelper,
         """
 void main() { 
     vec3 color = texture(${uTexture}, ${vTexUV}).rgb;
     ${oFragColor} = vec4(Technicolor3(color, 0.5), 1.0);
 }
-"""]);
+"""
+      ]);
 
 final ShaderObject vignettingFragmentShader =
-    new ShaderObject("vignettingPixelateF")
+    ShaderObject("vignettingPixelateF")
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTexture, uRange])
-      ..SetBody([photoEffectHelper,
+      ..SetBody([
+        photoEffectHelper,
         """
 void main() { 
     vec3 color = texture(${uTexture}, ${vTexUV}).rgb;
     float v = VignettingFactor(${vTexUV}, ${uRange}.x, ${uRange}.y);
     ${oFragColor} = vec4(color * v, 1.0);
 }
-"""]);
+"""
+      ]);
 
 /*
 // DOES NOT WORK YET

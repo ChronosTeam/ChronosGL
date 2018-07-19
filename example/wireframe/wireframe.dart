@@ -11,30 +11,30 @@ final HTML.InputElement gOpaque =
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
 
-  OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
   final RenderPhaseResizeAware phase =
-      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
+      RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
-  Scene scene = new Scene(
+  Scene scene = Scene(
       "wireframe",
-      new RenderProgram(
+      RenderProgram(
           "main", cgl, wireframeVertexShader, wireframeFragmentShader),
       [perspective]);
   phase.add(scene);
 
-  final Material matWireframe = new Material("wire")
-    ..SetUniform(uColorAlpha, new VM.Vector4(1.0, 1.0, 0.0, 1.0))
-    ..SetUniform(uColorAlpha2, new VM.Vector4(0.0, 0.0, 0.0, 0.5));
+  final Material matWireframe = Material("wire")
+    ..SetUniform(uColorAlpha, VM.Vector4(1.0, 1.0, 0.0, 1.0))
+    ..SetUniform(uColorAlpha2, VM.Vector4(0.0, 0.0, 0.0, 0.5));
 
   {
     GeometryBuilder gb = IcosahedronGeometry(2)..GenerateWireframeCenters();
-    Node ico = new Node(
+    Node ico = Node(
         "sphere",
         GeometryBuilderToMeshData("icosahedron", scene.program, gb),
         matWireframe)
@@ -44,7 +44,7 @@ void main() {
 
   {
     GeometryBuilder gb = CubeGeometry()..GenerateWireframeCenters();
-    Node cube = new Node("cube",
+    Node cube = Node("cube",
         GeometryBuilderToMeshData("cube", scene.program, gb), matWireframe)
       ..setPos(-5.0, 0.0, -5.0);
     scene.add(cube);
@@ -52,7 +52,7 @@ void main() {
 
   {
     GeometryBuilder gb = WedgeGeometry()..GenerateWireframeCenters();
-    Node wedge = new Node("wedge",
+    Node wedge = Node("wedge",
         GeometryBuilderToMeshData("wedge", scene.program, gb), matWireframe)
       ..setPos(0.0, -5.0, 0.0);
     scene.add(wedge);
@@ -61,7 +61,7 @@ void main() {
   {
     GeometryBuilder gb = CylinderGeometryWireframeFriendly(3.0, 4.0, 2.0, 16)
       ..GenerateWireframeCenters();
-    Node cyl = new Node("cylinder",
+    Node cyl = Node("cylinder",
         GeometryBuilderToMeshData("cylinder", scene.program, gb), matWireframe)
       ..setPos(5.0, 0.0, -5.0);
     scene.add(cyl);
@@ -69,7 +69,7 @@ void main() {
 
   {
     GeometryBuilder gb = QuadGeometry(2)..GenerateWireframeCenters();
-    Node quad = new Node("quad",
+    Node quad = Node("quad",
         GeometryBuilderToMeshData("quad", scene.program, gb), matWireframe)
       ..setPos(-5.0, 0.0, 5.0);
     scene.add(quad);
@@ -79,7 +79,7 @@ void main() {
     GeometryBuilder gb =
         ShapeTorusKnotGeometryWireframeFriendly(radius: 1.0, tubeRadius: 0.4)
           ..GenerateWireframeCenters();
-    Node torus = new Node("torus",
+    Node torus = Node("torus",
         GeometryBuilderToMeshData("torus", scene.program, gb), matWireframe)
       ..setPos(5.0, 0.0, 5.0);
     scene.add(torus);

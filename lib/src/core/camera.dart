@@ -22,6 +22,6 @@ class Camera extends Spatial {
   }
 
   VM.Vector3 getEyePosition() {
-    return new VM.Vector3(transform[12], transform[13], transform[14]);
+    return VM.Vector3(transform[12], transform[13], transform[14]);
   }
 }

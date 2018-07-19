@@ -28,191 +28,191 @@ class Effect {
   Effect(ChronosGL cgl, ShaderObject shader, this.uniforms)
       : name = uniforms.name,
         program =
-            new RenderProgram(uniforms.name, cgl, effectVertexShader, shader) {
+            RenderProgram(uniforms.name, cgl, effectVertexShader, shader) {
     all[uniforms.name] = this;
   }
 }
 
 void RegisterEffects(ChronosGL cgl, Texture fb) {
-  new Effect(cgl, copyFragmentShader,
-      new UniformGroup("none")..SetUniform(uTexture, fb));
+  Effect(
+      cgl, copyFragmentShader, UniformGroup("none")..SetUniform(uTexture, fb));
 
-  new Effect(cgl, toonFragmentShader,
-      new UniformGroup("toon")..SetUniform(uTexture, fb));
+  Effect(
+      cgl, toonFragmentShader, UniformGroup("toon")..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       hexPixelateFragmentShader,
-      new UniformGroup("hexalate-10")
-        ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
+      UniformGroup("hexalate-10")
+        ..SetUniform(uCenter2, VM.Vector2(0.5, 0.5))
         ..SetUniform(uPointSize, 10.0)
         ..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       hexPixelateFragmentShader,
-      new UniformGroup("hexalate-20")
-        ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
+      UniformGroup("hexalate-20")
+        ..SetUniform(uCenter2, VM.Vector2(0.5, 0.5))
         ..SetUniform(uPointSize, 20.0)
         ..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       hexPixelateFragmentShader,
-      new UniformGroup("hexalate-varying")
-        ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
+      UniformGroup("hexalate-varying")
+        ..SetUniform(uCenter2, VM.Vector2(0.5, 0.5))
         ..SetUniform(uPointSize, 10.0)
         ..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       dotFragmentShader,
-      new UniformGroup("dot")
-        ..SetUniform(uCenter2, new VM.Vector2(0.0, 0.0))
+      UniformGroup("dot")
+        ..SetUniform(uCenter2, VM.Vector2(0.0, 0.0))
         ..SetUniform(uScale, 0.8)
         ..SetUniform(uAngle, 0.5)
         ..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       dotFragmentShader,
-      new UniformGroup("dot2")
-        ..SetUniform(uCenter2, new VM.Vector2(0.0, 0.0))
+      UniformGroup("dot2")
+        ..SetUniform(uCenter2, VM.Vector2(0.0, 0.0))
         ..SetUniform(uScale, 0.3)
         ..SetUniform(uAngle, 0.5)
         ..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       tvDistortionFragmentShader,
-      new UniformGroup("tv-distortion")
+      UniformGroup("tv-distortion")
         ..SetUniform(uScale, 0.0009)
         ..SetUniform(uTime, 0.0)
         ..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       kaleidoscopeShader,
-      new UniformGroup("kaleidoscope8")
+      UniformGroup("kaleidoscope8")
         ..SetUniform(uScale, 8.0)
-        ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
+        ..SetUniform(uCenter2, VM.Vector2(0.5, 0.5))
         ..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       kaleidoscopeShader,
-      new UniformGroup("kaleidoscope5")
+      UniformGroup("kaleidoscope5")
         ..SetUniform(uScale, 5.0)
-        ..SetUniform(uCenter2, new VM.Vector2(0.5, 0.5))
+        ..SetUniform(uCenter2, VM.Vector2(0.5, 0.5))
         ..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       lumidotsFragmentShader,
-      new UniformGroup("lumidots-8")
+      UniformGroup("lumidots-8")
         ..SetUniform(uPointSize, 8.0)
         ..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       lumidotsFragmentShader,
-      new UniformGroup("lumidots-16")
+      UniformGroup("lumidots-16")
         ..SetUniform(uPointSize, 16.0)
         ..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       lumidotsFragmentShader,
-      new UniformGroup("lumidots-varying")
+      UniformGroup("lumidots-varying")
         ..SetUniform(uPointSize, 16.0)
         ..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       squarePixelateFragmentShader,
-      new UniformGroup("square-8")
+      UniformGroup("square-8")
         ..SetUniform(uPointSize, 8.0)
         ..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       squarePixelateFragmentShader,
-      new UniformGroup("square-16")
+      UniformGroup("square-16")
         ..SetUniform(uPointSize, 16.0)
         ..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       squarePixelateFragmentShader,
-      new UniformGroup("square-varying")
+      UniformGroup("square-varying")
         ..SetUniform(uPointSize, 16.0)
         ..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       scanlineFragmentShader,
-      new UniformGroup("scanline")
-        ..SetUniform(uRange, new VM.Vector2(120.0, 240.0))
+      UniformGroup("scanline")
+        ..SetUniform(uRange, VM.Vector2(120.0, 240.0))
         ..SetUniform(uTexture, fb));
 
-  new Effect(cgl, waterFragmentShader,
-      new UniformGroup("water")..SetUniform(uTexture, fb));
+  Effect(cgl, waterFragmentShader,
+      UniformGroup("water")..SetUniform(uTexture, fb));
 
-  new Effect(cgl, CrosshatchFragmentShader(0),
-      new UniformGroup("crosshatch")..SetUniform(uTexture, fb));
+  Effect(cgl, CrosshatchFragmentShader(0),
+      UniformGroup("crosshatch")..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       luminosityHighPassFragmentShader,
-      new UniformGroup("luminosity-highpass")
-        ..SetUniform(uRange, new VM.Vector2(0.85, 0.86))
-        ..SetUniform(uColorAlpha, new VM.Vector4.zero())
+      UniformGroup("luminosity-highpass")
+        ..SetUniform(uRange, VM.Vector2(0.85, 0.86))
+        ..SetUniform(uColorAlpha, VM.Vector4.zero())
         ..SetUniform(uTexture, fb));
 
-  new Effect(cgl, fisheyeFragmentShader,
-      new UniformGroup("fisheye")..SetUniform(uTexture, fb));
+  Effect(cgl, fisheyeFragmentShader,
+      UniformGroup("fisheye")..SetUniform(uTexture, fb));
 
-  new Effect(cgl, filmFragmentShader,
-      new UniformGroup("film")..SetUniform(uTexture, fb));
+  Effect(
+      cgl, filmFragmentShader, UniformGroup("film")..SetUniform(uTexture, fb));
 
-  new Effect(
+  Effect(
       cgl,
       convolution3x3FragmentShader,
-      new UniformGroup("emboss")
+      UniformGroup("emboss")
         ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEmboss)
         ..SetUniform(uColor, ConvolutionOffsetEmboss));
 
-  new Effect(
+  Effect(
       cgl,
       convolution3x3FragmentShader,
-      new UniformGroup("emboss2")
+      UniformGroup("emboss2")
         ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEmboss2)
         ..SetUniform(uColor, ConvolutionOffsetEmboss2));
-  new Effect(
+  Effect(
       cgl,
       convolution3x3FragmentShader,
-      new UniformGroup("engrave")
+      UniformGroup("engrave")
         ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEngrave)
         ..SetUniform(uColor, ConvolutionOffsetEngrave));
 
-  new Effect(
+  Effect(
       cgl,
       convolution3x3FragmentShader,
-      new UniformGroup("sharpen")
+      UniformGroup("sharpen")
         ..SetUniform(uConvolutionMatrix, ConvolutionMatrixSharpen)
         ..SetUniform(uColor, ConvolutionOffsetSharpen));
 
-  new Effect(
+  Effect(
       cgl,
       convolution3x3FragmentShader,
-      new UniformGroup("edges")
+      UniformGroup("edges")
         ..SetUniform(uConvolutionMatrix, ConvolutionMatrixEdges)
         ..SetUniform(uColor, ConvolutionOffsetEdges));
 
-  new Effect(
+  Effect(
       cgl,
       convolution3x3FragmentShader,
-      new UniformGroup("blur")
+      UniformGroup("blur")
         ..SetUniform(uConvolutionMatrix, ConvolutionMatrixBlur)
         ..SetUniform(uColor, ConvolutionOffsetBlur));
 
@@ -225,7 +225,7 @@ void RegisterEffects(ChronosGL cgl, Texture fb) {
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   final width = canvas.clientWidth;
@@ -233,27 +233,27 @@ void main() {
   canvas.width = width;
   canvas.height = height;
 
-  ChronosGL cgl = new ChronosGL(canvas);
+  ChronosGL cgl = ChronosGL(canvas);
 
-  OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 2520.0)
+  OrbitCamera orbit = OrbitCamera(15.0, -45.0, 0.3, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 2520.0)
     ..AdjustAspect(width, height);
 
-  Framebuffer screen = new Framebuffer.Screen(cgl);
+  Framebuffer screen = Framebuffer.Screen(cgl);
 
-  Framebuffer fb = new Framebuffer.Default(cgl, width, height);
+  Framebuffer fb = Framebuffer.Default(cgl, width, height);
 
   RegisterEffects(cgl, fb.colorTexture);
 
   RenderProgram progDemo =
-      new RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader);
+      RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader);
 
   MeshData unitQuad = ShapeQuad(Effect.all["dot"].program, 1);
   MeshData ctLogo;
 
-  Material material = new Material("mat")
+  Material material = Material("mat")
     ..SetUniform(uColor, ColorGray8)
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity()..rotateX(Math.pi / 2));
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity()..rotateX(Math.pi / 2));
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
@@ -277,7 +277,7 @@ void main() {
       active.uniforms
           .ForceUniform(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
     } else if (gEffect.value == "water") {
-      active.uniforms.ForceUniform(uTime,  _lastTimeMs / 1000.0);
+      active.uniforms.ForceUniform(uTime, _lastTimeMs / 1000.0);
     }
 
     // Draw logo to fb

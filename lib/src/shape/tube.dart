@@ -10,9 +10,9 @@ List<List<VM.Vector3>> TubeHullBands(List<VM.Vector3> pointsAndTangents,
 
   final List<List<VM.Vector3>> out = [];
   // Avoid unnecessary allocations:
-  final VM.Vector3 p = new VM.Vector3.zero();
-  final VM.Vector3 v1 = new VM.Vector3.zero();
-  final VM.Vector3 v2 = new VM.Vector3.zero();
+  final VM.Vector3 p = VM.Vector3.zero();
+  final VM.Vector3 v1 = VM.Vector3.zero();
+  final VM.Vector3 v2 = VM.Vector3.zero();
 
   for (int i = 0; i < pointsAndTangents.length; i += 2) {
     VM.Vector3 c = pointsAndTangents[i + 0];
@@ -33,13 +33,13 @@ List<List<VM.Vector3>> TubeHullBands(List<VM.Vector3> pointsAndTangents,
       p.addScaled(v1, cx);
       p.addScaled(v2, cy);
 
-      band.add(new VM.Vector3.copy(p));
+      band.add(VM.Vector3.copy(p));
 
       p.setZero();
       p.addScaled(v1, cx);
       p.addScaled(v2, cy);
       p.normalize();
-      band.add(new VM.Vector3.copy(p));
+      band.add(VM.Vector3.copy(p));
     }
   }
   return out;
@@ -52,8 +52,8 @@ List<VM.Vector3> ParametricCurvePointsAndTangents(ParametricCurveFunc func,
     {double epsilon = 0.001}) {
   assert(numPoints >= 2);
   List<VM.Vector3> out = [];
-  VM.Vector3 p = new VM.Vector3.zero();
-  VM.Vector3 d = new VM.Vector3.zero();
+  VM.Vector3 p = VM.Vector3.zero();
+  VM.Vector3 d = VM.Vector3.zero();
   double denom = numPoints - (wrap ? 0.0 : 1.0);
   for (int i = 0; i < numPoints; ++i) {
     double u = (end - start) / denom * i + start;

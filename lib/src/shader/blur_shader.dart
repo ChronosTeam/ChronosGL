@@ -17,7 +17,7 @@ String makeGaussianPdfKernelString(int radius, double sigma) {
     if (i > 0) total += x;
   }
 
-  StringBuffer sb = new StringBuffer("");
+  StringBuffer sb = StringBuffer("");
   String sep = "";
   for (int i = 0; i < radius; ++i) {
     sb.write(sep);
@@ -43,7 +43,7 @@ void main() {
 
 ShaderObject CreateBloomTextureFragmentShader(int radius, double sigma) {
   String constants = makeGaussianPdfKernelString(radius, sigma);
-  return new ShaderObject("BloomPassF")
+  return ShaderObject("BloomPassF")
     ..AddVaryingVars([vTexUV])
     ..AddUniformVars([uDirection, uTexture])
     ..SetBody([constants, _kernelFragment]);
@@ -58,14 +58,12 @@ void main() {
 }
 """;
 
-final ShaderObject uvPassthruVertexShader =
-    new ShaderObject("uv-passthru")
-      ..AddAttributeVars([aPosition, aTexUV])
-      ..AddVaryingVars([vTexUV])
-      ..SetBodyWithMain([NullVertexBody, "${vTexUV} = ${aTexUV};"]);
+final ShaderObject uvPassthruVertexShader = ShaderObject("uv-passthru")
+  ..AddAttributeVars([aPosition, aTexUV])
+  ..AddVaryingVars([vTexUV])
+  ..SetBodyWithMain([NullVertexBody, "${vTexUV} = ${aTexUV};"]);
 
-final ShaderObject applyBloomEffectFragmentShader =
-    new ShaderObject("BloomPassF")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uTexture, uTexture2, uScale, uColor])
-      ..SetBody([_applyBloomEffectFragment]);
+final ShaderObject applyBloomEffectFragmentShader = ShaderObject("BloomPassF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uTexture, uTexture2, uScale, uColor])
+  ..SetBody([_applyBloomEffectFragment]);

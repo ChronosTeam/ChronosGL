@@ -20,51 +20,51 @@ double getV1(double y) {
 
 final List<Face3> IcosahedronFaceList = [
   // 5 faces around point 0
-  new Face3(0, 11, 5),
-  new Face3(0, 5, 1),
-  new Face3(0, 1, 7),
-  new Face3(0, 7, 10),
-  new Face3(0, 10, 11),
+  Face3(0, 11, 5),
+  Face3(0, 5, 1),
+  Face3(0, 1, 7),
+  Face3(0, 7, 10),
+  Face3(0, 10, 11),
 
   // 5 adjacent faces
-  new Face3(1, 5, 9),
-  new Face3(5, 11, 4),
-  new Face3(11, 10, 2),
-  new Face3(10, 7, 6),
-  new Face3(7, 1, 8),
+  Face3(1, 5, 9),
+  Face3(5, 11, 4),
+  Face3(11, 10, 2),
+  Face3(10, 7, 6),
+  Face3(7, 1, 8),
 
   // 5 faces around point 3
-  new Face3(3, 9, 4),
-  new Face3(3, 4, 2),
-  new Face3(3, 2, 6),
-  new Face3(3, 6, 8),
-  new Face3(3, 8, 9),
+  Face3(3, 9, 4),
+  Face3(3, 4, 2),
+  Face3(3, 2, 6),
+  Face3(3, 6, 8),
+  Face3(3, 8, 9),
 
   // 5 adjacent faces
-  new Face3(4, 9, 5),
-  new Face3(2, 4, 11),
-  new Face3(6, 2, 10),
-  new Face3(8, 6, 7),
-  new Face3(9, 8, 1),
+  Face3(4, 9, 5),
+  Face3(2, 4, 11),
+  Face3(6, 2, 10),
+  Face3(8, 6, 7),
+  Face3(9, 8, 1),
 ];
 
 final double t = (1 + Math.sqrt(5)) / 2;
 
 final List<VM.Vector3> IcosahedronVertexList = [
-  new VM.Vector3(-1.0, t, 0.0)..normalize(),
-  new VM.Vector3(1.0, t, 0.0)..normalize(),
-  new VM.Vector3(-1.0, -t, 0.0)..normalize(),
-  new VM.Vector3(1.0, -t, 0.0)..normalize(),
+  VM.Vector3(-1.0, t, 0.0)..normalize(),
+  VM.Vector3(1.0, t, 0.0)..normalize(),
+  VM.Vector3(-1.0, -t, 0.0)..normalize(),
+  VM.Vector3(1.0, -t, 0.0)..normalize(),
   //
-  new VM.Vector3(0.0, -1.0, t)..normalize(),
-  new VM.Vector3(0.0, 1.0, t)..normalize(),
-  new VM.Vector3(0.0, -1.0, -t)..normalize(),
-  new VM.Vector3(0.0, 1.0, -t)..normalize(),
+  VM.Vector3(0.0, -1.0, t)..normalize(),
+  VM.Vector3(0.0, 1.0, t)..normalize(),
+  VM.Vector3(0.0, -1.0, -t)..normalize(),
+  VM.Vector3(0.0, 1.0, -t)..normalize(),
   //
-  new VM.Vector3(t, 0.0, -1.0)..normalize(),
-  new VM.Vector3(t, 0.0, 1.0)..normalize(),
-  new VM.Vector3(-t, 0.0, -1.0)..normalize(),
-  new VM.Vector3(-t, 0.0, 1.0)..normalize()
+  VM.Vector3(t, 0.0, -1.0)..normalize(),
+  VM.Vector3(t, 0.0, 1.0)..normalize(),
+  VM.Vector3(-t, 0.0, -1.0)..normalize(),
+  VM.Vector3(-t, 0.0, 1.0)..normalize()
 ];
 
 // This produces the mash for an icosahedron when subdivisions == 0
@@ -91,17 +91,17 @@ GeometryBuilder IcosahedronGeometry(
     List<Face3> tmp = [];
     for (Face3 f in faces) {
       // Note: a,b,c are unit vectors
-      VM.Vector3 a = new VM.Vector3.copy(vertices[f.a]);
+      VM.Vector3 a = VM.Vector3.copy(vertices[f.a]);
       a
         ..add(vertices[f.b])
         ..scale(0.5)
         ..normalize();
-      VM.Vector3 b = new VM.Vector3.copy(vertices[f.b]);
+      VM.Vector3 b = VM.Vector3.copy(vertices[f.b]);
       b
         ..add(vertices[f.c])
         ..scale(0.5)
         ..normalize();
-      VM.Vector3 c = new VM.Vector3.copy(vertices[f.c]);
+      VM.Vector3 c = VM.Vector3.copy(vertices[f.c]);
       c
         ..add(vertices[f.a])
         ..scale(0.5)
@@ -113,16 +113,16 @@ GeometryBuilder IcosahedronGeometry(
       final int ic = vertices.length;
       vertices.add(c);
 
-      tmp.add(new Face3(f.a, ia, ic));
-      tmp.add(new Face3(f.b, ib, ia));
-      tmp.add(new Face3(f.c, ic, ib));
-      tmp.add(new Face3(ia, ib, ic));
+      tmp.add(Face3(f.a, ia, ic));
+      tmp.add(Face3(f.b, ib, ia));
+      tmp.add(Face3(f.c, ic, ib));
+      tmp.add(Face3(ia, ib, ic));
     }
     //print("@@@@ ${vertices.length} ${tmp.length}");
     faces = tmp;
   }
 
-  GeometryBuilder gb = new GeometryBuilder();
+  GeometryBuilder gb = GeometryBuilder();
   gb.EnableAttribute(aTexUV);
   if (computeNormals) {
     gb.EnableAttribute(aNormal);
@@ -139,9 +139,9 @@ GeometryBuilder IcosahedronGeometry(
     //print ("@ ${v1.subtract(v2).length()}");
     //print ("@ ${v2.subtract(v3).length()}");
     //print ("@ ${v3.subtract(v1).length()}");
-    VM.Vector2 t1 = new VM.Vector2(getU2(v1.z, v1.x), getV2(v1.y));
-    VM.Vector2 t2 = new VM.Vector2(getU2(v2.z, v2.x), getV2(v2.y));
-    VM.Vector2 t3 = new VM.Vector2(getU2(v3.z, v3.x), getV2(v3.y));
+    VM.Vector2 t1 = VM.Vector2(getU2(v1.z, v1.x), getV2(v1.y));
+    VM.Vector2 t2 = VM.Vector2(getU2(v2.z, v2.x), getV2(v2.y));
+    VM.Vector2 t3 = VM.Vector2(getU2(v3.z, v3.x), getV2(v3.y));
     if (computeNormals) {
       gb.AddAttributesVector3(aNormal, [v1, v2, v3]);
     }

@@ -28,19 +28,19 @@ class Stats {
     _graph = _MakeGraph(fg, bg, _numBars, _graphHeight);
     _root.append(_graph);
 
-    _extra = new HTML.Element.div();
+    _extra = HTML.Element.div();
     _root.append(_extra);
   }
 
   HTML.Element _MakeText(String initial) {
-    HTML.Element text = new HTML.Element.div();
+    HTML.Element text = HTML.Element.div();
     text.style..fontWeight = "bold";
     text.text = initial;
     return text;
   }
 
   HTML.Element _MakeGraph(String fg, String bg, int bars, int height) {
-    HTML.Element graph = new HTML.Element.div();
+    HTML.Element graph = HTML.Element.div();
     graph.style
       ..width = "${bars}px"
       ..height = "${height}px"
@@ -48,7 +48,7 @@ class Stats {
       ..background = fg;
 
     for (int i = 0; i < bars; i++) {
-      HTML.Element e = new HTML.Element.span();
+      HTML.Element e = HTML.Element.span();
       e.style
         ..width = "1px"
         ..height = "${height}px"

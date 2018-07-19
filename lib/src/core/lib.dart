@@ -5,7 +5,7 @@ library core;
 // for easier testing.
 import 'dart:typed_data';
 import 'dart:math' as Math;
-import 'dart:web_gl' as WEBGL;  // only chronosgl.dart uses WEBGL
+import 'dart:web_gl' as WEBGL; // only chronosgl.dart uses WEBGL
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -47,7 +47,7 @@ part "illumination.dart";
 int gLogLevel = 0;
 
 void LogInfo(String s) {
-  if (gLogLevel > 0)  print("I: " + s);
+  if (gLogLevel > 0) print("I: " + s);
 }
 
 void LogDebug(String s) {

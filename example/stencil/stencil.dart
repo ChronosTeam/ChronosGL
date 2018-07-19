@@ -9,14 +9,14 @@ final HTML.InputElement gStencil =
 
 TypedTextureMutable MakeStripedStencilBuffer(
     ChronosGL cgl, int width, int height, int stripeWidth) {
-  Uint32List data = new Uint32List(width * height);
+  Uint32List data = Uint32List(width * height);
   for (int x = 0; x < width; ++x) {
     for (int y = 0; y < height; ++y) {
       data[y * width + x] = x % (2 * stripeWidth) < stripeWidth ? 0 : 1;
     }
   }
 
-  return new TypedTextureMutable(
+  return TypedTextureMutable(
       cgl,
       "frame::depth.stencil",
       width,
@@ -30,12 +30,12 @@ TypedTextureMutable MakeStripedStencilBuffer(
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
-  OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
+  OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
 
   final int width = canvas.clientWidth;
   final int height = canvas.clientHeight;
@@ -45,63 +45,65 @@ void main() {
 
   // I could not get this work by writing directly to the screen.
   // so we write to fb first and then copy that to the screen.
-  TypedTexture colorBuffer = new TypedTexture(cgl, "frame::color", width,
-      height, GL_RGBA8, TexturePropertiesFramebuffer);
+  TypedTexture colorBuffer = TypedTexture(cgl, "frame::color", width, height,
+      GL_RGBA8, TexturePropertiesFramebuffer);
   TypedTextureMutable depthStencilBuffer =
       MakeStripedStencilBuffer(cgl, width, height, 8);
   Framebuffer fb =
-      new Framebuffer(cgl, colorBuffer, depthStencilBuffer, null, true);
+      Framebuffer(cgl, colorBuffer, depthStencilBuffer, null, true);
 
-  RenderPhase phase = new RenderPhase("main", cgl, fb)
+  RenderPhase phase = RenderPhase("main", cgl, fb)
     ..viewPortW = width
     ..viewPortH = height
     ..clearStencilBuffer = false;
 
-  Scene scene = new Scene(
+  Scene scene = Scene(
       "solid",
-      new RenderProgram(
+      RenderProgram(
           "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective]);
   phase.add(scene);
 
-  final Material matRed = new Material("red")
+  final Material matRed = Material("red")
     ..SetUniform(uColor, ColorRed)
     ..ForceUniform(cStencilFunc, StencilFunctionNone);
 
   final TheStencilFunction StencilEqualOne =
-      new TheStencilFunction(GL_EQUAL, 1, 0xff);
+      TheStencilFunction(GL_EQUAL, 1, 0xff);
 
-  final Material matBlueStencil = new Material("blue")
+  final Material matBlueStencil = Material("blue")
     ..SetUniform(uColor, ColorBlue)
     ..ForceUniform(cStencilFunc, StencilEqualOne);
 
-  scene.add(new Node("sphere", ShapeIcosahedron(scene.program, 3), matRed)
+  scene.add(Node("sphere", ShapeIcosahedron(scene.program, 3), matRed)
     ..setPos(0.0, 0.0, 0.0));
 
-  scene.add(new Node("cube", ShapeCube(scene.program), matBlueStencil)
+  scene.add(Node("cube", ShapeCube(scene.program), matBlueStencil)
     ..setPos(-5.0, 0.0, -5.0));
 
-  scene.add(new Node(
-      "cylinder", ShapeCylinder(scene.program, 1.0, 3.0, 2.0, 32), matRed)
-    ..setPos(5.0, 0.0, -5.0));
+  scene.add(
+      Node("cylinder", ShapeCylinder(scene.program, 1.0, 3.0, 2.0, 32), matRed)
+        ..setPos(5.0, 0.0, -5.0));
 
-  scene.add(new Node("torus",
-      ShapeTorusKnot(scene.program, radius: 1.0, tubeRadius: 0.4), matBlueStencil)
+  scene.add(Node(
+      "torus",
+      ShapeTorusKnot(scene.program, radius: 1.0, tubeRadius: 0.4),
+      matBlueStencil)
     ..setPos(5.0, 0.0, 5.0));
 
   // using a phase for this simple effect is overkill - this is just
   // demonstrating that it can be done.
-  RenderPhase phase2 = new RenderPhase("copy", cgl)
+  RenderPhase phase2 = RenderPhase("copy", cgl)
     ..viewPortW = width
     ..viewPortH = height;
 
-  UniformGroup uniforms = new UniformGroup("plain")
-    ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+  UniformGroup uniforms = UniformGroup("plain")
+    ..SetUniform(uCanvasSize, VM.Vector2(0.0 + width, 0.0 + height))
     ..SetUniform(uTexture, fb.colorTexture);
 
-  Scene postproc = new Scene(
+  Scene postproc = Scene(
       "postproc",
-      new RenderProgram("postproc", cgl, copyVertexShader, copyFragmentShader),
+      RenderProgram("postproc", cgl, copyVertexShader, copyFragmentShader),
       [uniforms]);
   phase2.add(postproc);
 

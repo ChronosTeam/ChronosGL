@@ -3,7 +3,7 @@ import 'dart:html' as HTML;
 import 'dart:typed_data';
 import 'package:vector_math/vector_math.dart' as VM;
 
-final ShaderObject instancedVertexShader = new ShaderObject("InstancedV")
+final ShaderObject instancedVertexShader = ShaderObject("InstancedV")
   ..AddAttributeVars([aPosition])
   ..AddAttributeVars([iaRotation, iaTranslation])
   ..AddVaryingVars([vColor])
@@ -25,16 +25,16 @@ void main(void) {
 """
   ]);
 
-final ShaderObject instancedFragmentShader = new ShaderObject("InstancedF")
+final ShaderObject instancedFragmentShader = ShaderObject("InstancedF")
   ..AddVaryingVars([vColor])
   ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1. );"]);
 
 void AddInstanceData(MeshData md) {
   int count = 1000;
-  Float32List translations = new Float32List(count * 3);
-  Float32List rotations = new Float32List(count * 4);
+  Float32List translations = Float32List(count * 3);
+  Float32List rotations = Float32List(count * 4);
 
-  Spatial spatial = new Spatial("dummy");
+  Spatial spatial = Spatial("dummy");
   int pos = 0;
   for (int x = -5; x < 5; x++) {
     for (int y = -5; y < 5; y++) {
@@ -42,7 +42,7 @@ void AddInstanceData(MeshData md) {
         spatial.setPos(x * 40.0, y * 40.0, z * 30.0);
         translations.setAll(pos * 3, spatial.getPos().storage);
         VM.Quaternion q =
-            new VM.Quaternion.fromRotation(spatial.transform.getRotation());
+            VM.Quaternion.fromRotation(spatial.transform.getRotation());
         rotations.setAll(pos * 3, q.storage);
         pos++;
       }
@@ -55,25 +55,25 @@ void AddInstanceData(MeshData md) {
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
 
-  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
-  OrbitCamera orbit = new OrbitCamera(265.0, 0.0, 0.0, canvas);
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
+  OrbitCamera orbit = OrbitCamera(265.0, 0.0, 0.0, canvas);
   final PerspectiveResizeAware perspective =
-      new PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
+      PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
-  final RenderProgram progInstanced = new RenderProgram(
+  final RenderProgram progInstanced = RenderProgram(
       "instanced", cgl, instancedVertexShader, instancedFragmentShader);
-  final Material mat = new Material("mat")
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
+  final Material mat = Material("mat")
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity());
   final MeshData md = ShapeTorusKnot(progInstanced, radius: 12.0);
   AddInstanceData(md);
 
-  final RenderProgram progStars = new RenderProgram(
+  final RenderProgram progStars = RenderProgram(
       "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
   final Material matStars = Utils.MakeStarMaterial(cgl)
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity());
   final MeshData mdStars = Utils.MakeStarMesh(progStars, 2000, 100.0);
 
   double _lastTimeMs = 0.0;

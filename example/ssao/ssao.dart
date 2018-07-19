@@ -12,7 +12,7 @@ final HTML.InputElement gSSAO =
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   final width = canvas.clientWidth;
@@ -20,34 +20,34 @@ void main() {
   canvas.width = width;
   canvas.height = height;
 
-  ChronosGL cgl = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(15.0, -45.0, 0.3, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 2520.0)
+  ChronosGL cgl = ChronosGL(canvas);
+  OrbitCamera orbit = OrbitCamera(15.0, -45.0, 0.3, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 2520.0)
     ..AdjustAspect(width, height);
 
-  Framebuffer screen = new Framebuffer.Screen(cgl);
-  Framebuffer fb = new Framebuffer.Default(cgl, width, height);
+  Framebuffer screen = Framebuffer.Screen(cgl);
+  Framebuffer fb = Framebuffer.Default(cgl, width, height);
 
-  RenderProgram progSolid = new RenderProgram(
+  RenderProgram progSolid = RenderProgram(
       "solid", cgl, solidColorVertexShader, solidColorFragmentShader);
 
   List<ShaderObject> ssaoShader = createSSAOShader();
   RenderProgram progSSAO =
-      new RenderProgram("ssao", cgl, ssaoShader[0], ssaoShader[1]);
+      RenderProgram("ssao", cgl, ssaoShader[0], ssaoShader[1]);
 
-  UniformGroup uniforms = new UniformGroup("plain")
+  UniformGroup uniforms = UniformGroup("plain")
     ..SetUniform(uCameraNear, 0.1)
     ..SetUniform(uCameraFar, 2529.0)
-    ..SetUniform(uCanvasSize, new VM.Vector2(0.0 + width, 0.0 + height))
+    ..SetUniform(uCanvasSize, VM.Vector2(0.0 + width, 0.0 + height))
     ..SetUniform(uDepthMap, fb.depthTexture)
     ..SetUniform(uTexture, fb.colorTexture);
 
   MeshData unitQuad = ShapeQuad(progSSAO, 1);
 
   MeshData ctLogo;
-  Material material = new Material("mat")
+  Material material = Material("mat")
     ..SetUniform(uColor, ColorGray8)
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity()..rotateX(Math.pi / 2));
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity()..rotateX(Math.pi / 2));
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {

@@ -3,7 +3,7 @@ import 'dart:html' as HTML;
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
-final ShaderObject skyScraperVertexShader = new ShaderObject("SkyScraperV")
+final ShaderObject skyScraperVertexShader = ShaderObject("SkyScraperV")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddVaryingVars([vPosition, vTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
@@ -13,7 +13,7 @@ final ShaderObject skyScraperVertexShader = new ShaderObject("SkyScraperV")
     "${vTexUV} = ${aTexUV};",
   ]);
 
-final ShaderObject skyScraperFragmentShader = new ShaderObject("SkyScraperF")
+final ShaderObject skyScraperFragmentShader = ShaderObject("SkyScraperF")
   ..AddVaryingVars([vPosition, vTexUV])
   ..SetBodyWithMain([
     """
@@ -35,41 +35,41 @@ final ShaderObject skyScraperFragmentShader = new ShaderObject("SkyScraperF")
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   int w = canvas.clientWidth;
   int h = canvas.clientHeight;
   canvas.width = w;
   canvas.height = h;
-  ChronosGL cgl = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(25.0, 0.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  ChronosGL cgl = ChronosGL(canvas);
+  OrbitCamera orbit = OrbitCamera(25.0, 0.0, 0.0, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
 
   final RenderPhaseResizeAware phase =
-      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
+      RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
-  Scene sceneBuilding = new Scene(
+  Scene sceneBuilding = Scene(
       "building",
-      new RenderProgram(
+      RenderProgram(
           "building", cgl, skyScraperVertexShader, skyScraperFragmentShader),
       [perspective]);
   phase.add(sceneBuilding);
 
-  Scene sceneSky = new Scene(
+  Scene sceneSky = Scene(
       "sky",
-      new RenderProgram("sky", cgl, demoVertexShader, demoFragmentShader),
+      RenderProgram("sky", cgl, demoVertexShader, demoFragmentShader),
       [perspective]);
   phase.add(sceneSky);
 
-  Material mat = new Material("mat");
+  Material mat = Material("mat");
   // Sky Sphere
   MeshData md = ShapeIcosahedron(sceneSky.program, 3);
   //..multiplyVertices(100);
-  Node m = new Node(md.name, md, mat)..transform.scale(100.0);
+  Node m = Node(md.name, md, mat)..transform.scale(100.0);
   sceneSky.add(m);
 
   // 0.01 and 0.99 is to remove some artifacts on the edges
-  VM.Vector2 q = new VM.Vector2(0.01, 0.01);
+  VM.Vector2 q = VM.Vector2(0.01, 0.01);
   GeometryBuilder gb = CubeGeometry(
       x: 1.0, y: 2.0, z: 1.0, uMin: 0.01, uMax: 0.99, vMin: 0.01, vMax: 0.99);
   List uvs = gb.attributes[aTexUV];
@@ -82,7 +82,7 @@ void main() {
 
   for (int x = -10; x < 10; x += 4) {
     for (int z = -10; z < 10; z += 4) {
-      Node m = new Node(house.name, house, mat)
+      Node m = Node(house.name, house, mat)
         ..setPos(x.toDouble(), 0.0, z.toDouble());
       sceneBuilding.add(m);
     }

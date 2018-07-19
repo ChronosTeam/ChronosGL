@@ -17,16 +17,16 @@ void TorusKnotGetPos(
 const double _TorusEpsilon = 0.01;
 
 GeometryBuilder ShapeTorusKnotGeometry(
-    {double radius: 20.0,
-    double tubeRadius: 4.0,
-    int segmentsR: 128,
-    int segmentsT: 16,
-    int p: 2,
-    int q: 3,
-    double heightScale: 1.0,
-    bool wrap: false,
-    bool computeUVs: true,
-    bool computeNormals: true}) {
+    {double radius = 20.0,
+    double tubeRadius = 4.0,
+    int segmentsR = 128,
+    int segmentsT = 16,
+    int p = 2,
+    int q = 3,
+    double heightScale = 1.0,
+    bool wrap = false,
+    bool computeUVs = true,
+    bool computeNormals = true}) {
   void curveFunc(double u, VM.Vector3 out) {
     TorusKnotGetPos(u, q, p, radius, heightScale, out);
   }
@@ -46,7 +46,7 @@ GeometryBuilder ShapeTorusKnotGeometry(
 
   assert(bands[0].length == 2 * w);
 
-  final GeometryBuilder gb = new GeometryBuilder();
+  final GeometryBuilder gb = GeometryBuilder();
 
   for (List<VM.Vector3> lst in bands) {
     for (int i = 0; i < lst.length; i += 2) {
@@ -77,15 +77,15 @@ GeometryBuilder ShapeTorusKnotGeometry(
 /// Like ShapeTorusKnotGeometry but with duplicate Vertices to make it
 /// possible to add aCenter attributes with GenerateWireframeCenters()
 GeometryBuilder ShapeTorusKnotGeometryWireframeFriendly(
-    {double radius: 20.0,
-    double tubeRadius: 4.0,
-    int segmentsR: 128,
-    int segmentsT: 16,
-    int p: 2,
-    int q: 3,
-    double heightScale: 1.0,
-    bool computeUVs: true,
-    bool computeNormals: true}) {
+    {double radius = 20.0,
+    double tubeRadius = 4.0,
+    int segmentsR = 128,
+    int segmentsT = 16,
+    int p = 2,
+    int q = 3,
+    double heightScale = 1.0,
+    bool computeUVs = true,
+    bool computeNormals = true}) {
   void curveFunc(double u, VM.Vector3 out) {
     TorusKnotGetPos(u, q, p, radius, heightScale, out);
   }
@@ -101,7 +101,7 @@ GeometryBuilder ShapeTorusKnotGeometryWireframeFriendly(
       TubeHullBands(pointsAndTangents, segmentsT, tubeRadius, false);
   assert(bands.length == h);
 
-  final GeometryBuilder gb = new GeometryBuilder();
+  final GeometryBuilder gb = GeometryBuilder();
 
   for (int i = 0; i < segmentsR; ++i) {
     for (int j = 0; j < segmentsT; ++j) {
@@ -124,10 +124,10 @@ GeometryBuilder ShapeTorusKnotGeometryWireframeFriendly(
         final int ip = i + 1;
         final int jp = j + 1;
         gb.AddAttributesVector2(aTexUV, [
-          new VM.Vector2(i / segmentsR, jp / segmentsT),
-          new VM.Vector2(ip / segmentsR, jp / segmentsT),
-          new VM.Vector2(ip / segmentsR, j / segmentsT),
-          new VM.Vector2(i / segmentsR, j / segmentsT)
+          VM.Vector2(i / segmentsR, jp / segmentsT),
+          VM.Vector2(ip / segmentsR, jp / segmentsT),
+          VM.Vector2(ip / segmentsR, j / segmentsT),
+          VM.Vector2(i / segmentsR, j / segmentsT)
         ]);
       }
     }
@@ -145,15 +145,11 @@ class TorusKnotCamera extends Camera {
   final double heightScale;
 
   TorusKnotCamera(
-      {this.radius: 20.0,
-      this.p: 2,
-      this.q: 3,
-      this.heightScale: 1.0})
+      {this.radius = 20.0, this.p = 2, this.q = 3, this.heightScale = 1.0})
       : super("camera:torusknot");
 
-  final VM.Vector3 p1 = new VM.Vector3.zero();
-  final VM.Vector3 p2 = new VM.Vector3.zero();
-
+  final VM.Vector3 p1 = VM.Vector3.zero();
+  final VM.Vector3 p2 = VM.Vector3.zero();
 
   void animate(double timeMs) {
     double u = timeMs / 3000;

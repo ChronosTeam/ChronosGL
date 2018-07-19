@@ -4,12 +4,11 @@ import 'dart:math' as Math;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-
 const double kShadowBias1 = 0.001;
 const double kShadowBias2 = 0.001;
 
 final ShaderObject lightVertexShaderBlinnPhongWithShadow =
-    new ShaderObject("LightBlinnPhongShadowV")
+    ShaderObject("LightBlinnPhongShadowV")
       ..AddAttributeVars([aPosition, aNormal])
       ..AddVaryingVars([vPosition, vNormal, vPositionFromLight])
       ..AddUniformVars([
@@ -29,7 +28,7 @@ final ShaderObject lightVertexShaderBlinnPhongWithShadow =
       ]);
 
 final ShaderObject lightFragmentShaderBlinnPhongWithShadow =
-    new ShaderObject("LightBlinnPhongShadowF")
+    ShaderObject("LightBlinnPhongShadowF")
       ..AddVaryingVars([vPosition, vNormal, vPositionFromLight])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
       ..AddUniformVars([uShadowMap, uEyePosition, uColor, uShadowBias])
@@ -61,8 +60,8 @@ final ShaderObject lightFragmentShaderBlinnPhongWithShadow =
         ShadowMapShaderLib,
       ]);
 
-final VM.Vector3 posLight = new VM.Vector3(11.0, 20.0, 0.0);
-final VM.Vector3 dirLight = new VM.Vector3(0.0, -30.0, 0.0);
+final VM.Vector3 posLight = VM.Vector3(11.0, 20.0, 0.0);
+final VM.Vector3 dirLight = VM.Vector3(0.0, -30.0, 0.0);
 
 final double range = 40.0;
 final double angle = Math.pi / 6.0;
@@ -74,11 +73,10 @@ final String idSpot = "idSpot";
 final String idDirectional = "idDirectional";
 
 final Map<String, Light> lightSources = {
-  idDirectional:
-      new DirectionalLight("dir", dirLight, ColorBlue, ColorBlack, 40.0),
-  idSpot: new SpotLight("spot", posLight, dirLight, ColorBlue, ColorBlack,
-      range, angle, 0.5, 0.5, range * 1.1),
-  idPoint: new PointLight("point", posLight, ColorLiteBlue, ColorBlue, range),
+  idDirectional: DirectionalLight("dir", dirLight, ColorBlue, ColorBlack, 40.0),
+  idSpot: SpotLight("spot", posLight, dirLight, ColorBlue, ColorBlack, range,
+      angle, 0.5, 0.5, range * 1.1),
+  idPoint: PointLight("point", posLight, ColorLiteBlue, ColorBlue, range),
 };
 
 Light gActiveLight;
@@ -137,39 +135,39 @@ void SwallowEvent(HTML.Event e) {
   e.stopPropagation();
 }
 
-final Material matGray = new Material("matGray")
+final Material matGray = Material("matGray")
   ..SetUniform(uColor, ColorGray4)
   ..SetUniform(uShininess, glossiness);
 
-final Material matObjects = new Material("objects")
+final Material matObjects = Material("objects")
   ..SetUniform(uColor, ColorGray2)
   ..SetUniform(uShininess, glossiness);
 
-final Material matNormals = new Material("normals")
+final Material matNormals = Material("normals")
   ..SetUniform(uColor, ColorRed)
   ..SetUniform(uShininess, glossiness);
 
-final Material lightSourceMat = new Material("light")
+final Material lightSourceMat = Material("light")
   ..SetUniform(uColor, ColorYellow);
 
 void AddShapesToScene(Scene scene) {
-  scene.add(new Node("sphere", ShapeIcosahedron(scene.program, 3), matObjects)
+  scene.add(Node("sphere", ShapeIcosahedron(scene.program, 3), matObjects)
     ..setPos(0.0, 0.0, 0.0));
 
-  scene.add(new Node("cube", ShapeCube(scene.program), matObjects)
+  scene.add(Node("cube", ShapeCube(scene.program), matObjects)
     ..setPos(-5.0, 0.0, -5.0));
 
-  scene.add(new Node(
+  scene.add(Node(
       "cylinder", ShapeCylinder(scene.program, 3.0, 6.0, 2.0, 32), matObjects)
     ..setPos(5.0, 0.0, -5.0));
 
-  scene.add(new Node(
-      "torusknot", ShapeTorusKnot(scene.program, radius: 1.0, tubeRadius: 0.4), matObjects)
+  scene.add(Node("torusknot",
+      ShapeTorusKnot(scene.program, radius: 1.0, tubeRadius: 0.4), matObjects)
     ..setPos(5.0, 0.0, 5.0));
 
-  scene.add(new Node(
-      "plane", ShapeCube(scene.program, x: 30.0, y: 0.1, z: 30.0), matGray)
-    ..setPos(0.0, -10.0, 0.0));
+  scene.add(
+      Node("plane", ShapeCube(scene.program, x: 30.0, y: 0.1, z: 30.0), matGray)
+        ..setPos(0.0, -10.0, 0.0));
 }
 
 double kNear = 0.1;
@@ -177,44 +175,41 @@ double kFar = 50.0;
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas, faceCulling: false);
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: false);
 
-  OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
+  OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
 
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
 
-  final Perspective perspective = new Perspective(orbit, kNear, kFar);
+  final Perspective perspective = Perspective(orbit, kNear, kFar);
 
-  Illumination illumination = new Illumination();
+  Illumination illumination = Illumination();
   for (Light l in lightSources.values) {
     illumination.AddLight(l);
   }
 
-  ShadowMap shadowMap = new ShadowMap(cgl, 512, 512, 0.5, 20.0);
+  ShadowMap shadowMap = ShadowMap(cgl, 512, 512, 0.5, 20.0);
 
-  UniformGroup uniforms = new UniformGroup("plain")
+  UniformGroup uniforms = UniformGroup("plain")
     ..SetUniform(uShadowMap, shadowMap.GetMapTexture())
     ..SetUniform(uCanvasSize, shadowMap.GetMapSize())
     ..SetUniform(uShadowBias, 0.03);
 
   // display scene with shadow on left part of screen.
-  RenderPhase phaseMain = new RenderPhase("main", cgl);
-  Scene sceneBasic = new Scene(
+  RenderPhase phaseMain = RenderPhase("main", cgl);
+  Scene sceneBasic = Scene(
       "solid",
-      new RenderProgram(
-          "solid",
-          cgl,
-          lightVertexShaderBlinnPhongWithShadow,
+      RenderProgram("solid", cgl, lightVertexShaderBlinnPhongWithShadow,
           lightFragmentShaderBlinnPhongWithShadow),
       [perspective, illumination, uniforms]);
   phaseMain.add(sceneBasic);
 
-  Scene sceneFixed = new Scene(
+  Scene sceneFixed = Scene(
       "solid",
-      new RenderProgram(
+      RenderProgram(
           "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective, illumination]);
   phaseMain.add(sceneFixed);
@@ -228,7 +223,7 @@ void main() {
 
   // Same order as lightSources
   MeshData mdLight = EmptyLightVisualizer(sceneFixed.program, "light");
-  sceneFixed.add(new Node("light", mdLight, lightSourceMat));
+  sceneFixed.add(Node("light", mdLight, lightSourceMat));
 
   // Event Handling
   for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
@@ -260,8 +255,8 @@ void main() {
 
   for (HTML.Element e in HTML.document.getElementsByTagName("input")) {
     print("initialize inputs ${e.id}");
-    e.dispatchEvent(new HTML.Event("change"));
-    e.dispatchEvent(new HTML.Event("input"));
+    e.dispatchEvent(HTML.Event("change"));
+    e.dispatchEvent(HTML.Event("input"));
   }
 
   void resolutionChange(HTML.Event ev) {

@@ -54,7 +54,7 @@ float LinearizeDepth(float z, float near, float far) {
  return (2.0 * near) / (far + near - z * (far - near));
 }
 */
-final ShaderObject shadowVertexShaderDepth = new ShaderObject("ShadowMapV")
+final ShaderObject shadowVertexShaderDepth = ShaderObject("ShadowMapV")
   ..AddAttributeVars([aPosition])
   ..AddUniformVars([uLightPerspectiveViewMatrix, uModelMatrix])
   ..SetBodyWithMain([
@@ -66,16 +66,16 @@ final ShaderObject shadowVertexShaderDepth = new ShaderObject("ShadowMapV")
 
 final ShaderObject shadowFragmentShaderDepth =
     // What we care about here is the internal update of the depth buffer
-    new ShaderObject("ShadowMapF")..SetBodyWithMain(["${oFragColor}.r = 1.0;"]);
+    ShaderObject("ShadowMapF")..SetBodyWithMain(["${oFragColor}.r = 1.0;"]);
 
 final ShaderObject visualizeShadowmapVertexShaderLinearDepth16 =
-    new ShaderObject("copyV")
+    ShaderObject("copyV")
       ..AddAttributeVars([aPosition, aTexUV])
       ..AddVaryingVars([vTexUV])
       ..SetBodyWithMain([NullVertexBody, "${vTexUV} = ${aTexUV};"]);
 
 final ShaderObject visualizeShadowmapFragmentShaderLinearDepth16 =
-    new ShaderObject("copyF")
+    ShaderObject("copyF")
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTexture, uCutOff, uCameraFar, uCameraNear])
       ..SetBodyWithMain([
@@ -98,7 +98,7 @@ class ShadowMap {
   Scene _programCompute;
 
   RenderPhase _phaseVisualize;
-  UniformGroup _uniforms = new UniformGroup("uniforms");
+  UniformGroup _uniforms = UniformGroup("uniforms");
 
   Scene _programVisualize;
 
@@ -107,16 +107,16 @@ class ShadowMap {
   // Other options for format:  GL_DEPTH_COMPONENT32F
   ShadowMap(this._cgl, int w, int h, double near, double far,
       {int format = GL_DEPTH_COMPONENT24}) {
-    _mapSize = new VM.Vector2(w + 0.0, h + 0.0);
+    _mapSize = VM.Vector2(w + 0.0, h + 0.0);
     // We do not really need a proper frame buffer texture as we are only
     // concerned about updated the depth buffer.
     // TODO: is there a way to disable the framebuffer writes altogether?
-    Texture dummy = new TypedTexture(
+    Texture dummy = TypedTexture(
         _cgl, "frame::color", w, h, GL_RGBA8, TexturePropertiesFramebuffer);
-    _depthTexture = new TypedTexture(
+    _depthTexture = TypedTexture(
         _cgl, "frame::depth", w, h, format, TexturePropertiesShadowMap);
-    _shadowBuffer = new Framebuffer(_cgl, dummy, _depthTexture);
-    _phaseCompute = new RenderPhase("compute-shadow", _cgl, _shadowBuffer)
+    _shadowBuffer = Framebuffer(_cgl, dummy, _depthTexture);
+    _phaseCompute = RenderPhase("compute-shadow", _cgl, _shadowBuffer)
       ..viewPortW = w
       ..viewPortH = h;
 
@@ -127,21 +127,21 @@ class ShadowMap {
       ..SetUniform(uCameraNear, near)
       ..SetUniform(uCameraFar, far);
 
-    _programCompute = new Scene(
+    _programCompute = Scene(
         "shadowCompute",
-        new RenderProgram("shadowCompute", _cgl, shadowVertexShaderDepth,
+        RenderProgram("shadowCompute", _cgl, shadowVertexShaderDepth,
             shadowFragmentShaderDepth),
         [_uniforms]);
     _phaseCompute.add(_programCompute);
 
     // We do not clear the color buffer for visualization, so Visualize
     // should be called as the last thing touching the framebuffer.
-    _phaseVisualize = new RenderPhase("visualize-shadow", _cgl)
+    _phaseVisualize = RenderPhase("visualize-shadow", _cgl)
       ..clearColorBuffer = false;
 
-    _programVisualize = new Scene(
+    _programVisualize = Scene(
         "shadowVisualize",
-        new RenderProgram(
+        RenderProgram(
             "shadowVisualize",
             _cgl,
             visualizeShadowmapVertexShaderLinearDepth16,

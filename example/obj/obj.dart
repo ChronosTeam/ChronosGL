@@ -8,20 +8,20 @@ String modelFile = "../ct_logo.obj";
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(25.0, 0.0, 0.0, canvas);
+  ChronosGL cgl = ChronosGL(canvas);
+  OrbitCamera orbit = OrbitCamera(25.0, 0.0, 0.0, canvas);
   PerspectiveResizeAware perspective =
-      new PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
+      PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
   RenderProgram progDemo =
-      new RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader);
+      RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader);
 
   MeshData ctLogo; // we be initialized when loaded
-  Material material = new Material("mat")
+  Material material = Material("mat")
     ..SetUniform(uColor, ColorGray8)
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity()..rotateX(Math.pi / 2));
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity()..rotateX(Math.pi / 2));
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {

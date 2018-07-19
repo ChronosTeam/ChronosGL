@@ -5,20 +5,20 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(15.0, 10.0, 0.0, canvas);
+  ChronosGL cgl = ChronosGL(canvas);
+  OrbitCamera orbit = OrbitCamera(15.0, 10.0, 0.0, canvas);
   PerspectiveResizeAware perspective =
-      new PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
+      PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
-  RenderProgram program = new RenderProgram(
-      "solid", cgl, texturedVertexShader, texturedFragmentShader);
+  RenderProgram program =
+      RenderProgram("solid", cgl, texturedVertexShader, texturedFragmentShader);
 
-  final Material mat = new Material("cube")
+  final Material mat = Material("cube")
     ..SetUniform(uColor, ColorBlack)
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity());
 
   MeshData cube = ShapeCube(program);
 
@@ -55,7 +55,7 @@ void main() {
       HTML.window
           .alert("Could not access camera - do you have a camera installed?");
     }
-    texture = new ImageTexture(cgl, "video", video, TexturePropertiesVideo);
+    texture = ImageTexture(cgl, "video", video, TexturePropertiesVideo);
     mat.SetUniform(uTexture, texture);
     animate(0.0);
   });

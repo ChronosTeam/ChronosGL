@@ -21,15 +21,15 @@ class BloomEffect {
       this.fbOut)
       : wSmall = w ~/ scale,
         hSmall = h ~/ scale,
-        fb1 = new Framebuffer.Default(cgl, w ~/ scale, h ~/ scale),
-        fb2 = new Framebuffer.Default(cgl, w ~/ scale, h ~/ scale) {
-    progHighPass = new RenderProgram(
+        fb1 = Framebuffer.Default(cgl, w ~/ scale, h ~/ scale),
+        fb2 = Framebuffer.Default(cgl, w ~/ scale, h ~/ scale) {
+    progHighPass = RenderProgram(
         "highpass", cgl, effectVertexShader, luminosityHighPassFragmentShader);
 
-    progBloom = new RenderProgram("bloom", cgl, uvPassthruVertexShader,
+    progBloom = RenderProgram("bloom", cgl, uvPassthruVertexShader,
         CreateBloomTextureFragmentShader(radius, radius * 1.0));
 
-    progApplyBloom = new RenderProgram(
+    progApplyBloom = RenderProgram(
         "bloom", cgl, uvPassthruVertexShader, applyBloomEffectFragmentShader);
 
     assert(progApplyBloom.HasCompatibleAttributesTo(progHighPass));
@@ -37,20 +37,20 @@ class BloomEffect {
     unitQuad = ShapeQuad(progApplyBloom, 1);
 
     // Note: the input uTexture varies between the various UniformGroups
-    uniformsHighPass = new UniformGroup("uniformsHighPass")
-      ..SetUniform(uRange, new VM.Vector2(0.65, 0.65 + 0.01))
-      ..SetUniform(uColorAlpha, new VM.Vector4.zero())
+    uniformsHighPass = UniformGroup("uniformsHighPass")
+      ..SetUniform(uRange, VM.Vector2(0.65, 0.65 + 0.01))
+      ..SetUniform(uColorAlpha, VM.Vector4.zero())
       ..SetUniform(uTexture, fbIn.colorTexture);
 
-    uniformsBloomH = new UniformGroup("Bloom Horizontal")
-      ..SetUniform(uDirection, new VM.Vector2(1.5, 0.0))
+    uniformsBloomH = UniformGroup("Bloom Horizontal")
+      ..SetUniform(uDirection, VM.Vector2(1.5, 0.0))
       ..SetUniform(uTexture, fb2.colorTexture);
 
-    uniformsBloomV = new UniformGroup("Bloom Vertical")
-      ..SetUniform(uDirection, new VM.Vector2(0.0, 1.5))
+    uniformsBloomV = UniformGroup("Bloom Vertical")
+      ..SetUniform(uDirection, VM.Vector2(0.0, 1.5))
       ..SetUniform(uTexture, fb1.colorTexture);
 
-    uniformsApply = new UniformGroup("uniformApply")
+    uniformsApply = UniformGroup("uniformApply")
       ..SetUniform(uTexture, fbIn.colorTexture)
       ..SetUniform(uScale, 0.6)
       ..SetUniform(uColor, ColorWhite)
@@ -61,7 +61,7 @@ class BloomEffect {
     // Copy high intensity areas from fb to fb2
     fb2.Activate(GL_CLEAR_ALL, 0, 0, wSmall, hSmall);
     uniformsHighPass.ForceUniform(
-        uRange, new VM.Vector2(luminosity, luminosity + 0.01));
+        uRange, VM.Vector2(luminosity, luminosity + 0.01));
     progHighPass.Draw(unitQuad, [uniformsHighPass]);
 
     // Blur fb2 to fb1 horizontally
@@ -81,11 +81,11 @@ class BloomEffect {
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
-  OrbitCamera orbit = new OrbitCamera(165.0, 0.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
+  OrbitCamera orbit = OrbitCamera(165.0, 0.0, 0.0, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
 
   final width = canvas.clientWidth;
   final height = canvas.clientHeight;
@@ -93,20 +93,19 @@ void main() {
   canvas.height = height;
   perspective.AdjustAspect(width, height);
 
-  final Framebuffer screen = new Framebuffer.Screen(cgl);
-  final Framebuffer fb = new Framebuffer.Default(cgl, width, height);
+  final Framebuffer screen = Framebuffer.Screen(cgl);
+  final Framebuffer fb = Framebuffer.Default(cgl, width, height);
 
-  final RenderProgram progPerlinNoise = new RenderProgram("perlin", cgl,
+  final RenderProgram progPerlinNoise = RenderProgram("perlin", cgl,
       perlinNoiseVertexShader, makePerlinNoiseColorFragmentShader(true));
 
-  final Material material = new Material("mat")
-    ..SetUniform(uTransformationMatrix, new VM.Matrix4.identity())
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity());
+  final Material material = Material("mat")
+    ..SetUniform(uTransformationMatrix, VM.Matrix4.identity())
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity());
 
   final MeshData torus = ShapeTorusKnot(progPerlinNoise);
 
-  final BloomEffect bloom =
-      new BloomEffect(cgl, width, height, 6, 2, fb, screen);
+  final BloomEffect bloom = BloomEffect(cgl, width, height, 6, 2, fb, screen);
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {

@@ -4,9 +4,9 @@ part of core;
 /// TBD
 class Orthographic extends UniformGroup {
   final Camera _camera;
-  final VM.Matrix4 _proj = new VM.Matrix4.zero();
-  final VM.Matrix4 _viewMatrix = new VM.Matrix4.zero();
-  final VM.Matrix4 _projViewMatrix = new VM.Matrix4.identity();
+  final VM.Matrix4 _proj = VM.Matrix4.zero();
+  final VM.Matrix4 _viewMatrix = VM.Matrix4.zero();
+  final VM.Matrix4 _projViewMatrix = VM.Matrix4.identity();
   double _aspect = 1.0;
   double _l;
   double _r;
@@ -53,9 +53,9 @@ class Perspective extends UniformGroup {
   double _aspect = 1.0;
   double _near = 0.1;
   double _far = 1000.0;
-  final VM.Matrix4 _perspectiveViewMatrix = new VM.Matrix4.identity();
-  final VM.Matrix4 _viewMatrix = new VM.Matrix4.identity();
-  final VM.Matrix4 _mat = new VM.Matrix4.zero();
+  final VM.Matrix4 _perspectiveViewMatrix = VM.Matrix4.identity();
+  final VM.Matrix4 _viewMatrix = VM.Matrix4.identity();
+  final VM.Matrix4 _mat = VM.Matrix4.zero();
 
   Perspective(this._camera, this._near, this._far,
       [String name = "perspective"])

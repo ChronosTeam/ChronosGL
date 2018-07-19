@@ -14,8 +14,8 @@ class Node extends Spatial {
 
   // children inherent the parent matrix for its rotation and position
   final List<Node> children = [];
-  final VM.Matrix3 _normMatrix = new VM.Matrix3.zero();
-  final VM.Matrix4 _modelMatrix = new VM.Matrix4.identity();
+  final VM.Matrix3 _normMatrix = VM.Matrix3.zero();
+  final VM.Matrix4 _modelMatrix = VM.Matrix4.identity();
 
   Node.Container(String name, [Node child]) : super(name) {
     if (child != null) children.add(child);
@@ -24,7 +24,6 @@ class Node extends Spatial {
   Node(String name, this._meshData, this._material) : super(name) {
     //if (!meshData.isOptimized) meshData.optimize();
   }
-
 
   Material get material => _material;
   MeshData get meshData => _meshData;

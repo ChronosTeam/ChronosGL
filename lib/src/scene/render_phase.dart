@@ -64,7 +64,7 @@ class RenderPhase extends NamedEntity {
   int viewPortH = 0;
 
   RenderPhase(String name, this._cgl, [this._framebuffer]) : super(name) {
-    if (_framebuffer == null) _framebuffer = new Framebuffer.Screen(_cgl);
+    if (_framebuffer == null) _framebuffer = Framebuffer.Screen(_cgl);
   }
 
   Framebuffer get framebuffer => _framebuffer;
@@ -105,9 +105,9 @@ class RenderPhase extends NamedEntity {
       if (!scene.program.enabled) continue;
 
       List<UniformGroup> uniforms = scene.uniforms;
-      final UniformGroup transforms = new UniformGroup("transforms");
+      final UniformGroup transforms = UniformGroup("transforms");
       uniforms.add(transforms);
-      final VM.Matrix4 modelMatrix = new VM.Matrix4.identity();
+      final VM.Matrix4 modelMatrix = VM.Matrix4.identity();
       for (Node node in scene.nodes) {
         drawRecursively(scene.program, node, modelMatrix, stats, uniforms);
       }

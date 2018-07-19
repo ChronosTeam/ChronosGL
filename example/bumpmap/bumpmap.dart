@@ -8,7 +8,7 @@ const String dir = "../asset/leeperrysmith/";
 const String modelFile = dir + "LeePerrySmith.js";
 const String bumpmapFile = dir + "Infinite-Level_02_Disp_NoSmoothUV-4096.jpg";
 
-final ShaderObject vertexShader = new ShaderObject("LightBlinnPhongFancyV")
+final ShaderObject vertexShader = ShaderObject("LightBlinnPhongFancyV")
   ..AddAttributeVars([aPosition, aNormal, aTexUV])
   ..AddVaryingVars([vPosition, vNormal, vTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
@@ -22,7 +22,7 @@ ${vNormal} = ${uNormalMatrix} * ${aNormal};
 """
   ]);
 
-final ShaderObject fragmentShader = new ShaderObject("LightBlinnPhongFancyF")
+final ShaderObject fragmentShader = ShaderObject("LightBlinnPhongFancyF")
   ..AddVaryingVars([vPosition, vNormal, vTexUV])
   ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
   ..AddUniformVars([uEyePosition, uColor])
@@ -47,12 +47,12 @@ ${oFragColor}.a = 1.0;
     StdLibShader,
   ]);
 
-final VM.Vector3 colSkin = new VM.Vector3(0.333, 0.157, 0.067);
+final VM.Vector3 colSkin = VM.Vector3(0.333, 0.157, 0.067);
 //const VM.Vector3 colGray = new VM.Vector3(0.2, 0.2, 0.2);
-final VM.Vector3 posLight = new VM.Vector3(0.5, 0.5, 0.0);
-final VM.Vector3 dirLight = new VM.Vector3(-1.0, -1.0, 0.0);
-final VM.Vector3 colDiffuse = new VM.Vector3.all(0.3);
-final VM.Vector3 colSpecular = new VM.Vector3.all(0.133);
+final VM.Vector3 posLight = VM.Vector3(0.5, 0.5, 0.0);
+final VM.Vector3 dirLight = VM.Vector3(-1.0, -1.0, 0.0);
+final VM.Vector3 colDiffuse = VM.Vector3.all(0.3);
+final VM.Vector3 colSpecular = VM.Vector3.all(0.133);
 
 final double glossiness = 10.0;
 final double range = 1.0;
@@ -60,40 +60,40 @@ final double angle = MATH.pi / 6.0;
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
 
-  OrbitCamera orbit = new OrbitCamera(0.3, 0.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.01, 1000.0);
+  OrbitCamera orbit = OrbitCamera(0.3, 0.0, 0.0, canvas);
+  Perspective perspective = Perspective(orbit, 0.01, 1000.0);
 
   DirectionalLight dl =
-      new DirectionalLight("dir", dirLight, colDiffuse, colSpecular, 40.0);
+      DirectionalLight("dir", dirLight, colDiffuse, colSpecular, 40.0);
   /*
   SpotLight sl = new SpotLight("spot", posLight, dirLight, colDiffuse,
       colSpecular, range, angle, 2.0, 1.0, 40.0);
   */
   Light light = dl;
-  Illumination illumination = new Illumination();
+  Illumination illumination = Illumination();
   illumination.AddLight(light);
 
   final RenderPhaseResizeAware phase =
-      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
+      RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
-  Scene sceneFixed = new Scene(
+  Scene sceneFixed = Scene(
       "Fixed",
-      new RenderProgram(
+      RenderProgram(
           "Fixed", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective, illumination]);
   phase.add(sceneFixed);
 
-  Material lightMat = new Material("light")..SetUniform(uColor, ColorYellow);
-  sceneFixed.add(new Node(
-      "pointLight", LightVisualizer(sceneFixed.program, light), lightMat));
+  Material lightMat = Material("light")..SetUniform(uColor, ColorYellow);
+  sceneFixed.add(
+      Node("pointLight", LightVisualizer(sceneFixed.program, light), lightMat));
 
-  Scene sceneMain = new Scene(
+  Scene sceneMain = Scene(
       "main",
-      new RenderProgram("main", cgl, vertexShader, fragmentShader),
+      RenderProgram("main", cgl, vertexShader, fragmentShader),
       [perspective, illumination]);
   phase.add(sceneMain);
 
@@ -116,8 +116,8 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Bumpmap
-    Texture bumpmap = new ImageTexture(cgl, bumpmapFile, list[1]);
-    Material mat = new Material("mat")
+    Texture bumpmap = ImageTexture(cgl, bumpmapFile, list[1]);
+    Material mat = Material("mat")
       ..SetUniform(uColor, colSkin)
       ..SetUniform(uShininess, glossiness)
       ..SetUniform(uBumpMap, bumpmap)
@@ -128,10 +128,10 @@ void main() {
     MeshData md =
         GeometryBuilderToMeshData(modelFile, sceneMain.program, gbs[0]);
 
-    Node mesh = new Node(md.name, md, mat);
-    Node n = new Node.Container("wrapper", mesh);
+    Node mesh = Node(md.name, md, mat);
+    Node n = Node.Container("wrapper", mesh);
     //n.invert = true;
-    n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+    n.lookAt(VM.Vector3(100.0, 0.0, 0.0));
     //n.matrix.scale(0.02);
     sceneMain.add(n);
     // GO!

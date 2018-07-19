@@ -102,7 +102,7 @@ List<GeometryBuilder> ImportGeometryFromThreeJsJson(Map json) {
     }
 
     while (out.length <= mat) {
-      GeometryBuilder gb = new GeometryBuilder();
+      GeometryBuilder gb = GeometryBuilder();
       if (Normals.length > 0) gb.EnableAttribute(aNormal);
       if (Uvs.length > 0) gb.EnableAttribute(aTexUV);
       if (skinMultiplier > 0) {
@@ -154,7 +154,7 @@ SkeletalAnimation ImportAnimationFromThreeJsJson(
     Map json, List<Bone> skeleton) {
   final Map animation = json["animation"];
   final List hierarchy = animation["hierarchy"];
-  SkeletalAnimation s = new SkeletalAnimation(
+  SkeletalAnimation s = SkeletalAnimation(
       animation["name"], animation["length"], hierarchy.length);
   assert(hierarchy.length == json["bones"].length);
   for (int i = 0; i < hierarchy.length; ++i) {
@@ -182,7 +182,7 @@ SkeletalAnimation ImportAnimationFromThreeJsJson(
         rValues.add(MakeQuaternion(m["rot"]));
       }
     }
-    BoneAnimation ba = new BoneAnimation(
+    BoneAnimation ba = BoneAnimation(
         skeleton[i], pTimes, pValues, rTimes, rValues, sTimes, sValues);
     s.InsertBone(ba);
   }
@@ -193,7 +193,7 @@ SkeletalAnimation ImportAnimationFromThreeJsJson(
 List<Bone> ImportSkeletonFromThreeJsJson(Map json) {
   final Map metadata = json["metadata"];
   final List Bones = json["bones"];
-  List<Bone> out = new List<Bone>(metadata["bones"]);
+  List<Bone> out = List<Bone>(metadata["bones"]);
   for (int i = 0; i < Bones.length; i++) {
     Map m = Bones[i];
     String name = m["name"];
@@ -201,12 +201,12 @@ List<Bone> ImportSkeletonFromThreeJsJson(Map json) {
     final VM.Vector3 s = MakeScaleVector3(m["scl"]);
     final VM.Vector3 t = MakeTransVector3(m["pos"]);
     final VM.Quaternion r = MakeQuaternion(m["rotq"]);
-    VM.Matrix4 mat = new VM.Matrix4.zero()
+    VM.Matrix4 mat = VM.Matrix4.zero()
       ..setFromTranslationRotationScale(t, r, s);
     if (i != 0 && parent < 0) {
       print("found unusal root node ${i} ${parent}");
     }
-    out[i] = new Bone(name, i, parent, mat, new VM.Matrix4.identity());
+    out[i] = Bone(name, i, parent, mat, VM.Matrix4.identity());
   }
   print("bones: ${out.length}");
   RecomputeLocalOffsets(out);

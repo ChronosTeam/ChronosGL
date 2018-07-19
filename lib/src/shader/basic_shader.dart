@@ -1,13 +1,14 @@
 part of chronosshader;
 
 //  Gouraud shading - most action happens in vertext shader - cheaper
-final ShaderObject lightVertexShaderGourad = new ShaderObject("LightGouradV")
+final ShaderObject lightVertexShaderGourad = ShaderObject("LightGouradV")
   ..AddAttributeVars([aPosition, aNormal, aTexUV])
   ..AddVaryingVars([vColor])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
   ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
   ..AddUniformVars([uEyePosition, uTexture])
-  ..SetBody(["""
+  ..SetBody([
+    """
 void main() {
     vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
     gl_Position = ${uPerspectiveViewMatrix} * pos;
@@ -27,7 +28,7 @@ void main() {
     StdLibShader
   ]);
 
-final ShaderObject lightFragmentShaderGourad = new ShaderObject("LightGrouradV")
+final ShaderObject lightFragmentShaderGourad = ShaderObject("LightGrouradV")
   ..AddVaryingVars([vColor])
   ..SetBodyWithMain(["${oFragColor} = vec4(${vColor}, 1.0 );"]);
 
@@ -36,11 +37,12 @@ final ShaderObject lightFragmentShaderGourad = new ShaderObject("LightGrouradV")
 // m[0].xyz light direction
 //
 final ShaderObject lightVertexShaderBlinnPhong =
-    new ShaderObject("LightBlinnPhongV")
+    ShaderObject("LightBlinnPhongV")
       ..AddAttributeVars([aPosition, aNormal, aTexUV])
       ..AddVaryingVars([vPosition, vNormal, vTexUV])
       ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
-      ..SetBody(["""
+      ..SetBody([
+        """
 void main() {
     vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
     gl_Position = ${uPerspectiveViewMatrix} * pos;
@@ -48,9 +50,10 @@ void main() {
     ${vTexUV} = ${aTexUV};
     ${vNormal} = ${uNormalMatrix} * ${aNormal};
 }
-"""]);
+"""
+      ]);
 final ShaderObject lightFragmentShaderBlinnPhong =
-    new ShaderObject("LightBlinnPhongF")
+    ShaderObject("LightBlinnPhongF")
       ..AddVaryingVars([vPosition, vNormal, vTexUV])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
       ..AddUniformVars([uEyePosition, uTexture])

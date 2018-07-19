@@ -43,22 +43,22 @@ class AnimatedSkeleton {
   final List<VM.Matrix4> skinningTransforms;
 
   AnimatedSkeleton(int length)
-      : globalTransforms = new List<VM.Matrix4>(length),
-        skinningTransforms = new List<VM.Matrix4>(length) {
+      : globalTransforms = List<VM.Matrix4>(length),
+        skinningTransforms = List<VM.Matrix4>(length) {
     for (int i = 0; i < length; i++) {
-      globalTransforms[i] = new VM.Matrix4.zero();
-      skinningTransforms[i] = new VM.Matrix4.zero();
+      globalTransforms[i] = VM.Matrix4.zero();
+      skinningTransforms[i] = VM.Matrix4.zero();
     }
   }
 }
 
 void RecomputeLocalOffsets(List<Bone> skeleton) {
   print("recomputing local transform");
-  final List<VM.Matrix4> toRoot = new List<VM.Matrix4>(skeleton.length);
+  final List<VM.Matrix4> toRoot = List<VM.Matrix4>(skeleton.length);
   for (int i = 0; i < skeleton.length; i++) {
     Bone bone = skeleton[i];
     if (bone.parentNum < 0) {
-      toRoot[i] = new VM.Matrix4.identity() * bone.localTransform;
+      toRoot[i] = VM.Matrix4.identity() * bone.localTransform;
     } else {
       toRoot[i] = toRoot[bone.parentNum] * bone.localTransform;
     }
@@ -73,7 +73,7 @@ void UpdateAnimatedSkeleton(
     SkeletalAnimation animation,
     AnimatedSkeleton posedSkeleton,
     double time) {
-  VM.Matrix4 tmp = new VM.Matrix4.zero();
+  VM.Matrix4 tmp = VM.Matrix4.zero();
   for (int i = 0; i < skeleton.length; i++) {
     Bone bone = skeleton[i];
     VM.Matrix4 t = posedSkeleton.globalTransforms[i];
@@ -102,7 +102,6 @@ void UpdateAnimatedSkeleton(
   }
 }
 
-
 // This is meant to be put into a Texture with dimensions
 // (skeleton.length * 16) x (time.length)
 // If the texture is RGBA this reduces to
@@ -112,14 +111,14 @@ Float32List CreateAnimationTable(
     VM.Matrix4 globalOffsetTransform,
     SkeletalAnimation animation,
     List<double> time) {
-  AnimatedSkeleton posedSkeleton = new AnimatedSkeleton(skeleton.length);
-  Float32List data = new Float32List(skeleton.length * 16 * time.length);
+  AnimatedSkeleton posedSkeleton = AnimatedSkeleton(skeleton.length);
+  Float32List data = Float32List(skeleton.length * 16 * time.length);
   int pos = 0;
   for (double t in time) {
     UpdateAnimatedSkeleton(
         skeleton, globalOffsetTransform, animation, posedSkeleton, t);
     for (VM.Matrix4 m in posedSkeleton.skinningTransforms) {
-      for (int i = 0; i < 16; ++i) data[pos +i ] = m[i];
+      for (int i = 0; i < 16; ++i) data[pos + i] = m[i];
       pos += 16;
     }
   }
@@ -150,17 +149,17 @@ class BoneAnimation {
       this._scaleValues) {
     if (_positionTimes == null || _positionTimes.length == 0) {
       _positionTimes = [0.0];
-      _positionValues = [new VM.Vector3(0.0, 0.0, 0.0)];
+      _positionValues = [VM.Vector3(0.0, 0.0, 0.0)];
     }
 
     if (_rotationTimes == null || _rotationTimes.length == 0) {
       _rotationTimes = [0.0];
-      _rotationValues = [new VM.Quaternion(0.0, 0.0, 0.0, 1.0)];
+      _rotationValues = [VM.Quaternion(0.0, 0.0, 0.0, 1.0)];
     }
 
     if (_scaleTimes == null || _scaleTimes.length == 0) {
       _scaleTimes = [0.0];
-      _scaleValues = [new VM.Vector3(1.0, 1.0, 1.0)];
+      _scaleValues = [VM.Vector3(1.0, 1.0, 1.0)];
     }
 
     assert(_rotationTimes.length > 0);
@@ -215,7 +214,7 @@ class SkeletalAnimation {
   final double duration;
 
   SkeletalAnimation(this.name, this.duration, int length)
-      : animList = new List<BoneAnimation>(length);
+      : animList = List<BoneAnimation>(length);
 
   void InsertBone(BoneAnimation ba) {
     assert(animList[ba.bone.boneIndex] == null);

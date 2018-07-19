@@ -3,32 +3,31 @@ import 'dart:html' as HTML;
 
 import 'dart:async';
 
-final ShaderObject normal2ColorVertexShader = new ShaderObject("Normal2Color")
+final ShaderObject normal2ColorVertexShader = ShaderObject("Normal2Color")
   ..AddAttributeVars([aPosition, aNormal])
   ..AddVaryingVars([vColor])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..SetBodyWithMain(
       [StdVertexBody, "${vColor} = normalize(${aNormal} / 2.0 + vec3(0.5) );"]);
 
-final ShaderObject normal2ColorFragmentShader =
-    new ShaderObject("Normal2ColorF")
-      ..AddVaryingVars([vColor])
-      ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1.0 );"]);
+final ShaderObject normal2ColorFragmentShader = ShaderObject("Normal2ColorF")
+  ..AddVaryingVars([vColor])
+  ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1.0 );"]);
 
 const String modelFile = "../ct_logo.obj";
 
 void main() {
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas);
-  OrbitCamera orbit = new OrbitCamera(25.0, -45.0, 0.3, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 2520.0);
+  ChronosGL cgl = ChronosGL(canvas);
+  OrbitCamera orbit = OrbitCamera(25.0, -45.0, 0.3, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 2520.0);
 
   final RenderPhaseResizeAware phase =
-      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
-  Scene scene = new Scene(
+      RenderPhaseResizeAware("main", cgl, canvas, perspective);
+  Scene scene = Scene(
       "objects",
-      new RenderProgram("test", cgl, normal2ColorVertexShader,
-          normal2ColorFragmentShader),
+      RenderProgram(
+          "test", cgl, normal2ColorVertexShader, normal2ColorFragmentShader),
       [perspective]);
   phase.add(scene);
 
@@ -42,7 +41,7 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  Material mat = new Material("mat");
+  Material mat = Material("mat");
 
   List<Future<Object>> futures = [
     LoadRaw(modelFile),
@@ -64,7 +63,7 @@ void main() {
       geos[i].GenerateNormalsAssumingTriangleMode();
       MeshData md = GeometryBuilderToMeshData("", scene.program, geos[i]);
       // because some vertices were reused for different faces, so we need to deduplicate the indices
-      Node mesh = new Node(md.name, md, mat)..setPos(-5.0 + i * 7, 4.0, 0.0);
+      Node mesh = Node(md.name, md, mat)..setPos(-5.0 + i * 7, 4.0, 0.0);
       if (geos[i] == ctLogo) {
         mesh.rotX(3.14 / 2);
         mesh.rotZ(3.14);

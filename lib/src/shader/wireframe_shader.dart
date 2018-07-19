@@ -1,6 +1,5 @@
 part of chronosshader;
 
-
 const String _WireframeF = """
 // the 3 vertices of a Face3 (w == 0) have the centers:
 // (1, 0, 0, 0)) 
@@ -35,15 +34,13 @@ void main() {
 }
 """;
 
-final ShaderObject wireframeVertexShader =
-    new ShaderObject("WireframeV")
-      ..AddAttributeVars([aPosition, aCenter])
-      ..AddVaryingVars([vCenter])
-      ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-      ..SetBodyWithMain([StdVertexBody, "${vCenter} = ${aCenter};"]);
+final ShaderObject wireframeVertexShader = ShaderObject("WireframeV")
+  ..AddAttributeVars([aPosition, aCenter])
+  ..AddVaryingVars([vCenter])
+  ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
+  ..SetBodyWithMain([StdVertexBody, "${vCenter} = ${aCenter};"]);
 
-final ShaderObject wireframeFragmentShader =
-    new ShaderObject("WireframeF")
-      ..AddVaryingVars([vCenter])
-      ..AddUniformVars([uColorAlpha, uColorAlpha2])
-      ..SetBody([_WireframeF]);
+final ShaderObject wireframeFragmentShader = ShaderObject("WireframeF")
+  ..AddVaryingVars([vCenter])
+  ..AddUniformVars([uColorAlpha, uColorAlpha2])
+  ..SetBody([_WireframeF]);

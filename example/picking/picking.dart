@@ -15,58 +15,57 @@ void main() {
   final HTML.DivElement info = HTML.document.querySelector('#info');
 
   final StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
   final Object ext = cgl.getExtension("WEBGL_get_buffer_sub_data_async");
   print("Ext ${ext}");
-  OrbitCamera orbit = new OrbitCamera(25.0, 10.0, 0.0, canvas);
+  OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
 
-  Perspective perspective = new Perspective(orbit, 0.1, 1000.0);
+  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
 
-  final RenderPhase phase = new RenderPhase("main", cgl);
-  final Scene scene = new Scene(
+  final RenderPhase phase = RenderPhase("main", cgl);
+  final Scene scene = Scene(
       "objects",
-      new RenderProgram(
+      RenderProgram(
           "prog", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective]);
   phase.add(scene);
 
   {
     String name = "sphere";
-    Material mat = new Material(name)..SetUniform(uColor, ShapeToColor[name]);
-    Node node = new Node(name, ShapeIcosahedron(scene.program, 3), mat)
+    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]);
+    Node node = Node(name, ShapeIcosahedron(scene.program, 3), mat)
       ..setPos(0.0, 0.0, 0.0);
     scene.add(node);
   }
   {
     String name = "cube";
-    Material mat = new Material(name)..SetUniform(uColor, ShapeToColor[name]);
-    Node node = new Node(name, ShapeCube(scene.program), mat)
+    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]);
+    Node node = Node(name, ShapeCube(scene.program), mat)
       ..setPos(-5.0, 0.0, -5.0);
     scene.add(node);
   }
 
   {
     String name = "cylinder";
-    Material mat = new Material(name)..SetUniform(uColor, ShapeToColor[name]);
-    Node node =
-        new Node(name, ShapeCylinder(scene.program, 3.0, 6.0, 2.0, 32), mat)
-          ..setPos(5.0, 0.0, -5.0);
+    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]);
+    Node node = Node(name, ShapeCylinder(scene.program, 3.0, 6.0, 2.0, 32), mat)
+      ..setPos(5.0, 0.0, -5.0);
     scene.add(node);
   }
   {
     String name = "quad";
-    Material mat = new Material(name)..SetUniform(uColor, ShapeToColor[name]);
-    Node node = new Node(name, ShapeQuad(scene.program, 2), mat)
+    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]);
+    Node node = Node(name, ShapeQuad(scene.program, 2), mat)
       ..setPos(-5.0, 0.0, 5.0);
     scene.add(node);
   }
   {
     String name = "torus";
-    Material mat = new Material(name)..SetUniform(uColor, ShapeToColor[name]);
-    Node node = new Node(
+    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]);
+    Node node = Node(
         name, ShapeTorusKnot(scene.program, radius: 1.0, tubeRadius: 0.4), mat)
       ..setPos(5.0, 0.0, 5.0);
     scene.add(node);
@@ -86,12 +85,12 @@ void main() {
   resolutionChange(null);
   HTML.window.onResize.listen(resolutionChange);
 
-  final Uint8List pixelData = new Uint8List(1 * 4);
+  final Uint8List pixelData = Uint8List(1 * 4);
   final Object pbo = cgl.createBuffer();
   cgl.BufferDataSetSize(GL_PIXEL_PACK_BUFFER, pbo, 4, GL_DYNAMIC_READ);
 
   String getShapeUnderCusorInfo() {
-    DateTime start = new DateTime.now();
+    DateTime start = DateTime.now();
     int x = orbit.mouse.currentX;
     int y = canvas.clientHeight - orbit.mouse.currentY;
     VM.Vector3 pick;
@@ -100,14 +99,14 @@ void main() {
       cgl.readPixelsToBuffer(x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, 0);
       cgl.bindBuffer(GL_PIXEL_PACK_BUFFER, null);
       //print("@@@@ promise ${promise}");
-      pick = new VM.Vector3.zero();
+      pick = VM.Vector3.zero();
     } else {
       // This also works
       //new Framebuffer.Screen(cgl).ExtractByteData(pixelData, x, y, 1, 1);
       cgl.readPixels(x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixelData);
-      pick = new VM.Vector3(
-          pixelData[0] + 0.0, pixelData[1] + 0.0, pixelData[2] + 0.0)
-        ..scale(1.0 / 255.0);
+      pick =
+          VM.Vector3(pixelData[0] + 0.0, pixelData[1] + 0.0, pixelData[2] + 0.0)
+            ..scale(1.0 / 255.0);
     }
     String shape = "NONE";
     for (String name in ShapeToColor.keys) {
@@ -116,7 +115,7 @@ void main() {
         break;
       }
     }
-    Duration dur = new DateTime.now().difference(start);
+    Duration dur = DateTime.now().difference(start);
     return "${shape}<br>${x}.${y}<br>${pixelData}<br>${dur.inMicroseconds}us";
   }
 

@@ -190,11 +190,11 @@ void main(void)
 
 """;
 
-final ShaderObject gyroidVertexShader = new ShaderObject("SphericalGyroid")
+final ShaderObject gyroidVertexShader = ShaderObject("SphericalGyroid")
   ..AddAttributeVars([aPosition])
   ..SetBodyWithMain([NullVertexBody]);
 
-final ShaderObject gyroidFragmentShader = new ShaderObject("SphericalGyroidF")
+final ShaderObject gyroidFragmentShader = ShaderObject("SphericalGyroidF")
   ..AddUniformVars([uCanvasSize, uTime])
   ..SetBody([_FragmentShader]);
 
@@ -205,16 +205,16 @@ void main() {
   final int h = canvas.clientHeight;
   canvas.width = w;
   canvas.height = h;
-  ChronosGL cgl = new ChronosGL(canvas);
+  ChronosGL cgl = ChronosGL(canvas);
 
-  RenderProgram program = new RenderProgram(
-      "gyroid", cgl, gyroidVertexShader, gyroidFragmentShader);
-  UniformGroup uniforms = new UniformGroup("plain");
+  RenderProgram program =
+      RenderProgram("gyroid", cgl, gyroidVertexShader, gyroidFragmentShader);
+  UniformGroup uniforms = UniformGroup("plain");
   MeshData unitQuad = ShapeQuad(program, 1);
 
   void animate(num timeMs) {
     uniforms.ForceUniform(uTime, timeMs / 1000.0);
-    uniforms.ForceUniform(uCanvasSize, new VM.Vector2(0.0 + w, 0.0 + h));
+    uniforms.ForceUniform(uCanvasSize, VM.Vector2(0.0 + w, 0.0 + h));
     program.Draw(unitQuad, [uniforms]);
     HTML.window.animationFrame.then(animate);
   }

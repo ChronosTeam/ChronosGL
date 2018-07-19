@@ -62,17 +62,17 @@ class TextureProperties {
   }
 }
 
-final TextureProperties TexturePropertiesFramebuffer = new TextureProperties()
+final TextureProperties TexturePropertiesFramebuffer = TextureProperties()
   ..flipY = false
   ..clamp = true
   ..mipmap = false
   ..SetFilterNearest();
 
-final TextureProperties TexturePropertiesVideo = new TextureProperties()
+final TextureProperties TexturePropertiesVideo = TextureProperties()
   ..clamp = true;
 
 // http://stackoverflow.com/questions/22419682/glsl-sampler2dshadow-and-shadow2d-clarification\
-final TextureProperties TexturePropertiesShadowMap = new TextureProperties()
+final TextureProperties TexturePropertiesShadowMap = TextureProperties()
   ..flipY = false
   ..clamp = true
   ..mipmap = false
@@ -208,8 +208,7 @@ class ImageTexture extends Texture {
 
   ImageTexture(ChronosGL cgl, String url, this._element,
       [TextureProperties tp, int textureType = GL_TEXTURE_2D])
-      : super(
-            cgl, textureType, url, tp == null ? new TextureProperties() : tp) {
+      : super(cgl, textureType, url, tp == null ? TextureProperties() : tp) {
     _cgl.bindTexture(_textureType, _texture);
 
     properties.InstallEarly(_cgl, _textureType);
@@ -232,7 +231,7 @@ class ImageTexture extends Texture {
   }
 }
 
-const List<int> _kCubeModifier = const [
+const List<int> _kCubeModifier = [
   GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
   GL_TEXTURE_CUBE_MAP_POSITIVE_X,
   GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
@@ -243,8 +242,8 @@ const List<int> _kCubeModifier = const [
 
 class CubeTexture extends Texture {
   CubeTexture(ChronosGL cgl, String url, List images)
-      : super(cgl, GL_TEXTURE_CUBE_MAP, url,
-            new TextureProperties()..clamp = true) {
+      : super(
+            cgl, GL_TEXTURE_CUBE_MAP, url, TextureProperties()..clamp = true) {
     assert(images.length == _kCubeModifier.length);
     properties.InstallEarly(_cgl, _textureType);
 

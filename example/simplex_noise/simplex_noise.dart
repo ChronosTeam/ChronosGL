@@ -12,7 +12,7 @@ const String uAmpl3 = "uAmpl3";
 const String uMode = "uMode";
 const String uSpeed = "uSpeed";
 
-final ShaderObject nullVertexShader = new ShaderObject("nullShaderV")
+final ShaderObject nullVertexShader = ShaderObject("nullShaderV")
   ..AddAttributeVars([aPosition])
   ..SetBodyWithMain([NullVertexBody]);
 
@@ -77,7 +77,7 @@ String shader = """
    }
  """;
 
-final ShaderObject noiseFragmentShader = new ShaderObject("noiseShaderF")
+final ShaderObject noiseFragmentShader = ShaderObject("noiseShaderF")
   ..AddUniformVars([
     uTime,
     uCanvasSize,
@@ -102,7 +102,7 @@ void main() {
   IntroduceNewShaderVar(uSpeed, const ShaderVarDesc("float", ""));
 
   final StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   final HTML.CanvasElement canvas =
       HTML.document.querySelector('#webgl-canvas');
   final int w = canvas.clientWidth;
@@ -110,24 +110,23 @@ void main() {
   canvas.width = w;
   canvas.height = h;
 
-  final ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
+  final ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
 
   final RenderProgram programPerlin =
-      new RenderProgram("perlin", cgl, nullVertexShader, noiseFragmentShader);
+      RenderProgram("perlin", cgl, nullVertexShader, noiseFragmentShader);
 
   final MeshData quad = ShapeQuad(programPerlin, 1);
 
-  final UniformGroup uniforms = new UniformGroup("simplex")
+  final UniformGroup uniforms = UniformGroup("simplex")
     ..ForceUniform(uTime, 0.0)
-    ..ForceUniform(uCanvasSize, new VM.Vector2(w + 0.0, h + 0.0));
+    ..ForceUniform(uCanvasSize, VM.Vector2(w + 0.0, h + 0.0));
 
   // Event Handling
   for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
     input.onChange.listen((HTML.Event e) {
       HTML.InputElement input = e.target as HTML.InputElement;
       if (input.type == "range") {
-        HTML.OutputElement output =
-            HTML.document.getElementById(input.name);
+        HTML.OutputElement output = HTML.document.getElementById(input.name);
         uniforms.ForceUniform(input.name, double.parse(input.value));
         output.value = input.value;
       }
@@ -140,7 +139,7 @@ void main() {
   // Trigger handlers
   for (HTML.InputElement input in HTML.document.getElementsByTagName("input")) {
     if (input.type == "radio" && !input.checked) continue;
-    input.dispatchEvent(new HTML.Event("change"));
+    input.dispatchEvent(HTML.Event("change"));
   }
 
   double _lastTimeMs = 0.0;

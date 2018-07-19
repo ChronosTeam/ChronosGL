@@ -9,7 +9,7 @@ String normalmapFile = Dir + "Infinite-Level_02_Tangent_SmoothUV.jpg";
 String textureFile = Dir + "Map-COL.jpg";
 String specularmapFile = Dir + "Map-SPEC.jpg";
 
-final ShaderObject vertexShader = new ShaderObject("LightBlinnPhongV")
+final ShaderObject vertexShader = ShaderObject("LightBlinnPhongV")
   ..AddAttributeVars([aPosition, aNormal, aTexUV])
   ..AddVaryingVars([vPosition, vNormal, vTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
@@ -23,7 +23,7 @@ final ShaderObject vertexShader = new ShaderObject("LightBlinnPhongV")
 """
   ]);
 
-final ShaderObject fragmentShader = new ShaderObject("LightBlinnPhongF")
+final ShaderObject fragmentShader = ShaderObject("LightBlinnPhongF")
   ..AddVaryingVars([vPosition, vNormal, vTexUV])
   ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
   ..AddUniformVars([uEyePosition, uColor, uTexture])
@@ -46,43 +46,43 @@ ${oFragColor}.a = 1.0;
     StdLibShader
   ]);
 
-VM.Vector3 posLight = new VM.Vector3(0.5, 1.0, 0.0);
-VM.Vector3 dirLight = new VM.Vector3(0.0, 10.0, 0.0);
-VM.Vector3 colDiffuse = new VM.Vector3.all(0.866);
-VM.Vector3 colSpecular = new VM.Vector3.all(0.133);
+VM.Vector3 posLight = VM.Vector3(0.5, 1.0, 0.0);
+VM.Vector3 dirLight = VM.Vector3(0.0, 10.0, 0.0);
+VM.Vector3 colDiffuse = VM.Vector3.all(0.866);
+VM.Vector3 colSpecular = VM.Vector3.all(0.133);
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas);
+  ChronosGL cgl = ChronosGL(canvas);
 
-  OrbitCamera orbit = new OrbitCamera(0.5, 0.0, 0.0, canvas);
-  Perspective perspective = new Perspective(orbit, 0.1, 100.0);
-  Illumination illumination = new Illumination();
-  illumination.AddLight(new SpotLight("spot", posLight, posLight, colDiffuse,
+  OrbitCamera orbit = OrbitCamera(0.5, 0.0, 0.0, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 100.0);
+  Illumination illumination = Illumination();
+  illumination.AddLight(SpotLight("spot", posLight, posLight, colDiffuse,
       colSpecular, 50.0, 0.95, 2.0, 1.0, 50.0));
 
- final RenderPhaseResizeAware phase =
-      new RenderPhaseResizeAware("main", cgl, canvas, perspective);
-  Scene sceneFixed = new Scene(
+  final RenderPhaseResizeAware phase =
+      RenderPhaseResizeAware("main", cgl, canvas, perspective);
+  Scene sceneFixed = Scene(
       "Fixed",
-      new RenderProgram(
+      RenderProgram(
           "Fixed", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective, illumination]);
   phase.add(sceneFixed);
 
-  Material lightSourceMat = new Material("light")
+  Material lightSourceMat = Material("light")
     ..SetUniform(uColor, ColorYellow)
     ..SetUniform(uShininess, 25.0);
-  Node shapePointLight = new Node("pointLight",
+  Node shapePointLight = Node("pointLight",
       ShapeIcosahedron(sceneFixed.program, 4, 0.1), lightSourceMat)
     ..setPosFromVec(posLight);
   sceneFixed.add(shapePointLight);
 
-  Scene sceneMain = new Scene(
+  Scene sceneMain = Scene(
       "main",
-      new RenderProgram("main", cgl, vertexShader, fragmentShader),
+      RenderProgram("main", cgl, vertexShader, fragmentShader),
       [perspective, illumination]);
   phase.add(sceneMain);
 
@@ -98,7 +98,7 @@ void main() {
     fps.UpdateFrameCount(_lastTimeMs);
   }
 
-  Material mat = new Material("mat")
+  Material mat = Material("mat")
     ..SetUniform(uColor, ColorGray4)
     ..SetUniform(uShininess, 25.0);
 
@@ -111,7 +111,7 @@ void main() {
 
   Future.wait(futures).then((List list) {
     // Setup Maps
-    ImageTexture texture = new ImageTexture(cgl, textureFile, list[1]);
+    ImageTexture texture = ImageTexture(cgl, textureFile, list[1]);
     /*
     Texture specularmap =
         new ImageTexture(cgl, specularmapFile, list[2]);
@@ -128,10 +128,10 @@ void main() {
     MeshData md =
         GeometryBuilderToMeshData(modelFile, sceneMain.program, gbs[0]);
 
-    Node mesh = new Node(md.name, md, mat);
-    Node n = new Node.Container("wrapper", mesh);
+    Node mesh = Node(md.name, md, mat);
+    Node n = Node.Container("wrapper", mesh);
     //n.invert = true;
-    n.lookAt(new VM.Vector3(100.0, 0.0, 0.0));
+    n.lookAt(VM.Vector3(100.0, 0.0, 0.0));
     //n.matrix.scale(0.02);
     sceneMain.add(n);
     // GO!

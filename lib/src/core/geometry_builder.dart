@@ -119,19 +119,19 @@ class GeometryBuilder {
 
   void AddFace3(int a, int b, int c) {
     assert(pointsOnly == false);
-    _faces3.add(new Face3(a, b, c));
+    _faces3.add(Face3(a, b, c));
   }
 
   void AddFace4(int a, int b, int c, int d) {
     assert(pointsOnly == false);
-    _faces4.add(new Face4(a, b, c, d));
+    _faces4.add(Face4(a, b, c, d));
   }
 
   void AddFaces3(int n) {
     assert(pointsOnly == false);
     int v = vertices.length;
     for (int i = 0; i < n; i++, v += 3) {
-      _faces3.add(new Face3(v + 0, v + 1, v + 2));
+      _faces3.add(Face3(v + 0, v + 1, v + 2));
     }
   }
 
@@ -139,7 +139,7 @@ class GeometryBuilder {
     assert(pointsOnly == false);
     int v = vertices.length;
     for (int i = 0; i < n; i++, v += 4) {
-      _faces4.add(new Face4(v + 0, v + 1, v + 2, v + 3));
+      _faces4.add(Face4(v + 0, v + 1, v + 2, v + 3));
     }
   }
 
@@ -157,7 +157,7 @@ class GeometryBuilder {
   void AddVerticesFace3(List<VM.Vector3> vs) {
     assert(vs.length == 3);
     int i = vertices.length;
-    _faces3.add(new Face3(i + 0, i + 1, i + 2));
+    _faces3.add(Face3(i + 0, i + 1, i + 2));
     for (VM.Vector3 v in vs) {
       vertices.add(v.clone());
     }
@@ -166,7 +166,7 @@ class GeometryBuilder {
   void AddVerticesFace3TakeOwnership(List<VM.Vector3> vs) {
     assert(vs.length == 3);
     int i = vertices.length;
-    _faces3.add(new Face3(i + 0, i + 1, i + 2));
+    _faces3.add(Face3(i + 0, i + 1, i + 2));
     for (VM.Vector3 v in vs) {
       vertices.add(v);
     }
@@ -254,7 +254,7 @@ class GeometryBuilder {
   void AddVerticesFace4(List<VM.Vector3> vs) {
     assert(vs.length == 4);
     int i = vertices.length;
-    _faces4.add(new Face4(i + 0, i + 1, i + 2, i + 3));
+    _faces4.add(Face4(i + 0, i + 1, i + 2, i + 3));
     for (VM.Vector3 v in vs) {
       vertices.add(v.clone());
     }
@@ -263,7 +263,7 @@ class GeometryBuilder {
   void AddVerticesFace4TakeOwnership(List<VM.Vector3> vs) {
     assert(vs.length == 4);
     int i = vertices.length;
-    _faces4.add(new Face4(i + 0, i + 1, i + 2, i + 3));
+    _faces4.add(Face4(i + 0, i + 1, i + 2, i + 3));
     for (VM.Vector3 v in vs) {
       vertices.add(v);
     }
@@ -295,7 +295,7 @@ class GeometryBuilder {
   // Its main purpose is to convert Face4 into two triangles
   List<int> GenerateFaceIndices() {
     assert(_faces3.length > 0 || _faces4.length > 0);
-    List<int> faces = new List<int>(_faces3.length * 3 + _faces4.length * 6);
+    List<int> faces = List<int>(_faces3.length * 3 + _faces4.length * 6);
     int i = 0;
     for (Face3 f3 in _faces3) {
       faces[i + 0] = f3.a;
@@ -318,7 +318,7 @@ class GeometryBuilder {
   }
 
   List<int> GenerateLineIndices() {
-    List<int> lines = new List<int>(_faces3.length * 6 + _faces4.length * 8);
+    List<int> lines = List<int>(_faces3.length * 6 + _faces4.length * 8);
     int i = 0;
     for (Face3 f3 in _faces3) {
       lines[i + 0] = f3.a;
@@ -345,9 +345,9 @@ class GeometryBuilder {
   }
 
   void GenerateNormalsAssumingTriangleMode() {
-    List<VM.Vector3> normals = new List<VM.Vector3>(vertices.length);
-    VM.Vector3 temp = new VM.Vector3.zero();
-    VM.Vector3 norm = new VM.Vector3.zero();
+    List<VM.Vector3> normals = List<VM.Vector3>(vertices.length);
+    VM.Vector3 temp = VM.Vector3.zero();
+    VM.Vector3 norm = VM.Vector3.zero();
     for (Face3 f3 in _faces3) {
       NormalFromPoints(
           vertices[f3.a], vertices[f3.b], vertices[f3.c], temp, norm);
@@ -371,8 +371,8 @@ class GeometryBuilder {
   void GenerateAveragedNormalsAssumingTriangleMode() {
     Map<VM.Vector3, VM.Vector3> avg = <VM.Vector3, VM.Vector3>{};
     //Map<VM.Vector3, double> cnt = {};
-    VM.Vector3 temp = new VM.Vector3.zero();
-    VM.Vector3 norm = new VM.Vector3.zero();
+    VM.Vector3 temp = VM.Vector3.zero();
+    VM.Vector3 norm = VM.Vector3.zero();
 
     void add(int index, VM.Vector3 n) {
       VM.Vector3 v = vertices[index];
@@ -407,7 +407,7 @@ class GeometryBuilder {
     for (VM.Vector3 key in avg.keys) {
       avg[key] = avg[key]..normalize();
     }
-    List<VM.Vector3> normals = new List<VM.Vector3>(vertices.length);
+    List<VM.Vector3> normals = List<VM.Vector3>(vertices.length);
     for (int i = 0; i < vertices.length; ++i) {
       normals[i] = avg[vertices[i]];
     }
@@ -415,8 +415,8 @@ class GeometryBuilder {
   }
 
   void GenerateRadialNormals(VM.Vector3 center) {
-    VM.Vector3 norm = new VM.Vector3.zero();
-    List<VM.Vector3> normals = new List<VM.Vector3>(vertices.length);
+    VM.Vector3 norm = VM.Vector3.zero();
+    List<VM.Vector3> normals = List<VM.Vector3>(vertices.length);
 
     for (int i = 0; i < vertices.length; ++i) {
       norm = vertices[i] - center;
@@ -428,11 +428,11 @@ class GeometryBuilder {
 
 // populate aCenter Input
   void GenerateWireframeCenters() {
-    List<VM.Vector4> center = new List<VM.Vector4>(vertices.length);
+    List<VM.Vector4> center = List<VM.Vector4>(vertices.length);
 
-    VM.Vector4 a3 = new VM.Vector4(1.0, 0.0, 0.0, 0.0);
-    VM.Vector4 b3 = new VM.Vector4(0.0, 1.0, 0.0, 0.0);
-    VM.Vector4 c3 = new VM.Vector4(0.0, 0.0, 1.0, 0.0);
+    VM.Vector4 a3 = VM.Vector4(1.0, 0.0, 0.0, 0.0);
+    VM.Vector4 b3 = VM.Vector4(0.0, 1.0, 0.0, 0.0);
+    VM.Vector4 c3 = VM.Vector4(0.0, 0.0, 1.0, 0.0);
 
     for (Face3 f in _faces3) {
       center[f.a] = a3.clone();
@@ -440,10 +440,10 @@ class GeometryBuilder {
       center[f.c] = c3.clone();
     }
 
-    VM.Vector4 a4 = new VM.Vector4(1.0, 0.0, 0.0, 1.0);
-    VM.Vector4 b4 = new VM.Vector4(1.0, 1.0, 0.0, 1.0);
-    VM.Vector4 c4 = new VM.Vector4(0.0, 1.0, 0.0, 1.0);
-    VM.Vector4 d4 = new VM.Vector4(0.0, 0.0, 0.0, 1.0);
+    VM.Vector4 a4 = VM.Vector4(1.0, 0.0, 0.0, 1.0);
+    VM.Vector4 b4 = VM.Vector4(1.0, 1.0, 0.0, 1.0);
+    VM.Vector4 c4 = VM.Vector4(0.0, 1.0, 0.0, 1.0);
+    VM.Vector4 d4 = VM.Vector4(0.0, 0.0, 0.0, 1.0);
 
     for (Face4 f in _faces4) {
       center[f.a] = a4.clone();
@@ -464,7 +464,7 @@ class GeometryBuilder {
     for (int y = 0; y < h; ++y) {
       for (int x = 0; x < w; ++x) {
         // we interchange x and y for historical reasons here
-        uvs.add(new VM.Vector2(y / (h - 1), x / (w - 1)));
+        uvs.add(VM.Vector2(y / (h - 1), x / (w - 1)));
       }
     }
     assert(uvs.length == w * h);
@@ -484,7 +484,7 @@ class GeometryBuilder {
       }
     }
     if (wrapped) {
-      assert (_faces4.length == w * h);
+      assert(_faces4.length == w * h);
     }
   }
 

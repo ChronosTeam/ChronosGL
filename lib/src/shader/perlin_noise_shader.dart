@@ -50,7 +50,7 @@ List<ShaderObject> createPerlinNoiseVertexColorShader() {
  */
 
 // this shader is build for use with an icosahedron
-final ShaderObject perlinNoiseVertexShader = new ShaderObject("PerlinNoiseV")
+final ShaderObject perlinNoiseVertexShader = ShaderObject("PerlinNoiseV")
   ..AddAttributeVars([aPosition])
   ..AddVaryingVars([vNormal])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uTime])
@@ -76,7 +76,7 @@ ShaderObject makePerlinNoiseColorFragmentShader(bool blackVariant) {
     define = "#define BLACK 1";
     name = "Black" + name;
   }
-  return new ShaderObject(name + " F")
+  return ShaderObject(name + " F")
     ..AddVaryingVars([vNormal])
     ..AddUniformVars([uTime, uTransformationMatrix])
     ..SetBody([

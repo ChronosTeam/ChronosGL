@@ -8,7 +8,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 const double kMaxDistance = 100.1;
 const double kMinDistance = 0.2;
 
-final VM.Vector3 kVecOutOfBounds = new VM.Vector3.all(kMaxDistance * 100.0);
+final VM.Vector3 kVecOutOfBounds = VM.Vector3.all(kMaxDistance * 100.0);
 
 const String uSources = "uSources";
 const String uSinks = "uSinks";
@@ -18,7 +18,7 @@ final HTML.SelectElement gParticles = HTML.document.querySelector('#particles');
 final HTML.InputElement gCpuCompute =
     HTML.document.querySelector('#cpucompute');
 
-final ShaderObject particleVertexShader = new ShaderObject("ParticleV")
+final ShaderObject particleVertexShader = ShaderObject("ParticleV")
   ..AddAttributeVars([aPosition])
   ..AddUniformVars(
       [uPerspectiveViewMatrix, uModelMatrix, uPointSize, uSources, uSinks])
@@ -79,7 +79,7 @@ void main() {
 """
   ]);
 
-final ShaderObject particleFragmentShader = new ShaderObject("ParticleF")
+final ShaderObject particleFragmentShader = ShaderObject("ParticleF")
   ..AddUniformVars([uTexture])
   ..SetBody([
     """
@@ -93,7 +93,7 @@ String DumpVec(VM.Vector3 v) => "${v.x} ${v.y} ${v.z}";
 
 // Source or Sink for Ions. Can move themselves - currently not used.
 class Pole {
-  VM.Vector3 _pos = new VM.Vector3.zero();
+  VM.Vector3 _pos = VM.Vector3.zero();
 
   Pole(VM.Vector3 pos) {
     _pos = pos.clone();
@@ -117,7 +117,7 @@ class Ion {
 
   // Update position based on distance Source/Sink Poles
   void Update(List<Pole> srcs, List<Pole> dsts, Math.Random rng, double dt) {
-    VM.Vector3 force = new VM.Vector3.zero();
+    VM.Vector3 force = VM.Vector3.zero();
 
     for (Pole pole in srcs) {
       // accumulate pushing forces
@@ -155,7 +155,7 @@ class Ion {
 }
 
 VM.Vector3 RandomVector(Math.Random rng, double d) {
-  return new VM.Vector3((rng.nextDouble() - 0.5), (rng.nextDouble() - 0.5),
+  return VM.Vector3((rng.nextDouble() - 0.5), (rng.nextDouble() - 0.5),
       (rng.nextDouble() - 0.5))
     ..scale(d);
 }
@@ -163,13 +163,13 @@ VM.Vector3 RandomVector(Math.Random rng, double d) {
 List<Pole> MakeRowOfPoles(List<double> xx, double y, double z, double scale) {
   List<Pole> out = [];
   for (double x in xx) {
-    out.add(new Pole(new VM.Vector3(x, y, z) * scale));
+    out.add(Pole(VM.Vector3(x, y, z) * scale));
   }
   return out;
 }
 
 Float32List ExtractPolePos(List<Pole> poles) {
-  Float32List out = new Float32List(3 * poles.length);
+  Float32List out = Float32List(3 * poles.length);
   int n = 0;
   for (Pole p in poles) {
     out[n + 0] = p.Pos().x;
@@ -198,9 +198,9 @@ void main() {
       uSinks, const ShaderVarDesc(VarTypeVec3, "", arraySize: 5));
 
   final StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
-  final Math.Random rng = new Math.Random(0);
+  final Math.Random rng = Math.Random(0);
 
   final HTML.CanvasElement canvas =
       HTML.document.querySelector('#webgl-canvas');
@@ -209,15 +209,15 @@ void main() {
   canvas.width = width;
   canvas.height = height;
 
-  final ChronosGL cgl = new ChronosGL(canvas);
-  final OrbitCamera orbit = new OrbitCamera(15.0, 0.5, 0.5, canvas);
-  final Perspective perspective = new Perspective(orbit, 0.1, 1000.0)
+  final ChronosGL cgl = ChronosGL(canvas);
+  final OrbitCamera orbit = OrbitCamera(15.0, 0.5, 0.5, canvas);
+  final Perspective perspective = Perspective(orbit, 0.1, 1000.0)
     ..AdjustAspect(width, height);
 
-  final RenderProgram programJS = new RenderProgram(
+  final RenderProgram programJS = RenderProgram(
       "CPU", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
-  final RenderProgram programGPU = new RenderProgram(
-      "GPU", cgl, particleVertexShader, particleFragmentShader);
+  final RenderProgram programGPU =
+      RenderProgram("GPU", cgl, particleVertexShader, particleFragmentShader);
   final int bindingIndex = programGPU.GetTransformBindingIndex(tPosition);
   print("@@@@ ${bindingIndex}");
 
@@ -226,22 +226,22 @@ void main() {
   final List<Pole> dstPoles =
       MakeRowOfPoles([2.0, 1.0, 0.0, -1.0, -2.0], 0.0, -2.0, 3.0);
 
-  List<Ion> ions = [new Ion(RandomVector(rng, kMaxDistance * 100.0))];
-  Float32List ionsPos = new Float32List(3 * ions.length);
+  List<Ion> ions = [Ion(RandomVector(rng, kMaxDistance * 100.0))];
+  Float32List ionsPos = Float32List(3 * ions.length);
   ExtractIonPos(ions, ionsPos);
 
   // JS version setup
-  Material matJS = new Material.Transparent("stars", BlendEquationMix)
+  Material matJS = Material.Transparent("stars", BlendEquationMix)
     ..SetUniform(uTexture, Utils.createParticleTexture(cgl))
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity())
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity())
     ..SetUniform(uPointSize, 200.0);
   MeshData mdJS = programJS.MakeMeshData("mdJS", GL_POINTS)
     ..AddVertices(ionsPos);
 
   // GPU version setup
-  Material matGPU = new Material.Transparent("stars", BlendEquationMix)
+  Material matGPU = Material.Transparent("stars", BlendEquationMix)
     ..SetUniform(uTexture, Utils.createParticleTexture(cgl))
-    ..SetUniform(uModelMatrix, new VM.Matrix4.identity())
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity())
     ..SetUniform(uPointSize, 200.0)
     ..SetUniform(uSources, ExtractPolePos(srcPoles))
     ..SetUniform(uSinks, ExtractPolePos(dstPoles));
@@ -256,10 +256,10 @@ void main() {
     print("resize to $n ions");
     ions.clear();
     for (int i = 0; i < n; i++) {
-      Ion ion = new Ion(RandomVector(rng, kMaxDistance * 100.0));
+      Ion ion = Ion(RandomVector(rng, kMaxDistance * 100.0));
       ions.add(ion);
     }
-    ionsPos = new Float32List(3 * n);
+    ionsPos = Float32List(3 * n);
     ExtractIonPos(ions, ionsPos);
     cgl.bindBuffer(GL_ARRAY_BUFFER, null);
     cgl.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex, null);

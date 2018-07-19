@@ -5,9 +5,9 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 import 'package:chronosgl/chronosgl.dart';
 
-final VM.Vector3 posLight = new VM.Vector3(11.0, 20.0, 0.0);
-final VM.Vector3 dirLight = new VM.Vector3(0.0, -50.0, 0.0);
-final VM.Vector3 spotDirLight = new VM.Vector3(-11.0, -30.0, 0.0);
+final VM.Vector3 posLight = VM.Vector3(11.0, 20.0, 0.0);
+final VM.Vector3 dirLight = VM.Vector3(0.0, -50.0, 0.0);
+final VM.Vector3 spotDirLight = VM.Vector3(-11.0, -30.0, 0.0);
 
 final double range = 50.0;
 final double angle = MATH.pi / 7.0;
@@ -20,10 +20,10 @@ const String idDirectional = "idDirectional";
 
 final Map<String, Light> gLightSources = {
   idDirectional:
-      new DirectionalLight("dir", dirLight, ColorBlack, ColorWhite, 40.0),
-  idPoint: new PointLight("point", posLight, ColorLiteBlue, ColorWhite, range),
-  idSpot: new SpotLight("spot", posLight, spotDirLight, ColorLiteGreen,
-      ColorWhite, range, angle, 2.0, 1.0, 40.0)
+      DirectionalLight("dir", dirLight, ColorBlack, ColorWhite, 40.0),
+  idPoint: PointLight("point", posLight, ColorLiteBlue, ColorWhite, range),
+  idSpot: SpotLight("spot", posLight, spotDirLight, ColorLiteGreen, ColorWhite,
+      range, angle, 2.0, 1.0, 40.0)
 };
 
 void MakeSceneCubeSphere(ChronosGL cgl, RenderProgram prog, Node container) {
@@ -31,16 +31,16 @@ void MakeSceneCubeSphere(ChronosGL cgl, RenderProgram prog, Node container) {
   MeshData sphereMeshData = ShapeIcosahedron(prog);
 
   List<Material> mats = [
-    new Material("mat0")
+    Material("mat0")
       ..SetUniform(uTexture, MakeSolidColorTextureRGB(cgl, "gray", ColorGray4))
       ..SetUniform(uShininess, glossiness),
-    new Material("mat1")
+    Material("mat1")
       ..SetUniform(uTexture, MakeSolidColorTextureRGB(cgl, "red", ColorRed))
       ..SetUniform(uShininess, glossiness),
-    new Material("mat2")
+    Material("mat2")
       ..SetUniform(uTexture, MakeSolidColorTextureRGB(cgl, "red", ColorBlue))
       ..SetUniform(uShininess, glossiness),
-    new Material("mat3")
+    Material("mat3")
       ..SetUniform(uTexture, MakeSolidColorTextureRGB(cgl, "red", ColorGreen))
       ..SetUniform(uShininess, glossiness),
   ];
@@ -50,15 +50,15 @@ void MakeSceneCubeSphere(ChronosGL cgl, RenderProgram prog, Node container) {
     double y = i & 2 == 0 ? -10.0 : 10.0;
     double z = i & 4 == 0 ? -10.0 : 10.0;
 
-    container.add(new Node(
-        "mesh", i % 2 == 0 ? cubeMeshData : sphereMeshData, mats[i % 4])
-      ..setPos(x, y, z)
-      ..lookUp(1.0)
-      ..lookLeft(0.7));
+    container.add(
+        Node("mesh", i % 2 == 0 ? cubeMeshData : sphereMeshData, mats[i % 4])
+          ..setPos(x, y, z)
+          ..lookUp(1.0)
+          ..lookLeft(0.7));
   }
 
   // Subdivide plane to show Gourad shading issues
-  Node grid = new Node("grid", ShapeGrid(prog, 20, 20, 80.0, 80.0), mats[0]);
+  Node grid = Node("grid", ShapeGrid(prog, 20, 20, 80.0, 80.0), mats[0]);
   grid.rotX(-MATH.pi * 0.48);
   grid.setPos(0.0, -20.0, 20.0);
   container.add(grid);
@@ -66,36 +66,36 @@ void MakeSceneCubeSphere(ChronosGL cgl, RenderProgram prog, Node container) {
 
 void main() {
   StatsFps fps =
-      new StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = new ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
 
-  OrbitCamera orbit = new OrbitCamera(50.0, 10.0, 0.0, canvas);
+  OrbitCamera orbit = OrbitCamera(50.0, 10.0, 0.0, canvas);
   orbit.setPos(0.0, 0.0, 56.0);
-  Perspective perspective = new Perspective(orbit, 0.1, 10000.0);
+  Perspective perspective = Perspective(orbit, 0.1, 10000.0);
 
-  Illumination illumination = new Illumination();
+  Illumination illumination = Illumination();
   for (Light l in gLightSources.values) {
     illumination.AddLight(l);
   }
 
-  Scene sceneBlinnPhong = new Scene(
+  Scene sceneBlinnPhong = Scene(
       "BlinnPhong",
-      new RenderProgram("BlinnPhong", cgl, lightVertexShaderBlinnPhong,
+      RenderProgram("BlinnPhong", cgl, lightVertexShaderBlinnPhong,
           lightFragmentShaderBlinnPhong),
       [perspective, illumination]);
 
-  Scene sceneGourad = new Scene(
+  Scene sceneGourad = Scene(
       "Gourad",
-      new RenderProgram(
+      RenderProgram(
           "Gourad", cgl, lightVertexShaderGourad, lightFragmentShaderGourad),
       [perspective, illumination]);
   assert(
       sceneBlinnPhong.program.HasCompatibleAttributesTo(sceneGourad.program));
 
-  Scene sceneFixed = new Scene(
+  Scene sceneFixed = Scene(
       "Fixed",
-      new RenderProgram(
+      RenderProgram(
           "Fixed", cgl, solidColorVertexShader, solidColorFragmentShader),
       [perspective]);
 
@@ -105,19 +105,18 @@ void main() {
   // Each has two scenes
   // 1 the lighting specific scene
   // 2 the lighting visualization scene which is shared by the two phases
-  final RenderPhase phaseBlinnPhong = new RenderPhase("BlinnPhong", cgl)
+  final RenderPhase phaseBlinnPhong = RenderPhase("BlinnPhong", cgl)
     ..add(sceneBlinnPhong)
     ..add(sceneFixed);
 
-  final RenderPhase phaseGourad = new RenderPhase("Gourad", cgl)
+  final RenderPhase phaseGourad = RenderPhase("Gourad", cgl)
     ..add(sceneGourad)
     ..add(sceneFixed);
 
-  Material lightSourceMat = new Material("light")
-    ..SetUniform(uColor, ColorYellow);
+  Material lightSourceMat = Material("light")..SetUniform(uColor, ColorYellow);
   final Map<String, Node> lightVisualizers = {};
   for (String k in gLightSources.keys) {
-    lightVisualizers[k] = new Node(k,
+    lightVisualizers[k] = Node(k,
         LightVisualizer(sceneFixed.program, gLightSources[k]), lightSourceMat);
   }
 
@@ -125,7 +124,7 @@ void main() {
     sceneFixed.add(n);
   }
 
-  Node node = new Node.Container("scene");
+  Node node = Node.Container("scene");
   MakeSceneCubeSphere(cgl, sceneBlinnPhong.program, node);
 
   sceneGourad.add(node);
@@ -147,7 +146,7 @@ void main() {
 
   for (HTML.Element e in HTML.document.getElementsByTagName("input")) {
     print("initialize inputs ${e.id}");
-    e.dispatchEvent(new HTML.Event("change"));
+    e.dispatchEvent(HTML.Event("change"));
   }
 
   void resolutionChange(HTML.Event ev) {

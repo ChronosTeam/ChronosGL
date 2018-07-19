@@ -1,7 +1,7 @@
 part of chronosshader;
 
 //
-// Description : Array and textureless GLSL 2D/3D/4D simplex 
+// Description : Array and textureless GLSL 2D/3D/4D simplex
 //               noise functions.
 //      Author : Ian McEwan, Ashima Arts.
 //  Maintainer : stegu
@@ -10,8 +10,7 @@ part of chronosshader;
 //               Distributed under the MIT License. See LICENSE file.
 //               https://github.com/ashima/webgl-noise
 //               https://github.com/stegu/webgl-noise
-// 
-
+//
 
 const String SimplexNoiseHelpers = """
 vec2 mod289(vec2 x) {
