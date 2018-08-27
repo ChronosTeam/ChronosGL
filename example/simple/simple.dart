@@ -4,6 +4,10 @@ import 'package:vector_math/vector_math.dart' as VM;
 import 'package:chronosgl/chronosgl.dart';
 
 // A very simple shaders - many other are available out of the box.
+// aPosition will be provided by the MeshData object `torus`
+// uPerspectiveViewMatrix
+// uPerspectiveViewMatrix will be provided by the Material object `materialBasic`
+// uModelMatrix will be provided by the Material object `materialBasic`
 final ShaderObject demoVertexShader = ShaderObject("demoVertexShader")
   ..AddAttributeVars([aPosition])
   ..AddVaryingVars([vColor])
@@ -27,38 +31,43 @@ final ShaderObject demoFragmentShader = ShaderObject("demoFragmentShader")
 
 void main() {
   // The canvas is what we render the 3d scene into.
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  final HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas');
 
   gLogLevel = 1; // enable more logging
   // Create a ChronosGL object for the canvas.
-  ChronosGL cgl = ChronosGL(canvas);
+  final ChronosGL cgl = ChronosGL(canvas);
 
-  // Create camera, listening to 'body' element for control inputs.
-  OrbitCamera orbit = OrbitCamera(5.0, 0.0, 0.0, HTML.document.body);
+  // Create interactive camera, listening to 'body' element for
+  // control inputs like mouse drag events.
+  final OrbitCamera orbit = OrbitCamera(5.0, 0.0, 0.0, HTML.document.body);
   // Create a perspective. We use a combined view+perspective matrix,
-  // so the camera is part of the perspective.
+  // which is obtained by combining te view matrix from the camera with
+  // the perspective matrix.
   // The perspective also make sure canvas has full screen resolution
   // and that we respond to resize events.
-  PerspectiveResizeAware perspective =
+  final PerspectiveResizeAware perspective =
       PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
   // Create the main shader program for displaying the torus.
-  RenderProgram progBasic =
+  final RenderProgram prog =
       RenderProgram("basic", cgl, demoVertexShader, demoFragmentShader);
 
-  // Make a torus and add it to the first program,
-  //UniformGroup uniformsBasic = new UniformGroup("torus-mat")
-  Material materialBasic = Material("torus-mat")
+  // Create the Material, basically a container for uniforms, which provides
+  // uModelMatrix and controls basic settings for depth buffers and blending.
+  final Material material = Material("torus-mat")
     ..SetUniform(uModelMatrix, VM.Matrix4.identity());
-  MeshData torus = ShapeTorusKnot(progBasic, radius: 1.0, tubeRadius: 0.4);
+  // Make a torus and add it to the first program providing the
+  // aPosition attribute.
+  final MeshData torus = ShapeTorusKnot(prog, radius: 1.0, tubeRadius: 0.4);
 
   // Create the second shader program and the point sprites. The details are
   // hidden in the library functions.
-  RenderProgram progSprites = RenderProgram(
+  final RenderProgram progSprites = RenderProgram(
       "basic", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
-  Material materialStars = Utils.MakeStarMaterial(cgl)
+  final Material materialStars = Utils.MakeStarMaterial(cgl)
     ..SetUniform(uModelMatrix, VM.Matrix4.identity());
-  MeshData stars = Utils.MakeStarMesh(progSprites, 2000, 100.0);
+  final MeshData stars = Utils.MakeStarMesh(progSprites, 2000, 100.0);
 
   // Main loop body
   double _lastTimeMs = 0.0;
@@ -71,7 +80,7 @@ void main() {
     orbit.animate(elapsed);
 
     // use default framebuffer which also auto clears itself
-    progBasic.Draw(torus, [perspective, materialBasic]);
+    prog.Draw(torus, [perspective, material]);
     progSprites.Draw(stars, [perspective, materialStars]);
 
     HTML.window.animationFrame.then(animate);

@@ -5,12 +5,9 @@ import "dart:async";
 import "package:js/js.dart";
 //cimport 'dart:js';
 
-void Ready(succ) {
-  print("READY ${succ.inputs.values}");
-
-  for (dynamic k in succ.inputs.keys) {
-    print("$k ${succ.inputs[k]}");
-  }
+void Ready(HTML.MidiAccess succ) {
+  print("INPUTS ${succ.inputs}");
+  print("OUTPUTS ${succ.outputs}");
 }
 
 void main() async {
@@ -20,9 +17,10 @@ void main() async {
   dynamic a = HTML.window.navigator.requestMidiAccess();
   print("@@ PROMISE >>>> $a");
 
-  a.then(allowInterop(Ready));
+  a.then(Ready);
 
   double _lastTimeMs = 0.0;
+
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs + 0.0;
