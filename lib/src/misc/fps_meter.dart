@@ -4,15 +4,38 @@ const int _numBars = 90;
 const int _graphHeight = 30;
 const int _maxFps = 90;
 
-class Stats {
-  HTML.Element _root;
-  HTML.Element _text;
-  HTML.Element _extra;
-  HTML.Element _graph;
+HTML.Element _MakeText(String initial) {
+  HTML.Element text = HTML.Element.div();
+  text.style..fontWeight = "bold";
+  text.text = initial;
+  return text;
+}
 
-  Stats(HTML.Element root, String fg, String bg) {
-    if (root == null) throw "no element provided";
-    _root = root;
+HTML.Element _MakeGraph(String fg, String bg, int bars, int height) {
+  HTML.Element graph = HTML.Element.div();
+  graph.style
+    ..width = "${bars}px"
+    ..height = "${height}px"
+    ..color = fg
+    ..background = fg;
+
+  for (int i = 0; i < bars; i++) {
+    HTML.Element e = HTML.Element.span();
+    e.style
+      ..width = "1px"
+      ..height = "${height}px"
+      ..float = "left"
+      ..opacity = "0.9"
+      ..background = bg;
+    graph.append(e);
+  }
+  return graph;
+}
+
+class Stats {
+  Stats(this._root, String fg, String bg)
+      : _graph = _MakeGraph(fg, bg, _numBars, _graphHeight) {
+    if (_root == null) throw "no element provided";
     _root.style
       ..color = fg
       ..fontFamily = "Helvetica,Arial,sans-serif"
@@ -22,43 +45,15 @@ class Stats {
       ..textAlign = "left"
       ..background = bg;
 
-    _text = _MakeText("@@@@");
     _root.append(_text);
-
-    _graph = _MakeGraph(fg, bg, _numBars, _graphHeight);
     _root.append(_graph);
-
-    _extra = HTML.Element.div();
     _root.append(_extra);
   }
 
-  HTML.Element _MakeText(String initial) {
-    HTML.Element text = HTML.Element.div();
-    text.style..fontWeight = "bold";
-    text.text = initial;
-    return text;
-  }
-
-  HTML.Element _MakeGraph(String fg, String bg, int bars, int height) {
-    HTML.Element graph = HTML.Element.div();
-    graph.style
-      ..width = "${bars}px"
-      ..height = "${height}px"
-      ..color = fg
-      ..background = fg;
-
-    for (int i = 0; i < bars; i++) {
-      HTML.Element e = HTML.Element.span();
-      e.style
-        ..width = "1px"
-        ..height = "${height}px"
-        ..float = "left"
-        ..opacity = "0.9"
-        ..background = bg;
-      graph.append(e);
-    }
-    return graph;
-  }
+  final HTML.Element _root;
+  final HTML.Element _text = _MakeText("@@@@");
+  final HTML.Element _extra = HTML.Element.div();
+  final HTML.Element _graph;
 
   void ChangeExtra(String s) {
     _extra.innerHtml = s;
@@ -76,10 +71,10 @@ class Stats {
 const double _SAMPLE_RATE_MS = 1000.0;
 
 class StatsFps extends Stats {
+  StatsFps(HTML.Element root, String fg, String bg) : super(root, fg, bg);
+
   int _frames = 0;
   double _lastSample = 0.0;
-
-  StatsFps(HTML.Element root, String fg, String bg) : super(root, fg, bg);
 
   void UpdateFrameCount(double now, [String extra = ""]) {
     _frames++;
