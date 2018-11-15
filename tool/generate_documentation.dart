@@ -21,28 +21,45 @@ List<String> kDirs = [
   "lib/src/misc",
 ];
 
-Set<String> gAlreadyProcessed = new Set<String>();
+final Set<String> gAlreadyProcessed = new Set<String>();
+
+void MaybeEmitDocumentation(List<String> comment_block, String line) {
+  if (comment_block[0].startsWith("#")) {
+    for (String line in comment_block) {
+      print(line);
+    }
+    print("");
+  } else if (line.startsWith("class") || line.startsWith("abstract")) {
+    print ("## ${line.substring(0, line.length-1)}");
+    for (String line in comment_block) {
+      print(line);
+    }
+    print("");
+  }
+}
 
 void ExtractDoc(File file) {
+  List<String> comment_block = <String>[];
+
   if (gAlreadyProcessed.contains(file.path)) return;
   gAlreadyProcessed.add(file.path);
-  int consecutive = 0;
   for (String line in file.readAsLinesSync()) {
     if (!line.startsWith("///")) {
-      if (consecutive > 0) {
-        print("");
-        consecutive = 0;
+      if (comment_block.isNotEmpty) {
+        MaybeEmitDocumentation(comment_block, line);
+        comment_block.clear();
       }
       continue;
     }
-    consecutive++;
     if (line.length < 4)
-      print("");
+      comment_block.add("");
     else
-      print(line.substring(4));
+      comment_block.add(line.substring(4));
   }
 
-  if (consecutive > 0) print("");
+  if (comment_block.isNotEmpty) {
+    MaybeEmitDocumentation(comment_block, "");
+  }
 }
 
 void main(List<String> args) {

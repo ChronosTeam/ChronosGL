@@ -50,12 +50,15 @@ Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data]) {
   return data;
 }
 
-/// ## Class MeshData
 /// represent the raw data for mesh.
 /// Internally this is wrapper around a Vertex Array Object (VAO).
 /// MeshData objects can be populated directly but often they
 /// will derived from **GeometryBuilder** objects.
 class MeshData extends NamedEntity {
+  MeshData(String name, this._cgl, this._drawMode, this._locationMap)
+      : _vao = _cgl.createVertexArray(),
+        super("meshdata:" + name);
+
   final ChronosGL _cgl;
   final Object _vao;
   final int _drawMode;
@@ -68,10 +71,6 @@ class MeshData extends NamedEntity {
   Float32List _vertices;
   List<int> _faces;
   Map<String, Float32List> _attributes = {};
-
-  MeshData(String name, this._cgl, this._drawMode, this._locationMap)
-      : _vao = _cgl.createVertexArray(),
-        super("meshdata:" + name);
 
   void clearData() {
     for (String canonical in _buffers.keys) {

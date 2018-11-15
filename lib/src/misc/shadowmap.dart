@@ -65,7 +65,7 @@ final ShaderObject shadowVertexShaderDepth = ShaderObject("ShadowMapV")
   ]);
 
 final ShaderObject shadowFragmentShaderDepth =
-    // What we care about here is the internal update of the depth buffer
+// What we care about here is the internal update of the depth buffer
     ShaderObject("ShadowMapF")..SetBodyWithMain(["${oFragColor}.r = 1.0;"]);
 
 final ShaderObject visualizeShadowmapVertexShaderLinearDepth16 =
@@ -91,19 +91,6 @@ final ShaderObject visualizeShadowmapFragmentShaderLinearDepth16 =
       ]);
 
 class ShadowMap {
-  final ChronosGL _cgl;
-  Texture _depthTexture;
-  RenderPhase _phaseCompute;
-  Framebuffer _shadowBuffer;
-  Scene _programCompute;
-
-  RenderPhase _phaseVisualize;
-  UniformGroup _uniforms = UniformGroup("uniforms");
-
-  Scene _programVisualize;
-
-  VM.Vector2 _mapSize;
-
   // Other options for format:  GL_DEPTH_COMPONENT32F
   ShadowMap(this._cgl, int w, int h, double near, double far,
       {int format = GL_DEPTH_COMPONENT24}) {
@@ -152,6 +139,19 @@ class ShadowMap {
     _phaseVisualize.add(_programVisualize);
   }
 
+  final ChronosGL _cgl;
+  Texture _depthTexture;
+  RenderPhase _phaseCompute;
+  Framebuffer _shadowBuffer;
+  Scene _programCompute;
+
+  RenderPhase _phaseVisualize;
+  UniformGroup _uniforms = UniformGroup("uniforms");
+
+  Scene _programVisualize;
+
+  VM.Vector2 _mapSize;
+
   void SetVisualizationViewPort(int x, int y, int w, int h) {
     _phaseVisualize
       ..viewPortX = x
@@ -193,5 +193,6 @@ class ShadowMap {
   }
 
   VM.Vector2 GetMapSize() => _mapSize;
+
   Texture GetMapTexture() => _depthTexture;
 }

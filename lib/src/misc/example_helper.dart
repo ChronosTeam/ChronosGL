@@ -180,19 +180,19 @@ final VM.Vector3 ColorLiteMagenta = VM.Vector3(0.5, 0.0, 0.5);
 final VM.Vector3 ColorCyan = VM.Vector3(0.0, 1.0, 1.0);
 final VM.Vector3 ColorLiteCyan = VM.Vector3(0.0, 0.5, 0.5);
 
-/// RenderPhaseResizeAware is a RenderPhase which automatically
-///  updates perspective and viewport when the window size is changed.
-///  This assumes that the canvas is always "full screen".
+/// A RenderPhase which automatically updates perspective and viewport when
+/// the window size is changed.
+/// This assumes that the canvas is always "full screen".
 class RenderPhaseResizeAware extends RenderPhase {
-  final HTML.CanvasElement _canvas;
-  final Perspective _perspective;
-
   RenderPhaseResizeAware(
       String name, ChronosGL cgl, this._canvas, this._perspective)
       : super(name, cgl) {
     resolutionChange(null);
     HTML.window.onResize.listen(resolutionChange);
   }
+
+  final HTML.CanvasElement _canvas;
+  final Perspective _perspective;
 
   void resolutionChange(HTML.Event ev) {
     int w = _canvas.clientWidth;
@@ -207,15 +207,15 @@ class RenderPhaseResizeAware extends RenderPhase {
 }
 
 class PerspectiveResizeAware extends Perspective {
-  final HTML.CanvasElement _canvas;
-  final ChronosGL _cgl;
-
   PerspectiveResizeAware(
       this._cgl, this._canvas, Camera camera, double near, double far)
       : super(camera, near, far) {
     resolutionChange(null);
     HTML.window.onResize.listen(resolutionChange);
   }
+
+  final HTML.CanvasElement _canvas;
+  final ChronosGL _cgl;
 
   void resolutionChange(HTML.Event ev) {
     int w = _canvas.clientWidth;

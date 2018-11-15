@@ -38,16 +38,14 @@ String _TypeName(int code) {
   switch (code) {
     case GL_UNSIGNED_BYTE:
       return "GL_UNSIGNED_BYTE";
+    case GL_FLOAT:
+      return "GL_FLOAT";
     default:
       return "${code}";
   }
 }
 
 class FramebufferFormat {
-  final int format;
-  int channels;
-  final int type;
-
   FramebufferFormat(this.format, this.channels, this.type);
 
   FramebufferFormat.fromActive(ChronosGL cgl)
@@ -56,6 +54,10 @@ class FramebufferFormat {
     channels = TextureChannelsByType(format);
   }
 
+  final int format;
+  int channels;
+  final int type;
+
   @override
   String toString() {
     return "FB-FMT: ${_FormatName(format)} [${channels}] ${_TypeName(type)}";
@@ -63,13 +65,6 @@ class FramebufferFormat {
 }
 
 class Framebuffer {
-  ChronosGL _cgl;
-
-  dynamic /* gl Framebuffer */ _framebuffer;
-  Texture colorTexture;
-  Texture depthTexture;
-  Texture stencilTexture;
-
   Framebuffer(this._cgl, this.colorTexture,
       [this.depthTexture,
       this.stencilTexture,
@@ -116,6 +111,13 @@ class Framebuffer {
             TypedTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
                 TexturePropertiesFramebuffer));
 
+  ChronosGL _cgl;
+
+  dynamic /* gl Framebuffer */ _framebuffer;
+  Texture colorTexture;
+  Texture depthTexture;
+  Texture stencilTexture;
+
   void Activate(int clear_mode, int viewPortX, int viewPortY, int viewPortW,
       int viewPortH) {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
@@ -128,30 +130,24 @@ class Framebuffer {
     }
   }
 
+  /// If buf is non-null it must have size 4*w*h elements
   Float32List ExtractFloatData(Float32List buf, int x, int y, int w, int h) {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-    final FramebufferFormat f = FramebufferFormat.fromActive(_cgl);
-    print("READ FORMAT $f");
-    if (f.type != GL_FLOAT) {
-      print("unexpcted non float type: $f");
-    }
     if (buf == null) {
-      buf = Float32List(f.channels * w * h);
+      buf = Float32List(4 * w * h);
     }
-    _cgl.readPixels(x, y, w, h, f.format, GL_FLOAT, buf);
+    _cgl.readPixels(x, y, w, h, GL_RGBA, GL_FLOAT, buf);
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
     return buf;
   }
 
+  /// If buf is non-null it must have size 4*w*h elements
   Uint8List ExtractByteData(Uint8List buf, int x, int y, int w, int h) {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-    final FramebufferFormat f = FramebufferFormat.fromActive(_cgl);
-    print("READ FORMAT $f");
-    assert(f.type == GL_UNSIGNED_BYTE);
     if (buf == null) {
-      buf = Uint8List(f.channels * w * h);
+      buf = Uint8List(4 * w * h);
     }
-    _cgl.readPixels(x, y, w, h, f.format, f.type, buf);
+    _cgl.readPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buf);
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
     return buf;
   }

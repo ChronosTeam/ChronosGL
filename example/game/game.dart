@@ -1,13 +1,13 @@
 import 'dart:typed_data';
 import 'dart:math' as Math;
 import 'dart:html' as HTML;
-import 'dart:js' as JS;
+//import 'dart:js' as JS;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
 import 'package:chronosgl/chronosgl.dart';
 
-final ShaderObject demoVertexShader = new ShaderObject("demoVertexShader")
+final ShaderObject demoVertexShader = ShaderObject("demoVertexShader")
   ..AddAttributeVars([aPosition, aPointSize, aColor])
   ..AddVaryingVars([vColor])
   ..SetBody([
@@ -20,7 +20,7 @@ void main(void) {
 """
   ]);
 
-final ShaderObject demoFragmentShader = new ShaderObject("demoFragmentShader")
+final ShaderObject demoFragmentShader = ShaderObject("demoFragmentShader")
   ..AddVaryingVars([vColor])
   ..SetBody([
     """
@@ -31,7 +31,7 @@ void main(void) {
 """
   ]);
 
-final VM.Vector2 middle = new VM.Vector2(0.5, 0.5);
+final VM.Vector2 middle = VM.Vector2(0.5, 0.5);
 
 class Sprite {
   final bool isShip;
@@ -39,16 +39,16 @@ class Sprite {
   final VM.Vector2 pos;
   double angle;
   double velocity;
-  final VM.Vector2 dir = new VM.Vector2.zero(); // cache cartesian direction
+  final VM.Vector2 dir = VM.Vector2.zero(); // cache cartesian direction
   final VM.Vector3 color;
 
   Sprite(this.isShip, this.size, Math.Random rng)
-      : pos = new VM.Vector2.random(rng)
+      : pos = VM.Vector2.random(rng)
           ..sub(middle)
           ..scale(2.0),
         velocity = rng.nextDouble(),
         angle = 2.0 * Math.pi * rng.nextDouble(),
-        color = new VM.Vector3.random(rng) {
+        color = VM.Vector3.random(rng) {
     dir.setValues(dirX, dirY);
   }
 
@@ -168,7 +168,6 @@ void ExtractSpriteSizes(List<Sprite> sprites, Float32List out) {
   }
 }
 
-
 final HTML.DivElement info = HTML.document.querySelector('#info');
 
 class Gamepad {
@@ -205,6 +204,7 @@ class Gamepad {
       info.innerHtml = "no joystick detected";
       return;
     }
+    // https://github.com/dart-lang/sdk/issues/33148
     // This reloading should not be necessary
     _gp = HTML.window.navigator.getGamepads()[_index];
     List<bool> bs = [];
@@ -232,7 +232,7 @@ class Gamepad {
 }
 
 void HandleUseInput(Keyboard input, Gamepad gamepad, List<Sprite> sprites) {
-    gamepad.Poll();
+  gamepad.Poll();
 
   if (input.currentlyPressedKey(Keyboard.LEFT) || gamepad.x < -0.5) {
     sprites[0].TurnLeft();
@@ -259,7 +259,7 @@ void HandleUseInput(Keyboard input, Gamepad gamepad, List<Sprite> sprites) {
 }
 
 void main() {
-  final Math.Random rng = new Math.Random();
+  final Math.Random rng = Math.Random();
   final HTML.CanvasElement canvas =
       HTML.document.querySelector('#webgl-canvas');
   final int w = canvas.clientWidth;
@@ -269,22 +269,22 @@ void main() {
   canvas.width = d;
   canvas.height = d;
 
-  final Keyboard input = new Keyboard(null);
-  final Gamepad gamepad = new Gamepad(-1);
+  final Keyboard input = Keyboard(null);
+  final Gamepad gamepad = Gamepad(-1);
 
-  final List<Sprite> sprites = [new Sprite(true, 50.0, rng)];
+  final List<Sprite> sprites = [Sprite(true, 50.0, rng)];
   for (int i = 0; i < NumBullets; ++i) {
-    sprites.add(new Sprite(false, 20.0, rng));
+    sprites.add(Sprite(false, 20.0, rng));
   }
 
-  final ChronosGL cgl = new ChronosGL(canvas, antialiasing: false);
+  final ChronosGL cgl = ChronosGL(canvas, antialiasing: false);
   // Create the main shader program for displaying the torus.
   final RenderProgram prog =
-      new RenderProgram("basic", cgl, demoVertexShader, demoFragmentShader);
+      RenderProgram("basic", cgl, demoVertexShader, demoFragmentShader);
 
-  final Float32List points = new Float32List(3 * (sprites.length + 2));
-  final Float32List sizes = new Float32List(sprites.length + 2);
-  final Float32List colors = new Float32List(3 * (sprites.length + 2));
+  final Float32List points = Float32List(3 * (sprites.length + 2));
+  final Float32List sizes = Float32List(sprites.length + 2);
+  final Float32List colors = Float32List(3 * (sprites.length + 2));
 
   ExtractSpritePositions(sprites, points);
   ExtractSpriteSizes(sprites, sizes);
@@ -295,7 +295,7 @@ void main() {
     ..AddAttribute(aPointSize, sizes, 1)
     ..AddAttribute(aColor, colors, 3);
 
-  Material mat = new Material("nodepth")
+  Material mat = Material("nodepth")
     ..ForceUniform(cBlendEquation, BlendEquationAdd)
     ..ForceUniform(cDepthTest, false)
     ..ForceUniform(cDepthWrite, false);

@@ -1,7 +1,12 @@
 part of webhelper;
 
 class MidiInput {
-  final Map<int, int> _currentControlValue = Map<int, int>();
+   MidiInput() {
+    //HTML.window.navigator.requestMidiAccess()
+  }
+
+  // Dart HTML bindings are broken
+  final Map<int, int> _currentControlValue = <int, int>{};
   final Set<int> _justUpdatedControls = Set<int>();
 
   int moveDeltaX = 0;
@@ -9,8 +14,4 @@ class MidiInput {
   int wheelDeltaY = 0;
   int currentX = 0;
   int currentY = 0;
-
-  MidiInput() {
-    //HTML.window.navigator.requestMidiAccess()
-  }
 }

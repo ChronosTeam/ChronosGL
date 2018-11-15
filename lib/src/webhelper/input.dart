@@ -2,10 +2,6 @@ part of webhelper;
 
 /// HTML keyboard handling
 class Keyboard {
-  final Set<int> _currentlyPressedKeys = Set<int>();
-  final Set<int> _justPressedKeys = Set<int>();
-  final Set<int> _justReleasedKeys = Set<int>();
-
   Keyboard(dynamic elem) {
     if (elem == null) elem = HTML.document;
 
@@ -19,6 +15,10 @@ class Keyboard {
       _justReleasedKeys.add(e.which);
     });
   }
+
+  final Set<int> _currentlyPressedKeys = Set<int>();
+  final Set<int> _justPressedKeys = Set<int>();
+  final Set<int> _justReleasedKeys = Set<int>();
 
   bool currentlyPressedKey(int key) => _currentlyPressedKeys.contains(key);
 
@@ -73,6 +73,7 @@ class Keyboard {
   static const int X = 88;
   static const int Y = 89;
   static const int Z = 90;
+
   //
   static const int F1 = 112;
   static const int F2 = 113;
@@ -88,21 +89,8 @@ class Keyboard {
   static const int F12 = 123;
 }
 
+/// HTML mouse handling
 class Mouse {
-  static const int RIGHT = 2;
-  static const int MIDDLE = 1;
-  static const int LEFT = 0;
-
-  final Set<int> _currentlyPressedButtons = Set<int>();
-  final Set<int> _justPressedButtons = Set<int>();
-  final Set<int> _justReleasedButtons = Set<int>();
-
-  int moveDeltaX = 0;
-  int moveDeltaY = 0;
-  int wheelDeltaY = 0;
-  int currentX = 0;
-  int currentY = 0;
-
   Mouse(dynamic elem) {
     if (elem == null) elem = HTML.document;
 
@@ -166,6 +154,20 @@ class Mouse {
     setUpEventCapture(null);
     */
   }
+
+  static const int RIGHT = 2;
+  static const int MIDDLE = 1;
+  static const int LEFT = 0;
+
+  final Set<int> _currentlyPressedButtons = Set<int>();
+  final Set<int> _justPressedButtons = Set<int>();
+  final Set<int> _justReleasedButtons = Set<int>();
+
+  int moveDeltaX = 0;
+  int moveDeltaY = 0;
+  int wheelDeltaY = 0;
+  int currentX = 0;
+  int currentY = 0;
 
   bool currentlyPressedButton(int key) =>
       _currentlyPressedButtons.contains(key);

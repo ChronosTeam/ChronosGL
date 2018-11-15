@@ -1,16 +1,7 @@
 part of webhelper;
 
-/// Interactive Camera
+/// Interactive Camera focused on a specific point.
 class OrbitCamera extends Camera {
-  double _radius;
-  double azimuth;
-  double polar;
-  double roll = 0.0;
-  final VM.Vector3 _lookAtPos = VM.Vector3.zero();
-  num mouseWheelFactor = -0.02;
-  final Keyboard keyboard;
-  final Mouse mouse;
-
   /// OrbitCamera initializes an orbiting camera
   ///
   /// @param this._radius blah
@@ -19,6 +10,15 @@ class OrbitCamera extends Camera {
       : keyboard = Keyboard(null),
         mouse = Mouse(eventElement),
         super("camera:orbit");
+
+  double _radius;
+  double azimuth;
+  double polar;
+  double roll = 0.0;
+  final VM.Vector3 _lookAtPos = VM.Vector3.zero();
+  num mouseWheelFactor = -0.02;
+  final Keyboard keyboard;
+  final Mouse mouse;
 
   void setLookAt(VM.Vector3 v) {
     _lookAtPos.setFrom(v);

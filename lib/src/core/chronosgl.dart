@@ -38,12 +38,9 @@ WEBGL.Shader _CompileShader(dynamic gl, int type, String text) {
   return shader;
 }
 
+/// Prepares a canvas for 3d rendering. Contains wrapper for all the
+/// WebGL2 bindings
 class ChronosGL {
-  // either WebGL2RenderingContext' or 'RenderingContext2'
-  dynamic _gl;
-
-  final dynamic _canvas;
-
   ChronosGL(this._canvas,
       {bool preserveDrawingBuffer = false,
       bool faceCulling = false,
@@ -72,6 +69,11 @@ class ChronosGL {
       _gl.enable(GL_CULL_FACE);
     }
   }
+
+  // either WebGL2RenderingContext' or 'RenderingContext2'
+  dynamic _gl;
+
+  final dynamic _canvas;
 
   WEBGL.Program CompileWholeProgram(String vertShaderText,
       String fragShaderText, List<String> transformVarying) {
