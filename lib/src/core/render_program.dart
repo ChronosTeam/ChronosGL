@@ -2,35 +2,22 @@ part of core;
 
 /// Helper class for holding info produced by RenderProgram::Draw().
 class DrawStats {
+  DrawStats(this.name, this.numInstances, this.numItems, this.drawMode,
+      this.duration);
+
   final String name;
   final int numInstances;
   final int numItems;
   final int drawMode;
   final Duration duration;
 
-  DrawStats(this.name, this.numInstances, this.numItems, this.drawMode,
-      this.duration);
-
   @override
   String toString() =>
       "[${name}] ${numInstances} ${numItems} mode:${drawMode} [${duration.inMicroseconds}usec]";
 }
 
-/// ## Class RenderProgram (is a NamedEntity)
-/// represents program running on the GPU with an API to invoke it.
+/// represents program (Fragment + Vertex Shader) running on the GPU with an API to invoke it.
 class RenderProgram extends NamedEntity {
-  final ChronosGL _cgl;
-  final ShaderObject _shaderObjectV;
-  final ShaderObject _shaderObjectF;
-  final Object /* gl  Program */ _program;
-
-  final Set<String> _attributes;
-  final Map<String, Object /* WEBGL.UniformLocation */ > _uniformLocations = {};
-  final Map<String, String> _uniformsInitialized = {};
-  final Set<String> _attributesInitialized = Set<String>();
-
-  int _nextTextureUnit;
-
   RenderProgram(
       String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
       : _program = _cgl.CompileWholeProgram(_shaderObjectV.shader,
@@ -48,7 +35,20 @@ class RenderProgram extends NamedEntity {
     }
   }
 
+  final ChronosGL _cgl;
+  final ShaderObject _shaderObjectV;
+  final ShaderObject _shaderObjectF;
+  final Object /* gl  Program */ _program;
+
+  final Set<String> _attributes;
+  final Map<String, Object /* WEBGL.UniformLocation */ > _uniformLocations = {};
+  final Map<String, String> _uniformsInitialized = {};
+  final Set<String> _attributesInitialized = Set<String>();
+
+  int _nextTextureUnit;
+
   ShaderObject get shaderObjectV => _shaderObjectV;
+
   ShaderObject get shaderObjectF => _shaderObjectF;
 
   int GetTransformBindingIndex(String canonical) {

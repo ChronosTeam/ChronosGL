@@ -30,11 +30,11 @@ const String VarTypeInt = "int";
 const String VarTypeIndex = "index";
 
 class ShaderVarDesc {
+  const ShaderVarDesc(this.type, this.purpose, {this.arraySize = 0});
+
   final String type;
   final String purpose;
   final int arraySize;
-
-  const ShaderVarDesc(this.type, this.purpose, {this.arraySize = 0});
 
   int GetSize() {
     switch (type) {
@@ -313,11 +313,13 @@ ShaderVarDesc RetrieveShaderVarDesc(String canonical) {
   return _VarsDb[canonical];
 }
 
-// ShaderObject describes a shader (either fragment or vertex) and its
+// Describes a shader (either fragment or vertex) and its
 // interface to the world on a syntactical (uncompiled) level.
 // Protocol:
 // SetBody(WithMain) must be called last;
 class ShaderObject {
+  ShaderObject(this.name);
+
   final String name;
   String shader;
 
@@ -328,8 +330,6 @@ class ShaderObject {
   // start with one to deliberately exercise corner cases
   int _nextLayoutPos = 0;
   Map<String, int> _canonicalToLayoutPos = {};
-
-  ShaderObject(this.name);
 
   int GetAttributeLayoutPos(String canonical) =>
       _canonicalToLayoutPos[canonical];

@@ -1,6 +1,8 @@
 part of core;
 
 class TextureProperties {
+  TextureProperties();
+
   bool mipmap = false;
   bool clamp = false;
   bool shadow = false;
@@ -8,8 +10,6 @@ class TextureProperties {
   int anisotropicFilterLevel = kNoAnisotropicFilterLevel;
   int minFilter = GL_LINEAR;
   int magFilter = GL_LINEAR;
-
-  TextureProperties();
 
   void SetFilterNearest() {
     minFilter = GL_NEAREST;
@@ -96,14 +96,14 @@ bool IsCubeChildTextureType(int t) {
 /// ## Class TextureProperties
 /// is the base class for all textures
 class Texture {
+  Texture(this._cgl, this._textureType, this._url, this.properties)
+      : _texture = _cgl.createTexture();
+
   final String _url;
   final Object /* GL Texture */ _texture;
   final int _textureType;
   final ChronosGL _cgl;
   final TextureProperties properties;
-
-  Texture(this._cgl, this._textureType, this._url, this.properties)
-      : _texture = _cgl.createTexture();
 
   void CopyFromFramebuffer2D(int x, int y, int w, int h) {
     _cgl.bindTexture(_textureType, _texture);
@@ -132,10 +132,6 @@ class Texture {
 
 // https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml
 class TypedTexture extends Texture {
-  int _width;
-  int _height;
-  final int _internalFormat;
-
   TypedTexture(ChronosGL cgl, String url, this._width, this._height,
       this._internalFormat, TextureProperties prop)
       : super(cgl, GL_TEXTURE_2D, url, prop) {
@@ -147,6 +143,10 @@ class TypedTexture extends Texture {
     _cgl.bindTexture(_textureType, null);
   }
 
+  final int _width;
+  final int _height;
+  final int _internalFormat;
+
   @override
   String toString() {
     return "TypedTexture[${_url}, ${_internalFormat}, ${_width} X ${_height}]";
@@ -154,10 +154,6 @@ class TypedTexture extends Texture {
 }
 
 class TypedTextureMutable extends Texture {
-  int _width;
-  int _height;
-  final int _internalFormat;
-
   TypedTextureMutable(
       ChronosGL cgl,
       String url,
@@ -177,6 +173,10 @@ class TypedTextureMutable extends Texture {
     assert(err == GL_NO_ERROR, "texture error ${err}");
     _cgl.bindTexture(_textureType, null);
   }
+
+  final int _width;
+  final int _height;
+  final int _internalFormat;
 
   void UpdateContent(Object data, int format, int datatype) {
     _cgl.bindTexture(_textureType, _texture);
@@ -204,8 +204,6 @@ class TypedTextureMutable extends Texture {
 // TODO: We want to call  Install() in the constructor but this does not
 // seem to work for video elements.
 class ImageTexture extends Texture {
-  dynamic _element; // CanvasElement, ImageElement, VideoElement
-
   ImageTexture(ChronosGL cgl, String url, this._element,
       [TextureProperties tp, int textureType = GL_TEXTURE_2D])
       : super(cgl, textureType, url, tp == null ? TextureProperties() : tp) {
@@ -218,6 +216,8 @@ class ImageTexture extends Texture {
     assert(err == GL_NO_ERROR);
     _cgl.bindTexture(_textureType, null);
   }
+
+  dynamic _element; // CanvasElement, ImageElement, VideoElement
 
   void SetImageData(Object data) {
     _cgl.bindTexture(_textureType, _texture);
