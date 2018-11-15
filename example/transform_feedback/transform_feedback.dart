@@ -93,11 +93,9 @@ String DumpVec(VM.Vector3 v) => "${v.x} ${v.y} ${v.z}";
 
 // Source or Sink for Ions. Can move themselves - currently not used.
 class Pole {
-  VM.Vector3 _pos = VM.Vector3.zero();
+  Pole(VM.Vector3 pos) : _pos = pos.clone();
 
-  Pole(VM.Vector3 pos) {
-    _pos = pos.clone();
-  }
+  final VM.Vector3 _pos;
 
   VM.Vector3 Pos() => _pos;
 
@@ -107,11 +105,9 @@ class Pole {
 
 // Particle emitted from a Source Pole and heading towards a Sink Pole.
 class Ion {
-  VM.Vector3 _pos;
+  Ion(VM.Vector3 pos) : _pos = pos.clone();
 
-  Ion(VM.Vector3 pos) {
-    _pos = pos.clone();
-  }
+  VM.Vector3 _pos;
 
   VM.Vector3 Pos() => _pos;
 
