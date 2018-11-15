@@ -16,3 +16,4 @@ part "http_request.dart";
 part "webtexture.dart";
 part "input.dart";
 part "interactive_camera.dart";
+part "midi_input.dart";
