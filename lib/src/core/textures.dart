@@ -1,5 +1,6 @@
 part of core;
 
+/// properties like clamping and mip-mapping.
 class TextureProperties {
   TextureProperties();
 
@@ -93,7 +94,6 @@ bool IsCubeChildTextureType(int t) {
   }
 }
 
-/// ## Class TextureProperties
 /// is the base class for all textures
 class Texture {
   Texture(this._cgl, this._textureType, this._url, this.properties)

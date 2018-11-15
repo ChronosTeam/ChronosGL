@@ -18,13 +18,13 @@ A large number of **canonical names** are already registered by default.
 Additional ones required by custom shaders can be registered at startup.
 See lib/src/base/shader_object.dart for a list.
 
-## Class NamedEntity
+## abstract class NamedEntity 
 is inherited by almost all other classes in ChronosGL.
 It mostly exists to help with debugging by giving names to objects.
 It also provides a simple mechanism for en-/dis-abling objects, though
 what it means to be disabled will differ from class to class.
 
-## Class UniformGroup (is a NamedEntity)
+## class UniformGroup extends NamedEntity 
 is an abstraction for a set of uniforms
 
 Important subclasses are:
@@ -32,43 +32,69 @@ Important subclasses are:
 * Material provides color and texture uniforms
 * Illumination provides uniforms describing light sources
 
-## Class Light
+## abstract class Light extends NamedEntity 
 represents a light source with helpers for
 light and shadow computation.
 **Light** is NOT a **UniformGroup**. But several **Lights**
 can be added to an **Illumination** object which is
 a **UnformGroup*.
 
-## Class Illumination (is a Uniforms)
+## class PointLight extends Light 
+light is emanating from a single point in all directions
+
+## class DirectionalLight extends Light 
+Conceptually a directional light is emanating from a infinitely large source
+at infinite distance.
+
+## class SpotLight extends Light 
+a cone of directional light is emanating from a point
+
+## class Illumination extends UniformGroup 
 represents a collection of Lights.
 
-## Class Material (is a UniformGroup)
+## class Material extends UniformGroup 
 is a light weight container for uniforms related to the appearance
 of a mesh.
 
-## Class MeshData
+## class MeshData extends NamedEntity 
 represent the raw data for mesh.
 Internally this is wrapper around a Vertex Array Object (VAO).
 MeshData objects can be populated directly but often they
 will derived from **GeometryBuilder** objects.
 
-## Class RenderProgram (is a NamedEntity)
-represents program running on the GPU with an API to invoke it.
+## class DrawStats 
+Helper class for holding info produced by RenderProgram::Draw().
 
-## Class TextureProperties
+## class RenderProgram extends NamedEntity 
+represents program (Fragment + Vertex Shader) running on the GPU with an API to invoke it.
+
+## class TextureProperties 
+properties like clamping and mip-mapping.
+
+## class Texture 
 is the base class for all textures
 
-## Class Spatial (is a NamedEntity)
+## class GeometryBuilder 
+Helper for Shader independent Mesh creation.
+Supports Faces with 3 and 4 Nodes.
+Use  GeometryBuilderToMeshData() to create the Mesh
+for a specific Shader.
+
+## class ChronosGL 
+Prepares a canvas for 3d rendering. Contains wrapper for all the
+WebGL2 bindings
+
+## class Spatial extends NamedEntity 
 is a base class for object that need to be transformed, e.g.
 moved, scaled, rotated.
 
-## Class Camera (is a Spatial)
+## class Camera extends Spatial 
 provides helpers to set up a view matrix.
 
-## Class Orthographic (is a UniformGroup)
-TBD
+## class Orthographic extends UniformGroup 
+provides an Orthographic Perspective Matrix
 
-## Class Perspective (is a UniformGroup)
+## class Perspective extends UniformGroup 
 provides the **Input** for perspective projection, i.e.
 the uPerspectiveViewMatrix Uniform which also requires a **Camera**
 for view matrix.
@@ -78,7 +104,7 @@ The **scene layer** adds abstractions to the *core layer**
 related to scene graphs.
 
 
-## Class Node (is a Spatial)
+## class Node extends Spatial 
 represents a hierarchy of objects that well be rendered
 by rendered RenderProgram.
 Typically that hierarchy is a tree but DAGs are supported.
@@ -87,13 +113,13 @@ MeshData and Material.
 Non leaf Nodes are just containers for other Nodes
 Each Node is a Spatial so it be re-oriented with respect to its parent
 
- ## Class Scene (is a NamedEntity)
+## class Scene extends NamedEntity 
  represents a simple scene graph.
  Each scene is rendered by multiple invocation of a single RenderProgram
  and contains additional UniformGroups to be passed to
  that program at draw time.
 
-## Class RenderPhase (is a NamedEntity)
+## class RenderPhase extends NamedEntity 
 represents a sequence of Scenes.
 
 # Layer: Shader (uses Core Layer)
@@ -105,19 +131,23 @@ objects for basic shapes like cubes and cylinders.
 Higher layers contain wrappers that generate the corresponding
 MeshData objects from them.
 
+## class TorusKnotCamera extends Camera 
+Camera flying through a TorusKnot like through a tunnel
+
 # Layer: Animation
 provides abstractions for animated meshes.
 
-## Class Bone
-TBD
+## class Bone 
+ the basic unit of a skeleton. Bones form a tree structure and have
+ a parent bone.
 
-## Class AnimatedSkeleton
+## class AnimatedSkeleton 
 represents a Skeleton ready to be used for skinning.
 
-## Class BoneAnimation
+## class BoneAnimation 
 represents Key frame animation data for a single bone in a skeleton.
 
-## Class SkeletalAnimation
+## class SkeletalAnimation 
 represents Key frame animation data for an entire skeleton.
 
 # Layer: Importer (uses Core Layer)
@@ -127,6 +157,20 @@ contains helpers reading various mesh file formats into **GeometryBuilders**
 adds helpers which require access to HTML features like
 DOM tree (elements).
 
+## class OrbitCamera extends Camera 
+Interactive Camera focused on a specific point.
+
+## class Keyboard 
+HTML keyboard handling
+
+## class Mouse 
+HTML mouse handling
+
 # Layer: Misc (uses Core Layer, Scene Layer, Shape Layer, Shader Layer, Animation Layer)
 The **misc layer** contains miscellaneous helpers
+
+## class RenderPhaseResizeAware extends RenderPhase 
+A RenderPhase which automatically updates perspective and viewport when
+the window size is changed.
+This assumes that the canvas is always "full screen".
 

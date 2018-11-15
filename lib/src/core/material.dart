@@ -35,7 +35,6 @@ final TheBlendEquation BlendEquationMix =
 final TheBlendEquation BlendEquationAdd =
     TheBlendEquation(GL_FUNC_ADD, GL_ONE, GL_ONE);
 
-/// ## Class Material (is a UniformGroup)
 /// is a light weight container for uniforms related to the appearance
 /// of a mesh.
 class Material extends UniformGroup {

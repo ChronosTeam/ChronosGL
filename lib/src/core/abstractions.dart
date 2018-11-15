@@ -18,7 +18,6 @@ class UnknownEntity extends NamedEntity {
 
 final NamedEntity kUnknownEntity = UnknownEntity();
 
-/// ## Class UniformGroup (is a NamedEntity)
 /// is an abstraction for a set of uniforms
 ///
 /// Important subclasses are:

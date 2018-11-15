@@ -1,6 +1,5 @@
 part of core;
 
-/// ## Class Camera (is a Spatial)
 /// provides helpers to set up a view matrix.
 class Camera extends Spatial {
   Camera(String name) : super(name);

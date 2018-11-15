@@ -24,7 +24,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 /// * c: "Controls" (cDepthWrite, cDepthTest, cBlendEquation, ...)
 /// * v: "Varying Attributes"
 /// * i: "Indexer Attributes"
-//
+///
 /// A large number of **canonical names** are already registered by default.
 /// Additional ones required by custom shaders can be registered at startup.
 /// See lib/src/base/shader_object.dart for a list.
