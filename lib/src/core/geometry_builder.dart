@@ -1,27 +1,27 @@
 part of core;
 
 class Face1 {
-  int a;
-
   Face1(this.a);
+
+  int a;
 }
 
 class Face2 {
-  int a, b;
-
   Face2(this.a, this.b);
+
+  int a, b;
 }
 
 class Face3 {
-  int a, b, c;
-
   Face3(this.a, this.b, this.c);
+
+  int a, b, c;
 }
 
 class Face4 {
-  int a, b, c, d;
-
   Face4(this.a, this.b, this.c, this.d);
+
+  int a, b, c, d;
 }
 
 bool NormalFromPoints(VM.Vector3 a, VM.Vector3 b, VM.Vector3 c, VM.Vector3 temp,
@@ -46,14 +46,18 @@ bool NormalFromPoints(VM.Vector3 a, VM.Vector3 b, VM.Vector3 c, VM.Vector3 temp,
   return true;
 }
 
+/// Helper for Shader independent Mesh creation.
+/// Supports Faces with 3 and 4 Nodes.
+/// Use  GeometryBuilderToMeshData() to create the Mesh
+/// for a specific Shader.
 class GeometryBuilder {
+  GeometryBuilder([this.pointsOnly = false]);
+
   final bool pointsOnly;
   List<Face3> _faces3 = [];
   List<Face4> _faces4 = [];
   List<VM.Vector3> vertices = [];
   Map<String, List> attributes = {};
-
-  GeometryBuilder([this.pointsOnly = false]);
 
   void EnableAttribute(String canonical) {
     assert(!attributes.containsKey(canonical));

@@ -1,16 +1,15 @@
 part of core;
 
-/// ## Class NamedEntity
 /// is inherited by almost all other classes in ChronosGL.
 /// It mostly exists to help with debugging by giving names to objects.
 /// It also provides a simple mechanism for en-/dis-abling objects, though
 /// what it means to be disabled will differ from class to class.
 abstract class NamedEntity {
+  NamedEntity(this.name);
+
   final String name;
   bool debug = false;
   bool enabled = true;
-
-  NamedEntity(this.name);
 }
 
 class UnknownEntity extends NamedEntity {

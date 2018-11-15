@@ -1,8 +1,13 @@
 part of core;
 
-/// ## Class Orthographic (is a UniformGroup)
-/// TBD
+/// provides an Orthographic Perspective Matrix
 class Orthographic extends UniformGroup {
+  // d = "down", up is computed dynamically based on height & width
+  Orthographic(this._camera, this._l, this._r, this._d, this._f, this._b)
+      : super("othrogrpahic") {
+    Update();
+  }
+
   final Camera _camera;
   final VM.Matrix4 _proj = VM.Matrix4.zero();
   final VM.Matrix4 _viewMatrix = VM.Matrix4.zero();
@@ -13,12 +18,6 @@ class Orthographic extends UniformGroup {
   double _d;
   double _f;
   double _b;
-
-  // d = "down", up is computed dynamically based on height & width
-  Orthographic(this._camera, this._l, this._r, this._d, this._f, this._b)
-      : super("othrogrpahic") {
-    Update();
-  }
 
   @override
   Map<String, Object> GetUniforms() {
@@ -43,11 +42,16 @@ class Orthographic extends UniformGroup {
   }
 }
 
-/// ## Class Perspective (is a UniformGroup)
 /// provides the **Input** for perspective projection, i.e.
 /// the uPerspectiveViewMatrix Uniform which also requires a **Camera**
 /// for view matrix.
 class Perspective extends UniformGroup {
+  Perspective(this._camera, this._near, this._far,
+      [String name = "perspective"])
+      : super(name) {
+    Update();
+  }
+
   Camera _camera;
   double _fov = 50.0; // horizontal fov in deg  divided by 2
   double _aspect = 1.0;
@@ -56,12 +60,6 @@ class Perspective extends UniformGroup {
   final VM.Matrix4 _perspectiveViewMatrix = VM.Matrix4.identity();
   final VM.Matrix4 _viewMatrix = VM.Matrix4.identity();
   final VM.Matrix4 _mat = VM.Matrix4.zero();
-
-  Perspective(this._camera, this._near, this._far,
-      [String name = "perspective"])
-      : super(name) {
-    Update();
-  }
 
   void AdjustAspect(int w, int h) {
     double a = w / h;

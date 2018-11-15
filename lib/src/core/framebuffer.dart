@@ -1,7 +1,7 @@
 part of core;
 
 const int GL_CLEAR_ALL =
-GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+    GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 
 int TextureChannelsByType(int format) {
   switch (format) {
@@ -46,10 +46,6 @@ String _TypeName(int code) {
 }
 
 class FramebufferFormat {
-  final int format;
-  int channels;
-  final int type;
-
   FramebufferFormat(this.format, this.channels, this.type);
 
   FramebufferFormat.fromActive(ChronosGL cgl)
@@ -58,37 +54,21 @@ class FramebufferFormat {
     channels = TextureChannelsByType(format);
   }
 
+  final int format;
+  int channels;
+  final int type;
+
   @override
   String toString() {
     return "FB-FMT: ${_FormatName(format)} [${channels}] ${_TypeName(type)}";
   }
 }
 
-
-int _ChannelsToFormat(int channels) {
-  switch (channels) {
-    case 4:
-      return GL_RGBA;
-    case 2:
-      return GL_RG;
-    default:
-      assert(false);
-      return -1;
-  }
-}
-
 class Framebuffer {
-  ChronosGL _cgl;
-
-  dynamic /* gl Framebuffer */ _framebuffer;
-  Texture colorTexture;
-  Texture depthTexture;
-  Texture stencilTexture;
-
   Framebuffer(this._cgl, this.colorTexture,
       [this.depthTexture,
-        this.stencilTexture,
-        bool depthStencilCombined = false]) {
+      this.stencilTexture,
+      bool depthStencilCombined = false]) {
     _framebuffer = _cgl.createFramebuffer();
 
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
@@ -108,7 +88,7 @@ class Framebuffer {
     }
     if (stencilTexture != null) {
       assert(!depthStencilCombined,
-      "in combined mode - the stencil parameter must be null");
+          "in combined mode - the stencil parameter must be null");
       _cgl.framebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
           GL_TEXTURE_2D, stencilTexture.GetTexture(), 0);
     }
@@ -125,11 +105,18 @@ class Framebuffer {
 
   Framebuffer.Default(ChronosGL cgl, int w, int h)
       : this(
-      cgl,
-      TypedTexture(cgl, "frame::color", w, h, GL_RGBA8,
-          TexturePropertiesFramebuffer),
-      TypedTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
-          TexturePropertiesFramebuffer));
+            cgl,
+            TypedTexture(cgl, "frame::color", w, h, GL_RGBA8,
+                TexturePropertiesFramebuffer),
+            TypedTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
+                TexturePropertiesFramebuffer));
+
+  ChronosGL _cgl;
+
+  dynamic /* gl Framebuffer */ _framebuffer;
+  Texture colorTexture;
+  Texture depthTexture;
+  Texture stencilTexture;
 
   void Activate(int clear_mode, int viewPortX, int viewPortY, int viewPortW,
       int viewPortH) {
@@ -149,14 +136,7 @@ class Framebuffer {
     if (buf == null) {
       buf = Float32List(4 * w * h);
     }
-    _cgl.readPixels(
-        x,
-        y,
-        w,
-        h,
-        GL_RGBA,
-        GL_FLOAT,
-        buf);
+    _cgl.readPixels(x, y, w, h, GL_RGBA, GL_FLOAT, buf);
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
     return buf;
   }
@@ -167,14 +147,7 @@ class Framebuffer {
     if (buf == null) {
       buf = Uint8List(4 * w * h);
     }
-    _cgl.readPixels(
-        x,
-        y,
-        w,
-        h,
-        GL_RGBA,
-        GL_UNSIGNED_BYTE,
-        buf);
+    _cgl.readPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buf);
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, null);
     return buf;
   }

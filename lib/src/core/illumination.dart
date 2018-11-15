@@ -3,30 +3,31 @@ part of core;
 final VM.Vector3 _up = VM.Vector3(0.0, 1.0, 0.0);
 final VM.Vector3 _up2 = VM.Vector3(0.0, 0.0, 1.0);
 
-/// ## Class Light
 /// represents a light source with helpers for
 /// light and shadow computation.
 /// **Light** is NOT a **UniformGroup**. But several **Lights**
 /// can be added to an **Illumination** object which is
 /// a **UnformGroup*.
 abstract class Light extends NamedEntity {
-  final int type;
   Light(String name, this.type) : super(name);
+
+  final int type;
 
   void ExtractInfo(Float32List m, int offset);
 
   VM.Matrix4 ExtractShadowProjViewMatrix();
 }
 
+/// light is emanating from a single point in all directions
 class PointLight extends Light {
+  PointLight(
+      String name, this.pos, this._colDiffuse, this._colSpecular, this.range)
+      : super(name, lightTypePoint);
+
   VM.Vector3 pos;
   VM.Vector3 _colDiffuse;
   VM.Vector3 _colSpecular;
   double range;
-
-  PointLight(
-      String name, this.pos, this._colDiffuse, this._colSpecular, this.range)
-      : super(name, lightTypePoint);
 
   // Must be in sync with UnpackPointLightInfo
   @override
@@ -58,18 +59,20 @@ class PointLight extends Light {
   }
 }
 
+/// Conceptually a directional light is emanating from a infinitely large source
+/// at infinite distance.
 class DirectionalLight extends Light {
-  VM.Vector3 dir;
+  DirectionalLight(String name, VM.Vector3 this.dir, this._colDiffuse,
+      this._colSpecular, this.dim)
+      : super(name, lightTypeDirectional);
+
+  final VM.Vector3 dir;
   final VM.Vector3 _colDiffuse;
   final VM.Vector3 _colSpecular;
   final double dim;
 
   VM.Matrix4 _projViewMat = VM.Matrix4.zero();
   VM.Matrix4 _tmpMat = VM.Matrix4.zero();
-
-  DirectionalLight(String name, VM.Vector3 this.dir, this._colDiffuse,
-      this._colSpecular, this.dim)
-      : super(name, lightTypeDirectional);
 
   // Must be in sync with UnpackDirectionalLightInfo
   @override
@@ -103,22 +106,8 @@ class DirectionalLight extends Light {
   }
 }
 
+/// a cone of directional light is emanating from a point
 class SpotLight extends Light {
-  VM.Vector3 pos;
-  VM.Vector3 dir;
-  final VM.Vector3 _colDiffuse;
-  final VM.Vector3 _colSpecular;
-  double range;
-  double angle;
-  //
-  double _spotFocus;
-  //
-  double _aspect = 1.0;
-  double _near;
-  double _far;
-  VM.Matrix4 _m1 = VM.Matrix4.zero();
-  VM.Matrix4 _m2 = VM.Matrix4.zero();
-
   SpotLight(
     String name,
     VM.Vector3 this.pos,
@@ -131,6 +120,23 @@ class SpotLight extends Light {
     this._near,
     this._far,
   ) : super(name, lightTypeSpot);
+
+  VM.Vector3 pos;
+  VM.Vector3 dir;
+  final VM.Vector3 _colDiffuse;
+  final VM.Vector3 _colSpecular;
+  double range;
+  double angle;
+
+  //
+  double _spotFocus;
+
+  //
+  double _aspect = 1.0;
+  double _near;
+  double _far;
+  VM.Matrix4 _m1 = VM.Matrix4.zero();
+  VM.Matrix4 _m2 = VM.Matrix4.zero();
 
   // Must be in sync with UnpackSpotLightInfo
   @override
@@ -196,14 +202,13 @@ class HemisphericalLight implements Light {
 }
 */
 
-/// ## Class Illumination (is a Uniforms)
 /// represents a collection of Lights.
 class Illumination extends UniformGroup {
+  Illumination() : super("illumination");
+
   final List<Light> _lights = [];
   final Float32List _lightDescs = Float32List(16 * kMaxLights);
   final Float32List _lightTypes = Float32List(kMaxLights);
-
-  Illumination() : super("illumination");
 
   void AddLight(Light l) {
     _lights.add(l);

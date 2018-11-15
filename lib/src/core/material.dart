@@ -1,11 +1,11 @@
 part of core;
 
 class TheStencilFunction {
+  TheStencilFunction(this.func, this.value, this.mask);
+
   int func;
   int value;
   int mask;
-
-  TheStencilFunction(this.func, this.value, this.mask);
 }
 
 final TheStencilFunction StencilFunctionNone =
@@ -15,11 +15,11 @@ final TheStencilFunction StencilFunctionAlways =
     TheStencilFunction(GL_ALWAYS, 0, ~0);
 
 class TheBlendEquation {
+  TheBlendEquation(this.equation, this.srcFactor, this.dstFactor);
+
   int equation;
   int srcFactor;
   int dstFactor;
-
-  TheBlendEquation(this.equation, this.srcFactor, this.dstFactor);
 }
 
 final TheBlendEquation BlendEquationNone =
