@@ -6,17 +6,6 @@ final HTML.InputElement gLuminance = HTML.document.querySelector('#luminance');
 final HTML.InputElement gIntensity = HTML.document.querySelector('#intensity');
 
 class BloomEffect {
-  final int radius;
-  final int w;
-  final int h;
-  final int wSmall;
-  final int hSmall;
-  final Framebuffer fbIn, fb1, fb2, fbOut;
-
-  RenderProgram progHighPass, progBloom, progApplyBloom;
-  UniformGroup uniformsHighPass, uniformsBloomH, uniformsBloomV, uniformsApply;
-  MeshData unitQuad;
-
   BloomEffect(ChronosGL cgl, this.w, this.h, this.radius, int scale, this.fbIn,
       this.fbOut)
       : wSmall = w ~/ scale,
@@ -56,6 +45,17 @@ class BloomEffect {
       ..SetUniform(uColor, ColorWhite)
       ..SetUniform(uTexture2, fb2.colorTexture);
   }
+
+  final int radius;
+  final int w;
+  final int h;
+  final int wSmall;
+  final int hSmall;
+  final Framebuffer fbIn, fb1, fb2, fbOut;
+
+  RenderProgram progHighPass, progBloom, progApplyBloom;
+  UniformGroup uniformsHighPass, uniformsBloomH, uniformsBloomV, uniformsApply;
+  MeshData unitQuad;
 
   void Draw(double luminosity, double intensity) {
     // Copy high intensity areas from fb to fb2

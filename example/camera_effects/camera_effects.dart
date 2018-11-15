@@ -8,18 +8,18 @@ HTML.SelectElement gEffect =
     HTML.document.querySelector('#effect') as HTML.SelectElement;
 
 class Effect {
-  static Map<String, Effect> all = {};
-
-  final String name;
-  final RenderProgram program;
-  final UniformGroup uniforms;
-
   Effect(ChronosGL cgl, ShaderObject shader, this.uniforms)
       : name = uniforms.name,
         program =
             RenderProgram(uniforms.name, cgl, effectVertexShader, shader) {
     all[uniforms.name] = this;
   }
+
+  static Map<String, Effect> all = {};
+
+  final String name;
+  final RenderProgram program;
+  final UniformGroup uniforms;
 }
 
 void RegisterEffects(ChronosGL cgl) {
