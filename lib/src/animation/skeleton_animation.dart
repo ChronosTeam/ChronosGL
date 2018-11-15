@@ -13,19 +13,19 @@
 
 part of animation;
 
-/// ## Class Bone
-/// TBD
+///  the basic unit of a skeleton. Bones form a tree structure and have
+///  a parent bone.
 class Bone {
+  Bone(this.boneName, this.boneIndex, this.parentNum, this.localTransform,
+      this.offsetTransform) {
+    assert(boneIndex > parentNum);
+  }
+
   final String boneName;
   final VM.Matrix4 localTransform;
   final VM.Matrix4 offsetTransform;
   final int boneIndex;
   final int parentNum;
-
-  Bone(this.boneName, this.boneIndex, this.parentNum, this.localTransform,
-      this.offsetTransform) {
-    assert(boneIndex > parentNum);
-  }
 
   @override
   String toString() {
@@ -35,13 +35,8 @@ class Bone {
   }
 }
 
-/// ## Class AnimatedSkeleton
 /// represents a Skeleton ready to be used for skinning.
 class AnimatedSkeleton {
-  // one for each bone
-  final List<VM.Matrix4> globalTransforms;
-  final List<VM.Matrix4> skinningTransforms;
-
   AnimatedSkeleton(int length)
       : globalTransforms = List<VM.Matrix4>(length),
         skinningTransforms = List<VM.Matrix4>(length) {
@@ -50,6 +45,10 @@ class AnimatedSkeleton {
       skinningTransforms[i] = VM.Matrix4.zero();
     }
   }
+
+  // one for each bone
+  final List<VM.Matrix4> globalTransforms;
+  final List<VM.Matrix4> skinningTransforms;
 }
 
 void RecomputeLocalOffsets(List<Bone> skeleton) {
@@ -125,18 +124,8 @@ Float32List CreateAnimationTable(
   return data;
 }
 
-/// ## Class BoneAnimation
 /// represents Key frame animation data for a single bone in a skeleton.
 class BoneAnimation {
-  final Bone bone;
-
-  List<double> _positionTimes;
-  List<VM.Vector3> _positionValues;
-  List<double> _rotationTimes;
-  List<VM.Quaternion> _rotationValues;
-  List<double> _scaleTimes;
-  List<VM.Vector3> _scaleValues;
-
   /// Construct bone animation with [boneName]. Animation key frames
   /// will be loaded from [positions], [rotations], and [scales].
   BoneAnimation(
@@ -169,6 +158,15 @@ class BoneAnimation {
     assert(_positionTimes.length == _positionValues.length);
     assert(_scaleTimes.length == _scaleValues.length);
   }
+
+  final Bone bone;
+
+  List<double> _positionTimes;
+  List<VM.Vector3> _positionValues;
+  List<double> _rotationTimes;
+  List<VM.Quaternion> _rotationValues;
+  List<double> _scaleTimes;
+  List<VM.Vector3> _scaleValues;
 
   static int _findTime(List<double> timeList, double t) {
     for (int i = 0; i < timeList.length - 1; i++) {
@@ -206,15 +204,14 @@ class BoneAnimation {
   }
 }
 
-/// ## Class SkeletalAnimation
 /// represents Key frame animation data for an entire skeleton.
 class SkeletalAnimation {
+  SkeletalAnimation(this.name, this.duration, int length)
+      : animList = List<BoneAnimation>(length);
+
   final String name;
   final List<BoneAnimation> animList;
   final double duration;
-
-  SkeletalAnimation(this.name, this.duration, int length)
-      : animList = List<BoneAnimation>(length);
 
   void InsertBone(BoneAnimation ba) {
     assert(animList[ba.bone.boneIndex] == null);

@@ -139,14 +139,14 @@ GeometryBuilder ShapeTorusKnotGeometryWireframeFriendly(
 
 /// Camera flying through a TorusKnot like through a tunnel
 class TorusKnotCamera extends Camera {
+  TorusKnotCamera(
+      {this.radius = 20.0, this.p = 2, this.q = 3, this.heightScale = 1.0})
+      : super("camera:torusknot");
+
   final double radius;
   final int p;
   final int q;
   final double heightScale;
-
-  TorusKnotCamera(
-      {this.radius = 20.0, this.p = 2, this.q = 3, this.heightScale = 1.0})
-      : super("camera:torusknot");
 
   final VM.Vector3 p1 = VM.Vector3.zero();
   final VM.Vector3 p2 = VM.Vector3.zero();
