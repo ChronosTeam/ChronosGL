@@ -1,15 +1,10 @@
 part of scene;
 
-///  ## Class Scene (is a NamedEntity)
 ///  represents a simple scene graph.
 ///  Each scene is rendered by multiple invocation of a single RenderProgram
 ///  and contains additional UniformGroups to be passed to
 ///  that program at draw time.
 class Scene extends NamedEntity {
-  final RenderProgram program;
-  final List<UniformGroup> uniforms;
-  final List<Node> nodes = [];
-
   /// Scene initializes a scene
   ///
   /// @param name
@@ -18,6 +13,10 @@ class Scene extends NamedEntity {
   Scene(String name, this.program, [List<UniformGroup> unis])
       : uniforms = unis == null ? <UniformGroup>[] : unis,
         super(name);
+
+  final RenderProgram program;
+  final List<UniformGroup> uniforms;
+  final List<Node> nodes = [];
 
   void add(Node n) {
     assert(n != null);
@@ -50,9 +49,12 @@ void drawRecursively(RenderProgram prog, Node node, final VM.Matrix4 parent,
   }
 }
 
-/// ## Class RenderPhase (is a NamedEntity)
 /// represents a sequence of Scenes.
 class RenderPhase extends NamedEntity {
+  RenderPhase(String name, this._cgl, [this._framebuffer]) : super(name) {
+    if (_framebuffer == null) _framebuffer = Framebuffer.Screen(_cgl);
+  }
+
   Framebuffer _framebuffer;
   final ChronosGL _cgl;
   final List<Scene> _scenes = <Scene>[];
@@ -62,10 +64,6 @@ class RenderPhase extends NamedEntity {
   int viewPortY = 0;
   int viewPortW = 0;
   int viewPortH = 0;
-
-  RenderPhase(String name, this._cgl, [this._framebuffer]) : super(name) {
-    if (_framebuffer == null) _framebuffer = Framebuffer.Screen(_cgl);
-  }
 
   Framebuffer get framebuffer => _framebuffer;
 
