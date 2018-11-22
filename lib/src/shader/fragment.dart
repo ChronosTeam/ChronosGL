@@ -63,7 +63,7 @@ struct SpotLightInfo {
     float range;        // for spot and point
     float spotCutoff;   // for spot
     float spotFocus;    // for spot
-    float glossiness;   // Oddball: this comes from the material
+    // float glossiness;   // Oddball: this comes from the material
 };
 
 SpotLightInfo UnpackSpotLightInfo(mat4 m) {
@@ -72,7 +72,7 @@ SpotLightInfo UnpackSpotLightInfo(mat4 m) {
     info.dir = normalize(m[1].xyz);
     info.diffuseColor = m[2].xyz;
     info.specularColor = m[3].xyz;
-    info.glossiness = m[0].a;
+    // info.glossiness = m[0].a;
     info.range = m[1].a;
     info.spotCutoff = m[2].a;
     info.spotFocus = m[3].a;
@@ -113,7 +113,7 @@ struct PointLightInfo {
     vec3 diffuseColor;
     vec3 specularColor;
     float range;
-    float glossiness;
+    // float glossiness;
 };
 
 PointLightInfo UnpackPointLightInfo(mat4 m) {
@@ -122,7 +122,7 @@ PointLightInfo UnpackPointLightInfo(mat4 m) {
     info.diffuseColor = m[2].xyz;
     info.specularColor = m[3].xyz;
     info.range = m[1].a;
-    info.glossiness = m[0].a;
+    // info.glossiness = m[0].a;
     return info;
 }
 
@@ -152,7 +152,7 @@ struct DirectionalLightInfo {
     vec3 dir;      // for spot and dir light
     vec3 diffuseColor;
     vec3 specularColor;
-    float glossiness;   // Oddball: this comes from the material
+    // float glossiness;   // Oddball: this comes from the material
 };
 
 DirectionalLightInfo UnpackDirectionalLightInfo(mat4 m) {
@@ -160,7 +160,7 @@ DirectionalLightInfo UnpackDirectionalLightInfo(mat4 m) {
     info.dir = normalize(m[1].xyz);
     info.diffuseColor = m[2].xyz;
     info.specularColor = m[3].xyz;
-    info.glossiness = m[0].a;
+    // info.glossiness = m[0].a;
     return info;
 }
 

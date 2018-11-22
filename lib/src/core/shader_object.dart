@@ -122,6 +122,7 @@ const int prefixInstancer = 0x69; // 'i';
 const String iaRotation = "iaRotation";
 const String iaTranslation = "iaTranslation";
 const String iaScale = "iaScale";
+const String iaColor = "iaColor";
 
 // ===========================================================
 // Varying
@@ -230,7 +231,8 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   aBitangent: const ShaderVarDesc(VarTypeVec3, "vertex btangents"),
   iaRotation: const ShaderVarDesc(VarTypeVec4, ""),
   iaTranslation: const ShaderVarDesc(VarTypeVec3, ""),
-  iaScale: const ShaderVarDesc(VarTypeVec3, ""),
+  iaScale: const ShaderVarDesc(VarTypeFloat, ""),
+  iaColor: const ShaderVarDesc(VarTypeVec3, ""),
 
   // Varying
   vColor: const ShaderVarDesc(VarTypeVec3, "per vertex color"),
