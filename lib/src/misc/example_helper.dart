@@ -83,7 +83,8 @@ MeshData ShapeCube(RenderProgram prog,
     double uMin = 0.0,
     double uMax = 1.0,
     double vMin = 0.0,
-    double vMax = 1.0}) {
+    double vMax = 1.0,
+    bool computeNormals = true}) {
   GeometryBuilder gb = CubeGeometry(
       x: x, y: y, z: z, uMin: uMin, uMax: uMax, vMin: vMin, vMax: vMax);
   return GeometryBuilderToMeshData("cube", prog, gb);
