@@ -16,6 +16,7 @@ List<ShaderObject> createSobelShader() {
   }
 
 
+
   float sobel() {
       vec2 imageIncrement = vec2(1.0/${uCanvasSize}.x,1.0/${uCanvasSize}.y);
       float t00 = lum(texture(${uTexture}, ${vTexUV} + imageIncrement * vec2(-1, -1)));
@@ -26,6 +27,16 @@ List<ShaderObject> createSobelShader() {
       float t02 = lum(texture(${uTexture}, ${vTexUV} + imageIncrement * vec2(-1,  1)));
       float t12 = lum(texture(${uTexture}, ${vTexUV} + imageIncrement * vec2( 0,  1)));
       float t22 = lum(texture(${uTexture}, ${vTexUV} + imageIncrement * vec2( 1,  1)));
+       // sobel kernel used
+       // x:
+       // +1  0 -1
+       // +2  0 -2
+       // +1  0 -1
+       // 
+       // y:
+       // +1  +2 +1
+       //  0   0  0
+       // -1  -2 -1
       vec2 grad;
       grad.x = t00 + 2.0 * t01 + t02 - t20 - 2.0 * t21 - t22;
       grad.y = t00 + 2.0 * t10 + t20 - t02 - 2.0 * t12 - t22;
