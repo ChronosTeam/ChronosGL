@@ -111,6 +111,13 @@ class Framebuffer {
             TypedTexture(cgl, "frame::depth", w, h, GL_DEPTH_COMPONENT24,
                 TexturePropertiesFramebuffer));
 
+  Framebuffer.Effect(ChronosGL cgl, int w, int h)
+      : this(
+            cgl,
+            TypedTexture(cgl, "frame::color", w, h, GL_RGBA8,
+                TexturePropertiesFramebuffer));
+
+
   ChronosGL _cgl;
 
   dynamic /* gl Framebuffer */ _framebuffer;

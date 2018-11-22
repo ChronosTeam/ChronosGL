@@ -677,13 +677,62 @@ void main() {
 """
       ]);
 
-final ShaderObject horizontalBlurShader = ShaderObject("horizontalBlurF")
-  ..AddUniformVars([uTexture])
+final ShaderObject blur1DShader9 = ShaderObject("blurF")
+  ..AddUniformVars([uTexture, uDirection])
   ..SetBody([
     """
 void main() { 
-    vec3 color = texelFetch(${uTexture}, ivec2(gl_FragCoord.xy), 0).rgb;
-    ${oFragColor} = vec4(Technicolor3(color, 0.5), 1.0);
+    vec4 sum = vec4(0.0);
+    vec2 c = gl_FragCoord.xy;
+    vec2 d = ${uDirection};
+    sum  += texelFetch(${uTexture}, ivec2(c - 4.0 * d), 0) * 0.0510;
+    sum  += texelFetch(${uTexture}, ivec2(c - 3.0 * d), 0) * 0.0918;
+    sum  += texelFetch(${uTexture}, ivec2(c - 2.0 * d), 0) * 0.1224;
+    sum  += texelFetch(${uTexture}, ivec2(c - 1.0 * d), 0) * 0.1531;
+    sum  += texelFetch(${uTexture}, ivec2(c)          , 0) * 0.1633;
+    sum  += texelFetch(${uTexture}, ivec2(c + 1.0 * d), 0) * 0.1531;
+    sum  += texelFetch(${uTexture}, ivec2(c + 2.0 * d), 0) * 0.1224;
+    sum  += texelFetch(${uTexture}, ivec2(c + 3.0 * d), 0) * 0.0918;
+    sum  += texelFetch(${uTexture}, ivec2(c + 4.0 * d), 0) * 0.0510;
+    ${oFragColor} = sum;
+}
+"""
+  ]);
+
+final ShaderObject blur1DShader7 = ShaderObject("blurF")
+  ..AddUniformVars([uTexture, uDirection])
+  ..SetBody([
+    """
+void main() { 
+    vec4 sum = vec4(0.0);
+    vec2 c = gl_FragCoord.xy;
+    vec2 d = ${uDirection};
+    sum  += texelFetch(${uTexture}, ivec2(c - 3.0 * d), 0) * (1.0 / 64.0);
+    sum  += texelFetch(${uTexture}, ivec2(c - 2.0 * d), 0) * (6.0 / 64.0);
+    sum  += texelFetch(${uTexture}, ivec2(c - 1.0 * d), 0) * (15.0 / 64.0);
+    sum  += texelFetch(${uTexture}, ivec2(c)          , 0) * (20.0 / 64.0);
+    sum  += texelFetch(${uTexture}, ivec2(c + 1.0 * d), 0) * (15.0 / 64.0);
+    sum  += texelFetch(${uTexture}, ivec2(c + 2.0 * d), 0) * (6.0 / 64.0);
+    sum  += texelFetch(${uTexture}, ivec2(c + 3.0 * d), 0) * (1.0 / 64.0);
+    ${oFragColor} = sum;
+}
+"""
+  ]);
+
+final ShaderObject blur1DShader5 = ShaderObject("blurF")
+  ..AddUniformVars([uTexture, uDirection])
+  ..SetBody([
+    """
+void main() { 
+    vec4 sum = vec4(0.0);
+    vec2 c = gl_FragCoord.xy;
+    vec2 d = ${uDirection};
+    sum  += texelFetch(${uTexture}, ivec2(c - 2.0 * d), 0) * (1.0 / 16.0);
+    sum  += texelFetch(${uTexture}, ivec2(c - 1.0 * d), 0) * (4.0 / 16.0);
+    sum  += texelFetch(${uTexture}, ivec2(c)          , 0) * (6.0 / 16.0);
+    sum  += texelFetch(${uTexture}, ivec2(c + 1.0 * d), 0) * (4.0 / 16.0);
+    sum  += texelFetch(${uTexture}, ivec2(c + 2.0 * d), 0) * (1.0 / 16.0);
+    ${oFragColor} = sum;
 }
 """
   ]);
