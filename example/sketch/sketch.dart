@@ -9,7 +9,6 @@ import "dart:async";
 // http://www.thomaseichhorn.de/npr-sketch-shader-vvvv/
 // https://github.com/spite/npr-shading
 
-
 //
 // Final Shader
 //
@@ -137,18 +136,16 @@ final ShaderObject preparationFragmentShader = ShaderObject("preparationF")
   """
   ]);
 
-void AddInstanceData(MeshData md, int count) {
+void AddInstanceData(MeshData md,  Math.Random rand, int count) {
   final Float32List scales = Float32List(count * 1);
   final Float32List translations = Float32List(count * 3);
   final Float32List rotations = Float32List(count * 4);
-  final Math.Random rand = Math.Random();
 
   for (int i = 0; i < count; i++) {
     final VM.Vector3 t = VM.Vector3.random(rand) - VM.Vector3(0.5, 0.5, 0.5);
     t.scale(60.0);
     translations.setAll(i * 3, t.storage);
-    final VM.Vector3 u =
-        VM.Vector3.random(rand);
+    final VM.Vector3 u = VM.Vector3.random(rand);
     final VM.Quaternion q =
         VM.Quaternion.axisAngle(u, 2.0 * rand.nextDouble() * Math.pi);
     rotations.setAll(i * 4, q.storage);
@@ -189,6 +186,25 @@ Framebuffer MakePrepareFb(ChronosGL cgl, int width, int height) {
   return Framebuffer(cgl, tex, depthTexture);
 }
 
+Texture MakeNoiseTesture(ChronosGL cgl , Math.Random rand) {
+  HTML.CanvasElement canvas = new HTML.CanvasElement();
+  canvas.width = 512;
+  canvas.height = 512;
+  var context = canvas.context2D;
+  var image = context.getImageData(0, 0, canvas.width, canvas.height);
+
+  for (int i = 0; i < image.data.length; i += 4) {
+    int v = 30 + rand.nextInt(225);
+    image.data[i + 0] = v;
+    image.data[i + 1] = v;
+    image.data[i + 2] = v;
+    image.data[i + 3] = 255;
+  }
+  context.putImageData(image, 0, 0);
+
+  return ImageTexture(cgl, "noise", canvas, TexturePropertiesMipmap);
+}
+
 void main() {
   StatsFps fps =
       StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
@@ -215,6 +231,8 @@ void main() {
   canvas.height = height;
   perspective.AdjustAspect(width, height);
 
+  final Math.Random rand = Math.Random(1);
+
   final RenderProgram progPreparation = RenderProgram(
       "preparation", cgl, preparationVertexShader, preparationFragmentShader);
 
@@ -222,7 +240,7 @@ void main() {
       "instanced", cgl, instancedVertexShader, instancedFragmentShader);
 
   final MeshData cubes = ShapeCube(progInstanced, computeNormals: true);
-  AddInstanceData(cubes, 80);
+  AddInstanceData(cubes, rand, 80);
   print("instances: $cubes.GetNumInstances()}");
 
   final Phase prepare =
@@ -232,6 +250,7 @@ void main() {
   final Phase render = Phase(progInstanced, cubes, Framebuffer.Screen(cgl))
     ..mat.SetUniform(uModelMatrix, VM.Matrix4.identity())
     ..mat.SetUniform(uShininess, 10.0)
+    ..mat.SetUniform(uTexture2, MakeNoiseTesture(cgl, rand))
     ..mat.SetUniform(uTexture, prepare.fb.colorTexture);
 
 /*
@@ -270,7 +289,6 @@ void main() {
     prepare.mat.ForceUniform(uTime, _lastTimeMs / 2000.0);
     prepare.Run(width, height, [perspective]);
 
-
     render.mat.ForceUniform(uTime, _lastTimeMs / 2000.0);
     render.Run(width, height, [perspective, illumination]);
 /*
@@ -282,14 +300,5 @@ void main() {
     fps.UpdateFrameCount(_lastTimeMs);
   }
 
-  List<Future<Object>> futures = [
-    LoadImage("../asset/noise.png"),
-  ];
-
-  Future.wait(futures).then((List list) {
-    Texture noise =
-        ImageTexture(cgl, "noise", list[0], TexturePropertiesMipmap);
-    render.mat.SetUniform(uTexture2, noise);
-    animate(0.0);
-  });
+  animate(0.0);
 }
