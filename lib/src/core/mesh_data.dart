@@ -303,7 +303,7 @@ MeshData LineEndPointsToMeshData(
 
 MeshData ExtractWireframeNormals(RenderProgram prog, MeshData md,
     [double scale = 1.0]) {
-  assert(md._drawMode == GL_TRIANGLES);
+  assert(md._drawMode == GL_TRIANGLES, "expected GL_TRIANGLES");
   MeshData out = prog.MakeMeshData(md.name, GL_LINES);
   final Float32List vertices = md.GetAttribute(aPosition);
   final Float32List normals = md.GetAttribute(aNormal);
@@ -326,5 +326,14 @@ MeshData ExtractWireframe(RenderProgram prog, MeshData md) {
   }
 
   out.AddFaces(lines);
+  return out;
+}
+
+MeshData ExtractPointCloud(RenderProgram prog, MeshData md) {
+  assert(md._drawMode == GL_TRIANGLES, "expected GL_TRIANGLES");
+  assert(md.SupportsAttribute(aNormal), "expected support for aNormal");
+  MeshData out = prog.MakeMeshData(md.name, GL_POINTS);
+  out.AddVertices(md._vertices);
+  out.AddAttribute(aNormal, md.GetAttribute(aNormal), 3);
   return out;
 }
