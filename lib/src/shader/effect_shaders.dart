@@ -11,6 +11,18 @@ final ShaderObject copyFragmentShader = ShaderObject("copyF")
   ..SetBodyWithMain(
       ["${oFragColor} = texelFetch(${uTexture}, ivec2(gl_FragCoord.xy), 0);"]);
 
+
+final ShaderObject scalingCopyVertexShader = ShaderObject("nullUV")
+  ..AddAttributeVars([aPosition, aTexUV])
+  ..AddVaryingVars([vTexUV])
+  ..SetBodyWithMain([NullVertexBody, StdVertexTextureForward]);
+
+final ShaderObject scalingCopyFragmentShader = ShaderObject("copyF")
+  ..AddUniformVars([uTexture])
+  ..AddVaryingVars([vTexUV])
+  ..SetBodyWithMain(
+      ["${oFragColor} = texture(${uTexture}, ${vTexUV});"]);
+
 const String _libFragment = """
 vec3 RGBtoHSV(vec3 rgb) {
    float r = rgb.r;
