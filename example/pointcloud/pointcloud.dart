@@ -16,34 +16,50 @@ float rand(vec2 xy){
      return fract(sin(dot(xy, vec2(12.9898, 78.233))) * 43758.5453);
 }
      
-float NewHeight(float oy, float y, float t) {
+vec3 NewPos(vec3 orig, vec3 last, float t) {
     float bottom = - 2.0;
-    float speed = 0.03;
-    t = mod(t, 12.0);
+   
+    t = mod(t, 14.0);
     if (t < 2.0) {            // normal
-        return y;
+        return last;
     } else if ( t < 6.0) {    // shrinking
+        float speed = 0.1;
         t = t - 2.0;
-        y = y - t * speed * (rand(vec2(t, y)));
-        if (y > bottom) return y;
-        return bottom;  
+        // statistically 
+        // * x just floats around orig.x
+        // * y moves down by -0.25 (middle of  [0.25, -0.75])
+        // * z just floats around orig.z
+        vec3 delta = vec3(0.5 - rand(vec2(t, last.x)),
+                          0.25 - rand(vec2(t, last.y)),
+                          0.5 - rand(vec2(t, last.z)));
+                          
+        if (last.y < bottom + 0.3) {
+           speed *= (last.y - bottom);
+        }
+        vec3 next = last + delta * speed;
+        if (next.y < bottom) next.y = bottom;
+        return next;  
     } else if ( t < 8.0) {    // flat 
-        return bottom;      
+        return last;      
     } else {
        t = t - 8.0;
-       y = y + t * speed * (rand(vec2(t, oy)));
-       if (y > oy) return oy;
-       return y; 
+       vec3 speed = clamp(orig - last, vec3(-1.0), vec3(1.0));
+       
+       vec3 delta = vec3(0.85 - rand(vec2(t, last.x)),
+                         1.0 + rand(vec2(t, last.y)),
+                         0.85 - rand(vec2(t, last.z)));
+    
+      
+       return last + delta * 0.05 * speed;
     }
 }
 
 void main() {
-    vec4 pos = vec4(${aCurrentPosition}, 1.0);
-    pos.y = NewHeight(${aPosition}.y, pos.y, ${uTime});
+    vec3 pos = NewPos(${aPosition}, ${aCurrentPosition}, ${uTime});
     // new current pos for next run
-    ${tPosition} = pos.xyz;
+    ${tPosition} = pos;
 
-    gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * pos;
+    gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(pos, 1.0);
                   
     gl_PointSize = ${uPointSize} / gl_Position.z;
     ${vColor}.r = sin(${aPosition}.x)/2.0+0.5;
@@ -67,7 +83,7 @@ void main() {
       HTML.document.querySelector('#webgl-canvas');
   final ChronosGL cgl = ChronosGL(canvas);
 
-  final OrbitCamera orbit = OrbitCamera(5.0, 0.0, 0.0, HTML.document.body);
+  final OrbitCamera orbit = OrbitCamera(7.0, 0.0, 0.0, HTML.document.body);
 
   final PerspectiveResizeAware perspective =
       PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
@@ -75,7 +91,6 @@ void main() {
   final RenderProgram prog = RenderProgram(
       "fireworks", cgl, fireworksVertexShader, fireworksFragmentShader);
   final int bindingIndex = prog.GetTransformBindingIndex(tPosition);
-
 
   final Material material = Material("torus-mat")
     ..SetUniform(uPointSize, 10.0)
@@ -115,7 +130,6 @@ void main() {
     cgl.bindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, out.GetBuffer(aPosition));
     cgl.copyBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0,
         points.GetNumItems() * 3 * 4);
-    print ("${points.GetNumItems()}");
 
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(timeMs + 0.0);
