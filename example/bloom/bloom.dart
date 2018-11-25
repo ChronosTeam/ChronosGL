@@ -21,8 +21,10 @@ class BloomEffect {
     progApplyBloom = RenderProgram(
         "bloom", cgl, uvPassthruVertexShader, applyBloomEffectFragmentShader);
 
-    assert(progApplyBloom.HasCompatibleAttributesTo(progHighPass));
-    assert(progApplyBloom.HasCompatibleAttributesTo(progBloom));
+    assert(progHighPass.HasDownwardCompatibleAttributesTo(progApplyBloom),
+        "highpass incompatible attributes");
+    assert(progApplyBloom.HasCompatibleAttributesTo(progBloom),
+        "bloom incompatible attributes");
     unitQuad = ShapeQuad(progApplyBloom, 1);
 
     // Note: the input uTexture varies between the various UniformGroups
@@ -98,7 +100,7 @@ void main() {
 
   final RenderProgram progPerlinNoise = RenderProgram("perlin", cgl,
       perlinNoiseVertexShader, makePerlinNoiseColorFragmentShader(true));
-
+  
   final Material material = Material("mat")
     ..SetUniform(uTransformationMatrix, VM.Matrix4.identity())
     ..SetUniform(uModelMatrix, VM.Matrix4.identity());

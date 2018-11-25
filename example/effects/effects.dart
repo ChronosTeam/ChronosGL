@@ -227,25 +227,25 @@ void main() {
   StatsFps fps =
       StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  final HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
   final width = canvas.clientWidth;
   final height = canvas.clientHeight;
   canvas.width = width;
   canvas.height = height;
 
-  ChronosGL cgl = ChronosGL(canvas);
+  final ChronosGL cgl = ChronosGL(canvas);
 
-  OrbitCamera orbit = OrbitCamera(15.0, -45.0, 0.3, canvas);
-  Perspective perspective = Perspective(orbit, 0.1, 2520.0)
+  final OrbitCamera orbit = OrbitCamera(15.0, -45.0, 0.3, canvas);
+  final Perspective perspective = Perspective(orbit, 0.1, 2520.0)
     ..AdjustAspect(width, height);
 
-  Framebuffer screen = Framebuffer.Screen(cgl);
+  final Framebuffer screen = Framebuffer.Screen(cgl);
 
-  Framebuffer fb = Framebuffer.Default(cgl, width, height);
+  final Framebuffer fb = Framebuffer.Default(cgl, width, height);
 
   RegisterEffects(cgl, fb.colorTexture);
 
-  RenderProgram progDemo =
+  final RenderProgram progDemo =
       RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader);
 
   MeshData unitQuad = ShapeQuad(Effect.all["dot"].program, 1);

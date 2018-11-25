@@ -24,79 +24,121 @@ const String textureFile = "../asset/dragon/dragon.png";
 
 final Map<String, Light> gLightSources = {
   idDirectional:
-      DirectionalLight("dir", dirLight, ColorBlack, ColorWhite, 40.0),
+  DirectionalLight("dir", dirLight, ColorBlack, ColorWhite, 40.0),
   idPoint: PointLight("point", posLight, ColorLiteBlue, ColorWhite, range),
-  idSpot: SpotLight("spot", posLight, spotDirLight, ColorLiteGreen, ColorWhite,
-      range, angle, 2.0, 1.0, 40.0)
+  idSpot: SpotLight(
+      "spot",
+      posLight,
+      spotDirLight,
+      ColorLiteGreen,
+      ColorWhite,
+      range,
+      angle,
+      2.0,
+      1.0,
+      40.0)
 };
 
+final Map<String, Node> gLightVisualizers = {};
+
+final List<Future<Object>> gLoadables = [];
+
+Scene LightSourceVisuializerScene(ChronosGL cgl, List<UniformGroup> uniforms) {
+  Scene scene = Scene(
+      "Fixed",
+      RenderProgram(
+          "Fixed", cgl, solidColorVertexShader, solidColorFragmentShader),
+      uniforms);
+
+  Material lightSourceMat = Material("light")
+    ..SetUniform(uColor, ColorYellow);
+  for (String k in gLightSources.keys) {
+    gLightVisualizers[k] = Node(k,
+        LightVisualizer(scene.program, gLightSources[k]), lightSourceMat);
+  }
+  for (Node n in gLightVisualizers.values) {
+    scene.add(n);
+  }
+  return scene;
+}
+
+Node Dragon(ChronosGL cgl, RenderProgram prog) {
+  final Material mat = Material("matDragon")
+    ..SetUniform(uShininess, glossiness);
+
+  // This will be populated when the model has loaded
+  final Node node = Node.Container("dragon");
+  var f1 = LoadImage(textureFile).then((HTML.ImageElement img) {
+    mat.SetUniform(uTexture, ImageTexture(cgl, textureFile, img));
+  });
+  gLoadables.add(f1);
+
+  var f2 = LoadRaw(meshFile).then((String content) {
+    GeometryBuilder gb = ImportGeometryFromWavefront(content);
+    MeshData md =
+    GeometryBuilderToMeshData(meshFile, prog, gb);
+    Node mesh = Node(md.name, md, mat);
+    //..rotX(-3.14 / 4);
+    Node n = Node.Container("wrapper", mesh);
+    n.lookAt(VM.Vector3(100.0, 0.0, 0.0));
+
+    node.add(n);
+  });
+  gLoadables.add(f2);
+
+  return node;
+}
+
 void main() {
-  StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
+  final StatsFps fps =
+  StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+  final HTML.CanvasElement canvas = HTML.document.querySelector(
+      '#webgl-canvas');
+  final ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
 
-  OrbitCamera orbit = OrbitCamera(50.0, 10.0, 0.0, canvas);
-  orbit.setPos(0.0, 0.0, 56.0);
-  Perspective perspective = Perspective(orbit, 0.1, 10000.0);
+  final OrbitCamera orbit = OrbitCamera(50.0, 10.0, 0.0, canvas)
+    ..setPos(0.0, 0.0, 56.0);
+  final Perspective perspective = Perspective(orbit, 0.1, 10000.0);
 
-  Illumination illumination = Illumination();
+  final Illumination illumination = Illumination();
   for (Light l in gLightSources.values) {
     illumination.AddLight(l);
   }
-  Scene sceneBlinnPhong = Scene(
+  final Scene sceneBlinnPhong = Scene(
       "BlinnPhong",
       RenderProgram("BlinnPhong", cgl, lightVertexShaderBlinnPhong,
           lightFragmentShaderBlinnPhong),
       [perspective, illumination]);
 
-  Scene sceneGourad = Scene(
+  final Scene sceneGourad = Scene(
       "Gourad",
       RenderProgram(
           "Gourad", cgl, lightVertexShaderGourad, lightFragmentShaderGourad),
       [perspective, illumination]);
   assert(
-      sceneBlinnPhong.program.HasCompatibleAttributesTo(sceneGourad.program));
+  sceneBlinnPhong.program.HasCompatibleAttributesTo(sceneGourad.program));
 
-  Scene sceneFixed = Scene(
-      "Fixed",
-      RenderProgram(
-          "Fixed", cgl, solidColorVertexShader, solidColorFragmentShader),
-      [perspective]);
+  final Scene sceneFixed = LightSourceVisuializerScene(cgl, [perspective]);
 
-  // We have two phases
+
+  // We have two phases (only one will be active)
   // 1 BlinnPhong
   // 2 Gourad
   // Each has two scenes
   // 1 the lighting specific scene
   // 2 the lighting visualization scene which is shared by the two phases
   final RenderPhase phaseBlinnPhong = RenderPhase("BlinnPhong", cgl)
-    ..add(sceneBlinnPhong)
-    ..add(sceneFixed);
+    ..add(sceneBlinnPhong)..add(sceneFixed);
 
   final RenderPhase phaseGourad = RenderPhase("Gourad", cgl)
-    ..add(sceneGourad)
-    ..add(sceneFixed);
+    ..add(sceneGourad)..add(sceneFixed);
 
-  Material lightSourceMat = Material("light")..SetUniform(uColor, ColorYellow);
-  final Map<String, Node> lightVisualizers = {};
-  for (String k in gLightSources.keys) {
-    lightVisualizers[k] = Node(k,
-        LightVisualizer(sceneFixed.program, gLightSources[k]), lightSourceMat);
-  }
+  final Node dragonNode = Dragon(cgl, sceneBlinnPhong.program);
+  sceneGourad.add(dragonNode);
+  sceneBlinnPhong.add(dragonNode);
 
-  for (Node n in lightVisualizers.values) {
-    sceneFixed.add(n);
-  }
-
-  // This will be populated when the model has loaded
-  Node node = Node.Container("dragon");
-
-  sceneGourad.add(node);
-  sceneBlinnPhong.add(node);
-
-  HTML.SelectElement selectPhase =
-      HTML.document.querySelector('#phase') as HTML.SelectElement;
+  final HTML.SelectElement selectPhase =
+  HTML.document.querySelector('#phase') as HTML.SelectElement;
   assert(selectPhase != null);
   selectPhase.selectedIndex = 0;
 
@@ -105,7 +147,7 @@ void main() {
       HTML.InputElement input = e.target as HTML.InputElement;
       print("${input.id} toggle ${input.checked}");
       gLightSources[input.id].enabled = input.checked;
-      lightVisualizers[input.id].enabled = input.checked;
+      gLightVisualizers[input.id].enabled = input.checked;
     });
   }
 
@@ -139,35 +181,13 @@ void main() {
     orbit.animate(elapsed);
 
     RenderPhase phase =
-        selectPhase.selectedIndex == 0 ? phaseBlinnPhong : phaseGourad;
+    selectPhase.selectedIndex == 0 ? phaseBlinnPhong : phaseGourad;
     phase.Draw();
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(_lastTimeMs);
   }
 
-  List<Future<Object>> futures = [
-    LoadRaw(meshFile),
-    LoadImage(textureFile),
-  ];
-
-  Future.wait(futures).then((List list) {
-    // Setup Texture
-    Texture tex = ImageTexture(cgl, textureFile, list[1]);
-
-    Material mat = Material("matDragon")
-      ..SetUniform(uTexture, tex)
-      ..SetUniform(uShininess, glossiness);
-    GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
-    print(gb);
-    MeshData md =
-        GeometryBuilderToMeshData(meshFile, sceneBlinnPhong.program, gb);
-    Node mesh = Node(md.name, md, mat);
-    //..rotX(-3.14 / 4);
-    Node n = Node.Container("wrapper", mesh);
-    n.lookAt(VM.Vector3(100.0, 0.0, 0.0));
-
-    node.add(n);
-    // Start
+  Future.wait(gLoadables).then((List list) {
     animate(0.0);
   });
 }

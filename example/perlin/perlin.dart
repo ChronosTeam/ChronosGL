@@ -3,16 +3,16 @@ import 'package:vector_math/vector_math.dart' as VM;
 import 'dart:html' as HTML;
 import "dart:async";
 
-String textureFile = "../gradient.jpg";
+final List<Future<Object>> gLoadables = [];
 
 void main() {
-  StatsFps fps =
+  final StatsFps fps =
       StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
 
-  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
-  OrbitCamera orbit = OrbitCamera(165.0, 0.0, 0.0, canvas);
-  PerspectiveResizeAware perspective =
+  final ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
+  final OrbitCamera orbit = OrbitCamera(165.0, 0.0, 0.0, canvas);
+  final PerspectiveResizeAware perspective =
       PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
   final RenderProgram programTexture = RenderProgram(
@@ -27,6 +27,12 @@ void main() {
     ..SetUniform(
         uModelMatrix, VM.Matrix4.identity()..setTranslationRaw(-50.0, 0.0, 0.0))
     ..SetUniform(uColor, VM.Vector3.zero());
+  var future = LoadImage("../gradient.jpg")
+    ..then((HTML.ImageElement img) {
+      Texture gradient = ImageTexture(cgl, "../gradient.jpg", img);
+      matTexture.SetUniform(uTexture, gradient);
+    });
+  gLoadables.add(future);
 
   final Material matPerlin = Material("perlin")
     ..SetUniform(uTransformationMatrix, VM.Matrix4.zero())
@@ -54,13 +60,9 @@ void main() {
     fps.UpdateFrameCount(_lastTimeMs);
   }
 
-  List<Future<Object>> futures = [
-    LoadImage(textureFile),
-  ];
 
-  Future.wait(futures).then((List list) {
-    Texture tex = ImageTexture(cgl, textureFile, list[0]);
-    matTexture..SetUniform(uTexture, tex);
+  Future.wait(gLoadables).then((List list) {
+
     animate(0.0);
   });
 }

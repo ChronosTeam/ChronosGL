@@ -13,33 +13,41 @@ Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
   return scene;
 }
 
-void main() {
-  StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+final List<Future<Object>> gLoadables = [];
 
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
-  OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
-  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
-
-  final RenderPhaseResizeAware phase =
-      RenderPhaseResizeAware("main", cgl, canvas, perspective);
+Scene MakeMainScene(ChronosGL cgl, List<UniformGroup> uniforms) {
   final Scene scene = Scene(
       "objects",
       RenderProgram(
           "textured", cgl, texturedVertexShader, texturedFragmentShader),
-      [perspective]);
-  phase.add(scene);
-
+      uniforms);
   // textures will be set after they are loaded
   final Material matWood = Material("wood")..SetUniform(uColor, ColorBlack);
+  var f3 = LoadImage("../wood.jpg")
+    ..then((HTML.ImageElement img) {
+      Texture wood = ImageTexture(cgl, "../wood.jpg", img);
+      matWood.SetUniform(uTexture, wood);
+    });
+  gLoadables.add(f3);
 
   final Material matGradient = Material("gradient")
     ..SetUniform(uColor, ColorRed);
+  var f1 = LoadImage("../gradient.jpg")
+    ..then((HTML.ImageElement img) {
+      Texture gradient = ImageTexture(cgl, "../gradient.jpg", img);
+      matGradient.SetUniform(uTexture, gradient);
+    });
+  gLoadables.add(f1);
 
   final Material matTrans = Material("trans")
     ..SetUniform(uColor, ColorGray4)
     ..ForceUniform(cBlendEquation, BlendEquationStandard);
+  var f2 = LoadImage("../transparent.png")
+    ..then((HTML.ImageElement img) {
+      Texture trans = ImageTexture(cgl, "../transparent.png", img);
+      matTrans.SetUniform(uTexture, trans);
+    });
+  gLoadables.add(f2);
 
   {
     Node ico = Node("sphere", ShapeIcosahedron(scene.program, 3), matWood)
@@ -72,6 +80,22 @@ void main() {
     scene.add(torus);
   }
 
+  return scene;
+}
+
+void main() {
+  StatsFps fps =
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+
+  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
+  OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
+  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
+
+  final RenderPhaseResizeAware phase =
+      RenderPhaseResizeAware("main", cgl, canvas, perspective);
+
+  phase.add(MakeMainScene(cgl, [perspective]));
   phase.add(MakeStarScene(cgl, perspective, 2000));
 
   double _lastTimeMs = 0.0;
@@ -92,20 +116,7 @@ void main() {
     fps.UpdateFrameCount(_lastTimeMs, out.join("<br>"));
   }
 
-  List<Future<Object>> futures = [
-    LoadImage("../gradient.jpg"),
-    LoadImage("../transparent.png"),
-    LoadImage("../wood.jpg"),
-  ];
-
-  Future.wait(futures).then((List list) {
-    Texture gradient = ImageTexture(cgl, "../gradient.jpg", list[0]);
-    matGradient.SetUniform(uTexture, gradient);
-    Texture trans = ImageTexture(cgl, "../transparent.png", list[1]);
-    matTrans.SetUniform(uTexture, trans);
-
-    Texture wood = ImageTexture(cgl, "../wood.jpg", list[2]);
-    matWood.SetUniform(uTexture, wood);
+  Future.wait(gLoadables).then((List list) {
     animate(0.0);
   });
 }

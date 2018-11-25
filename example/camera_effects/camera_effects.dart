@@ -117,20 +117,37 @@ void RegisterEffects(ChronosGL cgl) {
   }
 }
 
-void main() {
-  StatsFps fps =
+void main2(HTML.VideoElement video) {
+  if (video == null) {
+    HTML.window
+        .alert("Could not access camera - do you have a camera installed?");
+    return;
+  }
+
+  final StatsFps fps =
       StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  final HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas');
   // Make sure canvas has full screen resolution
-  canvas.width = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
+  final width = canvas.clientWidth;
+  final height = canvas.clientHeight;
+  canvas.width = width;
+  canvas.height = height;
 
-  ChronosGL cgl = ChronosGL(canvas);
+  final ChronosGL cgl = ChronosGL(canvas);
+
+  final ImageTexture texture =
+      ImageTexture(cgl, "video", video, TexturePropertiesVideo);
+  final Framebuffer screen = Framebuffer.Screen(cgl);
+  final RenderProgram progScale = RenderProgram(
+      "bg", cgl, scalingCopyVertexShader, scalingCopyFragmentShader);
+  final Material material = Material("mat")..SetUniform(uTexture, texture);
+  final MeshData unitQuad = ShapeQuad(progScale, 1);
+
+  final Framebuffer fb = Framebuffer.Default(cgl, width, height);
   RegisterEffects(cgl);
-
-  HTML.VideoElement video;
-  ImageTexture texture;
-  MeshData unitQuad = ShapeQuad(Effect.all["dot"].program, 1);
+  assert(
+      Effect.all["dot"].program.HasDownwardCompatibleAttributesTo(progScale));
 
   void animate(num timeMs) {
     try {
@@ -140,34 +157,27 @@ void main() {
       print(exception);
     }
 
+    // scale
+    fb.Activate(GL_CLEAR_ALL, 0, 0, width, height);
+    progScale.Draw(unitQuad, [material]);
+
+    // apply effect
+    screen.Activate(GL_CLEAR_ALL, 0, 0, width, height);
     Effect active = Effect.all[gEffect.value];
     active.uniforms.ForceUniform(uTime, timeMs / 1000.0);
-    active.uniforms.ForceUniform(uTexture, texture);
+    active.uniforms.ForceUniform(uTexture, fb.colorTexture);
     active.program.Draw(unitQuad, [active.uniforms]);
 
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(timeMs + 0.0);
   }
 
-  List<Future<Object>> futures = [
-    MakeVideoElementFromCamera(),
-  ];
+  animate(0.0);
+}
 
-  Future.wait(futures).then((List list) {
-    video = list[0];
-    if (video == null) {
-      HTML.window
-          .alert("Could not access camera - do you have a camera installed?");
-    }
-    int w = video.videoWidth;
-    int h = video.videoHeight;
-    print("camera resolution: ${w}x${h}");
-    //  This does not seem to have any effect and/or break firefox
-    // canvas.width = w;
-    // canvas.height = h;
-    // cgl.viewport(0, 0, w, h);
-    texture = ImageTexture(cgl, "video", video, TexturePropertiesVideo);
-
-    animate(0.0);
+void main() {
+  MakeVideoElementFromCamera().then(main2).catchError((AsyncError asyncError) {
+    HTML.window
+        .alert("Camera error ${asyncError}: - do you have a camera installed?");
   });
 }

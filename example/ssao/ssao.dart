@@ -7,44 +7,54 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 const String modelFile = "../ct_logo.obj";
 
+final List<Future<Object>> gLoadables = [];
+
 final HTML.InputElement gSSAO =
     HTML.document.querySelector('#activate') as HTML.InputElement;
 
 void main() {
-  StatsFps fps =
+  final StatsFps fps =
       StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  final HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas');
   final width = canvas.clientWidth;
   final height = canvas.clientHeight;
   canvas.width = width;
   canvas.height = height;
 
-  ChronosGL cgl = ChronosGL(canvas);
-  OrbitCamera orbit = OrbitCamera(15.0, -45.0, 0.3, canvas);
-  Perspective perspective = Perspective(orbit, 0.1, 2520.0)
+  final ChronosGL cgl = ChronosGL(canvas);
+  final OrbitCamera orbit = OrbitCamera(15.0, -45.0, 0.3, canvas);
+  final Perspective perspective = Perspective(orbit, 0.1, 2520.0)
     ..AdjustAspect(width, height);
 
-  Framebuffer screen = Framebuffer.Screen(cgl);
-  Framebuffer fb = Framebuffer.Default(cgl, width, height);
+  final Framebuffer screen = Framebuffer.Screen(cgl);
+  final Framebuffer fb = Framebuffer.Default(cgl, width, height);
 
-  RenderProgram progSolid = RenderProgram(
+  final RenderProgram progSolid = RenderProgram(
       "solid", cgl, solidColorVertexShader, solidColorFragmentShader);
 
-  List<ShaderObject> ssaoShader = createSSAOShader();
-  RenderProgram progSSAO =
+  final List<ShaderObject> ssaoShader = createSSAOShader();
+  final RenderProgram progSSAO =
       RenderProgram("ssao", cgl, ssaoShader[0], ssaoShader[1]);
 
-  UniformGroup uniforms = UniformGroup("plain")
+  final UniformGroup uniforms = UniformGroup("plain")
     ..SetUniform(uCameraNear, 0.1)
     ..SetUniform(uCameraFar, 2529.0)
     ..SetUniform(uCanvasSize, VM.Vector2(0.0 + width, 0.0 + height))
     ..SetUniform(uDepthMap, fb.depthTexture)
     ..SetUniform(uTexture, fb.colorTexture);
 
-  MeshData unitQuad = ShapeQuad(progSSAO, 1);
+  final MeshData unitQuad = ShapeQuad(progSSAO, 1);
 
   MeshData ctLogo;
+  var future = LoadRaw(modelFile)
+    ..then((String content) {
+      GeometryBuilder gb = ImportGeometryFromWavefront(content);
+      ctLogo = GeometryBuilderToMeshData("", progSolid, gb);
+    });
+  gLoadables.add(future);
+
   Material material = Material("mat")
     ..SetUniform(uColor, ColorGray8)
     ..SetUniform(uModelMatrix, VM.Matrix4.identity()..rotateX(Math.pi / 2));
@@ -68,14 +78,7 @@ void main() {
     fps.UpdateFrameCount(_lastTimeMs);
   }
 
-  List<Future<Object>> futures = [
-    LoadRaw(modelFile),
-  ];
-
-  Future.wait(futures).then((List list) {
-    GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
-    ctLogo = GeometryBuilderToMeshData("", progSolid, gb);
-
+  Future.wait(gLoadables).then((List list) {
     animate(0.0);
   });
 }

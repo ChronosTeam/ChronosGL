@@ -27,14 +27,17 @@ ShaderObject sphereFragmentShader = ShaderObject("sphereF")
   ..AddUniformVars([uTexture])
   ..SetBodyWithMain(["${oFragColor} = texture(${uTexture}, ${vTexUV});"]);
 
-void main() {
-  StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
+final List<Future<Object>> gLoadables = [];
 
-  OrbitCamera orbit = OrbitCamera(5.0, 10.0, 0.0, canvas);
-  PerspectiveResizeAware perspective =
+void main() {
+  final StatsFps fps =
+      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+  final HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas');
+  final ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
+
+  final OrbitCamera orbit = OrbitCamera(5.0, 10.0, 0.0, canvas);
+  final PerspectiveResizeAware perspective =
       PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
   final RenderProgram progSphere =
@@ -46,6 +49,12 @@ void main() {
   final Material matSphere = Material.Transparent("sphere", BlendEquationMix)
     ..SetUniform(uNormalMatrix, normalMat)
     ..SetUniform(uModelMatrix, modelMat);
+  var future = LoadImage(textureFile)
+    ..then((HTML.ImageElement img) {
+      Texture bubble = ImageTexture(cgl, textureFile, img);
+      matSphere.SetUniform(uTexture, bubble);
+    });
+  gLoadables.add(future);
 
   final RenderProgram progStars = RenderProgram(
       "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
@@ -69,12 +78,7 @@ void main() {
     fps.UpdateFrameCount(_lastTimeMs);
   }
 
-  List<Future<Object>> futures = [
-    LoadImage(textureFile),
-  ];
-  Future.wait(futures).then((List list) {
-    Texture bubble = ImageTexture(cgl, textureFile, list[0]);
-    matSphere.SetUniform(uTexture, bubble);
+  Future.wait(gLoadables).then((List list) {
     animate(0.0);
   });
 }

@@ -19,6 +19,7 @@ class TextureProperties {
 
   // Very good but also a bit slow
   void SetMipmapLinear() {
+    mipmap = true;
     minFilter = GL_LINEAR_MIPMAP_LINEAR;
     magFilter = GL_LINEAR; // is this the best?
   }
@@ -79,6 +80,10 @@ final TextureProperties TexturePropertiesShadowMap = TextureProperties()
   ..mipmap = false
   ..shadow = true;
 //..SetFilterNearest();
+
+final TextureProperties TexturePropertiesMipmap = TextureProperties()..SetMipmapLinear();
+
+
 
 bool IsCubeChildTextureType(int t) {
   switch (t) {

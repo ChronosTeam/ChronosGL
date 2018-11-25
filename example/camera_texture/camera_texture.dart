@@ -3,27 +3,34 @@ import 'dart:async';
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
-void main() {
-  StatsFps fps =
+void main2(HTML.VideoElement video) {
+  if (video == null) {
+    HTML.window
+        .alert("Could not access camera - do you have a camera installed?");
+    return;
+  }
+  final StatsFps fps =
       StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = ChronosGL(canvas);
-  OrbitCamera orbit = OrbitCamera(15.0, 10.0, 0.0, canvas);
-  PerspectiveResizeAware perspective =
+  final HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas');
+  final ChronosGL cgl = ChronosGL(canvas);
+  final OrbitCamera orbit = OrbitCamera(15.0, 10.0, 0.0, canvas);
+  final PerspectiveResizeAware perspective =
       PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
-  RenderProgram program =
+  final RenderProgram program =
       RenderProgram("solid", cgl, texturedVertexShader, texturedFragmentShader);
-
-  final Material mat = Material("cube")
-    ..SetUniform(uColor, ColorBlack)
-    ..SetUniform(uModelMatrix, VM.Matrix4.identity());
 
   MeshData cube = ShapeCube(program);
 
-  HTML.VideoElement video;
-  ImageTexture texture;
+  final ImageTexture texture =
+      ImageTexture(cgl, "video", video, TexturePropertiesVideo);
+
+  final Material mat = Material("cube")
+    ..SetUniform(uColor, ColorBlack)
+    ..SetUniform(uModelMatrix, VM.Matrix4.identity())
+    ..SetUniform(uTexture, texture);
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
@@ -44,19 +51,14 @@ void main() {
     HTML.window.animationFrame.then(animate);
   }
 
-  List<Future<Object>> futures = [
-    MakeVideoElementFromCamera(),
-    //LoadVideo("movie.ogv"),
-  ];
+  animate(0.0);
+}
 
-  Future.wait(futures).then((List list) {
-    video = list[0];
-    if (video == null) {
-      HTML.window
-          .alert("Could not access camera - do you have a camera installed?");
-    }
-    texture = ImageTexture(cgl, "video", video, TexturePropertiesVideo);
-    mat.SetUniform(uTexture, texture);
-    animate(0.0);
+void main() {
+  MakeVideoElementFromCamera().then(main2).catchError((
+      AsyncError asyncError) {
+     HTML.window
+        .alert("Camera error ${asyncError}: - do you have a camera installed?");
   });
 }
+

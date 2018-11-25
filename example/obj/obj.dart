@@ -4,22 +4,32 @@ import 'dart:math' as Math;
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
-String modelFile = "../ct_logo.obj";
+const String modelFile = "../ct_logo.obj";
+
+final List<Future<Object>> gLoadables = [];
 
 void main() {
-  StatsFps fps =
+  final StatsFps fps =
       StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = ChronosGL(canvas);
-  OrbitCamera orbit = OrbitCamera(25.0, 0.0, 0.0, canvas);
-  PerspectiveResizeAware perspective =
+  final HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas');
+  final ChronosGL cgl = ChronosGL(canvas);
+  final OrbitCamera orbit = OrbitCamera(25.0, 0.0, 0.0, canvas);
+  final PerspectiveResizeAware perspective =
       PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
 
-  RenderProgram progDemo =
+  final RenderProgram progDemo =
       RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader);
 
   MeshData ctLogo; // we be initialized when loaded
-  Material material = Material("mat")
+  var future = LoadRaw(modelFile)
+    ..then((String content) {
+      GeometryBuilder gb = ImportGeometryFromWavefront(content);
+      ctLogo = GeometryBuilderToMeshData("", progDemo, gb);
+    });
+  gLoadables.add(future);
+
+  final Material material = Material("mat")
     ..SetUniform(uColor, ColorGray8)
     ..SetUniform(uModelMatrix, VM.Matrix4.identity()..rotateX(Math.pi / 2));
 
@@ -34,15 +44,7 @@ void main() {
     fps.UpdateFrameCount(_lastTimeMs);
   }
 
-  List<Future<Object>> futures = [
-    LoadRaw(modelFile),
-  ];
-
-  Future.wait(futures).then((List list) {
-    // Setup Mesh
-    GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
-    ctLogo = GeometryBuilderToMeshData(modelFile, progDemo, gb);
-
+  Future.wait(gLoadables).then((List list) {
     animate(0.0);
   });
 }
