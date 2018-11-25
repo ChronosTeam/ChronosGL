@@ -10,38 +10,48 @@ const String modelFile = "../ct_logo.obj";
 final HTML.InputElement gSobel =
     HTML.document.querySelector('#activate') as HTML.InputElement;
 
+final List<Future<Object>> gLoadables = [];
+
 void main() {
-  StatsFps fps =
+  final StatsFps fps =
       StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  final HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas');
   final width = canvas.clientWidth;
   final height = canvas.clientHeight;
   canvas.width = width;
   canvas.height = height;
-  ChronosGL cgl = ChronosGL(canvas);
-  OrbitCamera orbit = OrbitCamera(15.0, -45.0, 0.3, canvas);
-  Perspective perspective = Perspective(orbit, 0.1, 2520.0)
+  final ChronosGL cgl = ChronosGL(canvas);
+  final OrbitCamera orbit = OrbitCamera(15.0, -45.0, 0.3, canvas);
+  final Perspective perspective = Perspective(orbit, 0.1, 2520.0)
     ..AdjustAspect(width, height);
 
-  Framebuffer screen = Framebuffer.Screen(cgl);
-  Framebuffer fb = Framebuffer.Default(cgl, width, height);
+  final Framebuffer screen = Framebuffer.Screen(cgl);
+  final Framebuffer fb = Framebuffer.Default(cgl, width, height);
 
-  List<ShaderObject> greyShader = createPlane2GreyShader();
-  RenderProgram progGrey =
+  final List<ShaderObject> greyShader = createPlane2GreyShader();
+  final RenderProgram progGrey =
       RenderProgram("grey", cgl, greyShader[0], greyShader[1]);
 
-  List<ShaderObject> sobelShader = createSobelShader();
-  RenderProgram progSobel =
+  final List<ShaderObject> sobelShader = createSobelShader();
+  final RenderProgram progSobel =
       RenderProgram("ssao", cgl, sobelShader[0], sobelShader[1]);
 
-  UniformGroup uniforms = UniformGroup("plain")
+  final UniformGroup uniforms = UniformGroup("plain")
     ..SetUniform(uCanvasSize, VM.Vector2(0.0 + width, 0.0 + height))
     ..SetUniform(uDepthMap, fb.depthTexture)
     ..SetUniform(uTexture, fb.colorTexture);
 
-  MeshData unitQuad = ShapeQuad(progSobel, 1);
+  final MeshData unitQuad = ShapeQuad(progSobel, 1);
   MeshData ctLogo;
+  var future = LoadRaw(modelFile)
+    ..then((String content) {
+      GeometryBuilder gb = ImportGeometryFromWavefront(content);
+      ctLogo = GeometryBuilderToMeshData("", progGrey, gb);
+    });
+  gLoadables.add(future);
+
   Material material = Material("mat")
     ..SetUniform(uModelMatrix, VM.Matrix4.identity()..rotateX(Math.pi / 2));
 
@@ -65,14 +75,7 @@ void main() {
     fps.UpdateFrameCount(_lastTimeMs);
   }
 
-  List<Future<Object>> futures = [
-    LoadRaw(modelFile),
-  ];
-
-  Future.wait(futures).then((List list) {
-    GeometryBuilder gb = ImportGeometryFromWavefront(list[0]);
-    ctLogo = GeometryBuilderToMeshData("", progGrey, gb);
-
+  Future.wait(gLoadables).then((List list) {
     animate(0.0);
   });
 }
