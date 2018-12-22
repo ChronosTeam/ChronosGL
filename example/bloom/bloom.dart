@@ -1,6 +1,7 @@
+import 'dart:html' as HTML;
+
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
-import 'dart:html' as HTML;
 
 final HTML.InputElement gLuminance = HTML.document.querySelector('#luminance');
 final HTML.InputElement gIntensity = HTML.document.querySelector('#intensity');
@@ -12,8 +13,8 @@ class BloomEffect {
         hSmall = h ~/ scale,
         fb1 = Framebuffer.Default(cgl, w ~/ scale, h ~/ scale),
         fb2 = Framebuffer.Default(cgl, w ~/ scale, h ~/ scale) {
-    progHighPass = RenderProgram(
-        "highpass", cgl, effectVertexShader, luminosityHighPassFragmentShader);
+    progHighPass = RenderProgram("highpass", cgl, uvPassthruVertexShader,
+        scaledLuminosityHighPassFragmentShader);
 
     progBloom = RenderProgram("bloom", cgl, uvPassthruVertexShader,
         CreateBloomTextureFragmentShader(radius, radius * 1.0));
@@ -100,14 +101,14 @@ void main() {
 
   final RenderProgram progPerlinNoise = RenderProgram("perlin", cgl,
       perlinNoiseVertexShader, makePerlinNoiseColorFragmentShader(true));
-  
+
   final Material material = Material("mat")
     ..SetUniform(uTransformationMatrix, VM.Matrix4.identity())
     ..SetUniform(uModelMatrix, VM.Matrix4.identity());
 
   final MeshData torus = ShapeTorusKnot(progPerlinNoise);
 
-  final BloomEffect bloom = BloomEffect(cgl, width, height, 6, 2, fb, screen);
+  final BloomEffect bloom = BloomEffect(cgl, width, height, 6, 4, fb, screen);
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
