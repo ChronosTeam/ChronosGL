@@ -26,6 +26,27 @@ final Map<String, Light> gLightSources = {
       range, angle, 2.0, 1.0, 40.0)
 };
 
+final Map<String, Node> gLightVisualizers = {};
+
+Scene LightSourceVisualizerScene(ChronosGL cgl, List<UniformGroup> uniforms) {
+  Scene scene = Scene(
+      "Fixed",
+      RenderProgram(
+          "Fixed", cgl, solidColorVertexShader, solidColorFragmentShader),
+      uniforms);
+
+  Material lightSourceMat = Material("light")
+    ..SetUniform(uColor, ColorYellow);
+  for (String k in gLightSources.keys) {
+    gLightVisualizers[k] = Node(k,
+        LightVisualizer(scene.program, gLightSources[k]), lightSourceMat);
+  }
+  for (Node n in gLightVisualizers.values) {
+    scene.add(n);
+  }
+  return scene;
+}
+
 void MakeSceneCubeSphere(ChronosGL cgl, RenderProgram prog, Node container) {
   MeshData cubeMeshData = ShapeCube(prog, x: 2.0, y: 2.0, z: 2.0);
   MeshData sphereMeshData = ShapeIcosahedron(prog);
@@ -65,27 +86,29 @@ void MakeSceneCubeSphere(ChronosGL cgl, RenderProgram prog, Node container) {
 }
 
 void main() {
-  StatsFps fps =
+  final StatsFps fps =
       StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
+  final HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  final ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
 
-  OrbitCamera orbit = OrbitCamera(50.0, 10.0, 0.0, canvas);
-  orbit.setPos(0.0, 0.0, 56.0);
-  Perspective perspective = Perspective(orbit, 0.1, 10000.0);
+  final OrbitCamera orbit = OrbitCamera(50.0, 10.0, 0.0, canvas)
+  ..setPos(0.0, 0.0, 56.0);
+  final Perspective perspective = Perspective(orbit, 0.1, 10000.0);
 
-  Illumination illumination = Illumination();
+  final Illumination illumination = Illumination();
   for (Light l in gLightSources.values) {
     illumination.AddLight(l);
   }
 
-  Scene sceneBlinnPhong = Scene(
+  final Scene sceneFixed = LightSourceVisualizerScene(cgl, [perspective]);
+
+  final Scene sceneBlinnPhong = Scene(
       "BlinnPhong",
       RenderProgram("BlinnPhong", cgl, lightVertexShaderBlinnPhong,
           lightFragmentShaderBlinnPhong),
       [perspective, illumination]);
 
-  Scene sceneGourad = Scene(
+  final Scene sceneGourad = Scene(
       "Gourad",
       RenderProgram(
           "Gourad", cgl, lightVertexShaderGourad, lightFragmentShaderGourad),
@@ -93,11 +116,6 @@ void main() {
   assert(
       sceneBlinnPhong.program.HasCompatibleAttributesTo(sceneGourad.program));
 
-  Scene sceneFixed = Scene(
-      "Fixed",
-      RenderProgram(
-          "Fixed", cgl, solidColorVertexShader, solidColorFragmentShader),
-      [perspective]);
 
   // We have two phases
   // 1 BlinnPhong
@@ -112,17 +130,6 @@ void main() {
   final RenderPhase phaseGourad = RenderPhase("Gourad", cgl)
     ..add(sceneGourad)
     ..add(sceneFixed);
-
-  Material lightSourceMat = Material("light")..SetUniform(uColor, ColorYellow);
-  final Map<String, Node> lightVisualizers = {};
-  for (String k in gLightSources.keys) {
-    lightVisualizers[k] = Node(k,
-        LightVisualizer(sceneFixed.program, gLightSources[k]), lightSourceMat);
-  }
-
-  for (Node n in lightVisualizers.values) {
-    sceneFixed.add(n);
-  }
 
   Node node = Node.Container("scene");
   MakeSceneCubeSphere(cgl, sceneBlinnPhong.program, node);
@@ -140,7 +147,7 @@ void main() {
       HTML.InputElement input = e.target as HTML.InputElement;
       print("${input.id} toggle ${input.checked}");
       gLightSources[input.id].enabled = input.checked;
-      lightVisualizers[input.id].enabled = input.checked;
+      gLightVisualizers[input.id].enabled = input.checked;
     });
   }
 
