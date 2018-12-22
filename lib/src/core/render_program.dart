@@ -133,7 +133,7 @@ class RenderProgram extends NamedEntity {
   void _SetUniform(String group, String canonical, Object val) {
     // enable only for debug
     if (_uniformsInitialized.containsKey(canonical)) {
-      LogError("${canonical} : group [${group}] overwrites [${canonical}]");
+      LogError("${name}:  ${canonical} : group [${group}] overwrites [${canonical}]");
     }
     _uniformsInitialized[canonical] = group;
 
