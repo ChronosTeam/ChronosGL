@@ -26,26 +26,31 @@ A simple WebGL2 engine written in Dart
 * [Classes/Basic Concepts](https://github.com/ChronosTeam/ChronosGL/tree/master/class_glossary.md)
 
 ## Examples
+
 * [Live Examples](http://chronosteam.github.io/ChronosGL/Examples/)
-* [Simple example HTML part](https://github.com/ChronosTeam/ChronosGL/tree/master/example/simple/simple.html)
-* [Simple example Dart part](https://github.com/ChronosTeam/ChronosGL/tree/master/example/simple/simple.dart)
+* [Simple example HTML part (simple.html)](https://github.com/ChronosTeam/ChronosGL/tree/master/example/simple/simple.html)
+* [Simple example Dart part (simple.dart)](https://github.com/ChronosTeam/ChronosGL/tree/master/example/simple/simple.dart)
 
 ## Usage
 
-*You must use Dartium (Version 50 or later) and Dart SDK (Version 1.24.0 or later)*
 
-Create a new Dart webapp project, add this as a pubspec.yaml dependency:
-        dependencies:
-          chronosgl: any
+Create a new Dart webapp project, add this as a `pubspec.yaml` dependency:
+``` 
+    dependencies:
+        chronosgl: any
+```
+You also need the `vector_math` library which is the only library that 
+ChronosGL is dependent on.
 
-You also need the vector_math library which is the only library that ChronosGL
-is dependent on.
-
-
-Copy the example from above and run it in Dartium.
+As a test copy `simple.html` and `simple.dart` from above into
+your project.
 
 It should look like this:
 <img src="http://i.imgur.com/Zb1XyCG.png" style="width: 600px;"/>
 
-If you need dart:html, it is recommended to add dart:html as HTML like this, due to a naming conflict regarding Node:
+If you need to import `dart:html`, do so as follows:
+```
 import 'dart:html' as HTML;
+```
+This will avoid a naming conflict for `Node`.
+
