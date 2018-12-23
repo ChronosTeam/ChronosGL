@@ -1,17 +1,16 @@
 import 'dart:html' as HTML;
 import "dart:math" as MATH;
 
-import 'package:vector_math/vector_math.dart' as VM;
-
 import 'package:chronosgl/chronosgl.dart';
+import 'package:vector_math/vector_math.dart' as VM;
 
 final VM.Vector3 posLight = VM.Vector3(11.0, 20.0, 0.0);
 final VM.Vector3 dirLight = VM.Vector3(0.0, -50.0, 0.0);
 final VM.Vector3 spotDirLight = VM.Vector3(-11.0, -30.0, 0.0);
 
-final double range = 50.0;
+final double range = 80.0;
 final double angle = MATH.pi / 7.0;
-final double glossiness = 10.0;
+final double glossiness = 50.0;
 
 // These must be in-sync with the .html file
 const String idPoint = "idPoint";
@@ -20,9 +19,9 @@ const String idDirectional = "idDirectional";
 
 final Map<String, Light> gLightSources = {
   idDirectional:
-      DirectionalLight("dir", dirLight, ColorBlack, ColorWhite, 40.0),
-  idPoint: PointLight("point", posLight, ColorLiteBlue, ColorWhite, range),
-  idSpot: SpotLight("spot", posLight, spotDirLight, ColorLiteGreen, ColorWhite,
+      DirectionalLight("dir", dirLight, ColorWhite, ColorWhite, 40.0),
+  idPoint: PointLight("point", posLight, ColorWhite, ColorWhite, range),
+  idSpot: SpotLight("spot", posLight, spotDirLight, ColorWhite, ColorWhite,
       range, angle, 2.0, 1.0, 40.0)
 };
 
@@ -35,11 +34,10 @@ Scene LightSourceVisualizerScene(ChronosGL cgl, List<UniformGroup> uniforms) {
           "Fixed", cgl, solidColorVertexShader, solidColorFragmentShader),
       uniforms);
 
-  Material lightSourceMat = Material("light")
-    ..SetUniform(uColor, ColorYellow);
+  Material lightSourceMat = Material("light")..SetUniform(uColor, ColorYellow);
   for (String k in gLightSources.keys) {
-    gLightVisualizers[k] = Node(k,
-        LightVisualizer(scene.program, gLightSources[k]), lightSourceMat);
+    gLightVisualizers[k] = Node(
+        k, LightVisualizer(scene.program, gLightSources[k]), lightSourceMat);
   }
   for (Node n in gLightVisualizers.values) {
     scene.add(n);
@@ -53,16 +51,20 @@ void MakeSceneCubeSphere(ChronosGL cgl, RenderProgram prog, Node container) {
 
   List<Material> mats = [
     Material("mat0")
-      ..SetUniform(uTexture, MakeSolidColorTextureRGB(cgl, "gray", ColorGray4))
+      ..SetUniform(
+          uTexture, MakeSolidColorTextureRGB(cgl, "blue", ColorBlue * 0.5))
       ..SetUniform(uShininess, glossiness),
     Material("mat1")
-      ..SetUniform(uTexture, MakeSolidColorTextureRGB(cgl, "red", ColorRed))
+      ..SetUniform(
+          uTexture, MakeSolidColorTextureRGB(cgl, "red", ColorRed * 0.5))
       ..SetUniform(uShininess, glossiness),
     Material("mat2")
-      ..SetUniform(uTexture, MakeSolidColorTextureRGB(cgl, "red", ColorBlue))
+      ..SetUniform(
+          uTexture, MakeSolidColorTextureRGB(cgl, "white", ColorWhite * 0.5))
       ..SetUniform(uShininess, glossiness),
     Material("mat3")
-      ..SetUniform(uTexture, MakeSolidColorTextureRGB(cgl, "red", ColorGreen))
+      ..SetUniform(
+          uTexture, MakeSolidColorTextureRGB(cgl, "green", ColorGreen * 0.5))
       ..SetUniform(uShininess, glossiness),
   ];
 
@@ -79,7 +81,7 @@ void MakeSceneCubeSphere(ChronosGL cgl, RenderProgram prog, Node container) {
   }
 
   // Subdivide plane to show Gourad shading issues
-  Node grid = Node("grid", ShapeGrid(prog, 20, 20, 80.0, 80.0), mats[0]);
+  Node grid = Node("grid", ShapeGrid(prog, 20, 20, 80.0, 80.0), mats[2]);
   grid.rotX(-MATH.pi * 0.48);
   grid.setPos(0.0, -20.0, 20.0);
   container.add(grid);
@@ -88,11 +90,12 @@ void MakeSceneCubeSphere(ChronosGL cgl, RenderProgram prog, Node container) {
 void main() {
   final StatsFps fps =
       StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  final HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  final HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas');
   final ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
 
   final OrbitCamera orbit = OrbitCamera(50.0, 10.0, 0.0, canvas)
-  ..setPos(0.0, 0.0, 56.0);
+    ..setPos(0.0, 0.0, 56.0);
   final Perspective perspective = Perspective(orbit, 0.1, 10000.0);
 
   final Illumination illumination = Illumination();
@@ -115,7 +118,6 @@ void main() {
       [perspective, illumination]);
   assert(
       sceneBlinnPhong.program.HasCompatibleAttributesTo(sceneGourad.program));
-
 
   // We have two phases
   // 1 BlinnPhong
@@ -145,12 +147,26 @@ void main() {
   for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
     input.onChange.listen((HTML.Event e) {
       HTML.InputElement input = e.target as HTML.InputElement;
-      print("${input.id} toggle ${input.checked}");
-      gLightSources[input.id].enabled = input.checked;
-      gLightVisualizers[input.id].enabled = input.checked;
+      final String tag = input.id;
+      print("${tag} toggle ${input.checked}");
+      if (tag == "lightDiffuse") {
+        for (Light light in gLightSources.values) {
+          double v = input.checked ? 1.0 : 0.0;
+          light.colorDiffuse.setValues(v, v, v);
+        }
+      } else if (tag == "lightSpecular") {
+        for (Light light in gLightSources.values) {
+          double v = input.checked ? 1.0 : 0.0;
+          light.colorSpecular.setValues(v, v, v);
+        }
+      } else {
+        gLightSources[tag].enabled = input.checked;
+        gLightVisualizers[tag].enabled = input.checked;
+      }
     });
   }
 
+  // Update default settings
   for (HTML.Element e in HTML.document.getElementsByTagName("input")) {
     print("initialize inputs ${e.id}");
     e.dispatchEvent(HTML.Event("change"));
