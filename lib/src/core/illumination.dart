@@ -9,9 +9,15 @@ final VM.Vector3 _up2 = VM.Vector3(0.0, 0.0, 1.0);
 /// can be added to an **Illumination** object which is
 /// a **UnformGroup*.
 abstract class Light extends NamedEntity {
-  Light(String name, this.type) : super(name);
+  Light(String name, this.type, VM.Vector3 diffuse, VM.Vector3 specular)
+      : super(name) {
+    colorDiffuse.setFrom(diffuse);
+    colorSpecular.setFrom(specular);
+  }
 
   final int type;
+  final VM.Vector3 colorDiffuse = VM.Vector3.zero();
+  final VM.Vector3 colorSpecular = VM.Vector3.zero();
 
   void ExtractInfo(Float32List m, int offset);
 
@@ -20,13 +26,12 @@ abstract class Light extends NamedEntity {
 
 /// light is emanating from a single point in all directions
 class PointLight extends Light {
-  PointLight(
-      String name, this.pos, this._colDiffuse, this._colSpecular, this.range)
-      : super(name, lightTypePoint);
+  PointLight(String name, this.pos, VM.Vector3 colorDiffuse,
+      VM.Vector3 colorSpecular, this.range)
+      : super(name, lightTypePoint, colorDiffuse, colorSpecular);
 
   VM.Vector3 pos;
-  VM.Vector3 _colDiffuse;
-  VM.Vector3 _colSpecular;
+
   double range;
 
   // Must be in sync with UnpackPointLightInfo
@@ -36,13 +41,13 @@ class PointLight extends Light {
     m[o + 1] = pos.y;
     m[o + 2] = pos.z;
     //
-    m[o + 8] = _colDiffuse.x;
-    m[o + 9] = _colDiffuse.y;
-    m[o + 10] = _colDiffuse.z;
+    m[o + 8] = colorDiffuse.x;
+    m[o + 9] = colorDiffuse.y;
+    m[o + 10] = colorDiffuse.z;
     //
-    m[o + 12] = _colSpecular.x;
-    m[o + 13] = _colSpecular.y;
-    m[o + 14] = _colSpecular.z;
+    m[o + 12] = colorSpecular.x;
+    m[o + 13] = colorSpecular.y;
+    m[o + 14] = colorSpecular.z;
     //
     m[o + 7] = range;
   }
@@ -62,13 +67,11 @@ class PointLight extends Light {
 /// Conceptually a directional light is emanating from a infinitely large source
 /// at infinite distance.
 class DirectionalLight extends Light {
-  DirectionalLight(String name, VM.Vector3 this.dir, this._colDiffuse,
-      this._colSpecular, this.dim)
-      : super(name, lightTypeDirectional);
+  DirectionalLight(String name, VM.Vector3 this.dir, VM.Vector3 colorDiffuse,
+      VM.Vector3 colorSpecular, this.dim)
+      : super(name, lightTypeDirectional, colorDiffuse, colorSpecular);
 
   final VM.Vector3 dir;
-  final VM.Vector3 _colDiffuse;
-  final VM.Vector3 _colSpecular;
   final double dim;
 
   VM.Matrix4 _projViewMat = VM.Matrix4.zero();
@@ -81,13 +84,13 @@ class DirectionalLight extends Light {
     m[o + 5] = dir.y;
     m[o + 6] = dir.z;
     //
-    m[o + 8] = _colDiffuse.x;
-    m[o + 9] = _colDiffuse.y;
-    m[o + 10] = _colDiffuse.z;
+    m[o + 8] = colorDiffuse.x;
+    m[o + 9] = colorDiffuse.y;
+    m[o + 10] = colorDiffuse.z;
     //
-    m[o + 12] = _colSpecular.x;
-    m[o + 13] = _colSpecular.y;
-    m[o + 14] = _colSpecular.z;
+    m[o + 12] = colorSpecular.x;
+    m[o + 13] = colorSpecular.y;
+    m[o + 14] = colorSpecular.z;
   }
 
   @override
@@ -112,19 +115,17 @@ class SpotLight extends Light {
     String name,
     VM.Vector3 this.pos,
     VM.Vector3 this.dir,
-    this._colDiffuse,
-    this._colSpecular,
+    VM.Vector3 colorDiffuse,
+    VM.Vector3 colorSpecular,
     this.range,
     this.angle,
     this._spotFocus,
     this._near,
     this._far,
-  ) : super(name, lightTypeSpot);
+  ) : super(name, lightTypeSpot, colorDiffuse, colorSpecular);
 
   VM.Vector3 pos;
   VM.Vector3 dir;
-  final VM.Vector3 _colDiffuse;
-  final VM.Vector3 _colSpecular;
   double range;
   double angle;
 
@@ -149,13 +150,13 @@ class SpotLight extends Light {
     m[o + 5] = dir.y;
     m[o + 6] = dir.z;
     //
-    m[o + 8] = _colDiffuse.x;
-    m[o + 9] = _colDiffuse.y;
-    m[o + 10] = _colDiffuse.z;
+    m[o + 8] = colorDiffuse.x;
+    m[o + 9] = colorDiffuse.y;
+    m[o + 10] = colorDiffuse.z;
     //
-    m[o + 12] = _colSpecular.x;
-    m[o + 13] = _colSpecular.y;
-    m[o + 14] = _colSpecular.z;
+    m[o + 12] = colorSpecular.x;
+    m[o + 13] = colorSpecular.y;
+    m[o + 14] = colorSpecular.z;
     //
     m[o + 7] = range;
     m[o + 11] = Math.cos(angle);
@@ -207,6 +208,10 @@ class Illumination extends UniformGroup {
   Illumination() : super("illumination");
 
   final List<Light> _lights = [];
+
+  // There can be up to  kMaxLights
+  // Each light is represented by a 4x4 matrix and a type
+  // type == 0.0 means the light is not used.
   final Float32List _lightDescs = Float32List(16 * kMaxLights);
   final Float32List _lightTypes = Float32List(kMaxLights);
 

@@ -49,15 +49,6 @@ ShaderObject CreateBloomTextureFragmentShader(int radius, double sigma) {
     ..SetBody([constants, _kernelFragment]);
 }
 
-const String _applyBloomEffectFragment = """
-void main() {
-	${oFragColor} = texture(${uTexture}, ${vTexUV}) +
-	                ${uScale} *
-	                vec4(${uColor}, 1.0) *
-	                texture(${uTexture2}, ${vTexUV});
-}
-""";
-
 final ShaderObject uvPassthruVertexShader = ShaderObject("uv-passthru")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddVaryingVars([vTexUV])
@@ -66,4 +57,32 @@ final ShaderObject uvPassthruVertexShader = ShaderObject("uv-passthru")
 final ShaderObject applyBloomEffectFragmentShader = ShaderObject("BloomPassF")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uTexture, uTexture2, uScale, uColor])
-  ..SetBody([_applyBloomEffectFragment]);
+  ..SetBody([
+    """
+void main() {
+	${oFragColor} = texture(${uTexture}, ${vTexUV}) +
+	                ${uScale} *
+	                vec4(${uColor}, 1.0) *
+	                texture(${uTexture2}, ${vTexUV});
+}
+"""
+  ]);
+
+final ShaderObject scaledLuminosityHighPassFragmentShader =
+    ShaderObject("ScaledLuminosityHighPassF")
+      ..AddVaryingVars([vTexUV])
+      ..AddUniformVars([uRange, uColorAlpha, uTexture])
+      ..SetBody([
+        """
+// http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
+float RGB2Luma(vec3 rgb) { return dot(rgb, vec3(0.212, 0.715, 0.072)); }
+// float RGB2Luma(vec3 rgb) { return dot(rgb, vec3(0.299, 0.587, 0.114)); }
+
+void main() {
+    vec4 color = texture(${uTexture}, ${vTexUV});
+    float luma = RGB2Luma(color.rgb);
+    float alpha = smoothstep(${uRange}.x, ${uRange}.y, luma);
+    ${oFragColor} = mix(${uColorAlpha}, color, alpha );
+}
+ """
+      ]);

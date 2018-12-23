@@ -174,40 +174,40 @@ double kNear = 0.1;
 double kFar = 50.0;
 
 void main() {
-  StatsFps fps =
+  final StatsFps fps =
       StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = ChronosGL(canvas, faceCulling: false);
+  final HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  final ChronosGL cgl = ChronosGL(canvas, faceCulling: false);
 
-  OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
+  final OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
 
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
 
   final Perspective perspective = Perspective(orbit, kNear, kFar);
 
-  Illumination illumination = Illumination();
+  final Illumination illumination = Illumination();
   for (Light l in lightSources.values) {
     illumination.AddLight(l);
   }
 
-  ShadowMap shadowMap = ShadowMap(cgl, 512, 512, 0.5, 20.0);
+  final ShadowMap shadowMap = ShadowMap(cgl, 512, 512, 0.5, 20.0);
 
-  UniformGroup uniforms = UniformGroup("plain")
+  final UniformGroup uniforms = UniformGroup("plain")
     ..SetUniform(uShadowMap, shadowMap.GetMapTexture())
     ..SetUniform(uCanvasSize, shadowMap.GetMapSize())
     ..SetUniform(uShadowBias, 0.03);
 
   // display scene with shadow on left part of screen.
-  RenderPhase phaseMain = RenderPhase("main", cgl);
-  Scene sceneBasic = Scene(
+  final RenderPhase phaseMain = RenderPhase("main", cgl);
+  final Scene sceneBasic = Scene(
       "solid",
       RenderProgram("solid", cgl, lightVertexShaderBlinnPhongWithShadow,
           lightFragmentShaderBlinnPhongWithShadow),
       [perspective, illumination, uniforms]);
   phaseMain.add(sceneBasic);
 
-  Scene sceneFixed = Scene(
+  final Scene sceneFixed = Scene(
       "solid",
       RenderProgram(
           "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
@@ -222,7 +222,7 @@ void main() {
   }
 
   // Same order as lightSources
-  MeshData mdLight = EmptyLightVisualizer(sceneFixed.program, "light");
+  final MeshData mdLight = EmptyLightVisualizer(sceneFixed.program, "light");
   sceneFixed.add(Node("light", mdLight, lightSourceMat));
 
   // Event Handling

@@ -43,7 +43,7 @@ final Map<String, Node> gLightVisualizers = {};
 
 final List<Future<Object>> gLoadables = [];
 
-Scene LightSourceVisuializerScene(ChronosGL cgl, List<UniformGroup> uniforms) {
+Scene LightSourceVisualizerScene(ChronosGL cgl, List<UniformGroup> uniforms) {
   Scene scene = Scene(
       "Fixed",
       RenderProgram(
@@ -118,7 +118,7 @@ void main() {
   assert(
   sceneBlinnPhong.program.HasCompatibleAttributesTo(sceneGourad.program));
 
-  final Scene sceneFixed = LightSourceVisuializerScene(cgl, [perspective]);
+  final Scene sceneFixed = LightSourceVisualizerScene(cgl, [perspective]);
 
 
   // We have two phases (only one will be active)

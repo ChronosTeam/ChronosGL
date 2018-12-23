@@ -14,7 +14,7 @@ int TextureChannelsByType(int format) {
     case GL_RGBA:
       return 4;
     default:
-      assert(false);
+      assert(false, "unexpected format: ${format}");
       return -1;
   }
 }
@@ -117,7 +117,6 @@ class Framebuffer {
             TypedTexture(cgl, "frame::color", w, h, GL_RGBA8,
                 TexturePropertiesFramebuffer));
 
-
   ChronosGL _cgl;
 
   dynamic /* gl Framebuffer */ _framebuffer;
@@ -129,7 +128,8 @@ class Framebuffer {
       int viewPortH) {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 
-    assert(viewPortW > 0 && viewPortH > 0);
+    assert(viewPortW > 0 && viewPortH > 0,
+        "width and height must be > 0: ${viewPortW} ${viewPortW}");
     _cgl.viewport(viewPortX, viewPortY, viewPortW, viewPortH);
 
     if (clear_mode != 0) {
