@@ -247,31 +247,29 @@ ColorComponents CombinedLight(vec3 vVertexPosition,
 //
 // Evaluate the derivative of the height w.r.t. screen-space using forward
 // differencing (listing 2)
+// Also relevant: http://www.thetenthplanet.de/archives/1180
+
 const String StdLibShaderDerivative = """
 vec2 dHdxy_fwd(vec2 uv, float scale, sampler2D map) {
-    vec2 dSTdx = dFdx( uv );
-    vec2 dSTdy = dFdy( uv );
-
-    float Hll = scale * texture(map, uv ).x;
-    float dBx = scale * texture(map, uv + dSTdx ).x - Hll;
-    float dBy = scale * texture(map, uv + dSTdy ).x - Hll;
-
-    return vec2( dBx, dBy );
+    float H = texture(map, uv).x;
+    float dHx = texture(map, uv + dFdx(uv)).x - H;
+    float dHy = texture(map, uv + dFdy(uv)).x - H;
+    return vec2(dHx, dHy) * scale;
 }
 
+
 vec3 perturbNormalArb(vec3 surf_pos, vec3 surf_norm, vec2 dHdxy) {
-    surf_norm = normalize  (surf_norm);
-    vec3 vSigmaX = dFdx( surf_pos );
-    vec3 vSigmaY = dFdy( surf_pos );
-    vec3 vN = surf_norm;            // normalized
-
-    vec3 R1 = cross( vSigmaY, vN );
-    vec3 R2 = cross( vN, vSigmaX );
-
-    float fDet = dot( vSigmaX, R1 );
-
-    vec3 vGrad = sign( fDet ) * ( dHdxy.x * R1 + dHdxy.y * R2 );
-    return normalize( abs( fDet ) * surf_norm - vGrad );
+     vec3 vSigmaX = dFdx(surf_pos);
+     vec3 vSigmaY = dFdy(surf_pos);
+        
+     vec3 vN = surf_norm;
+     vec3 R1 = cross(vSigmaY, vN);
+     vec3 R2 = cross(vN, vSigmaX);
+     float fDet = dot(vSigmaX, R1);
+     // *= gl_FrontFacing ? 1.0 : -1.0
+     fDet *= (float(gl_FrontFacing) * 2.0 - 1.0);
+     vec3 vGrad = sign(fDet) * (dHdxy.x * R1 + dHdxy.y * R2);
+     return normalize(abs(fDet) * surf_norm - vGrad);
 }
 """;
 
