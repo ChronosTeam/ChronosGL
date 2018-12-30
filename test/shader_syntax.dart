@@ -30,7 +30,6 @@ void main() {
     print("${program}");
     */
     program = RenderProgram("prog", cgl, copyVertexShader, copyFragmentShader);
-    ;
     print("${program}");
 
     program = RenderProgram("prog", cgl, ssaoVertexShader, ssaoFragmentShader);
