@@ -47,21 +47,23 @@ bool NormalFromPoints(VM.Vector3 a, VM.Vector3 b, VM.Vector3 c, VM.Vector3 temp,
 }
 
 /// Helper for Shader independent Mesh creation.
-/// Supports Faces with 3 and 4 Nodes.
+/// Supports Faces with 3 and 4 Nodes or point clouds.
 /// Use  GeometryBuilderToMeshData() to create the Mesh
 /// for a specific Shader.
 class GeometryBuilder {
   GeometryBuilder([this.pointsOnly = false]);
 
+  // if true we have have point cloud
   final bool pointsOnly;
-  List<Face3> _faces3 = [];
-  List<Face4> _faces4 = [];
-  List<VM.Vector3> vertices = [];
+  final List<Face3> _faces3 = []; // only used if pointsOnly == false
+  final List<Face4> _faces4 = []; // only used if pointsOnly == false
+  final List<VM.Vector3> vertices = [];
   Map<String, List> attributes = {};
 
   void EnableAttribute(String canonical) {
-    assert(!attributes.containsKey(canonical));
-    assert(canonical.startsWith("a"));
+    assert(!attributes.containsKey(canonical),
+        "attribute ${canonical} already exists");
+    assert(canonical.startsWith("a"), "${canonical} is not an attribute");
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     switch (desc.type) {
       case VarTypeVec2:
@@ -122,17 +124,19 @@ class GeometryBuilder {
   }
 
   void AddFace3(int a, int b, int c) {
-    assert(pointsOnly == false);
+    assert(pointsOnly == false, "pointsOnly must be false");
     _faces3.add(Face3(a, b, c));
   }
 
   void AddFace4(int a, int b, int c, int d) {
-    assert(pointsOnly == false);
+    assert(pointsOnly == false, "pointsOnly must be false");
+
     _faces4.add(Face4(a, b, c, d));
   }
 
   void AddFaces3(int n) {
-    assert(pointsOnly == false);
+    assert(pointsOnly == false, "pointsOnly must be false");
+
     int v = vertices.length;
     for (int i = 0; i < n; i++, v += 3) {
       _faces3.add(Face3(v + 0, v + 1, v + 2));
@@ -154,6 +158,12 @@ class GeometryBuilder {
     }
   }
 
+  void AddVerticesTakeOwnership(List<VM.Vector3> vs) {
+    for (VM.Vector3 v in vs) {
+      vertices.add(v);
+    }
+  }
+
   void AddVertex(VM.Vector3 v) {
     vertices.add(v.clone());
   }
@@ -161,19 +171,15 @@ class GeometryBuilder {
   void AddVerticesFace3(List<VM.Vector3> vs) {
     assert(vs.length == 3);
     int i = vertices.length;
-    _faces3.add(Face3(i + 0, i + 1, i + 2));
-    for (VM.Vector3 v in vs) {
-      vertices.add(v.clone());
-    }
+    AddFace3(i + 0, i + 1, i + 2);
+    AddVertices(vs);
   }
 
   void AddVerticesFace3TakeOwnership(List<VM.Vector3> vs) {
     assert(vs.length == 3);
     int i = vertices.length;
-    _faces3.add(Face3(i + 0, i + 1, i + 2));
-    for (VM.Vector3 v in vs) {
-      vertices.add(v);
-    }
+    AddFace3(i + 0, i + 1, i + 2);
+    AddVerticesTakeOwnership(vs);
   }
 
   void AddAttributeDouble(String canonical, double v) {
@@ -258,19 +264,15 @@ class GeometryBuilder {
   void AddVerticesFace4(List<VM.Vector3> vs) {
     assert(vs.length == 4);
     int i = vertices.length;
-    _faces4.add(Face4(i + 0, i + 1, i + 2, i + 3));
-    for (VM.Vector3 v in vs) {
-      vertices.add(v.clone());
-    }
+    AddFace4(i + 0, i + 1, i + 2, i + 3);
+    AddVertices(vs);
   }
 
   void AddVerticesFace4TakeOwnership(List<VM.Vector3> vs) {
     assert(vs.length == 4);
     int i = vertices.length;
-    _faces4.add(Face4(i + 0, i + 1, i + 2, i + 3));
-    for (VM.Vector3 v in vs) {
-      vertices.add(v);
-    }
+    AddFace4(i + 0, i + 1, i + 2, i + 3);
+    AddVerticesTakeOwnership(vs);
   }
 
   void AddFaces4Strip(List<VM.Vector3> top, List<VM.Vector3> bot, bool closed) {
@@ -461,7 +463,7 @@ class GeometryBuilder {
   /// w: num horizontal points
   /// h: num vertical points
   void GenerateRegularGridUV(int w, int h) {
-    assert(vertices.length == w * h);
+    assert(vertices.length == w * h, "grid vertices length mismatch");
     List<VM.Vector2> uvs = [];
     attributes[aTexUV] = uvs;
 
@@ -471,7 +473,7 @@ class GeometryBuilder {
         uvs.add(VM.Vector2(y / (h - 1), x / (w - 1)));
       }
     }
-    assert(uvs.length == w * h);
+    assert(uvs.length == w * h, "grid uvs lengths mismatch");
   }
 
   void GenerateRegularGridFaces(int w, int h, bool wrapped) {
@@ -488,7 +490,7 @@ class GeometryBuilder {
       }
     }
     if (wrapped) {
-      assert(_faces4.length == w * h);
+      assert(_faces4.length == w * h, "face4 length mismatch");
     }
   }
 
