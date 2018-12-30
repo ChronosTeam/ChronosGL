@@ -5,7 +5,7 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 final ShaderObject blurdVertexShader = ShaderObject("bluredV")
   ..AddAttributeVars([aPosition])
-  ..SetBodyWithMain([NullVertexBody]);
+  ..SetBody([NullVertexShaderString]);
 
 final ShaderObject bluredFragmentShader = ShaderObject("bluredF")
   ..AddUniformVars([uColorAlpha])

@@ -1,6 +1,19 @@
 part of chronosshader;
 
-String _SSAOShaderImpl = """
+final ShaderObject ssaoVertexShader = ShaderObject("SSAOV")
+  ..AddAttributeVars([aPosition, aTexUV])
+  ..AddVaryingVars([vTexUV])
+  ..SetBody([NullVertexShaderWithTextureForwardString]);
+
+final ShaderObject ssaoFragmentShader = ShaderObject("SSAOF")
+  ..AddVaryingVars([vTexUV])
+//..AddUniformVar(uFogEnabled)
+//..AddUniformVar(uFogNear)
+//..AddUniformVar(uFogFar)
+  ..AddUniformVars([uCanvasSize, uCameraNear, uCameraFar, uTexture, uDepthMap])
+  ..SetBody([
+    """
+
     //uniform bool fogEnabled;
     const bool fogEnabled=false;
 
@@ -147,24 +160,6 @@ String _SSAOShaderImpl = """
       //${oFragColor} = vec4( color, 1.0 );
     }
     
-    """;
+    """
+  ]);
 
-List<ShaderObject> createSSAOShader() {
-  return [
-    ShaderObject("SSAOV")
-      ..AddAttributeVars([aPosition, aTexUV])
-      ..AddVaryingVars([vTexUV])
-      ..SetBodyWithMain([
-        NullVertexBody,
-        StdVertexTextureForward,
-      ]),
-    ShaderObject("SSAOF")
-      ..AddVaryingVars([vTexUV])
-      //..AddUniformVar(uFogEnabled)
-      //..AddUniformVar(uFogNear)
-      //..AddUniformVar(uFogFar)
-      ..AddUniformVars(
-          [uCanvasSize, uCameraNear, uCameraFar, uTexture, uDepthMap])
-      ..SetBody([_SSAOShaderImpl])
-  ];
-}

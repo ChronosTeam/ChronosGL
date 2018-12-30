@@ -1,21 +1,18 @@
 part of chronosshader;
 
-List<ShaderObject> createSobelShader() {
-  return [
-    ShaderObject("SobelV")
-      ..AddAttributeVars([aPosition, aTexUV])
-      ..AddVaryingVars([vTexUV])
-      ..SetBodyWithMain([NullVertexBody, StdVertexTextureForward]),
-    ShaderObject("SobelF")
-      ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uTexture, uCanvasSize])
-      ..SetBody([
-        """
+final ShaderObject sobelVertexShader = ShaderObject("SobelV")
+  ..AddAttributeVars([aPosition, aTexUV])
+  ..AddVaryingVars([vTexUV])
+  ..SetBody([NullVertexShaderWithTextureForwardString]);
+
+final ShaderObject sobelFragmentShader = ShaderObject("SobelF")
+  ..AddVaryingVars([vTexUV])
+  ..AddUniformVars([uTexture, uCanvasSize])
+  ..SetBody([
+    """
   float lum(vec4 c) {
     return dot(c.xyz, vec3(0.3, 0.59, 0.11));
   }
-
-
 
   float sobel() {
       vec2 imageIncrement = vec2(1.0/${uCanvasSize}.x,1.0/${uCanvasSize}.y);
@@ -48,6 +45,4 @@ List<ShaderObject> createSobelShader() {
       ${oFragColor} = vec4(len, len, len, 1.0); //
   }
   """
-      ])
-  ];
-}
+  ]);

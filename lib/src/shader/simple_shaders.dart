@@ -47,9 +47,6 @@ final ShaderObject pointSpritesFragmentShader = ShaderObject("PointSpritesF")
   ..AddUniformVars([uTexture])
   ..SetBodyWithMain(["${oFragColor} = texture( ${uTexture},  gl_PointCoord);"]);
 
-List<ShaderObject> createPointSpritesShader() =>
-    [pointSpritesVertexShader, pointSpritesFragmentShader];
-
 final ShaderObject demoVertexShader = ShaderObject("FixedVertexColorV")
   ..AddAttributeVars([aPosition])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])

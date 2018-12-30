@@ -1,4 +1,5 @@
 import 'dart:html' as HTML;
+
 import 'package:chronosgl/chronosgl.dart';
 
 // http://www.bidouille.org/prog/plasma
@@ -11,7 +12,7 @@ final ShaderObject plasmaVertexShader1 = ShaderObject("Plasma1V")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..AddVaryingVars([vTexUV])
-  ..SetBodyWithMain([StdVertexBody, "${vTexUV} = ${aTexUV};"]);
+  ..SetBody([NullVertexShaderWithTextureForwardString]);
 
 final ShaderObject plasmaFragmentShader1 = ShaderObject("Plasma1F")
   ..AddVaryingVars([vTexUV])
@@ -41,7 +42,7 @@ final ShaderObject plasmaVertexShader2 = ShaderObject("Plasma2V")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..AddVaryingVars([vTexUV])
-  ..SetBodyWithMain([StdVertexBody, "${vTexUV} = ${aTexUV};"]);
+  ..SetBody([NullVertexShaderWithTextureForwardString]);
 
 final ShaderObject plasmaFragmentShader2 = ShaderObject("Plasma2F")
   ..AddVaryingVars([vTexUV])
@@ -61,7 +62,7 @@ final ShaderObject plasmaVertexShader3 = ShaderObject("Plasma3V")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..AddVaryingVars([vTexUV])
-  ..SetBodyWithMain([StdVertexBody, "${vTexUV} = ${aTexUV};"]);
+  ..SetBody([NullVertexShaderWithTextureForwardString]);
 
 final ShaderObject plasmaFragmentShader3 = ShaderObject("Plasma3F")
   ..AddVaryingVars([vTexUV])

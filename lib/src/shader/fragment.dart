@@ -10,6 +10,19 @@ const String StdVertexTextureForward = "${vTexUV} = ${aTexUV};";
 
 const String NullVertexBody = "gl_Position = vec4(${aPosition}, 1.0);";
 
+const String NullVertexShaderString = """
+void main() {
+  gl_Position = vec4(${aPosition}, 1.0);
+}
+""";
+
+const String NullVertexShaderWithTextureForwardString = """
+void main() {
+  gl_Position = vec4(${aPosition}, 1.0);
+  ${vTexUV} = ${aTexUV};
+}
+""";
+
 // No globals, no dependencies on Shader variables
 const String StdLibShader = """
 // ============================================================
