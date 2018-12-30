@@ -16,7 +16,7 @@ void TorusKnotGetPos(
 
 const double _TorusEpsilon = 0.01;
 
-GeometryBuilder ShapeTorusKnotGeometry(
+GeometryBuilder TorusKnotGeometry(
     {double radius = 20.0,
     double tubeRadius = 4.0,
     int segmentsR = 128,
@@ -76,7 +76,7 @@ GeometryBuilder ShapeTorusKnotGeometry(
 
 /// Like ShapeTorusKnotGeometry but with duplicate Vertices to make it
 /// possible to add aCenter attributes with GenerateWireframeCenters()
-GeometryBuilder ShapeTorusKnotGeometryWireframeFriendly(
+GeometryBuilder TorusKnotGeometryWireframeFriendly(
     {double radius = 20.0,
     double tubeRadius = 4.0,
     int segmentsR = 128,

@@ -1,8 +1,7 @@
 import 'dart:html' as HTML;
 
-import 'package:vector_math/vector_math.dart' as VM;
-
 import 'package:chronosgl/chronosgl.dart';
+import 'package:vector_math/vector_math.dart' as VM;
 
 // TODO: the torusknot cannot be seen through the other objects -why
 
@@ -33,7 +32,8 @@ void main() {
     ..SetUniform(uColorAlpha2, VM.Vector4(0.0, 0.0, 0.0, 0.5));
 
   {
-    GeometryBuilder gb = IcosahedronGeometry(2)..GenerateWireframeCenters();
+    GeometryBuilder gb = IcosahedronGeometry(subdivisions: 2)
+      ..GenerateWireframeCenters();
     Node ico = Node(
         "sphere",
         GeometryBuilderToMeshData("icosahedron", scene.program, gb),
@@ -77,7 +77,7 @@ void main() {
 
   {
     GeometryBuilder gb =
-        ShapeTorusKnotGeometryWireframeFriendly(radius: 1.0, tubeRadius: 0.4)
+        TorusKnotGeometryWireframeFriendly(radius: 1.0, tubeRadius: 0.4)
           ..GenerateWireframeCenters();
     Node torus = Node("torus",
         GeometryBuilderToMeshData("torus", scene.program, gb), matWireframe)

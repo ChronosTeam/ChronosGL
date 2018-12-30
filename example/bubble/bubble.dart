@@ -42,7 +42,7 @@ void main() {
 
   final RenderProgram progSphere =
       RenderProgram("spheres", cgl, sphereVertexShader, sphereFragmentShader);
-  final MeshData mdSphere = ShapeIcosahedron(progSphere, 3);
+  final MeshData mdSphere = ShapeIcosahedron(progSphere, subdivisions: 3);
   final VM.Matrix4 modelMat = VM.Matrix4.identity();
   final VM.Matrix3 normalMat = VM.Matrix3.identity();
 

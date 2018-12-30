@@ -46,7 +46,7 @@ MeshData TorusKnotWithCustumUV(RenderProgram program) {
   final int w = 17; // Try different values
   final int h = 128;
 
-  final GeometryBuilder gb = ShapeTorusKnotGeometry(
+  final GeometryBuilder gb = TorusKnotGeometry(
       segmentsR: h,
       segmentsT: w,
       computeUVs: false,

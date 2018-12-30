@@ -1,7 +1,7 @@
+import "dart:async";
 import 'dart:html' as HTML;
 
 import 'package:chronosgl/chronosgl.dart';
-import "dart:async";
 
 Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
   Scene scene = Scene(
@@ -50,7 +50,8 @@ Scene MakeMainScene(ChronosGL cgl, List<UniformGroup> uniforms) {
   gLoadables.add(f2);
 
   {
-    Node ico = Node("sphere", ShapeIcosahedron(scene.program, 3), matWood)
+    Node ico = Node(
+        "sphere", ShapeIcosahedron(scene.program, subdivisions: 3), matWood)
       ..setPos(0.0, 0.0, 0.0);
     scene.add(ico);
   }

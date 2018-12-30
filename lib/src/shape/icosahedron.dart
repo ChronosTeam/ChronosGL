@@ -76,7 +76,7 @@ final List<VM.Vector3> IcosahedronVertexList = [
 //   3           1280         1272
 //   4           5120         5112
 GeometryBuilder IcosahedronGeometry(
-    [int subdivisions = 4, double scale = 1.0, bool computeNormals = true]) {
+    {int subdivisions = 4, double scale = 1.0, bool computeNormals = true}) {
   List<Face3> faces = [];
   List<VM.Vector3> vertices = [];
 
