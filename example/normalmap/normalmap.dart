@@ -1,6 +1,7 @@
-import 'package:chronosgl/chronosgl.dart';
-import 'dart:html' as HTML;
 import 'dart:async';
+import 'dart:html' as HTML;
+
+import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 String Dir = "../asset/leeperrysmith/";
@@ -75,8 +76,10 @@ void main() {
   Material lightSourceMat = Material("light")
     ..SetUniform(uColor, ColorYellow)
     ..SetUniform(uShininess, 25.0);
-  Node shapePointLight = Node("pointLight",
-      ShapeIcosahedron(sceneFixed.program, 4, 0.1), lightSourceMat)
+  Node shapePointLight = Node(
+      "pointLight",
+      ShapeIcosahedron(sceneFixed.program, subdivisions: 4, scale: 0.1),
+      lightSourceMat)
     ..setPosFromVec(posLight);
   sceneFixed.add(shapePointLight);
 

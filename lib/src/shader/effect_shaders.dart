@@ -2,7 +2,7 @@ part of chronosshader;
 
 final ShaderObject effectVertexShader = ShaderObject("null")
   ..AddAttributeVars([aPosition])
-  ..SetBodyWithMain([NullVertexBody]);
+  ..SetBody([NullVertexShaderString]);
 
 final ShaderObject copyVertexShader = effectVertexShader;
 

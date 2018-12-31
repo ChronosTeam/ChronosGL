@@ -75,7 +75,7 @@ void main() {
     ..SetUniform(uColor, ColorBlue)
     ..ForceUniform(cStencilFunc, StencilEqualOne);
 
-  scene.add(Node("sphere", ShapeIcosahedron(scene.program, 3), matRed)
+  scene.add(Node("sphere", ShapeIcosahedron(scene.program, subdivisions: 3), matRed)
     ..setPos(0.0, 0.0, 0.0));
 
   scene.add(Node("cube", ShapeCube(scene.program), matBlueStencil)

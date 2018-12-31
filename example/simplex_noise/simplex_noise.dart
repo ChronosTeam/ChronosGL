@@ -1,5 +1,6 @@
-import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
+
+import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 const String uFreqMul = "uFreqMul";
@@ -14,7 +15,7 @@ const String uSpeed = "uSpeed";
 
 final ShaderObject nullVertexShader = ShaderObject("nullShaderV")
   ..AddAttributeVars([aPosition])
-  ..SetBodyWithMain([NullVertexBody]);
+  ..SetBody([NullVertexShaderString]);
 
 String shader = """
    #define D 3

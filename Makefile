@@ -73,4 +73,6 @@ brower_tests_old:
 	$(PUB) run test   -p dartium test/show_extensions.dart
 
 tests:
-	-$(PUB) run test   -p vm test/polygon.dart
+	$(PUB) run test   -p vm test/polygon.dart
+	$(PUB) run test   -p chrome test/geometry.dart
+	$(PUB) run test   -p chrome test/shader_syntax.dart

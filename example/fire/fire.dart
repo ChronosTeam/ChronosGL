@@ -13,7 +13,7 @@ const String uRandomSeed = "uRandomSeed";
 
 final ShaderObject nullVertexShader = ShaderObject("nullShaderV")
   ..AddAttributeVars([aPosition])
-  ..SetBodyWithMain([NullVertexBody]);
+  ..SetBody([NullVertexShaderString]);
 
 final ShaderObject fireFragmentShader = ShaderObject("fireShaderF")
   ..AddUniformVars([

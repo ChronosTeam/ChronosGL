@@ -1,7 +1,7 @@
-import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 import 'dart:math' as Math;
 
+import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 const double kShadowBias1 = 0.001;
@@ -151,7 +151,8 @@ final Material lightSourceMat = Material("light")
   ..SetUniform(uColor, ColorYellow);
 
 void AddShapesToScene(Scene scene) {
-  scene.add(Node("sphere", ShapeIcosahedron(scene.program, 3), matObjects)
+  scene.add(Node(
+      "sphere", ShapeIcosahedron(scene.program, subdivisions: 3), matObjects)
     ..setPos(0.0, 0.0, 0.0));
 
   scene.add(Node("cube", ShapeCube(scene.program), matObjects)
@@ -176,7 +177,8 @@ double kFar = 50.0;
 void main() {
   final StatsFps fps =
       StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  final HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  final HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas');
   final ChronosGL cgl = ChronosGL(canvas, faceCulling: false);
 
   final OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);

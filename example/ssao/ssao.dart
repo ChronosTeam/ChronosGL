@@ -34,9 +34,8 @@ void main() {
   final RenderProgram progSolid = RenderProgram(
       "solid", cgl, solidColorVertexShader, solidColorFragmentShader);
 
-  final List<ShaderObject> ssaoShader = createSSAOShader();
   final RenderProgram progSSAO =
-      RenderProgram("ssao", cgl, ssaoShader[0], ssaoShader[1]);
+      RenderProgram("ssao", cgl, ssaoVertexShader, ssaoFragmentShader);
 
   final UniformGroup uniforms = UniformGroup("plain")
     ..SetUniform(uCameraNear, 0.1)

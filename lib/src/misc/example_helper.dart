@@ -112,8 +112,9 @@ MeshData ShapeCylinder(RenderProgram prog, double radTop, double radBot,
 }
 
 MeshData ShapeIcosahedron(RenderProgram prog,
-    [int subdivisions = 4, double scale = 1.0, bool computeNormals = true]) {
-  GeometryBuilder gb = IcosahedronGeometry(subdivisions, scale, computeNormals);
+    {int subdivisions = 4, double scale = 1.0, bool computeNormals = true}) {
+  GeometryBuilder gb = IcosahedronGeometry(
+      subdivisions: subdivisions, scale: scale, computeNormals: computeNormals);
   return GeometryBuilderToMeshData("icosahedron-${subdivisions}", prog, gb);
 }
 
@@ -126,7 +127,7 @@ MeshData ShapeTorusKnot(RenderProgram prog,
     int q = 3,
     double heightScale = 1.0,
     bool computeNormals = true}) {
-  GeometryBuilder gb = ShapeTorusKnotGeometry(
+  GeometryBuilder gb = TorusKnotGeometry(
       radius: radius,
       tubeRadius: tubeRadius,
       segmentsR: segmentsR,

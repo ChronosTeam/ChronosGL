@@ -1,12 +1,13 @@
 import 'dart:html' as HTML;
 import 'dart:typed_data';
+
 import 'package:chronosgl/chronosgl.dart';
 
 const int kDim = 500;
 
 final ShaderObject computeVertexShader = ShaderObject("computeVertexShader")
   ..AddAttributeVars([aPosition])
-  ..SetBodyWithMain([NullVertexBody]);
+  ..SetBody([NullVertexShaderString]);
 
 final ShaderObject computeFragmentShader = ShaderObject("computeFragmentShader")
   ..SetBodyWithMain([

@@ -34,9 +34,8 @@ void main() {
   final RenderProgram progGrey =
       RenderProgram("grey", cgl, greyShader[0], greyShader[1]);
 
-  final List<ShaderObject> sobelShader = createSobelShader();
   final RenderProgram progSobel =
-      RenderProgram("ssao", cgl, sobelShader[0], sobelShader[1]);
+      RenderProgram("ssao", cgl, sobelVertexShader, sobelFragmentShader);
 
   final UniformGroup uniforms = UniformGroup("plain")
     ..SetUniform(uCanvasSize, VM.Vector2(0.0 + width, 0.0 + height))

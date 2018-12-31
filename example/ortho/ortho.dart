@@ -1,5 +1,6 @@
-import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
+
+import 'package:chronosgl/chronosgl.dart';
 
 void main() {
   StatsFps fps =
@@ -31,7 +32,8 @@ void main() {
   final Material mat5 = Material("plane")..SetUniform(uColor, ColorGray8);
 
   final List<Node> nodes = [
-    Node("sphere", ShapeIcosahedron(prog, 3), mat1)..setPos(0.0, 0.0, 0.0),
+    Node("sphere", ShapeIcosahedron(prog, subdivisions: 3), mat1)
+      ..setPos(0.0, 0.0, 0.0),
     Node("cube", ShapeCube(prog), mat2)..setPos(-5.0, 0.0, -5.0),
     Node("cylinder", ShapeCylinder(prog, 3.0, 6.0, 2.0, 32), mat3)
       ..setPos(5.0, 0.0, -5.0),

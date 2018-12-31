@@ -1,9 +1,8 @@
-import 'package:chronosgl/chronosgl.dart';
-import 'dart:html' as HTML;
-
 import 'dart:async';
+import 'dart:html' as HTML;
 import 'dart:typed_data';
 
+import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 const String meshFile = "../asset/knight/knight.js";
@@ -53,19 +52,19 @@ void main() {
 
 final ShaderObject animationVertexShader = ShaderObject("AnimationV")
   ..AddAttributeVars([aPosition, aBoneIndex, aBoneWeight])
-  //..AddAttributeVar(aNormal)
-  //..AddAttributeVar(aTexUV)
+//..AddAttributeVar(aNormal)
+//..AddAttributeVar(aTexUV)
   ..AddVaryingVars([vColor])
-  //..AddVaryingVar(vTexUV)
-  //..AddVaryingVar(vNormal)
+//..AddVaryingVar(vTexUV)
+//..AddVaryingVar(vNormal)
   ..AddUniformVars(
       [uPerspectiveViewMatrix, uModelMatrix, uAnimationTable, uTime])
   ..SetBody([skinningVertexShader]);
 
 final ShaderObject animationFragmentShader = ShaderObject("AnimationV")
   ..AddVaryingVars([vColor])
-  //..AddVaryingVar(vTexUV)
-  //..AddUniformVar(uTextureSampler)
+//..AddVaryingVar(vTexUV)
+//..AddUniformVar(uTextureSampler)
   ..SetBody([skinningFragmentShader]);
 
 final double kAnimTimeStep = 0.0333;

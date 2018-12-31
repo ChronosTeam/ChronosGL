@@ -63,7 +63,7 @@ void main() {
 
   Material mat = Material("mat");
   // Sky Sphere
-  MeshData md = ShapeIcosahedron(sceneSky.program, 3);
+  MeshData md = ShapeIcosahedron(sceneSky.program, subdivisions: 3);
   //..multiplyVertices(100);
   Node m = Node(md.name, md, mat)..transform.scale(100.0);
   sceneSky.add(m);

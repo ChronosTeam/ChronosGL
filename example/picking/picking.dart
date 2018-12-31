@@ -1,5 +1,6 @@
 import 'dart:html' as HTML;
 import 'dart:typed_data';
+
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -36,8 +37,9 @@ void main() {
   {
     String name = "sphere";
     Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]);
-    Node node = Node(name, ShapeIcosahedron(scene.program, 3), mat)
-      ..setPos(0.0, 0.0, 0.0);
+    Node node =
+        Node(name, ShapeIcosahedron(scene.program, subdivisions: 3), mat)
+          ..setPos(0.0, 0.0, 0.0);
     scene.add(node);
   }
   {
