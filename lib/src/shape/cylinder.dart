@@ -5,6 +5,7 @@ part of shape;
 
 GeometryBuilder CylinderGeometry(double radTop, double radBot, double height,
     int radialSubdivisions, bool computeNormals) {
+  assert (radialSubdivisions >2, "must have at least 3 divisions");
   double halfHeight = height / 2;
 
   List<VM.Vector3> vertices = [];

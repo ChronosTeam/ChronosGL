@@ -2,8 +2,9 @@ part of shape;
 
 /// Parametric representation of a TorusKnot
 /// u varies from 0 - 2 PI
-void TorusKnotGetPos(
-    double u, int q, int p, double radius, double heightScale, VM.Vector3 vec) {
+/// q == 0 and p == 1 results in a torus
+void TorusKnotGetPos(double u, int q, int p, double radius, double heightScale,
+    VM.Vector3 vec) {
   final double cq = Math.cos(q * u);
   final double sq = Math.sin(q * u);
   final double cp = Math.cos(p * u);
@@ -16,33 +17,41 @@ void TorusKnotGetPos(
 
 const double _TorusEpsilon = 0.01;
 
-GeometryBuilder TorusKnotGeometry(
-    {double radius = 20.0,
-    double tubeRadius = 4.0,
-    int segmentsR = 128,
-    int segmentsT = 16,
-    int p = 2,
-    int q = 3,
-    double heightScale = 1.0,
-    bool wrap = false,
-    bool computeUVs = true,
-    bool computeNormals = true}) {
+/// q == 0 and p == 1 results in a torus
+GeometryBuilder TorusKnotGeometry({double radius = 20.0,
+  double tubeRadius = 4.0,
+  int segmentsR = 128,
+  int segmentsT = 16,
+  int p = 2,
+  int q = 3,
+  double heightScale = 1.0,
+  // wrap false => start and end node are separate vertices
+  bool wrap = false,
+  bool computeUVs = true,
+  bool computeNormals = true}) {
   void curveFunc(double u, VM.Vector3 out) {
     TorusKnotGetPos(u, q, p, radius, heightScale, out);
   }
 
-  int extra = wrap ? 0 : 1;
-  final int w = segmentsT + extra;
-  final int h = segmentsR + extra;
-
-  final List<VM.Vector3> pointsAndTangents =
-      ParametricCurvePointsAndTangents(curveFunc, 0.0, 2.0 * Math.pi, h, wrap);
-
+  final List<VM.Vector3> pointsAndTangents = ParametricCurvePointsAndTangents(
+      curveFunc, 0.0, 2.0 * Math.pi, segmentsR, halfOpen: true);
+  if (!wrap) {
+    pointsAndTangents.add(pointsAndTangents[0]);
+    pointsAndTangents.add(pointsAndTangents[1]);
+  }
+  final int h = segmentsR + (wrap ? 0 : 1);
   assert(pointsAndTangents.length == 2 * h);
 
   final List<List<VM.Vector3>> bands =
-      TubeHullBands(pointsAndTangents, segmentsT, tubeRadius, wrap);
+  TubeHullBands(pointsAndTangents, segmentsT, tubeRadius);
+  if (!wrap) {
+    for (List<VM.Vector3> b in bands) {
+      b.add(b[0]);
+      b.add(b[1]);
+    }
+  }
   assert(bands.length == h);
+  final int w = segmentsT + (wrap ? 0 : 1);
 
   assert(bands[0].length == 2 * w);
 
@@ -76,29 +85,32 @@ GeometryBuilder TorusKnotGeometry(
 
 /// Like ShapeTorusKnotGeometry but with duplicate Vertices to make it
 /// possible to add aCenter attributes with GenerateWireframeCenters()
-GeometryBuilder TorusKnotGeometryWireframeFriendly(
-    {double radius = 20.0,
-    double tubeRadius = 4.0,
-    int segmentsR = 128,
-    int segmentsT = 16,
-    int p = 2,
-    int q = 3,
-    double heightScale = 1.0,
-    bool computeUVs = true,
-    bool computeNormals = true}) {
+GeometryBuilder TorusKnotGeometryWireframeFriendly({double radius = 20.0,
+  double tubeRadius = 4.0,
+  int segmentsR = 128,
+  int segmentsT = 16,
+  int p = 2,
+  int q = 3,
+  double heightScale = 1.0,
+  bool computeUVs = true,
+  bool computeNormals = true}) {
   void curveFunc(double u, VM.Vector3 out) {
     TorusKnotGetPos(u, q, p, radius, heightScale, out);
   }
 
+  final List<VM.Vector3> pointsAndTangents = ParametricCurvePointsAndTangents(
+      curveFunc, 0.0, 2.0 * Math.pi, segmentsR, halfOpen: true);
+  pointsAndTangents.add(pointsAndTangents[0]);
+  pointsAndTangents.add(pointsAndTangents[1]);
   final int h = segmentsR + 1;
-
-  final List<VM.Vector3> pointsAndTangents =
-      ParametricCurvePointsAndTangents(curveFunc, 0.0, 2.0 * Math.pi, h, false);
-
   assert(pointsAndTangents.length == 2 * h);
 
   final List<List<VM.Vector3>> bands =
-      TubeHullBands(pointsAndTangents, segmentsT, tubeRadius, false);
+  TubeHullBands(pointsAndTangents, segmentsT, tubeRadius);
+  for (List<VM.Vector3> b in bands) {
+    b.add(b[0]);
+    b.add(b[1]);
+  }
   assert(bands.length == h);
 
   final GeometryBuilder gb = GeometryBuilder();

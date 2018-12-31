@@ -46,21 +46,33 @@ bool NormalFromPoints(VM.Vector3 a, VM.Vector3 b, VM.Vector3 c, VM.Vector3 temp,
   return true;
 }
 
+// Note: the build-in has does not work of all components are close to zero.
+int hashVector3(VM.Vector3 v) {
+  int h = 0;
+  for (int i in v.storage.buffer.asInt32List()) {
+    h ^= i;
+  }
+  return h;
+}
+
 class Edge3 {
   Edge3(this.v1, this.v2);
 
-  VM.Vector3 v1;
-  VM.Vector3 v2;
-
-  @override
-  bool operator ==(Object other) =>
-      (other is Edge3) && v1 == other.v1 && v2 == other.v2;
+  final VM.Vector3 v1;
+  final VM.Vector3 v2;
 
   @override
   String toString() => "${v1} -> ${v2}";
 
+
   @override
-  int get hashCode => v1.hashCode ^ v2.hashCode;
+  bool operator ==(Object other) =>
+      other is Edge3 && v1 == other.v1 && v2 == other.v2;
+
+  @override
+  int get hashCode => hashVector3(v1) ^ hashVector3(v2);
+
+
 }
 
 /// Helper for Shader independent Mesh creation.
@@ -507,20 +519,24 @@ class GeometryBuilder {
     }
     if (wrapped) {
       assert(_faces4.length == w * h, "face4 length mismatch");
+    } else {
+      assert(_faces4.length == (w - 1) * (h - 1), "face4 length mismatch");
     }
   }
 
   // http://pages.mtu.edu/~shene/COURSES/cs3621/SLIDES/Mesh.pdf
   bool IsOrientableManifoldWithBoundaries() {
-    Map<Edge3, Object> incidenceE = {};
+    final LinkedHashMap<Edge3, Object> incidenceE =
+        LinkedHashMap<Edge3, Object>();
 
     bool addEdge(VM.Vector3 v1, VM.Vector3 v2, Object face) {
-      Edge3 edge = Edge3(v1, v2);
-      if (incidenceE.containsKey(edge)) {
-        // print("unexpected duplicate edge");
+      final Edge3 edge = Edge3(v1, v2);
+
+      final Object f = incidenceE.putIfAbsent(edge, () => face);
+      if (f != face) {
+        LogWarn("unexpected duplicate edge:  ${edge}");
         return true;
       } else {
-        incidenceE[edge] = face;
         return false;
       }
     }
@@ -549,20 +565,19 @@ class GeometryBuilder {
         return false;
       }
     }
-
-    // print("number of edges: ${incidenceE.length}");
-
-    // each edge is incident to two faces with compatible orientation
+    // check that each edge is incident to two faces with compatible orientation
     for (Edge3 e in incidenceE.keys) {
       Edge3 f = Edge3(e.v2, e.v1);
       if (!incidenceE.containsKey(f)) {
-        // print("unpaired edge ${e.v1}->${e.v2}");
+        LogWarn("unpaired edge ${e.v1}->${e.v2}");
         return false;
       }
     }
 
     // fan property
-    Map<VM.Vector3, List<VM.Vector3>> incidenceV = {};
+    // print("build incidenceV from ${incidenceE.length} edges");
+    final LinkedHashMap<VM.Vector3, List<VM.Vector3>> incidenceV =
+        LinkedHashMap<VM.Vector3, List<VM.Vector3>>(hashCode: hashVector3);
     for (Edge3 e in incidenceE.keys) {
       incidenceV.putIfAbsent(e.v1, () => <VM.Vector3>[]).add(e.v2);
     }
@@ -588,6 +603,7 @@ class GeometryBuilder {
       return true;
     }
 
+    //print ("check loops");
     for (List<VM.Vector3> lst in incidenceV.values) {
       if (!formsLoop(lst)) {
         // print ("fan issues for ${lst}");

@@ -1,12 +1,10 @@
 part of shape;
 
 /// Given the points and corresponding tangents on a curve.
-/// Compute the hull at radius around those points divided into segment
-/// sections.
+/// Compute the hull (points and normals) at radius around those points
+/// divided into segment sections.
 List<List<VM.Vector3>> TubeHullBands(List<VM.Vector3> pointsAndTangents,
-    int segments, double radius, bool wrap) {
-  // if we do not wrap we duplicate vertices
-  final int extra = wrap ? 0 : 1;
+    int segments, double radius) {
 
   final List<List<VM.Vector3>> out = [];
   // Avoid unnecessary allocations:
@@ -24,11 +22,12 @@ List<List<VM.Vector3>> TubeHullBands(List<VM.Vector3> pointsAndTangents,
     v1.normalize();
     v2.normalize();
 
-    for (int j = 0; j < segments + extra; ++j) {
+    for (int j = 0; j < segments; ++j) {
       double v = j / segments * 2 * Math.pi;
       double cx = radius * Math.cos(v);
       double cy = radius * Math.sin(v);
 
+      // point on hull
       p.setFrom(c);
       p.addScaled(v1, cx);
       p.addScaled(v2, cy);
@@ -47,14 +46,19 @@ List<List<VM.Vector3>> TubeHullBands(List<VM.Vector3> pointsAndTangents,
 
 typedef void ParametricCurveFunc(double u, VM.Vector3 out);
 
+/// Note this creates the curve for the interval [start, end] or,
+/// if halfOpen == true,  for the half open interval [start, end[.
+/// The latter is useful for situations where we expect f(start) == f(end)
+/// but because numerical inaccuracies it will be slightly off.
+/// In such situations it is better to manually duplicate the f(start)
 List<VM.Vector3> ParametricCurvePointsAndTangents(ParametricCurveFunc func,
-    double start, double end, int numPoints, bool wrap,
-    {double epsilon = 0.001}) {
+    double start, double end, int numPoints,
+    {double epsilon = 0.001, bool halfOpen = false}) {
   assert(numPoints >= 2);
-  List<VM.Vector3> out = [];
-  VM.Vector3 p = VM.Vector3.zero();
-  VM.Vector3 d = VM.Vector3.zero();
-  double denom = numPoints - (wrap ? 0.0 : 1.0);
+  final List<VM.Vector3> out = [];
+  final VM.Vector3 p = VM.Vector3.zero();
+  final VM.Vector3 d = VM.Vector3.zero();
+  double denom = numPoints - (halfOpen ? 0.0 : 1.0);
   for (int i = 0; i < numPoints; ++i) {
     double u = (end - start) / denom * i + start;
     func(u, p);

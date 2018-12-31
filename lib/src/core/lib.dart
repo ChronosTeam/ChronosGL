@@ -3,6 +3,7 @@ library core;
 // This library does not depend on "dart:html"
 // It would be nice if we could also break the dependency on dart:web_gl
 // for easier testing.
+import 'dart:collection';
 import 'dart:typed_data';
 import 'dart:math' as Math;
 import 'dart:web_gl' as WEBGL; // only chronosgl.dart uses WEBGL
