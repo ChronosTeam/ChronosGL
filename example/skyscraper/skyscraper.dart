@@ -7,16 +7,21 @@ final ShaderObject skyScraperVertexShader = ShaderObject("SkyScraperV")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddVaryingVars([vPosition, vTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-  ..SetBodyWithMain([
-    StdVertexBody,
-    "${vPosition} = ${aPosition};",
-    "${vTexUV} = ${aTexUV};",
+  ..SetBody([
+    """
+void main() {     
+    ${StdVertexBody}
+    ${vPosition} = ${aPosition};
+    ${vTexUV} = ${aTexUV};
+}
+"""
   ]);
 
 final ShaderObject skyScraperFragmentShader = ShaderObject("SkyScraperF")
   ..AddVaryingVars([vPosition, vTexUV])
-  ..SetBodyWithMain([
+  ..SetBody([
     """
+void main() {      
       // the step finds the windows
       // multiplying the tex coord with 11 gives it a black column on the right side but with artifacts
       // multiplying the tex coord with 10.9 gives it a black column on the right side WITHOUT the
@@ -30,6 +35,7 @@ final ShaderObject skyScraperFragmentShader = ShaderObject("SkyScraperF")
       //gl_FragColor = vec4( mod(vPosition.x*10.0,2.0) ,
       //                       mod(vPosition.y*20.0,2.0),
       //                       mod(vPosition.z*10.0,2.0), 1. );
+}
 """
   ]);
 

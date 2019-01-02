@@ -1,6 +1,7 @@
-import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 import 'dart:typed_data';
+
+import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 final ShaderObject instancedVertexShader = ShaderObject("InstancedV")
@@ -27,7 +28,13 @@ void main(void) {
 
 final ShaderObject instancedFragmentShader = ShaderObject("InstancedF")
   ..AddVaryingVars([vColor])
-  ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1. );"]);
+  ..SetBody([
+    """
+void main() {  
+     ${oFragColor} = vec4( ${vColor}, 1. );
+}
+     """
+  ]);
 
 void AddInstanceData(MeshData md) {
   int count = 1000;

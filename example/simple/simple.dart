@@ -1,7 +1,7 @@
 import 'dart:html' as HTML;
-import 'package:vector_math/vector_math.dart' as VM;
 
 import 'package:chronosgl/chronosgl.dart';
+import 'package:vector_math/vector_math.dart' as VM;
 
 // A very simple shaders - many other are available out of the box.
 // aPosition will be provided by the MeshData object `torus`
@@ -27,7 +27,13 @@ void main(void) {
 
 final ShaderObject demoFragmentShader = ShaderObject("demoFragmentShader")
   ..AddVaryingVars([vColor])
-  ..SetBodyWithMain(["${oFragColor}.rgb = ${vColor};"]);
+  ..SetBody([
+    """
+void main() {
+    ${oFragColor}.rgb = ${vColor};
+}
+    """
+  ]);
 
 void main() {
   // The canvas is what we render the 3d scene into.

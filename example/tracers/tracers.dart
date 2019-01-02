@@ -9,7 +9,13 @@ final ShaderObject blurdVertexShader = ShaderObject("bluredV")
 
 final ShaderObject bluredFragmentShader = ShaderObject("bluredF")
   ..AddUniformVars([uColorAlpha])
-  ..SetBodyWithMain(["${oFragColor} = ${uColorAlpha};"]);
+  ..SetBody([
+    """
+void main() {  
+    ${oFragColor} = ${uColorAlpha};
+}
+    """
+  ]);
 
 Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
   Scene scene = Scene(

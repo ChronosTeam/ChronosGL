@@ -1,7 +1,7 @@
 import 'dart:html' as HTML;
-import 'package:vector_math/vector_math.dart' as VM;
 
 import 'package:chronosgl/chronosgl.dart';
+import 'package:vector_math/vector_math.dart' as VM;
 
 const String aCurrentPosition = "aCurrentPosition";
 
@@ -71,7 +71,13 @@ void main() {
 
 final ShaderObject fireworksFragmentShader = ShaderObject("FireWorksF")
   ..AddVaryingVars([vColor])
-  ..SetBodyWithMain(["${oFragColor}.rgb = ${vColor};"]);
+  ..SetBody([
+    """
+void main() {  
+    ${oFragColor}.rgb = ${vColor};
+}
+    """
+  ]);
 
 void main() {
   IntroduceNewShaderVar(aCurrentPosition, const ShaderVarDesc(VarTypeVec3, ""));

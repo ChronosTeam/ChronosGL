@@ -1,18 +1,30 @@
-import 'package:chronosgl/chronosgl.dart';
+import 'dart:async';
 import 'dart:html' as HTML;
 
-import 'dart:async';
+import 'package:chronosgl/chronosgl.dart';
 
 final ShaderObject normal2ColorVertexShader = ShaderObject("Normal2Color")
   ..AddAttributeVars([aPosition, aNormal])
   ..AddVaryingVars([vColor])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
-  ..SetBodyWithMain(
-      [StdVertexBody, "${vColor} = normalize(${aNormal} / 2.0 + vec3(0.5) );"]);
+  ..SetBody([
+    """
+void main() {
+    ${StdVertexBody} 
+    ${vColor} = normalize(${aNormal} / 2.0 + vec3(0.5) );
+}
+      """
+  ]);
 
 final ShaderObject normal2ColorFragmentShader = ShaderObject("Normal2ColorF")
   ..AddVaryingVars([vColor])
-  ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1.0 );"]);
+  ..SetBody([
+    """
+void main() {  
+    ${oFragColor} = vec4( ${vColor}, 1.0 );
+}
+    """
+  ]);
 
 const String modelFile = "../ct_logo.obj";
 
