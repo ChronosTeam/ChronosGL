@@ -14,7 +14,7 @@ final ShaderObject demoVertexShader = ShaderObject("demoVertexShader")
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..SetBody([
     """
-void main(void) {
+void main() {
     gl_Position = ${uPerspectiveViewMatrix} *
                   ${uModelMatrix} *
                   vec4(${aPosition}, 1.0);

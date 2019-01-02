@@ -15,7 +15,7 @@ vec3 rotate_vertex_position(vec3 pos, vec4 rot) {
     return pos + 2.0 * cross(rot.xyz, cross(rot.xyz, pos) + rot.w * pos);
 }
 
-void main(void) {
+void main() {
     vec3 P = rotate_vertex_position(${aPosition}, ${iaRotation}) +
              ${iaTranslation};
     gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(P, 1);

@@ -17,14 +17,16 @@ final ShaderObject lightVertexShaderBlinnPhongWithShadow =
         uModelMatrix,
         uNormalMatrix
       ])
-      ..SetBodyWithMain([
+      ..SetBody([
         """
-        vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
-        ${vPositionFromLight} = ${uLightPerspectiveViewMatrix} * pos;
-        gl_Position = ${uPerspectiveViewMatrix} * pos;
-        ${vPosition} = pos.xyz;
-        ${vNormal} = ${uNormalMatrix} * ${aNormal};
-        """
+void main() {
+    vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
+    ${vPositionFromLight} = ${uLightPerspectiveViewMatrix} * pos;
+    gl_Position = ${uPerspectiveViewMatrix} * pos;
+    ${vPosition} = pos.xyz;
+    ${vNormal} = ${uNormalMatrix} * ${aNormal};
+}
+    """
       ]);
 
 final ShaderObject lightFragmentShaderBlinnPhongWithShadow =
@@ -32,9 +34,9 @@ final ShaderObject lightFragmentShaderBlinnPhongWithShadow =
       ..AddVaryingVars([vPosition, vNormal, vPositionFromLight])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
       ..AddUniformVars([uShadowMap, uEyePosition, uColor, uShadowBias])
-      ..SetBodyWithMain([
+      ..SetBody([
         """
-
+void main() {
     vec3 depth = ${vPositionFromLight}.xyz / ${vPositionFromLight}.w;
 		// depth is in [-1, 1] but we want [0, 1] for the texture lookup
 		depth = 0.5 * depth + vec3(0.5);
@@ -52,7 +54,7 @@ final ShaderObject lightFragmentShaderBlinnPhongWithShadow =
                        uColor;
     ${oFragColor}.a = 1.0;
     // if ( ${oFragColor}.r != 66.0)  gl_FragColor.rgb = vec3(shadow);
-
+}
       """
       ], prolog: [
         "",
