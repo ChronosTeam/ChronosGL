@@ -12,13 +12,14 @@ final ShaderObject plasmaVertexShader1 = ShaderObject("Plasma1V")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..AddVaryingVars([vTexUV])
-  ..SetBody([NullVertexShaderWithTextureForwardString]);
+  ..SetBody([StdVertexShaderWithTextureForwardString]);
 
 final ShaderObject plasmaFragmentShader1 = ShaderObject("Plasma1F")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uTime])
-  ..SetBodyWithMain([
+  ..SetBody([
     """
+void main() {  
     #define PI 3.1415926535897932384626433832795
     float u_time = ${uTime} * 5.0;
     vec2 u_k = vec2(10.0,10.0);
@@ -35,6 +36,7 @@ final ShaderObject plasmaFragmentShader1 = ShaderObject("Plasma1F")
     vec3 col2 = vec3(sin(PI*v), cos(PI*v), -1.0);
     vec3 col = mix(col1, col2, sin(u_time)*.5+.5);
     ${oFragColor} = vec4(col*.5 + .5, 1.0);
+}
 """
   ]);
 
@@ -42,19 +44,21 @@ final ShaderObject plasmaVertexShader2 = ShaderObject("Plasma2V")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..AddVaryingVars([vTexUV])
-  ..SetBody([NullVertexShaderWithTextureForwardString]);
+  ..SetBody([StdVertexShaderWithTextureForwardString]);
 
 final ShaderObject plasmaFragmentShader2 = ShaderObject("Plasma2F")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uTime])
-  ..SetBodyWithMain([
+  ..SetBody([
     """
+void main() {  
     float x = ${vTexUV}.x;
     float y = ${vTexUV}.y;
     float v = sin(x * cos(${uTime}/15.0) * 120.0) +
               cos(y * sin(${uTime}/10.0) * 120.0) +
               sin(sqrt(y * y + x * x) * 40.0);
     ${oFragColor} = vec4(1, v,1,1);
+}
   """
   ]);
 
@@ -62,13 +66,14 @@ final ShaderObject plasmaVertexShader3 = ShaderObject("Plasma3V")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..AddVaryingVars([vTexUV])
-  ..SetBody([NullVertexShaderWithTextureForwardString]);
+  ..SetBody([StdVertexShaderWithTextureForwardString]);
 
 final ShaderObject plasmaFragmentShader3 = ShaderObject("Plasma3F")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uTime])
-  ..SetBodyWithMain([
+  ..SetBody([
     """
+void main() {  
     float x = ${vTexUV}.x*1000.0; // gl_FragCoord.x;
     float y = ${vTexUV}.y*1000.0; // gl_FragCoord.y;
     float time = ${uTime};
@@ -79,6 +84,7 @@ final ShaderObject plasmaFragmentShader3 = ShaderObject("Plasma3F")
     float c2 = abs(sin(c1+sin(mov0/1000.+time)+sin(y/40.+time)+sin((x+y)/100.)*3.));
     float c3 = abs(sin(c2+cos(mov1+mov2+c2)+cos(mov2)+sin(x/1000.)));
     ${oFragColor} = vec4( c1,c2,c3,1.0);
+}
   """
   ]);
 

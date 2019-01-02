@@ -57,10 +57,12 @@ float LinearizeDepth(float z, float near, float far) {
 final ShaderObject shadowVertexShaderDepth = ShaderObject("ShadowMapV")
   ..AddAttributeVars([aPosition])
   ..AddUniformVars([uLightPerspectiveViewMatrix, uModelMatrix])
-  ..SetBodyWithMain([
+  ..SetBody([
     """
+void main() {
     gl_Position = ${uLightPerspectiveViewMatrix} * ${uModelMatrix} *
                   vec4(${aPosition}, 1.0);
+}
     """
   ]);
 
@@ -72,14 +74,15 @@ final ShaderObject visualizeShadowmapVertexShaderLinearDepth16 =
     ShaderObject("copyV")
       ..AddAttributeVars([aPosition, aTexUV])
       ..AddVaryingVars([vTexUV])
-      ..SetBodyWithMain([NullVertexBody, "${vTexUV} = ${aTexUV};"]);
+      ..SetBody([NullVertexShaderWithTextureForwardString]);
 
 final ShaderObject visualizeShadowmapFragmentShaderLinearDepth16 =
     ShaderObject("copyF")
       ..AddVaryingVars([vTexUV])
       ..AddUniformVars([uTexture, uCutOff, uCameraFar, uCameraNear])
-      ..SetBodyWithMain([
+      ..SetBody([
         """
+void main() {     
    float d = texture(${uTexture},  ${vTexUV}).x;
    float near = ${uCameraNear};
    float far = ${uCameraFar};
@@ -87,6 +90,7 @@ final ShaderObject visualizeShadowmapFragmentShaderLinearDepth16 =
    ${oFragColor}.rgb = vec3(gray);
    // ${oFragColor}.rgb = vec3(d >= ${uCutOff} ? d : 0.0);
    // ${oFragColor}.rgb = vec3(d);
+}
 """
       ]);
 

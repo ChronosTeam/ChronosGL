@@ -4,7 +4,7 @@ final ShaderObject texturedVertexShader = ShaderObject("Textured")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
   ..AddVaryingVars([vTexUV])
-  ..SetBodyWithMain([StdVertexBody, StdVertexTextureForward]);
+  ..SetBody([StdVertexShaderWithTextureForwardString]);
 
 final ShaderObject texturedFragmentShader = ShaderObject("TexturedF")
   ..AddVaryingVars([vTexUV])
