@@ -64,15 +64,12 @@ class Edge3 {
   @override
   String toString() => "${v1} -> ${v2}";
 
-
   @override
   bool operator ==(Object other) =>
       other is Edge3 && v1 == other.v1 && v2 == other.v2;
 
   @override
   int get hashCode => hashVector3(v1) ^ hashVector3(v2);
-
-
 }
 
 /// Helper for Shader independent Mesh creation.
@@ -606,7 +603,7 @@ class GeometryBuilder {
     //print ("check loops");
     for (List<VM.Vector3> lst in incidenceV.values) {
       if (!formsLoop(lst)) {
-        // print ("fan issues for ${lst}");
+        LogWarn("fan issues for ${lst}");
         return false;
       }
     }
