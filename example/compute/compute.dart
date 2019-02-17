@@ -10,11 +10,13 @@ final ShaderObject computeVertexShader = ShaderObject("computeVertexShader")
   ..SetBody([NullVertexShaderString]);
 
 final ShaderObject computeFragmentShader = ShaderObject("computeFragmentShader")
-  ..SetBodyWithMain([
+  ..SetBody([
     """
-${oFragColor}.b = gl_FragCoord.x / ${kDim}.0;
-${oFragColor}.g = gl_FragCoord.y / ${kDim}.0;
-${oFragColor}.r = 0.0;
+void main() { 
+    ${oFragColor}.b = gl_FragCoord.x / ${kDim}.0;
+    ${oFragColor}.g = gl_FragCoord.y / ${kDim}.0;
+    ${oFragColor}.r = 0.0;
+}
     """
   ]);
 
@@ -52,23 +54,28 @@ String ExtractAndSummarizeFloat(Framebuffer fb, int w, int h) {
 }
 
 void main() {
-  HTML.DivElement results = HTML.document.querySelector('#results');
+  final HTML.DivElement results = HTML.document.querySelector('#results');
 
   // The canvas is what we render the 3d scene into.
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  final HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas');
   canvas
     ..width = kDim
     ..height = kDim;
 
-  ChronosGL cgl = ChronosGL(canvas);
+  final ChronosGL cgl = ChronosGL(canvas);
+  var debug = cgl.getExtension("WEBGL_debug_shaders");
 
-  RenderProgram program =
+  final RenderProgram program =
       RenderProgram("program", cgl, computeVertexShader, computeFragmentShader);
 
-  MeshData unitQuad = ShapeQuad(program, 1);
+  print("${program.GetVertexShaderSource(debug)}");
+  print("${program.GetFragmentShaderSource(debug)}");
+
+  final MeshData unitQuad = ShapeQuad(program, 1);
 
   {
-    Framebuffer fb = Framebuffer.Default(cgl, kDim, kDim);
+    final Framebuffer fb = Framebuffer.Default(cgl, kDim, kDim);
 
     results.innerHtml += "<h3>Drawing into default format FB</h3>";
     fb.Activate(GL_CLEAR_ALL, 0, 0, kDim, kDim);
