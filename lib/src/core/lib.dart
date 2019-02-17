@@ -41,7 +41,6 @@ part 'shader_object.dart';
 part "abstractions.dart";
 part "spatial.dart";
 part "projection.dart";
-part "camera.dart";
 part "geometry_builder.dart";
 part "illumination.dart";
 

@@ -6,7 +6,7 @@ final int BACKX = 2, BACKY = 6, BACKZ = 10;
 final int POSX = 12, POSY = 13, POSZ = 14;
 
 /// is a base class for object that need to be transformed, e.g.
-/// moved, scaled, rotated.
+/// moved, scaled, rotated. It is also used as a Camera abstraction.
 class Spatial extends NamedEntity {
   Spatial(String name) : super(name);
   // position and rotation
@@ -23,6 +23,14 @@ class Spatial extends NamedEntity {
   final VM.Vector3 _back = VM.Vector3.zero();
   final VM.Vector3 _up = VM.Vector3.zero();
   final VM.Vector3 _right = VM.Vector3.zero();
+
+  void getViewMatrix(VM.Matrix4 m) {
+    m.setFrom(transform);
+  }
+
+  VM.Vector3 getEyePosition() {
+    return getPos();
+  }
 
   VM.Vector3 getPos() {
     _pos[0] = transform[POSX];

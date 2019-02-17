@@ -210,7 +210,7 @@ class RenderPhaseResizeAware extends RenderPhase {
 
 class PerspectiveResizeAware extends Perspective {
   PerspectiveResizeAware(
-      this._cgl, this._canvas, Camera camera, double near, double far)
+      this._cgl, this._canvas, Spatial camera, double near, double far)
       : super(camera, near, far) {
     resolutionChange(null);
     HTML.window.onResize.listen(resolutionChange);

@@ -150,7 +150,7 @@ GeometryBuilder TorusKnotGeometryWireframeFriendly({double radius = 20.0,
 }
 
 /// Camera flying through a TorusKnot like through a tunnel
-class TorusKnotCamera extends Camera {
+class TorusKnotCamera extends Spatial {
   TorusKnotCamera(
       {this.radius = 20.0, this.p = 2, this.q = 3, this.heightScale = 1.0})
       : super("camera:torusknot");
