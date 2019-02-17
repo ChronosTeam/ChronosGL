@@ -14,7 +14,7 @@ class Spatial extends NamedEntity {
   // as the values degenerate over time.
   // Might be better to use Quaternions anyways
   // regular lookAt calls could "repair" the matrix
-  // ( or an optimized variant of lookAt).
+  // (or an optimized variant of lookAt).
   final VM.Matrix4 transform = VM.Matrix4.identity();
 
   // temp variables to avoid creating new objects:
@@ -170,15 +170,7 @@ class Spatial extends NamedEntity {
   }
 
   void lookAt(VM.Vector3 target, [VM.Vector3 up]) {
-    //TODO(rhulha): why is this necessary? The old math library did not fill in those matrix cells
-    double x = transform[12];
-    double y = transform[13];
-    double z = transform[14];
     if (up == null) up = VM.Vector3(0.0, 1.0, 0.0);
     VM.setViewMatrix(transform, getPos(), target, up);
-    transform[12] = x;
-    transform[13] = y;
-    transform[14] = z;
-    //transform.lookAt_alt(getPos(), target, up);
   }
 }
