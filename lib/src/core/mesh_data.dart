@@ -54,6 +54,8 @@ Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data]) {
 /// Internally this is wrapper around a Vertex Array Object (VAO).
 /// MeshData objects can be populated directly but often they
 /// will derived from **GeometryBuilder** objects.
+/// The other common way to create a MeshData object is via
+/// RenderProgram.MakeMeshData().
 class MeshData extends NamedEntity {
   MeshData(String name, this._cgl, this._drawMode, this._locationMap)
       : _vao = _cgl.createVertexArray(),
