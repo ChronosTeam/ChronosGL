@@ -56,6 +56,8 @@ Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data]) {
 /// will derived from **GeometryBuilder** objects.
 /// The other common way to create a MeshData object is via
 /// RenderProgram.MakeMeshData().
+/// Note, MeshData is always associated with a specific RenderProgram
+/// but it is possible to assert compatibility with multiple RenderPrograms.
 class MeshData extends NamedEntity {
   MeshData(String name, this._cgl, this._drawMode, this._locationMap)
       : _vao = _cgl.createVertexArray(),
