@@ -316,7 +316,7 @@ aW:{"^":"d;$ti",
 n:function(a,b){H.v(b,H.p(a,0))
 if(!!a.fixed$length)H.a0(P.y("add"))
 a.push(b)},
-bQ:function(a,b){var z
+bS:function(a,b){var z
 H.u(b,"$ish",[H.p(a,0)],"$ash")
 if(!!a.fixed$length)H.a0(P.y("addAll"))
 for(z=0;z<1;++z)a.push(b[z])},
@@ -383,10 +383,10 @@ if(z>=-2147483648&&z<=2147483647)return z|0
 if(z>0){if(z!==1/0)return Math.floor(z)}else if(z>-1/0)return Math.ceil(z)
 throw H.b(P.y("Result of truncating division is "+H.e(z)+": "+H.e(a)+" ~/ "+b))},
 aC:function(a,b){var z
-if(a>0)z=this.bN(a,b)
+if(a>0)z=this.bP(a,b)
 else{z=b>31?31:b
 z=a>>z>>>0}return z},
-bN:function(a,b){return b>31?0:a>>>b},
+bP:function(a,b){return b>31?0:a>>>b},
 G:function(a,b){if(typeof b!=="number")throw H.b(H.b_(b))
 return a>b},
 $isM:1,
@@ -407,7 +407,7 @@ if(b>c)throw H.b(P.be(b,null,null))
 if(c>a.length)throw H.b(P.be(c,null,null))
 return a.substring(b,c)},
 bh:function(a,b){return this.bi(a,b,null)},
-bX:function(a,b,c){if(c>a.length)throw H.b(P.f0(c,0,a.length,null,null))
+bZ:function(a,b,c){if(c>a.length)throw H.b(P.f0(c,0,a.length,null,null))
 return H.io(a,b,c)},
 I:function(a,b){var z
 H.w(b)
@@ -1243,9 +1243,9 @@ gF:function(a){return new H.a8(this,[H.p(this,0)])},
 U:function(a,b){var z,y
 if(typeof b==="string"){z=this.b
 if(z==null)return!1
-return this.bD(z,b)}else{y=this.c5(b)
+return this.bF(z,b)}else{y=this.c7(b)
 return y}},
-c5:function(a){var z=this.d
+c7:function(a){var z=this.d
 if(z==null)return!1
 return this.a5(this.a0(z,J.as(a)&0x3ffffff),a)>=0},
 h:function(a,b){var z,y,x,w
@@ -1257,8 +1257,8 @@ return x}else if(typeof b==="number"&&(b&0x3ffffff)===b){w=this.c
 if(w==null)return
 y=this.R(w,b)
 x=y==null?null:y.b
-return x}else return this.c6(b)},
-c6:function(a){var z,y,x
+return x}else return this.c8(b)},
+c8:function(a){var z,y,x
 z=this.d
 if(z==null)return
 y=this.a0(z,J.as(a)&0x3ffffff)
@@ -1312,11 +1312,11 @@ k:function(a){return P.cw(this)},
 R:function(a,b){return a[b]},
 a0:function(a,b){return a[b]},
 a4:function(a,b,c){a[b]=c},
-bE:function(a,b){delete a[b]},
-bD:function(a,b){return this.R(a,b)!=null},
+bG:function(a,b){delete a[b]},
+bF:function(a,b){return this.R(a,b)!=null},
 a1:function(){var z=Object.create(null)
 this.a4(z,"<non-identifier-key>",z)
-this.bE(z,"<non-identifier-key>")
+this.bG(z,"<non-identifier-key>")
 return z},
 $isct:1},
 eB:{"^":"c;a,b,0c,0d"},
@@ -1507,7 +1507,7 @@ return y}finally{$.C=z}},
 bl:function(a,b,c,d){var z
 H.l(d,{func:1,ret:-1})
 z=C.d!==c
-if(z)d=!(!z||!1)?c.aI(d):c.bT(d,-1)
+if(z)d=!(!z||!1)?c.aI(d):c.bV(d,-1)
 P.cZ(d)},
 fz:{"^":"q:5;a",
 $1:function(a){var z,y
@@ -1526,11 +1526,11 @@ $0:function(){this.a.$0()}},
 fB:{"^":"q:0;a",
 $0:function(){this.a.$0()}},
 ht:{"^":"c;a,0b,c",
-bz:function(a,b){if(self.setTimeout!=null)this.b=self.setTimeout(H.b0(new P.hv(this,b),0),a)
+bB:function(a,b){if(self.setTimeout!=null)this.b=self.setTimeout(H.b0(new P.hv(this,b),0),a)
 else throw H.b(P.y("`setTimeout()` not found."))},
 p:{
 hu:function(a,b){var z=new P.ht(!0,0)
-z.bz(a,b)
+z.bB(a,b)
 return z}}},
 hv:{"^":"q:1;a,b",
 $0:function(){var z=this.a
@@ -1540,16 +1540,16 @@ this.b.$0()}},
 fD:{"^":"c;$ti"},
 hq:{"^":"fD;a,$ti"},
 ao:{"^":"c;0a,b,c,d,e,$ti",
-c7:function(a){if(this.c!==6)return!0
+c9:function(a){if(this.c!==6)return!0
 return this.b.b.a7(H.l(this.d,{func:1,ret:P.bR,args:[P.c]}),a.a,P.bR,P.c)},
-c4:function(a){var z,y,x,w
+c6:function(a){var z,y,x,w
 z=this.e
 y=P.c
 x={futureOr:1,type:H.p(this,1)}
 w=this.b.b
-if(H.b1(z,{func:1,args:[P.c,P.U]}))return H.bn(w.c9(z,a.a,a.b,null,y,P.U),x)
+if(H.b1(z,{func:1,args:[P.c,P.U]}))return H.bn(w.cb(z,a.a,a.b,null,y,P.U),x)
 else return H.bn(w.a7(H.l(z,{func:1,args:[P.c]}),a.a,null,y),x)}},
-a1:{"^":"c;aD:a<,b,0bM:c<,$ti",
+a1:{"^":"c;aD:a<,b,0bO:c<,$ti",
 b1:function(a,b,c){var z,y,x,w
 z=H.p(this,0)
 H.l(a,{func:1,ret:{futureOr:1,type:c},args:[z]})
@@ -1714,7 +1714,7 @@ if(w)u.b=H.i(this.a.a.c,"$isQ")
 else u.b=new P.Q(y,x)
 u.a=!0
 return}if(!!J.E(z).$isay){if(z instanceof P.a1&&z.gaD()>=4){if(z.gaD()===8){w=this.b
-w.b=H.i(z.gbM(),"$isQ")
+w.b=H.i(z.gbO(),"$isQ")
 w.a=!0}return}t=this.a.a
 w=this.b
 w.b=z.b0(new P.fV(t),null)
@@ -1736,8 +1736,8 @@ fS:{"^":"q:1;a,b,c",
 $0:function(){var z,y,x,w,v,u,t,s
 try{z=H.i(this.a.a.c,"$isQ")
 w=this.c
-if(w.c7(z)&&w.e!=null){v=this.b
-v.b=w.c4(z)
+if(w.c9(z)&&w.e!=null){v=this.b
+v.b=w.c6(z)
 v.a=!1}}catch(u){y=H.aQ(u)
 x=H.aM(u)
 w=H.i(this.a.a.c,"$isQ")
@@ -1765,22 +1765,22 @@ x=H.b(z)
 x.stack=y.k(0)
 throw x}},
 he:{"^":"hA;",
-ca:function(a){var z,y,x
+cc:function(a){var z,y,x
 H.l(a,{func:1,ret:-1})
 try{if(C.d===$.C){a.$0()
 return}P.cX(null,null,this,a,-1)}catch(x){z=H.aQ(x)
 y=H.aM(x)
 P.bk(null,null,this,z,H.i(y,"$isU"))}},
-cb:function(a,b,c){var z,y,x
+cd:function(a,b,c){var z,y,x
 H.l(a,{func:1,ret:-1,args:[c]})
 H.v(b,c)
 try{if(C.d===$.C){a.$1(b)
 return}P.cY(null,null,this,a,b,-1,c)}catch(x){z=H.aQ(x)
 y=H.aM(x)
 P.bk(null,null,this,z,H.i(y,"$isU"))}},
-bT:function(a,b){return new P.hg(this,H.l(a,{func:1,ret:b}),b)},
+bV:function(a,b){return new P.hg(this,H.l(a,{func:1,ret:b}),b)},
 aI:function(a){return new P.hf(this,H.l(a,{func:1,ret:-1}))},
-bU:function(a,b){return new P.hh(this,H.l(a,{func:1,ret:-1,args:[b]}),b)},
+bW:function(a,b){return new P.hh(this,H.l(a,{func:1,ret:-1,args:[b]}),b)},
 h:function(a,b){return},
 b_:function(a,b){H.l(a,{func:1,ret:b})
 if($.C===C.d)return a.$0()
@@ -1789,7 +1789,7 @@ a7:function(a,b,c,d){H.l(a,{func:1,ret:c,args:[d]})
 H.v(b,d)
 if($.C===C.d)return a.$1(b)
 return P.cY(null,null,this,a,b,c,d)},
-c9:function(a,b,c,d,e,f){H.l(a,{func:1,ret:d,args:[e,f]})
+cb:function(a,b,c,d,e,f){H.l(a,{func:1,ret:d,args:[e,f]})
 H.v(b,e)
 H.v(c,f)
 if($.C===C.d)return a.$2(b,c)
@@ -1798,10 +1798,10 @@ hg:{"^":"q;a,b,c",
 $0:function(){return this.a.b_(this.b,this.c)},
 $S:function(){return{func:1,ret:this.c}}},
 hf:{"^":"q:1;a,b",
-$0:function(){return this.a.ca(this.b)}},
+$0:function(){return this.a.cc(this.b)}},
 hh:{"^":"q;a,b,c",
 $1:function(a){var z=this.c
-return this.a.cb(this.b,H.v(a,z),z)},
+return this.a.cd(this.b,H.v(a,z),z)},
 $S:function(){return{func:1,ret:-1,args:[this.c]}}}}],["","",,P,{"^":"",
 cu:function(a,b,c){H.b3(a)
 return H.u(H.i_(a,new H.cs(0,0,[b,c])),"$isct",[b,c],"$asct")},
@@ -1884,22 +1884,22 @@ return z.charCodeAt(0)==0?z:z},
 h1:{"^":"fX;a,0b,0c,0d,0e,0f,r,$ti",
 gv:function(a){return P.cM(this,this.r,H.p(this,0))},
 gj:function(a){return this.a},
-bW:function(a,b){var z,y
+bY:function(a,b){var z,y
 if(typeof b==="string"&&b!=="__proto__"){z=this.b
 if(z==null)return!1
-return H.i(z[b],"$isbM")!=null}else{y=this.bC(b)
+return H.i(z[b],"$isbM")!=null}else{y=this.bE(b)
 return y}},
-bC:function(a){var z=this.d
+bE:function(a){var z=this.d
 if(z==null)return!1
-return this.ay(this.bG(z,a),a)>=0},
+return this.ay(this.bI(z,a),a)>=0},
 n:function(a,b){var z,y
 H.v(b,H.p(this,0))
 if(typeof b==="string"&&b!=="__proto__"){z=this.b
 if(z==null){z=P.bN()
 this.b=z}return this.ar(z,b)}else if(typeof b==="number"&&(b&0x3ffffff)===b){y=this.c
 if(y==null){y=P.bN()
-this.c=y}return this.ar(y,b)}else return this.bA(0,b)},
-bA:function(a,b){var z,y,x
+this.c=y}return this.ar(y,b)}else return this.bC(0,b)},
+bC:function(a,b){var z,y,x
 H.v(b,H.p(this,0))
 z=this.d
 if(z==null){z=P.bN()
@@ -1923,7 +1923,7 @@ this.f=z}++this.a
 this.at()
 return z},
 aw:function(a){return J.as(a)&0x3ffffff},
-bG:function(a,b){return a[this.aw(b)]},
+bI:function(a,b){return a[this.aw(b)]},
 ay:function(a,b){var z,y
 if(a==null)return-1
 z=a.length
@@ -1953,7 +1953,7 @@ fX:{"^":"f8;"},
 j:{"^":"c;$ti",
 gv:function(a){return new H.eE(a,this.gj(a),0,[H.b2(this,a,"j",0)])},
 q:function(a,b){return this.h(a,b)},
-c2:function(a,b,c,d){var z,y,x
+c4:function(a,b,c,d){var z,y,x
 H.v(b,d)
 H.l(c,{func:1,ret:d,args:[d,H.b2(this,a,"j",0)]})
 z=this.gj(a)
@@ -2172,7 +2172,7 @@ hT:function(a,b){var z
 H.l(a,{func:1,ret:-1,args:[b]})
 z=$.C
 if(z===C.d)return a
-return z.bU(a,b)},
+return z.bW(a,b)},
 T:{"^":"cm;","%":"HTMLBRElement|HTMLBaseElement|HTMLBodyElement|HTMLButtonElement|HTMLContentElement|HTMLDListElement|HTMLDataElement|HTMLDataListElement|HTMLDetailsElement|HTMLDialogElement|HTMLDirectoryElement|HTMLDivElement|HTMLFieldSetElement|HTMLFontElement|HTMLFrameElement|HTMLFrameSetElement|HTMLHRElement|HTMLHeadElement|HTMLHeadingElement|HTMLHtmlElement|HTMLLIElement|HTMLLabelElement|HTMLLegendElement|HTMLLinkElement|HTMLMapElement|HTMLMarqueeElement|HTMLMenuElement|HTMLMetaElement|HTMLMeterElement|HTMLModElement|HTMLOListElement|HTMLOptGroupElement|HTMLOptionElement|HTMLOutputElement|HTMLParagraphElement|HTMLParamElement|HTMLPictureElement|HTMLPreElement|HTMLProgressElement|HTMLQuoteElement|HTMLScriptElement|HTMLShadowElement|HTMLSlotElement|HTMLSourceElement|HTMLSpanElement|HTMLStyleElement|HTMLTableCaptionElement|HTMLTableCellElement|HTMLTableColElement|HTMLTableDataCellElement|HTMLTableElement|HTMLTableHeaderCellElement|HTMLTableRowElement|HTMLTableSectionElement|HTMLTemplateElement|HTMLTextAreaElement|HTMLTimeElement|HTMLTitleElement|HTMLTrackElement|HTMLUListElement|HTMLUnknownElement;HTMLElement"},
 ir:{"^":"d;0j:length=","%":"AccessibleNodeList"},
 is:{"^":"T;",
@@ -2183,9 +2183,9 @@ k:function(a){return String(a)},
 "%":"HTMLAreaElement"},
 e_:{"^":"d;","%":";Blob"},
 bB:{"^":"T;0m:height=,0l:width=",
-bf:function(a,b,c){var z=this.bH(a,b,P.hX(c,null))
+bf:function(a,b,c){var z=this.bJ(a,b,P.hX(c,null))
 return z},
-bH:function(a,b,c){return a.getContext(b,c)},
+bJ:function(a,b,c){return a.getContext(b,c)},
 $isbB:1,
 "%":"HTMLCanvasElement"},
 ix:{"^":"d;",
@@ -2196,21 +2196,21 @@ e8:{"^":"bC;",$ise8:1,"%":"CSSNumericValue|CSSUnitValue"},
 iz:{"^":"ea;0j:length=","%":"CSSPerspective"},
 a5:{"^":"d;",$isa5:1,"%":"CSSCharsetRule|CSSConditionRule|CSSFontFaceRule|CSSGroupingRule|CSSImportRule|CSSKeyframeRule|CSSKeyframesRule|CSSMediaRule|CSSNamespaceRule|CSSPageRule|CSSRule|CSSStyleRule|CSSSupportsRule|CSSViewportRule|MozCSSKeyframeRule|MozCSSKeyframesRule|WebKitCSSKeyframeRule|WebKitCSSKeyframesRule"},
 iA:{"^":"fE;0j:length=",
-aa:function(a,b){var z=this.bI(a,this.bB(a,b))
+aa:function(a,b){var z=this.bK(a,this.bD(a,b))
 return z==null?"":z},
-bB:function(a,b){var z,y
+bD:function(a,b){var z,y
 z=$.de()
 y=z[b]
 if(typeof y==="string")return y
-y=this.bO(a,b)
+y=this.bQ(a,b)
 z[b]=y
 return y},
-bO:function(a,b){var z
+bQ:function(a,b){var z
 if(b.replace(/^-ms-/,"ms-").replace(/-([\da-z])/ig,function(c,d){return d.toUpperCase()}) in a)return b
 z=P.ee()+b
 if(z in a)return z
 return b},
-bI:function(a,b){return a.getPropertyValue(b)},
+bK:function(a,b){return a.getPropertyValue(b)},
 gm:function(a){return a.height},
 gl:function(a){return a.width},
 "%":"CSS2Properties|CSSStyleDeclaration|MSStyleCSSProperties"},
@@ -2225,7 +2225,7 @@ iF:{"^":"d;0j:length=",
 h:function(a,b){return a[b]},
 "%":"DataTransferItemList"},
 ef:{"^":"z;",
-c8:function(a,b){return a.querySelector(b)},
+ca:function(a,b){return a.querySelector(b)},
 "%":"XMLDocument;Document"},
 iG:{"^":"d;",
 k:function(a){return String(a)},
@@ -2514,7 +2514,7 @@ jT:{"^":"hn;",
 h:function(a,b){return this.az(a,H.w(b))},
 w:function(a,b){var z,y
 H.l(b,{func:1,ret:-1,args:[P.f,P.f]})
-for(z=0;!0;++z){y=this.bK(a,z)
+for(z=0;!0;++z){y=this.bM(a,z)
 if(y==null)return
 b.$2(y,this.az(a,y))}},
 gF:function(a){var z=H.t([],[P.f])
@@ -2522,7 +2522,7 @@ this.w(a,new W.fi(z))
 return z},
 gj:function(a){return a.length},
 az:function(a,b){return a.getItem(b)},
-bK:function(a,b){return a.key(b)},
+bM:function(a,b){return a.key(b)},
 $asO:function(){return[P.f,P.f]},
 $isG:1,
 $asG:function(){return[P.f,P.f]},
@@ -2602,15 +2602,15 @@ ki:{"^":"N;0j:length=","%":"VideoTrackList"},
 kj:{"^":"N;0m:height=,0l:width=","%":"VisualViewport"},
 kk:{"^":"d;0l:width=","%":"VTTRegion"},
 fu:{"^":"N;",
-gbR:function(a){var z,y,x
+gbT:function(a){var z,y,x
 z=P.D
 y=new P.a1(0,$.C,[z])
 x=H.l(new W.fv(new P.hq(y,[z])),{func:1,ret:-1,args:[P.D]})
-this.bF(a)
-this.bL(a,W.hT(x,z))
+this.bH(a)
+this.bN(a,W.hT(x,z))
 return y},
-bL:function(a,b){return a.requestAnimationFrame(H.b0(H.l(b,{func:1,ret:-1,args:[P.D]}),1))},
-bF:function(a){if(!!(a.requestAnimationFrame&&a.cancelAnimationFrame))return;(function(b){var z=['ms','moz','webkit','o']
+bN:function(a,b){return a.requestAnimationFrame(H.b0(H.l(b,{func:1,ret:-1,args:[P.D]}),1))},
+bH:function(a){if(!!(a.requestAnimationFrame&&a.cancelAnimationFrame))return;(function(b){var z=['ms','moz','webkit','o']
 for(var y=0;y<z.length&&!b.requestAnimationFrame;++y){b.requestAnimationFrame=b[z[y]+'RequestAnimationFrame']
 b.cancelAnimationFrame=b[z[y]+'CancelAnimationFrame']||b[z[y]+'CancelRequestAnimationFrame']}if(b.requestAnimationFrame&&b.cancelAnimationFrame)return
 b.requestAnimationFrame=function(c){return window.setTimeout(function(){c(Date.now())},16)}
@@ -2920,16 +2920,16 @@ b8:function(a,b,c,d){return a.uniformMatrix4fv(b,!1,d)},
 b9:function(a,b){return a.useProgram(b)},
 ba:function(a,b,c,d,e,f,g){return a.vertexAttribPointer(b,c,d,!1,f,g)},
 "%":"WebGLRenderingContext"},jL:{"^":"d;",
-bS:function(a,b){return a.beginTransformFeedback(b)},
-bV:function(a,b){return a.bindVertexArray(b)},
-bY:function(a){return a.createVertexArray()},
-bZ:function(a,b,c,d,e){return a.drawArraysInstanced(b,c,d,e)},
-c_:function(a,b,c,d,e,f){return a.drawElementsInstanced(b,c,d,e,f)},
-c0:function(a){return a.endTransformFeedback()},
-cc:function(a,b,c,d){this.bP(a,b,H.u(c,"$isa",[P.f],"$asa"),d)
+bU:function(a,b){return a.beginTransformFeedback(b)},
+bX:function(a,b){return a.bindVertexArray(b)},
+c_:function(a){return a.createVertexArray()},
+c0:function(a,b,c,d,e){return a.drawArraysInstanced(b,c,d,e)},
+c1:function(a,b,c,d,e,f){return a.drawElementsInstanced(b,c,d,e,f)},
+c2:function(a){return a.endTransformFeedback()},
+ce:function(a,b,c,d){this.bR(a,b,H.u(c,"$isa",[P.f],"$asa"),d)
 return},
-bP:function(a,b,c,d){return a.transformFeedbackVaryings(b,c,d)},
-cd:function(a,b,c){return a.vertexAttribDivisor(b,c)},
+bR:function(a,b,c,d){return a.transformFeedbackVaryings(b,c,d)},
+cf:function(a,b,c){return a.vertexAttribDivisor(b,c)},
 aF:function(a,b){return a.activeTexture(b)},
 aG:function(a,b,c){return a.attachShader(b,c)},
 aH:function(a,b,c){return a.bindBuffer(b,c)},
@@ -2969,11 +2969,11 @@ ba:function(a,b,c,d,e,f,g){return a.vertexAttribPointer(b,c,d,!1,f,g)},
 "%":"WebGL2RenderingContext"},fa:{"^":"d;",$isfa:1,"%":"WebGLShader"},fk:{"^":"d;",$isfk:1,"%":"WebGLTexture"},fp:{"^":"d;",$isfp:1,"%":"WebGLUniformLocation"},ft:{"^":"d;",$isft:1,"%":"WebGLVertexArrayObject"}}],["","",,P,{"^":"",jS:{"^":"hm;",
 gj:function(a){return a.length},
 h:function(a,b){if(b>>>0!==b||b>=a.length)throw H.b(P.B(b,a,null,null,null))
-return P.S(this.bJ(a,b))},
+return P.S(this.bL(a,b))},
 i:function(a,b,c){H.i(c,"$isG")
 throw H.b(P.y("Cannot assign element of immutable List."))},
 q:function(a,b){return this.h(a,b)},
-bJ:function(a,b){return a.item(b)},
+bL:function(a,b){return a.item(b)},
 $asj:function(){return[[P.G,,,]]},
 $ish:1,
 $ash:function(){return[[P.G,,,]]},
@@ -3103,6 +3103,12 @@ case"float":this.e.i(0,a,H.t([],[P.a2]))
 break
 case"uvec4":this.e.i(0,a,H.t([],[[P.a,P.A]]))
 break}},
+bq:function(a){var z,y,x,w
+H.u(a,"$isa",[T.J],"$asa")
+for(z=this.d,y=0;y<4;++y){x=a[y]
+w=new T.J(new Float32Array(3))
+w.ae(x)
+C.a.n(z,w)}},
 bn:function(a,b){var z,y,x,w,v,u
 z=[T.P]
 H.u(b,"$isa",z,"$asa")
@@ -3121,15 +3127,6 @@ for(z=y&&C.a,x=0;x<4;++x){w=b[x]
 v=new T.J(new Float32Array(3))
 v.ae(w)
 z.n(y,v)}},
-bq:function(a){var z,y,x,w,v
-H.u(a,"$isa",[T.J],"$asa")
-z=this.d
-y=z.length
-C.a.n(this.c,new G.co(y,y+1,y+2,y+3))
-for(x=0;x<4;++x){w=a[x]
-v=new T.J(new Float32Array(3))
-v.ae(w)
-C.a.n(z,v)}},
 bt:function(){var z,y,x,w,v,u,t,s,r
 z=this.c
 y=new Array(z.length*6)
@@ -3137,9 +3134,9 @@ y.fixed$length=Array
 x=H.t(y,[P.A])
 for(y=this.b,w=0,v=0;!1;++v){if(v>=0)return H.k(y,v)
 u=y[v]
-C.a.i(x,w,u.gci(u))
-C.a.i(x,w+1,u.gcj(u))
-C.a.i(x,w+2,u.gck(u))
+C.a.i(x,w,u.gck(u))
+C.a.i(x,w+1,u.gcl(u))
+C.a.i(x,w+2,u.gcm(u))
 w+=3}for(y=z.length,v=0;v<z.length;z.length===y||(0,H.a4)(z),++v){t=z[v]
 s=t.a
 C.a.i(x,w,s)
@@ -3192,15 +3189,15 @@ bw:function(a,b,c,d){var z,y,x,w,v,u,t
 for(z=this.e.d,y=z.length,x=this.y,w=this.d,v=this.r,u=0;u<z.length;z.length===y||(0,H.a4)(z),++u){t=z[u]
 x.i(0,t,J.c8(w.a,v,t))}for(z=this.f.d,y=z.length,u=0;u<z.length;z.length===y||(0,H.a4)(z),++u){t=z[u]
 x.i(0,t,J.c8(w.a,v,t))}},
-bx:function(){var z,y,x,w
+by:function(){var z,y,x,w
 z=this.z
 y=this.y
 if(z.a===y.a&&this.Q.a===this.x.a)return H.t([],[P.f])
 x=H.t([],[P.f])
 for(y=new H.a8(y,[H.p(y,0)]),y=y.gv(y);y.t();){w=y.d
 if(!z.U(0,w))C.a.n(x,w)}for(z=this.x,z=P.cM(z,z.r,H.p(z,0)),y=this.Q;z.t();){w=z.d
-if(!y.bW(0,w))C.a.n(x,w)}return x},
-by:function(a,b){var z,y,x,w,v,u,t,s,r,q,p,o,n,m
+if(!y.bY(0,w))C.a.n(x,w)}return x},
+bz:function(a,b){var z,y,x,w,v,u,t,s,r,q,p,o,n,m
 H.u(b,"$isG",[P.f,P.c],"$asG")
 z=Date.now()
 for(y=new H.a8(b,[H.p(b,0)]),y=y.gv(y),x=this.d,w=this.y,v=this.z,u=this.a,t=0;y.t();){s=y.d
@@ -3260,23 +3257,23 @@ if(s)J.b7(o,2929)
 else J.dB(o,2929)
 break
 case"cStencilFunc":H.a3(r,"$isk_")
-r.gc3()
+r.gc5()
 J.b7(x.a,2960)
-s=r.gc3()
-o=r.gcn(r)
-n=r.gcm(r)
+s=r.gc5()
+o=r.gcp(r)
+n=r.gco(r)
 J.dO(x.a,s,o,n)
 break
 case"cDepthWrite":H.bS(r)
 J.dA(x.a,r)
 break
 case"cBlendEquation":H.a3(r,"$isjZ")
-r.gc1()
+r.gc3()
 J.b7(x.a,3042)
-s=r.gcg()
-o=r.gcl()
+s=r.gcj()
+o=r.gcn()
 J.dv(x.a,s,o)
-o=r.gc1()
+o=r.gc3()
 J.du(x.a,o)
 break}++t
 break}}m=P.eh(0,0,0,Date.now()-new P.ba(z,!1).a,0,0)
@@ -3296,7 +3293,7 @@ y.c=null
 y.b=null
 y.a=0
 y.aA()}for(x=0;x<1;++x){w=b[x]
-this.by(w.a,w.d)}y=this.Q
+this.bz(w.a,w.d)}y=this.Q
 if(y.a>0){y.f=null
 y.e=null
 y.d=null
@@ -3304,7 +3301,7 @@ y.c=null
 y.b=null
 y.a=0
 y.at()}for(v=a.cy,v=new H.a8(v,[H.p(v,0)]),v=v.gv(v);v.t();)y.n(0,v.d)
-u=this.bx()
+u=this.by()
 if(u.length!==0)P.aO("E:"+(this.a+" "+a.f+": uninitialized inputs: "+H.e(u)))
 J.b6(a.d.a,a.e)
 t=this.e.f.length>0
@@ -3353,7 +3350,9 @@ bp:function(a){var z,y
 H.u(a,"$isa",[P.f],"$asa")
 for(z=this.d,y=0;y<2;++y)C.a.n(z,a[y])
 C.a.ag(z)},
-al:function(a,b,c){var z,y,x,w,v,u,t,s,r,q,p
+bx:function(a,b){this.b=this.bA(!1,H.u(a,"$isa",[P.f],"$asa"),b)},
+al:function(a){return this.bx(a,null)},
+bA:function(a,b,c){var z,y,x,w,v,u,t,s,r,q,p
 z=[P.f]
 H.u(b,"$isa",z,"$asa")
 y=this.c
@@ -3375,9 +3374,7 @@ s=$.W().h(0,q)
 v=s.c
 p=v===0?"":"["+v+"]"
 C.a.n(w,"uniform "+s.a+" "+H.e(q)+p+";")}C.a.n(w,"")
-if(a)C.a.n(w,"void main(void) {")
-C.a.bQ(w,b)
-if(a)C.a.n(w,"}")
+C.a.bS(w,b)
 return C.a.N(w,"\n")},
 p:{
 cB:function(a){var z,y
@@ -3385,7 +3382,7 @@ z=P.f
 y=[z]
 return new G.fb(a,H.t([],y),H.t([],y),H.t([],y),H.t([],y),0,P.a9(z,P.A))}}}}],["","",,A,{"^":"",
 d7:function(a){var z,y
-z=C.r.c2(H.u(a,"$ish",[P.c],"$ash"),0,new A.i6(),P.A)
+z=C.r.c4(H.u(a,"$ish",[P.c],"$ash"),0,new A.i6(),P.A)
 if(typeof z!=="number")return H.aN(z)
 y=536870911&z+((67108863&z)<<3)
 y^=y>>>11
@@ -3453,9 +3450,9 @@ z=z[2]
 return Math.sqrt(y*y+x*x+z*z)},
 gbc:function(a){return this.a[0]},
 gbd:function(a){return this.a[1]},
-gce:function(a){return this.a[2]}},bg:{"^":"c;"}}],["","",,L,{"^":"",
-d9:function(){var z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g
-z=H.i(C.z.c8(document,"#webgl-canvas"),"$isbB")
+gcg:function(a){return this.a[2]}},bg:{"^":"c;"}}],["","",,L,{"^":"",
+d9:function(){var z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g,f
+z=H.i(C.z.ca(document,"#webgl-canvas"),"$isbB")
 y=z.clientWidth
 x=z.clientHeight
 z.width=y
@@ -3495,46 +3492,49 @@ l.K(0,0,1)
 k=H.t([l,l,l,l],o)
 t=H.t([],[G.en])
 s=H.t([],[G.co])
-o=H.t([],o)
-j=new G.es(!1,t,s,o,P.a9(v,[P.a,,]))
+q=H.t([],o)
+j=new G.es(!1,t,s,q,P.a9(v,[P.a,,]))
 j.aj("aTexUV")
+H.u(n,"$isa",o,"$asa")
+i=q.length
+C.a.n(s,new G.co(i,i+1,i+2,i+3))
 j.bq(n)
 j.bn("aTexUV",m)
 j.aj("aNormal")
 j.bo("aNormal",k)
 t=r.d
 s=r.e.x
-q=P.a9(v,u)
-p=J.dz(t.a)
-i=new G.eI(t,p,4,q,s,0,-1,P.a9(v,P.ax),"meshdata:quad",!1,!0)
-o=G.cp(o,null)
-q.i(0,"aPosition",J.bv(t.a))
-i.ch=o
-i.ai("aPosition",o,3)
-h=$.W().h(0,"aPosition")
-if(h==null)H.a0("Unknown canonical aPosition")
-g=s.h(0,"aPosition")
-J.b6(t.a,p)
-t.aY(0,g,0)
-t.bb(0,q.h(0,"aPosition"),g,h.ak(),5126,!1,0,0)
+p=P.a9(v,u)
+o=J.dz(t.a)
+h=new G.eI(t,o,4,p,s,0,-1,P.a9(v,P.ax),"meshdata:quad",!1,!0)
+q=G.cp(q,null)
+p.i(0,"aPosition",J.bv(t.a))
+h.ch=q
+h.ai("aPosition",q,3)
+g=$.W().h(0,"aPosition")
+if(g==null)H.a0("Unknown canonical aPosition")
+f=s.h(0,"aPosition")
+J.b6(t.a,o)
+t.aY(0,f,0)
+t.bb(0,p.h(0,"aPosition"),f,g.ak(),5126,!1,0,0)
 s=H.u(j.bt(),"$isa",[P.A],"$asa")
-i.y=J.bv(t.a)
-q=i.ch.length
-if(q<768){i.sa_(new Uint8Array(H.bi(s)))
-i.Q=5121}else if(q<196608){i.sa_(new Uint16Array(H.bi(s)))
-i.Q=5123}else{i.sa_(new Uint32Array(H.bi(s)))
-i.Q=5125}J.b6(t.a,p)
-s=i.y
-q=i.cx
+h.y=J.bv(t.a)
+q=h.ch.length
+if(q<768){h.sa_(new Uint8Array(H.bi(s)))
+h.Q=5121}else if(q<196608){h.sa_(new Uint16Array(H.bi(s)))
+h.Q=5123}else{h.sa_(new Uint32Array(H.bi(s)))
+h.Q=5125}J.b6(t.a,o)
+s=h.y
+q=h.cx
 J.bt(t.a,34963,s)
 J.c5(t.a,34963,q,35048)
-G.fW(j,i)
-new L.ii(new G.bL(P.a9(v,u),"plain",!1,!0),y,x,r,i).$1(0)},
+G.fW(j,h)
+new L.ii(new G.bL(P.a9(v,u),"plain",!1,!0),y,x,r,h).$1(0)},
 ii:{"^":"q:16;a,b,c,d,e",
 $1:function(a){var z,y,x,w,v
 H.bY(a)
 z=this.a
-if(typeof a!=="number")return a.cf()
+if(typeof a!=="number")return a.ci()
 y=z.d
 y.i(0,"uTime",a/1000)
 x=this.b
@@ -3545,7 +3545,7 @@ v=new T.P(new Float32Array(2))
 v.J(x,w)
 y.i(0,"uCanvasSize",v)
 this.d.br(this.e,H.t([z],[G.bL]))
-C.Y.gbR(window).b0(this,-1)}}},1]]
+C.Y.gbT(window).b0(this,-1)}}},1]]
 setupProgram(dart,0,0)
 J.E=function(a){if(typeof a=="number"){if(Math.floor(a)==a)return J.cq.prototype
 return J.ez.prototype}if(typeof a=="string")return J.aX.prototype
@@ -3596,36 +3596,36 @@ return J.aL(a).h(a,b)}
 J.c1=function(a,b){return J.i3(a).W(a,b)}
 J.c2=function(a,b){return J.n(a).aF(a,b)}
 J.c3=function(a,b,c){return J.n(a).aG(a,b,c)}
-J.dt=function(a,b){return J.n(a).bS(a,b)}
+J.dt=function(a,b){return J.n(a).bU(a,b)}
 J.bt=function(a,b,c){return J.n(a).aH(a,b,c)}
 J.c4=function(a,b,c){return J.n(a).aJ(a,b,c)}
-J.b6=function(a,b){return J.n(a).bV(a,b)}
+J.b6=function(a,b){return J.n(a).bX(a,b)}
 J.du=function(a,b){return J.n(a).aK(a,b)}
 J.dv=function(a,b,c){return J.n(a).aL(a,b,c)}
 J.c5=function(a,b,c,d){return J.n(a).aM(a,b,c,d)}
 J.dw=function(a,b,c,d,e){return J.n(a).aN(a,b,c,d,e)}
 J.dx=function(a,b){return J.i2(a).I(a,b)}
-J.bu=function(a,b,c){return J.aL(a).bX(a,b,c)}
+J.bu=function(a,b,c){return J.aL(a).bZ(a,b,c)}
 J.bv=function(a){return J.n(a).aP(a)}
 J.dy=function(a){return J.n(a).aQ(a)}
-J.dz=function(a){return J.n(a).bY(a)}
+J.dz=function(a){return J.n(a).c_(a)}
 J.dA=function(a,b){return J.n(a).aS(a,b)}
 J.dB=function(a,b){return J.n(a).aT(a,b)}
 J.dC=function(a,b,c,d){return J.n(a).aU(a,b,c,d)}
-J.dD=function(a,b,c,d,e){return J.n(a).bZ(a,b,c,d,e)}
+J.dD=function(a,b,c,d,e){return J.n(a).c0(a,b,c,d,e)}
 J.dE=function(a,b,c,d,e){return J.n(a).aV(a,b,c,d,e)}
-J.dF=function(a,b,c,d,e,f){return J.n(a).c_(a,b,c,d,e,f)}
+J.dF=function(a,b,c,d,e,f){return J.n(a).c1(a,b,c,d,e,f)}
 J.b7=function(a,b){return J.n(a).aW(a,b)}
 J.dG=function(a,b){return J.n(a).aX(a,b)}
-J.dH=function(a){return J.n(a).c0(a)}
+J.dH=function(a){return J.n(a).c2(a)}
 J.dI=function(a,b){return J.n(a).w(a,b)}
 J.as=function(a){return J.E(a).gu(a)}
 J.c6=function(a){return J.i0(a).gv(a)}
 J.aT=function(a){return J.aL(a).gj(a)}
-J.dJ=function(a){return J.bo(a).gco(a)}
+J.dJ=function(a){return J.bo(a).gcq(a)}
 J.bw=function(a){return J.bo(a).gbc(a)}
 J.bx=function(a){return J.bo(a).gbd(a)}
-J.c7=function(a){return J.bo(a).gce(a)}
+J.c7=function(a){return J.bo(a).gcg(a)}
 J.dK=function(a){return J.n(a).V(a)}
 J.dL=function(a,b){return J.n(a).a8(a,b)}
 J.dM=function(a,b,c){return J.n(a).a9(a,b,c)}
@@ -3633,7 +3633,7 @@ J.c8=function(a,b,c){return J.n(a).ad(a,b,c)}
 J.dN=function(a,b){return J.n(a).aZ(a,b)}
 J.dO=function(a,b,c,d){return J.n(a).ah(a,b,c,d)}
 J.b8=function(a){return J.E(a).k(a)}
-J.dP=function(a,b,c,d){return J.n(a).cc(a,b,c,d)}
+J.dP=function(a,b,c,d){return J.n(a).ce(a,b,c,d)}
 J.dQ=function(a,b,c){return J.n(a).b2(a,b,c)}
 J.by=function(a,b,c){return J.n(a).b3(a,b,c)}
 J.c9=function(a,b,c){return J.n(a).b4(a,b,c)}
@@ -3642,7 +3642,7 @@ J.cb=function(a,b,c){return J.n(a).b6(a,b,c)}
 J.dR=function(a,b,c,d){return J.n(a).b7(a,b,c,d)}
 J.dS=function(a,b,c,d){return J.n(a).b8(a,b,c,d)}
 J.dT=function(a,b){return J.n(a).b9(a,b)}
-J.dU=function(a,b,c){return J.n(a).cd(a,b,c)}
+J.dU=function(a,b,c){return J.n(a).cf(a,b,c)}
 J.dV=function(a,b,c,d,e,f,g){return J.n(a).ba(a,b,c,d,e,f,g)}
 var $=I.p
 C.y=W.bB.prototype
@@ -3847,12 +3847,12 @@ try{(void 0).$method$($argumentsExpr$)}catch(z){return z.message}}())},"k9","dl"
 z=G.cB("SphericalGyroid")
 y=[P.f]
 z.bm(H.t(["aPosition"],y))
-z.b=z.al(!0,H.u(H.t(["gl_Position = vec4(aPosition, 1.0);"],y),"$isa",y,"$asa"),null)
+z.al(H.t(["void main() {\n  gl_Position = vec4(aPosition, 1.0);\n}\n"],y))
 return z},"kC","dr",function(){var z,y
 z=G.cB("SphericalGyroidF")
 y=[P.f]
 z.bp(H.t(["uCanvasSize","uTime"],y))
-z.b=z.al(!1,H.u(H.t(["#define MaxSteps 60\n#define MinimumDistance 0.01\n#define normalDistance     0.0002\n#define PI 3.141592\n#define FieldOfView 1.0\n#define FudgeFactor 0.8\n\n#define Ambient 0.35\n#define Diffuse 0.4\n#define Specular 0.08\n#define LightDir vec3(1.0,1.0,-0.65048)\n#define LightColor vec3(1.0,0.666667,0.6)\n#define LightDir2 vec3(1.0,-0.62886,1.0)\n#define LightColor2 vec3(0.9,0.8,1.0)\n\n#define time  (uTime + 38.0)\n\nvec2 rotate(vec2 v, float a) {\n  return vec2(cos(a)*v.x + sin(a)*v.y, -sin(a)*v.x + cos(a)*v.y);\n}\n\n// Two light source + env light\nvec3 getLight(in vec3 color, in vec3 normal, in vec3 dir, int mat) {\n  vec3 lightDir = normalize(LightDir);\n  float specular = pow(max(0.0,dot(lightDir,-reflect(lightDir, normal))),20.0); // Phong\n  float diffuse = max(0.0,dot(-normal, lightDir)); // Lambertian\n  \n  vec3 lightDir2 = normalize(LightDir2);\n  float specular2 = pow(max(0.0,dot(lightDir2,-reflect(lightDir2, normal))),20.0); // Phong\n  float diffuse2 = max(0.0,dot(-normal, lightDir2)); // Lambertian\n  \n  float a = pow(abs(dot(normal,dir)),2.0);\n  vec3 l = vec3(0.0);\n    \n  //if (mat < 2) { \n    //l+=(Specular*specular)*LightColor+(diffuse*Diffuse)*(LightColor*color) +\n    //(Specular*specular2)*LightColor2+(diffuse2*Diffuse)*(LightColor2*color);\n    //l+=textureCube(iChannel0, reflect(dir, normal)).xyz*Specular;\n  //} else {\n    l+= \n      //(diffuse*0.8)*(LightColor*color) \n      +(diffuse2*0.7)*(LightColor2*color);\n    \n  //}\n  return l*a*1.7;\n}\n\n\n\n// vec3 offset = vec3(1.0+0.2*(cos(time/5.7)),0.3+0.1*(cos(time/1.7)),1.).xzy;\n\n\nfloat DE2(vec3 z, out int mat, float scale) {\n float sphere = abs(length(z))-15.0;\n z*= scale;\n float base = (cos(z.x) * sin(z.y) + cos(z.y) * sin(z.z) + cos(z.z) * sin(z.x));\n float inverse = -base + (1.0+cos(time/4.0))*4.0;\n if (base>inverse) {\n    mat = (sphere>-0.1) ? 0 : 2;\n } else {\n   mat = (sphere>-0.1) ? 1 : 3;\n }\n return max(min(base,inverse),sphere);\n}\n\nfloat  DE(vec3 z, float scale) {\n  int i = 0;\n  return DE2(z, i, scale);\n}\n\n\n\n// Finite difference normal\nvec3 getNormal(in vec3 pos, float scale) {\n  vec3 e = vec3(0.0,normalDistance,0.0);\n\n  return normalize(vec3(\n      DE(pos+e.yxx, scale)-DE(pos-e.yxx, scale),\n      DE(pos+e.xyx, scale)-DE(pos-e.xyx, scale),\n      DE(pos+e.xxy, scale)-DE(pos-e.xxy, scale)));\n}\n\n// Solid color with a little bit of normal :-)\nvec3 getColor(vec3 normal, vec3 pos, int material) {\n  if (material == 0) {\n    return vec3(0.0,0.1,0.0); \n  } else if (material == 1) {\n    return vec3(1.0,0.0,0.0); \n  } else if (material == 2) {\n    return vec3(1.0)*length(pos)/10.0;\n  } \n  return vec3(1.0)*length(pos)/10.0;\n  \n}\n\n// Filmic tone mapping:\n// http://filmicgames.com/archives/75\nvec3 toneMap(in vec3 c) {\n  c = c*c; // <- So much for proper gamma correction :-)\n  vec3 x = max(vec3(0.),c-vec3(0.004));\n  c = (x*(6.2*x+.5))/(x*(6.2*x+1.7)+0.06);\n  return c;\n}\n\n// Pseudo-random number\n// From: lumina.sourceforge.net/Tutorials/Noise.html\nfloat rand(vec2 co){\n  return fract(cos(dot(co,vec2(4.898,7.23))) * 23421.631);\n}\n\nvec4 rayMarch(in vec3 from, in vec3 dir, float scale) {\n  // Add some noise to prevent banding\n  float totalDistance = rand(gl_FragCoord.xy+vec2(time));\n  \n  float distance;\n  int steps = 0;\n  vec3 pos;\n  for (int i=0; i < MaxSteps; i++) {\n    pos = from + totalDistance * dir;\n    distance = DE(pos, scale)*(0.7*scale);\n    totalDistance += distance;\n    if (distance < MinimumDistance) break;\n    steps = i;\n  }\n  if (steps == MaxSteps-1) {\n    return vec4(0.0);\n  }\n  \n  // 'AO' is based on number of steps.\n  // Try to smooth the count, to combat banding.\n  float smoothStep = float(steps) + distance/MinimumDistance;\n  float ao = 1.0-smoothStep/float(MaxSteps);\n\n  // Since our distance field is not signed,\n    // backstep when calc'ing normal\n  vec3 normal = getNormal(pos-dir*normalDistance*3.0, scale);\n\n  int material = 0;\n  DE2(pos, material, scale);\n  \n  vec3 color = getColor(normal, pos, material); \n  vec3 light = getLight(color, normal, dir, material);\n  return vec4(toneMap((color*Ambient+light)*ao),1.0);\n}\n\nfloat curve(float x) {\n  return cos(x);\n}\n\nvoid main(void)\n{ \n  float angle = time/5.0; \n  float scale = 0.8+(0.1*cos(time/3.0));\n\n  // Camera position (eye), and camera target\n  vec3 camPos =  19.0*vec3(1.0,0.5*curve(time*0.2),0.5*curve(7.0+0.3*time));\n  vec3 target = vec3(0.0);\n  vec3 camUp  = vec3(0.0,0.0,1.0);\n\n  // Calculate orthonormal camera reference system\n  vec3 camDir   = normalize(target-camPos); // direction for center ray\n  camUp = normalize(camUp-dot(camDir,camUp)*camDir); // orthogonalize\n  vec3 camRight = normalize(cross(camDir,camUp));\n  \n  vec2 coord =-1.0+2.0*gl_FragCoord.xy/uCanvasSize.xy;\n  coord.x *= uCanvasSize.x/uCanvasSize.y;\n   \n  // Get direction for this pixel\n  vec3 rayDir = normalize(camDir + (coord.x*camRight + coord.y*camUp)*FieldOfView);\n  \n  oFragColor = rayMarch(camPos, rayDir, scale);\n}\n\n"],y),"$isa",y,"$asa"),null)
+z.al(H.t(["#define MaxSteps 60\n#define MinimumDistance 0.01\n#define normalDistance     0.0002\n#define PI 3.141592\n#define FieldOfView 1.0\n#define FudgeFactor 0.8\n\n#define Ambient 0.35\n#define Diffuse 0.4\n#define Specular 0.08\n#define LightDir vec3(1.0,1.0,-0.65048)\n#define LightColor vec3(1.0,0.666667,0.6)\n#define LightDir2 vec3(1.0,-0.62886,1.0)\n#define LightColor2 vec3(0.9,0.8,1.0)\n\n#define time  (uTime + 38.0)\n\nvec2 rotate(vec2 v, float a) {\n  return vec2(cos(a)*v.x + sin(a)*v.y, -sin(a)*v.x + cos(a)*v.y);\n}\n\n// Two light source + env light\nvec3 getLight(in vec3 color, in vec3 normal, in vec3 dir, int mat) {\n  vec3 lightDir = normalize(LightDir);\n  float specular = pow(max(0.0,dot(lightDir,-reflect(lightDir, normal))),20.0); // Phong\n  float diffuse = max(0.0,dot(-normal, lightDir)); // Lambertian\n  \n  vec3 lightDir2 = normalize(LightDir2);\n  float specular2 = pow(max(0.0,dot(lightDir2,-reflect(lightDir2, normal))),20.0); // Phong\n  float diffuse2 = max(0.0,dot(-normal, lightDir2)); // Lambertian\n  \n  float a = pow(abs(dot(normal,dir)),2.0);\n  vec3 l = vec3(0.0);\n    \n  //if (mat < 2) { \n    //l+=(Specular*specular)*LightColor+(diffuse*Diffuse)*(LightColor*color) +\n    //(Specular*specular2)*LightColor2+(diffuse2*Diffuse)*(LightColor2*color);\n    //l+=textureCube(iChannel0, reflect(dir, normal)).xyz*Specular;\n  //} else {\n    l+= \n      //(diffuse*0.8)*(LightColor*color) \n      +(diffuse2*0.7)*(LightColor2*color);\n    \n  //}\n  return l*a*1.7;\n}\n\n\n\n// vec3 offset = vec3(1.0+0.2*(cos(time/5.7)),0.3+0.1*(cos(time/1.7)),1.).xzy;\n\n\nfloat DE2(vec3 z, out int mat, float scale) {\n float sphere = abs(length(z))-15.0;\n z*= scale;\n float base = (cos(z.x) * sin(z.y) + cos(z.y) * sin(z.z) + cos(z.z) * sin(z.x));\n float inverse = -base + (1.0+cos(time/4.0))*4.0;\n if (base>inverse) {\n    mat = (sphere>-0.1) ? 0 : 2;\n } else {\n   mat = (sphere>-0.1) ? 1 : 3;\n }\n return max(min(base,inverse),sphere);\n}\n\nfloat  DE(vec3 z, float scale) {\n  int i = 0;\n  return DE2(z, i, scale);\n}\n\n\n\n// Finite difference normal\nvec3 getNormal(in vec3 pos, float scale) {\n  vec3 e = vec3(0.0,normalDistance,0.0);\n\n  return normalize(vec3(\n      DE(pos+e.yxx, scale)-DE(pos-e.yxx, scale),\n      DE(pos+e.xyx, scale)-DE(pos-e.xyx, scale),\n      DE(pos+e.xxy, scale)-DE(pos-e.xxy, scale)));\n}\n\n// Solid color with a little bit of normal :-)\nvec3 getColor(vec3 normal, vec3 pos, int material) {\n  if (material == 0) {\n    return vec3(0.0,0.1,0.0); \n  } else if (material == 1) {\n    return vec3(1.0,0.0,0.0); \n  } else if (material == 2) {\n    return vec3(1.0)*length(pos)/10.0;\n  } \n  return vec3(1.0)*length(pos)/10.0;\n  \n}\n\n// Filmic tone mapping:\n// http://filmicgames.com/archives/75\nvec3 toneMap(in vec3 c) {\n  c = c*c; // <- So much for proper gamma correction :-)\n  vec3 x = max(vec3(0.),c-vec3(0.004));\n  c = (x*(6.2*x+.5))/(x*(6.2*x+1.7)+0.06);\n  return c;\n}\n\n// Pseudo-random number\n// From: lumina.sourceforge.net/Tutorials/Noise.html\nfloat rand(vec2 co){\n  return fract(cos(dot(co,vec2(4.898,7.23))) * 23421.631);\n}\n\nvec4 rayMarch(in vec3 from, in vec3 dir, float scale) {\n  // Add some noise to prevent banding\n  float totalDistance = rand(gl_FragCoord.xy+vec2(time));\n  \n  float distance;\n  int steps = 0;\n  vec3 pos;\n  for (int i=0; i < MaxSteps; i++) {\n    pos = from + totalDistance * dir;\n    distance = DE(pos, scale)*(0.7*scale);\n    totalDistance += distance;\n    if (distance < MinimumDistance) break;\n    steps = i;\n  }\n  if (steps == MaxSteps-1) {\n    return vec4(0.0);\n  }\n  \n  // 'AO' is based on number of steps.\n  // Try to smooth the count, to combat banding.\n  float smoothStep = float(steps) + distance/MinimumDistance;\n  float ao = 1.0-smoothStep/float(MaxSteps);\n\n  // Since our distance field is not signed,\n    // backstep when calc'ing normal\n  vec3 normal = getNormal(pos-dir*normalDistance*3.0, scale);\n\n  int material = 0;\n  DE2(pos, material, scale);\n  \n  vec3 color = getColor(normal, pos, material); \n  vec3 light = getLight(color, normal, dir, material);\n  return vec4(toneMap((color*Ambient+light)*ao),1.0);\n}\n\nfloat curve(float x) {\n  return cos(x);\n}\n\nvoid main()\n{ \n  float angle = time/5.0; \n  float scale = 0.8+(0.1*cos(time/3.0));\n\n  // Camera position (eye), and camera target\n  vec3 camPos =  19.0*vec3(1.0,0.5*curve(time*0.2),0.5*curve(7.0+0.3*time));\n  vec3 target = vec3(0.0);\n  vec3 camUp  = vec3(0.0,0.0,1.0);\n\n  // Calculate orthonormal camera reference system\n  vec3 camDir   = normalize(target-camPos); // direction for center ray\n  camUp = normalize(camUp-dot(camDir,camUp)*camDir); // orthogonalize\n  vec3 camRight = normalize(cross(camDir,camUp));\n  \n  vec2 coord =-1.0+2.0*gl_FragCoord.xy/uCanvasSize.xy;\n  coord.x *= uCanvasSize.x/uCanvasSize.y;\n   \n  // Get direction for this pixel\n  vec3 rayDir = normalize(camDir + (coord.x*camRight + coord.y*camUp)*FieldOfView);\n  \n  oFragColor = rayMarch(camPos, rayDir, scale);\n}\n\n"],y))
 return z}])
 I=I.$finishIsolateConstructor(I)
 $=new I()
