@@ -64,13 +64,9 @@ void main() {
     ..height = kDim;
 
   final ChronosGL cgl = ChronosGL(canvas);
-  var debug = cgl.getExtension("WEBGL_debug_shaders");
 
   final RenderProgram program =
       RenderProgram("program", cgl, computeVertexShader, computeFragmentShader);
-
-  print("${program.GetVertexShaderSource(debug)}");
-  print("${program.GetFragmentShaderSource(debug)}");
 
   final MeshData unitQuad = ShapeQuad(program, 1);
 
