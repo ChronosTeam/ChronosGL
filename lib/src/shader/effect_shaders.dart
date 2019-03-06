@@ -15,7 +15,7 @@ final ShaderObject copyFragmentShader = ShaderObject("copyF")
 final ShaderObject scalingCopyVertexShader = ShaderObject("nullUV")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddVaryingVars([vTexUV])
-  ..SetBodyWithMain([NullVertexBody, StdVertexTextureForward]);
+  ..SetBody([NullVertexShaderWithTextureForwardString]);
 
 final ShaderObject scalingCopyFragmentShader = ShaderObject("copyF")
   ..AddUniformVars([uTexture])

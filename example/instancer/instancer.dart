@@ -1,6 +1,7 @@
-import 'package:chronosgl/chronosgl.dart';
 import 'dart:html' as HTML;
 import 'dart:typed_data';
+
+import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 final ShaderObject instancedVertexShader = ShaderObject("InstancedV")
@@ -14,7 +15,7 @@ vec3 rotate_vertex_position(vec3 pos, vec4 rot) {
     return pos + 2.0 * cross(rot.xyz, cross(rot.xyz, pos) + rot.w * pos);
 }
 
-void main(void) {
+void main() {
     vec3 P = rotate_vertex_position(${aPosition}, ${iaRotation}) +
              ${iaTranslation};
     gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(P, 1);
@@ -27,7 +28,13 @@ void main(void) {
 
 final ShaderObject instancedFragmentShader = ShaderObject("InstancedF")
   ..AddVaryingVars([vColor])
-  ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1. );"]);
+  ..SetBody([
+    """
+void main() {  
+     ${oFragColor} = vec4( ${vColor}, 1. );
+}
+     """
+  ]);
 
 void AddInstanceData(MeshData md) {
   int count = 1000;

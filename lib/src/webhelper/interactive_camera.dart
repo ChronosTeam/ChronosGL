@@ -1,7 +1,7 @@
 part of webhelper;
 
 /// Interactive Camera focused on a specific point.
-class OrbitCamera extends Camera {
+class OrbitCamera extends Spatial {
   /// OrbitCamera initializes an orbiting camera
   ///
   /// @param this._radius blah

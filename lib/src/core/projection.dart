@@ -8,7 +8,7 @@ class Orthographic extends UniformGroup {
     Update();
   }
 
-  final Camera _camera;
+  final Spatial _camera;
   final VM.Matrix4 _proj = VM.Matrix4.zero();
   final VM.Matrix4 _viewMatrix = VM.Matrix4.zero();
   final VM.Matrix4 _projViewMatrix = VM.Matrix4.identity();
@@ -52,7 +52,7 @@ class Perspective extends UniformGroup {
     Update();
   }
 
-  Camera _camera;
+  Spatial _camera;
   double _fov = 50.0; // horizontal fov in deg  divided by 2
   double _aspect = 1.0;
   double _near = 0.1;
@@ -79,7 +79,7 @@ class Perspective extends UniformGroup {
     Update();
   }
 
-  void UpdateCamera(Camera cam) {
+  void UpdateCamera(Spatial cam) {
     _camera = cam;
   }
 

@@ -6,9 +6,6 @@ const String StdVertexBody =
 const String StdVertexNormalForward =
     "${vNormal} = ${uNormalMatrix} * ${aNormal};";
 
-const String StdVertexTextureForward = "${vTexUV} = ${aTexUV};";
-
-const String NullVertexBody = "gl_Position = vec4(${aPosition}, 1.0);";
 
 const String NullVertexShaderString = """
 void main() {
@@ -19,6 +16,15 @@ void main() {
 const String NullVertexShaderWithTextureForwardString = """
 void main() {
   gl_Position = vec4(${aPosition}, 1.0);
+  ${vTexUV} = ${aTexUV};
+}
+""";
+
+const String StdVertexShaderWithTextureForwardString = """
+void main() {
+  gl_Position = ${uPerspectiveViewMatrix} * 
+                ${uModelMatrix} * 
+                vec4(${aPosition}, 1.0);
   ${vTexUV} = ${aTexUV};
 }
 """;

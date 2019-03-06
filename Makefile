@@ -6,21 +6,48 @@ PUB=/usr/lib/dart/bin/pub
 PORT=8000
 
 VERSION := $(shell grep version pubspec.yaml | cut -f 2 -d\ )
+#@ Available Targets:
+#@
 
-documentation:
-	dart  tool/generate_documentation.dart > class_glossary.md
+#@ help - Show this messsage
+#@
+help:
+	@egrep "^#@" ${MAKEFILE_LIST} | cut -c 3-
 
+#@ get - Download package dependencies and install tools
+#@       (needs to be run at lease once after `git clone`
+#@
+get:
+	$(PUB) get
+	${PUB} global activate webdev
+
+#@ examples - Build (release mode) all the examples into build_example/
+#@
 examples:
-	webdev build --output example:build_example
+	webdev build --verbose --release --output example:build_example
 	@echo
 	@echo example can be found in "file://${PWD}/build_example/example/"
 	@echo
 
+#@ examples_debug - Build (release mode) all the examples into build_example/
+#@
 examples_debug:
-	webdev build --mode=debug --output example:build_example
+	webdev build --verbose --output example:build_example_debug
 	@echo
-	@echo example can be found in "file://${PWD}/build_example/example/"
+	@echo example can be found in "file://${PWD}/build_example_debug/example/"
 	@echo
+
+#@ webserver - Launch a python webserver exporting the entire directory tree
+#@             (useful to view the results of target `example`
+#@
+webserver:
+	@echo Launching webserver on port $(PORT)
+	python -m SimpleHTTPServer $(PORT)
+
+#@ webdev - Launch the continous build webdev server
+#@
+serve:
+	webdev serve example/
 
 buildall:
 	webdev build --output web:build
@@ -30,31 +57,20 @@ buildall:
 
 presubmit: tests buildall
 
-# useful for testing the examples
-webserver:
-	@echo Launching webserver on port $(PORT)
-	python -m SimpleHTTPServer $(PORT)
 
-
-simple_example:
-	$(PUB) build --mode=debug example/simple
-	@echo
-	@echo example can be found in "file://${PWD}/build/example/simple/simple.html"
-	@echo
-
-serve:
-	webdev serve example/ 
-
+#@ publish - Update pub.dartlang.org/packages/chronosgl
+#@
 publish:
 	$(PUB) publish
-
-get:
-	$(PUB) get
-	${PUB} global activate webdev
 
 tag:
 	git tag $(VERSION) -m "$(VERSION)"
 	git show $(VERSION)
+
+#@ documentation - Extract the class_glossary.md files from the source
+#@
+documentation:
+	dart  tool/generate_documentation.dart > class_glossary.md
 
 ############################################################
 # TESTING

@@ -164,7 +164,7 @@ float curve(float x) {
   return cos(x);
 }
 
-void main(void)
+void main()
 { 
   float angle = time/5.0; 
   float scale = 0.8+(0.1*cos(time/3.0));

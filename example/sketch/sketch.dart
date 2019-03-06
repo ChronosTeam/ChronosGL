@@ -25,7 +25,7 @@ vec3 rotate_vertex_position(vec3 pos, vec4 rot) {
     return pos + 2.0 * cross(rot.xyz, cross(rot.xyz, pos) + rot.w * pos);
 }
 
-void main(void) {
+void main() {
   {
     vec3 p = ${aPosition} * ${iaScale};
     p = rotate_vertex_position(p, ${iaRotation});
@@ -68,7 +68,7 @@ float Edge(sampler2D t, ivec2 p) {
 		return length(edge);
 }
 
-void main(void) {
+void main() {
   ColorComponents acc = CombinedLight(${vPosition},
                                       ${vNormal},
                                       ${uEyePosition},
@@ -111,7 +111,7 @@ vec3 rotate_vertex_position(vec3 pos, vec4 rot) {
     return pos + 2.0 * cross(rot.xyz, cross(rot.xyz, pos) + rot.w * pos);
 }
 
-void main(void) {
+void main() {
     {
       vec3 p = ${aPosition} * ${iaScale};
       p = rotate_vertex_position(p, ${iaRotation});
@@ -129,9 +129,11 @@ void main(void) {
 
 final ShaderObject preparationFragmentShader = ShaderObject("preparationF")
   ..AddVaryingVars([vNormal])
-  ..SetBodyWithMain([
+  ..SetBody([
     """
+void main() {
   ${oFragColor} = vec4(${vNormal}, gl_FragCoord.w);
+}
   """
   ]);
 

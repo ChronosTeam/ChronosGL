@@ -7,33 +7,37 @@ import 'package:vector_math/vector_math.dart' as VM;
 final ShaderObject fireworksVertexShader = ShaderObject("FireWorksV")
   ..AddAttributeVars([aPosition, aNormal])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uTime])
-  ..SetBodyWithMain([
+  ..SetBody([
     """
-      float t = mod(${uTime}, 5.0);
-      vec3 vp = ${aPosition};
-      if( t < 3.0) {
-       vp.y = t;
-      } else {
-       vp.y = 3.0;
-       vp += normalize(${aNormal})*(t-3.0);
-      }
-      gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(vp, 1.0);
-      gl_PointSize = 100.0/gl_Position.z;
+void main() {
+    float t = mod(${uTime}, 5.0);
+    vec3 vp = ${aPosition};
+    if( t < 3.0) {
+     vp.y = t;
+    } else {
+     vp.y = 3.0;
+     vp += normalize(${aNormal})*(t-3.0);
+    }
+    gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * vec4(vp, 1.0);
+    gl_PointSize = 100.0/gl_Position.z;
+}
 """
   ]);
 
 final ShaderObject fireworksFragmentShader = ShaderObject("FireWorksF")
   ..AddUniformVars([uTime, uColor, uTexture])
-  ..SetBodyWithMain([
+  ..SetBody([
     """
-      ${oFragColor} = texture(${uTexture}, gl_PointCoord);
-      float t = mod(${uTime}, 5.0);
-      if( t < 3.0) {
-         //gl_FragColor.x = 1.0;
-      } else {
-         //gl_FragColor.rgb = ${uColor};
-         ${oFragColor}.a -= (t-3.0);
-      }
+void main() {
+    ${oFragColor} = texture(${uTexture}, gl_PointCoord);
+    float t = mod(${uTime}, 5.0);
+    if( t < 3.0) {
+       //gl_FragColor.x = 1.0;
+    } else {
+       //gl_FragColor.rgb = ${uColor};
+       ${oFragColor}.a -= (t-3.0);
+    }
+}
 """
   ]);
 

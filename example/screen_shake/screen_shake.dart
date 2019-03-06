@@ -1,4 +1,5 @@
 import 'dart:html' as HTML;
+import 'dart:math' as Math;
 
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
@@ -34,6 +35,39 @@ void main() {
 }
     """
   ]);
+
+void RandomPointOnUnitSphere(VM.Vector3 out, Math.Random rng) {
+  while (true) {
+    double x = rng.nextDouble() * 2.0 - 1.0;
+    double y = rng.nextDouble() * 2.0 - 1.0;
+    double sq = x * x + y * y;
+    if (sq >= 1.0) continue;
+    double rt = Math.sqrt(1.0 - sq);
+    out.setValues(2.0 * x * rt, 2.0 * y * rt, 1.0 - 2.0 * sq);
+    return;
+  }
+}
+
+class CameraShaker {
+  CameraShaker(this._camera, this._rng);
+
+  void Shake(double amplitude) {
+    Unshake();
+    RandomPointOnUnitSphere(_offset, _rng);
+    _offset.scale(amplitude);
+    _camera.addPosFromVec(_offset);
+  }
+
+  void Unshake() {
+    _offset.scale(-1.0);
+    _camera.addPosFromVec(_offset);
+    _offset.setZero();
+  }
+
+  final VM.Vector3 _offset = new VM.Vector3.zero();
+  final Math.Random _rng;
+  final Spatial _camera;
+}
 
 void main() {
   // The canvas is what we render the 3d scene into.
@@ -75,8 +109,14 @@ void main() {
     ..SetUniform(uModelMatrix, VM.Matrix4.identity());
   final MeshData stars = Utils.MakeStarMesh(progSprites, 2000, 100.0);
 
+  final Math.Random rng = Math.Random(0);
+  final CameraShaker shaker = new CameraShaker(orbit, rng);
   // Main loop body
+  double _lastShakeMs = 0.0;
   double _lastTimeMs = 0.0;
+  const  double shakeIntervalMs = 2000.0;
+  const  double shakeDurationMs = 500.0;
+
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
     _lastTimeMs = timeMs + 0.0;
@@ -84,6 +124,17 @@ void main() {
     orbit.azimuth += 0.003;
     // allow the camera to also reflect mouse movement.
     orbit.animate(elapsed);
+
+    final double shakeAgeMs = _lastTimeMs - (_lastShakeMs + shakeIntervalMs);
+
+    if (shakeAgeMs >= 0.0) {
+      if (shakeAgeMs >= shakeDurationMs) {
+        shaker.Unshake();
+        _lastShakeMs = _lastTimeMs;
+      }
+
+      shaker.Shake((500 - shakeAgeMs) * 0.0001);
+    }
 
     // use default framebuffer which also auto clears itself
     prog.Draw(torus, [perspective, material]);

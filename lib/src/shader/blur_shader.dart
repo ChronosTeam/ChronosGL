@@ -52,7 +52,7 @@ ShaderObject CreateBloomTextureFragmentShader(int radius, double sigma) {
 final ShaderObject uvPassthruVertexShader = ShaderObject("uv-passthru")
   ..AddAttributeVars([aPosition, aTexUV])
   ..AddVaryingVars([vTexUV])
-  ..SetBodyWithMain([NullVertexBody, "${vTexUV} = ${aTexUV};"]);
+  ..SetBody([NullVertexShaderWithTextureForwardString]);
 
 final ShaderObject applyBloomEffectFragmentShader = ShaderObject("BloomPassF")
   ..AddVaryingVars([vTexUV])

@@ -18,6 +18,48 @@ A large number of **canonical names** are already registered by default.
 Additional ones required by custom shaders can be registered at startup.
 See lib/src/base/shader_object.dart for a list.
 
+## class Spatial extends NamedEntity 
+is a base class for object that need to be transformed, e.g.
+moved, scaled, rotated. It is also used as a Camera abstraction.
+
+## class MeshData extends NamedEntity 
+represent the raw data for mesh.
+Internally this is wrapper around a Vertex Array Object (VAO).
+MeshData objects can be populated directly but often they
+will derived from **GeometryBuilder** objects.
+The other common way to create a MeshData object is via
+RenderProgram.MakeMeshData().
+Note, MeshData is always associated with a specific RenderProgram
+but it is possible to assert compatibility with multiple RenderPrograms.
+
+## class GeometryBuilder 
+Helper for Shader independent Mesh creation.
+Supports Faces with 3 and 4 Nodes or point clouds.
+Use  GeometryBuilderToMeshData() to create the Mesh
+for a specific Shader.
+
+## class TextureProperties 
+properties like clamping and mip-mapping.
+
+## class Texture 
+is the base class for all textures
+
+## class Orthographic extends UniformGroup 
+provides an Orthographic Perspective Matrix
+
+## class Perspective extends UniformGroup 
+provides the **Input** for perspective projection, i.e.
+the uPerspectiveViewMatrix Uniform which also requires a **Camera**
+for view matrix.
+
+## class Material extends UniformGroup 
+is a light weight container for uniforms related to the appearance
+of a mesh.
+
+## class ChronosGL 
+Prepares a canvas for 3d rendering. Contains wrapper for all the
+WebGL2 bindings
+
 ## abstract class NamedEntity 
 is inherited by almost all other classes in ChronosGL.
 It mostly exists to help with debugging by giving names to objects.
@@ -31,6 +73,12 @@ Important subclasses are:
 * Projection provides a perspective matrix uniform
 * Material provides color and texture uniforms
 * Illumination provides uniforms describing light sources
+
+## class DrawStats 
+Helper class for holding info produced by RenderProgram::Draw().
+
+## class RenderProgram extends NamedEntity 
+represents program (Fragment + Vertex Shader) running on the GPU with an API to invoke it.
 
 ## abstract class Light extends NamedEntity 
 represents a light source with helpers for
@@ -52,66 +100,10 @@ a cone of directional light is emanating from a point
 ## class Illumination extends UniformGroup 
 represents a collection of Lights.
 
-## class Material extends UniformGroup 
-is a light weight container for uniforms related to the appearance
-of a mesh.
-
-## class MeshData extends NamedEntity 
-represent the raw data for mesh.
-Internally this is wrapper around a Vertex Array Object (VAO).
-MeshData objects can be populated directly but often they
-will derived from **GeometryBuilder** objects.
-
-## class DrawStats 
-Helper class for holding info produced by RenderProgram::Draw().
-
-## class RenderProgram extends NamedEntity 
-represents program (Fragment + Vertex Shader) running on the GPU with an API to invoke it.
-
-## class TextureProperties 
-properties like clamping and mip-mapping.
-
-## class Texture 
-is the base class for all textures
-
-## class GeometryBuilder 
-Helper for Shader independent Mesh creation.
-Supports Faces with 3 and 4 Nodes.
-Use  GeometryBuilderToMeshData() to create the Mesh
-for a specific Shader.
-
-## class ChronosGL 
-Prepares a canvas for 3d rendering. Contains wrapper for all the
-WebGL2 bindings
-
-## class Spatial extends NamedEntity 
-is a base class for object that need to be transformed, e.g.
-moved, scaled, rotated.
-
-## class Camera extends Spatial 
-provides helpers to set up a view matrix.
-
-## class Orthographic extends UniformGroup 
-provides an Orthographic Perspective Matrix
-
-## class Perspective extends UniformGroup 
-provides the **Input** for perspective projection, i.e.
-the uPerspectiveViewMatrix Uniform which also requires a **Camera**
-for view matrix.
-
 # Layer: Scene (uses Core Layer)
 The **scene layer** adds abstractions to the *core layer**
 related to scene graphs.
 
-
-## class Node extends Spatial 
-represents a hierarchy of objects that well be rendered
-by rendered RenderProgram.
-Typically that hierarchy is a tree but DAGs are supported.
-Only leaf Nodes will cause draw calls by providing
-MeshData and Material.
-Non leaf Nodes are just containers for other Nodes
-Each Node is a Spatial so it be re-oriented with respect to its parent
 
 ## class Scene extends NamedEntity 
  represents a simple scene graph.
@@ -122,6 +114,15 @@ Each Node is a Spatial so it be re-oriented with respect to its parent
 ## class RenderPhase extends NamedEntity 
 represents a sequence of Scenes.
 
+## class Node extends Spatial 
+represents a hierarchy of objects that well be rendered
+by rendered RenderProgram.
+Typically that hierarchy is a tree but DAGs are supported.
+Only leaf Nodes will cause draw calls by providing
+MeshData and Material.
+Non leaf Nodes are just containers for other Nodes
+Each Node is a Spatial so it be re-oriented with respect to its parent
+
 # Layer: Shader (uses Core Layer)
 provides many standard Vertex and Fragment shaders.
 
@@ -131,7 +132,7 @@ objects for basic shapes like cubes and cylinders.
 Higher layers contain wrappers that generate the corresponding
 MeshData objects from them.
 
-## class TorusKnotCamera extends Camera 
+## class TorusKnotCamera extends Spatial 
 Camera flying through a TorusKnot like through a tunnel
 
 # Layer: Animation
@@ -157,14 +158,14 @@ contains helpers reading various mesh file formats into **GeometryBuilders**
 adds helpers which require access to HTML features like
 DOM tree (elements).
 
-## class OrbitCamera extends Camera 
-Interactive Camera focused on a specific point.
-
 ## class Keyboard 
 HTML keyboard handling
 
 ## class Mouse 
 HTML mouse handling
+
+## class OrbitCamera extends Spatial 
+Interactive Camera focused on a specific point.
 
 # Layer: Misc (uses Core Layer, Scene Layer, Shape Layer, Shader Layer, Animation Layer)
 The **misc layer** contains miscellaneous helpers

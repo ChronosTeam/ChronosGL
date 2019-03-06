@@ -1,4 +1,12 @@
 .packages
 .pub
+.dart_tool
 packages
 build
+.idea
+.gitignore
+.git
+build_example
+
+ChronosGL.iml
+EFFECTS.txt

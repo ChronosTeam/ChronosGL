@@ -1,31 +1,41 @@
-import 'package:chronosgl/chronosgl.dart';
-import 'dart:html' as HTML;
 import "dart:async";
+import 'dart:html' as HTML;
+
+import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 String textureFile = "sphere.png";
 // https://cycling74.com/forums/topic/shader-help-recreating-gl_sphere_map/
 // https://www.opengl.org/wiki/Mathematics_of_glTexGen
 
-String _SphereV = """
-  vec3 u = normalize(vec3(${uModelMatrix} * vec4(${aPosition}, 1.0)));
-  vec3 n = normalize(${uNormalMatrix} * ${aNormal} );
-  vec3 r = reflect( u, n );
-  r.z += 1.0;
-  float m = 2.0 * length(r);
-  ${vTexUV} = vec2(r.x/m + 0.5, r.y/m + 0.5);
-""";
-
 ShaderObject sphereVertexShader = ShaderObject("sphereV")
   ..AddAttributeVars([aPosition, aNormal])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
   ..AddVaryingVars([vTexUV])
-  ..SetBodyWithMain([StdVertexBody, _SphereV]);
+  ..SetBody([
+    """
+void main() {
+    ${StdVertexBody}
+    vec3 u = normalize(vec3(${uModelMatrix} * vec4(${aPosition}, 1.0)));
+    vec3 n = normalize(${uNormalMatrix} * ${aNormal} );
+    vec3 r = reflect( u, n );
+    r.z += 1.0;
+    float m = 2.0 * length(r);
+    ${vTexUV} = vec2(r.x/m + 0.5, r.y/m + 0.5);
+}
+  """
+  ]);
 
 ShaderObject sphereFragmentShader = ShaderObject("sphereF")
   ..AddVaryingVars([vTexUV])
   ..AddUniformVars([uTexture])
-  ..SetBodyWithMain(["${oFragColor} = texture(${uTexture}, ${vTexUV});"]);
+  ..SetBody([
+    """
+void main() {
+    ${oFragColor} = texture(${uTexture}, ${vTexUV});
+}
+      """
+  ]);
 
 final List<Future<Object>> gLoadables = [];
 

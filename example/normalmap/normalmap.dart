@@ -14,13 +14,15 @@ final ShaderObject vertexShader = ShaderObject("LightBlinnPhongV")
   ..AddAttributeVars([aPosition, aNormal, aTexUV])
   ..AddVaryingVars([vPosition, vNormal, vTexUV])
   ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uNormalMatrix])
-  ..SetBodyWithMain([
+  ..SetBody([
     """
-        vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
-        gl_Position = ${uPerspectiveViewMatrix} * pos;
-        ${vPosition} = pos.xyz;
-        ${vNormal} = ${uNormalMatrix} * ${aNormal};
-        ${vTexUV} = ${aTexUV};
+void main() {
+    vec4 pos = ${uModelMatrix} * vec4(${aPosition}, 1.0);
+    gl_Position = ${uPerspectiveViewMatrix} * pos;
+    ${vPosition} = pos.xyz;
+    ${vNormal} = ${uNormalMatrix} * ${aNormal};
+    ${vTexUV} = ${aTexUV};
+}
 """
   ]);
 
@@ -28,19 +30,21 @@ final ShaderObject fragmentShader = ShaderObject("LightBlinnPhongF")
   ..AddVaryingVars([vPosition, vNormal, vTexUV])
   ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
   ..AddUniformVars([uEyePosition, uColor, uTexture])
-  ..SetBodyWithMain([
+  ..SetBody([
     """
-ColorComponents acc = CombinedLight(${vPosition} - ${uEyePosition},
-                                    ${vNormal},
-                                    ${uEyePosition},
-                                    ${uLightDescs},
-                                    ${uLightTypes},
-                                    ${uShininess});
-
-vec4 diffuseMap = texture(${uTexture}, ${vTexUV} );
-
-${oFragColor}.rgb = diffuseMap.rgb + acc.diffuse + acc.specular + uColor;
-${oFragColor}.a = 1.0;
+void main() {
+    ColorComponents acc = CombinedLight(${vPosition} - ${uEyePosition},
+                                        ${vNormal},
+                                        ${uEyePosition},
+                                        ${uLightDescs},
+                                        ${uLightTypes},
+                                        ${uShininess});
+    
+    vec4 diffuseMap = texture(${uTexture}, ${vTexUV} );
+    
+    ${oFragColor}.rgb = diffuseMap.rgb + acc.diffuse + acc.specular + uColor;
+    ${oFragColor}.a = 1.0;
+}
 
 """
   ], prolog: [
