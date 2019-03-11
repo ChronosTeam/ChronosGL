@@ -1,11 +1,9 @@
-
-
 import "dart:async";
 import 'dart:html' as HTML;
 import 'dart:math' as Math;
 
 import 'package:chronosgl/chronosgl.dart';
-// import 'package:vector_math/vector_math.dart' as VM;
+import 'package:vector_math/vector_math.dart' as VM;
 
 import 'shader.dart';
 
@@ -17,7 +15,9 @@ const double musicMuteEnd = 161.72;
 
 const double musicBeatsBegin = 28.32;
 const double flySpeedDivider = 3.0;
-const double cameraIntroEndPointTime = 6.0;
+
+const double cameraIntroEndPointTime = 6.55;
+final VM.Vector3 cameraIntroStartPoint = VM.Vector3(60.0, -70.0, 150.0);
 
 const String modelFile = "../ct_logo.obj";
 
@@ -154,19 +154,18 @@ Camera camera;
 TextureCache textureCache;
 TextureWrapper blockTex;
 html.AudioElement music;
-Mesh torus;
-Mesh littleBall;
-Mesh bigBall;
-Node ctLogo;
 
-int p = 2;
-int q = 3;
-double radius=20.0;
-
-Vector cameraIntroStartPoint = new Vector(60.0, -70.0, 150.0);
-Vector cameraIntroEndPoint = new Vector();
 */
 final List<Future<Object>> gLoadables = [];
+
+class TheNodes {
+  TheNodes();
+
+  Node knot;
+  Node icoBig;
+  Node icoSmall;
+  Node ctLogo;
+}
 
 void main() {
   IntroduceNewShaderVar(uFadeFactor, const ShaderVarDesc("float", ""));
@@ -175,10 +174,18 @@ void main() {
       HTML.document.getElementById("webgl-canvas");
   final HTML.AudioElement music = HTML.document.getElementById("music");
   final ChronosGL cgl = ChronosGL(canvas);
-  // final RenderProgram pnvc = MakePerlinNoiseShader(cgl);
+  final TorusKnotCamera tkc = TorusKnotCamera();
+  final VM.Vector3 cameraIntroEndPoint = VM.Vector3.zero();
+  TorusKnotGetPos(
+      cameraIntroEndPointTime * 1000.0, 3, 2, 20.0, 1.0, cameraIntroEndPoint);
 
-  OrbitCamera orbit = OrbitCamera(10.0, 0.0, 0.0, canvas);
-  Perspective perspective = Perspective(orbit, 0.1, 1000.0);
+  print("@@@@@ ${cameraIntroStartPoint}");
+  print("@@@@@ ${cameraIntroEndPoint}");
+  tkc
+    ..setPosFromVec(cameraIntroStartPoint)
+    ..lookAt(cameraIntroEndPoint);
+
+  Perspective perspective = Perspective(tkc, 0.1, 1000.0);
 
   final width = canvas.clientWidth;
   final height = canvas.clientHeight;
@@ -188,19 +195,19 @@ void main() {
   final RenderPhaseResizeAware phase =
       RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
-  final Material material = Material("matLogo");
-  // =========================================
+  final Material material = Material("matLogo")..SetUniform(uFadeFactor, 0.5);
 
-  final Scene scene_pnvc  =
-      Scene("", MakeVertexColorShader(cgl), [perspective]);
+  final theNodes = TheNodes();
+  // =========================================
+  final Scene scene_pnvc = Scene("", MakeVertexColorShader(cgl), [perspective]);
   phase.add(scene_pnvc);
 
-  Node knot = Node(
+  theNodes.knot = Node(
       "knot",
-      ShapeTorusKnot(scene_pnvc.program, segmentsR:512, segmentsT:64),
-      material)
-    ..setPos(0.0, 0.0, 0.0);
-  scene_pnvc.add(knot);
+      ShapeTorusKnot(scene_pnvc.program, segmentsR: 512, segmentsT: 64),
+      material);
+  //..setPos(0.0, 0.0, 0.0);
+  scene_pnvc.add(theNodes.knot);
 
   // =========================================
   final RenderProgram pnc_novertexmovement = RenderProgram("basic", cgl,
@@ -217,12 +224,12 @@ void main() {
   final Scene scene_pncb = Scene("", pncb, [perspective]);
   phase.add(scene_pncb);
 
-  Node icoBig = Node(
+  theNodes.icoBig = Node(
       "sphere",
       ShapeIcosahedron(scene_pncb.program, subdivisions: 3, scale: 500),
       material)
     ..setPos(0.0, 0.0, 0.0);
-  scene_pncb.add(icoBig);
+  scene_pncb.add(theNodes.icoBig);
 
   // =========================================
   final RenderProgram pnc = RenderProgram("basic", cgl, perlinNoiseVertexShader,
@@ -230,97 +237,50 @@ void main() {
 
   final Scene scene_pnc = Scene("", pnc, [perspective]);
   phase.add(scene_pnc);
-  Node icoSmall = Node(
-      "sphere",
-      ShapeIcosahedron(scene_pnc.program, subdivisions: 4), material)
-    ..setPos(0.0, 0.0, 0.0);
-  scene_pnc.add(icoSmall);
+  theNodes.icoSmall = Node(
+      "sphere", ShapeIcosahedron(scene_pnc.program, subdivisions: 4), material);
+  scene_pnc.add(theNodes.icoSmall);
 
   // =========================================
-  music.play();
   /*
-  chronosGL = new ChronosGL('#webgl-canvas', false);
-  camera = chronosGL.getCamera();
-  music = html.query("#music");
-  camera.setPosFromVec( cameraIntroStartPoint);
+    ctLogo.invert=true;  // ???????????
 
-  getTorusKnotPos( cameraIntroEndPointTime, q, p, radius, 1.0, cameraIntroEndPoint );
-
-
-  // TORUS KNOT MESH
-  ShaderProgram pnvc = getPerlinNoiseVertexColorShader().createProgram('perlinNoiseVertexColors');
-  torus = chronosGL.getUtils().createTorusKnot(segmentsR:512, segmentsT:64).createMesh();
-  torus.enabled = false;
-  pnvc.add(torus);
-
-  MeshData2 ico = new Icosahedron(4);
-  // LITTLE WHITE BALL MESH INSIDE TORUS
-  ShaderProgram pnc = getPerlinNoiseColorShader().createProgram('perlin_noise');
-  littleBall = ico.createMesh();
-  littleBall.enabled = false;
-  pnc.add( littleBall);
-
-  // BIG BLACK BALL MESH OUTSIDE TORUS
-  ShaderProgram pncBlack = getPerlinNoiseColorShader(true).createProgram('perlin_noise_black');
-
-
-  bigBall = ico.createMesh();
-  bigBall.matrix.scale(500.0);
-  bigBall.enabled = false;
-  pncBlack.add( bigBall);
-
-  //html.query("#sample_container_id").onMouseUp.listen((html.MouseEvent event){    m.rotX(event.client.x/1000);      m.rotY(event.client.y/1000);    });
-  // add mouse pointer influences the pitch and yaw a bit
-
-  loadObj( "ct_logo.obj").then((MeshData2 md) {
-
-    //ProgramNormal pnc = ShaderLib.perlinNoiseColors.getProgram( raysWebGL, 'perlin_noise');
-    Mesh ctLogoMesh = md.createMesh();
-    ctLogoMesh.rotX(Math.PI/2);
-    ctLogoMesh.rotZ(Math.PI);
-    ctLogoMesh.matrix.scale(0.25);
-    ctLogo = new Node(ctLogoMesh);
-    ctLogo.enabled=false;
-    ctLogo.invert=true;
-
-    ShaderObject so = getPerlinNoiseColorShader();
-    so.vertexShader = so.vertexShader.replaceAll("+ f * normal", "");
-    ShaderProgram pnc_novertexmovement = so.createProgram('pnc_novertexmovement');
-    pnc_novertexmovement.add( ctLogo);
-    TorusKnotCamera tkc = new TorusKnotCamera(camera, pnvc);
-    chronosGL.addAnimatable('tkc', tkc);
-    html.query('#webgl-canvas').onDoubleClick.listen((html.MouseEvent e) { html.query('#webgl-canvas').requestFullscreen();});
-    music.play();
-    html.query('#topLeftDiv').text = "";
-    chronosGL.run( 0.0);
-  });
-*/
+  */
 
   var future = LoadRaw(modelFile)
     ..then((String content) {
       GeometryBuilder gb = ImportGeometryFromWavefront(content);
       MeshData md = GeometryBuilderToMeshData("", pnc_novertexmovement, gb);
-      Node ctLogo = Node(md.name, md, material)
+      theNodes.ctLogo = Node(md.name, md, material)
         ..rotX(Math.pi / 2.0)
         ..rotZ(Math.pi);
-      ctLogo.transform.scale(0.25, 0.25, 0.25);
-      scene_pnc_novertexmovement.add(ctLogo);
+      theNodes.ctLogo.transform.scale(0.25, 0.25, 0.25);
+      scene_pnc_novertexmovement.add(theNodes.ctLogo);
     });
   gLoadables.add(future);
 
-  double _lastTimeMs = 0.0;
+  double _startTimeMs = 0.0;
   void animate(num timeMs) {
-    double elapsed = timeMs - _lastTimeMs;
-    _lastTimeMs = timeMs + 0.0;
+    if (_startTimeMs == 0.0) _startTimeMs = timeMs;
+    final now = (timeMs - _startTimeMs) / 1000.0;
+    if (now < musicBeatsBegin + 2.0) {
+      double frac = now / 30;
+      if (frac > 1.0) frac = 0.99;
+      VM.Vector3 pos = VM.Vector3.zero();
+      VM.Vector3.mix(cameraIntroStartPoint, cameraIntroEndPoint, frac, pos);
+      print("${cameraIntroEndPoint} ${frac} ${pos}");
+      tkc.setPosFromVec(pos);
+      tkc.lookAt(cameraIntroEndPoint);
+    }
 
-    orbit.azimuth += 0.01;
-    orbit.animate(elapsed);
-    material.ForceUniform(uTime, timeMs / 1000.0);
+    material.ForceUniform(uTime, now);
     phase.Draw();
     HTML.window.animationFrame.then(animate);
   }
 
   Future.wait(gLoadables).then((List list) {
+    music.play();
+    HTML.document.getElementById("info").innerHtml = about;
     animate(0.0);
   });
 }
