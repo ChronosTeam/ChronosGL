@@ -69,13 +69,17 @@ GeometryBuilder ImportGeometryFromWavefront(String text) {
           faceVertices.add(VM.Vector3.zero());
         }
 
-        if (tex != -1 && tex < uvs.length) {
+        if (uvs.length == 0) {
+          faceUvs.add(VM.Vector2.zero());
+        } else if (tex != -1 && tex < uvs.length) {
           faceUvs.add(uvs[tex]);
         } else {
           print("problem uv $i ${tex}");
           faceUvs.add(VM.Vector2.zero());
         }
-        if (nor != -1 && nor < normals.length) {
+        if (normals.length == 0) {
+          faceNormal.add(VM.Vector3.zero());
+        } else if (nor != -1 && nor < normals.length) {
           faceNormal.add(normals[nor]);
         } else {
           print("problem normals $i ${nor}");
