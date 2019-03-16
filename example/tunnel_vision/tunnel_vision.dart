@@ -32,14 +32,6 @@ void PositionInTorus(double time, VM.Vector3 out) {
   TorusKnotGetPos(3.05 + time / 10.0, 3, 2, 20.0, 1.0, out);
 }
 
-String str(VM.Vector3 v) {
-  return sprintf("[%.2f, %.2f, %.2f]", [v.x, v.y, v.z]);
-}
-
-void DumpCamera(String prefix, VM.Vector3 p1, VM.Vector3 p2) {
-  print("${prefix}  ${str(p1)} ${str(p2)} ${str(p2 - p1)}");
-}
-
 VM.Vector3 up = VM.Vector3(0.0, 1.0, 0.0);
 
 double getTweenFactor(double begin, double end, double current) {
@@ -85,10 +77,8 @@ class TheNodes {
       VM.Vector3.mix(cameraIntroStartPoint, cameraIntroEndPoint, frac, _p1);
       PositionInTorus(0.0 + distance, _p2);
       //camera.lookAt(cameraIntroEndPoint);
-      DumpCamera('POS1 ${now} ${frac}', _p1, _p2);
 
       icoSmall.setPosFromVec(_p2);
-      print('CAMERA ${str(camera.getPos())}');
 
       //PositionInTorus(0.0 - 0.5, _p1);
       camera.setPosFromVec(_p1);
@@ -103,7 +93,6 @@ class TheNodes {
       // now -= musicBeatsBegin;
       PositionInTorus(now, _p1);
       PositionInTorus(now + distance, _p2);
-      DumpCamera('POS2 ${now}', _p1, _p2);
       camera.setPosFromVec(_p1);
       camera.lookAt(_p2);
       icoSmall.setPosFromVec(_p2);
