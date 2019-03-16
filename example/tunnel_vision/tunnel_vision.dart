@@ -16,110 +16,110 @@ const double musicMuteEnd = 161.72;
 const double musicBeatsBegin = 28.32;
 const double flySpeedDivider = 3.0;
 
-const double cameraIntroEndPointTime = 6.55;
-final VM.Vector3 cameraIntroStartPoint = VM.Vector3(60.0, -70.0, 150.0);
+const double cameraIntroEndPointU = 3.0;
 
 const String modelFile = "../ct_logo.obj";
 
 const String about = """ 
 Music: Life's things by Mindthings.
 Browser demo for c't competition 2013 by ray@systaro.de.
-Inspiration from clicktorelease.com.";
+Inspiration from clicktorelease.com.
 """;
 
-/*
-class TorusKnotCamera extends Animatable
-{
+final List<Future<Object>> gLoadables = [];
 
-  Camera camera;
-  ShaderProgram pnvc;
-  Node activeNode;
-  Uniform fadeFactor;
+void PositionInTorus(double time, VM.Vector3 out) {
+  TorusKnotGetPos(3.05 + time / 10.0, 3, 2, 20.0, 1.0, out);
+}
 
-  Vector p1 = new Vector();
-  Vector p2 = new Vector();
-  Vector cameraPos = new Vector();
+String str(VM.Vector3 v) {
+  return sprintf("[%.2f, %.2f, %.2f]", [v.x, v.y, v.z]);
+}
 
-  double time=0.0;
-  double tween;
-  bool switched=false;
-  int switchCount=0;
+void DumpCamera(String prefix, VM.Vector3 p1, VM.Vector3 p2) {
+  print("${prefix}  ${str(p1)} ${str(p2)} ${str(p2 - p1)}");
+}
 
-  TorusKnotCamera( this.camera, this.pnvc) {
-    activeNode = ctLogo; // currently the first node will be switched out, so the first visible node will be the littleBall
-    tween=musicBeatsBegin/flySpeedDivider-cameraIntroEndPointTime;
+VM.Vector3 up = VM.Vector3(0.0, 1.0, 0.0);
 
-    fadeFactor = pnvc.getUniform( "fadeFactor");
+double getTweenFactor(double begin, double end, double current) {
+  double diff = end - begin;
+  return (current - begin) / diff;
+}
+
+class TheNodes {
+  TheNodes() {
+    PositionInTorus(0.0, cameraIntroEndPoint);
   }
 
-  double getTweenFactor( double begin, double end, double current)
-  {
-    double diff = end-begin;
-    return (current-begin)/diff;
-  }
+  Material material;
+  Node knot;
+  Node icoBig;
+  Node icoSmall;
+  Node ctLogo;
+  Spatial camera;
+  final VM.Vector3 cameraIntroStartPoint = VM.Vector3(60.0, -70.0, 150.0);
+  final VM.Vector3 cameraIntroEndPoint = VM.Vector3.zero();
+  bool switched = false;
+  int switchCount = 0;
+  VM.Vector3 _p1 = VM.Vector3.zero();
+  VM.Vector3 _p2 = VM.Vector3.zero();
 
-  void animate( double elapsed)
-  {
-    if( !music.ended) {
-      time = music.currentTime;
+  // now == -1.0 signals music ended
+  void advanceTimeline(double now) {
+    /*
+    icoSmall.enabled = true;
+    PositionInTorus(now * 2.0, p1);
+    icoSmall.setPosFromVec(p1);
+    */
+    double distance = 0.5;
+    if (now <= 2.0) {
+      // do nothing
+
+    } else if (now < musicBeatsBegin - 2.0) {
+      knot.enabled = true;
+      icoBig.enabled = true;
+      icoSmall.enabled = true;
+      double frac = now / musicBeatsBegin;
+      //if (frac > 1.0) frac = 1.0;
+      VM.Vector3.mix(cameraIntroStartPoint, cameraIntroEndPoint, frac, _p1);
+      PositionInTorus(0.0 + distance, _p2);
+      //camera.lookAt(cameraIntroEndPoint);
+      DumpCamera('POS1 ${now} ${frac}', _p1, _p2);
+
+      icoSmall.setPosFromVec(_p2);
+      print('CAMERA ${str(camera.getPos())}');
+
+      //PositionInTorus(0.0 - 0.5, _p1);
+      camera.setPosFromVec(_p1);
+      camera.lookAt(_p2, up);
     } else {
-      time += elapsed/1000;
+      knot.enabled = true;
+      icoBig.enabled = false;
+      icoSmall.enabled = true;
+      if (now > 180.0) {
+        material.SetUniform(uFadeFactor, getTweenFactor(180.0, 192.0, now));
+      }
+      // now -= musicBeatsBegin;
+      PositionInTorus(now, _p1);
+      PositionInTorus(now + distance, _p2);
+      DumpCamera('POS2 ${now}', _p1, _p2);
+      camera.setPosFromVec(_p1);
+      camera.lookAt(_p2);
+      icoSmall.setPosFromVec(_p2);
     }
 
-    //html.query('#topLeftDiv').text = "${time}";
-
-    if( time < musicBeatsBegin) {
-       // intro time: slowly move camera to torus
-      if( time > 2.0) {
-        // intro time: black until music starts
-        torus.enabled = true;
-        bigBall.enabled = true;
-      }
-      cameraPos.set(cameraIntroStartPoint);
-      cameraPos.lerp( cameraIntroEndPoint, time/30);
-      camera.setPosFromVec(cameraPos);
-      camera.lookAt(cameraIntroEndPoint);
-      //camera.moveForward(0.09*elapsed/16.7);
-    } else if( music.ended) {
-      // music has stoped: stop moving and show c't logo
-      html.query('#topLeftDiv').text = "Music: Life's things by Mindthings. Browser demo for c't competition 2013 by ray@systaro.de. Inspiration from clicktorelease.com.";
-      //littleBall.enabled = false;
-      //ctLogo.enabled = true;
-      //setObjectPosAlongTorus( (time/flySpeedDivider)+0.09, ctLogo);
-      //camera.moveForward(0.1*elapsed/16.7);
-    } else {
-      // normal time: move camera and activeNode
-      double pos = time/flySpeedDivider;
-      if( time > musicSlowBegin && time < musicSlowEnd) { // music is slow: slow camera down
-        double diff = musicSlowEnd-musicSlowBegin;
-        double drag = Math.sin(((time-musicSlowBegin)/diff)*Math.PI/2)*3;
-        tween = (musicBeatsBegin/flySpeedDivider-cameraIntroEndPointTime) + drag;
-      } else if ( time > musicMuteBegin && time < musicMuteEnd ) {
-        double diff = musicMuteEnd-musicMuteBegin;
-        double drag = Math.sin(((time-musicMuteBegin)/diff)*Math.PI/2)*3;
-        tween = (musicBeatsBegin/flySpeedDivider-cameraIntroEndPointTime) + drag;
-      }
-
-      if( time> 180)
-      {
-        // fade to white
-        fadeFactor.setValue(getTweenFactor(180.0, 192.0, time));
-      }
-      setObjectPosAlongTorus( pos-tween, camera);
-      bigBall.enabled = false;
-    }
-
-    double amp = Math.sin(time/6-1.5);
-    if( amp > 0.9 && !music.ended) {
-      if( !switched) {
-        if( activeNode == littleBall)  {
-          activeNode = ctLogo;
-          littleBall.enabled = false;
+    /*
+    double amp = Math.sin(now / 6.0 - 1.5);
+    if (amp > 0.9 && !music.ended) {
+      if (!switched) {
+        if (icoSmall.enabled) {
+          ctLogo.enabled = true;
+          icoSmall.enabled = false;
         } else {
-          activeNode = littleBall;
           ctLogo.enabled = false;
+          icoSmall.enabled = true;
         }
-        activeNode.enabled = true;
         switched = true;
         switchCount++;
       }
@@ -127,65 +127,27 @@ class TorusKnotCamera extends Animatable
       switched = false;
     }
 
-    if( switchCount >= 5) {
+    if (switchCount >= 5) {
       // music is about to end
-      littleBall.enabled = false;
+      icoSmall.enabled = false;
       ctLogo.enabled = false;
     }
-    double pos = (time/flySpeedDivider)+amp+1.1;
-    //ballPos = (time/flySpeed)+0.5;
-    setObjectPosAlongTorus( pos-tween, activeNode); // -1.5 to make the ball apear a bit later
-    if( activeNode.children.length != 0)
-      activeNode.children.first.rotZ(elapsed/1000);
+    */
   }
-
-  void setObjectPosAlongTorus( double pos, Spatial node) {
-    getTorusKnotPos( pos, q, p, radius, 1.0, p1 );
-    getTorusKnotPos( pos+0.3, q, p, radius, 1.0, p2 );
-    node.setPosFromVec(p1);
-    if( node == camera)
-      node.lookAt(p2); // let the camera use the z axis as its up vector.
-    else
-      node.lookAt(p2, camera.getUp());
-  }
-}
-
-Camera camera;
-TextureCache textureCache;
-TextureWrapper blockTex;
-html.AudioElement music;
-
-*/
-final List<Future<Object>> gLoadables = [];
-
-class TheNodes {
-  TheNodes();
-
-  Node knot;
-  Node icoBig;
-  Node icoSmall;
-  Node ctLogo;
 }
 
 void main() {
   IntroduceNewShaderVar(uFadeFactor, const ShaderVarDesc("float", ""));
-
+  final HTML.DivElement infoElement = HTML.document.getElementById("info");
   final HTML.CanvasElement canvas =
       HTML.document.getElementById("webgl-canvas");
-  final HTML.AudioElement music = HTML.document.getElementById("music");
+  final HTML.AudioElement musicElement = HTML.document.getElementById("music");
   final ChronosGL cgl = ChronosGL(canvas);
-  final TorusKnotCamera tkc = TorusKnotCamera();
-  final VM.Vector3 cameraIntroEndPoint = VM.Vector3.zero();
-  TorusKnotGetPos(
-      cameraIntroEndPointTime * 1000.0, 3, 2, 20.0, 1.0, cameraIntroEndPoint);
+  final theNodes = TheNodes();
 
-  print("@@@@@ ${cameraIntroStartPoint}");
-  print("@@@@@ ${cameraIntroEndPoint}");
-  tkc
-    ..setPosFromVec(cameraIntroStartPoint)
-    ..lookAt(cameraIntroEndPoint);
+  theNodes.camera = TorusKnotCamera();
 
-  Perspective perspective = Perspective(tkc, 0.1, 1000.0);
+  Perspective perspective = Perspective(theNodes.camera, 0.1, 1000.0);
 
   final width = canvas.clientWidth;
   final height = canvas.clientHeight;
@@ -195,9 +157,8 @@ void main() {
   final RenderPhaseResizeAware phase =
       RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
-  final Material material = Material("matLogo")..SetUniform(uFadeFactor, 0.5);
+  theNodes.material = Material("matLogo")..SetUniform(uFadeFactor, 0.5);
 
-  final theNodes = TheNodes();
   // =========================================
   final Scene scene_pnvc = Scene("", MakeVertexColorShader(cgl), [perspective]);
   phase.add(scene_pnvc);
@@ -205,8 +166,8 @@ void main() {
   theNodes.knot = Node(
       "knot",
       ShapeTorusKnot(scene_pnvc.program, segmentsR: 512, segmentsT: 64),
-      material);
-  //..setPos(0.0, 0.0, 0.0);
+      theNodes.material)
+    ..enabled = false;
   scene_pnvc.add(theNodes.knot);
 
   // =========================================
@@ -227,8 +188,8 @@ void main() {
   theNodes.icoBig = Node(
       "sphere",
       ShapeIcosahedron(scene_pncb.program, subdivisions: 3, scale: 500),
-      material)
-    ..setPos(0.0, 0.0, 0.0);
+      theNodes.material)
+    ..enabled = false;
   scene_pncb.add(theNodes.icoBig);
 
   // =========================================
@@ -238,7 +199,10 @@ void main() {
   final Scene scene_pnc = Scene("", pnc, [perspective]);
   phase.add(scene_pnc);
   theNodes.icoSmall = Node(
-      "sphere", ShapeIcosahedron(scene_pnc.program, subdivisions: 4), material);
+      "sphere",
+      ShapeIcosahedron(scene_pnc.program, subdivisions: 4, scale: 0.1),
+      theNodes.material)
+    ..enabled = false;
   scene_pnc.add(theNodes.icoSmall);
 
   // =========================================
@@ -251,36 +215,37 @@ void main() {
     ..then((String content) {
       GeometryBuilder gb = ImportGeometryFromWavefront(content);
       MeshData md = GeometryBuilderToMeshData("", pnc_novertexmovement, gb);
-      theNodes.ctLogo = Node(md.name, md, material)
+      theNodes.ctLogo = Node(md.name, md, theNodes.material)
         ..rotX(Math.pi / 2.0)
-        ..rotZ(Math.pi);
-      theNodes.ctLogo.transform.scale(0.25, 0.25, 0.25);
+        ..rotZ(Math.pi)
+        ..transform.scale(0.25, 0.25, 0.25)
+        ..enabled = false;
       scene_pnc_novertexmovement.add(theNodes.ctLogo);
     });
   gLoadables.add(future);
 
-  double _startTimeMs = 0.0;
+  double startMs = -1.0;
   void animate(num timeMs) {
-    if (_startTimeMs == 0.0) _startTimeMs = timeMs;
-    final now = (timeMs - _startTimeMs) / 1000.0;
-    if (now < musicBeatsBegin + 2.0) {
-      double frac = now / 30;
-      if (frac > 1.0) frac = 0.99;
-      VM.Vector3 pos = VM.Vector3.zero();
-      VM.Vector3.mix(cameraIntroStartPoint, cameraIntroEndPoint, frac, pos);
-      print("${cameraIntroEndPoint} ${frac} ${pos}");
-      tkc.setPosFromVec(pos);
-      tkc.lookAt(cameraIntroEndPoint);
+    if (startMs < 0.0) startMs = timeMs;
+    double now = (timeMs - startMs) * 0.001 + 175.0;
+    // double now = theNodes.music.currentTime;
+    if (musicElement.ended || now > 192.0) {
+      infoElement.text = about;
+    } else {
+      theNodes.advanceTimeline(now);
+      infoElement.text = "${now}";
     }
 
-    material.ForceUniform(uTime, now);
+    theNodes.material.ForceUniform(uTime, timeMs / 1000.0);
     phase.Draw();
+
     HTML.window.animationFrame.then(animate);
   }
 
   Future.wait(gLoadables).then((List list) {
-    music.play();
-    HTML.document.getElementById("info").innerHtml = about;
+    musicElement.play();
+    infoElement.text = "";
+
     animate(0.0);
   });
 }
