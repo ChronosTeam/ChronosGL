@@ -1,9 +1,35 @@
 import 'dart:html' as HTML;
 import 'dart:math' as Math;
+
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
 VM.Vector3 p1 = VM.Vector3.zero();
+
+// Camera flying through a TorusKnot like through a tunnel
+class TorusKnotCamera extends Spatial {
+  TorusKnotCamera(
+      {this.radius = 20.0, this.p = 2, this.q = 3, this.heightScale = 1.0})
+      : super("camera:torusknot");
+
+  final double radius;
+  final int p;
+  final int q;
+  final double heightScale;
+  const double _TorusEpsilon = 0.01;
+
+  final VM.Vector3 p1 = VM.Vector3.zero();
+  final VM.Vector3 p2 = VM.Vector3.zero();
+
+  void animate(double timeMs) {
+    double u = timeMs / 3000;
+    TorusKnotGetPos(u, q, p, radius, heightScale, p1);
+    TorusKnotGetPos(u + _TorusEpsilon, q, p, radius, heightScale, p2);
+
+    setPosFromVec(p1);
+    lookAt(p2, p1);
+  }
+}
 
 Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
   Scene scene = Scene(
