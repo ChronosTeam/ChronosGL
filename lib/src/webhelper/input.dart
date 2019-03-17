@@ -16,9 +16,9 @@ class Keyboard {
     });
   }
 
-  final Set<int> _currentlyPressedKeys = Set<int>();
-  final Set<int> _justPressedKeys = Set<int>();
-  final Set<int> _justReleasedKeys = Set<int>();
+  final Set<int> _currentlyPressedKeys = <int>{};
+  final Set<int> _justPressedKeys = <int>{};
+  final Set<int> _justReleasedKeys = <int>{};
 
   bool currentlyPressedKey(int key) => _currentlyPressedKeys.contains(key);
 
@@ -159,9 +159,9 @@ class Mouse {
   static const int MIDDLE = 1;
   static const int LEFT = 0;
 
-  final Set<int> _currentlyPressedButtons = Set<int>();
-  final Set<int> _justPressedButtons = Set<int>();
-  final Set<int> _justReleasedButtons = Set<int>();
+  final Set<int> _currentlyPressedButtons = <int>{};
+  final Set<int> _justPressedButtons = <int>{};
+  final Set<int> _justReleasedButtons = <int>{};
 
   int moveDeltaX = 0;
   int moveDeltaY = 0;

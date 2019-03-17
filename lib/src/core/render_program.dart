@@ -43,7 +43,7 @@ class RenderProgram extends NamedEntity {
   final Set<String> _attributes;
   final Map<String, Object /* WEBGL.UniformLocation */ > _uniformLocations = {};
   final Map<String, String> _uniformsInitialized = {};
-  final Set<String> _attributesInitialized = Set<String>();
+  final Set<String> _attributesInitialized = <String>{};
 
   int _nextTextureUnit;
 
