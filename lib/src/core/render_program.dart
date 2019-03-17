@@ -43,7 +43,7 @@ class RenderProgram extends NamedEntity {
   final Set<String> _attributes;
   final Map<String, Object /* WEBGL.UniformLocation */ > _uniformLocations = {};
   final Map<String, String> _uniformsInitialized = {};
-  final Set<String> _attributesInitialized = Set<String>();
+  final Set<String> _attributesInitialized = <String>{};
 
   int _nextTextureUnit;
 
@@ -133,7 +133,7 @@ class RenderProgram extends NamedEntity {
   void _SetUniform(String group, String canonical, Object val) {
     // enable only for debug
     if (_uniformsInitialized.containsKey(canonical)) {
-      LogError("${name}:  ${canonical} : group [${group}] overwrites [${canonical}]");
+      LogError("${name}:  ${canonical} : group [${group}] overwrites [${canonical}] (${_uniformsInitialized[canonical]})");
     }
     _uniformsInitialized[canonical] = group;
 

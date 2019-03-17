@@ -15,7 +15,6 @@ void TorusKnotGetPos(double u, int q, int p, double radius, double heightScale,
   vec.z = heightScale * radius * 0.5 * sq;
 }
 
-const double _TorusEpsilon = 0.01;
 
 /// q == 0 and p == 1 results in a torus
 GeometryBuilder TorusKnotGeometry({double radius = 20.0,
@@ -149,26 +148,3 @@ GeometryBuilder TorusKnotGeometryWireframeFriendly({double radius = 20.0,
   return gb;
 }
 
-/// Camera flying through a TorusKnot like through a tunnel
-class TorusKnotCamera extends Spatial {
-  TorusKnotCamera(
-      {this.radius = 20.0, this.p = 2, this.q = 3, this.heightScale = 1.0})
-      : super("camera:torusknot");
-
-  final double radius;
-  final int p;
-  final int q;
-  final double heightScale;
-
-  final VM.Vector3 p1 = VM.Vector3.zero();
-  final VM.Vector3 p2 = VM.Vector3.zero();
-
-  void animate(double timeMs) {
-    double u = timeMs / 3000;
-    TorusKnotGetPos(u, q, p, radius, heightScale, p1);
-    TorusKnotGetPos(u + _TorusEpsilon, q, p, radius, heightScale, p2);
-
-    setPosFromVec(p1);
-    lookAt(p2, p1);
-  }
-}

@@ -21,7 +21,7 @@ List<String> kDirs = [
   "lib/src/misc",
 ];
 
-final Set<String> gAlreadyProcessed = new Set<String>();
+final Set<String> gAlreadyProcessed = <String>{};
 
 void MaybeEmitDocumentation(List<String> comment_block, String line) {
   if (comment_block[0].startsWith("#")) {

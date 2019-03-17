@@ -7,7 +7,7 @@ class MidiInput {
 
   // Dart HTML bindings are broken
   final Map<int, int> _currentControlValue = <int, int>{};
-  final Set<int> _justUpdatedControls = Set<int>();
+  final Set<int> _justUpdatedControls = <int>{};
 
   int moveDeltaX = 0;
   int moveDeltaY = 0;
