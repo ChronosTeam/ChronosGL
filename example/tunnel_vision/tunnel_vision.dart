@@ -16,7 +16,8 @@ const double musicMuteEnd = 161.72;
 const double musicBeatsBegin = 28.32;
 const double flySpeedDivider = 3.0;
 
-const double cameraIntroEndPointU = 3.0;
+const double cameraIntroEnd = 6.0;
+const double cameraTargetDistance = 0.3;
 
 const String modelFile = "../ct_logo.obj";
 
@@ -29,19 +30,33 @@ Inspiration from clicktorelease.com.
 final List<Future<Object>> gLoadables = [];
 
 void PositionInTorus(double time, VM.Vector3 out) {
-  TorusKnotGetPos(3.05 + time / 10.0, 3, 2, 20.0, 1.0, out);
+  TorusKnotGetPos(time / 2.0, 3, 2, 20.0, 1.0, out);
 }
-
-VM.Vector3 up = VM.Vector3(0.0, 1.0, 0.0);
 
 double getTweenFactor(double begin, double end, double current) {
   double diff = end - begin;
   return (current - begin) / diff;
 }
 
+double Tween(double now) {
+  double offset = musicBeatsBegin / flySpeedDivider - cameraIntroEnd;
+  if (now > musicSlowBegin && now < musicSlowEnd) {
+    // music is slow: slow camera down
+    double diff = musicSlowEnd - musicSlowBegin;
+    double drag = Math.sin(((now - musicSlowBegin) / diff) * Math.pi / 2) * 3;
+    return drag + offset;
+  } else if (now > musicMuteBegin && now < musicMuteEnd) {
+    double diff = musicMuteEnd - musicMuteBegin;
+    double drag = Math.sin(((now - musicMuteBegin) / diff) * Math.pi / 2) * 3;
+    return drag + offset;
+  } else {
+    return offset;
+  }
+}
+
 class TheNodes {
   TheNodes() {
-    PositionInTorus(0.0, cameraIntroEndPoint);
+    PositionInTorus(cameraIntroEnd, cameraIntroEndPoint);
   }
 
   Material material;
@@ -59,48 +74,34 @@ class TheNodes {
 
   // now == -1.0 signals music ended
   void advanceTimeline(double now) {
-    /*
-    icoSmall.enabled = true;
-    PositionInTorus(now * 2.0, p1);
-    icoSmall.setPosFromVec(p1);
-    */
-    double distance = 0.5;
+    final double tween = Tween(now);
+
     if (now <= 2.0) {
       // do nothing
-
-    } else if (now < musicBeatsBegin - 2.0) {
+    } else if (now < musicBeatsBegin) {
+      // intro time: slowly move camera to torus
       knot.enabled = true;
       icoBig.enabled = true;
-      icoSmall.enabled = true;
-      double frac = now / musicBeatsBegin;
-      //if (frac > 1.0) frac = 1.0;
+      // icoSmall.enabled = true;
+      final double frac = now / 30.0; // 30.0 is close to musicBeatsBegin
       VM.Vector3.mix(cameraIntroStartPoint, cameraIntroEndPoint, frac, _p1);
-      PositionInTorus(0.0 + distance, _p2);
-      //camera.lookAt(cameraIntroEndPoint);
-
-      icoSmall.setPosFromVec(_p2);
-
-      //PositionInTorus(0.0 - 0.5, _p1);
       camera.setPosFromVec(_p1);
-      camera.lookAt(_p2, up);
+      camera.lookAt(cameraIntroEndPoint);
     } else {
       knot.enabled = true;
       icoBig.enabled = false;
-      icoSmall.enabled = true;
       if (now > 180.0) {
         material.SetUniform(uFadeFactor, getTweenFactor(180.0, 192.0, now));
       }
-      // now -= musicBeatsBegin;
-      PositionInTorus(now, _p1);
-      PositionInTorus(now + distance, _p2);
+      final double pos = now / flySpeedDivider - tween;
+      PositionInTorus(pos, _p1);
+      PositionInTorus(pos + cameraTargetDistance, _p2);
       camera.setPosFromVec(_p1);
       camera.lookAt(_p2);
-      icoSmall.setPosFromVec(_p2);
     }
 
-    /*
-    double amp = Math.sin(now / 6.0 - 1.5);
-    if (amp > 0.9 && !music.ended) {
+    final double amp = Math.sin(now / 6.0 - 1.5);
+    if (amp > 0.9) {
       if (!switched) {
         if (icoSmall.enabled) {
           ctLogo.enabled = true;
@@ -121,7 +122,14 @@ class TheNodes {
       icoSmall.enabled = false;
       ctLogo.enabled = false;
     }
-    */
+
+    // ctLogo.enabled = true;
+    final Node active = ctLogo.enabled ? ctLogo : icoSmall;
+    final double pos = now / flySpeedDivider + amp + 1.1 - tween;
+    PositionInTorus(pos, _p1);
+    PositionInTorus(pos + cameraTargetDistance, _p2);
+    active.setPosFromVec(_p1);
+    //active.lookAt(_p2);
   }
 }
 
@@ -134,7 +142,7 @@ void main() {
   final ChronosGL cgl = ChronosGL(canvas);
   final theNodes = TheNodes();
 
-  theNodes.camera = TorusKnotCamera();
+  theNodes.camera = Spatial("camera");
 
   Perspective perspective = Perspective(theNodes.camera, 0.1, 1000.0);
 
@@ -175,7 +183,7 @@ void main() {
   phase.add(scene_pncb);
 
   theNodes.icoBig = Node(
-      "sphere",
+      "large_sphere",
       ShapeIcosahedron(scene_pncb.program, subdivisions: 3, scale: 500),
       theNodes.material)
     ..enabled = false;
@@ -187,18 +195,12 @@ void main() {
 
   final Scene scene_pnc = Scene("", pnc, [perspective]);
   phase.add(scene_pnc);
-  theNodes.icoSmall = Node(
-      "sphere",
-      ShapeIcosahedron(scene_pnc.program, subdivisions: 4, scale: 0.1),
-      theNodes.material)
+  theNodes.icoSmall = Node("small_sphere",
+      ShapeIcosahedron(scene_pnc.program, subdivisions: 4), theNodes.material)
     ..enabled = false;
   scene_pnc.add(theNodes.icoSmall);
 
-  // =========================================
-  /*
-    ctLogo.invert=true;  // ???????????
-
-  */
+  //  ctLogo.invert=true;  // ???????????
 
   var future = LoadRaw(modelFile)
     ..then((String content) {
@@ -216,7 +218,7 @@ void main() {
   double startMs = -1.0;
   void animate(num timeMs) {
     if (startMs < 0.0) startMs = timeMs;
-    double now = (timeMs - startMs) * 0.001 + 175.0;
+    double now = (timeMs - startMs) * 0.001 *  2.0;
     // double now = theNodes.music.currentTime;
     if (musicElement.ended || now > 192.0) {
       infoElement.text = about;
