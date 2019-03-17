@@ -129,7 +129,11 @@ class TheNodes {
     PositionInTorus(pos, _p1);
     PositionInTorus(pos + cameraTargetDistance, _p2);
     active.setPosFromVec(_p1);
-    //active.lookAt(_p2);
+
+    //active.lookAt(_p2, camera.getUp());
+    // we want the ct sign to stand upward
+    // why does this change the position?
+    active.rotZ(now / 1000.0);
   }
 }
 
@@ -154,7 +158,7 @@ void main() {
   final RenderPhaseResizeAware phase =
       RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
-  theNodes.material = Material("matLogo")..SetUniform(uFadeFactor, 0.5);
+  theNodes.material = Material("matLogo")..SetUniform(uFadeFactor, 0.0);
 
   // =========================================
   final Scene scene_pnvc = Scene("", MakeVertexColorShader(cgl), [perspective]);
@@ -168,7 +172,7 @@ void main() {
   scene_pnvc.add(theNodes.knot);
 
   // =========================================
-  final RenderProgram pnc_novertexmovement = RenderProgram("basic", cgl,
+  final RenderProgram pnc_novertexmovement = RenderProgram("flying_logo", cgl,
       perlinNoiseVertexShader, makePerlinNoiseColorFragmentShader(false));
 
   final Scene scene_pnc_novertexmovement =
@@ -176,7 +180,7 @@ void main() {
   phase.add(scene_pnc_novertexmovement);
 
   // =========================================
-  final RenderProgram pncb = RenderProgram("basic", cgl,
+  final RenderProgram pncb = RenderProgram("background", cgl,
       perlinNoiseVertexShader, makePerlinNoiseColorFragmentShader(true));
 
   final Scene scene_pncb = Scene("", pncb, [perspective]);
@@ -190,7 +194,8 @@ void main() {
   scene_pncb.add(theNodes.icoBig);
 
   // =========================================
-  final RenderProgram pnc = RenderProgram("basic", cgl, perlinNoiseVertexShader,
+  final RenderProgram pnc = RenderProgram("flying_deformaning_ball", cgl,
+      deformingPerlinNoiseVertexShader,
       makePerlinNoiseColorFragmentShader(false));
 
   final Scene scene_pnc = Scene("", pnc, [perspective]);
@@ -200,7 +205,6 @@ void main() {
     ..enabled = false;
   scene_pnc.add(theNodes.icoSmall);
 
-  //  ctLogo.invert=true;  // ???????????
 
   var future = LoadRaw(modelFile)
     ..then((String content) {
@@ -212,14 +216,15 @@ void main() {
         ..transform.scale(0.25, 0.25, 0.25)
         ..enabled = false;
       scene_pnc_novertexmovement.add(theNodes.ctLogo);
+      //  ctLogo.invert=true;  // ???????????
     });
   gLoadables.add(future);
 
   double startMs = -1.0;
   void animate(num timeMs) {
     if (startMs < 0.0) startMs = timeMs;
-    double now = (timeMs - startMs) * 0.001 *  2.0;
-    // double now = theNodes.music.currentTime;
+    // double now = (timeMs - startMs) * 0.001 *  2.0;
+    final double now = musicElement.currentTime;
     if (musicElement.ended || now > 192.0) {
       infoElement.text = about;
     } else {

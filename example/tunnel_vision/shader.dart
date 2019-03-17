@@ -56,3 +56,20 @@ RenderProgram MakeVertexColorShader(ChronosGL cgl) {
   return RenderProgram(
       "basic", cgl, _perlinNoiseVertexShader, _perlinNoiseFragmentShader);
 }
+
+final ShaderObject deformingPerlinNoiseVertexShader = ShaderObject("PerlinNoiseV")
+  ..AddAttributeVars([aPosition])
+  ..AddVaryingVars([vNormal])
+  ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix, uTime])
+  ..SetBody([
+    PerlinNoiseFunctions,
+    """
+void main() {
+    vec3 normal = normalize(${aPosition});
+    float f = 0.5 * pnoise(normal + ${uTime} / 3.0, vec3(10.0));
+    ${vNormal} = normal;
+    gl_Position = ${uPerspectiveViewMatrix} * ${uModelMatrix} * 
+                  vec4(${aPosition} + f * normal, 1.0);
+}
+"""
+  ]);
