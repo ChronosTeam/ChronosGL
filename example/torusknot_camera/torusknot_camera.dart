@@ -16,7 +16,7 @@ class TorusKnotCamera extends Spatial {
   final int p;
   final int q;
   final double heightScale;
-  const double _TorusEpsilon = 0.01;
+  final double _TorusEpsilon = 0.01;
 
   final VM.Vector3 p1 = VM.Vector3.zero();
   final VM.Vector3 p2 = VM.Vector3.zero();
