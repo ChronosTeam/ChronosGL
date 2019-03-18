@@ -229,9 +229,6 @@
     IterableElementError_noElement: function() {
       return new P.StateError("No element");
     },
-    IterableElementError_tooMany: function() {
-      return new P.StateError("Too many elements");
-    },
     Sort_sort: function(a, compare, $E) {
       H.assertSubtype(a, "$isList", [$E], "$asList");
       H.functionTypeCheck(compare, {func: 1, ret: P.int, args: [$E, $E]});
@@ -476,8 +473,6 @@
     },
     EfficientLengthIterable: function EfficientLengthIterable() {
     },
-    ListIterable: function ListIterable() {
-    },
     ListIterator: function ListIterator(t0, t1, t2, t3) {
       var _ = this;
       _.__internal$_iterable = t0;
@@ -485,21 +480,6 @@
       _.__internal$_index = t2;
       _.__internal$_current = null;
       _.$ti = t3;
-    },
-    MappedListIterable: function MappedListIterable(t0, t1, t2) {
-      this._source = t0;
-      this._f = t1;
-      this.$ti = t2;
-    },
-    WhereIterable: function WhereIterable(t0, t1, t2) {
-      this.__internal$_iterable = t0;
-      this._f = t1;
-      this.$ti = t2;
-    },
-    WhereIterator: function WhereIterator(t0, t1, t2) {
-      this._iterator = t0;
-      this._f = t1;
-      this.$ti = t2;
     },
     FixedLengthListMixin: function FixedLengthListMixin() {
     },
@@ -547,6 +527,37 @@
       }
       return hash;
     },
+    Primitives_parseInt: function(source, radix) {
+      var match, decimalMatch;
+      if (typeof source !== "string")
+        H.throwExpression(H.argumentErrorValue(source));
+      match = /^\s*[+-]?((0x[a-f0-9]+)|(\d+)|([a-z0-9]+))\s*$/i.exec(source);
+      if (match == null)
+        return;
+      if (3 >= match.length)
+        return H.ioore(match, 3);
+      decimalMatch = H.stringTypeCheck(match[3]);
+      if (decimalMatch != null)
+        return parseInt(source, 10);
+      if (match[2] != null)
+        return parseInt(source, 16);
+      return;
+    },
+    Primitives_parseDouble: function(source) {
+      var result, trimmed;
+      if (typeof source !== "string")
+        H.throwExpression(H.argumentErrorValue(source));
+      if (!/^\s*[+-]?(?:Infinity|NaN|(?:\.\d+|\d+(?:\.\d*)?)(?:[eE][+-]?\d+)?)\s*$/.test(source))
+        return;
+      result = parseFloat(source);
+      if (isNaN(result)) {
+        trimmed = J.trim$0$s(source);
+        if (trimmed === "NaN" || trimmed === "+NaN" || trimmed === "-NaN")
+          return result;
+        return;
+      }
+      return result;
+    },
     Primitives_objectTypeName: function(object) {
       return H.Primitives__objectClassName(object) + H._joinArguments(H.getRuntimeTypeInfo(object), 0, null);
     },
@@ -584,32 +595,25 @@
       return receiver.date;
     },
     Primitives_getYear: function(receiver) {
-      var t1 = H.Primitives_lazyAsJsDate(receiver).getFullYear() + 0;
-      return t1;
+      return receiver.isUtc ? H.Primitives_lazyAsJsDate(receiver).getUTCFullYear() + 0 : H.Primitives_lazyAsJsDate(receiver).getFullYear() + 0;
     },
     Primitives_getMonth: function(receiver) {
-      var t1 = H.Primitives_lazyAsJsDate(receiver).getMonth() + 1;
-      return t1;
+      return receiver.isUtc ? H.Primitives_lazyAsJsDate(receiver).getUTCMonth() + 1 : H.Primitives_lazyAsJsDate(receiver).getMonth() + 1;
     },
     Primitives_getDay: function(receiver) {
-      var t1 = H.Primitives_lazyAsJsDate(receiver).getDate() + 0;
-      return t1;
+      return receiver.isUtc ? H.Primitives_lazyAsJsDate(receiver).getUTCDate() + 0 : H.Primitives_lazyAsJsDate(receiver).getDate() + 0;
     },
     Primitives_getHours: function(receiver) {
-      var t1 = H.Primitives_lazyAsJsDate(receiver).getHours() + 0;
-      return t1;
+      return receiver.isUtc ? H.Primitives_lazyAsJsDate(receiver).getUTCHours() + 0 : H.Primitives_lazyAsJsDate(receiver).getHours() + 0;
     },
     Primitives_getMinutes: function(receiver) {
-      var t1 = H.Primitives_lazyAsJsDate(receiver).getMinutes() + 0;
-      return t1;
+      return receiver.isUtc ? H.Primitives_lazyAsJsDate(receiver).getUTCMinutes() + 0 : H.Primitives_lazyAsJsDate(receiver).getMinutes() + 0;
     },
     Primitives_getSeconds: function(receiver) {
-      var t1 = H.Primitives_lazyAsJsDate(receiver).getSeconds() + 0;
-      return t1;
+      return receiver.isUtc ? H.Primitives_lazyAsJsDate(receiver).getUTCSeconds() + 0 : H.Primitives_lazyAsJsDate(receiver).getSeconds() + 0;
     },
     Primitives_getMilliseconds: function(receiver) {
-      var t1 = H.Primitives_lazyAsJsDate(receiver).getMilliseconds() + 0;
-      return t1;
+      return receiver.isUtc ? H.Primitives_lazyAsJsDate(receiver).getUTCMilliseconds() + 0 : H.Primitives_lazyAsJsDate(receiver).getMilliseconds() + 0;
     },
     iae: function(argument) {
       throw H.wrapException(H.argumentErrorValue(argument));
@@ -797,6 +801,15 @@
           return new P.StackOverflowError();
       return ex;
     },
+    getTraceFromException: function(exception) {
+      var trace;
+      if (exception == null)
+        return new H._StackTrace(exception);
+      trace = exception.$cachedTrace;
+      if (trace != null)
+        return trace;
+      return exception.$cachedTrace = new H._StackTrace(exception);
+    },
     fillLiteralMap: function(keyValuePairs, result) {
       var $length, index, index0, index1;
       $length = keyValuePairs.length;
@@ -806,6 +819,38 @@
         result.$indexSet(0, keyValuePairs[index], keyValuePairs[index0]);
       }
       return result;
+    },
+    invokeClosure: function(closure, numberOfArguments, arg1, arg2, arg3, arg4) {
+      H.interceptedTypeCheck(closure, "$isFunction");
+      switch (H.intTypeCheck(numberOfArguments)) {
+        case 0:
+          return closure.call$0();
+        case 1:
+          return closure.call$1(arg1);
+        case 2:
+          return closure.call$2(arg1, arg2);
+        case 3:
+          return closure.call$3(arg1, arg2, arg3);
+        case 4:
+          return closure.call$4(arg1, arg2, arg3, arg4);
+      }
+      throw H.wrapException(P.Exception_Exception("Unsupported number of arguments for wrapped closure"));
+    },
+    convertDartClosureToJS: function(closure, arity) {
+      var $function;
+      H.intTypeCheck(arity);
+      if (closure == null)
+        return;
+      $function = closure.$identity;
+      if (!!$function)
+        return $function;
+      $function = function(closure, arity, invoke) {
+        return function(a1, a2, a3, a4) {
+          return invoke(closure, arity, a1, a2, a3, a4);
+        };
+      }(closure, arity, H.invokeClosure);
+      closure.$identity = $function;
+      return $function;
     },
     Closure_fromTearOff: function(receiver, functions, applyTrampolineIndex, reflectionInfo, isStatic, isIntercepted, propertyName) {
       var $function, callName, $prototype, $constructor, t1, trampoline, signatureFunction, getReceiver, applyTrampoline, i, stub, stubCallName;
@@ -1103,6 +1148,9 @@
     propertyTypeError: function(value, property) {
       throw H.wrapException(H.TypeErrorImplementation$(value, H.unminifyOrTag(H.stringTypeCheck(property).substring(3))));
     },
+    propertyTypeCastError: function(value, property) {
+      throw H.wrapException(H.CastErrorImplementation$(value, H.unminifyOrTag(H.stringTypeCheck(property).substring(3))));
+    },
     interceptedTypeCheck: function(value, property) {
       if (value == null)
         return value;
@@ -1110,12 +1158,31 @@
         return value;
       H.propertyTypeError(value, property);
     },
+    interceptedTypeCast: function(value, property) {
+      var t1;
+      if (value != null)
+        t1 = (typeof value === "object" || typeof value === "function") && J.getInterceptor$(value)[property];
+      else
+        t1 = true;
+      if (t1)
+        return value;
+      H.propertyTypeCastError(value, property);
+    },
     numberOrStringSuperNativeTypeCheck: function(value, property) {
       if (value == null)
         return value;
       if (typeof value === "string")
         return value;
       if (typeof value === "number")
+        return value;
+      if (J.getInterceptor$(value)[property])
+        return value;
+      H.propertyTypeError(value, property);
+    },
+    stringSuperNativeTypeCheck: function(value, property) {
+      if (value == null)
+        return value;
+      if (typeof value === "string")
         return value;
       if (J.getInterceptor$(value)[property])
         return value;
@@ -1178,6 +1245,11 @@
         $._inTypeAssertion = false;
       }
     },
+    futureOrCheck: function(o, futureOrRti) {
+      if (o != null && !H.checkSubtypeOfRuntimeType(o, futureOrRti))
+        H.throwExpression(H.TypeErrorImplementation$(o, H.runtimeTypeToString(futureOrRti)));
+      return o;
+    },
     TypeErrorImplementation$: function(value, type) {
       return new H.TypeErrorImplementation("TypeError: " + P.Error_safeToString(value) + ": type '" + H._typeDescription(value) + "' is not a subtype of type '" + type + "'");
     },
@@ -1221,13 +1293,6 @@
       H.stringTypeCheck(substitutionName);
       H.intTypeCheck(index);
       $arguments = H.substitute(interceptor["$as" + H.S(substitutionName)], H.getRuntimeTypeInfo(target));
-      return $arguments == null ? null : $arguments[index];
-    },
-    getRuntimeTypeArgument: function(target, substitutionName, index) {
-      var $arguments;
-      H.stringTypeCheck(substitutionName);
-      H.intTypeCheck(index);
-      $arguments = H.substitute(target["$as" + H.S(substitutionName)], H.getRuntimeTypeInfo(target));
       return $arguments == null ? null : $arguments[index];
     },
     getTypeArgumentByIndex: function(target, index) {
@@ -1345,6 +1410,27 @@
         t1 = buffer._contents += H._runtimeTypeToString(argument, genericContext);
       }
       return "<" + buffer.toString$0(0) + ">";
+    },
+    getRti: function(o) {
+      var t1, functionRti, type, rti;
+      t1 = J.getInterceptor$(o);
+      if (!!t1.$isClosure) {
+        functionRti = H.extractFunctionTypeObjectFromInternal(t1);
+        if (functionRti != null)
+          return functionRti;
+      }
+      type = t1.constructor;
+      if (o == null)
+        return type;
+      if (typeof o != "object")
+        return type;
+      rti = H.getRuntimeTypeInfo(o);
+      if (rti != null) {
+        rti = rti.slice();
+        rti.splice(0, 0, type);
+        type = rti;
+      }
+      return type;
     },
     substitute: function(substitution, $arguments) {
       if (substitution == null)
@@ -1708,6 +1794,44 @@
     applyHooksTransformer: function(transformer, hooks) {
       return transformer(hooks) || hooks;
     },
+    JSSyntaxRegExp_makeNative: function(source, multiLine, caseSensitive, global) {
+      var m, i, g, regexp;
+      m = multiLine ? "m" : "";
+      i = caseSensitive ? "" : "i";
+      g = global ? "g" : "";
+      regexp = function(source, modifiers) {
+        try {
+          return new RegExp(source, modifiers);
+        } catch (e) {
+          return e;
+        }
+      }(source, m + i + g);
+      if (regexp instanceof RegExp)
+        return regexp;
+      throw H.wrapException(P.FormatException$("Illegal RegExp pattern (" + String(regexp) + ")", source));
+    },
+    stringReplaceFirstRE: function(receiver, regexp, replacement, startIndex) {
+      var match = regexp._execGlobal$2(receiver, startIndex);
+      if (match == null)
+        return receiver;
+      return H.stringReplaceRangeUnchecked(receiver, match._match.index, match.get$end(match), replacement);
+    },
+    stringReplaceAllUnchecked: function(receiver, pattern, replacement) {
+      var nativeRegexp, t1;
+      nativeRegexp = pattern.get$_nativeGlobalVersion();
+      nativeRegexp.lastIndex = 0;
+      t1 = receiver.replace(nativeRegexp, replacement.replace(/\$/g, "$$$$"));
+      return t1;
+    },
+    stringReplaceFirstUnchecked: function(receiver, pattern, replacement, startIndex) {
+      return startIndex === 0 ? receiver.replace(pattern._nativeRegExp, replacement.replace(/\$/g, "$$$$")) : H.stringReplaceFirstRE(receiver, pattern, replacement, startIndex);
+    },
+    stringReplaceRangeUnchecked: function(receiver, start, end, replacement) {
+      var prefix, suffix;
+      prefix = receiver.substring(0, start);
+      suffix = receiver.substring(end);
+      return prefix + replacement + suffix;
+    },
     TypeErrorDecoder: function TypeErrorDecoder(t0, t1, t2, t3, t4, t5) {
       var _ = this;
       _._pattern = t0;
@@ -1732,6 +1856,10 @@
     unwrapException_saveStackTrace: function unwrapException_saveStackTrace(t0) {
       this.ex = t0;
     },
+    _StackTrace: function _StackTrace(t0) {
+      this._exception = t0;
+      this._trace = null;
+    },
     Closure: function Closure() {
     },
     TearOffClosure: function TearOffClosure() {
@@ -1741,7 +1869,7 @@
     BoundClosure: function BoundClosure(t0, t1, t2, t3) {
       var _ = this;
       _._self = t0;
-      _._target = t1;
+      _.__js_helper$_target = t1;
       _._receiver = t2;
       _._name = t3;
     },
@@ -1754,6 +1882,10 @@
     RuntimeError: function RuntimeError(t0) {
       this.message = t0;
     },
+    TypeImpl: function TypeImpl(t0) {
+      this._rti = t0;
+      this._hashCode = this.__typeName = null;
+    },
     JsLinkedHashMap: function JsLinkedHashMap(t0) {
       var _ = this;
       _.__js_helper$_length = 0;
@@ -1762,10 +1894,9 @@
       _.$ti = t0;
     },
     LinkedHashMapCell: function LinkedHashMapCell(t0, t1) {
-      var _ = this;
-      _.hashMapCellKey = t0;
-      _.hashMapCellValue = t1;
-      _.__js_helper$_previous = _._next = null;
+      this.hashMapCellKey = t0;
+      this.hashMapCellValue = t1;
+      this._next = null;
     },
     LinkedHashMapKeyIterable: function LinkedHashMapKeyIterable(t0, t1) {
       this._map = t0;
@@ -1786,6 +1917,15 @@
     },
     initHooks_closure1: function initHooks_closure1(t0) {
       this.prototypeForTag = t0;
+    },
+    JSSyntaxRegExp: function JSSyntaxRegExp(t0, t1) {
+      var _ = this;
+      _.pattern = t0;
+      _._nativeRegExp = t1;
+      _._nativeAnchoredRegExp = _._nativeGlobalRegExp = null;
+    },
+    _MatchImplementation: function _MatchImplementation(t0) {
+      this._match = t0;
     },
     _ensureNativeList: function(list) {
       var result, i;
@@ -1909,6 +2049,65 @@
     JSArray__compareAny: function(a, b) {
       return J.compareTo$1$ns(H.numberOrStringSuperNativeTypeCheck(a, "$isComparable"), H.numberOrStringSuperNativeTypeCheck(b, "$isComparable"));
     },
+    JSString__isWhitespace: function(codeUnit) {
+      if (codeUnit < 256)
+        switch (codeUnit) {
+          case 9:
+          case 10:
+          case 11:
+          case 12:
+          case 13:
+          case 32:
+          case 133:
+          case 160:
+            return true;
+          default:
+            return false;
+        }
+      switch (codeUnit) {
+        case 5760:
+        case 8192:
+        case 8193:
+        case 8194:
+        case 8195:
+        case 8196:
+        case 8197:
+        case 8198:
+        case 8199:
+        case 8200:
+        case 8201:
+        case 8202:
+        case 8232:
+        case 8233:
+        case 8239:
+        case 8287:
+        case 12288:
+        case 65279:
+          return true;
+        default:
+          return false;
+      }
+    },
+    JSString__skipLeadingWhitespace: function(string, index) {
+      var t1, codeUnit;
+      for (t1 = string.length; index < t1;) {
+        codeUnit = C.JSString_methods._codeUnitAt$1(string, index);
+        if (codeUnit !== 32 && codeUnit !== 13 && !J.JSString__isWhitespace(codeUnit))
+          break;
+        ++index;
+      }
+      return index;
+    },
+    JSString__skipTrailingWhitespace: function(string, index) {
+      var index0, codeUnit;
+      for (; index > 0; index = index0) {
+        index0 = index - 1;
+        codeUnit = C.JSString_methods.codeUnitAt$1(string, index0);
+        if (codeUnit !== 32 && codeUnit !== 13 && !J.JSString__isWhitespace(codeUnit))
+          break;
+      }
+      return index;
+    },
     getInterceptor$: function(receiver) {
       if (typeof receiver == "number") {
         if (Math.floor(receiver) == receiver)
@@ -1921,24 +2120,6 @@
         return J.JSNull.prototype;
       if (typeof receiver == "boolean")
         return J.JSBool.prototype;
-      if (receiver.constructor == Array)
-        return J.JSArray.prototype;
-      if (typeof receiver != "object") {
-        if (typeof receiver == "function")
-          return J.JavaScriptFunction.prototype;
-        return receiver;
-      }
-      if (receiver instanceof P.Object)
-        return receiver;
-      return J.getNativeInterceptor(receiver);
-    },
-    getInterceptor$ansx: function(receiver) {
-      if (typeof receiver == "number")
-        return J.JSNumber.prototype;
-      if (typeof receiver == "string")
-        return J.JSString.prototype;
-      if (receiver == null)
-        return receiver;
       if (receiver.constructor == Array)
         return J.JSArray.prototype;
       if (typeof receiver != "object") {
@@ -2021,16 +2202,6 @@
         return receiver;
       return J.getNativeInterceptor(receiver);
     },
-    getInterceptor$z: function(receiver) {
-      if (receiver == null)
-        return receiver;
-      if (!(receiver instanceof P.Object))
-        return J.UnknownJavaScriptObject.prototype;
-      return receiver;
-    },
-    get$attributes$x: function(receiver) {
-      return J.getInterceptor$x(receiver).get$attributes(receiver);
-    },
     get$hashCode$: function(receiver) {
       return J.getInterceptor$(receiver).get$hashCode(receiver);
     },
@@ -2039,26 +2210,6 @@
     },
     get$length$asx: function(receiver) {
       return J.getInterceptor$asx(receiver).get$length(receiver);
-    },
-    get$tagName$x: function(receiver) {
-      return J.getInterceptor$x(receiver).get$tagName(receiver);
-    },
-    get$w$z: function(receiver) {
-      return J.getInterceptor$z(receiver).get$w(receiver);
-    },
-    get$x$z: function(receiver) {
-      return J.getInterceptor$z(receiver).get$x(receiver);
-    },
-    get$y$z: function(receiver) {
-      return J.getInterceptor$z(receiver).get$y(receiver);
-    },
-    get$z$z: function(receiver) {
-      return J.getInterceptor$z(receiver).get$z(receiver);
-    },
-    $add$ansx: function(receiver, a0) {
-      if (typeof receiver == "number" && typeof a0 == "number")
-        return receiver + a0;
-      return J.getInterceptor$ansx(receiver).$add(receiver, a0);
     },
     $eq$: function(receiver, a0) {
       if (receiver == null)
@@ -2079,11 +2230,17 @@
             return receiver[a0];
       return J.getInterceptor$asx(receiver).$index(receiver, a0);
     },
+    $indexSet$ax: function(receiver, a0, a1) {
+      return J.getInterceptor$ax(receiver).$indexSet(receiver, a0, a1);
+    },
     _codeUnitAt$1$s: function(receiver, a0) {
       return J.getInterceptor$s(receiver)._codeUnitAt$1(receiver, a0);
     },
     activeTexture$1$x: function(receiver, a0) {
       return J.getInterceptor$x(receiver).activeTexture$1(receiver, a0);
+    },
+    addEventListener$3$x: function(receiver, a0, a1, a2) {
+      return J.getInterceptor$x(receiver).addEventListener$3(receiver, a0, a1, a2);
     },
     attachShader$2$x: function(receiver, a0, a1) {
       return J.getInterceptor$x(receiver).attachShader$2(receiver, a0, a1);
@@ -2112,9 +2269,6 @@
     bufferData$3$x: function(receiver, a0, a1, a2) {
       return J.getInterceptor$x(receiver).bufferData$3(receiver, a0, a1, a2);
     },
-    checkFramebufferStatus$1$x: function(receiver, a0) {
-      return J.getInterceptor$x(receiver).checkFramebufferStatus$1(receiver, a0);
-    },
     clear$1$x: function(receiver, a0) {
       return J.getInterceptor$x(receiver).clear$1(receiver, a0);
     },
@@ -2127,14 +2281,8 @@
     createBuffer$0$x: function(receiver) {
       return J.getInterceptor$x(receiver).createBuffer$0(receiver);
     },
-    createFramebuffer$0$x: function(receiver) {
-      return J.getInterceptor$x(receiver).createFramebuffer$0(receiver);
-    },
     createProgram$0$x: function(receiver) {
       return J.getInterceptor$x(receiver).createProgram$0(receiver);
-    },
-    createTexture$0$x: function(receiver) {
-      return J.getInterceptor$x(receiver).createTexture$0(receiver);
     },
     createVertexArray$0$x: function(receiver) {
       return J.getInterceptor$x(receiver).createVertexArray$0(receiver);
@@ -2157,9 +2305,6 @@
     drawElementsInstanced$5$x: function(receiver, a0, a1, a2, a3, a4) {
       return J.getInterceptor$x(receiver).drawElementsInstanced$5(receiver, a0, a1, a2, a3, a4);
     },
-    elementAt$1$ax: function(receiver, a0) {
-      return J.getInterceptor$ax(receiver).elementAt$1(receiver, a0);
-    },
     enable$1$x: function(receiver, a0) {
       return J.getInterceptor$x(receiver).enable$1(receiver, a0);
     },
@@ -2172,17 +2317,8 @@
     forEach$1$x: function(receiver, a0) {
       return J.getInterceptor$x(receiver).forEach$1(receiver, a0);
     },
-    framebufferTexture2D$5$x: function(receiver, a0, a1, a2, a3, a4) {
-      return J.getInterceptor$x(receiver).framebufferTexture2D$5(receiver, a0, a1, a2, a3, a4);
-    },
     getContextAttributes$0$x: function(receiver) {
       return J.getInterceptor$x(receiver).getContextAttributes$0(receiver);
-    },
-    getError$0$x: function(receiver) {
-      return J.getInterceptor$x(receiver).getError$0(receiver);
-    },
-    getExtension$1$x: function(receiver, a0) {
-      return J.getInterceptor$x(receiver).getExtension$1(receiver, a0);
     },
     getProgramInfoLog$1$x: function(receiver, a0) {
       return J.getInterceptor$x(receiver).getProgramInfoLog$1(receiver, a0);
@@ -2196,32 +2332,20 @@
     linkProgram$1$x: function(receiver, a0) {
       return J.getInterceptor$x(receiver).linkProgram$1(receiver, a0);
     },
-    readPixels$7$x: function(receiver, a0, a1, a2, a3, a4, a5, a6) {
-      return J.getInterceptor$x(receiver).readPixels$7(receiver, a0, a1, a2, a3, a4, a5, a6);
-    },
-    remove$0$x: function(receiver) {
-      return J.getInterceptor$x(receiver).remove$0(receiver);
+    split$1$s: function(receiver, a0) {
+      return J.getInterceptor$s(receiver).split$1(receiver, a0);
     },
     stencilFunc$3$x: function(receiver, a0, a1, a2) {
       return J.getInterceptor$x(receiver).stencilFunc$3(receiver, a0, a1, a2);
-    },
-    texParameterf$3$x: function(receiver, a0, a1, a2) {
-      return J.getInterceptor$x(receiver).texParameterf$3(receiver, a0, a1, a2);
-    },
-    texParameteri$3$x: function(receiver, a0, a1, a2) {
-      return J.getInterceptor$x(receiver).texParameteri$3(receiver, a0, a1, a2);
-    },
-    texStorage2D$5$x: function(receiver, a0, a1, a2, a3, a4) {
-      return J.getInterceptor$x(receiver).texStorage2D$5(receiver, a0, a1, a2, a3, a4);
-    },
-    toLowerCase$0$s: function(receiver) {
-      return J.getInterceptor$s(receiver).toLowerCase$0(receiver);
     },
     toString$0$: function(receiver) {
       return J.getInterceptor$(receiver).toString$0(receiver);
     },
     transformFeedbackVaryings$3$x: function(receiver, a0, a1, a2) {
       return J.getInterceptor$x(receiver).transformFeedbackVaryings$3(receiver, a0, a1, a2);
+    },
+    trim$0$s: function(receiver) {
+      return J.getInterceptor$s(receiver).trim$0(receiver);
     },
     uniform1f$2$x: function(receiver, a0, a1) {
       return J.getInterceptor$x(receiver).uniform1f$2(receiver, a0, a1);
@@ -2300,12 +2424,519 @@
     }
   },
   P = {
+    _AsyncRun__initializeScheduleImmediate: function() {
+      var t1, div, span;
+      t1 = {};
+      if (self.scheduleImmediate != null)
+        return P.async__AsyncRun__scheduleImmediateJsOverride$closure();
+      if (self.MutationObserver != null && self.document != null) {
+        div = self.document.createElement("div");
+        span = self.document.createElement("span");
+        t1.storedCallback = null;
+        new self.MutationObserver(H.convertDartClosureToJS(new P._AsyncRun__initializeScheduleImmediate_internalCallback(t1), 1)).observe(div, {childList: true});
+        return new P._AsyncRun__initializeScheduleImmediate_closure(t1, div, span);
+      } else if (self.setImmediate != null)
+        return P.async__AsyncRun__scheduleImmediateWithSetImmediate$closure();
+      return P.async__AsyncRun__scheduleImmediateWithTimer$closure();
+    },
+    _AsyncRun__scheduleImmediateJsOverride: function(callback) {
+      self.scheduleImmediate(H.convertDartClosureToJS(new P._AsyncRun__scheduleImmediateJsOverride_internalCallback(H.functionTypeCheck(callback, {func: 1, ret: -1})), 0));
+    },
+    _AsyncRun__scheduleImmediateWithSetImmediate: function(callback) {
+      self.setImmediate(H.convertDartClosureToJS(new P._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback(H.functionTypeCheck(callback, {func: 1, ret: -1})), 0));
+    },
+    _AsyncRun__scheduleImmediateWithTimer: function(callback) {
+      H.functionTypeCheck(callback, {func: 1, ret: -1});
+      P._TimerImpl$(0, callback);
+    },
+    _TimerImpl$: function(milliseconds, callback) {
+      var t1 = new P._TimerImpl();
+      t1._TimerImpl$2(milliseconds, callback);
+      return t1;
+    },
+    Future_wait: function(futures, $T) {
+      var cleanUp, eagerError, result, handleError, future, pos, e, st, _box_0, t1, t2, t3, _i, t4, exception, error;
+      _box_0 = {};
+      cleanUp = null;
+      eagerError = false;
+      H.assertSubtype(futures, "$isIterable", [[P.Future, $T]], "$asIterable");
+      t1 = [[P.List, $T]];
+      result = new P._Future(0, $.Zone__current, t1);
+      _box_0.values = null;
+      _box_0.remaining = 0;
+      _box_0.error = null;
+      _box_0.stackTrace = null;
+      handleError = new P.Future_wait_handleError(_box_0, cleanUp, eagerError, result);
+      try {
+        for (t2 = futures, t3 = t2.length, _i = 0, t4 = 0; _i < t2.length; t2.length === t3 || (0, H.throwConcurrentModificationError)(t2), ++_i) {
+          future = t2[_i];
+          pos = t4;
+          future.then$1$2$onError(new P.Future_wait_closure(_box_0, pos, result, cleanUp, eagerError, $T), handleError, null);
+          t4 = ++_box_0.remaining;
+        }
+        if (t4 === 0) {
+          t2 = new P._Future(0, $.Zone__current, t1);
+          t2._asyncComplete$1(C.List_empty);
+          return t2;
+        }
+        t2 = new Array(t4);
+        t2.fixed$length = Array;
+        _box_0.values = H.setRuntimeTypeInfo(t2, [$T]);
+      } catch (exception) {
+        e = H.unwrapException(exception);
+        st = H.getTraceFromException(exception);
+        if (_box_0.remaining === 0 || eagerError) {
+          error = e;
+          if (error == null)
+            error = new P.NullThrownError();
+          t2 = $.Zone__current;
+          if (t2 !== C.C__RootZone)
+            t2.toString;
+          t1 = new P._Future(0, t2, t1);
+          t1._asyncCompleteError$2(error, st);
+          return t1;
+        } else {
+          _box_0.error = e;
+          _box_0.stackTrace = st;
+        }
+      }
+      return result;
+    },
+    _Future__chainForeignFuture: function(source, target) {
+      var e, s, exception;
+      target._state = 1;
+      try {
+        source.then$1$2$onError(new P._Future__chainForeignFuture_closure(target), new P._Future__chainForeignFuture_closure0(target), null);
+      } catch (exception) {
+        e = H.unwrapException(exception);
+        s = H.getTraceFromException(exception);
+        P.scheduleMicrotask(new P._Future__chainForeignFuture_closure1(target, e, s));
+      }
+    },
+    _Future__chainCoreFuture: function(source, target) {
+      var t1, listeners;
+      for (; t1 = source._state, t1 === 2;)
+        source = H.interceptedTypeCheck(source._resultOrListeners, "$is_Future");
+      if (t1 >= 4) {
+        listeners = target._removeListeners$0();
+        target._state = source._state;
+        target._resultOrListeners = source._resultOrListeners;
+        P._Future__propagateToListeners(target, listeners);
+      } else {
+        listeners = H.interceptedTypeCheck(target._resultOrListeners, "$is_FutureListener");
+        target._state = 2;
+        target._resultOrListeners = source;
+        source._prependListeners$1(listeners);
+      }
+    },
+    _Future__propagateToListeners: function(source, listeners) {
+      var _box_1, t1, _box_0, hasError, asyncError, t2, t3, listeners0, sourceResult, zone, t4, oldZone, current, result;
+      _box_1 = {};
+      _box_1.source = source;
+      for (t1 = source; true;) {
+        _box_0 = {};
+        hasError = t1._state === 8;
+        if (listeners == null) {
+          if (hasError) {
+            asyncError = H.interceptedTypeCheck(t1._resultOrListeners, "$isAsyncError");
+            t1 = t1._zone;
+            t2 = asyncError.error;
+            t3 = asyncError.stackTrace;
+            t1.toString;
+            P._rootHandleUncaughtError(null, null, t1, t2, t3);
+          }
+          return;
+        }
+        for (; listeners0 = listeners._nextListener, listeners0 != null; listeners = listeners0) {
+          listeners._nextListener = null;
+          P._Future__propagateToListeners(_box_1.source, listeners);
+        }
+        t1 = _box_1.source;
+        sourceResult = t1._resultOrListeners;
+        _box_0.listenerHasError = hasError;
+        _box_0.listenerValueOrError = sourceResult;
+        t2 = !hasError;
+        if (t2) {
+          t3 = listeners.state;
+          t3 = (t3 & 1) !== 0 || t3 === 8;
+        } else
+          t3 = true;
+        if (t3) {
+          t3 = listeners.result;
+          zone = t3._zone;
+          if (hasError) {
+            t4 = t1._zone;
+            t4.toString;
+            t4 = t4 == zone;
+            if (!t4)
+              zone.toString;
+            else
+              t4 = true;
+            t4 = !t4;
+          } else
+            t4 = false;
+          if (t4) {
+            H.interceptedTypeCheck(sourceResult, "$isAsyncError");
+            t1 = t1._zone;
+            t2 = sourceResult.error;
+            t3 = sourceResult.stackTrace;
+            t1.toString;
+            P._rootHandleUncaughtError(null, null, t1, t2, t3);
+            return;
+          }
+          oldZone = $.Zone__current;
+          if (oldZone != zone)
+            $.Zone__current = zone;
+          else
+            oldZone = null;
+          t1 = listeners.state;
+          if (t1 === 8)
+            new P._Future__propagateToListeners_handleWhenCompleteCallback(_box_1, _box_0, listeners, hasError).call$0();
+          else if (t2) {
+            if ((t1 & 1) !== 0)
+              new P._Future__propagateToListeners_handleValueCallback(_box_0, listeners, sourceResult).call$0();
+          } else if ((t1 & 2) !== 0)
+            new P._Future__propagateToListeners_handleError(_box_1, _box_0, listeners).call$0();
+          if (oldZone != null)
+            $.Zone__current = oldZone;
+          t1 = _box_0.listenerValueOrError;
+          if (!!J.getInterceptor$(t1).$isFuture) {
+            if (t1._state >= 4) {
+              current = H.interceptedTypeCheck(t3._resultOrListeners, "$is_FutureListener");
+              t3._resultOrListeners = null;
+              listeners = t3._reverseListeners$1(current);
+              t3._state = t1._state;
+              t3._resultOrListeners = t1._resultOrListeners;
+              _box_1.source = t1;
+              continue;
+            } else
+              P._Future__chainCoreFuture(t1, t3);
+            return;
+          }
+        }
+        result = listeners.result;
+        current = H.interceptedTypeCheck(result._resultOrListeners, "$is_FutureListener");
+        result._resultOrListeners = null;
+        listeners = result._reverseListeners$1(current);
+        t1 = _box_0.listenerHasError;
+        t2 = _box_0.listenerValueOrError;
+        if (!t1) {
+          H.assertSubtypeOfRuntimeType(t2, H.getTypeArgumentByIndex(result, 0));
+          result._state = 4;
+          result._resultOrListeners = t2;
+        } else {
+          H.interceptedTypeCheck(t2, "$isAsyncError");
+          result._state = 8;
+          result._resultOrListeners = t2;
+        }
+        _box_1.source = result;
+        t1 = result;
+      }
+    },
+    _registerErrorHandler: function(errorHandler, zone) {
+      if (H.functionTypeTest(errorHandler, {func: 1, args: [P.Object, P.StackTrace]}))
+        return H.functionTypeCheck(errorHandler, {func: 1, ret: null, args: [P.Object, P.StackTrace]});
+      if (H.functionTypeTest(errorHandler, {func: 1, args: [P.Object]}))
+        return H.functionTypeCheck(errorHandler, {func: 1, ret: null, args: [P.Object]});
+      throw H.wrapException(P.ArgumentError$value(errorHandler, "onError", "Error handler must accept one Object or one Object and a StackTrace as arguments, and return a a valid result"));
+    },
+    _microtaskLoop: function() {
+      var t1, t2;
+      for (; t1 = $._nextCallback, t1 != null;) {
+        $._lastPriorityCallback = null;
+        t2 = t1.next;
+        $._nextCallback = t2;
+        if (t2 == null)
+          $._lastCallback = null;
+        t1.callback.call$0();
+      }
+    },
+    _startMicrotaskLoop: function() {
+      $._isInCallbackLoop = true;
+      try {
+        P._microtaskLoop();
+      } finally {
+        $._lastPriorityCallback = null;
+        $._isInCallbackLoop = false;
+        if ($._nextCallback != null)
+          $.$get$_AsyncRun__scheduleImmediateClosure().call$1(P.async___startMicrotaskLoop$closure());
+      }
+    },
+    _scheduleAsyncCallback: function(callback) {
+      var newEntry = new P._AsyncCallbackEntry(H.functionTypeCheck(callback, {func: 1, ret: -1}));
+      if ($._nextCallback == null) {
+        $._lastCallback = newEntry;
+        $._nextCallback = newEntry;
+        if (!$._isInCallbackLoop)
+          $.$get$_AsyncRun__scheduleImmediateClosure().call$1(P.async___startMicrotaskLoop$closure());
+      } else {
+        $._lastCallback.next = newEntry;
+        $._lastCallback = newEntry;
+      }
+    },
+    _schedulePriorityAsyncCallback: function(callback) {
+      var t1, entry, t2;
+      H.functionTypeCheck(callback, {func: 1, ret: -1});
+      t1 = $._nextCallback;
+      if (t1 == null) {
+        P._scheduleAsyncCallback(callback);
+        $._lastPriorityCallback = $._lastCallback;
+        return;
+      }
+      entry = new P._AsyncCallbackEntry(callback);
+      t2 = $._lastPriorityCallback;
+      if (t2 == null) {
+        entry.next = t1;
+        $._lastPriorityCallback = entry;
+        $._nextCallback = entry;
+      } else {
+        entry.next = t2.next;
+        t2.next = entry;
+        $._lastPriorityCallback = entry;
+        if (entry.next == null)
+          $._lastCallback = entry;
+      }
+    },
+    scheduleMicrotask: function(callback) {
+      var t1, currentZone;
+      t1 = {func: 1, ret: -1};
+      H.functionTypeCheck(callback, t1);
+      currentZone = $.Zone__current;
+      if (C.C__RootZone === currentZone) {
+        P._rootScheduleMicrotask(null, null, C.C__RootZone, callback);
+        return;
+      }
+      currentZone.toString;
+      P._rootScheduleMicrotask(null, null, currentZone, H.functionTypeCheck(currentZone.bindCallbackGuarded$1(callback), t1));
+    },
+    _rootHandleUncaughtError: function($self, $parent, zone, error, stackTrace) {
+      var t1 = {};
+      t1.error = error;
+      P._schedulePriorityAsyncCallback(new P._rootHandleUncaughtError_closure(t1, stackTrace));
+    },
+    _rootRun: function($self, $parent, zone, f, $R) {
+      var old, t1;
+      H.functionTypeCheck(f, {func: 1, ret: $R});
+      t1 = $.Zone__current;
+      if (t1 === zone)
+        return f.call$0();
+      $.Zone__current = zone;
+      old = t1;
+      try {
+        t1 = f.call$0();
+        return t1;
+      } finally {
+        $.Zone__current = old;
+      }
+    },
+    _rootRunUnary: function($self, $parent, zone, f, arg, $R, $T) {
+      var old, t1;
+      H.functionTypeCheck(f, {func: 1, ret: $R, args: [$T]});
+      H.assertSubtypeOfRuntimeType(arg, $T);
+      t1 = $.Zone__current;
+      if (t1 === zone)
+        return f.call$1(arg);
+      $.Zone__current = zone;
+      old = t1;
+      try {
+        t1 = f.call$1(arg);
+        return t1;
+      } finally {
+        $.Zone__current = old;
+      }
+    },
+    _rootRunBinary: function($self, $parent, zone, f, arg1, arg2, $R, T1, T2) {
+      var old, t1;
+      H.functionTypeCheck(f, {func: 1, ret: $R, args: [T1, T2]});
+      H.assertSubtypeOfRuntimeType(arg1, T1);
+      H.assertSubtypeOfRuntimeType(arg2, T2);
+      t1 = $.Zone__current;
+      if (t1 === zone)
+        return f.call$2(arg1, arg2);
+      $.Zone__current = zone;
+      old = t1;
+      try {
+        t1 = f.call$2(arg1, arg2);
+        return t1;
+      } finally {
+        $.Zone__current = old;
+      }
+    },
+    _rootScheduleMicrotask: function($self, $parent, zone, f) {
+      var t1;
+      H.functionTypeCheck(f, {func: 1, ret: -1});
+      t1 = C.C__RootZone !== zone;
+      if (t1)
+        f = !(!t1 || false) ? zone.bindCallbackGuarded$1(f) : zone.bindCallback$1$1(f, -1);
+      P._scheduleAsyncCallback(f);
+    },
+    _AsyncRun__initializeScheduleImmediate_internalCallback: function _AsyncRun__initializeScheduleImmediate_internalCallback(t0) {
+      this._box_0 = t0;
+    },
+    _AsyncRun__initializeScheduleImmediate_closure: function _AsyncRun__initializeScheduleImmediate_closure(t0, t1, t2) {
+      this._box_0 = t0;
+      this.div = t1;
+      this.span = t2;
+    },
+    _AsyncRun__scheduleImmediateJsOverride_internalCallback: function _AsyncRun__scheduleImmediateJsOverride_internalCallback(t0) {
+      this.callback = t0;
+    },
+    _AsyncRun__scheduleImmediateWithSetImmediate_internalCallback: function _AsyncRun__scheduleImmediateWithSetImmediate_internalCallback(t0) {
+      this.callback = t0;
+    },
+    _TimerImpl: function _TimerImpl() {
+    },
+    _TimerImpl_internalCallback: function _TimerImpl_internalCallback(t0, t1) {
+      this.$this = t0;
+      this.callback = t1;
+    },
+    Future: function Future() {
+    },
+    Future_wait_handleError: function Future_wait_handleError(t0, t1, t2, t3) {
+      var _ = this;
+      _._box_0 = t0;
+      _.cleanUp = t1;
+      _.eagerError = t2;
+      _.result = t3;
+    },
+    Future_wait_closure: function Future_wait_closure(t0, t1, t2, t3, t4, t5) {
+      var _ = this;
+      _._box_0 = t0;
+      _.pos = t1;
+      _.result = t2;
+      _.cleanUp = t3;
+      _.eagerError = t4;
+      _.T = t5;
+    },
+    _Completer: function _Completer() {
+    },
+    _AsyncCompleter: function _AsyncCompleter(t0, t1) {
+      this.future = t0;
+      this.$ti = t1;
+    },
+    _SyncCompleter: function _SyncCompleter(t0, t1) {
+      this.future = t0;
+      this.$ti = t1;
+    },
+    _FutureListener: function _FutureListener(t0, t1, t2, t3, t4) {
+      var _ = this;
+      _._nextListener = null;
+      _.result = t0;
+      _.state = t1;
+      _.callback = t2;
+      _.errorCallback = t3;
+      _.$ti = t4;
+    },
+    _Future: function _Future(t0, t1, t2) {
+      var _ = this;
+      _._state = t0;
+      _._zone = t1;
+      _._resultOrListeners = null;
+      _.$ti = t2;
+    },
+    _Future__addListener_closure: function _Future__addListener_closure(t0, t1) {
+      this.$this = t0;
+      this.listener = t1;
+    },
+    _Future__prependListeners_closure: function _Future__prependListeners_closure(t0, t1) {
+      this._box_0 = t0;
+      this.$this = t1;
+    },
+    _Future__chainForeignFuture_closure: function _Future__chainForeignFuture_closure(t0) {
+      this.target = t0;
+    },
+    _Future__chainForeignFuture_closure0: function _Future__chainForeignFuture_closure0(t0) {
+      this.target = t0;
+    },
+    _Future__chainForeignFuture_closure1: function _Future__chainForeignFuture_closure1(t0, t1, t2) {
+      this.target = t0;
+      this.e = t1;
+      this.s = t2;
+    },
+    _Future__asyncComplete_closure: function _Future__asyncComplete_closure(t0, t1) {
+      this.$this = t0;
+      this.value = t1;
+    },
+    _Future__chainFuture_closure: function _Future__chainFuture_closure(t0, t1) {
+      this.$this = t0;
+      this.value = t1;
+    },
+    _Future__asyncCompleteError_closure: function _Future__asyncCompleteError_closure(t0, t1, t2) {
+      this.$this = t0;
+      this.error = t1;
+      this.stackTrace = t2;
+    },
+    _Future__propagateToListeners_handleWhenCompleteCallback: function _Future__propagateToListeners_handleWhenCompleteCallback(t0, t1, t2, t3) {
+      var _ = this;
+      _._box_1 = t0;
+      _._box_0 = t1;
+      _.listener = t2;
+      _.hasError = t3;
+    },
+    _Future__propagateToListeners_handleWhenCompleteCallback_closure: function _Future__propagateToListeners_handleWhenCompleteCallback_closure(t0) {
+      this.originalSource = t0;
+    },
+    _Future__propagateToListeners_handleValueCallback: function _Future__propagateToListeners_handleValueCallback(t0, t1, t2) {
+      this._box_0 = t0;
+      this.listener = t1;
+      this.sourceResult = t2;
+    },
+    _Future__propagateToListeners_handleError: function _Future__propagateToListeners_handleError(t0, t1, t2) {
+      this._box_1 = t0;
+      this._box_0 = t1;
+      this.listener = t2;
+    },
+    _AsyncCallbackEntry: function _AsyncCallbackEntry(t0) {
+      this.callback = t0;
+      this.next = null;
+    },
+    Stream: function Stream() {
+    },
+    Stream_length_closure: function Stream_length_closure(t0, t1) {
+      this._box_0 = t0;
+      this.$this = t1;
+    },
+    Stream_length_closure0: function Stream_length_closure0(t0, t1) {
+      this._box_0 = t0;
+      this.future = t1;
+    },
+    StreamSubscription: function StreamSubscription() {
+    },
+    AsyncError: function AsyncError(t0, t1) {
+      this.error = t0;
+      this.stackTrace = t1;
+    },
+    _Zone: function _Zone() {
+    },
+    _rootHandleUncaughtError_closure: function _rootHandleUncaughtError_closure(t0, t1) {
+      this._box_0 = t0;
+      this.stackTrace = t1;
+    },
+    _RootZone: function _RootZone() {
+    },
+    _RootZone_bindCallback_closure: function _RootZone_bindCallback_closure(t0, t1, t2) {
+      this.$this = t0;
+      this.f = t1;
+      this.R = t2;
+    },
+    _RootZone_bindCallbackGuarded_closure: function _RootZone_bindCallbackGuarded_closure(t0, t1) {
+      this.$this = t0;
+      this.f = t1;
+    },
+    _RootZone_bindUnaryCallbackGuarded_closure: function _RootZone_bindUnaryCallbackGuarded_closure(t0, t1, t2) {
+      this.$this = t0;
+      this.f = t1;
+      this.T = t2;
+    },
     LinkedHashMap_LinkedHashMap$_literal: function(keyValuePairs, $K, $V) {
       H.listTypeCheck(keyValuePairs);
       return H.assertSubtype(H.fillLiteralMap(keyValuePairs, new H.JsLinkedHashMap([$K, $V])), "$isLinkedHashMap", [$K, $V], "$asLinkedHashMap");
     },
     LinkedHashMap_LinkedHashMap$_empty: function($K, $V) {
       return new H.JsLinkedHashMap([$K, $V]);
+    },
+    LinkedHashMap__makeEmpty: function() {
+      return new H.JsLinkedHashMap([null, null]);
     },
     LinkedHashSet_LinkedHashSet: function($E) {
       return new P._LinkedHashSet([$E]);
@@ -2496,8 +3127,6 @@
       _._collection$_current = _._collection$_cell = null;
       _.$ti = t2;
     },
-    ListBase: function ListBase() {
-    },
     ListMixin: function ListMixin() {
     },
     MapBase: function MapBase() {
@@ -2510,12 +3139,25 @@
     },
     _SetBase: function _SetBase() {
     },
-    _ListBase_Object_ListMixin: function _ListBase_Object_ListMixin() {
+    int_parse: function(source) {
+      var value = H.Primitives_parseInt(source, null);
+      if (value != null)
+        return value;
+      throw H.wrapException(P.FormatException$(source, null));
+    },
+    double_parse: function(source) {
+      var value = H.Primitives_parseDouble(source);
+      if (value != null)
+        return value;
+      throw H.wrapException(P.FormatException$("Invalid double", source));
     },
     Error__objectToString: function(object) {
       if (object instanceof H.Closure)
         return object.toString$0(0);
       return "Instance of '" + H.Primitives_objectTypeName(object) + "'";
+    },
+    RegExp_RegExp: function(source) {
+      return new H.JSSyntaxRegExp(source, H.JSSyntaxRegExp_makeNative(source, false, true, false));
     },
     StringBuffer__writeAll: function(string, objects, separator) {
       var iterator = J.get$iterator$ax(objects);
@@ -2566,20 +3208,14 @@
         return JSON.stringify(object);
       return P.Error__objectToString(object);
     },
+    ArgumentError$: function(message) {
+      return new P.ArgumentError(false, null, null, message);
+    },
     ArgumentError$value: function(value, $name, message) {
       return new P.ArgumentError(true, value, $name, message);
     },
     RangeError$value: function(value, $name) {
       return new P.RangeError(null, null, true, value, $name, "Value not in range");
-    },
-    RangeError$range: function(invalidValue, minValue, maxValue, $name, message) {
-      return new P.RangeError(minValue, maxValue, true, invalidValue, $name, "Invalid value");
-    },
-    RangeError_checkNotNegative: function(value, $name) {
-      if (typeof value !== "number")
-        return value.$lt();
-      if (value < 0)
-        throw H.wrapException(P.RangeError$range(value, 0, null, $name, null));
     },
     IndexError$: function(invalidValue, indexable, $name, message, $length) {
       var t1 = H.intTypeCheck($length == null ? J.get$length$asx(indexable) : $length);
@@ -2599,6 +3235,9 @@
     },
     Exception_Exception: function(message) {
       return new P._Exception(message);
+    },
+    FormatException$: function(message, source) {
+      return new P.FormatException(message, source, null);
     },
     print: function(object) {
       H.printString(H.S(object));
@@ -2666,13 +3305,14 @@
     _Exception: function _Exception(t0) {
       this.message = t0;
     },
-    Function: function Function() {
+    FormatException: function FormatException(t0, t1, t2) {
+      this.message = t0;
+      this.source = t1;
+      this.offset = t2;
     },
     int: function int() {
     },
     Iterable: function Iterable() {
-    },
-    Iterator: function Iterator() {
     },
     List: function List() {
     },
@@ -2683,6 +3323,8 @@
     num: function num() {
     },
     Object: function Object() {
+    },
+    StackTrace: function StackTrace() {
     },
     String: function String() {
     },
@@ -2706,8 +3348,35 @@
       dict.forEach$1(0, new P.convertDartToNative_Dictionary_closure(object));
       return object;
     },
+    convertNativePromiseToDartFuture: function(promise) {
+      var t1, completer;
+      t1 = new P._Future(0, $.Zone__current, [null]);
+      completer = new P._AsyncCompleter(t1, [null]);
+      promise.then(H.convertDartClosureToJS(new P.convertNativePromiseToDartFuture_closure(completer), 1))["catch"](H.convertDartClosureToJS(new P.convertNativePromiseToDartFuture_closure0(completer), 1));
+      return t1;
+    },
+    _AcceptStructuredClone: function _AcceptStructuredClone() {
+    },
+    _AcceptStructuredClone_walk_closure: function _AcceptStructuredClone_walk_closure(t0, t1) {
+      this._box_0 = t0;
+      this.$this = t1;
+    },
     convertDartToNative_Dictionary_closure: function convertDartToNative_Dictionary_closure(t0) {
       this.object = t0;
+    },
+    _AcceptStructuredCloneDart2Js: function _AcceptStructuredCloneDart2Js(t0, t1) {
+      this.values = t0;
+      this.copies = t1;
+      this.mustCopy = false;
+    },
+    convertNativePromiseToDartFuture_closure: function convertNativePromiseToDartFuture_closure(t0) {
+      this.completer = t0;
+    },
+    convertNativePromiseToDartFuture_closure0: function convertNativePromiseToDartFuture_closure0(t0) {
+      this.completer = t0;
+    },
+    sqrt: function(x) {
+      return Math.sqrt(x);
     },
     _RectangleBase: function _RectangleBase() {
     },
@@ -2723,11 +3392,7 @@
     },
     PointList: function PointList() {
     },
-    ScriptElement: function ScriptElement() {
-    },
     StringList: function StringList() {
-    },
-    SvgElement: function SvgElement() {
     },
     Transform: function Transform() {
     },
@@ -2792,32 +3457,12 @@
     }
   },
   W = {
-    Element_Element$html: function(html, treeSanitizer, validator) {
-      var t1, fragment, it, result;
-      t1 = document.body;
-      fragment = (t1 && C.BodyElement_methods).createFragment$3$treeSanitizer$validator(t1, html, treeSanitizer, validator);
-      fragment.toString;
-      t1 = W.Node;
-      t1 = new H.WhereIterable(new W._ChildNodeListLazy(fragment), H.functionTypeCheck(new W.Element_Element$html_closure(), {func: 1, ret: P.bool, args: [t1]}), [t1]);
-      it = t1.get$iterator(t1);
-      if (!it.moveNext$0())
-        H.throwExpression(H.IterableElementError_noElement());
-      result = it.get$current(it);
-      if (it.moveNext$0())
-        H.throwExpression(H.IterableElementError_tooMany());
-      return H.interceptedTypeCheck(result, "$isElement");
-    },
-    Element__safeTagName: function(element) {
-      var result, t1, exception;
-      result = "element tag unavailable";
-      try {
-        t1 = J.get$tagName$x(element);
-        if (typeof t1 === "string")
-          result = element.tagName;
-      } catch (exception) {
-        H.unwrapException(exception);
-      }
-      return result;
+    promiseToFuture: function(jsPromise, $T) {
+      var t1, completer;
+      t1 = new P._Future(0, $.Zone__current, [$T]);
+      completer = new P._AsyncCompleter(t1, [$T]);
+      jsPromise.then(H.convertDartClosureToJS(new W.promiseToFuture_closure(completer, $T), 1), H.convertDartClosureToJS(new W.promiseToFuture_closure0(completer), 1));
+      return t1;
     },
     _JenkinsSmiHash_combine: function(hash, value) {
       hash = 536870911 & hash + value;
@@ -2831,54 +3476,34 @@
       hash ^= hash >>> 11;
       return 536870911 & hash + ((16383 & hash) << 15);
     },
-    _Html5NodeValidator$: function(uriPolicy) {
-      var e, t1;
-      e = document.createElement("a");
-      t1 = new W._SameOriginUriPolicy(e, window.location);
-      t1 = new W._Html5NodeValidator(t1);
-      t1._Html5NodeValidator$1$uriPolicy(uriPolicy);
-      return t1;
+    _EventStreamSubscription$: function(_target, _eventType, onData, _useCapture, $T) {
+      var t1 = W._wrapZone(new W._EventStreamSubscription_closure(onData), W.Event);
+      if (t1 != null && true)
+        J.addEventListener$3$x(_target, _eventType, t1, false);
+      return new W._EventStreamSubscription(_target, _eventType, t1, false, [$T]);
     },
-    _Html5NodeValidator__standardAttributeValidator: function(element, attributeName, value, context) {
-      H.interceptedTypeCheck(element, "$isElement");
-      H.stringTypeCheck(attributeName);
-      H.stringTypeCheck(value);
-      H.interceptedTypeCheck(context, "$is_Html5NodeValidator");
-      return true;
+    _convertNativeToDart_XHR_Response: function(o) {
+      var t1;
+      if (!!J.getInterceptor$(o).$isDocument)
+        return o;
+      t1 = new P._AcceptStructuredCloneDart2Js([], []);
+      t1.mustCopy = true;
+      return t1.walk$1(o);
     },
-    _Html5NodeValidator__uriAttributeValidator: function(element, attributeName, value, context) {
-      var t1, t2, t3;
-      H.interceptedTypeCheck(element, "$isElement");
-      H.stringTypeCheck(attributeName);
-      H.stringTypeCheck(value);
-      t1 = H.interceptedTypeCheck(context, "$is_Html5NodeValidator").uriPolicy;
-      t2 = t1._hiddenAnchor;
-      t2.href = value;
-      t3 = t2.hostname;
-      t1 = t1._loc;
-      if (!(t3 == t1.hostname && t2.port == t1.port && t2.protocol == t1.protocol))
-        if (t3 === "")
-          if (t2.port === "") {
-            t1 = t2.protocol;
-            t1 = t1 === ":" || t1 === "";
-          } else
-            t1 = false;
-        else
-          t1 = false;
-      else
-        t1 = true;
-      return t1;
+    _wrapZone: function(callback, $T) {
+      var t1;
+      H.functionTypeCheck(callback, {func: 1, ret: -1, args: [$T]});
+      t1 = $.Zone__current;
+      if (t1 === C.C__RootZone)
+        return callback;
+      return t1.bindUnaryCallbackGuarded$1$1(callback, $T);
     },
-    _TemplatingNodeValidator$: function() {
-      var t1, t2, t3, t4, t5;
-      t1 = P.String;
-      t2 = P.LinkedHashSet_LinkedHashSet$from(C.List_wSV, t1);
-      t3 = H.getTypeArgumentByIndex(C.List_wSV, 0);
-      t4 = H.functionTypeCheck(new W._TemplatingNodeValidator_closure(), {func: 1, ret: t1, args: [t3]});
-      t5 = H.setRuntimeTypeInfo(["TEMPLATE"], [t1]);
-      t2 = new W._TemplatingNodeValidator(t2, P.LinkedHashSet_LinkedHashSet(t1), P.LinkedHashSet_LinkedHashSet(t1), P.LinkedHashSet_LinkedHashSet(t1), null);
-      t2._SimpleNodeValidator$4$allowedAttributes$allowedElements$allowedUriAttributes(null, new H.MappedListIterable(C.List_wSV, t4, [t3, t1]), t5, null);
-      return t2;
+    promiseToFuture_closure: function promiseToFuture_closure(t0, t1) {
+      this.completer = t0;
+      this.T = t1;
+    },
+    promiseToFuture_closure0: function promiseToFuture_closure0(t0) {
+      this.completer = t0;
     },
     HtmlElement: function HtmlElement() {
     },
@@ -2888,11 +3513,9 @@
     },
     AreaElement: function AreaElement() {
     },
-    BaseElement: function BaseElement() {
+    AudioElement: function AudioElement() {
     },
     Blob: function Blob() {
-    },
-    BodyElement: function BodyElement() {
     },
     CanvasElement: function CanvasElement() {
     },
@@ -2922,6 +3545,8 @@
     },
     DivElement: function DivElement() {
     },
+    Document: function Document() {
+    },
     DomException: function DomException() {
     },
     DomRectList: function DomRectList() {
@@ -2934,7 +3559,7 @@
     },
     Element: function Element() {
     },
-    Element_Element$html_closure: function Element_Element$html_closure() {
+    Event: function Event() {
     },
     EventTarget: function EventTarget() {
     },
@@ -2952,7 +3577,13 @@
     },
     HtmlCollection: function HtmlCollection() {
     },
+    HttpRequest: function HttpRequest() {
+    },
+    HttpRequestEventTarget: function HttpRequestEventTarget() {
+    },
     Location: function Location() {
+    },
+    MediaElement: function MediaElement() {
     },
     MediaList: function MediaList() {
     },
@@ -2970,16 +3601,15 @@
     },
     MimeTypeArray: function MimeTypeArray() {
     },
-    _ChildNodeListLazy: function _ChildNodeListLazy(t0) {
-      this._this = t0;
-    },
-    Node: function Node() {
+    Node0: function Node0() {
     },
     NodeList: function NodeList() {
     },
     Plugin: function Plugin() {
     },
     PluginArray: function PluginArray() {
+    },
+    ProgressEvent: function ProgressEvent() {
     },
     RtcStatsReport: function RtcStatsReport() {
     },
@@ -3005,14 +3635,6 @@
     },
     StyleSheet: function StyleSheet() {
     },
-    TableElement: function TableElement() {
-    },
-    TableRowElement: function TableRowElement() {
-    },
-    TableSectionElement: function TableSectionElement() {
-    },
-    TemplateElement: function TemplateElement() {
-    },
     TextTrack: function TextTrack() {
     },
     TextTrackCue: function TextTrackCue() {
@@ -3033,7 +3655,10 @@
     },
     VideoTrackList: function VideoTrackList() {
     },
-    _Attr: function _Attr() {
+    Window: function Window() {
+    },
+    Window_animationFrame_closure: function Window_animationFrame_closure(t0) {
+      this.completer = t0;
     },
     _CssRuleList: function _CssRuleList() {
     },
@@ -3047,44 +3672,26 @@
     },
     _StyleSheetList: function _StyleSheetList() {
     },
-    _AttributeMap: function _AttributeMap() {
+    _EventStream: function _EventStream(t0, t1, t2, t3) {
+      var _ = this;
+      _._target = t0;
+      _._eventType = t1;
+      _._useCapture = t2;
+      _.$ti = t3;
     },
-    _ElementAttributeMap: function _ElementAttributeMap(t0) {
-      this._html$_element = t0;
+    _EventStreamSubscription: function _EventStreamSubscription(t0, t1, t2, t3, t4) {
+      var _ = this;
+      _._pauseCount = 0;
+      _._target = t0;
+      _._eventType = t1;
+      _._onData = t2;
+      _._useCapture = t3;
+      _.$ti = t4;
     },
-    _Html5NodeValidator: function _Html5NodeValidator(t0) {
-      this.uriPolicy = t0;
+    _EventStreamSubscription_closure: function _EventStreamSubscription_closure(t0) {
+      this.onData = t0;
     },
     ImmutableListMixin: function ImmutableListMixin() {
-    },
-    NodeValidatorBuilder: function NodeValidatorBuilder(t0) {
-      this._validators = t0;
-    },
-    NodeValidatorBuilder_allowsElement_closure: function NodeValidatorBuilder_allowsElement_closure(t0) {
-      this.element = t0;
-    },
-    NodeValidatorBuilder_allowsAttribute_closure: function NodeValidatorBuilder_allowsAttribute_closure(t0, t1, t2) {
-      this.element = t0;
-      this.attributeName = t1;
-      this.value = t2;
-    },
-    _SimpleNodeValidator: function _SimpleNodeValidator() {
-    },
-    _SimpleNodeValidator_closure: function _SimpleNodeValidator_closure() {
-    },
-    _SimpleNodeValidator_closure0: function _SimpleNodeValidator_closure0() {
-    },
-    _TemplatingNodeValidator: function _TemplatingNodeValidator(t0, t1, t2, t3, t4) {
-      var _ = this;
-      _._templateAttrs = t0;
-      _.allowedElements = t1;
-      _.allowedAttributes = t2;
-      _.allowedUriAttributes = t3;
-      _.uriPolicy = t4;
-    },
-    _TemplatingNodeValidator_closure: function _TemplatingNodeValidator_closure() {
-    },
-    _SvgNodeValidator: function _SvgNodeValidator() {
     },
     FixedSizeListIterator: function FixedSizeListIterator(t0, t1, t2, t3) {
       var _ = this;
@@ -3093,18 +3700,6 @@
       _._position = t2;
       _._html$_current = null;
       _.$ti = t3;
-    },
-    NodeValidator: function NodeValidator() {
-    },
-    _SameOriginUriPolicy: function _SameOriginUriPolicy(t0, t1) {
-      this._hiddenAnchor = t0;
-      this._loc = t1;
-    },
-    _ValidatingTreeSanitizer: function _ValidatingTreeSanitizer(t0) {
-      this.validator = t0;
-    },
-    _ValidatingTreeSanitizer_sanitizeTree_walk: function _ValidatingTreeSanitizer_sanitizeTree_walk(t0) {
-      this.$this = t0;
     },
     _CssStyleDeclaration_Interceptor_CssStyleDeclarationBase: function _CssStyleDeclaration_Interceptor_CssStyleDeclarationBase() {
     },
@@ -3215,22 +3810,8 @@
       }
       return shader;
     },
-    Framebuffer$: function(_cgl, colorTexture, depthTexture) {
-      var t1, t2, err;
-      t1 = new G.Framebuffer(_cgl, null, colorTexture, depthTexture, null);
-      t2 = J.createFramebuffer$0$x(_cgl._gl);
-      t1._framebuffer = t2;
-      J.bindFramebuffer$2$x(_cgl._gl, 36160, t2);
-      J.framebufferTexture2D$5$x(_cgl._gl, 36160, 36064, 3553, colorTexture._texture, 0);
-      if (depthTexture != null) {
-        t2 = depthTexture._texture;
-        J.framebufferTexture2D$5$x(_cgl._gl, 36160, 36096, 3553, t2, 0);
-      }
-      err = J.checkFramebufferStatus$1$x(_cgl._gl, 36160);
-      if (err !== 36053)
-        H.throwExpression("Error Incomplete Framebuffer: " + H.S(err));
-      J.bindFramebuffer$2$x(_cgl._gl, 36160, null);
-      return t1;
+    Face3$: function(a, b, c) {
+      return new G.Face3(a, b, c);
     },
     FlattenVector3List: function(v) {
       var t1, data, i, t2, t3, t4, t5;
@@ -3278,34 +3859,32 @@
       return data;
     },
     FlattenVector4List: function(v) {
-      var t1, data, i, t2, t3, t4;
+      var t1, data, i, t2, t3, t4, t5;
       H.assertSubtype(v, "$isList", [T.Vector4], "$asList");
       t1 = v.length;
       data = new Float32Array(t1 * 4);
-      for (i = 0; i < v.length; ++i) {
-        t1 = i * 4;
-        t2 = J.get$x$z(v[i]);
-        t3 = data.length;
-        if (t1 >= t3)
-          return H.ioore(data, t1);
-        data[t1] = t2;
-        t2 = t1 + 1;
-        if (i >= v.length)
-          return H.ioore(v, i);
-        t4 = J.get$y$z(v[i]);
-        if (t2 >= t3)
+      for (t1 = v.length, i = 0; i < t1; ++i) {
+        t2 = i * 4;
+        t3 = v[i]._v4storage[0];
+        t4 = data.length;
+        if (t2 >= t4)
           return H.ioore(data, t2);
-        data[t2] = t4;
-        t4 = t1 + 2;
-        if (i >= v.length)
-          return H.ioore(v, i);
-        t2 = J.get$z$z(v[i]);
-        if (t4 >= t3)
-          return H.ioore(data, t4);
-        data[t4] = t2;
-        if (i >= v.length)
-          return H.ioore(v, i);
-        C.NativeFloat32List_methods.$indexSet(data, t1 + 3, J.get$w$z(v[i]));
+        data[t2] = t3;
+        t3 = t2 + 1;
+        t5 = v[i]._v4storage[1];
+        if (t3 >= t4)
+          return H.ioore(data, t3);
+        data[t3] = t5;
+        t5 = t2 + 2;
+        t3 = v[i]._v4storage[2];
+        if (t5 >= t4)
+          return H.ioore(data, t5);
+        data[t5] = t3;
+        t2 += 3;
+        t3 = v[i]._v4storage[3];
+        if (t2 >= t4)
+          return H.ioore(data, t2);
+        data[t2] = t3;
       }
       return data;
     },
@@ -3359,6 +3938,46 @@
         }
       }
     },
+    GeometryBuilderToMeshData: function($name, prog, gb) {
+      var t1, t2, t3, t4, t5, md, desc, index;
+      t1 = prog._cgl;
+      t2 = prog._shaderObjectV._canonicalToLayoutPos;
+      t3 = P.String;
+      t4 = P.LinkedHashMap_LinkedHashMap$_empty(t3, P.Object);
+      t5 = J.createVertexArray$0$x(t1._gl);
+      md = new G.MeshData(t1, t5, 4, t4, t2, -1, P.LinkedHashMap_LinkedHashMap$_empty(t3, P.Float32List), "meshdata:" + $name);
+      t3 = G.FlattenVector3List(gb.vertices);
+      t4.$indexSet(0, "aPosition", J.createBuffer$0$x(t1._gl));
+      md._vertices = t3;
+      md.ChangeAttribute$3("aPosition", t3, 3);
+      desc = $.$get$_VarsDb().$index(0, "aPosition");
+      if (desc == null)
+        H.throwExpression("Unknown canonical aPosition");
+      index = t2.$index(0, "aPosition");
+      J.bindVertexArray$1$x(t1._gl, t5);
+      t1.enableVertexAttribArray$2(0, index, 0);
+      t1.vertexAttribPointer$7(0, t4.$index(0, "aPosition"), index, desc.GetSize$0(), 5126, false, 0, 0);
+      t2 = H.assertSubtype(gb.GenerateFaceIndices$0(), "$isList", [P.int], "$asList");
+      md._indexBuffer = J.createBuffer$0$x(t1._gl);
+      t3 = md._vertices.length;
+      if (t3 < 768) {
+        md.set$_faces(new Uint8Array(H._ensureNativeList(t2)));
+        md._indexBufferType = 5121;
+      } else if (t3 < 196608) {
+        md.set$_faces(new Uint16Array(H._ensureNativeList(t2)));
+        md._indexBufferType = 5123;
+      } else {
+        md.set$_faces(new Uint32Array(H._ensureNativeList(t2)));
+        md._indexBufferType = 5125;
+      }
+      J.bindVertexArray$1$x(t1._gl, t5);
+      t2 = md._indexBuffer;
+      t3 = md._faces;
+      J.bindBuffer$2$x(t1._gl, 34963, t2);
+      J.bufferData$3$x(t1._gl, 34963, t3, 35048);
+      G._GeometryBuilderAttributesToMeshData(gb, md);
+      return md;
+    },
     RenderProgram$: function($name, _cgl, _shaderObjectV, _shaderObjectF) {
       var t1, t2, t3, t4, t5, program, vs, fs;
       t1 = P.String;
@@ -3386,44 +4005,27 @@
       t2 = [t1];
       return new G.ShaderObject(H.setRuntimeTypeInfo([], t2), H.setRuntimeTypeInfo([], t2), H.setRuntimeTypeInfo([], t2), H.setRuntimeTypeInfo([], t2), P.LinkedHashMap_LinkedHashMap$_empty(t1, P.int));
     },
-    TypedTexture$: function(cgl, url, _width, _height, _internalFormat, prop) {
-      var t1, t2;
-      t1 = J.createTexture$0$x(cgl._gl);
-      J.bindTexture$2$x(cgl._gl, 3553, t1);
-      J.texStorage2D$5$x(cgl._gl, 3553, 1, _internalFormat, _width, _height);
-      t2 = prop.anisotropicFilterLevel;
-      if (t2 !== 1)
-        J.texParameterf$3$x(cgl._gl, 3553, 34046, t2);
-      t2 = prop.magFilter;
-      J.texParameteri$3$x(cgl._gl, 3553, 10240, t2);
-      t2 = prop.minFilter;
-      J.texParameteri$3$x(cgl._gl, 3553, 10241, t2);
-      if (prop.clamp) {
-        J.texParameteri$3$x(cgl._gl, 3553, 10242, 33071);
-        J.texParameteri$3$x(cgl._gl, 3553, 10243, 33071);
-      }
-      prop.shadow;
-      J.getError$0$x(cgl._gl);
-      J.bindTexture$2$x(cgl._gl, 3553, null);
-      return new G.TypedTexture(_width, _height, _internalFormat, url, t1, 3553, cgl, prop);
-    },
     NamedEntity: function NamedEntity() {
     },
-    UniformGroup: function UniformGroup() {
+    UniformGroup: function UniformGroup(t0, t1) {
+      var _ = this;
+      _._uniforms = t0;
+      _.name = t1;
+      _.debug = false;
+      _.enabled = true;
     },
     ChronosGL: function ChronosGL(t0) {
       this._gl = null;
-      this._canvas = t0;
+      this._lib$_canvas = t0;
     },
-    Framebuffer: function Framebuffer(t0, t1, t2, t3, t4) {
-      var _ = this;
-      _._cgl = t0;
-      _._framebuffer = t1;
-      _.colorTexture = t2;
-      _.depthTexture = t3;
-      _.stencilTexture = t4;
+    Framebuffer: function Framebuffer(t0, t1) {
+      this._cgl = t0;
+      this._lib$_framebuffer = t1;
     },
-    Face3: function Face3() {
+    Face3: function Face3(t0, t1, t2) {
+      this.a = t0;
+      this.b = t1;
+      this.c = t2;
     },
     Face4: function Face4(t0, t1, t2, t3) {
       var _ = this;
@@ -3440,6 +4042,23 @@
       _.vertices = t3;
       _.attributes = t4;
     },
+    TheStencilFunction: function TheStencilFunction(t0, t1, t2) {
+      this.func = t0;
+      this.value = t1;
+      this.mask = t2;
+    },
+    TheBlendEquation: function TheBlendEquation(t0, t1, t2) {
+      this.equation = t0;
+      this.srcFactor = t1;
+      this.dstFactor = t2;
+    },
+    Material: function Material(t0, t1) {
+      var _ = this;
+      _._uniforms = t0;
+      _.name = t1;
+      _.debug = false;
+      _.enabled = true;
+    },
     MeshData: function MeshData(t0, t1, t2, t3, t4, t5, t6, t7) {
       var _ = this;
       _._cgl = t0;
@@ -3454,6 +4073,22 @@
       _._attributes = t6;
       _.name = t7;
       _.debug = false;
+      _.enabled = true;
+    },
+    Perspective: function Perspective(t0, t1, t2, t3, t4, t5, t6, t7, t8, t9) {
+      var _ = this;
+      _._camera = t0;
+      _._fov = t1;
+      _._aspect = t2;
+      _._near = t3;
+      _._far = t4;
+      _._perspectiveViewMatrix = t5;
+      _._viewMatrix = t6;
+      _._mat = t7;
+      _._uniforms = t8;
+      _.name = t9;
+      _.debug = false;
+      _.enabled = true;
     },
     DrawStats: function DrawStats() {
     },
@@ -3470,6 +4105,7 @@
       _._nextTextureUnit = null;
       _.name = t8;
       _.debug = false;
+      _.enabled = true;
     },
     ShaderVarDesc: function ShaderVarDesc(t0, t1) {
       this.type = t0;
@@ -3485,28 +4121,283 @@
       _._nextLayoutPos = 0;
       _._canonicalToLayoutPos = t4;
     },
-    TextureProperties: function TextureProperties(t0, t1, t2) {
+    Spatial: function Spatial(t0, t1, t2) {
       var _ = this;
-      _.shadow = _.clamp = _.mipmap = false;
-      _.anisotropicFilterLevel = t0;
-      _.minFilter = t1;
-      _.magFilter = t2;
+      _.transform = t0;
+      _._pos = t1;
+      _.name = t2;
+      _.debug = false;
+      _.enabled = true;
+    }
+  },
+  R = {
+    ShapeIcosahedron: function(prog, scale, subdivisions) {
+      var gb = B.IcosahedronGeometry(true, scale, subdivisions);
+      return G.GeometryBuilderToMeshData("icosahedron-" + subdivisions, prog, gb);
     },
-    Texture: function Texture() {
-    },
-    TypedTexture: function TypedTexture(t0, t1, t2, t3, t4, t5, t6, t7) {
+    RenderPhaseResizeAware: function RenderPhaseResizeAware(t0, t1, t2, t3, t4, t5, t6) {
       var _ = this;
-      _._width = t0;
-      _._height = t1;
-      _._internalFormat = t2;
-      _._url = t3;
-      _._texture = t4;
-      _._textureType = t5;
-      _._cgl = t6;
-      _.properties = t7;
+      _._canvas = t0;
+      _._perspective = t1;
+      _._framebuffer = t2;
+      _._lib0$_cgl = t3;
+      _._scenes = t4;
+      _._clear_mode = t5;
+      _.viewPortH = _.viewPortW = _.viewPortY = _.viewPortX = 0;
+      _.name = t6;
+      _.debug = false;
+      _.enabled = true;
+    },
+    Tween: function(now) {
+      if (now > 95 && now < 123)
+        return Math.sin((now - 95) / 28 * 3.141592653589793 / 2) * 3 + 3.4399999999999995;
+      else if (now > 159.2 && now < 161.72)
+        return Math.sin((now - 159.2) / 2.5200000000000102 * 3.141592653589793 / 2) * 3 + 3.4399999999999995;
+      else
+        return 3.4399999999999995;
+    },
+    main: function() {
+      var t1, t2, infoElement, canvas, musicElement, cgl, t3, t4, t5, t6, theNodes, perspective, width, height, phase, t7, t8, t9, t10, t11, t12, t13, pnc_novertexmovement, scene_pnc_novertexmovement, pncb, pnc, future;
+      t1 = {};
+      $.$get$_VarsDb().$indexSet(0, "uFadeFactor", C.ShaderVarDesc_float_0);
+      t2 = document;
+      infoElement = H.interceptedTypeCheck(t2.getElementById("info"), "$isDivElement");
+      canvas = H.interceptedTypeCheck(t2.getElementById("webgl-canvas"), "$isCanvasElement");
+      musicElement = H.interceptedTypeCheck(t2.getElementById("music"), "$isAudioElement");
+      cgl = new G.ChronosGL(canvas);
+      t2 = P.String;
+      t3 = P.Object;
+      t4 = (canvas && C.CanvasElement_methods).getContext$2(canvas, "webgl2", P.LinkedHashMap_LinkedHashMap$_literal(["alpha", false, "depth", true, "stencil", true, "antialias", true, "premultipliedAlpha", true, "preserveDrawingBuffer", false, "failIfMajorPerformanceCaveat", false], t2, t3));
+      cgl._gl = t4;
+      if (t4 == null)
+        H.throwExpression(P.Exception_Exception('Calling canvas.getContext("webgl2") failed,\nmake sure you run on a computer that supports WebGL2.\n\nYou can test your browser\'s compatibility here: http://webglreport.com/\n\n(If you are using Dartium make sure you start it with the\noption: --enable-unsafe-es3-apis)\n'));
+      t5 = "ChronosGL Config: " + H.S(J.getContextAttributes$0$x(t4));
+      if ($.gLogLevel > 0)
+        P.print("I: " + t5);
+      J.clearColor$4$x(t4, 0, 0, 0, 1);
+      J.enable$1$x(t4, 2929);
+      t4 = new T.Vector3(new Float32Array(3));
+      t4.setValues$3(60, -70, 150);
+      t5 = new T.Vector3(new Float32Array(3));
+      t6 = new Float32Array(3);
+      theNodes = new R.TheNodes(t4, t5, new T.Vector3(t6), new T.Vector3(new Float32Array(3)));
+      B.TorusKnotGetPos(3, 3, 2, 20, 1, t5);
+      t4 = new T.Matrix4(new Float32Array(16));
+      t4.setIdentity$0();
+      t5 = new Float32Array(3);
+      new Float32Array(3);
+      new Float32Array(3);
+      new Float32Array(3);
+      t4 = new G.Spatial(t4, new T.Vector3(t5), "camera");
+      theNodes.camera = t4;
+      t5 = new T.Matrix4(new Float32Array(16));
+      t5.setIdentity$0();
+      t6 = new T.Matrix4(new Float32Array(16));
+      t6.setIdentity$0();
+      perspective = new G.Perspective(t4, 50, 1, 0.1, 1000, t5, t6, new T.Matrix4(new Float32Array(16)), P.LinkedHashMap_LinkedHashMap$_empty(t2, t3), "perspective");
+      perspective.Update$0();
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = width;
+      canvas.height = height;
+      perspective.AdjustAspect$2(width, height);
+      t4 = H.setRuntimeTypeInfo([], [A.Scene]);
+      phase = new R.RenderPhaseResizeAware(canvas, perspective, null, cgl, t4, 17664, "main");
+      phase.RenderPhase$3("main", cgl, null);
+      phase.resolutionChange$1(null);
+      t5 = W.Event;
+      W._EventStreamSubscription$(window, "resize", H.functionTypeCheck(phase.get$resolutionChange(), {func: 1, ret: -1, args: [t5]}), false, t5);
+      t2 = P.LinkedHashMap_LinkedHashMap$_empty(t2, t3);
+      t5 = new G.Material(t2, "matLogo");
+      t2.$indexSet(0, "cDepthTest", true);
+      t2.$indexSet(0, "cDepthWrite", true);
+      t2.$indexSet(0, "cBlendEquation", $.$get$BlendEquationNone());
+      t2.$indexSet(0, "cStencilFunc", $.$get$StencilFunctionNone());
+      t2.$indexSet(0, "uFadeFactor", 0);
+      theNodes.material = t5;
+      t2 = G.RenderProgram$("basic", cgl, $.$get$_perlinNoiseVertexShader(), $.$get$_perlinNoiseFragmentShader());
+      t6 = [G.UniformGroup];
+      t7 = H.setRuntimeTypeInfo([perspective], t6);
+      t8 = [A.Node];
+      t9 = H.setRuntimeTypeInfo([], t8);
+      C.JSArray_methods.add$1(t4, new A.Scene(t2, t7, t9, ""));
+      t2 = G.GeometryBuilderToMeshData("torusknot", t2, B.TorusKnotGeometry(true, 1, 2, 3, 20, 512, 64, 4));
+      t7 = H.setRuntimeTypeInfo([], t8);
+      t10 = new Float32Array(9);
+      t11 = new T.Matrix4(new Float32Array(16));
+      t11.setIdentity$0();
+      t12 = new T.Matrix4(new Float32Array(16));
+      t12.setIdentity$0();
+      t13 = new Float32Array(3);
+      new Float32Array(3);
+      new Float32Array(3);
+      new Float32Array(3);
+      t2 = new A.Node(t5, t2, t7, new T.Matrix3(t10), t11, t12, new T.Vector3(t13), "knot");
+      t2.enabled = false;
+      theNodes.knot = t2;
+      C.JSArray_methods.add$1(t9, t2);
+      t2 = $.$get$perlinNoiseVertexShader();
+      pnc_novertexmovement = G.RenderProgram$("flying_logo", cgl, t2, V.makePerlinNoiseColorFragmentShader(false));
+      t9 = H.setRuntimeTypeInfo([perspective], t6);
+      t7 = H.setRuntimeTypeInfo([], t8);
+      scene_pnc_novertexmovement = new A.Scene(pnc_novertexmovement, t9, t7, "");
+      C.JSArray_methods.add$1(t4, scene_pnc_novertexmovement);
+      pncb = G.RenderProgram$("background", cgl, t2, V.makePerlinNoiseColorFragmentShader(true));
+      t2 = H.setRuntimeTypeInfo([perspective], t6);
+      t7 = H.setRuntimeTypeInfo([], t8);
+      C.JSArray_methods.add$1(t4, new A.Scene(pncb, t2, t7, ""));
+      t2 = R.ShapeIcosahedron(pncb, 500, 3);
+      t9 = H.setRuntimeTypeInfo([], t8);
+      t10 = new Float32Array(9);
+      t11 = new T.Matrix4(new Float32Array(16));
+      t11.setIdentity$0();
+      t12 = new T.Matrix4(new Float32Array(16));
+      t12.setIdentity$0();
+      t13 = new Float32Array(3);
+      new Float32Array(3);
+      new Float32Array(3);
+      new Float32Array(3);
+      t2 = new A.Node(t5, t2, t9, new T.Matrix3(t10), t11, t12, new T.Vector3(t13), "large_sphere");
+      t2.enabled = false;
+      theNodes.icoBig = t2;
+      C.JSArray_methods.add$1(t7, t2);
+      pnc = G.RenderProgram$("flying_deformaning_ball", cgl, $.$get$deformingPerlinNoiseVertexShader(), V.makePerlinNoiseColorFragmentShader(false));
+      t6 = H.setRuntimeTypeInfo([perspective], t6);
+      t2 = H.setRuntimeTypeInfo([], t8);
+      C.JSArray_methods.add$1(t4, new A.Scene(pnc, t6, t2, ""));
+      t4 = R.ShapeIcosahedron(pnc, 1, 4);
+      t8 = H.setRuntimeTypeInfo([], t8);
+      t6 = new Float32Array(9);
+      t7 = new T.Matrix4(new Float32Array(16));
+      t7.setIdentity$0();
+      t9 = new T.Matrix4(new Float32Array(16));
+      t9.setIdentity$0();
+      t10 = new Float32Array(3);
+      new Float32Array(3);
+      new Float32Array(3);
+      new Float32Array(3);
+      t4 = new A.Node(t5, t4, t8, new T.Matrix3(t6), t7, t9, new T.Vector3(t10), "small_sphere");
+      t4.enabled = false;
+      theNodes.icoSmall = t4;
+      C.JSArray_methods.add$1(t2, t4);
+      future = D.LoadRaw("../ct_logo.obj");
+      future.then$1$1(new R.main_closure(pnc_novertexmovement, theNodes, scene_pnc_novertexmovement), null);
+      t4 = $.$get$gLoadables();
+      C.JSArray_methods.add$1(t4, future);
+      t1.startMs = -1;
+      P.Future_wait(t4, t3).then$1$1(new R.main_closure0(musicElement, infoElement, new R.main_animate(t1, musicElement, infoElement, theNodes, phase)), null);
+    },
+    TheNodes: function TheNodes(t0, t1, t2, t3) {
+      var _ = this;
+      _.camera = _.ctLogo = _.icoSmall = _.icoBig = _.knot = _.material = null;
+      _.cameraIntroStartPoint = t0;
+      _.cameraIntroEndPoint = t1;
+      _.switched = false;
+      _.switchCount = 0;
+      _._p1 = t2;
+      _._p2 = t3;
+    },
+    main_closure: function main_closure(t0, t1, t2) {
+      this.pnc_novertexmovement = t0;
+      this.theNodes = t1;
+      this.scene_pnc_novertexmovement = t2;
+    },
+    main_animate: function main_animate(t0, t1, t2, t3, t4) {
+      var _ = this;
+      _._box_0 = t0;
+      _.musicElement = t1;
+      _.infoElement = t2;
+      _.theNodes = t3;
+      _.phase = t4;
+    },
+    main_closure0: function main_closure0(t0, t1, t2) {
+      this.musicElement = t0;
+      this.infoElement = t1;
+      this.animate = t2;
     }
   },
   A = {
+    drawRecursively: function(prog, node, $parent, stats, uniforms) {
+      var t1, t2, t3, t4, t5, t6, t7, temp, _i;
+      H.assertSubtype(uniforms, "$isList", [G.UniformGroup], "$asList");
+      if (!node.enabled)
+        return;
+      t1 = node._modelMatrix;
+      t1.setFrom$1($parent);
+      t2 = node.transform;
+      t1.multiply$1(0, t2);
+      t3 = node._material;
+      if (t3 != null) {
+        node._meshData;
+        t4 = true;
+      } else
+        t4 = false;
+      if (t4) {
+        H.S(node);
+        t4 = C.JSArray_methods.get$last(uniforms);
+        t5 = node._normMatrix;
+        t6 = new Float32Array(9);
+        t7 = t1._m4storage;
+        t6[0] = t7[0];
+        t6[1] = t7[1];
+        t6[2] = t7[2];
+        t6[3] = t7[4];
+        t6[4] = t7[5];
+        t6[5] = t7[6];
+        t6[6] = t7[8];
+        t6[7] = t7[9];
+        t6[8] = t7[10];
+        t5.copyInverse$1(new T.Matrix3(t6));
+        t6 = t5._m3storage;
+        temp = t6[3];
+        t6[3] = t6[1];
+        t6[1] = temp;
+        temp = t6[6];
+        t6[6] = t6[2];
+        t6[2] = temp;
+        temp = t6[7];
+        t6[7] = t6[5];
+        t6[5] = temp;
+        t4 = t4._uniforms;
+        t4.$indexSet(0, "uTransformationMatrix", t2);
+        t4.$indexSet(0, "uModelMatrix", t1);
+        t4.$indexSet(0, "uNormalMatrix", t5);
+        C.JSArray_methods.add$1(uniforms, t3);
+        prog.Draw$3(node._meshData, uniforms, stats);
+        if (0 >= uniforms.length)
+          return H.ioore(uniforms, -1);
+        uniforms.pop();
+      }
+      for (t2 = node.children, _i = 0; false; ++_i) {
+        if (_i >= 0)
+          return H.ioore(t2, _i);
+        A.drawRecursively(prog, t2[_i], t1, stats, uniforms);
+      }
+    },
+    Node: function Node(t0, t1, t2, t3, t4, t5, t6, t7) {
+      var _ = this;
+      _._material = t0;
+      _._meshData = t1;
+      _.children = t2;
+      _._normMatrix = t3;
+      _._modelMatrix = t4;
+      _.transform = t5;
+      _._pos = t6;
+      _.name = t7;
+      _.debug = false;
+      _.enabled = true;
+    },
+    Scene: function Scene(t0, t1, t2, t3) {
+      var _ = this;
+      _.program = t0;
+      _.uniforms = t1;
+      _.nodes = t2;
+      _.name = t3;
+      _.debug = false;
+      _.enabled = true;
+    },
+    RenderPhase: function RenderPhase() {
+    },
     hashObjects: function(objects) {
       var t1, hash;
       t1 = C.NativeFloat32List_methods.fold$1$2(H.assertSubtype(objects, "$isIterable", [P.Object], "$asIterable"), 0, new A.hashObjects_closure(), P.int);
@@ -3519,184 +4410,513 @@
     hashObjects_closure: function hashObjects_closure() {
     }
   },
-  T = {Vector2: function Vector2(t0) {
-      this._v2storage = t0;
-    }, Vector3: function Vector3(t0) {
-      this._v3storage = t0;
-    }, Vector4: function Vector4() {
-    }},
   B = {
-    ExtractAndSummarizeBytes: function(fb, w, h) {
-      var t1, t2, buf, channels, r, g, b, i, t3;
-      t1 = fb._cgl;
-      t2 = fb._framebuffer;
-      J.bindFramebuffer$2$x(t1._gl, 36160, t2);
-      buf = new Uint8Array(4 * w * h);
-      J.readPixels$7$x(t1._gl, 0, 0, w, h, 6408, 5121, buf);
-      J.bindFramebuffer$2$x(t1._gl, 36160, null);
-      t1 = buf.length;
-      t2 = w * h;
-      channels = C.JSInt_methods.$tdiv(t1, t2);
-      P.print("Buffer length: " + t1 + " channels: " + channels);
-      for (r = 0, g = 0, b = 0, i = 0; i < t1; i += channels) {
-        r += buf[i];
-        t3 = i + 1;
-        if (t3 >= t1)
-          return H.ioore(buf, t3);
-        g += buf[t3];
-        t3 = i + 2;
-        if (t3 >= t1)
-          return H.ioore(buf, t3);
-        b += buf[t3];
+    IcosahedronGeometry: function(computeNormals, scale, subdivisions) {
+      var t1, faces, t2, vertices, i, tmp, t3, _i, f, t4, t5, a, t6, b, t7, c, ia, ib, ic, gb, v1, v2, v3, t8, t9, t10, t11;
+      t1 = [G.Face3];
+      faces = H.setRuntimeTypeInfo([], t1);
+      t2 = [T.Vector3];
+      vertices = H.setRuntimeTypeInfo([], t2);
+      C.JSArray_methods.addAll$1(faces, $.$get$IcosahedronFaceList());
+      C.JSArray_methods.addAll$1(vertices, $.$get$IcosahedronVertexList());
+      for (i = 0; i < subdivisions; ++i, faces = tmp) {
+        tmp = H.setRuntimeTypeInfo([], t1);
+        for (t3 = faces.length, _i = 0; _i < faces.length; faces.length === t3 || (0, H.throwConcurrentModificationError)(faces), ++_i) {
+          f = faces[_i];
+          t4 = f.a;
+          if (t4 >= vertices.length)
+            return H.ioore(vertices, t4);
+          t5 = vertices[t4];
+          a = new T.Vector3(new Float32Array(3));
+          a.setFrom$1(t5);
+          t5 = f.b;
+          if (t5 >= vertices.length)
+            return H.ioore(vertices, t5);
+          a.add$1(0, vertices[t5]);
+          a.scale$1(0, 0.5);
+          a.normalize$0(0);
+          if (t5 >= vertices.length)
+            return H.ioore(vertices, t5);
+          t6 = vertices[t5];
+          b = new T.Vector3(new Float32Array(3));
+          b.setFrom$1(t6);
+          t6 = f.c;
+          if (t6 >= vertices.length)
+            return H.ioore(vertices, t6);
+          b.add$1(0, vertices[t6]);
+          b.scale$1(0, 0.5);
+          b.normalize$0(0);
+          if (t6 >= vertices.length)
+            return H.ioore(vertices, t6);
+          t7 = vertices[t6];
+          c = new T.Vector3(new Float32Array(3));
+          c.setFrom$1(t7);
+          if (t4 >= vertices.length)
+            return H.ioore(vertices, t4);
+          c.add$1(0, vertices[t4]);
+          c.scale$1(0, 0.5);
+          c.normalize$0(0);
+          ia = vertices.length;
+          C.JSArray_methods.add$1(vertices, a);
+          ib = vertices.length;
+          C.JSArray_methods.add$1(vertices, b);
+          ic = vertices.length;
+          C.JSArray_methods.add$1(vertices, c);
+          C.JSArray_methods.add$1(tmp, new G.Face3(t4, ia, ic));
+          C.JSArray_methods.add$1(tmp, new G.Face3(t5, ib, ia));
+          C.JSArray_methods.add$1(tmp, new G.Face3(t6, ic, ib));
+          C.JSArray_methods.add$1(tmp, new G.Face3(ia, ib, ic));
+        }
       }
-      return H.S(r / t2) + " " + H.S(g / t2) + " " + H.S(b / t2);
-    },
-    ExtractAndSummarizeFloat: function(fb, w, h) {
-      var t1, t2, buf, channels, r, g, b, a, i, t3;
-      t1 = fb._cgl;
-      t2 = fb._framebuffer;
-      J.bindFramebuffer$2$x(t1._gl, 36160, t2);
-      buf = new Float32Array(4 * w * h);
-      J.readPixels$7$x(t1._gl, 0, 0, w, h, 6408, 5126, buf);
-      J.bindFramebuffer$2$x(t1._gl, 36160, null);
-      t1 = buf.length;
-      t2 = w * h;
-      channels = C.JSInt_methods.$tdiv(t1, t2);
-      P.print("Buffer length: " + t1 + " channels: " + channels);
-      for (r = 0, g = 0, b = 0, a = 0, i = 0; i < t1; i += channels) {
-        r += buf[i];
-        t3 = i + 1;
-        if (t3 >= t1)
-          return H.ioore(buf, t3);
-        g += buf[t3];
-        t3 = i + 2;
-        if (t3 >= t1)
-          return H.ioore(buf, t3);
-        b += buf[t3];
-        t3 = i + 3;
-        if (t3 >= t1)
-          return H.ioore(buf, t3);
-        a += buf[t3];
-      }
-      return H.S(r / t2) + " " + H.S(g / t2) + " " + H.S(b / t2) + " " + H.S(a / t2);
-    },
-    main: function() {
-      var t1, results, canvas, cgl, t2, t3, t4, program, t5, t6, t7, vertices, uvs, n, normals, gb, i, md, desc, index, fb, err;
-      t1 = document;
-      results = H.interceptedTypeCheck(t1.querySelector("#results"), "$isDivElement");
-      canvas = H.interceptedTypeCheck(t1.querySelector("#webgl-canvas"), "$isCanvasElement");
-      canvas.width = 500;
-      canvas.height = 500;
-      cgl = new G.ChronosGL(canvas);
-      t1 = P.String;
-      t2 = P.Object;
-      t3 = (canvas && C.CanvasElement_methods).getContext$2(canvas, "webgl2", P.LinkedHashMap_LinkedHashMap$_literal(["alpha", false, "depth", true, "stencil", true, "antialias", true, "premultipliedAlpha", true, "preserveDrawingBuffer", false, "failIfMajorPerformanceCaveat", false], t1, t2));
-      cgl._gl = t3;
-      if (t3 == null)
-        H.throwExpression(P.Exception_Exception('Calling canvas.getContext("webgl2") failed,\nmake sure you run on a computer that supports WebGL2.\n\nYou can test your browser\'s compatibility here: http://webglreport.com/\n\n(If you are using Dartium make sure you start it with the\noption: --enable-unsafe-es3-apis)\n'));
-      t4 = "ChronosGL Config: " + H.S(J.getContextAttributes$0$x(t3));
-      if ($.gLogLevel > 0)
-        P.print("I: " + t4);
-      J.clearColor$4$x(t3, 0, 0, 0, 1);
-      J.enable$1$x(t3, 2929);
-      program = G.RenderProgram$("program", cgl, $.$get$computeVertexShader(), $.$get$computeFragmentShader());
-      t3 = new T.Vector3(new Float32Array(3));
-      t3.setValues$3(-1, -1, 0);
-      t4 = new T.Vector3(new Float32Array(3));
-      t4.setValues$3(1, -1, 0);
-      t5 = new T.Vector3(new Float32Array(3));
-      t5.setValues$3(1, 1, 0);
-      t6 = new T.Vector3(new Float32Array(3));
-      t6.setValues$3(-1, 1, 0);
-      t7 = [T.Vector3];
-      vertices = H.setRuntimeTypeInfo([t3, t4, t5, t6], t7);
-      t3 = new T.Vector2(new Float32Array(2));
-      t3.setValues$2(0, 0);
-      t4 = new T.Vector2(new Float32Array(2));
-      t4.setValues$2(1, 0);
-      t5 = new T.Vector2(new Float32Array(2));
-      t5.setValues$2(1, 1);
-      t6 = new T.Vector2(new Float32Array(2));
-      t6.setValues$2(0, 1);
-      uvs = H.setRuntimeTypeInfo([t3, t4, t5, t6], [T.Vector2]);
-      n = new T.Vector3(new Float32Array(3));
-      n.setValues$3(0, 0, 1);
-      normals = H.setRuntimeTypeInfo([n, n, n, n], t7);
-      t3 = H.setRuntimeTypeInfo([], [G.Face3]);
-      t4 = H.setRuntimeTypeInfo([], [G.Face4]);
-      t5 = H.setRuntimeTypeInfo([], t7);
-      gb = new G.GeometryBuilder(false, t3, t4, t5, P.LinkedHashMap_LinkedHashMap$_empty(t1, [P.List,,]));
+      t1 = H.setRuntimeTypeInfo([], t1);
+      t3 = H.setRuntimeTypeInfo([], [G.Face4]);
+      t4 = H.setRuntimeTypeInfo([], t2);
+      gb = new G.GeometryBuilder(false, t1, t3, t4, P.LinkedHashMap_LinkedHashMap$_empty(P.String, [P.List,,]));
       gb.EnableAttribute$1("aTexUV");
-      H.assertSubtype(vertices, "$isList", t7, "$asList");
-      i = t5.length;
-      C.JSArray_methods.add$1(t4, new G.Face4(i, i + 1, i + 2, i + 3));
-      gb.AddVertices$1(vertices);
-      gb.AddAttributesVector2$2("aTexUV", uvs);
       gb.EnableAttribute$1("aNormal");
-      gb.AddAttributesVector3$2("aNormal", normals);
-      t3 = program._cgl;
-      t4 = program._shaderObjectV._canonicalToLayoutPos;
-      t2 = P.LinkedHashMap_LinkedHashMap$_empty(t1, t2);
-      t6 = J.createVertexArray$0$x(t3._gl);
-      md = new G.MeshData(t3, t6, 4, t2, t4, -1, P.LinkedHashMap_LinkedHashMap$_empty(t1, P.Float32List), "meshdata:quad");
-      t5 = G.FlattenVector3List(t5);
-      t2.$indexSet(0, "aPosition", J.createBuffer$0$x(t3._gl));
-      md._vertices = t5;
-      md.ChangeAttribute$3("aPosition", t5, 3);
-      desc = $.$get$_VarsDb().$index(0, "aPosition");
-      if (desc == null)
-        H.throwExpression("Unknown canonical aPosition");
-      index = t4.$index(0, "aPosition");
-      J.bindVertexArray$1$x(t3._gl, t6);
-      t3.enableVertexAttribArray$2(0, index, 0);
-      t3.vertexAttribPointer$7(0, t2.$index(0, "aPosition"), index, desc.GetSize$0(), 5126, false, 0, 0);
-      t1 = H.assertSubtype(gb.GenerateFaceIndices$0(), "$isList", [P.int], "$asList");
-      md._indexBuffer = J.createBuffer$0$x(t3._gl);
-      t2 = md._vertices.length;
-      if (t2 < 768) {
-        md.set$_faces(new Uint8Array(H._ensureNativeList(t1)));
-        md._indexBufferType = 5121;
-      } else if (t2 < 196608) {
-        md.set$_faces(new Uint16Array(H._ensureNativeList(t1)));
-        md._indexBufferType = 5123;
-      } else {
-        md.set$_faces(new Uint32Array(H._ensureNativeList(t1)));
-        md._indexBufferType = 5125;
+      for (t3 = faces.length, t5 = [T.Vector2], _i = 0; _i < faces.length; faces.length === t3 || (0, H.throwConcurrentModificationError)(faces), ++_i) {
+        f = faces[_i];
+        t6 = f.a;
+        t7 = vertices.length;
+        if (t6 >= t7)
+          return H.ioore(vertices, t6);
+        v1 = vertices[t6];
+        t6 = f.b;
+        if (t6 >= t7)
+          return H.ioore(vertices, t6);
+        v2 = vertices[t6];
+        t6 = f.c;
+        if (t6 >= t7)
+          return H.ioore(vertices, t6);
+        v3 = vertices[t6];
+        t6 = v1._v3storage;
+        t7 = Math.atan2(t6[2], t6[0]);
+        t6 = Math.acos(t6[1]);
+        t8 = new Float32Array(2);
+        t8[0] = 0.5 * (1 + t7 * 0.3183098861837907);
+        t8[1] = t6 * 0.3183098861837907;
+        t6 = v2._v3storage;
+        t7 = Math.atan2(t6[2], t6[0]);
+        t6 = Math.acos(t6[1]);
+        t9 = new Float32Array(2);
+        t9[0] = 0.5 * (1 + t7 * 0.3183098861837907);
+        t9[1] = t6 * 0.3183098861837907;
+        t6 = v3._v3storage;
+        t7 = Math.atan2(t6[2], t6[0]);
+        t6 = Math.acos(t6[1]);
+        t10 = new Float32Array(2);
+        t10[0] = 0.5 * (1 + t7 * 0.3183098861837907);
+        t10[1] = t6 * 0.3183098861837907;
+        gb.AddAttributesVector3$2("aNormal", H.setRuntimeTypeInfo([v1, v2, v3], t2));
+        t6 = new T.Vector3(new Float32Array(3));
+        t6.setFrom$1(v1);
+        t6.scale$1(0, scale);
+        t7 = new T.Vector3(new Float32Array(3));
+        t7.setFrom$1(v2);
+        t7.scale$1(0, scale);
+        t11 = new T.Vector3(new Float32Array(3));
+        t11.setFrom$1(v3);
+        t11.scale$1(0, scale);
+        t11 = H.assertSubtype(H.setRuntimeTypeInfo([t6, t7, t11], t2), "$isList", t2, "$asList");
+        i = t4.length;
+        C.JSArray_methods.add$1(t1, new G.Face3(i, i + 1, i + 2));
+        gb.AddVertices$1(t11);
+        gb.AddAttributesVector2$2("aTexUV", H.setRuntimeTypeInfo([new T.Vector2(t8), new T.Vector2(t9), new T.Vector2(t10)], t5));
       }
-      J.bindVertexArray$1$x(t3._gl, t6);
-      t1 = md._indexBuffer;
-      t2 = md._faces;
-      J.bindBuffer$2$x(t3._gl, 34963, t1);
-      J.bufferData$3$x(t3._gl, 34963, t2, 35048);
-      G._GeometryBuilderAttributesToMeshData(gb, md);
-      t1 = $.$get$TexturePropertiesFramebuffer();
-      t2 = G.TypedTexture$(cgl, "frame::color", 500, 500, 32856, t1);
-      t3 = G.TypedTexture$(cgl, "frame::depth", 500, 500, 33190, t1);
-      fb = new G.Framebuffer(cgl, null, t2, t3, null);
-      t4 = J.createFramebuffer$0$x(cgl._gl);
-      fb._framebuffer = t4;
-      J.bindFramebuffer$2$x(cgl._gl, 36160, t4);
-      J.framebufferTexture2D$5$x(cgl._gl, 36160, 36064, 3553, t2._texture, 0);
-      J.framebufferTexture2D$5$x(cgl._gl, 36160, 36096, 3553, t3._texture, 0);
-      err = J.checkFramebufferStatus$1$x(cgl._gl, 36160);
-      if (err !== 36053)
-        H.throwExpression("Error Incomplete Framebuffer: " + H.S(err));
-      J.bindFramebuffer$2$x(cgl._gl, 36160, null);
-      (results && C.DivElement_methods).setInnerHtml$1(results, J.$add$ansx(results.innerHTML, "<h3>Drawing into default format FB</h3>"));
-      fb.Activate$5(17664, 0, 0, 500, 500);
-      t2 = [G.UniformGroup];
-      program.Draw$2(md, H.setRuntimeTypeInfo([], t2));
-      C.DivElement_methods.setInnerHtml$1(results, J.$add$ansx(results.innerHTML, B.ExtractAndSummarizeBytes(fb, 500, 500) + "\n"));
-      C.DivElement_methods.setInnerHtml$1(results, J.$add$ansx(results.innerHTML, "<h3>Drawing into float format FB</h3>"));
-      if (J.getExtension$1$x(cgl._gl, "EXT_color_buffer_float") == null)
-        C.DivElement_methods.setInnerHtml$1(results, J.$add$ansx(results.innerHTML, "extension not available: EXT_color_buffer_float"));
-      fb = G.Framebuffer$(cgl, G.TypedTexture$(cgl, "float", 500, 500, 34836, t1), null);
-      fb.Activate$5(17664, 0, 0, 500, 500);
-      program.Draw$2(md, H.setRuntimeTypeInfo([], t2));
-      C.DivElement_methods.setInnerHtml$1(results, J.$add$ansx(results.innerHTML, B.ExtractAndSummarizeFloat(fb, 500, 500) + "\n"));
+      return gb;
+    },
+    TorusKnotGetPos: function(u, q, p, radius, heightScale, vec) {
+      var t1, cq, sq, cp, sp;
+      t1 = q * u;
+      cq = Math.cos(t1);
+      sq = Math.sin(t1);
+      t1 = p * u;
+      cp = Math.cos(t1);
+      sp = Math.sin(t1);
+      t1 = radius * (2 + cq) * 0.5;
+      vec.set$x(0, t1 * cp);
+      vec.set$y(0, t1 * sp);
+      vec.set$z(0, heightScale * radius * 0.5 * sq);
+    },
+    TorusKnotGeometry: function(computeNormals, heightScale, p, q, radius, segmentsR, segmentsT, tubeRadius) {
+      var pointsAndTangents, t1, h, bands, _i, b, w, t2, t3, t4, gb, lst, i, t5, ts;
+      pointsAndTangents = B.ParametricCurvePointsAndTangents(new B.TorusKnotGeometry_curveFunc(q, p, radius, heightScale), 0, 6.283185307179586, segmentsR, true);
+      t1 = pointsAndTangents.length;
+      if (0 >= t1)
+        return H.ioore(pointsAndTangents, 0);
+      C.JSArray_methods.add$1(pointsAndTangents, pointsAndTangents[0]);
+      if (1 >= pointsAndTangents.length)
+        return H.ioore(pointsAndTangents, 1);
+      C.JSArray_methods.add$1(pointsAndTangents, pointsAndTangents[1]);
+      h = segmentsR + 1;
+      bands = B.TubeHullBands(pointsAndTangents, segmentsT, tubeRadius);
+      for (t1 = bands.length, _i = 0; _i < bands.length; bands.length === t1 || (0, H.throwConcurrentModificationError)(bands), ++_i) {
+        b = bands[_i];
+        if (0 >= b.length)
+          return H.ioore(b, 0);
+        C.JSArray_methods.add$1(b, b[0]);
+        if (1 >= b.length)
+          return H.ioore(b, 1);
+        C.JSArray_methods.add$1(b, b[1]);
+      }
+      w = segmentsT + 1;
+      t1 = H.setRuntimeTypeInfo([], [G.Face3]);
+      t2 = H.setRuntimeTypeInfo([], [G.Face4]);
+      t3 = [T.Vector3];
+      t4 = H.setRuntimeTypeInfo([], t3);
+      gb = new G.GeometryBuilder(false, t1, t2, t4, P.LinkedHashMap_LinkedHashMap$_empty(P.String, [P.List,,]));
+      for (t1 = bands.length, _i = 0; _i < bands.length; bands.length === t1 || (0, H.throwConcurrentModificationError)(bands), ++_i) {
+        lst = bands[_i];
+        for (i = 0; i < lst.length; i += 2) {
+          t2 = H.interceptedTypeCheck(lst[i], "$isVector3");
+          t2.toString;
+          t5 = new T.Vector3(new Float32Array(3));
+          t5.setFrom$1(t2);
+          C.JSArray_methods.add$1(t4, t5);
+        }
+      }
+      gb.GenerateRegularGridFaces$3(w, h, false);
+      gb.GenerateRegularGridUV$2(w, h);
+      gb.EnableAttribute$1("aNormal");
+      for (t1 = bands.length, t2 = gb.attributes, _i = 0; _i < bands.length; bands.length === t1 || (0, H.throwConcurrentModificationError)(bands), ++_i) {
+        lst = bands[_i];
+        for (i = 0; t4 = lst.length, i < t4; i += 2) {
+          t5 = i + 1;
+          if (t5 >= t4)
+            return H.ioore(lst, t5);
+          t5 = H.interceptedTypeCheck(lst[t5], "$isVector3");
+          ts = H.assertSubtype(t2.$index(0, "aNormal"), "$isList", t3, "$asList");
+          t5.toString;
+          t4 = new T.Vector3(new Float32Array(3));
+          t4.setFrom$1(t5);
+          (ts && C.JSArray_methods).add$1(ts, t4);
+        }
+      }
+      return gb;
+    },
+    TubeHullBands: function(pointsAndTangents, segments, radius) {
+      var t1, out, t2, p, t3, v1, t4, v2, i, t5, c, t6, d, band, t7, a, k, j, v, cx, cy;
+      t1 = [T.Vector3];
+      H.assertSubtype(pointsAndTangents, "$isList", t1, "$asList");
+      out = H.setRuntimeTypeInfo([], [[P.List, T.Vector3]]);
+      t2 = new Float32Array(3);
+      p = new T.Vector3(t2);
+      t3 = new Float32Array(3);
+      v1 = new T.Vector3(t3);
+      t4 = new Float32Array(3);
+      v2 = new T.Vector3(t4);
+      for (i = 0; t5 = pointsAndTangents.length, i < t5; i += 2) {
+        c = pointsAndTangents[i];
+        t6 = i + 1;
+        if (t6 >= t5)
+          return H.ioore(pointsAndTangents, t6);
+        d = pointsAndTangents[t6];
+        band = H.setRuntimeTypeInfo([], t1);
+        C.JSArray_methods.add$1(out, band);
+        t5 = d._v3storage;
+        t6 = t5[2];
+        if (Math.abs(t6) > 0.7071067811865476) {
+          t7 = t5[1];
+          a = t7 * t7 + t6 * t6;
+          k = 1 / Math.sqrt(a);
+          t3[0] = 0;
+          t3[1] = -t5[2] * k;
+          t3[2] = t5[1] * k;
+          t4[0] = a * k;
+          t4[1] = -t5[0] * (t5[1] * k);
+          t4[2] = t5[0] * (-t5[2] * k);
+        } else {
+          t6 = t5[0];
+          t7 = t5[1];
+          a = t6 * t6 + t7 * t7;
+          k = 1 / Math.sqrt(a);
+          t3[0] = -t5[1] * k;
+          t3[1] = t5[0] * k;
+          t3[2] = 0;
+          t4[0] = -t5[2] * (t5[0] * k);
+          t4[1] = t5[2] * (-t5[1] * k);
+          t4[2] = a * k;
+        }
+        v1.normalize$0(0);
+        v2.normalize$0(0);
+        for (j = 0; j < segments; ++j) {
+          v = j / segments * 2 * 3.141592653589793;
+          cx = radius * Math.cos(v);
+          cy = radius * Math.sin(v);
+          p.setFrom$1(c);
+          p.addScaled$2(v1, cx);
+          p.addScaled$2(v2, cy);
+          t5 = new T.Vector3(new Float32Array(3));
+          t5.setFrom$1(p);
+          C.JSArray_methods.add$1(band, t5);
+          t2[2] = 0;
+          t2[1] = 0;
+          t2[0] = 0;
+          p.addScaled$2(v1, cx);
+          p.addScaled$2(v2, cy);
+          p.normalize$0(0);
+          t5 = new T.Vector3(new Float32Array(3));
+          t5.setFrom$1(p);
+          C.JSArray_methods.add$1(band, t5);
+        }
+      }
+      return out;
+    },
+    ParametricCurvePointsAndTangents: function(func, start, end, numPoints, halfOpen) {
+      var out, p, d, t1, i, u, t2;
+      H.functionTypeCheck(func, {func: 1, ret: -1, args: [P.double, T.Vector3]});
+      out = H.setRuntimeTypeInfo([], [T.Vector3]);
+      p = new T.Vector3(new Float32Array(3));
+      d = new T.Vector3(new Float32Array(3));
+      for (t1 = (end - start) / (numPoints - 0), i = 0; i < numPoints; ++i) {
+        u = t1 * i + start;
+        func.call$2(u, p);
+        func.call$2(u + 0.001, d);
+        d.sub$1(0, p);
+        t2 = new T.Vector3(new Float32Array(3));
+        t2.setFrom$1(p);
+        C.JSArray_methods.add$1(out, t2);
+        t2 = new T.Vector3(new Float32Array(3));
+        t2.setFrom$1(d);
+        C.JSArray_methods.add$1(out, t2);
+      }
+      return out;
+    },
+    TorusKnotGeometry_curveFunc: function TorusKnotGeometry_curveFunc(t0, t1, t2, t3) {
+      var _ = this;
+      _.q = t0;
+      _.p = t1;
+      _.radius = t2;
+      _.heightScale = t3;
+    }
+  },
+  D = {
+    LoadRaw: function(url) {
+      var t1, t2, hr, t3;
+      t1 = P.String;
+      t2 = new P._Future(0, $.Zone__current, [t1]);
+      hr = new XMLHttpRequest();
+      C.HttpRequest_methods.open$2(hr, "GET", url);
+      t3 = W.ProgressEvent;
+      W._EventStreamSubscription$(hr, "loadend", H.functionTypeCheck(new D.LoadRaw_closure(new P._AsyncCompleter(t2, [t1]), hr), {func: 1, ret: -1, args: [t3]}), false, t3);
+      hr.send("");
+      return t2;
+    },
+    LoadRaw_closure: function LoadRaw_closure(t0, t1) {
+      this.c = t0;
+      this.hr = t1;
+    }
+  },
+  T = {
+    Vector3_Vector3: function(x, y, z) {
+      var t1 = new T.Vector3(new Float32Array(3));
+      t1.setValues$3(x, y, z);
+      return t1;
+    },
+    Matrix3: function Matrix3(t0) {
+      this._m3storage = t0;
+    },
+    Matrix4: function Matrix4(t0) {
+      this._m4storage = t0;
+    },
+    Vector2: function Vector2(t0) {
+      this._v2storage = t0;
+    },
+    Vector3: function Vector3(t0) {
+      this._v3storage = t0;
+    },
+    Vector4: function Vector4(t0) {
+      this._v4storage = t0;
+    }
+  },
+  Y = {
+    ImportGeometryFromWavefront: function(text) {
+      var t1, t2, t3, t4, t5, gb, groups, lines, vertices, normals, uvs, t6, sep, trail, t7, _i, line2, t8, line, array, t9, t10, t11, faceVertices, faceNormal, faceUvs, i, f, vtx, tex, nor;
+      t1 = H.setRuntimeTypeInfo([], [G.Face3]);
+      t2 = H.setRuntimeTypeInfo([], [G.Face4]);
+      t3 = [T.Vector3];
+      t4 = H.setRuntimeTypeInfo([], t3);
+      t5 = P.String;
+      gb = new G.GeometryBuilder(false, t1, t2, t4, P.LinkedHashMap_LinkedHashMap$_empty(t5, [P.List,,]));
+      gb.EnableAttribute$1("aTexUV");
+      gb.EnableAttribute$1("aNormal");
+      groups = P.LinkedHashMap_LinkedHashMap$_empty(t5, P.int);
+      lines = text.split("\n");
+      vertices = H.setRuntimeTypeInfo([], t3);
+      normals = H.setRuntimeTypeInfo([], t3);
+      t5 = [T.Vector2];
+      uvs = H.setRuntimeTypeInfo([], t5);
+      t6 = Date.now();
+      sep = P.RegExp_RegExp("\\s+");
+      trail = P.RegExp_RegExp("\\s\\s*\\$");
+      for (t7 = lines.length, _i = 0; _i < lines.length; lines.length === t7 || (0, H.throwConcurrentModificationError)(lines), ++_i) {
+        line2 = lines[_i];
+        line2.toString;
+        t8 = H.stringReplaceAllUnchecked(line2, sep, " ");
+        line = H.stringReplaceFirstUnchecked(t8, trail, "", 0);
+        t8 = line.length;
+        if (t8 !== 0) {
+          if (0 >= t8)
+            return H.ioore(line, 0);
+          t8 = line[0] === "#";
+        } else
+          t8 = true;
+        if (t8)
+          continue;
+        array = line.split(" ");
+        t8 = array.length;
+        if (0 >= t8)
+          return H.ioore(array, 0);
+        t9 = array[0];
+        if (J.$eq$(t9, "g")) {
+          if (1 >= t8)
+            return H.ioore(array, 1);
+          groups.$indexSet(0, array[1], vertices.length);
+        } else if (J.$eq$(t9, "v")) {
+          if (1 >= t8)
+            return H.ioore(array, 1);
+          t9 = P.double_parse(array[1]);
+          if (2 >= t8)
+            return H.ioore(array, 2);
+          t10 = P.double_parse(array[2]);
+          if (3 >= t8)
+            return H.ioore(array, 3);
+          t8 = P.double_parse(array[3]);
+          t11 = new Float32Array(3);
+          C.NativeFloat32List_methods.$indexSet(t11, 0, t9);
+          C.NativeFloat32List_methods.$indexSet(t11, 1, t10);
+          C.NativeFloat32List_methods.$indexSet(t11, 2, t8);
+          C.JSArray_methods.add$1(vertices, new T.Vector3(t11));
+        } else if (J.$eq$(t9, "vt")) {
+          if (1 >= t8)
+            return H.ioore(array, 1);
+          t9 = P.double_parse(array[1]);
+          if (2 >= t8)
+            return H.ioore(array, 2);
+          t8 = P.double_parse(array[2]);
+          t10 = new Float32Array(2);
+          C.NativeFloat32List_methods.$indexSet(t10, 0, t9);
+          C.NativeFloat32List_methods.$indexSet(t10, 1, t8);
+          C.JSArray_methods.add$1(uvs, new T.Vector2(t10));
+        } else if (J.$eq$(t9, "vn")) {
+          if (1 >= t8)
+            return H.ioore(array, 1);
+          t9 = P.double_parse(array[1]);
+          if (2 >= t8)
+            return H.ioore(array, 2);
+          t10 = P.double_parse(array[2]);
+          if (3 >= t8)
+            return H.ioore(array, 3);
+          t8 = P.double_parse(array[3]);
+          t11 = new Float32Array(3);
+          C.NativeFloat32List_methods.$indexSet(t11, 0, t9);
+          C.NativeFloat32List_methods.$indexSet(t11, 1, t10);
+          C.NativeFloat32List_methods.$indexSet(t11, 2, t8);
+          C.JSArray_methods.add$1(normals, new T.Vector3(t11));
+        } else if (J.$eq$(t9, "f")) {
+          if (t8 !== 4 && t8 !== 5) {
+            H.printString("*** Error: face '" + line + "' not handled");
+            continue;
+          }
+          faceVertices = H.setRuntimeTypeInfo([], t3);
+          faceNormal = H.setRuntimeTypeInfo([], t3);
+          faceUvs = H.setRuntimeTypeInfo([], t5);
+          for (i = 1; t8 = array.length, i < t8; ++i) {
+            f = J.split$1$s(array[i], "/");
+            for (; f.length < 3;)
+              C.JSArray_methods.add$1(f, "");
+            t8 = P.int_parse(f[0]);
+            if (typeof t8 !== "number")
+              return t8.$sub();
+            vtx = t8 - 1;
+            if (1 >= f.length)
+              return H.ioore(f, 1);
+            if (J.$eq$(f[1], ""))
+              tex = -1;
+            else {
+              if (1 >= f.length)
+                return H.ioore(f, 1);
+              t8 = P.int_parse(f[1]);
+              if (typeof t8 !== "number")
+                return t8.$sub();
+              tex = t8 - 1;
+            }
+            if (2 >= f.length)
+              return H.ioore(f, 2);
+            if (J.$eq$(f[2], ""))
+              nor = -1;
+            else {
+              if (2 >= f.length)
+                return H.ioore(f, 2);
+              t8 = P.int_parse(f[2]);
+              if (typeof t8 !== "number")
+                return t8.$sub();
+              nor = t8 - 1;
+            }
+            t8 = vertices.length;
+            if (vtx < t8) {
+              if (vtx < 0)
+                return H.ioore(vertices, vtx);
+              C.JSArray_methods.add$1(faceVertices, vertices[vtx]);
+            } else
+              C.JSArray_methods.add$1(faceVertices, new T.Vector3(new Float32Array(3)));
+            t8 = uvs.length;
+            if (t8 === 0)
+              C.JSArray_methods.add$1(faceUvs, new T.Vector2(new Float32Array(2)));
+            else if (tex !== -1 && tex < t8) {
+              if (tex < 0 || tex >= t8)
+                return H.ioore(uvs, tex);
+              C.JSArray_methods.add$1(faceUvs, uvs[tex]);
+            } else {
+              H.printString("problem uv " + i + " " + tex);
+              C.JSArray_methods.add$1(faceUvs, new T.Vector2(new Float32Array(2)));
+            }
+            t8 = normals.length;
+            if (t8 === 0)
+              C.JSArray_methods.add$1(faceNormal, new T.Vector3(new Float32Array(3)));
+            else if (nor !== -1 && nor < t8) {
+              if (nor < 0 || nor >= t8)
+                return H.ioore(normals, nor);
+              C.JSArray_methods.add$1(faceNormal, normals[nor]);
+            } else {
+              H.printString("problem normals " + i + " " + nor);
+              C.JSArray_methods.add$1(faceNormal, new T.Vector3(new Float32Array(3)));
+            }
+          }
+          i = t4.length;
+          t9 = i + 1;
+          t10 = i + 2;
+          if (t8 === 4) {
+            H.assertSubtype(faceVertices, "$isList", t3, "$asList");
+            C.JSArray_methods.add$1(t1, new G.Face3(i, t9, t10));
+            gb.AddVertices$1(faceVertices);
+          } else {
+            H.assertSubtype(faceVertices, "$isList", t3, "$asList");
+            C.JSArray_methods.add$1(t2, new G.Face4(i, t9, t10, i + 3));
+            gb.AddVertices$1(faceVertices);
+          }
+          gb.AddAttributesVector3$2("aNormal", faceNormal);
+          gb.AddAttributesVector2$2("aTexUV", faceUvs);
+        }
+      }
+      P.print("loaded (" + P.Duration$(Date.now() - new P.DateTime(t6, false)._value, 0).toString$0(0) + ") " + gb.toString$0(0));
+      return gb;
+    }
+  },
+  V = {
+    makePerlinNoiseColorFragmentShader: function(blackVariant) {
+      var define, t1, t2;
+      define = blackVariant ? "#define BLACK 1" : "";
+      t1 = P.String;
+      t2 = [t1];
+      t1 = new G.ShaderObject(H.setRuntimeTypeInfo([], t2), H.setRuntimeTypeInfo([], t2), H.setRuntimeTypeInfo([], t2), H.setRuntimeTypeInfo([], t2), P.LinkedHashMap_LinkedHashMap$_empty(t1, P.int));
+      t1.AddVaryingVars$1(H.setRuntimeTypeInfo(["vNormal"], t2));
+      t1.AddUniformVars$1(H.setRuntimeTypeInfo(["uTime", "uTransformationMatrix"], t2));
+      t1.SetBody$1(H.setRuntimeTypeInfo([define, "vec3 mod289(vec3 x)\n{\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289(vec4 x)\n{\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute(vec4 x)\n{\n  return mod289(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nvec3 fade(vec3 t) {\n  return t*t*t*(t*(t*6.0-15.0)+10.0);\n}\n\n\n// Classic Perlin noise, periodic variant\nfloat pnoise(vec3 P, vec3 rep)\n{\n  vec3 Pi0 = mod(floor(P), rep); // Integer part, modulo period\n  vec3 Pi1 = mod(Pi0 + vec3(1.0), rep); // Integer part + 1, mod period\n  Pi0 = mod289(Pi0);\n  Pi1 = mod289(Pi1);\n  vec3 Pf0 = fract(P); // Fractional part for interpolation\n  vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0\n  vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);\n  vec4 iy = vec4(Pi0.yy, Pi1.yy);\n  vec4 iz0 = Pi0.zzzz;\n  vec4 iz1 = Pi1.zzzz;\n\n  vec4 ixy = permute(permute(ix) + iy);\n  vec4 ixy0 = permute(ixy + iz0);\n  vec4 ixy1 = permute(ixy + iz1);\n\n  vec4 gx0 = ixy0 * (1.0 / 7.0);\n  vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;\n  gx0 = fract(gx0);\n  vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);\n  vec4 sz0 = step(gz0, vec4(0.0));\n  gx0 -= sz0 * (step(0.0, gx0) - 0.5);\n  gy0 -= sz0 * (step(0.0, gy0) - 0.5);\n\n  vec4 gx1 = ixy1 * (1.0 / 7.0);\n  vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;\n  gx1 = fract(gx1);\n  vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);\n  vec4 sz1 = step(gz1, vec4(0.0));\n  gx1 -= sz1 * (step(0.0, gx1) - 0.5);\n  gy1 -= sz1 * (step(0.0, gy1) - 0.5);\n\n  vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);\n  vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);\n  vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);\n  vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);\n  vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);\n  vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);\n  vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);\n  vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);\n\n  vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));\n  g000 *= norm0.x;\n  g010 *= norm0.y;\n  g100 *= norm0.z;\n  g110 *= norm0.w;\n  vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));\n  g001 *= norm1.x;\n  g011 *= norm1.y;\n  g101 *= norm1.z;\n  g111 *= norm1.w;\n\n  float n000 = dot(g000, Pf0);\n  float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));\n  float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));\n  float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));\n  float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));\n  float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));\n  float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));\n  float n111 = dot(g111, Pf1);\n\n  vec3 fade_xyz = fade(Pf0);\n  vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);\n  vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);\n  float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); \n  return 2.2 * n_xyz;\n}\n", "#define VARIANT 1\n\nvoid main() {\n#if VARIANT == 1\n  float mytime = uTime/2.0;\n#ifdef BLACK\n  mytime = uTime/10.0;\n#endif\n  float period = 10.0;\n  float factor = 1.0; // sin( uTime)/4.0+2.0;\n  vec3 translation = uTransformationMatrix[3].xyz;\n  float r = pnoise( .75 * ( vNormal *factor + mytime ), vec3( period ) );\n  float g = pnoise( 0.8 * ( vNormal *factor + mytime ), vec3( period ) );\n  float b = pnoise( 0.9 * ( vNormal *factor + mytime ), vec3( period ) );\n  float n = pnoise( 1.5 * ( vNormal *factor + mytime ), vec3( period ) );\n#else\n  float mytime = 0.0 ; //uTime/50.0;\n  float period = 5.0;\n  float factor = 1.0; // sin( uTime)/4.0+2.0;\n  vec3 translation = uTransformationMatrix[3].xyz;\n  float r = pnoise( .75 * ( translation*0.175 + vNormal *factor + mytime ), vec3( period ) );\n  float g = pnoise( 0.8 * ( translation*0.175 + vNormal *factor + mytime ), vec3( period ) );\n  float b = pnoise( 0.9 * ( translation*0.175 + vNormal *factor + mytime ), vec3( period ) );\n  float n = pnoise( 1.5 * ( translation*0.175 + vNormal *factor + mytime ), vec3( period ) );\n#endif\n\n  n = pow( .001, n );\n//float n = 10.0 * pnoise( 5.0 * ( vNormal + uTime ), vec3( 10.0 ) ) * pnoise( .5 * ( vNormal + uTime ), vec3( 10.0 ) );\n//n += .5 * pnoise( 4.0 * vNormal, vec3( 10.0 ) );\n#ifdef BLACK\n  vec3 color = vec3( 1.0-(r + n), 1.0-(g + n), 1.0-(b + n) );\n#else\n  vec3 color = vec3( (r + n), (g + n), (b + n) );\n#endif\n  oFragColor = vec4( color, 1.0 );\n}\n"], t2));
+      return t1;
     }
   };
-  var holders = [C, H, J, P, W, G, A, T, B];
+  var holders = [C, H, J, P, W, G, R, A, B, D, T, Y, V];
   hunkHelpers.setFunctionNamesIfNecessary(holders);
   var $ = {};
   H.JS_CONST.prototype = {};
@@ -3762,11 +4982,11 @@
       receiver.push(value);
     },
     addAll$1: function(receiver, collection) {
-      var _i;
+      var t1, _i;
       H.assertSubtype(collection, "$isIterable", [H.getTypeArgumentByIndex(receiver, 0)], "$asIterable");
       if (!!receiver.fixed$length)
         H.throwExpression(P.UnsupportedError$("addAll"));
-      for (_i = 0; _i < 1; ++_i)
+      for (t1 = collection.length, _i = 0; _i < collection.length; collection.length === t1 || (0, H.throwConcurrentModificationError)(collection), ++_i)
         receiver.push(collection[_i]);
     },
     join$1: function(receiver, separator) {
@@ -3777,29 +4997,16 @@
         this.$indexSet(list, i, H.S(receiver[i]));
       return list.join(separator);
     },
-    elementAt$1: function(receiver, index) {
-      if (index < 0 || index >= receiver.length)
-        return H.ioore(receiver, index);
-      return receiver[index];
+    get$last: function(receiver) {
+      var t1 = receiver.length;
+      if (t1 > 0)
+        return receiver[t1 - 1];
+      throw H.wrapException(H.IterableElementError_noElement());
     },
-    any$1: function(receiver, test) {
-      var end, i;
-      H.functionTypeCheck(test, {func: 1, ret: P.bool, args: [H.getTypeArgumentByIndex(receiver, 0)]});
-      end = receiver.length;
-      for (i = 0; i < end; ++i) {
-        if (test.call$1(receiver[i]))
-          return true;
-        if (receiver.length !== end)
-          throw H.wrapException(P.ConcurrentModificationError$(receiver));
-      }
-      return false;
-    },
-    contains$1: function(receiver, other) {
-      var i;
-      for (i = 0; i < receiver.length; ++i)
-        if (J.$eq$(receiver[i], other))
-          return true;
-      return false;
+    sort$0: function(receiver) {
+      if (!!receiver.immutable$list)
+        H.throwExpression(P.UnsupportedError$("sort"));
+      H.Sort_sort(receiver, J._interceptors_JSArray__compareAny$closure(), H.getTypeArgumentByIndex(receiver, 0));
     },
     toString$0: function(receiver) {
       return P.IterableBase_iterableToFullString(receiver, "[", "]");
@@ -3819,9 +5026,12 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.assertSubtypeOfRuntimeType(value, H.getTypeArgumentByIndex(receiver, 0));
       if (!!receiver.immutable$list)
         H.throwExpression(P.UnsupportedError$("indexed set"));
+      if (typeof index !== "number" || Math.floor(index) !== index)
+        throw H.wrapException(H.diagnoseIndexError(receiver, index));
       if (index >= receiver.length || index < 0)
         throw H.wrapException(H.diagnoseIndexError(receiver, index));
       receiver[index] = value;
@@ -3854,8 +5064,7 @@
     },
     set$__interceptors$_current: function(_current) {
       this.__interceptors$_current = H.assertSubtypeOfRuntimeType(_current, H.getTypeArgumentByIndex(this, 0));
-    },
-    $isIterator: 1
+    }
   };
   J.JSNumber.prototype = {
     compareTo$1: function(receiver, b) {
@@ -3952,6 +5161,13 @@
   J.JSInt.prototype = {$isint: 1};
   J.JSDouble.prototype = {};
   J.JSString.prototype = {
+    codeUnitAt$1: function(receiver, index) {
+      if (index < 0)
+        throw H.wrapException(H.diagnoseIndexError(receiver, index));
+      if (index >= receiver.length)
+        H.throwExpression(H.diagnoseIndexError(receiver, index));
+      return receiver.charCodeAt(index);
+    },
     _codeUnitAt$1: function(receiver, index) {
       if (index >= receiver.length)
         throw H.wrapException(H.diagnoseIndexError(receiver, index));
@@ -3962,11 +5178,9 @@
         throw H.wrapException(P.ArgumentError$value(other, null, null));
       return receiver + other;
     },
-    startsWith$1: function(receiver, pattern) {
-      var otherLength = pattern.length;
-      if (otherLength > receiver.length)
-        return false;
-      return pattern === receiver.substring(0, otherLength);
+    split$1: function(receiver, pattern) {
+      var t1 = H.setRuntimeTypeInfo(receiver.split(pattern), [P.String]);
+      return t1;
     },
     substring$2: function(receiver, startIndex, endIndex) {
       if (endIndex == null)
@@ -3982,8 +5196,23 @@
     substring$1: function($receiver, startIndex) {
       return this.substring$2($receiver, startIndex, null);
     },
-    toLowerCase$0: function(receiver) {
-      return receiver.toLowerCase();
+    trim$0: function(receiver) {
+      var result, endIndex, startIndex, t1, endIndex0;
+      result = receiver.trim();
+      endIndex = result.length;
+      if (endIndex === 0)
+        return result;
+      if (this._codeUnitAt$1(result, 0) === 133) {
+        startIndex = J.JSString__skipLeadingWhitespace(result, 1);
+        if (startIndex === endIndex)
+          return "";
+      } else
+        startIndex = 0;
+      t1 = endIndex - 1;
+      endIndex0 = this.codeUnitAt$1(result, t1) === 133 ? J.JSString__skipTrailingWhitespace(result, t1) : endIndex;
+      if (startIndex === 0 && endIndex0 === endIndex)
+        return result;
+      return result.substring(startIndex, endIndex0);
     },
     compareTo$1: function(receiver, other) {
       var t1;
@@ -4014,7 +5243,7 @@
       return receiver.length;
     },
     $index: function(receiver, index) {
-      if (index.$ge(0, receiver.length) || index.$lt(0, 0))
+      if (index >= receiver.length || false)
         throw H.wrapException(H.diagnoseIndexError(receiver, index));
       return receiver[index];
     },
@@ -4029,14 +5258,6 @@
     $isString: 1
   };
   H.EfficientLengthIterable.prototype = {};
-  H.ListIterable.prototype = {
-    get$iterator: function(_) {
-      return new H.ListIterator(this, this.get$length(this), 0, [H.getRuntimeTypeArgument(this, "ListIterable", 0)]);
-    },
-    where$1: function(_, test) {
-      return this.super$Iterable$where(0, H.functionTypeCheck(test, {func: 1, ret: P.bool, args: [H.getRuntimeTypeArgument(this, "ListIterable", 0)]}));
-    }
-  };
   H.ListIterator.prototype = {
     get$current: function(_) {
       return this.__internal$_current;
@@ -4059,39 +5280,6 @@
     },
     set$__internal$_current: function(_current) {
       this.__internal$_current = H.assertSubtypeOfRuntimeType(_current, H.getTypeArgumentByIndex(this, 0));
-    },
-    $isIterator: 1
-  };
-  H.MappedListIterable.prototype = {
-    get$length: function(_) {
-      return J.get$length$asx(this._source);
-    },
-    elementAt$1: function(_, index) {
-      return this._f.call$1(J.elementAt$1$ax(this._source, index));
-    },
-    $asListIterable: function($S, $T) {
-      return [$T];
-    },
-    $asIterable: function($S, $T) {
-      return [$T];
-    }
-  };
-  H.WhereIterable.prototype = {
-    get$iterator: function(_) {
-      return new H.WhereIterator(J.get$iterator$ax(this.__internal$_iterable), this._f, this.$ti);
-    }
-  };
-  H.WhereIterator.prototype = {
-    moveNext$0: function() {
-      var t1, t2;
-      for (t1 = this._iterator, t2 = this._f; t1.moveNext$0();)
-        if (t2.call$1(t1.get$current(t1)))
-          return true;
-      return false;
-    },
-    get$current: function(_) {
-      var t1 = this._iterator;
-      return t1.get$current(t1);
     }
   };
   H.FixedLengthListMixin.prototype = {};
@@ -4153,7 +5341,21 @@
           error.$thrownJsError = this.ex;
       return error;
     },
-    $signature: 1
+    $signature: 5
+  };
+  H._StackTrace.prototype = {
+    toString$0: function(_) {
+      var t1, trace;
+      t1 = this._trace;
+      if (t1 != null)
+        return t1;
+      t1 = this._exception;
+      trace = t1 !== null && typeof t1 === "object" ? t1.stack : null;
+      t1 = trace == null ? "" : trace;
+      this._trace = t1;
+      return t1;
+    },
+    $isStackTrace: 1
   };
   H.Closure.prototype = {
     toString$0: function(_) {
@@ -4184,7 +5386,7 @@
         return true;
       if (!(other instanceof H.BoundClosure))
         return false;
-      return this._self === other._self && this._target === other._target && this._receiver === other._receiver;
+      return this._self === other._self && this.__js_helper$_target === other.__js_helper$_target && this._receiver === other._receiver;
     },
     get$hashCode: function(_) {
       var t1, receiverHashCode;
@@ -4193,7 +5395,7 @@
         receiverHashCode = H.Primitives_objectHashCode(this._self);
       else
         receiverHashCode = typeof t1 !== "object" ? J.get$hashCode$(t1) : H.Primitives_objectHashCode(t1);
-      return (receiverHashCode ^ H.Primitives_objectHashCode(this._target)) >>> 0;
+      return (receiverHashCode ^ H.Primitives_objectHashCode(this.__js_helper$_target)) >>> 0;
     },
     toString$0: function(_) {
       var receiver = this._receiver;
@@ -4215,6 +5417,32 @@
   H.RuntimeError.prototype = {
     toString$0: function(_) {
       return "RuntimeError: " + H.S(this.message);
+    }
+  };
+  H.TypeImpl.prototype = {
+    get$_typeName: function() {
+      var t1 = this.__typeName;
+      if (t1 == null) {
+        t1 = H.runtimeTypeToString(this._rti);
+        this.__typeName = t1;
+      }
+      return t1;
+    },
+    toString$0: function(_) {
+      return this.get$_typeName();
+    },
+    get$hashCode: function(_) {
+      var t1 = this._hashCode;
+      if (t1 == null) {
+        t1 = C.JSString_methods.get$hashCode(this.get$_typeName());
+        this._hashCode = t1;
+      }
+      return t1;
+    },
+    $eq: function(_, other) {
+      if (other == null)
+        return false;
+      return other instanceof H.TypeImpl && this.get$_typeName() === other.get$_typeName();
     }
   };
   H.JsLinkedHashMap.prototype = {
@@ -4335,15 +5563,12 @@
       this._modifications = this._modifications + 1 & 67108863;
     },
     __js_helper$_newLinkedCell$2: function(key, value) {
-      var cell, last;
-      cell = new H.LinkedHashMapCell(H.assertSubtypeOfRuntimeType(key, H.getTypeArgumentByIndex(this, 0)), H.assertSubtypeOfRuntimeType(value, H.getTypeArgumentByIndex(this, 1)));
+      var cell = new H.LinkedHashMapCell(H.assertSubtypeOfRuntimeType(key, H.getTypeArgumentByIndex(this, 0)), H.assertSubtypeOfRuntimeType(value, H.getTypeArgumentByIndex(this, 1)));
       if (this._first == null) {
         this._last = cell;
         this._first = cell;
       } else {
-        last = this._last;
-        cell.__js_helper$_previous = last;
-        last._next = cell;
+        this._last._next = cell;
         this._last = cell;
       }
       ++this.__js_helper$_length;
@@ -4421,26 +5646,58 @@
     },
     set$_current: function(_current) {
       this._current = H.assertSubtypeOfRuntimeType(_current, H.getTypeArgumentByIndex(this, 0));
-    },
-    $isIterator: 1
+    }
   };
   H.initHooks_closure.prototype = {
     call$1: function(o) {
       return this.getTag(o);
     },
-    $signature: 1
+    $signature: 5
   };
   H.initHooks_closure0.prototype = {
     call$2: function(o, tag) {
       return this.getUnknownTag(o, tag);
     },
-    $signature: 7
+    $signature: 9
   };
   H.initHooks_closure1.prototype = {
     call$1: function(tag) {
       return this.prototypeForTag(H.stringTypeCheck(tag));
     },
-    $signature: 8
+    $signature: 10
+  };
+  H.JSSyntaxRegExp.prototype = {
+    toString$0: function(_) {
+      return "RegExp/" + this.pattern + "/";
+    },
+    get$_nativeGlobalVersion: function() {
+      var t1 = this._nativeGlobalRegExp;
+      if (t1 != null)
+        return t1;
+      t1 = this._nativeRegExp;
+      t1 = H.JSSyntaxRegExp_makeNative(this.pattern, t1.multiline, !t1.ignoreCase, true);
+      this._nativeGlobalRegExp = t1;
+      return t1;
+    },
+    _execGlobal$2: function(string, start) {
+      var regexp, match;
+      regexp = this.get$_nativeGlobalVersion();
+      regexp.lastIndex = start;
+      match = regexp.exec(string);
+      if (match == null)
+        return;
+      return new H._MatchImplementation(match);
+    },
+    $isPattern: 1
+  };
+  H._MatchImplementation.prototype = {
+    get$end: function(_) {
+      var t1 = this._match;
+      return t1.index + t1[0].length;
+    },
+    $index: function(_, index) {
+      return C.JSArray_methods.$index(this._match, index);
+    }
   };
   H.NativeTypedData.prototype = {$isTypedData: 1};
   H.NativeTypedArray.prototype = {
@@ -4460,6 +5717,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.doubleTypeCheck(value);
       H._checkValidIndex(index, receiver, receiver.length);
       receiver[index] = value;
@@ -4481,6 +5739,7 @@
   };
   H.NativeTypedArrayOfInt.prototype = {
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.intTypeCheck(value);
       H._checkValidIndex(index, receiver, receiver.length);
       receiver[index] = value;
@@ -4549,13 +5808,596 @@
     $index: function(receiver, index) {
       H._checkValidIndex(index, receiver, receiver.length);
       return receiver[index];
-    },
-    $isUint8List: 1
+    }
   };
   H._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin.prototype = {};
   H._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin_FixedLengthListMixin.prototype = {};
   H._NativeTypedArrayOfInt_NativeTypedArray_ListMixin.prototype = {};
   H._NativeTypedArrayOfInt_NativeTypedArray_ListMixin_FixedLengthListMixin.prototype = {};
+  P._AsyncRun__initializeScheduleImmediate_internalCallback.prototype = {
+    call$1: function(_) {
+      var t1, f;
+      t1 = this._box_0;
+      f = t1.storedCallback;
+      t1.storedCallback = null;
+      f.call$0();
+    },
+    $signature: 6
+  };
+  P._AsyncRun__initializeScheduleImmediate_closure.prototype = {
+    call$1: function(callback) {
+      var t1, t2;
+      this._box_0.storedCallback = H.functionTypeCheck(callback, {func: 1, ret: -1});
+      t1 = this.div;
+      t2 = this.span;
+      t1.firstChild ? t1.removeChild(t2) : t1.appendChild(t2);
+    },
+    $signature: 11
+  };
+  P._AsyncRun__scheduleImmediateJsOverride_internalCallback.prototype = {
+    call$0: function() {
+      this.callback.call$0();
+    },
+    $signature: 0
+  };
+  P._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback.prototype = {
+    call$0: function() {
+      this.callback.call$0();
+    },
+    $signature: 0
+  };
+  P._TimerImpl.prototype = {
+    _TimerImpl$2: function(milliseconds, callback) {
+      if (self.setTimeout != null)
+        self.setTimeout(H.convertDartClosureToJS(new P._TimerImpl_internalCallback(this, callback), 0), milliseconds);
+      else
+        throw H.wrapException(P.UnsupportedError$("`setTimeout()` not found."));
+    }
+  };
+  P._TimerImpl_internalCallback.prototype = {
+    call$0: function() {
+      this.callback.call$0();
+    },
+    $signature: 1
+  };
+  P.Future.prototype = {};
+  P.Future_wait_handleError.prototype = {
+    call$2: function(theError, theStackTrace) {
+      var t1, t2;
+      H.interceptedTypeCheck(theStackTrace, "$isStackTrace");
+      t1 = this._box_0;
+      t2 = --t1.remaining;
+      if (t1.values != null) {
+        t1.values = null;
+        if (t1.remaining === 0 || this.eagerError)
+          this.result._completeError$2(theError, theStackTrace);
+        else {
+          t1.error = theError;
+          t1.stackTrace = theStackTrace;
+        }
+      } else if (t2 === 0 && !this.eagerError)
+        this.result._completeError$2(t1.error, t1.stackTrace);
+    },
+    $signature: 12
+  };
+  P.Future_wait_closure.prototype = {
+    call$1: function(value) {
+      var t1, t2;
+      H.assertSubtypeOfRuntimeType(value, this.T);
+      t1 = this._box_0;
+      --t1.remaining;
+      t2 = t1.values;
+      if (t2 != null) {
+        C.JSArray_methods.$indexSet(t2, this.pos, value);
+        if (t1.remaining === 0)
+          this.result._completeWithValue$1(t1.values);
+      } else if (t1.remaining === 0 && !this.eagerError)
+        this.result._completeError$2(t1.error, t1.stackTrace);
+    },
+    $signature: function() {
+      return {func: 1, ret: P.Null, args: [this.T]};
+    }
+  };
+  P._Completer.prototype = {
+    completeError$1: function(error) {
+      if (error == null)
+        error = new P.NullThrownError();
+      if (this.future._state !== 0)
+        throw H.wrapException(P.StateError$("Future already completed"));
+      $.Zone__current.toString;
+      this._completeError$2(error, null);
+    }
+  };
+  P._AsyncCompleter.prototype = {
+    complete$1: function(_, value) {
+      var t1;
+      H.futureOrCheck(value, {futureOr: 1, type: H.getTypeArgumentByIndex(this, 0)});
+      t1 = this.future;
+      if (t1._state !== 0)
+        throw H.wrapException(P.StateError$("Future already completed"));
+      t1._asyncComplete$1(value);
+    },
+    _completeError$2: function(error, stackTrace) {
+      this.future._asyncCompleteError$2(error, stackTrace);
+    }
+  };
+  P._SyncCompleter.prototype = {
+    _completeError$2: function(error, stackTrace) {
+      this.future._completeError$2(error, stackTrace);
+    }
+  };
+  P._FutureListener.prototype = {
+    matchesErrorTest$1: function(asyncError) {
+      if (this.state !== 6)
+        return true;
+      return this.result._zone.runUnary$2$2(H.functionTypeCheck(this.callback, {func: 1, ret: P.bool, args: [P.Object]}), asyncError.error, P.bool, P.Object);
+    },
+    handleError$1: function(asyncError) {
+      var errorCallback, t1, t2, t3;
+      errorCallback = this.errorCallback;
+      t1 = P.Object;
+      t2 = {futureOr: 1, type: H.getTypeArgumentByIndex(this, 1)};
+      t3 = this.result._zone;
+      if (H.functionTypeTest(errorCallback, {func: 1, args: [P.Object, P.StackTrace]}))
+        return H.futureOrCheck(t3.runBinary$3$3(errorCallback, asyncError.error, asyncError.stackTrace, null, t1, P.StackTrace), t2);
+      else
+        return H.futureOrCheck(t3.runUnary$2$2(H.functionTypeCheck(errorCallback, {func: 1, args: [P.Object]}), asyncError.error, null, t1), t2);
+    }
+  };
+  P._Future.prototype = {
+    then$1$2$onError: function(f, onError, $R) {
+      var t1, currentZone, result, t2;
+      t1 = H.getTypeArgumentByIndex(this, 0);
+      H.functionTypeCheck(f, {func: 1, ret: {futureOr: 1, type: $R}, args: [t1]});
+      currentZone = $.Zone__current;
+      if (currentZone !== C.C__RootZone) {
+        currentZone.toString;
+        H.functionTypeCheck(f, {func: 1, ret: {futureOr: 1, type: $R}, args: [t1]});
+        if (onError != null)
+          onError = P._registerErrorHandler(onError, currentZone);
+      }
+      H.functionTypeCheck(f, {func: 1, ret: {futureOr: 1, type: $R}, args: [t1]});
+      result = new P._Future(0, $.Zone__current, [$R]);
+      t2 = onError == null ? 1 : 3;
+      this._addListener$1(new P._FutureListener(result, t2, f, onError, [t1, $R]));
+      return result;
+    },
+    then$1$1: function(f, $R) {
+      return this.then$1$2$onError(f, null, $R);
+    },
+    _addListener$1: function(listener) {
+      var t1, source;
+      t1 = this._state;
+      if (t1 <= 1) {
+        listener._nextListener = H.interceptedTypeCheck(this._resultOrListeners, "$is_FutureListener");
+        this._resultOrListeners = listener;
+      } else {
+        if (t1 === 2) {
+          source = H.interceptedTypeCheck(this._resultOrListeners, "$is_Future");
+          t1 = source._state;
+          if (t1 < 4) {
+            source._addListener$1(listener);
+            return;
+          }
+          this._state = t1;
+          this._resultOrListeners = source._resultOrListeners;
+        }
+        t1 = this._zone;
+        t1.toString;
+        P._rootScheduleMicrotask(null, null, t1, H.functionTypeCheck(new P._Future__addListener_closure(this, listener), {func: 1, ret: -1}));
+      }
+    },
+    _prependListeners$1: function(listeners) {
+      var _box_0, t1, existingListeners, cursor, cursor0, source;
+      _box_0 = {};
+      _box_0.listeners = listeners;
+      if (listeners == null)
+        return;
+      t1 = this._state;
+      if (t1 <= 1) {
+        existingListeners = H.interceptedTypeCheck(this._resultOrListeners, "$is_FutureListener");
+        this._resultOrListeners = listeners;
+        if (existingListeners != null) {
+          for (cursor = listeners; cursor0 = cursor._nextListener, cursor0 != null; cursor = cursor0)
+            ;
+          cursor._nextListener = existingListeners;
+        }
+      } else {
+        if (t1 === 2) {
+          source = H.interceptedTypeCheck(this._resultOrListeners, "$is_Future");
+          t1 = source._state;
+          if (t1 < 4) {
+            source._prependListeners$1(listeners);
+            return;
+          }
+          this._state = t1;
+          this._resultOrListeners = source._resultOrListeners;
+        }
+        _box_0.listeners = this._reverseListeners$1(listeners);
+        t1 = this._zone;
+        t1.toString;
+        P._rootScheduleMicrotask(null, null, t1, H.functionTypeCheck(new P._Future__prependListeners_closure(_box_0, this), {func: 1, ret: -1}));
+      }
+    },
+    _removeListeners$0: function() {
+      var current = H.interceptedTypeCheck(this._resultOrListeners, "$is_FutureListener");
+      this._resultOrListeners = null;
+      return this._reverseListeners$1(current);
+    },
+    _reverseListeners$1: function(listeners) {
+      var current, prev, next;
+      for (current = listeners, prev = null; current != null; prev = current, current = next) {
+        next = current._nextListener;
+        current._nextListener = prev;
+      }
+      return prev;
+    },
+    _complete$1: function(value) {
+      var t1, t2, listeners;
+      t1 = H.getTypeArgumentByIndex(this, 0);
+      H.futureOrCheck(value, {futureOr: 1, type: t1});
+      t2 = this.$ti;
+      if (H.checkSubtype(value, "$isFuture", t2, "$asFuture"))
+        if (H.checkSubtype(value, "$is_Future", t2, null))
+          P._Future__chainCoreFuture(value, this);
+        else
+          P._Future__chainForeignFuture(value, this);
+      else {
+        listeners = this._removeListeners$0();
+        H.assertSubtypeOfRuntimeType(value, t1);
+        this._state = 4;
+        this._resultOrListeners = value;
+        P._Future__propagateToListeners(this, listeners);
+      }
+    },
+    _completeWithValue$1: function(value) {
+      var listeners;
+      H.assertSubtypeOfRuntimeType(value, H.getTypeArgumentByIndex(this, 0));
+      listeners = this._removeListeners$0();
+      this._state = 4;
+      this._resultOrListeners = value;
+      P._Future__propagateToListeners(this, listeners);
+    },
+    _completeError$2: function(error, stackTrace) {
+      var listeners;
+      H.interceptedTypeCheck(stackTrace, "$isStackTrace");
+      listeners = this._removeListeners$0();
+      this._state = 8;
+      this._resultOrListeners = new P.AsyncError(error, stackTrace);
+      P._Future__propagateToListeners(this, listeners);
+    },
+    _asyncComplete$1: function(value) {
+      var t1;
+      H.futureOrCheck(value, {futureOr: 1, type: H.getTypeArgumentByIndex(this, 0)});
+      if (H.checkSubtype(value, "$isFuture", this.$ti, "$asFuture")) {
+        this._chainFuture$1(value);
+        return;
+      }
+      this._state = 1;
+      t1 = this._zone;
+      t1.toString;
+      P._rootScheduleMicrotask(null, null, t1, H.functionTypeCheck(new P._Future__asyncComplete_closure(this, value), {func: 1, ret: -1}));
+    },
+    _chainFuture$1: function(value) {
+      var t1 = this.$ti;
+      H.assertSubtype(value, "$isFuture", t1, "$asFuture");
+      if (H.checkSubtype(value, "$is_Future", t1, null)) {
+        if (value._state === 8) {
+          this._state = 1;
+          t1 = this._zone;
+          t1.toString;
+          P._rootScheduleMicrotask(null, null, t1, H.functionTypeCheck(new P._Future__chainFuture_closure(this, value), {func: 1, ret: -1}));
+        } else
+          P._Future__chainCoreFuture(value, this);
+        return;
+      }
+      P._Future__chainForeignFuture(value, this);
+    },
+    _asyncCompleteError$2: function(error, stackTrace) {
+      var t1;
+      H.interceptedTypeCheck(stackTrace, "$isStackTrace");
+      this._state = 1;
+      t1 = this._zone;
+      t1.toString;
+      P._rootScheduleMicrotask(null, null, t1, H.functionTypeCheck(new P._Future__asyncCompleteError_closure(this, error, stackTrace), {func: 1, ret: -1}));
+    },
+    $isFuture: 1
+  };
+  P._Future__addListener_closure.prototype = {
+    call$0: function() {
+      P._Future__propagateToListeners(this.$this, this.listener);
+    },
+    $signature: 0
+  };
+  P._Future__prependListeners_closure.prototype = {
+    call$0: function() {
+      P._Future__propagateToListeners(this.$this, this._box_0.listeners);
+    },
+    $signature: 0
+  };
+  P._Future__chainForeignFuture_closure.prototype = {
+    call$1: function(value) {
+      var t1 = this.target;
+      t1._state = 0;
+      t1._complete$1(value);
+    },
+    $signature: 6
+  };
+  P._Future__chainForeignFuture_closure0.prototype = {
+    call$2: function(error, stackTrace) {
+      H.interceptedTypeCheck(stackTrace, "$isStackTrace");
+      this.target._completeError$2(error, stackTrace);
+    },
+    call$1: function(error) {
+      return this.call$2(error, null);
+    },
+    $signature: 13
+  };
+  P._Future__chainForeignFuture_closure1.prototype = {
+    call$0: function() {
+      this.target._completeError$2(this.e, this.s);
+    },
+    $signature: 0
+  };
+  P._Future__asyncComplete_closure.prototype = {
+    call$0: function() {
+      var t1 = this.$this;
+      t1._completeWithValue$1(H.assertSubtypeOfRuntimeType(this.value, H.getTypeArgumentByIndex(t1, 0)));
+    },
+    $signature: 0
+  };
+  P._Future__chainFuture_closure.prototype = {
+    call$0: function() {
+      P._Future__chainCoreFuture(this.value, this.$this);
+    },
+    $signature: 0
+  };
+  P._Future__asyncCompleteError_closure.prototype = {
+    call$0: function() {
+      this.$this._completeError$2(this.error, this.stackTrace);
+    },
+    $signature: 0
+  };
+  P._Future__propagateToListeners_handleWhenCompleteCallback.prototype = {
+    call$0: function() {
+      var completeResult, e, s, t1, exception, t2, originalSource;
+      completeResult = null;
+      try {
+        t1 = this.listener;
+        completeResult = t1.result._zone.run$1$1(H.functionTypeCheck(t1.callback, {func: 1}), null);
+      } catch (exception) {
+        e = H.unwrapException(exception);
+        s = H.getTraceFromException(exception);
+        if (this.hasError) {
+          t1 = H.interceptedTypeCheck(this._box_1.source._resultOrListeners, "$isAsyncError").error;
+          t2 = e;
+          t2 = t1 == null ? t2 == null : t1 === t2;
+          t1 = t2;
+        } else
+          t1 = false;
+        t2 = this._box_0;
+        if (t1)
+          t2.listenerValueOrError = H.interceptedTypeCheck(this._box_1.source._resultOrListeners, "$isAsyncError");
+        else
+          t2.listenerValueOrError = new P.AsyncError(e, s);
+        t2.listenerHasError = true;
+        return;
+      }
+      if (!!J.getInterceptor$(completeResult).$isFuture) {
+        if (completeResult instanceof P._Future && completeResult._state >= 4) {
+          if (completeResult._state === 8) {
+            t1 = this._box_0;
+            t1.listenerValueOrError = H.interceptedTypeCheck(completeResult._resultOrListeners, "$isAsyncError");
+            t1.listenerHasError = true;
+          }
+          return;
+        }
+        originalSource = this._box_1.source;
+        t1 = this._box_0;
+        t1.listenerValueOrError = completeResult.then$1$1(new P._Future__propagateToListeners_handleWhenCompleteCallback_closure(originalSource), null);
+        t1.listenerHasError = false;
+      }
+    },
+    $signature: 1
+  };
+  P._Future__propagateToListeners_handleWhenCompleteCallback_closure.prototype = {
+    call$1: function(_) {
+      return this.originalSource;
+    },
+    $signature: 14
+  };
+  P._Future__propagateToListeners_handleValueCallback.prototype = {
+    call$0: function() {
+      var e, s, t1, t2, t3, t4, exception;
+      try {
+        t1 = this.listener;
+        t2 = H.getTypeArgumentByIndex(t1, 0);
+        t3 = H.assertSubtypeOfRuntimeType(this.sourceResult, t2);
+        t4 = H.getTypeArgumentByIndex(t1, 1);
+        this._box_0.listenerValueOrError = t1.result._zone.runUnary$2$2(H.functionTypeCheck(t1.callback, {func: 1, ret: {futureOr: 1, type: t4}, args: [t2]}), t3, {futureOr: 1, type: t4}, t2);
+      } catch (exception) {
+        e = H.unwrapException(exception);
+        s = H.getTraceFromException(exception);
+        t1 = this._box_0;
+        t1.listenerValueOrError = new P.AsyncError(e, s);
+        t1.listenerHasError = true;
+      }
+    },
+    $signature: 1
+  };
+  P._Future__propagateToListeners_handleError.prototype = {
+    call$0: function() {
+      var asyncError, e, s, t1, t2, exception, t3, t4;
+      try {
+        asyncError = H.interceptedTypeCheck(this._box_1.source._resultOrListeners, "$isAsyncError");
+        t1 = this.listener;
+        if (t1.matchesErrorTest$1(asyncError) && t1.errorCallback != null) {
+          t2 = this._box_0;
+          t2.listenerValueOrError = t1.handleError$1(asyncError);
+          t2.listenerHasError = false;
+        }
+      } catch (exception) {
+        e = H.unwrapException(exception);
+        s = H.getTraceFromException(exception);
+        t1 = H.interceptedTypeCheck(this._box_1.source._resultOrListeners, "$isAsyncError");
+        t2 = t1.error;
+        t3 = e;
+        t4 = this._box_0;
+        if (t2 == null ? t3 == null : t2 === t3)
+          t4.listenerValueOrError = t1;
+        else
+          t4.listenerValueOrError = new P.AsyncError(e, s);
+        t4.listenerHasError = true;
+      }
+    },
+    $signature: 1
+  };
+  P._AsyncCallbackEntry.prototype = {};
+  P.Stream.prototype = {
+    get$length: function(_) {
+      var t1, future, t2, t3;
+      t1 = {};
+      future = new P._Future(0, $.Zone__current, [P.int]);
+      t1.count = 0;
+      t2 = H.getTypeArgumentByIndex(this, 0);
+      t3 = H.functionTypeCheck(new P.Stream_length_closure(t1, this), {func: 1, ret: -1, args: [t2]});
+      H.functionTypeCheck(new P.Stream_length_closure0(t1, future), {func: 1, ret: -1});
+      W._EventStreamSubscription$(this._target, this._eventType, t3, false, t2);
+      return future;
+    }
+  };
+  P.Stream_length_closure.prototype = {
+    call$1: function(_) {
+      H.assertSubtypeOfRuntimeType(_, H.getTypeArgumentByIndex(this.$this, 0));
+      ++this._box_0.count;
+    },
+    $signature: function() {
+      return {func: 1, ret: P.Null, args: [H.getTypeArgumentByIndex(this.$this, 0)]};
+    }
+  };
+  P.Stream_length_closure0.prototype = {
+    call$0: function() {
+      this.future._complete$1(this._box_0.count);
+    },
+    $signature: 0
+  };
+  P.StreamSubscription.prototype = {};
+  P.AsyncError.prototype = {
+    toString$0: function(_) {
+      return H.S(this.error);
+    },
+    $isError: 1
+  };
+  P._Zone.prototype = {$isZone: 1};
+  P._rootHandleUncaughtError_closure.prototype = {
+    call$0: function() {
+      var t1, t2, error;
+      t1 = this._box_0;
+      t2 = t1.error;
+      if (t2 == null) {
+        error = new P.NullThrownError();
+        t1.error = error;
+        t1 = error;
+      } else
+        t1 = t2;
+      t2 = this.stackTrace;
+      if (t2 == null)
+        throw H.wrapException(t1);
+      error = H.wrapException(t1);
+      error.stack = t2.toString$0(0);
+      throw error;
+    },
+    $signature: 0
+  };
+  P._RootZone.prototype = {
+    runGuarded$1: function(f) {
+      var e, s, exception;
+      H.functionTypeCheck(f, {func: 1, ret: -1});
+      try {
+        if (C.C__RootZone === $.Zone__current) {
+          f.call$0();
+          return;
+        }
+        P._rootRun(null, null, this, f, -1);
+      } catch (exception) {
+        e = H.unwrapException(exception);
+        s = H.getTraceFromException(exception);
+        P._rootHandleUncaughtError(null, null, this, e, H.interceptedTypeCheck(s, "$isStackTrace"));
+      }
+    },
+    runUnaryGuarded$1$2: function(f, arg, $T) {
+      var e, s, exception;
+      H.functionTypeCheck(f, {func: 1, ret: -1, args: [$T]});
+      H.assertSubtypeOfRuntimeType(arg, $T);
+      try {
+        if (C.C__RootZone === $.Zone__current) {
+          f.call$1(arg);
+          return;
+        }
+        P._rootRunUnary(null, null, this, f, arg, -1, $T);
+      } catch (exception) {
+        e = H.unwrapException(exception);
+        s = H.getTraceFromException(exception);
+        P._rootHandleUncaughtError(null, null, this, e, H.interceptedTypeCheck(s, "$isStackTrace"));
+      }
+    },
+    bindCallback$1$1: function(f, $R) {
+      return new P._RootZone_bindCallback_closure(this, H.functionTypeCheck(f, {func: 1, ret: $R}), $R);
+    },
+    bindCallbackGuarded$1: function(f) {
+      return new P._RootZone_bindCallbackGuarded_closure(this, H.functionTypeCheck(f, {func: 1, ret: -1}));
+    },
+    bindUnaryCallbackGuarded$1$1: function(f, $T) {
+      return new P._RootZone_bindUnaryCallbackGuarded_closure(this, H.functionTypeCheck(f, {func: 1, ret: -1, args: [$T]}), $T);
+    },
+    $index: function(_, key) {
+      return;
+    },
+    run$1$1: function(f, $R) {
+      H.functionTypeCheck(f, {func: 1, ret: $R});
+      if ($.Zone__current === C.C__RootZone)
+        return f.call$0();
+      return P._rootRun(null, null, this, f, $R);
+    },
+    runUnary$2$2: function(f, arg, $R, $T) {
+      H.functionTypeCheck(f, {func: 1, ret: $R, args: [$T]});
+      H.assertSubtypeOfRuntimeType(arg, $T);
+      if ($.Zone__current === C.C__RootZone)
+        return f.call$1(arg);
+      return P._rootRunUnary(null, null, this, f, arg, $R, $T);
+    },
+    runBinary$3$3: function(f, arg1, arg2, $R, T1, T2) {
+      H.functionTypeCheck(f, {func: 1, ret: $R, args: [T1, T2]});
+      H.assertSubtypeOfRuntimeType(arg1, T1);
+      H.assertSubtypeOfRuntimeType(arg2, T2);
+      if ($.Zone__current === C.C__RootZone)
+        return f.call$2(arg1, arg2);
+      return P._rootRunBinary(null, null, this, f, arg1, arg2, $R, T1, T2);
+    }
+  };
+  P._RootZone_bindCallback_closure.prototype = {
+    call$0: function() {
+      return this.$this.run$1$1(this.f, this.R);
+    },
+    $signature: function() {
+      return {func: 1, ret: this.R};
+    }
+  };
+  P._RootZone_bindCallbackGuarded_closure.prototype = {
+    call$0: function() {
+      return this.$this.runGuarded$1(this.f);
+    },
+    $signature: 1
+  };
+  P._RootZone_bindUnaryCallbackGuarded_closure.prototype = {
+    call$1: function(arg) {
+      var t1 = this.T;
+      return this.$this.runUnaryGuarded$1$2(this.f, H.assertSubtypeOfRuntimeType(arg, t1), t1);
+    },
+    $signature: function() {
+      return {func: 1, ret: -1, args: [this.T]};
+    }
+  };
   P._LinkedHashSet.prototype = {
     get$iterator: function(_) {
       return P._LinkedHashSetIterator$(this, this._collection$_modifications, H.getTypeArgumentByIndex(this, 0));
@@ -4686,10 +6528,8 @@
     },
     set$_collection$_current: function(_current) {
       this._collection$_current = H.assertSubtypeOfRuntimeType(_current, H.getTypeArgumentByIndex(this, 0));
-    },
-    $isIterator: 1
+    }
   };
-  P.ListBase.prototype = {$isIterable: 1, $isList: 1};
   P.ListMixin.prototype = {
     get$iterator: function(receiver) {
       return new H.ListIterator(receiver, this.get$length(receiver), 0, [H.getRuntimeTypeArgumentIntercepted(this, receiver, "ListMixin", 0)]);
@@ -4726,7 +6566,7 @@
       t1._contents = t2 + ": ";
       t1._contents += H.S(v);
     },
-    $signature: 2
+    $signature: 7
   };
   P.MapMixin.prototype = {
     forEach$1: function(receiver, action) {
@@ -4746,24 +6586,18 @@
     $isMap: 1
   };
   P._SetBase.prototype = {
-    addAll$1: function(_, elements) {
-      var t1;
-      for (t1 = J.get$iterator$ax(H.assertSubtype(elements, "$isIterable", this.$ti, "$asIterable")); t1.moveNext$0();)
-        this.add$1(0, t1.get$current(t1));
-    },
     toString$0: function(_) {
       return P.IterableBase_iterableToFullString(this, "{", "}");
     },
     $isIterable: 1,
     $isSet: 1
   };
-  P._ListBase_Object_ListMixin.prototype = {};
   P.bool.prototype = {};
   P.DateTime.prototype = {
     $eq: function(_, other) {
       if (other == null)
         return false;
-      return other instanceof P.DateTime && this._value === other._value && true;
+      return other instanceof P.DateTime && this._value === other._value && this.isUtc === other.isUtc;
     },
     compareTo$1: function(_, other) {
       return C.JSInt_methods.compareTo$1(this._value, H.interceptedTypeCheck(other, "$isDateTime")._value);
@@ -4773,7 +6607,7 @@
       return (t1 ^ C.JSInt_methods._shrOtherPositive$1(t1, 30)) & 1073741823;
     },
     toString$0: function(_) {
-      var y, m, d, h, min, sec, ms, t1;
+      var y, m, d, h, min, sec, ms;
       y = P.DateTime__fourDigits(H.Primitives_getYear(this));
       m = P.DateTime__twoDigits(H.Primitives_getMonth(this));
       d = P.DateTime__twoDigits(H.Primitives_getDay(this));
@@ -4781,8 +6615,10 @@
       min = P.DateTime__twoDigits(H.Primitives_getMinutes(this));
       sec = P.DateTime__twoDigits(H.Primitives_getSeconds(this));
       ms = P.DateTime__threeDigits(H.Primitives_getMilliseconds(this));
-      t1 = y + "-" + m + "-" + d + " " + h + ":" + min + ":" + sec + "." + ms;
-      return t1;
+      if (this.isUtc)
+        return y + "-" + m + "-" + d + " " + h + ":" + min + ":" + sec + "." + ms + "Z";
+      else
+        return y + "-" + m + "-" + d + " " + h + ":" + min + ":" + sec + "." + ms;
     },
     $isComparable: 1,
     $asComparable: function() {
@@ -4835,7 +6671,7 @@
         return "0000" + n;
       return "00000" + n;
     },
-    $signature: 3
+    $signature: 8
   };
   P.Duration_toString_twoDigits.prototype = {
     call$1: function(n) {
@@ -4843,7 +6679,7 @@
         return "" + n;
       return "0" + n;
     },
-    $signature: 3
+    $signature: 8
   };
   P.Error.prototype = {};
   P.NullThrownError.prototype = {
@@ -4863,7 +6699,7 @@
       t1 = this.name;
       nameString = t1 != null ? " (" + t1 + ")" : "";
       t1 = this.message;
-      message = t1 == null ? "" : ": " + t1;
+      message = t1 == null ? "" : ": " + H.S(t1);
       prefix = this.get$_errorName() + nameString + message;
       if (!this._hasValue)
         return prefix;
@@ -4955,13 +6791,21 @@
       return "Exception: " + this.message;
     }
   };
-  P.Function.prototype = {};
+  P.FormatException.prototype = {
+    toString$0: function(_) {
+      var t1, report, objectSource, source;
+      t1 = this.message;
+      report = t1 != null && "" !== t1 ? "FormatException: " + H.S(t1) : "FormatException";
+      objectSource = this.source;
+      if (typeof objectSource === "string") {
+        source = objectSource.length > 78 ? C.JSString_methods.substring$2(objectSource, 0, 75) + "..." : objectSource;
+        return report + "\n" + source;
+      } else
+        return report;
+    }
+  };
   P.int.prototype = {};
   P.Iterable.prototype = {
-    where$1: function(_, test) {
-      var t1 = H.getRuntimeTypeArgument(this, "Iterable", 0);
-      return new H.WhereIterable(this, H.functionTypeCheck(test, {func: 1, ret: P.bool, args: [t1]}), [t1]);
-    },
     get$length: function(_) {
       var it, count;
       it = this.get$iterator(this);
@@ -4969,22 +6813,10 @@
         ++count;
       return count;
     },
-    elementAt$1: function(_, index) {
-      var t1, elementIndex, element;
-      P.RangeError_checkNotNegative(index, "index");
-      for (t1 = this.get$iterator(this), elementIndex = 0; t1.moveNext$0();) {
-        element = t1.get$current(t1);
-        if (index === elementIndex)
-          return element;
-        ++elementIndex;
-      }
-      throw H.wrapException(P.IndexError$(index, this, "index", null, elementIndex));
-    },
     toString$0: function(_) {
       return P.IterableBase_iterableToShortString(this, "(", ")");
     }
   };
-  P.Iterator.prototype = {};
   P.List.prototype = {$isIterable: 1};
   P.Map.prototype = {};
   P.Null.prototype = {
@@ -5014,6 +6846,7 @@
       return this.toString$0(this);
     }
   };
+  P.StackTrace.prototype = {};
   P.String.prototype = {$isComparable: 1,
     $asComparable: function() {
       return [P.String];
@@ -5029,6 +6862,18 @@
       return t1.charCodeAt(0) == 0 ? t1 : t1;
     }
   };
+  W.promiseToFuture_closure.prototype = {
+    call$1: function(promiseValue) {
+      return this.completer.complete$1(0, H.futureOrCheck(promiseValue, {futureOr: 1, type: this.T}));
+    },
+    $signature: 2
+  };
+  W.promiseToFuture_closure0.prototype = {
+    call$1: function(promiseError) {
+      return this.completer.completeError$1(promiseError);
+    },
+    $signature: 2
+  };
   W.HtmlElement.prototype = {};
   W.AccessibleNodeList.prototype = {
     get$length: function(receiver) {
@@ -5038,17 +6883,15 @@
   W.AnchorElement.prototype = {
     toString$0: function(receiver) {
       return String(receiver);
-    },
-    $isAnchorElement: 1
+    }
   };
   W.AreaElement.prototype = {
     toString$0: function(receiver) {
       return String(receiver);
     }
   };
-  W.BaseElement.prototype = {$isBaseElement: 1};
+  W.AudioElement.prototype = {$isAudioElement: 1};
   W.Blob.prototype = {};
-  W.BodyElement.prototype = {$isBodyElement: 1};
   W.CanvasElement.prototype = {
     getContext$2: function(receiver, contextId, attributes) {
       var t1 = receiver.getContext(contextId, P.convertDartToNative_Dictionary(attributes));
@@ -5106,6 +6949,7 @@
     }
   };
   W.DivElement.prototype = {$isDivElement: 1};
+  W.Document.prototype = {$isDocument: 1};
   W.DomException.prototype = {
     toString$0: function(receiver) {
       return String(receiver);
@@ -5121,6 +6965,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.assertSubtype(value, "$isRectangle", [P.num], "$asRectangle");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -5196,6 +7041,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.stringTypeCheck(value);
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -5233,92 +7079,22 @@
     }
   };
   W.Element.prototype = {
-    get$attributes: function(receiver) {
-      return new W._ElementAttributeMap(receiver);
-    },
     toString$0: function(receiver) {
       return receiver.localName;
-    },
-    createFragment$3$treeSanitizer$validator: function(receiver, html, treeSanitizer, validator) {
-      var t1, t2, contextElement, fragment;
-      if (treeSanitizer == null) {
-        t1 = $.Element__defaultValidator;
-        if (t1 == null) {
-          t1 = H.setRuntimeTypeInfo([], [W.NodeValidator]);
-          t2 = new W.NodeValidatorBuilder(t1);
-          C.JSArray_methods.add$1(t1, W._Html5NodeValidator$(null));
-          C.JSArray_methods.add$1(t1, W._TemplatingNodeValidator$());
-          $.Element__defaultValidator = t2;
-          validator = t2;
-        } else
-          validator = t1;
-        t1 = $.Element__defaultSanitizer;
-        if (t1 == null) {
-          t1 = new W._ValidatingTreeSanitizer(validator);
-          $.Element__defaultSanitizer = t1;
-          treeSanitizer = t1;
-        } else {
-          t1.validator = validator;
-          treeSanitizer = t1;
-        }
-      }
-      if ($.Element__parseDocument == null) {
-        t1 = document;
-        t2 = t1.implementation.createHTMLDocument("");
-        $.Element__parseDocument = t2;
-        $.Element__parseRange = t2.createRange();
-        t2 = $.Element__parseDocument.createElement("base");
-        H.interceptedTypeCheck(t2, "$isBaseElement");
-        t2.href = t1.baseURI;
-        $.Element__parseDocument.head.appendChild(t2);
-      }
-      t1 = $.Element__parseDocument;
-      if (t1.body == null) {
-        t2 = t1.createElement("body");
-        t1.body = H.interceptedTypeCheck(t2, "$isBodyElement");
-      }
-      t1 = $.Element__parseDocument;
-      if (!!this.$isBodyElement)
-        contextElement = t1.body;
-      else {
-        contextElement = t1.createElement(receiver.tagName);
-        $.Element__parseDocument.body.appendChild(contextElement);
-      }
-      if ("createContextualFragment" in window.Range.prototype && !C.JSArray_methods.contains$1(C.List_ego, receiver.tagName)) {
-        $.Element__parseRange.selectNodeContents(contextElement);
-        fragment = $.Element__parseRange.createContextualFragment(html);
-      } else {
-        contextElement.innerHTML = html;
-        fragment = $.Element__parseDocument.createDocumentFragment();
-        for (; t1 = contextElement.firstChild, t1 != null;)
-          fragment.appendChild(t1);
-      }
-      t1 = $.Element__parseDocument.body;
-      if (contextElement == null ? t1 != null : contextElement !== t1)
-        J.remove$0$x(contextElement);
-      treeSanitizer.sanitizeTree$1(fragment);
-      document.adoptNode(fragment);
-      return fragment;
-    },
-    createFragment$2$treeSanitizer: function($receiver, html, treeSanitizer) {
-      return this.createFragment$3$treeSanitizer$validator($receiver, html, treeSanitizer, null);
-    },
-    setInnerHtml$1: function(receiver, html) {
-      receiver.textContent = null;
-      receiver.appendChild(this.createFragment$3$treeSanitizer$validator(receiver, html, null, null));
-    },
-    $isElement: 1,
-    get$tagName: function(receiver) {
-      return receiver.tagName;
     }
   };
-  W.Element_Element$html_closure.prototype = {
-    call$1: function(e) {
-      return !!J.getInterceptor$(H.interceptedTypeCheck(e, "$isNode")).$isElement;
+  W.Event.prototype = {$isEvent: 1};
+  W.EventTarget.prototype = {
+    addEventListener$3: function(receiver, type, listener, useCapture) {
+      H.functionTypeCheck(listener, {func: 1, args: [W.Event]});
+      if (listener != null)
+        this._addEventListener$3(receiver, type, listener, false);
     },
-    $signature: 9
+    _addEventListener$3: function(receiver, type, listener, options) {
+      return receiver.addEventListener(type, H.convertDartClosureToJS(H.functionTypeCheck(listener, {func: 1, args: [W.Event]}), 1), false);
+    },
+    $isEventTarget: 1
   };
-  W.EventTarget.prototype = {};
   W.File.prototype = {$isFile: 1};
   W.FileList.prototype = {
     get$length: function(receiver) {
@@ -5330,6 +7106,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isFile");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -5387,7 +7164,8 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
-      H.interceptedTypeCheck(value, "$isNode");
+      H.intTypeCheck(index);
+      H.interceptedTypeCheck(value, "$isNode0");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
     elementAt$1: function(receiver, index) {
@@ -5397,33 +7175,39 @@
     },
     $isJSIndexable: 1,
     $asJSIndexable: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $isJavaScriptIndexingBehavior: 1,
     $asJavaScriptIndexingBehavior: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $asListMixin: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $isIterable: 1,
     $asIterable: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $isList: 1,
     $asList: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $asImmutableListMixin: function() {
-      return [W.Node];
+      return [W.Node0];
     }
   };
+  W.HttpRequest.prototype = {
+    open$2: function(receiver, method, url) {
+      return receiver.open(method, url);
+    }
+  };
+  W.HttpRequestEventTarget.prototype = {};
   W.Location.prototype = {
     toString$0: function(receiver) {
       return String(receiver);
-    },
-    $isLocation: 1
+    }
   };
+  W.MediaElement.prototype = {};
   W.MediaList.prototype = {
     get$length: function(receiver) {
       return receiver.length;
@@ -5464,7 +7248,7 @@
     call$2: function(k, v) {
       return C.JSArray_methods.add$1(this.keys, k);
     },
-    $signature: 0
+    $signature: 3
   };
   W.MidiOutputMap.prototype = {
     $index: function(receiver, key) {
@@ -5501,7 +7285,7 @@
     call$2: function(k, v) {
       return C.JSArray_methods.add$1(this.keys, k);
     },
-    $signature: 0
+    $signature: 3
   };
   W.MimeType.prototype = {$isMimeType: 1};
   W.MimeTypeArray.prototype = {
@@ -5514,6 +7298,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isMimeType");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -5545,70 +7330,12 @@
       return [W.MimeType];
     }
   };
-  W._ChildNodeListLazy.prototype = {
-    get$single: function(_) {
-      var t1, l;
-      t1 = this._this;
-      l = t1.childNodes.length;
-      if (l === 0)
-        throw H.wrapException(P.StateError$("No elements"));
-      if (l > 1)
-        throw H.wrapException(P.StateError$("More than one element"));
-      return t1.firstChild;
-    },
-    addAll$1: function(_, iterable) {
-      var t1, t2, len, i;
-      H.assertSubtype(iterable, "$isIterable", [W.Node], "$asIterable");
-      t1 = iterable._this;
-      t2 = this._this;
-      if (t1 !== t2)
-        for (len = t1.childNodes.length, i = 0; i < len; ++i)
-          t2.appendChild(t1.firstChild);
-      return;
-    },
-    $indexSet: function(_, index, value) {
-      var t1, t2;
-      H.interceptedTypeCheck(value, "$isNode");
-      t1 = this._this;
-      t2 = t1.childNodes;
-      if (index < 0 || index >= t2.length)
-        return H.ioore(t2, index);
-      t1.replaceChild(value, t2[index]);
-    },
-    get$iterator: function(_) {
-      var t1 = this._this.childNodes;
-      return new W.FixedSizeListIterator(t1, t1.length, -1, [H.getRuntimeTypeArgumentIntercepted(C.NodeList_methods, t1, "ImmutableListMixin", 0)]);
-    },
-    get$length: function(_) {
-      return this._this.childNodes.length;
-    },
-    $index: function(_, index) {
-      var t1 = this._this.childNodes;
-      if (index < 0 || index >= t1.length)
-        return H.ioore(t1, index);
-      return t1[index];
-    },
-    $asListMixin: function() {
-      return [W.Node];
-    },
-    $asIterable: function() {
-      return [W.Node];
-    },
-    $asList: function() {
-      return [W.Node];
-    }
-  };
-  W.Node.prototype = {
-    remove$0: function(receiver) {
-      var t1 = receiver.parentNode;
-      if (t1 != null)
-        t1.removeChild(receiver);
-    },
+  W.Node0.prototype = {
     toString$0: function(receiver) {
       var value = receiver.nodeValue;
       return value == null ? this.super$Interceptor$toString(receiver) : value;
     },
-    $isNode: 1
+    $isNode0: 1
   };
   W.NodeList.prototype = {
     get$length: function(receiver) {
@@ -5620,7 +7347,8 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
-      H.interceptedTypeCheck(value, "$isNode");
+      H.intTypeCheck(index);
+      H.interceptedTypeCheck(value, "$isNode0");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
     elementAt$1: function(receiver, index) {
@@ -5630,25 +7358,25 @@
     },
     $isJSIndexable: 1,
     $asJSIndexable: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $isJavaScriptIndexingBehavior: 1,
     $asJavaScriptIndexingBehavior: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $asListMixin: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $isIterable: 1,
     $asIterable: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $isList: 1,
     $asList: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $asImmutableListMixin: function() {
-      return [W.Node];
+      return [W.Node0];
     }
   };
   W.Plugin.prototype = {$isPlugin: 1,
@@ -5666,6 +7394,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isPlugin");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -5697,6 +7426,7 @@
       return [W.Plugin];
     }
   };
+  W.ProgressEvent.prototype = {$isProgressEvent: 1};
   W.RtcStatsReport.prototype = {
     $index: function(receiver, key) {
       return P.convertNativeToDart_Dictionary(receiver.get(H.stringTypeCheck(key)));
@@ -5732,7 +7462,7 @@
     call$2: function(k, v) {
       return C.JSArray_methods.add$1(this.keys, k);
     },
-    $signature: 0
+    $signature: 3
   };
   W.SelectElement.prototype = {
     get$length: function(receiver) {
@@ -5750,6 +7480,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isSourceBuffer");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -5792,6 +7523,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isSpeechGrammar");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -5862,60 +7594,9 @@
     call$2: function(k, v) {
       return C.JSArray_methods.add$1(this.keys, k);
     },
-    $signature: 10
+    $signature: 15
   };
   W.StyleSheet.prototype = {$isStyleSheet: 1};
-  W.TableElement.prototype = {
-    createFragment$3$treeSanitizer$validator: function(receiver, html, treeSanitizer, validator) {
-      var table, fragment;
-      if ("createContextualFragment" in window.Range.prototype)
-        return this.super$Element$createFragment(receiver, html, treeSanitizer, validator);
-      table = W.Element_Element$html("<table>" + html + "</table>", treeSanitizer, validator);
-      fragment = document.createDocumentFragment();
-      fragment.toString;
-      table.toString;
-      new W._ChildNodeListLazy(fragment).addAll$1(0, new W._ChildNodeListLazy(table));
-      return fragment;
-    }
-  };
-  W.TableRowElement.prototype = {
-    createFragment$3$treeSanitizer$validator: function(receiver, html, treeSanitizer, validator) {
-      var t1, fragment, section, row;
-      if ("createContextualFragment" in window.Range.prototype)
-        return this.super$Element$createFragment(receiver, html, treeSanitizer, validator);
-      t1 = document;
-      fragment = t1.createDocumentFragment();
-      t1 = C.TableElement_methods.createFragment$3$treeSanitizer$validator(t1.createElement("table"), html, treeSanitizer, validator);
-      t1.toString;
-      t1 = new W._ChildNodeListLazy(t1);
-      section = t1.get$single(t1);
-      section.toString;
-      t1 = new W._ChildNodeListLazy(section);
-      row = t1.get$single(t1);
-      fragment.toString;
-      row.toString;
-      new W._ChildNodeListLazy(fragment).addAll$1(0, new W._ChildNodeListLazy(row));
-      return fragment;
-    }
-  };
-  W.TableSectionElement.prototype = {
-    createFragment$3$treeSanitizer$validator: function(receiver, html, treeSanitizer, validator) {
-      var t1, fragment, section;
-      if ("createContextualFragment" in window.Range.prototype)
-        return this.super$Element$createFragment(receiver, html, treeSanitizer, validator);
-      t1 = document;
-      fragment = t1.createDocumentFragment();
-      t1 = C.TableElement_methods.createFragment$3$treeSanitizer$validator(t1.createElement("table"), html, treeSanitizer, validator);
-      t1.toString;
-      t1 = new W._ChildNodeListLazy(t1);
-      section = t1.get$single(t1);
-      fragment.toString;
-      section.toString;
-      new W._ChildNodeListLazy(fragment).addAll$1(0, new W._ChildNodeListLazy(section));
-      return fragment;
-    }
-  };
-  W.TemplateElement.prototype = {$isTemplateElement: 1};
   W.TextTrack.prototype = {$isTextTrack: 1};
   W.TextTrackCue.prototype = {$isTextTrackCue: 1};
   W.TextTrackCueList.prototype = {
@@ -5928,6 +7609,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isTextTrackCue");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -5969,6 +7651,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isTextTrack");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -6016,6 +7699,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isTouch");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -6062,7 +7746,52 @@
       return receiver.length;
     }
   };
-  W._Attr.prototype = {$is_Attr: 1};
+  W.Window.prototype = {
+    get$animationFrame: function(receiver) {
+      var t1, t2, t3;
+      t1 = P.num;
+      t2 = new P._Future(0, $.Zone__current, [t1]);
+      t3 = H.functionTypeCheck(new W.Window_animationFrame_closure(new P._SyncCompleter(t2, [t1])), {func: 1, ret: -1, args: [P.num]});
+      this._ensureRequestAnimationFrame$0(receiver);
+      this._requestAnimationFrame$1(receiver, W._wrapZone(t3, t1));
+      return t2;
+    },
+    _requestAnimationFrame$1: function(receiver, callback) {
+      return receiver.requestAnimationFrame(H.convertDartClosureToJS(H.functionTypeCheck(callback, {func: 1, ret: -1, args: [P.num]}), 1));
+    },
+    _ensureRequestAnimationFrame$0: function(receiver) {
+      if (!!(receiver.requestAnimationFrame && receiver.cancelAnimationFrame))
+        return;
+      (function($this) {
+        var vendors = ['ms', 'moz', 'webkit', 'o'];
+        for (var i = 0; i < vendors.length && !$this.requestAnimationFrame; ++i) {
+          $this.requestAnimationFrame = $this[vendors[i] + 'RequestAnimationFrame'];
+          $this.cancelAnimationFrame = $this[vendors[i] + 'CancelAnimationFrame'] || $this[vendors[i] + 'CancelRequestAnimationFrame'];
+        }
+        if ($this.requestAnimationFrame && $this.cancelAnimationFrame)
+          return;
+        $this.requestAnimationFrame = function(callback) {
+          return window.setTimeout(function() {
+            callback(Date.now());
+          }, 16);
+        };
+        $this.cancelAnimationFrame = function(id) {
+          clearTimeout(id);
+        };
+      })(receiver);
+    }
+  };
+  W.Window_animationFrame_closure.prototype = {
+    call$1: function(time) {
+      var t1 = this.completer;
+      time = H.futureOrCheck(H.numTypeCheck(time), {futureOr: 1, type: H.getTypeArgumentByIndex(t1, 0)});
+      t1 = t1.future;
+      if (t1._state !== 0)
+        H.throwExpression(P.StateError$("Future already completed"));
+      t1._complete$1(time);
+    },
+    $signature: 16
+  };
   W._CssRuleList.prototype = {
     get$length: function(receiver) {
       return receiver.length;
@@ -6073,6 +7802,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isCssRule");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -6144,6 +7874,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isGamepad");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -6185,7 +7916,8 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
-      H.interceptedTypeCheck(value, "$isNode");
+      H.intTypeCheck(index);
+      H.interceptedTypeCheck(value, "$isNode0");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
     elementAt$1: function(receiver, index) {
@@ -6195,25 +7927,25 @@
     },
     $isJSIndexable: 1,
     $asJSIndexable: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $isJavaScriptIndexingBehavior: 1,
     $asJavaScriptIndexingBehavior: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $asListMixin: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $isIterable: 1,
     $asIterable: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $isList: 1,
     $asList: function() {
-      return [W.Node];
+      return [W.Node0];
     },
     $asImmutableListMixin: function() {
-      return [W.Node];
+      return [W.Node0];
     }
   };
   W._SpeechRecognitionResultList.prototype = {
@@ -6226,6 +7958,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isSpeechRecognitionResult");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -6267,6 +8000,7 @@
       return receiver[index];
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isStyleSheet");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -6298,180 +8032,18 @@
       return [W.StyleSheet];
     }
   };
-  W._AttributeMap.prototype = {
-    forEach$1: function(_, f) {
-      var t1, t2, t3, _i, key;
-      H.functionTypeCheck(f, {func: 1, ret: -1, args: [P.String, P.String]});
-      for (t1 = this.get$keys(this), t2 = t1.length, t3 = this._html$_element, _i = 0; _i < t1.length; t1.length === t2 || (0, H.throwConcurrentModificationError)(t1), ++_i) {
-        key = t1[_i];
-        f.call$2(key, t3.getAttribute(key));
-      }
+  W._EventStream.prototype = {};
+  W._EventStreamSubscription.prototype = {};
+  W._EventStreamSubscription_closure.prototype = {
+    call$1: function(e) {
+      return this.onData.call$1(H.interceptedTypeCheck(e, "$isEvent"));
     },
-    get$keys: function(_) {
-      var attributes, keys, len, i, attr;
-      attributes = this._html$_element.attributes;
-      keys = H.setRuntimeTypeInfo([], [P.String]);
-      for (len = attributes.length, i = 0; i < len; ++i) {
-        if (i >= attributes.length)
-          return H.ioore(attributes, i);
-        attr = H.interceptedTypeCheck(attributes[i], "$is_Attr");
-        if (attr.namespaceURI == null)
-          C.JSArray_methods.add$1(keys, attr.name);
-      }
-      return keys;
-    },
-    $asMapMixin: function() {
-      return [P.String, P.String];
-    },
-    $asMap: function() {
-      return [P.String, P.String];
-    }
-  };
-  W._ElementAttributeMap.prototype = {
-    $index: function(_, key) {
-      return this._html$_element.getAttribute(H.stringTypeCheck(key));
-    },
-    get$length: function(_) {
-      return this.get$keys(this).length;
-    }
-  };
-  W._Html5NodeValidator.prototype = {
-    _Html5NodeValidator$1$uriPolicy: function(uriPolicy) {
-      var t1, _i;
-      t1 = $.$get$_Html5NodeValidator__attributeValidators();
-      if (t1.__js_helper$_length === 0) {
-        for (_i = 0; _i < 262; ++_i)
-          t1.$indexSet(0, C.List_2Zi[_i], W.html__Html5NodeValidator__standardAttributeValidator$closure());
-        for (_i = 0; _i < 12; ++_i)
-          t1.$indexSet(0, C.List_yrN[_i], W.html__Html5NodeValidator__uriAttributeValidator$closure());
-      }
-    },
-    allowsElement$1: function(element) {
-      return $.$get$_Html5NodeValidator__allowedElements().contains$1(0, W.Element__safeTagName(element));
-    },
-    allowsAttribute$3: function(element, attributeName, value) {
-      var tagName, t1, validator;
-      tagName = W.Element__safeTagName(element);
-      t1 = $.$get$_Html5NodeValidator__attributeValidators();
-      validator = t1.$index(0, H.S(tagName) + "::" + attributeName);
-      if (validator == null)
-        validator = t1.$index(0, "*::" + attributeName);
-      if (validator == null)
-        return false;
-      return H.boolTypeCheck(validator.call$4(element, attributeName, value, this));
-    },
-    $isNodeValidator: 1
+    $signature: 17
   };
   W.ImmutableListMixin.prototype = {
     get$iterator: function(receiver) {
       return new W.FixedSizeListIterator(receiver, this.get$length(receiver), -1, [H.getRuntimeTypeArgumentIntercepted(this, receiver, "ImmutableListMixin", 0)]);
     }
-  };
-  W.NodeValidatorBuilder.prototype = {
-    allowsElement$1: function(element) {
-      return C.JSArray_methods.any$1(this._validators, new W.NodeValidatorBuilder_allowsElement_closure(element));
-    },
-    allowsAttribute$3: function(element, attributeName, value) {
-      return C.JSArray_methods.any$1(this._validators, new W.NodeValidatorBuilder_allowsAttribute_closure(element, attributeName, value));
-    },
-    $isNodeValidator: 1
-  };
-  W.NodeValidatorBuilder_allowsElement_closure.prototype = {
-    call$1: function(v) {
-      return H.interceptedTypeCheck(v, "$isNodeValidator").allowsElement$1(this.element);
-    },
-    $signature: 4
-  };
-  W.NodeValidatorBuilder_allowsAttribute_closure.prototype = {
-    call$1: function(v) {
-      return H.interceptedTypeCheck(v, "$isNodeValidator").allowsAttribute$3(this.element, this.attributeName, this.value);
-    },
-    $signature: 4
-  };
-  W._SimpleNodeValidator.prototype = {
-    _SimpleNodeValidator$4$allowedAttributes$allowedElements$allowedUriAttributes: function(uriPolicy, allowedAttributes, allowedElements, allowedUriAttributes) {
-      var legalAttributes, extraUriAttributes, t1;
-      this.allowedElements.addAll$1(0, allowedElements);
-      legalAttributes = allowedAttributes.where$1(0, new W._SimpleNodeValidator_closure());
-      extraUriAttributes = allowedAttributes.where$1(0, new W._SimpleNodeValidator_closure0());
-      this.allowedAttributes.addAll$1(0, legalAttributes);
-      t1 = this.allowedUriAttributes;
-      t1.addAll$1(0, C.List_empty);
-      t1.addAll$1(0, extraUriAttributes);
-    },
-    allowsElement$1: function(element) {
-      return this.allowedElements.contains$1(0, W.Element__safeTagName(element));
-    },
-    allowsAttribute$3: function(element, attributeName, value) {
-      var tagName, t1;
-      tagName = W.Element__safeTagName(element);
-      t1 = this.allowedUriAttributes;
-      if (t1.contains$1(0, H.S(tagName) + "::" + attributeName))
-        return this.uriPolicy.allowsUri$1(value);
-      else if (t1.contains$1(0, "*::" + attributeName))
-        return this.uriPolicy.allowsUri$1(value);
-      else {
-        t1 = this.allowedAttributes;
-        if (t1.contains$1(0, H.S(tagName) + "::" + attributeName))
-          return true;
-        else if (t1.contains$1(0, "*::" + attributeName))
-          return true;
-        else if (t1.contains$1(0, H.S(tagName) + "::*"))
-          return true;
-        else if (t1.contains$1(0, "*::*"))
-          return true;
-      }
-      return false;
-    },
-    $isNodeValidator: 1
-  };
-  W._SimpleNodeValidator_closure.prototype = {
-    call$1: function(x) {
-      return !C.JSArray_methods.contains$1(C.List_yrN, H.stringTypeCheck(x));
-    },
-    $signature: 5
-  };
-  W._SimpleNodeValidator_closure0.prototype = {
-    call$1: function(x) {
-      return C.JSArray_methods.contains$1(C.List_yrN, H.stringTypeCheck(x));
-    },
-    $signature: 5
-  };
-  W._TemplatingNodeValidator.prototype = {
-    allowsAttribute$3: function(element, attributeName, value) {
-      if (this.super$_SimpleNodeValidator$allowsAttribute(element, attributeName, value))
-        return true;
-      if (attributeName === "template" && value === "")
-        return true;
-      if (element.getAttribute("template") === "")
-        return this._templateAttrs.contains$1(0, attributeName);
-      return false;
-    }
-  };
-  W._TemplatingNodeValidator_closure.prototype = {
-    call$1: function(attr) {
-      return "TEMPLATE::" + H.S(H.stringTypeCheck(attr));
-    },
-    $signature: 11
-  };
-  W._SvgNodeValidator.prototype = {
-    allowsElement$1: function(element) {
-      var t1 = J.getInterceptor$(element);
-      if (!!t1.$isScriptElement)
-        return false;
-      t1 = !!t1.$isSvgElement;
-      if (t1 && W.Element__safeTagName(element) === "foreignObject")
-        return false;
-      if (t1)
-        return true;
-      return false;
-    },
-    allowsAttribute$3: function(element, attributeName, value) {
-      if (attributeName === "is" || C.JSString_methods.startsWith$1(attributeName, "on"))
-        return false;
-      return this.allowsElement$1(element);
-    },
-    $isNodeValidator: 1
   };
   W.FixedSizeListIterator.prototype = {
     moveNext$0: function() {
@@ -6492,158 +8064,7 @@
     },
     set$_html$_current: function(_current) {
       this._html$_current = H.assertSubtypeOfRuntimeType(_current, H.getTypeArgumentByIndex(this, 0));
-    },
-    $isIterator: 1
-  };
-  W.NodeValidator.prototype = {};
-  W._SameOriginUriPolicy.prototype = {$isUriPolicy: 1};
-  W._ValidatingTreeSanitizer.prototype = {
-    sanitizeTree$1: function(node) {
-      new W._ValidatingTreeSanitizer_sanitizeTree_walk(this).call$2(node, null);
-    },
-    _removeNode$2: function(node, $parent) {
-      if ($parent == null)
-        J.remove$0$x(node);
-      else
-        $parent.removeChild(node);
-    },
-    _sanitizeUntrustedElement$2: function(element, $parent) {
-      var corrupted, attrs, isAttr, corruptedTest1, elementText, elementTagName, exception, t1;
-      corrupted = true;
-      attrs = null;
-      isAttr = null;
-      try {
-        attrs = J.get$attributes$x(element);
-        isAttr = attrs._html$_element.getAttribute("is");
-        corruptedTest1 = function(element) {
-          if (!(element.attributes instanceof NamedNodeMap))
-            return true;
-          var childNodes = element.childNodes;
-          if (element.lastChild && element.lastChild !== childNodes[childNodes.length - 1])
-            return true;
-          if (element.children)
-            if (!(element.children instanceof HTMLCollection || element.children instanceof NodeList))
-              return true;
-          var length = 0;
-          if (element.children)
-            length = element.children.length;
-          for (var i = 0; i < length; i++) {
-            var child = element.children[i];
-            if (child.id == 'attributes' || child.name == 'attributes' || child.id == 'lastChild' || child.name == 'lastChild' || child.id == 'children' || child.name == 'children')
-              return true;
-          }
-          return false;
-        }(element);
-        corrupted = corruptedTest1 ? true : !(element.attributes instanceof NamedNodeMap);
-      } catch (exception) {
-        H.unwrapException(exception);
-      }
-      elementText = "element unprintable";
-      try {
-        elementText = J.toString$0$(element);
-      } catch (exception) {
-        H.unwrapException(exception);
-      }
-      try {
-        elementTagName = W.Element__safeTagName(element);
-        this._sanitizeElement$7(H.interceptedTypeCheck(element, "$isElement"), $parent, corrupted, elementText, elementTagName, H.interceptedTypeCheck(attrs, "$isMap"), H.stringTypeCheck(isAttr));
-      } catch (exception) {
-        if (H.unwrapException(exception) instanceof P.ArgumentError)
-          throw exception;
-        else {
-          this._removeNode$2(element, $parent);
-          window;
-          t1 = "Removing corrupted element " + H.S(elementText);
-          if (typeof console != "undefined")
-            window.console.warn(t1);
-        }
-      }
-    },
-    _sanitizeElement$7: function(element, $parent, corrupted, text, tag, attrs, isAttr) {
-      var t1, keys, i, $name, t2;
-      if (corrupted) {
-        this._removeNode$2(element, $parent);
-        window;
-        t1 = "Removing element due to corrupted attributes on <" + text + ">";
-        if (typeof console != "undefined")
-          window.console.warn(t1);
-        return;
-      }
-      if (!this.validator.allowsElement$1(element)) {
-        this._removeNode$2(element, $parent);
-        window;
-        t1 = "Removing disallowed element <" + H.S(tag) + "> from " + H.S($parent);
-        if (typeof console != "undefined")
-          window.console.warn(t1);
-        return;
-      }
-      if (isAttr != null)
-        if (!this.validator.allowsAttribute$3(element, "is", isAttr)) {
-          this._removeNode$2(element, $parent);
-          window;
-          t1 = "Removing disallowed type extension <" + H.S(tag) + ' is="' + isAttr + '">';
-          if (typeof console != "undefined")
-            window.console.warn(t1);
-          return;
-        }
-      t1 = attrs.get$keys(attrs);
-      keys = H.setRuntimeTypeInfo(t1.slice(0), [H.getTypeArgumentByIndex(t1, 0)]);
-      for (i = attrs.get$keys(attrs).length - 1, t1 = attrs._html$_element; i >= 0; --i) {
-        if (i >= keys.length)
-          return H.ioore(keys, i);
-        $name = keys[i];
-        if (!this.validator.allowsAttribute$3(element, J.toLowerCase$0$s($name), t1.getAttribute($name))) {
-          window;
-          t2 = "Removing disallowed attribute <" + H.S(tag) + " " + $name + '="' + H.S(t1.getAttribute($name)) + '">';
-          if (typeof console != "undefined")
-            window.console.warn(t2);
-          t1.removeAttribute($name);
-        }
-      }
-      if (!!J.getInterceptor$(element).$isTemplateElement)
-        this.sanitizeTree$1(element.content);
-    },
-    $isNodeTreeSanitizer: 1
-  };
-  W._ValidatingTreeSanitizer_sanitizeTree_walk.prototype = {
-    call$2: function(node, $parent) {
-      var child, nextChild, t1, exception, t2, t3;
-      t1 = this.$this;
-      switch (node.nodeType) {
-        case 1:
-          t1._sanitizeUntrustedElement$2(node, $parent);
-          break;
-        case 8:
-        case 11:
-        case 3:
-        case 4:
-          break;
-        default:
-          t1._removeNode$2(node, $parent);
-      }
-      child = node.lastChild;
-      for (t1 = node == null; null != child;) {
-        nextChild = null;
-        try {
-          nextChild = child.previousSibling;
-        } catch (exception) {
-          H.unwrapException(exception);
-          t2 = H.interceptedTypeCheck(child, "$isNode");
-          if (t1) {
-            t3 = t2.parentNode;
-            if (t3 != null)
-              t3.removeChild(t2);
-          } else
-            node.removeChild(t2);
-          child = null;
-          nextChild = node.lastChild;
-        }
-        if (child != null)
-          this.call$2(child, node);
-        child = H.interceptedTypeCheck(nextChild, "$isNode");
-      }
-    },
-    $signature: 12
+    }
   };
   W._CssStyleDeclaration_Interceptor_CssStyleDeclarationBase.prototype = {};
   W._DomRectList_Interceptor_ListMixin.prototype = {};
@@ -6684,9 +8105,116 @@
   W.__SpeechRecognitionResultList_Interceptor_ListMixin_ImmutableListMixin.prototype = {};
   W.__StyleSheetList_Interceptor_ListMixin.prototype = {};
   W.__StyleSheetList_Interceptor_ListMixin_ImmutableListMixin.prototype = {};
+  P._AcceptStructuredClone.prototype = {
+    findSlot$1: function(value) {
+      var t1, $length, i, t2;
+      t1 = this.values;
+      $length = t1.length;
+      for (i = 0; i < $length; ++i) {
+        t2 = t1[i];
+        if (t2 == null ? value == null : t2 === value)
+          return i;
+      }
+      C.JSArray_methods.add$1(t1, value);
+      C.JSArray_methods.add$1(this.copies, null);
+      return $length;
+    },
+    walk$1: function(e) {
+      var _box_0, millisSinceEpoch, t1, proto, slot, copy, l, t2, $length, i;
+      _box_0 = {};
+      if (e == null)
+        return e;
+      if (typeof e === "boolean")
+        return e;
+      if (typeof e === "number")
+        return e;
+      if (typeof e === "string")
+        return e;
+      if (e instanceof Date) {
+        millisSinceEpoch = e.getTime();
+        if (Math.abs(millisSinceEpoch) <= 864e13)
+          t1 = false;
+        else
+          t1 = true;
+        if (t1)
+          H.throwExpression(P.ArgumentError$("DateTime is outside valid range: " + millisSinceEpoch));
+        return new P.DateTime(millisSinceEpoch, true);
+      }
+      if (e instanceof RegExp)
+        throw H.wrapException(P.UnimplementedError$("structured clone of RegExp"));
+      if (typeof Promise != "undefined" && e instanceof Promise)
+        return P.convertNativePromiseToDartFuture(e);
+      proto = Object.getPrototypeOf(e);
+      if (proto === Object.prototype || proto === null) {
+        slot = this.findSlot$1(e);
+        t1 = this.copies;
+        if (slot >= t1.length)
+          return H.ioore(t1, slot);
+        copy = t1[slot];
+        _box_0.copy = copy;
+        if (copy != null)
+          return copy;
+        copy = P.LinkedHashMap__makeEmpty();
+        _box_0.copy = copy;
+        C.JSArray_methods.$indexSet(t1, slot, copy);
+        this.forEachJsField$2(e, new P._AcceptStructuredClone_walk_closure(_box_0, this));
+        return _box_0.copy;
+      }
+      if (e instanceof Array) {
+        l = e;
+        slot = this.findSlot$1(l);
+        t1 = this.copies;
+        if (slot >= t1.length)
+          return H.ioore(t1, slot);
+        copy = t1[slot];
+        if (copy != null)
+          return copy;
+        t2 = J.getInterceptor$asx(l);
+        $length = t2.get$length(l);
+        copy = this.mustCopy ? new Array($length) : l;
+        C.JSArray_methods.$indexSet(t1, slot, copy);
+        for (t1 = J.getInterceptor$ax(copy), i = 0; i < $length; ++i)
+          t1.$indexSet(copy, i, this.walk$1(t2.$index(l, i)));
+        return copy;
+      }
+      return e;
+    }
+  };
+  P._AcceptStructuredClone_walk_closure.prototype = {
+    call$2: function(key, value) {
+      var t1, t2;
+      t1 = this._box_0.copy;
+      t2 = this.$this.walk$1(value);
+      J.$indexSet$ax(t1, key, t2);
+      return t2;
+    },
+    $signature: 18
+  };
   P.convertDartToNative_Dictionary_closure.prototype = {
     call$2: function(key, value) {
       this.object[key] = value;
+    },
+    $signature: 7
+  };
+  P._AcceptStructuredCloneDart2Js.prototype = {
+    forEachJsField$2: function(object, action) {
+      var t1, t2, _i, key;
+      H.functionTypeCheck(action, {func: 1, args: [,,]});
+      for (t1 = Object.keys(object), t2 = t1.length, _i = 0; _i < t1.length; t1.length === t2 || (0, H.throwConcurrentModificationError)(t1), ++_i) {
+        key = t1[_i];
+        action.call$2(key, object[key]);
+      }
+    }
+  };
+  P.convertNativePromiseToDartFuture_closure.prototype = {
+    call$1: function(result) {
+      return this.completer.complete$1(0, result);
+    },
+    $signature: 2
+  };
+  P.convertNativePromiseToDartFuture_closure0.prototype = {
+    call$1: function(result) {
+      return this.completer.completeError$1(result);
     },
     $signature: 2
   };
@@ -6703,6 +8231,7 @@
       return receiver.getItem(index);
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isLength");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -6735,6 +8264,7 @@
       return receiver.getItem(index);
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isNumber");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -6761,7 +8291,6 @@
       return receiver.length;
     }
   };
-  P.ScriptElement.prototype = {$isScriptElement: 1};
   P.StringList.prototype = {
     get$length: function(receiver) {
       return receiver.length;
@@ -6772,6 +8301,7 @@
       return receiver.getItem(index);
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.stringTypeCheck(value);
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -6793,28 +8323,6 @@
       return [P.String];
     }
   };
-  P.SvgElement.prototype = {
-    createFragment$3$treeSanitizer$validator: function(receiver, svg, treeSanitizer, validator) {
-      var t1, html, t2, fragment, svgFragment, root;
-      t1 = H.setRuntimeTypeInfo([], [W.NodeValidator]);
-      C.JSArray_methods.add$1(t1, W._Html5NodeValidator$(null));
-      C.JSArray_methods.add$1(t1, W._TemplatingNodeValidator$());
-      C.JSArray_methods.add$1(t1, new W._SvgNodeValidator());
-      treeSanitizer = new W._ValidatingTreeSanitizer(new W.NodeValidatorBuilder(t1));
-      html = '<svg version="1.1">' + svg + "</svg>";
-      t1 = document;
-      t2 = t1.body;
-      fragment = (t2 && C.BodyElement_methods).createFragment$2$treeSanitizer(t2, html, treeSanitizer);
-      svgFragment = t1.createDocumentFragment();
-      fragment.toString;
-      t1 = new W._ChildNodeListLazy(fragment);
-      root = t1.get$single(t1);
-      for (; t1 = root.firstChild, t1 != null;)
-        svgFragment.appendChild(t1);
-      return svgFragment;
-    },
-    $isSvgElement: 1
-  };
   P.Transform.prototype = {$isTransform: 1};
   P.TransformList.prototype = {
     get$length: function(receiver) {
@@ -6826,6 +8334,7 @@
       return receiver.getItem(index);
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isTransform");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -6905,7 +8414,7 @@
     call$2: function(k, v) {
       return C.JSArray_methods.add$1(this.keys, k);
     },
-    $signature: 0
+    $signature: 3
   };
   P.AudioTrackList.prototype = {
     get$length: function(receiver) {
@@ -6947,9 +8456,6 @@
     bufferData$3: function(receiver, target, data_OR_size, usage) {
       return receiver.bufferData(target, data_OR_size, usage);
     },
-    checkFramebufferStatus$1: function(receiver, target) {
-      return receiver.checkFramebufferStatus(target);
-    },
     clear$1: function(receiver, mask) {
       return receiver.clear(mask);
     },
@@ -6962,17 +8468,11 @@
     createBuffer$0: function(receiver) {
       return receiver.createBuffer();
     },
-    createFramebuffer$0: function(receiver) {
-      return receiver.createFramebuffer();
-    },
     createProgram$0: function(receiver) {
       return receiver.createProgram();
     },
     createShader$1: function(receiver, type) {
       return receiver.createShader(type);
-    },
-    createTexture$0: function(receiver) {
-      return receiver.createTexture();
     },
     depthMask$1: function(receiver, flag) {
       return receiver.depthMask(flag);
@@ -6992,17 +8492,8 @@
     enableVertexAttribArray$1: function(receiver, index) {
       return receiver.enableVertexAttribArray(index);
     },
-    framebufferTexture2D$5: function(receiver, target, attachment, textarget, texture, level) {
-      return receiver.framebufferTexture2D(target, attachment, textarget, texture, level);
-    },
     getContextAttributes$0: function(receiver) {
       return P.convertNativeToDart_Dictionary(receiver.getContextAttributes());
-    },
-    getError$0: function(receiver) {
-      return receiver.getError();
-    },
-    getExtension$1: function(receiver, $name) {
-      return receiver.getExtension($name);
     },
     getProgramInfoLog$1: function(receiver, program) {
       return receiver.getProgramInfoLog(program);
@@ -7027,12 +8518,6 @@
     },
     stencilFunc$3: function(receiver, func, ref, mask) {
       return receiver.stencilFunc(func, ref, mask);
-    },
-    texParameterf$3: function(receiver, target, pname, param) {
-      return receiver.texParameterf(target, pname, param);
-    },
-    texParameteri$3: function(receiver, target, pname, param) {
-      return receiver.texParameteri(target, pname, param);
     },
     uniform1f$2: function(receiver, $location, x) {
       return receiver.uniform1f($location, x);
@@ -7069,9 +8554,6 @@
     },
     viewport$4: function(receiver, x, y, width, height) {
       return receiver.viewport(x, y, width, height);
-    },
-    readPixels$7: function(receiver, x, y, width, height, format, type, pixels) {
-      receiver.readPixels(x, y, width, height, format, type, pixels);
     }
   };
   P.RenderingContext2.prototype = {
@@ -7092,9 +8574,6 @@
     },
     endTransformFeedback$0: function(receiver) {
       return receiver.endTransformFeedback();
-    },
-    texStorage2D$5: function(receiver, target, levels, internalformat, width, height) {
-      return receiver.texStorage2D(target, levels, internalformat, width, height);
     },
     transformFeedbackVaryings$3: function(receiver, program, varyings, bufferMode) {
       this._transformFeedbackVaryings_1$3(receiver, program, H.assertSubtype(varyings, "$isList", [P.String], "$asList"), bufferMode);
@@ -7130,9 +8609,6 @@
     bufferData$3: function(receiver, target, data_OR_size, usage) {
       return receiver.bufferData(target, data_OR_size, usage);
     },
-    checkFramebufferStatus$1: function(receiver, target) {
-      return receiver.checkFramebufferStatus(target);
-    },
     clear$1: function(receiver, mask) {
       return receiver.clear(mask);
     },
@@ -7145,17 +8621,11 @@
     createBuffer$0: function(receiver) {
       return receiver.createBuffer();
     },
-    createFramebuffer$0: function(receiver) {
-      return receiver.createFramebuffer();
-    },
     createProgram$0: function(receiver) {
       return receiver.createProgram();
     },
     createShader$1: function(receiver, type) {
       return receiver.createShader(type);
-    },
-    createTexture$0: function(receiver) {
-      return receiver.createTexture();
     },
     depthMask$1: function(receiver, flag) {
       return receiver.depthMask(flag);
@@ -7175,17 +8645,8 @@
     enableVertexAttribArray$1: function(receiver, index) {
       return receiver.enableVertexAttribArray(index);
     },
-    framebufferTexture2D$5: function(receiver, target, attachment, textarget, texture, level) {
-      return receiver.framebufferTexture2D(target, attachment, textarget, texture, level);
-    },
     getContextAttributes$0: function(receiver) {
       return P.convertNativeToDart_Dictionary(receiver.getContextAttributes());
-    },
-    getError$0: function(receiver) {
-      return receiver.getError();
-    },
-    getExtension$1: function(receiver, $name) {
-      return receiver.getExtension($name);
     },
     getProgramInfoLog$1: function(receiver, program) {
       return receiver.getProgramInfoLog(program);
@@ -7210,12 +8671,6 @@
     },
     stencilFunc$3: function(receiver, func, ref, mask) {
       return receiver.stencilFunc(func, ref, mask);
-    },
-    texParameterf$3: function(receiver, target, pname, param) {
-      return receiver.texParameterf(target, pname, param);
-    },
-    texParameteri$3: function(receiver, target, pname, param) {
-      return receiver.texParameteri(target, pname, param);
     },
     uniform1f$2: function(receiver, $location, x) {
       return receiver.uniform1f($location, x);
@@ -7252,9 +8707,6 @@
     },
     viewport$4: function(receiver, x, y, width, height) {
       return receiver.viewport(x, y, width, height);
-    },
-    readPixels$7: function(receiver, x, y, width, height, format, type, pixels) {
-      receiver.readPixels(x, y, width, height, format, type, pixels);
     }
   };
   P.Shader.prototype = {$isShader: 1};
@@ -7271,6 +8723,7 @@
       return P.convertNativeToDart_Dictionary(receiver.item(index));
     },
     $indexSet: function(receiver, index, value) {
+      H.intTypeCheck(index);
       H.interceptedTypeCheck(value, "$isMap");
       throw H.wrapException(P.UnsupportedError$("Cannot assign element of immutable List."));
     },
@@ -7295,7 +8748,20 @@
   P._SqlResultSetRowList_Interceptor_ListMixin.prototype = {};
   P._SqlResultSetRowList_Interceptor_ListMixin_ImmutableListMixin.prototype = {};
   G.NamedEntity.prototype = {};
-  G.UniformGroup.prototype = {};
+  G.UniformGroup.prototype = {
+    GetUniforms$0: function() {
+      return this._uniforms;
+    },
+    toString$0: function(_) {
+      var out, t1, t2, t3;
+      out = H.setRuntimeTypeInfo(["{" + new H.TypeImpl(H.getRti(this)).toString$0(0) + "}[" + this.name + "]"], [P.String]);
+      for (t1 = this._uniforms, t2 = new H.LinkedHashMapKeyIterable(t1, [H.getTypeArgumentByIndex(t1, 0)]), t2 = t2.get$iterator(t2); t2.moveNext$0();) {
+        t3 = t2._current;
+        C.JSArray_methods.add$1(out, H.S(t3) + ": " + H.S(t1.$index(0, t3)));
+      }
+      return C.JSArray_methods.join$1(out, "\n");
+    }
+  };
   G.ChronosGL.prototype = {
     enableVertexAttribArray$2: function(_, index, divisor) {
       J.enableVertexAttribArray$1$x(this._gl, index);
@@ -7307,17 +8773,7 @@
       J.vertexAttribPointer$6$x(this._gl, index, size, type, false, stride, offset);
     }
   };
-  G.Framebuffer.prototype = {
-    Activate$5: function(clear_mode, viewPortX, viewPortY, viewPortW, viewPortH) {
-      var t1, t2;
-      t1 = this._cgl;
-      t2 = this._framebuffer;
-      J.bindFramebuffer$2$x(t1._gl, 36160, t2);
-      J.viewport$4$x(t1._gl, viewPortX, viewPortY, viewPortW, viewPortH);
-      if (clear_mode !== 0)
-        J.clear$1$x(t1._gl, clear_mode);
-    }
-  };
+  G.Framebuffer.prototype = {};
   G.Face3.prototype = {};
   G.Face4.prototype = {};
   G.GeometryBuilder.prototype = {
@@ -7341,58 +8797,57 @@
       }
     },
     AddVertices$1: function(vs) {
-      var t1, _i, v, t2;
+      var t1, t2, _i, v, t3;
       H.assertSubtype(vs, "$isList", [T.Vector3], "$asList");
-      for (t1 = this.vertices, _i = 0; _i < 4; ++_i) {
+      for (t1 = vs.length, t2 = this.vertices, _i = 0; _i < vs.length; vs.length === t1 || (0, H.throwConcurrentModificationError)(vs), ++_i) {
         v = vs[_i];
-        t2 = new T.Vector3(new Float32Array(3));
-        t2.setFrom$1(v);
-        C.JSArray_methods.add$1(t1, t2);
+        t3 = new T.Vector3(new Float32Array(3));
+        t3.setFrom$1(v);
+        C.JSArray_methods.add$1(t2, t3);
       }
     },
     AddAttributesVector2$2: function(canonical, lst) {
-      var t1, ts, _i, v, t2, otherStorage;
+      var t1, ts, t2, _i, v, t3, otherStorage;
       t1 = [T.Vector2];
       H.assertSubtype(lst, "$isList", t1, "$asList");
       ts = H.assertSubtype(this.attributes.$index(0, canonical), "$isList", t1, "$asList");
-      for (t1 = ts && C.JSArray_methods, _i = 0; _i < 4; ++_i) {
+      for (t1 = lst.length, t2 = ts && C.JSArray_methods, _i = 0; _i < lst.length; lst.length === t1 || (0, H.throwConcurrentModificationError)(lst), ++_i) {
         v = lst[_i];
-        t2 = new Float32Array(2);
+        t3 = new Float32Array(2);
         otherStorage = v._v2storage;
-        t2[1] = otherStorage[1];
-        t2[0] = otherStorage[0];
-        t1.add$1(ts, new T.Vector2(t2));
+        t3[1] = otherStorage[1];
+        t3[0] = otherStorage[0];
+        t2.add$1(ts, new T.Vector2(t3));
       }
     },
     AddAttributesVector3$2: function(canonical, lst) {
-      var t1, ts, _i, v, t2;
+      var t1, ts, t2, _i, v, t3;
       t1 = [T.Vector3];
       H.assertSubtype(lst, "$isList", t1, "$asList");
       ts = H.assertSubtype(this.attributes.$index(0, canonical), "$isList", t1, "$asList");
-      for (t1 = ts && C.JSArray_methods, _i = 0; _i < 4; ++_i) {
+      for (t1 = lst.length, t2 = ts && C.JSArray_methods, _i = 0; _i < lst.length; lst.length === t1 || (0, H.throwConcurrentModificationError)(lst), ++_i) {
         v = lst[_i];
-        t2 = new T.Vector3(new Float32Array(3));
-        t2.setFrom$1(v);
-        t1.add$1(ts, t2);
+        t3 = new T.Vector3(new Float32Array(3));
+        t3.setFrom$1(v);
+        t2.add$1(ts, t3);
       }
     },
     GenerateFaceIndices$0: function() {
-      var t1, t2, faces, i, _i, f3, f4, t3, t4;
-      t1 = this._faces4;
-      t2 = new Array(t1.length * 6);
-      t2.fixed$length = Array;
-      faces = H.setRuntimeTypeInfo(t2, [P.int]);
-      for (t2 = this._faces3, i = 0, _i = 0; false; ++_i) {
-        if (_i >= 0)
-          return H.ioore(t2, _i);
-        f3 = t2[_i];
-        C.JSArray_methods.$indexSet(faces, i, f3.get$a(f3));
-        C.JSArray_methods.$indexSet(faces, i + 1, f3.get$b(f3));
-        C.JSArray_methods.$indexSet(faces, i + 2, f3.get$c(f3));
+      var t1, t2, t3, faces, i, _i, f3, f4, t4;
+      t1 = this._faces3;
+      t2 = this._faces4;
+      t3 = new Array(t1.length * 3 + t2.length * 6);
+      t3.fixed$length = Array;
+      faces = H.setRuntimeTypeInfo(t3, [P.int]);
+      for (t3 = t1.length, i = 0, _i = 0; _i < t1.length; t1.length === t3 || (0, H.throwConcurrentModificationError)(t1), ++_i) {
+        f3 = t1[_i];
+        C.JSArray_methods.$indexSet(faces, i, f3.a);
+        C.JSArray_methods.$indexSet(faces, i + 1, f3.b);
+        C.JSArray_methods.$indexSet(faces, i + 2, f3.c);
         i += 3;
       }
-      for (t2 = t1.length, _i = 0; _i < t1.length; t1.length === t2 || (0, H.throwConcurrentModificationError)(t1), ++_i) {
-        f4 = t1[_i];
+      for (t1 = t2.length, _i = 0; _i < t2.length; t2.length === t1 || (0, H.throwConcurrentModificationError)(t2), ++_i) {
+        f4 = t2[_i];
         t3 = f4.a;
         C.JSArray_methods.$indexSet(faces, i, t3);
         C.JSArray_methods.$indexSet(faces, i + 1, f4.b);
@@ -7405,9 +8860,44 @@
       }
       return faces;
     },
+    GenerateRegularGridUV$2: function(w, h) {
+      var uvs, t1, t2, y, t3, x, t4;
+      uvs = H.setRuntimeTypeInfo([], [T.Vector2]);
+      this.attributes.$indexSet(0, "aTexUV", uvs);
+      for (t1 = h - 1, t2 = w - 1, y = 0; y < h; ++y)
+        for (t3 = y / t1, x = 0; x < w; ++x) {
+          t4 = new Float32Array(2);
+          t4[0] = t3;
+          t4[1] = x / t2;
+          C.JSArray_methods.add$1(uvs, new T.Vector2(t4));
+        }
+    },
+    GenerateRegularGridFaces$3: function(w, h, wrapped) {
+      var t1, t2, t3, i, t4, ip, j, jp, t5;
+      t1 = this._faces4;
+      t2 = w - 1;
+      t3 = h - 1;
+      i = 0;
+      while (true) {
+        if (!(i < t3))
+          break;
+        t4 = i * w;
+        ip = i + 1;
+        j = 0;
+        while (true) {
+          if (!(j < t2))
+            break;
+          jp = j + 1;
+          t5 = ip * w;
+          C.JSArray_methods.add$1(t1, new G.Face4(t4 + jp, t5 + jp, t5 + j, t4 + j));
+          j = jp;
+        }
+        i = ip;
+      }
+    },
     toString$0: function(_) {
       var s, t1, t2, t3, type;
-      s = H.setRuntimeTypeInfo(["GB:", "V[" + this.vertices.length + "]", "f3[0]", "f4[" + this._faces4.length + "]"], [P.String]);
+      s = H.setRuntimeTypeInfo(["GB:", "V[" + this.vertices.length + "]", "f3[" + this._faces3.length + "]", "f4[" + this._faces4.length + "]"], [P.String]);
       for (t1 = this.attributes, t2 = new H.LinkedHashMapKeyIterable(t1, [H.getTypeArgumentByIndex(t1, 0)]), t2 = t2.get$iterator(t2); t2.moveNext$0();) {
         t3 = t2._current;
         type = $.$get$_VarsDb().$index(0, t3).type;
@@ -7416,6 +8906,9 @@
       return C.JSArray_methods.join$1(s, " ");
     }
   };
+  G.TheStencilFunction.prototype = {};
+  G.TheBlendEquation.prototype = {};
+  G.Material.prototype = {};
   G.MeshData.prototype = {
     ChangeAttribute$3: function(canonical, data, width) {
       var t1, t2;
@@ -7464,21 +8957,74 @@
       this._faces = H.assertSubtype(_faces, "$isList", [P.int], "$asList");
     }
   };
+  G.Perspective.prototype = {
+    AdjustAspect$2: function(w, h) {
+      var a;
+      if (typeof w !== "number")
+        return w.$div();
+      if (typeof h !== "number")
+        return H.iae(h);
+      a = w / h;
+      if (this._aspect === a)
+        return;
+      this._aspect = a;
+      this.Update$0();
+    },
+    Update$0: function() {
+      var t1, t2, t3, height, near_minus_far, t4;
+      t1 = this._aspect;
+      t2 = this._near;
+      t3 = this._far;
+      height = Math.tan(this._fov * 3.141592653589793 / 180 * 0.5);
+      near_minus_far = t2 - t3;
+      t4 = this._mat._m4storage;
+      t4[0] = 0;
+      t4[1] = 0;
+      t4[2] = 0;
+      t4[3] = 0;
+      t4[4] = 0;
+      t4[5] = 0;
+      t4[6] = 0;
+      t4[7] = 0;
+      t4[8] = 0;
+      t4[9] = 0;
+      t4[10] = 0;
+      t4[11] = 0;
+      t4[12] = 0;
+      t4[13] = 0;
+      t4[14] = 0;
+      t4[15] = 0;
+      t4[0] = 1 / (height * t1);
+      t4[5] = 1 / height;
+      t4[10] = (t3 + t2) / near_minus_far;
+      t4[11] = -1;
+      t4[14] = 2 * t2 * t3 / near_minus_far;
+    },
+    GetUniforms$0: function() {
+      var t1, t2, t3;
+      t1 = this._camera;
+      t2 = this._uniforms;
+      t2.$indexSet(0, "uEyePosition", t1.getPos$0());
+      t3 = this._viewMatrix;
+      t3.setFrom$1(t1.transform);
+      t1 = this._perspectiveViewMatrix;
+      t1.setFrom$1(this._mat);
+      t1.multiply$1(0, t3);
+      t2.$indexSet(0, "uPerspectiveViewMatrix", t1);
+      return t2;
+    }
+  };
   G.DrawStats.prototype = {};
   G.RenderProgram.prototype = {
     RenderProgram$4: function($name, _cgl, _shaderObjectV, _shaderObjectF) {
-      var t1, t2, t3, t4, _i, v;
-      for (t1 = this._shaderObjectV.uniformVars, t2 = this._uniformLocations, t3 = this._cgl, t4 = this._program, _i = 0; false; ++_i) {
-        if (_i >= 0)
-          return H.ioore(t1, _i);
+      var t1, t2, t3, t4, t5, _i, v;
+      for (t1 = this._shaderObjectV.uniformVars, t2 = t1.length, t3 = this._uniformLocations, t4 = this._cgl, t5 = this._program, _i = 0; _i < t1.length; t1.length === t2 || (0, H.throwConcurrentModificationError)(t1), ++_i) {
         v = t1[_i];
-        t2.$indexSet(0, v, J.getUniformLocation$2$x(t3._gl, t4, v));
+        t3.$indexSet(0, v, J.getUniformLocation$2$x(t4._gl, t5, v));
       }
-      for (t1 = this._shaderObjectF.uniformVars, _i = 0; false; ++_i) {
-        if (_i >= 0)
-          return H.ioore(t1, _i);
+      for (t1 = this._shaderObjectF.uniformVars, t2 = t1.length, _i = 0; _i < t1.length; t1.length === t2 || (0, H.throwConcurrentModificationError)(t1), ++_i) {
         v = t1[_i];
-        t2.$indexSet(0, v, J.getUniformLocation$2$x(t3._gl, t4, v));
+        t3.$indexSet(0, v, J.getUniformLocation$2$x(t4._gl, t5, v));
       }
     },
     UninitializedInputs$0: function() {
@@ -7501,70 +9047,75 @@
       return out;
     },
     _ActivateUniforms$2: function(group, inputs) {
-      var t1, t2, t3, t4, t5, t6, count, canonical, val, desc, l, t7, sfun, t8, t9, delta;
+      var t1, t2, t3, t4, t5, t6, count, t7, val, desc, l, t8, t9, delta;
       H.assertSubtype(inputs, "$isMap", [P.String, P.Object], "$asMap");
       t1 = Date.now();
-      for (t2 = inputs.get$keys(inputs), t2 = t2.get$iterator(t2), t3 = this._cgl, t4 = this._uniformLocations, t5 = this._uniformsInitialized, t6 = this.name, count = 0; t2.moveNext$0();) {
-        canonical = t2.get$current(t2);
-        switch (canonical.codeUnitAt$1(0, 0)) {
+      for (t2 = new H.LinkedHashMapKeyIterable(inputs, [H.getTypeArgumentByIndex(inputs, 0)]), t2 = t2.get$iterator(t2), t3 = this._cgl, t4 = this._uniformLocations, t5 = this._uniformsInitialized, t6 = this.name, count = 0; t2.moveNext$0();) {
+        t7 = t2._current;
+        switch (J._codeUnitAt$1$s(t7, 0)) {
           case 117:
-            if (t4.containsKey$1(0, canonical)) {
-              val = inputs.$index(0, canonical);
-              if (t5.containsKey$1(0, canonical))
-                H.printString("E:" + (t6 + ":  " + H.S(canonical) + " : group [" + H.S(group) + "] overwrites [" + H.S(canonical) + "] (" + H.S(t5.$index(0, canonical)) + ")"));
-              t5.$indexSet(0, canonical, group);
-              desc = $.$get$_VarsDb().$index(0, canonical);
+            if (t4.containsKey$1(0, t7)) {
+              val = inputs.$index(0, t7);
+              if (t5.containsKey$1(0, t7))
+                H.printString("E:" + (t6 + ":  " + t7 + " : group [" + group + "] overwrites [" + t7 + "] (" + H.S(t5.$index(0, t7)) + ")"));
+              t5.$indexSet(0, t7, group);
+              desc = $.$get$_VarsDb().$index(0, t7);
               if (desc == null)
-                H.throwExpression("unknown " + H.S(canonical));
-              l = t4.$index(0, canonical);
+                H.throwExpression("unknown " + t7);
+              l = t4.$index(0, t7);
               t7 = desc.type;
               switch (t7) {
                 case "int":
-                  if (desc.arraySize === 0)
+                  if (desc.arraySize === 0) {
+                    H.intTypeCheck(val);
                     J.uniform1i$2$x(t3._gl, l, val);
-                  else
+                  } else if (!!J.getInterceptor$(val).$isInt32List)
                     J.uniform1iv$2$x(t3._gl, l, val);
                   break;
                 case "float":
-                  if (desc.arraySize === 0)
+                  if (desc.arraySize === 0) {
+                    H.doubleTypeCheck(val);
                     J.uniform1f$2$x(t3._gl, l, val);
-                  else
+                  } else if (!!J.getInterceptor$(val).$isFloat32List)
                     J.uniform1fv$2$x(t3._gl, l, val);
                   break;
                 case "mat4":
                   if (desc.arraySize === 0) {
-                    t7 = val.get$storage(val);
+                    t7 = H.interceptedTypeCast(val, "$isMatrix4")._m4storage;
                     J.uniformMatrix4fv$3$x(t3._gl, l, false, t7);
-                  } else
+                  } else if (!!J.getInterceptor$(val).$isFloat32List)
                     J.uniformMatrix4fv$3$x(t3._gl, l, false, val);
                   break;
                 case "mat3":
                   if (desc.arraySize === 0) {
-                    t7 = val.get$storage(val);
+                    t7 = H.interceptedTypeCast(val, "$isMatrix3")._m3storage;
                     J.uniformMatrix3fv$3$x(t3._gl, l, false, t7);
-                  } else
+                  } else if (!!J.getInterceptor$(val).$isFloat32List)
                     J.uniformMatrix3fv$3$x(t3._gl, l, false, val);
                   break;
                 case "vec4":
-                  if (desc.arraySize === 0) {
-                    t7 = val.get$storage(val);
-                    J.uniform4fv$2$x(t3._gl, l, t7);
-                  } else
-                    J.uniform4fv$2$x(t3._gl, l, val);
+                  t7 = desc.arraySize;
+                  t8 = t3._gl;
+                  if (t7 === 0)
+                    J.uniform4fv$2$x(t8, l, H.interceptedTypeCast(val, "$isVector4")._v4storage);
+                  else
+                    J.uniform4fv$2$x(t8, l, H.interceptedTypeCheck(val, "$isFloat32List"));
                   break;
                 case "vec3":
-                  if (desc.arraySize === 0) {
-                    t7 = val.get$storage(val);
-                    J.uniform3fv$2$x(t3._gl, l, t7);
-                  } else
-                    J.uniform3fv$2$x(t3._gl, l, val);
+                  t7 = desc.arraySize;
+                  t8 = t3._gl;
+                  if (t7 === 0)
+                    J.uniform3fv$2$x(t8, l, H.interceptedTypeCast(val, "$isVector3")._v3storage);
+                  else
+                    J.uniform3fv$2$x(t8, l, H.interceptedTypeCheck(val, "$isFloat32List"));
                   break;
                 case "vec2":
-                  if (desc.arraySize === 0) {
-                    t7 = val.get$storage(val);
-                    J.uniform2fv$2$x(t3._gl, l, t7);
-                  } else
-                    J.uniform2fv$2$x(t3._gl, l, val);
+                  t7 = desc.arraySize;
+                  t8 = t3._gl;
+                  if (t7 === 0)
+                    J.uniform2fv$2$x(t8, l, H.interceptedTypeCast(val, "$isVector2")._v2storage);
+                  else
+                    J.uniform2fv$2$x(t8, l, H.interceptedTypeCheck(val, "$isFloat32List"));
                   break;
                 case "sampler2D":
                 case "sampler2DShadow":
@@ -7572,7 +9123,7 @@
                   if (typeof t7 !== "number")
                     return H.iae(t7);
                   J.activeTexture$1$x(t3._gl, 33984 + t7);
-                  t7 = val.GetTexture$0();
+                  t7 = H.interceptedTypeCast(val, "$isTexture").GetTexture$0();
                   J.bindTexture$2$x(t3._gl, 3553, t7);
                   t7 = this._nextTextureUnit;
                   J.uniform1i$2$x(t3._gl, l, t7);
@@ -7586,7 +9137,7 @@
                   if (typeof t7 !== "number")
                     return H.iae(t7);
                   J.activeTexture$1$x(t3._gl, 33984 + t7);
-                  t7 = val.GetTexture$0();
+                  t7 = H.interceptedTypeCast(val, "$isTexture").GetTexture$0();
                   J.bindTexture$2$x(t3._gl, 34067, t7);
                   t7 = this._nextTextureUnit;
                   J.uniform1i$2$x(t3._gl, l, t7);
@@ -7602,30 +9153,46 @@
             }
             break;
           case 99:
-            sfun = inputs.$index(0, canonical);
-            switch (canonical) {
+            val = inputs.$index(0, t7);
+            switch (t7) {
               case "cDepthTest":
-                J.disable$1$x(t3._gl, 2929);
+                t7 = J.$eq$(val, true);
+                t8 = t3._gl;
+                if (t7)
+                  J.enable$1$x(t8, 2929);
+                else
+                  J.disable$1$x(t8, 2929);
                 break;
               case "cStencilFunc":
-                sfun.get$func();
-                J.enable$1$x(t3._gl, 2960);
-                t7 = sfun.get$func();
-                t8 = sfun.get$value(sfun);
-                t9 = sfun.get$mask(sfun);
-                J.stencilFunc$3$x(t3._gl, t7, t8, t9);
+                H.interceptedTypeCast(val, "$isTheStencilFunction");
+                t7 = val.func;
+                t8 = t3._gl;
+                if (t7 === 1281)
+                  J.disable$1$x(t8, 2960);
+                else {
+                  J.enable$1$x(t8, 2960);
+                  t8 = val.value;
+                  t9 = val.mask;
+                  J.stencilFunc$3$x(t3._gl, t7, t8, t9);
+                }
                 break;
               case "cDepthWrite":
-                J.depthMask$1$x(t3._gl, sfun);
+                H.boolTypeCheck(val);
+                J.depthMask$1$x(t3._gl, val);
                 break;
               case "cBlendEquation":
-                sfun.get$equation();
-                J.enable$1$x(t3._gl, 3042);
-                t7 = sfun.get$srcFactor();
-                t8 = sfun.get$dstFactor();
-                J.blendFunc$2$x(t3._gl, t7, t8);
-                t8 = sfun.get$equation();
-                J.blendEquation$1$x(t3._gl, t8);
+                H.interceptedTypeCast(val, "$isTheBlendEquation");
+                t7 = val.equation;
+                t8 = t3._gl;
+                if (t7 === 1281)
+                  J.disable$1$x(t8, 3042);
+                else {
+                  J.enable$1$x(t8, 3042);
+                  t8 = val.srcFactor;
+                  t9 = val.dstFactor;
+                  J.blendFunc$2$x(t3._gl, t8, t9);
+                  J.blendEquation$1$x(t3._gl, t7);
+                }
                 break;
             }
             ++count;
@@ -7636,7 +9203,7 @@
       "" + count;
       delta.toString$0(0);
     },
-    Draw$2: function(md, uniforms) {
+    Draw$3: function(md, uniforms, stats) {
       var t1, t2, _i, u, t3, uninitialized, hasTransforms, t4, t5, t6;
       H.assertSubtype(uniforms, "$isList", [G.UniformGroup], "$asList");
       Date.now();
@@ -7653,11 +9220,9 @@
         t2.__js_helper$_length = 0;
         t2._modified$0();
       }
-      for (_i = 0; false; ++_i) {
-        if (_i >= 0)
-          return H.ioore(uniforms, _i);
+      for (t2 = uniforms.length, _i = 0; _i < uniforms.length; uniforms.length === t2 || (0, H.throwConcurrentModificationError)(uniforms), ++_i) {
         u = uniforms[_i];
-        this._ActivateUniforms$2(u.get$name(u), u.GetUniforms$0());
+        this._ActivateUniforms$2(u.name, u.GetUniforms$0());
       }
       t2 = this._attributesInitialized;
       if (t2._collection$_length > 0) {
@@ -7727,7 +9292,21 @@
         t2.$indexSet(0, n, this._nextLayoutPos);
         ++this._nextLayoutPos;
       }
-      H.Sort_sort(t1, J._interceptors_JSArray__compareAny$closure(), H.getTypeArgumentByIndex(t1, 0));
+      C.JSArray_methods.sort$0(t1);
+    },
+    AddUniformVars$1: function(names) {
+      var t1, t2, _i;
+      H.assertSubtype(names, "$isList", [P.String], "$asList");
+      for (t1 = names.length, t2 = this.uniformVars, _i = 0; _i < names.length; names.length === t1 || (0, H.throwConcurrentModificationError)(names), ++_i)
+        C.JSArray_methods.add$1(t2, names[_i]);
+      C.JSArray_methods.sort$0(t2);
+    },
+    AddVaryingVars$1: function(names) {
+      var t1, _i;
+      H.assertSubtype(names, "$isList", [P.String], "$asList");
+      for (t1 = this.varyingVars, _i = 0; _i < 1; ++_i)
+        C.JSArray_methods.add$1(t1, names[_i]);
+      C.JSArray_methods.sort$0(t1);
     },
     SetBody$1: function(body) {
       this.shader = this._CreateShader$3(false, H.assertSubtype(body, "$isList", [P.String], "$asList"), null);
@@ -7748,9 +9327,7 @@
       modifier = isFragmentShader ? "in" : "out";
       if (isFragmentShader)
         C.JSArray_methods.add$1(out, "out vec4 oFragColor;");
-      for (t1 = this.varyingVars, _i = 0; false; ++_i) {
-        if (_i >= 0)
-          return H.ioore(t1, _i);
+      for (t1 = this.varyingVars, t2 = t1.length, _i = 0; _i < t1.length; t1.length === t2 || (0, H.throwConcurrentModificationError)(t1), ++_i) {
         v = t1[_i];
         d = $.$get$_VarsDb().$index(0, v);
         C.JSArray_methods.add$1(out, modifier + " " + d.type + " " + H.S(v) + ";");
@@ -7761,13 +9338,11 @@
         C.JSArray_methods.add$1(out, modifier + " " + d.type + " " + H.S(v) + ";");
       }
       C.JSArray_methods.add$1(out, "");
-      for (t1 = this.uniformVars, _i = 0; false; ++_i) {
-        if (_i >= 0)
-          return H.ioore(t1, _i);
+      for (t1 = this.uniformVars, t2 = t1.length, _i = 0; _i < t1.length; t1.length === t2 || (0, H.throwConcurrentModificationError)(t1), ++_i) {
         v = t1[_i];
         d = $.$get$_VarsDb().$index(0, v);
-        t2 = d.arraySize;
-        suffix = t2 === 0 ? "" : "[" + t2 + "]";
+        t3 = d.arraySize;
+        suffix = t3 === 0 ? "" : "[" + t3 + "]";
         C.JSArray_methods.add$1(out, "uniform " + d.type + " " + H.S(v) + suffix + ";");
       }
       C.JSArray_methods.add$1(out, "");
@@ -7775,16 +9350,140 @@
       return C.JSArray_methods.join$1(out, "\n");
     }
   };
-  G.TextureProperties.prototype = {};
-  G.Texture.prototype = {
-    toString$0: function(_) {
-      return "Texture[" + this._url + ", " + this._textureType + "]";
+  G.Spatial.prototype = {
+    getPos$0: function() {
+      var t1, t2, t3;
+      t1 = this._pos;
+      t2 = this.transform._m4storage;
+      t3 = t1._v3storage;
+      t3[0] = t2[12];
+      t3[1] = t2[13];
+      t3[2] = t2[14];
+      return t1;
+    },
+    setPosFromVec$1: function(vector) {
+      var t1, t2;
+      t1 = vector._v3storage;
+      t2 = this.transform._m4storage;
+      t2[12] = t1[0];
+      t2[13] = t1[1];
+      t2[14] = t1[2];
+    },
+    lookAt$1: function(target) {
+      var up, t1, t2, z, x, y, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13;
+      up = new T.Vector3(new Float32Array(3));
+      up.setValues$3(0, 1, 0);
+      t1 = this.getPos$0();
+      t2 = new Float32Array(3);
+      z = new T.Vector3(t2);
+      z.setFrom$1(t1);
+      z.sub$1(0, target);
+      z.normalize$0(0);
+      x = up.cross$1(z);
+      x.normalize$0(0);
+      y = z.cross$1(x);
+      y.normalize$0(0);
+      t3 = x.dot$1(t1);
+      t4 = y.dot$1(t1);
+      t1 = z.dot$1(t1);
+      t5 = x._v3storage;
+      t6 = t5[0];
+      t7 = y._v3storage;
+      t8 = t7[0];
+      t9 = t2[0];
+      t10 = t5[1];
+      t11 = t7[1];
+      t12 = t2[1];
+      t5 = t5[2];
+      t7 = t7[2];
+      t2 = t2[2];
+      t13 = this.transform._m4storage;
+      t13[15] = 1;
+      t13[14] = -t1;
+      t13[13] = -t4;
+      t13[12] = -t3;
+      t13[11] = 0;
+      t13[10] = t2;
+      t13[9] = t7;
+      t13[8] = t5;
+      t13[7] = 0;
+      t13[6] = t12;
+      t13[5] = t11;
+      t13[4] = t10;
+      t13[3] = 0;
+      t13[2] = t9;
+      t13[1] = t8;
+      t13[0] = t6;
     }
   };
-  G.TypedTexture.prototype = {
-    toString$0: function(_) {
-      return "TypedTexture[" + this._url + ", " + this._internalFormat + ", " + this._width + " X " + this._height + "]";
+  R.RenderPhaseResizeAware.prototype = {
+    resolutionChange$1: function(ev) {
+      var t1, w, h;
+      t1 = this._canvas;
+      w = t1.clientWidth;
+      h = t1.clientHeight;
+      t1.width = w;
+      t1.height = h;
+      P.print("size change " + H.S(w) + " " + H.S(h));
+      this._perspective.AdjustAspect$2(w, h);
+      this.viewPortW = w;
+      this.viewPortH = h;
     }
+  };
+  A.Node.prototype = {
+    toString$0: function(_) {
+      return "NODE[" + this.name + "]";
+    }
+  };
+  A.Scene.prototype = {};
+  A.RenderPhase.prototype = {
+    RenderPhase$3: function($name, _cgl, _framebuffer) {
+      if (this._framebuffer == null)
+        this._framebuffer = new G.Framebuffer(this._lib0$_cgl, null);
+    },
+    Draw$0: function() {
+      var t1, t2, t3, t4, t5, _i, scene, uniforms, modelMatrix, t6, t7, _i0;
+      t1 = this._framebuffer;
+      t2 = this._clear_mode;
+      t3 = this.viewPortW;
+      t4 = this.viewPortH;
+      t5 = t1._cgl;
+      t1 = t1._lib$_framebuffer;
+      J.bindFramebuffer$2$x(t5._gl, 36160, t1);
+      J.viewport$4$x(t5._gl, this.viewPortX, this.viewPortY, t3, t4);
+      if (t2 !== 0)
+        J.clear$1$x(t5._gl, t2);
+      for (t1 = this._scenes, t2 = t1.length, t3 = P.String, t4 = P.Object, _i = 0; _i < t1.length; t1.length === t2 || (0, H.throwConcurrentModificationError)(t1), ++_i) {
+        scene = t1[_i];
+        if (!scene.enabled)
+          continue;
+        t5 = scene.program;
+        if (!t5.enabled)
+          continue;
+        uniforms = scene.uniforms;
+        C.JSArray_methods.add$1(uniforms, new G.UniformGroup(P.LinkedHashMap_LinkedHashMap$_empty(t3, t4), "transforms"));
+        modelMatrix = new T.Matrix4(new Float32Array(16));
+        modelMatrix.setIdentity$0();
+        for (t6 = scene.nodes, t7 = t6.length, _i0 = 0; _i0 < t6.length; t6.length === t7 || (0, H.throwConcurrentModificationError)(t6), ++_i0)
+          A.drawRecursively(t5, t6[_i0], modelMatrix, null, uniforms);
+        if (0 >= uniforms.length)
+          return H.ioore(uniforms, -1);
+        uniforms.pop();
+      }
+    }
+  };
+  B.TorusKnotGeometry_curveFunc.prototype = {
+    call$2: function(u, out) {
+      B.TorusKnotGetPos(u, this.q, this.p, this.radius, this.heightScale, out);
+    },
+    $signature: 20
+  };
+  D.LoadRaw_closure.prototype = {
+    call$1: function(e) {
+      H.interceptedTypeCheck(e, "$isProgressEvent");
+      this.c.complete$1(0, H.futureOrCheck(W._convertNativeToDart_XHR_Response(this.hr.response), {futureOr: 1, type: P.String}));
+    },
+    $signature: 21
   };
   A.hashObjects_closure.prototype = {
     call$2: function(h, i) {
@@ -7797,14 +9496,262 @@
       hash = 536870911 & hash + ((524287 & hash) << 10);
       return hash ^ hash >>> 6;
     },
-    $signature: 13
+    $signature: 22
+  };
+  T.Matrix3.prototype = {
+    setFrom$1: function(arg) {
+      var argStorage, t1;
+      argStorage = arg._m3storage;
+      t1 = this._m3storage;
+      t1[8] = argStorage[8];
+      t1[7] = argStorage[7];
+      t1[6] = argStorage[6];
+      t1[5] = argStorage[5];
+      t1[4] = argStorage[4];
+      t1[3] = argStorage[3];
+      t1[2] = argStorage[2];
+      t1[1] = argStorage[1];
+      t1[0] = argStorage[0];
+    },
+    toString$0: function(_) {
+      return "[0] " + this.getRow$1(0).toString$0(0) + "\n[1] " + this.getRow$1(1).toString$0(0) + "\n[2] " + this.getRow$1(2).toString$0(0) + "\n";
+    },
+    $index: function(_, i) {
+      return C.NativeFloat32List_methods.$index(this._m3storage, i);
+    },
+    $eq: function(_, other) {
+      var t1, t2, t3;
+      if (other == null)
+        return false;
+      if (other instanceof T.Matrix3) {
+        t1 = this._m3storage;
+        t2 = t1[0];
+        t3 = other._m3storage;
+        t1 = t2 === t3[0] && t1[1] === t3[1] && t1[2] === t3[2] && t1[3] === t3[3] && t1[4] === t3[4] && t1[5] === t3[5] && t1[6] === t3[6] && t1[7] === t3[7] && t1[8] === t3[8];
+      } else
+        t1 = false;
+      return t1;
+    },
+    get$hashCode: function(_) {
+      return A.hashObjects(this._m3storage);
+    },
+    getRow$1: function(row) {
+      var t1, t2, t3;
+      t1 = new Float32Array(3);
+      t2 = this._m3storage;
+      if (row >= 9)
+        return H.ioore(t2, row);
+      t1[0] = t2[row];
+      t3 = 3 + row;
+      if (t3 >= 9)
+        return H.ioore(t2, t3);
+      t1[1] = t2[t3];
+      t3 = 6 + row;
+      if (t3 >= 9)
+        return H.ioore(t2, t3);
+      t1[2] = t2[t3];
+      return new T.Vector3(t1);
+    },
+    copyInverse$1: function(arg) {
+      var t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, det, invDet, t14;
+      t1 = arg._m3storage;
+      t2 = t1[0];
+      t3 = t1[4];
+      t4 = t1[8];
+      t5 = t1[5];
+      t6 = t1[7];
+      t7 = t3 * t4 - t5 * t6;
+      t8 = t1[1];
+      t9 = t1[3];
+      t10 = t9 * t4;
+      t11 = t1[6];
+      t12 = t5 * t11;
+      t1 = t1[2];
+      t13 = t9 * t6 - t3 * t11;
+      det = t2 * t7 - t8 * (t10 - t12) + t1 * t13;
+      if (det === 0) {
+        this.setFrom$1(arg);
+        return 0;
+      }
+      invDet = 1 / det;
+      t14 = this._m3storage;
+      t14[0] = invDet * t7;
+      t14[1] = invDet * (t1 * t6 - t8 * t4);
+      t14[2] = invDet * (t8 * t5 - t1 * t3);
+      t14[3] = invDet * (t12 - t10);
+      t14[4] = invDet * (t2 * t4 - t1 * t11);
+      t14[5] = invDet * (t1 * t9 - t2 * t5);
+      t14[6] = invDet * t13;
+      t14[7] = invDet * (t8 * t11 - t2 * t6);
+      t14[8] = invDet * (t2 * t3 - t8 * t9);
+      return det;
+    }
+  };
+  T.Matrix4.prototype = {
+    setFrom$1: function(arg) {
+      var argStorage, t1;
+      argStorage = arg._m4storage;
+      t1 = this._m4storage;
+      t1[15] = argStorage[15];
+      t1[14] = argStorage[14];
+      t1[13] = argStorage[13];
+      t1[12] = argStorage[12];
+      t1[11] = argStorage[11];
+      t1[10] = argStorage[10];
+      t1[9] = argStorage[9];
+      t1[8] = argStorage[8];
+      t1[7] = argStorage[7];
+      t1[6] = argStorage[6];
+      t1[5] = argStorage[5];
+      t1[4] = argStorage[4];
+      t1[3] = argStorage[3];
+      t1[2] = argStorage[2];
+      t1[1] = argStorage[1];
+      t1[0] = argStorage[0];
+    },
+    toString$0: function(_) {
+      return "[0] " + this.getRow$1(0).toString$0(0) + "\n[1] " + this.getRow$1(1).toString$0(0) + "\n[2] " + this.getRow$1(2).toString$0(0) + "\n[3] " + this.getRow$1(3).toString$0(0) + "\n";
+    },
+    $index: function(_, i) {
+      var t1 = this._m4storage;
+      if (i >= 16)
+        return H.ioore(t1, i);
+      return t1[i];
+    },
+    $eq: function(_, other) {
+      var t1, t2, t3;
+      if (other == null)
+        return false;
+      if (other instanceof T.Matrix4) {
+        t1 = this._m4storage;
+        t2 = t1[0];
+        t3 = other._m4storage;
+        t1 = t2 === t3[0] && t1[1] === t3[1] && t1[2] === t3[2] && t1[3] === t3[3] && t1[4] === t3[4] && t1[5] === t3[5] && t1[6] === t3[6] && t1[7] === t3[7] && t1[8] === t3[8] && t1[9] === t3[9] && t1[10] === t3[10] && t1[11] === t3[11] && t1[12] === t3[12] && t1[13] === t3[13] && t1[14] === t3[14] && t1[15] === t3[15];
+      } else
+        t1 = false;
+      return t1;
+    },
+    get$hashCode: function(_) {
+      return A.hashObjects(this._m4storage);
+    },
+    getRow$1: function(row) {
+      var t1, t2, t3;
+      t1 = new Float32Array(4);
+      t2 = this._m4storage;
+      if (row >= 16)
+        return H.ioore(t2, row);
+      t1[0] = t2[row];
+      t3 = 4 + row;
+      if (t3 >= 16)
+        return H.ioore(t2, t3);
+      t1[1] = t2[t3];
+      t3 = 8 + row;
+      if (t3 >= 16)
+        return H.ioore(t2, t3);
+      t1[2] = t2[t3];
+      t3 = 12 + row;
+      if (t3 >= 16)
+        return H.ioore(t2, t3);
+      t1[3] = t2[t3];
+      return new T.Vector4(t1);
+    },
+    rotateZ$1: function(angle) {
+      var cosAngle, sinAngle, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
+      cosAngle = Math.cos(angle);
+      sinAngle = Math.sin(angle);
+      t1 = this._m4storage;
+      t2 = t1[0];
+      t3 = t1[4];
+      t4 = t1[1];
+      t5 = t1[5];
+      t6 = t1[2];
+      t7 = t1[6];
+      t8 = t1[3];
+      t9 = t1[7];
+      t10 = -sinAngle;
+      t1[0] = t2 * cosAngle + t3 * sinAngle;
+      t1[1] = t4 * cosAngle + t5 * sinAngle;
+      t1[2] = t6 * cosAngle + t7 * sinAngle;
+      t1[3] = t8 * cosAngle + t9 * sinAngle;
+      t1[4] = t2 * t10 + t3 * cosAngle;
+      t1[5] = t4 * t10 + t5 * cosAngle;
+      t1[6] = t6 * t10 + t7 * cosAngle;
+      t1[7] = t8 * t10 + t9 * cosAngle;
+    },
+    setIdentity$0: function() {
+      var t1 = this._m4storage;
+      t1[0] = 1;
+      t1[1] = 0;
+      t1[2] = 0;
+      t1[3] = 0;
+      t1[4] = 0;
+      t1[5] = 1;
+      t1[6] = 0;
+      t1[7] = 0;
+      t1[8] = 0;
+      t1[9] = 0;
+      t1[10] = 1;
+      t1[11] = 0;
+      t1[12] = 0;
+      t1[13] = 0;
+      t1[14] = 0;
+      t1[15] = 1;
+    },
+    multiply$1: function(_, arg) {
+      var t1, m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33, argStorage, n00, n01, n02, n03, n10, n11, n12, n13, n20, n21, n22, n23, n30, n31, n32, n33;
+      t1 = this._m4storage;
+      m00 = t1[0];
+      m01 = t1[4];
+      m02 = t1[8];
+      m03 = t1[12];
+      m10 = t1[1];
+      m11 = t1[5];
+      m12 = t1[9];
+      m13 = t1[13];
+      m20 = t1[2];
+      m21 = t1[6];
+      m22 = t1[10];
+      m23 = t1[14];
+      m30 = t1[3];
+      m31 = t1[7];
+      m32 = t1[11];
+      m33 = t1[15];
+      argStorage = arg._m4storage;
+      n00 = argStorage[0];
+      n01 = argStorage[4];
+      n02 = argStorage[8];
+      n03 = argStorage[12];
+      n10 = argStorage[1];
+      n11 = argStorage[5];
+      n12 = argStorage[9];
+      n13 = argStorage[13];
+      n20 = argStorage[2];
+      n21 = argStorage[6];
+      n22 = argStorage[10];
+      n23 = argStorage[14];
+      n30 = argStorage[3];
+      n31 = argStorage[7];
+      n32 = argStorage[11];
+      n33 = argStorage[15];
+      t1[0] = m00 * n00 + m01 * n10 + m02 * n20 + m03 * n30;
+      t1[4] = m00 * n01 + m01 * n11 + m02 * n21 + m03 * n31;
+      t1[8] = m00 * n02 + m01 * n12 + m02 * n22 + m03 * n32;
+      t1[12] = m00 * n03 + m01 * n13 + m02 * n23 + m03 * n33;
+      t1[1] = m10 * n00 + m11 * n10 + m12 * n20 + m13 * n30;
+      t1[5] = m10 * n01 + m11 * n11 + m12 * n21 + m13 * n31;
+      t1[9] = m10 * n02 + m11 * n12 + m12 * n22 + m13 * n32;
+      t1[13] = m10 * n03 + m11 * n13 + m12 * n23 + m13 * n33;
+      t1[2] = m20 * n00 + m21 * n10 + m22 * n20 + m23 * n30;
+      t1[6] = m20 * n01 + m21 * n11 + m22 * n21 + m23 * n31;
+      t1[10] = m20 * n02 + m21 * n12 + m22 * n22 + m23 * n32;
+      t1[14] = m20 * n03 + m21 * n13 + m22 * n23 + m23 * n33;
+      t1[3] = m30 * n00 + m31 * n10 + m32 * n20 + m33 * n30;
+      t1[7] = m30 * n01 + m31 * n11 + m32 * n21 + m33 * n31;
+      t1[11] = m30 * n02 + m31 * n12 + m32 * n22 + m33 * n32;
+      t1[15] = m30 * n03 + m31 * n13 + m32 * n23 + m33 * n33;
+    }
   };
   T.Vector2.prototype = {
-    setValues$2: function(x_, y_) {
-      var t1 = this._v2storage;
-      t1[0] = x_;
-      t1[1] = y_;
-    },
     toString$0: function(_) {
       var t1 = this._v2storage;
       return "[" + H.S(t1[0]) + "," + H.S(t1[1]) + "]";
@@ -7834,20 +9781,14 @@
       t2 = t1[0];
       t1 = t1[1];
       return Math.sqrt(t2 * t2 + t1 * t1);
-    },
-    get$x: function(_) {
-      return this._v2storage[0];
-    },
-    get$y: function(_) {
-      return this._v2storage[1];
     }
   };
   T.Vector3.prototype = {
     setValues$3: function(x_, y_, z_) {
       var t1 = this._v3storage;
-      t1[0] = x_;
-      t1[1] = y_;
-      t1[2] = z_;
+      C.NativeFloat32List_methods.$indexSet(t1, 0, x_);
+      C.NativeFloat32List_methods.$indexSet(t1, 1, y_);
+      C.NativeFloat32List_methods.$indexSet(t1, 2, z_);
     },
     setFrom$1: function(other) {
       var otherStorage, t1;
@@ -7878,7 +9819,10 @@
       return A.hashObjects(this._v3storage);
     },
     $index: function(_, i) {
-      return C.NativeFloat32List_methods.$index(this._v3storage, i);
+      var t1 = this._v3storage;
+      if (i >= 3)
+        return H.ioore(t1, i);
+      return t1[i];
     },
     get$length: function(_) {
       var t1, t2, t3;
@@ -7888,55 +9832,325 @@
       t1 = t1[2];
       return Math.sqrt(t2 * t2 + t3 * t3 + t1 * t1);
     },
-    get$x: function(_) {
-      return this._v3storage[0];
+    get$length2: function() {
+      var t1, t2, t3;
+      t1 = this._v3storage;
+      t2 = t1[0];
+      t3 = t1[1];
+      t1 = t1[2];
+      return t2 * t2 + t3 * t3 + t1 * t1;
     },
-    get$y: function(_) {
-      return this._v3storage[1];
+    normalize$0: function(_) {
+      var l, d, t1;
+      l = Math.sqrt(this.get$length2());
+      if (l === 0)
+        return 0;
+      d = 1 / l;
+      t1 = this._v3storage;
+      t1[0] = t1[0] * d;
+      t1[1] = t1[1] * d;
+      t1[2] = t1[2] * d;
+      return l;
     },
-    get$z: function(_) {
-      return this._v3storage[2];
+    dot$1: function(other) {
+      var otherStorage, t1;
+      otherStorage = other._v3storage;
+      t1 = this._v3storage;
+      return t1[0] * otherStorage[0] + t1[1] * otherStorage[1] + t1[2] * otherStorage[2];
+    },
+    cross$1: function(other) {
+      var t1, _x, _y, _z, otherStorage, ox, oy, oz;
+      t1 = this._v3storage;
+      _x = t1[0];
+      _y = t1[1];
+      _z = t1[2];
+      otherStorage = other._v3storage;
+      ox = otherStorage[0];
+      oy = otherStorage[1];
+      oz = otherStorage[2];
+      t1 = new T.Vector3(new Float32Array(3));
+      t1.setValues$3(_y * oz - _z * oy, _z * ox - _x * oz, _x * oy - _y * ox);
+      return t1;
+    },
+    add$1: function(_, arg) {
+      var argStorage, t1;
+      argStorage = arg._v3storage;
+      t1 = this._v3storage;
+      t1[0] = t1[0] + argStorage[0];
+      t1[1] = t1[1] + argStorage[1];
+      t1[2] = t1[2] + argStorage[2];
+    },
+    addScaled$2: function(arg, factor) {
+      var argStorage, t1;
+      argStorage = arg._v3storage;
+      t1 = this._v3storage;
+      t1[0] = t1[0] + argStorage[0] * factor;
+      t1[1] = t1[1] + argStorage[1] * factor;
+      t1[2] = t1[2] + argStorage[2] * factor;
+    },
+    sub$1: function(_, arg) {
+      var argStorage, t1;
+      argStorage = arg._v3storage;
+      t1 = this._v3storage;
+      t1[0] = t1[0] - argStorage[0];
+      t1[1] = t1[1] - argStorage[1];
+      t1[2] = t1[2] - argStorage[2];
+    },
+    scale$1: function(_, arg) {
+      var t1 = this._v3storage;
+      t1[2] = t1[2] * arg;
+      t1[1] = t1[1] * arg;
+      t1[0] = t1[0] * arg;
+    },
+    set$x: function(_, arg) {
+      this._v3storage[0] = arg;
+      return arg;
+    },
+    set$y: function(_, arg) {
+      this._v3storage[1] = arg;
+      return arg;
+    },
+    set$z: function(_, arg) {
+      this._v3storage[2] = arg;
+      return arg;
     }
   };
-  T.Vector4.prototype = {};
+  T.Vector4.prototype = {
+    toString$0: function(_) {
+      var t1 = this._v4storage;
+      return H.S(t1[0]) + "," + H.S(t1[1]) + "," + H.S(t1[2]) + "," + H.S(t1[3]);
+    },
+    $eq: function(_, other) {
+      var t1, t2, t3;
+      if (other == null)
+        return false;
+      if (other instanceof T.Vector4) {
+        t1 = this._v4storage;
+        t2 = t1[0];
+        t3 = other._v4storage;
+        t1 = t2 === t3[0] && t1[1] === t3[1] && t1[2] === t3[2] && t1[3] === t3[3];
+      } else
+        t1 = false;
+      return t1;
+    },
+    get$hashCode: function(_) {
+      return A.hashObjects(this._v4storage);
+    },
+    $index: function(_, i) {
+      return C.NativeFloat32List_methods.$index(this._v4storage, i);
+    },
+    get$length: function(_) {
+      var t1, t2, t3, t4;
+      t1 = this._v4storage;
+      t2 = t1[0];
+      t3 = t1[1];
+      t4 = t1[2];
+      t1 = t1[3];
+      return Math.sqrt(t2 * t2 + t3 * t3 + t4 * t4 + t1 * t1);
+    }
+  };
+  R.TheNodes.prototype = {};
+  R.main_closure.prototype = {
+    call$1: function($content) {
+      var md, t1, t2, t3, t4, t5, t6, t7, t8, cosAngle, sinAngle, t9, t10, t11, t12, t13;
+      md = G.GeometryBuilderToMeshData("", this.pnc_novertexmovement, Y.ImportGeometryFromWavefront(H.stringTypeCheck($content)));
+      t1 = this.theNodes;
+      t2 = t1.material;
+      t3 = H.setRuntimeTypeInfo([], [A.Node]);
+      t4 = new Float32Array(9);
+      t5 = new T.Matrix4(new Float32Array(16));
+      t5.setIdentity$0();
+      t6 = new Float32Array(16);
+      t7 = new T.Matrix4(t6);
+      t7.setIdentity$0();
+      t8 = new Float32Array(3);
+      new Float32Array(3);
+      new Float32Array(3);
+      new Float32Array(3);
+      t2 = new A.Node(t2, md, t3, new T.Matrix3(t4), t5, t7, new T.Vector3(t8), md.name);
+      cosAngle = Math.cos(1.5707963267948966);
+      sinAngle = Math.sin(1.5707963267948966);
+      t3 = t6[4];
+      t4 = t6[8];
+      t5 = t6[5];
+      t8 = t6[9];
+      t9 = t6[6];
+      t10 = t6[10];
+      t11 = t6[7];
+      t12 = t6[11];
+      t13 = -sinAngle;
+      t6[4] = t3 * cosAngle + t4 * sinAngle;
+      t6[5] = t5 * cosAngle + t8 * sinAngle;
+      t6[6] = t9 * cosAngle + t10 * sinAngle;
+      t6[7] = t11 * cosAngle + t12 * sinAngle;
+      t6[8] = t3 * t13 + t4 * cosAngle;
+      t6[9] = t5 * t13 + t8 * cosAngle;
+      t6[10] = t9 * t13 + t10 * cosAngle;
+      t6[11] = t11 * t13 + t12 * cosAngle;
+      t7.rotateZ$1(3.141592653589793);
+      t6[0] = t6[0] * 0.25;
+      t6[1] = t6[1] * 0.25;
+      t6[2] = t6[2] * 0.25;
+      t6[3] = t6[3] * 0.25;
+      t6[4] = t6[4] * 0.25;
+      t6[5] = t6[5] * 0.25;
+      t6[6] = t6[6] * 0.25;
+      t6[7] = t6[7] * 0.25;
+      t6[8] = t6[8] * 0.25;
+      t6[9] = t6[9] * 0.25;
+      t6[10] = t6[10] * 0.25;
+      t6[11] = t6[11] * 0.25;
+      t6[12] = t6[12];
+      t6[13] = t6[13];
+      t6[14] = t6[14];
+      t6[15] = t6[15];
+      t2.enabled = false;
+      t1.ctLogo = t2;
+      C.JSArray_methods.add$1(this.scene_pnc_novertexmovement.nodes, t2);
+    },
+    $signature: 23
+  };
+  R.main_animate.prototype = {
+    call$1: function(timeMs) {
+      var t1, t2, now, tween, frac, t3, t4, t5, t6, pos, amp, active;
+      H.numTypeCheck(timeMs);
+      t1 = this._box_0;
+      t2 = t1.startMs;
+      if (typeof t2 !== "number")
+        return t2.$lt();
+      if (t2 < 0)
+        t1.startMs = timeMs;
+      t1 = this.musicElement;
+      now = t1.currentTime;
+      if (!t1.ended) {
+        if (typeof now !== "number")
+          return now.$gt();
+        t1 = now > 192;
+      } else
+        t1 = true;
+      if (t1)
+        this.infoElement.textContent = "Music: Life's things by Mindthings.\nBrowser demo for c't competition 2013 by ray@systaro.de.\nInspiration from clicktorelease.com.\n";
+      else {
+        t1 = this.theNodes;
+        tween = R.Tween(now);
+        if (typeof now !== "number")
+          return now.$le();
+        if (!(now <= 2)) {
+          t2 = t1.knot;
+          if (now < 28.32) {
+            t2.enabled = true;
+            t1.icoBig.enabled = true;
+            frac = now / 30;
+            t2 = t1.cameraIntroEndPoint;
+            t3 = t1._p1;
+            t4 = t1.cameraIntroStartPoint._v3storage;
+            t5 = t4[0];
+            t6 = t2._v3storage;
+            t3.set$x(0, t5 + frac * (t6[0] - t5));
+            t5 = t4[1];
+            t3.set$y(0, t5 + frac * (t6[1] - t5));
+            t4 = t4[2];
+            t3.set$z(0, t4 + frac * (t6[2] - t4));
+            t1.camera.setPosFromVec$1(t3);
+            t1.camera.lookAt$1(t2);
+          } else {
+            t2.enabled = true;
+            t1.icoBig.enabled = false;
+            if (now > 180)
+              t1.material._uniforms.$indexSet(0, "uFadeFactor", (now - 180) / 12);
+            pos = now / 3 - tween;
+            t2 = t1._p1;
+            B.TorusKnotGetPos(pos / 2, 3, 2, 20, 1, t2);
+            t3 = t1._p2;
+            B.TorusKnotGetPos((pos + 0.3) / 2, 3, 2, 20, 1, t3);
+            t1.camera.setPosFromVec$1(t2);
+            t1.camera.lookAt$1(t3);
+          }
+        }
+        amp = Math.sin(now / 6 - 1.5);
+        if (amp > 0.9) {
+          if (!t1.switched) {
+            t2 = t1.icoSmall;
+            t3 = t2.enabled;
+            t4 = t1.ctLogo;
+            if (t3) {
+              t4.enabled = true;
+              t2.enabled = false;
+            } else {
+              t4.enabled = false;
+              t2.enabled = true;
+            }
+            t1.switched = true;
+            ++t1.switchCount;
+          }
+        } else
+          t1.switched = false;
+        if (t1.switchCount >= 5) {
+          t1.icoSmall.enabled = false;
+          t1.ctLogo.enabled = false;
+        }
+        active = t1.ctLogo;
+        active = active.enabled ? active : t1.icoSmall;
+        pos = now / 3 + amp + 1.1 - tween;
+        t2 = t1._p1;
+        B.TorusKnotGetPos(pos / 2, 3, 2, 20, 1, t2);
+        B.TorusKnotGetPos((pos + 0.3) / 2, 3, 2, 20, 1, t1._p2);
+        active.transform.rotateZ$1(now / 1000);
+        active.setPosFromVec$1(t2);
+      }
+      t1 = this.theNodes.material;
+      if (typeof timeMs !== "number")
+        return timeMs.$div();
+      t1._uniforms.$indexSet(0, "uTime", timeMs / 1000);
+      this.phase.Draw$0();
+      C.Window_methods.get$animationFrame(window).then$1$1(this, -1);
+    },
+    $signature: 24
+  };
+  R.main_closure0.prototype = {
+    call$1: function(list) {
+      H.listTypeCheck(list);
+      W.promiseToFuture(this.musicElement.play(), null);
+      this.infoElement.textContent = "";
+      this.animate.call$1(0);
+    },
+    $signature: 25
+  };
   (function aliases() {
     var _ = J.Interceptor.prototype;
     _.super$Interceptor$toString = _.toString$0;
     _ = J.JavaScriptObject.prototype;
     _.super$JavaScriptObject$toString = _.toString$0;
-    _ = P.Iterable.prototype;
-    _.super$Iterable$where = _.where$1;
-    _ = W.Element.prototype;
-    _.super$Element$createFragment = _.createFragment$3$treeSanitizer$validator;
-    _ = W._SimpleNodeValidator.prototype;
-    _.super$_SimpleNodeValidator$allowsAttribute = _.allowsAttribute$3;
   })();
   (function installTearOffs() {
     var _static_2 = hunkHelpers._static_2,
-      _static = hunkHelpers.installStaticTearOff;
-    _static_2(J, "_interceptors_JSArray__compareAny$closure", "JSArray__compareAny", 14);
-    _static(W, "html__Html5NodeValidator__standardAttributeValidator$closure", 4, null, ["call$4"], ["_Html5NodeValidator__standardAttributeValidator"], 6, 0);
-    _static(W, "html__Html5NodeValidator__uriAttributeValidator$closure", 4, null, ["call$4"], ["_Html5NodeValidator__uriAttributeValidator"], 6, 0);
+      _static_1 = hunkHelpers._static_1,
+      _static_0 = hunkHelpers._static_0,
+      _instance_1_u = hunkHelpers._instance_1u;
+    _static_2(J, "_interceptors_JSArray__compareAny$closure", "JSArray__compareAny", 26);
+    _static_1(P, "async__AsyncRun__scheduleImmediateJsOverride$closure", "_AsyncRun__scheduleImmediateJsOverride", 4);
+    _static_1(P, "async__AsyncRun__scheduleImmediateWithSetImmediate$closure", "_AsyncRun__scheduleImmediateWithSetImmediate", 4);
+    _static_1(P, "async__AsyncRun__scheduleImmediateWithTimer$closure", "_AsyncRun__scheduleImmediateWithTimer", 4);
+    _static_0(P, "async___startMicrotaskLoop$closure", "_startMicrotaskLoop", 1);
+    _instance_1_u(R.RenderPhaseResizeAware.prototype, "get$resolutionChange", "resolutionChange$1", 19);
   })();
   (function inheritance() {
     var _mixin = hunkHelpers.mixin,
       _inherit = hunkHelpers.inherit,
       _inheritMany = hunkHelpers.inheritMany;
     _inherit(P.Object, null);
-    _inheritMany(P.Object, [H.JS_CONST, J.Interceptor, J.ArrayIterator, P.Iterable, H.ListIterator, P.Iterator, H.FixedLengthListMixin, H.TypeErrorDecoder, P.Error, H.Closure, P.MapMixin, H.LinkedHashMapCell, H.LinkedHashMapKeyIterator, P._SetBase, P._LinkedHashSetCell, P._LinkedHashSetIterator, P._ListBase_Object_ListMixin, P.ListMixin, P.bool, P.DateTime, P.num, P.Duration, P.StackOverflowError, P._Exception, P.Function, P.List, P.Map, P.Null, P.String, P.StringBuffer, W.CssStyleDeclarationBase, W._Html5NodeValidator, W.ImmutableListMixin, W.NodeValidatorBuilder, W._SimpleNodeValidator, W._SvgNodeValidator, W.FixedSizeListIterator, W.NodeValidator, W._SameOriginUriPolicy, W._ValidatingTreeSanitizer, P._RectangleBase, P.Float32List, G.NamedEntity, G.ChronosGL, G.Framebuffer, G.Face3, G.Face4, G.GeometryBuilder, G.DrawStats, G.ShaderVarDesc, G.ShaderObject, G.TextureProperties, G.Texture, T.Vector2, T.Vector3, T.Vector4]);
-    _inheritMany(J.Interceptor, [J.JSBool, J.JSNull, J.JavaScriptObject, J.JSArray, J.JSNumber, J.JSString, H.NativeTypedData, W.EventTarget, W.AccessibleNodeList, W.Blob, W.CanvasRenderingContext2D, W.CssStyleValue, W.CssTransformComponent, W.CssRule, W._CssStyleDeclaration_Interceptor_CssStyleDeclarationBase, W.DataTransferItemList, W.DomException, W._DomRectList_Interceptor_ListMixin, W.DomRectReadOnly, W._DomStringList_Interceptor_ListMixin, W.DomTokenList, W._FileList_Interceptor_ListMixin, W.Gamepad, W.History, W._HtmlCollection_Interceptor_ListMixin, W.Location, W.MediaList, W._MidiInputMap_Interceptor_MapMixin, W._MidiOutputMap_Interceptor_MapMixin, W.MimeType, W._MimeTypeArray_Interceptor_ListMixin, W._NodeList_Interceptor_ListMixin, W.Plugin, W._PluginArray_Interceptor_ListMixin, W._RtcStatsReport_Interceptor_MapMixin, W.SpeechGrammar, W._SpeechGrammarList_Interceptor_ListMixin, W.SpeechRecognitionResult, W._Storage_Interceptor_MapMixin, W.StyleSheet, W._TextTrackCueList_Interceptor_ListMixin, W.TimeRanges, W.Touch, W._TouchList_Interceptor_ListMixin, W.TrackDefaultList, W.Url, W.__CssRuleList_Interceptor_ListMixin, W.__GamepadList_Interceptor_ListMixin, W.__NamedNodeMap_Interceptor_ListMixin, W.__SpeechRecognitionResultList_Interceptor_ListMixin, W.__StyleSheetList_Interceptor_ListMixin, P.Length, P._LengthList_Interceptor_ListMixin, P.Number, P._NumberList_Interceptor_ListMixin, P.PointList, P._StringList_Interceptor_ListMixin, P.Transform, P._TransformList_Interceptor_ListMixin, P.AudioBuffer, P._AudioParamMap_Interceptor_MapMixin, P.Buffer, P.Framebuffer0, P.Program, P.RenderingContext, P.RenderingContext2, P.Shader, P.Texture0, P.UniformLocation, P.VertexArrayObject, P._SqlResultSetRowList_Interceptor_ListMixin]);
+    _inheritMany(P.Object, [H.JS_CONST, J.Interceptor, J.ArrayIterator, P.Iterable, H.ListIterator, H.FixedLengthListMixin, H.TypeErrorDecoder, P.Error, H.Closure, H._StackTrace, H.TypeImpl, P.MapMixin, H.LinkedHashMapCell, H.LinkedHashMapKeyIterator, H.JSSyntaxRegExp, H._MatchImplementation, P._TimerImpl, P.Future, P._Completer, P._FutureListener, P._Future, P._AsyncCallbackEntry, P.Stream, P.StreamSubscription, P.AsyncError, P._Zone, P._SetBase, P._LinkedHashSetCell, P._LinkedHashSetIterator, P.ListMixin, P.bool, P.DateTime, P.num, P.Duration, P.StackOverflowError, P._Exception, P.FormatException, P.List, P.Map, P.Null, P.StackTrace, P.String, P.StringBuffer, W.CssStyleDeclarationBase, W.ImmutableListMixin, W.FixedSizeListIterator, P._AcceptStructuredClone, P._RectangleBase, P.Float32List, G.NamedEntity, G.ChronosGL, G.Framebuffer, G.Face3, G.Face4, G.GeometryBuilder, G.TheStencilFunction, G.TheBlendEquation, G.DrawStats, G.ShaderVarDesc, G.ShaderObject, T.Matrix3, T.Matrix4, T.Vector2, T.Vector3, T.Vector4, R.TheNodes]);
+    _inheritMany(J.Interceptor, [J.JSBool, J.JSNull, J.JavaScriptObject, J.JSArray, J.JSNumber, J.JSString, H.NativeTypedData, W.EventTarget, W.AccessibleNodeList, W.Blob, W.CanvasRenderingContext2D, W.CssStyleValue, W.CssTransformComponent, W.CssRule, W._CssStyleDeclaration_Interceptor_CssStyleDeclarationBase, W.DataTransferItemList, W.DomException, W._DomRectList_Interceptor_ListMixin, W.DomRectReadOnly, W._DomStringList_Interceptor_ListMixin, W.DomTokenList, W.Event, W._FileList_Interceptor_ListMixin, W.Gamepad, W.History, W._HtmlCollection_Interceptor_ListMixin, W.Location, W.MediaList, W._MidiInputMap_Interceptor_MapMixin, W._MidiOutputMap_Interceptor_MapMixin, W.MimeType, W._MimeTypeArray_Interceptor_ListMixin, W._NodeList_Interceptor_ListMixin, W.Plugin, W._PluginArray_Interceptor_ListMixin, W._RtcStatsReport_Interceptor_MapMixin, W.SpeechGrammar, W._SpeechGrammarList_Interceptor_ListMixin, W.SpeechRecognitionResult, W._Storage_Interceptor_MapMixin, W.StyleSheet, W._TextTrackCueList_Interceptor_ListMixin, W.TimeRanges, W.Touch, W._TouchList_Interceptor_ListMixin, W.TrackDefaultList, W.Url, W.__CssRuleList_Interceptor_ListMixin, W.__GamepadList_Interceptor_ListMixin, W.__NamedNodeMap_Interceptor_ListMixin, W.__SpeechRecognitionResultList_Interceptor_ListMixin, W.__StyleSheetList_Interceptor_ListMixin, P.Length, P._LengthList_Interceptor_ListMixin, P.Number, P._NumberList_Interceptor_ListMixin, P.PointList, P._StringList_Interceptor_ListMixin, P.Transform, P._TransformList_Interceptor_ListMixin, P.AudioBuffer, P._AudioParamMap_Interceptor_MapMixin, P.Buffer, P.Framebuffer0, P.Program, P.RenderingContext, P.RenderingContext2, P.Shader, P.Texture0, P.UniformLocation, P.VertexArrayObject, P._SqlResultSetRowList_Interceptor_ListMixin]);
     _inheritMany(J.JavaScriptObject, [J.PlainJavaScriptObject, J.UnknownJavaScriptObject, J.JavaScriptFunction]);
     _inherit(J.JSUnmodifiableArray, J.JSArray);
     _inheritMany(J.JSNumber, [J.JSInt, J.JSDouble]);
-    _inheritMany(P.Iterable, [H.EfficientLengthIterable, H.WhereIterable]);
-    _inheritMany(H.EfficientLengthIterable, [H.ListIterable, H.LinkedHashMapKeyIterable]);
-    _inherit(H.MappedListIterable, H.ListIterable);
-    _inherit(H.WhereIterator, P.Iterator);
+    _inherit(H.EfficientLengthIterable, P.Iterable);
     _inheritMany(P.Error, [H.NullError, H.JsNoSuchMethodError, H.UnknownJsTypeError, H.TypeErrorImplementation, H.CastErrorImplementation, H.RuntimeError, P.NullThrownError, P.ArgumentError, P.UnsupportedError, P.UnimplementedError, P.StateError, P.ConcurrentModificationError, P.CyclicInitializationError]);
-    _inheritMany(H.Closure, [H.unwrapException_saveStackTrace, H.TearOffClosure, H.initHooks_closure, H.initHooks_closure0, H.initHooks_closure1, P.MapBase_mapToString_closure, P.Duration_toString_sixDigits, P.Duration_toString_twoDigits, W.Element_Element$html_closure, W.MidiInputMap_keys_closure, W.MidiOutputMap_keys_closure, W.RtcStatsReport_keys_closure, W.Storage_keys_closure, W.NodeValidatorBuilder_allowsElement_closure, W.NodeValidatorBuilder_allowsAttribute_closure, W._SimpleNodeValidator_closure, W._SimpleNodeValidator_closure0, W._TemplatingNodeValidator_closure, W._ValidatingTreeSanitizer_sanitizeTree_walk, P.convertDartToNative_Dictionary_closure, P.AudioParamMap_keys_closure, A.hashObjects_closure]);
+    _inheritMany(H.Closure, [H.unwrapException_saveStackTrace, H.TearOffClosure, H.initHooks_closure, H.initHooks_closure0, H.initHooks_closure1, P._AsyncRun__initializeScheduleImmediate_internalCallback, P._AsyncRun__initializeScheduleImmediate_closure, P._AsyncRun__scheduleImmediateJsOverride_internalCallback, P._AsyncRun__scheduleImmediateWithSetImmediate_internalCallback, P._TimerImpl_internalCallback, P.Future_wait_handleError, P.Future_wait_closure, P._Future__addListener_closure, P._Future__prependListeners_closure, P._Future__chainForeignFuture_closure, P._Future__chainForeignFuture_closure0, P._Future__chainForeignFuture_closure1, P._Future__asyncComplete_closure, P._Future__chainFuture_closure, P._Future__asyncCompleteError_closure, P._Future__propagateToListeners_handleWhenCompleteCallback, P._Future__propagateToListeners_handleWhenCompleteCallback_closure, P._Future__propagateToListeners_handleValueCallback, P._Future__propagateToListeners_handleError, P.Stream_length_closure, P.Stream_length_closure0, P._rootHandleUncaughtError_closure, P._RootZone_bindCallback_closure, P._RootZone_bindCallbackGuarded_closure, P._RootZone_bindUnaryCallbackGuarded_closure, P.MapBase_mapToString_closure, P.Duration_toString_sixDigits, P.Duration_toString_twoDigits, W.promiseToFuture_closure, W.promiseToFuture_closure0, W.MidiInputMap_keys_closure, W.MidiOutputMap_keys_closure, W.RtcStatsReport_keys_closure, W.Storage_keys_closure, W.Window_animationFrame_closure, W._EventStreamSubscription_closure, P._AcceptStructuredClone_walk_closure, P.convertDartToNative_Dictionary_closure, P.convertNativePromiseToDartFuture_closure, P.convertNativePromiseToDartFuture_closure0, P.AudioParamMap_keys_closure, B.TorusKnotGeometry_curveFunc, D.LoadRaw_closure, A.hashObjects_closure, R.main_closure, R.main_animate, R.main_closure0]);
     _inheritMany(H.TearOffClosure, [H.StaticClosure, H.BoundClosure]);
     _inherit(P.MapBase, P.MapMixin);
-    _inheritMany(P.MapBase, [H.JsLinkedHashMap, W._AttributeMap]);
+    _inherit(H.JsLinkedHashMap, P.MapBase);
+    _inherit(H.LinkedHashMapKeyIterable, H.EfficientLengthIterable);
     _inherit(H.NativeTypedArray, H.NativeTypedData);
     _inheritMany(H.NativeTypedArray, [H._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin, H._NativeTypedArrayOfInt_NativeTypedArray_ListMixin]);
     _inherit(H._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin_FixedLengthListMixin, H._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin);
@@ -7945,14 +10159,16 @@
     _inherit(H.NativeTypedArrayOfInt, H._NativeTypedArrayOfInt_NativeTypedArray_ListMixin_FixedLengthListMixin);
     _inherit(H.NativeFloat32List, H.NativeTypedArrayOfDouble);
     _inheritMany(H.NativeTypedArrayOfInt, [H.NativeInt16List, H.NativeInt32List, H.NativeInt8List, H.NativeUint16List, H.NativeUint32List, H.NativeUint8ClampedList, H.NativeUint8List]);
+    _inheritMany(P._Completer, [P._AsyncCompleter, P._SyncCompleter]);
+    _inherit(P._RootZone, P._Zone);
     _inherit(P._LinkedHashSet, P._SetBase);
-    _inherit(P.ListBase, P._ListBase_Object_ListMixin);
     _inheritMany(P.num, [P.double, P.int]);
     _inheritMany(P.ArgumentError, [P.RangeError, P.IndexError]);
-    _inheritMany(W.EventTarget, [W.Node, W.FileWriter, W.SourceBuffer, W._SourceBufferList_EventTarget_ListMixin, W.TextTrack, W.TextTrackCue, W._TextTrackList_EventTarget_ListMixin, W.VideoTrackList, P.AudioTrackList, P.BaseAudioContext]);
-    _inheritMany(W.Node, [W.Element, W.CharacterData, W._Attr]);
-    _inheritMany(W.Element, [W.HtmlElement, P.SvgElement]);
-    _inheritMany(W.HtmlElement, [W.AnchorElement, W.AreaElement, W.BaseElement, W.BodyElement, W.CanvasElement, W.DivElement, W.FormElement, W.SelectElement, W.TableElement, W.TableRowElement, W.TableSectionElement, W.TemplateElement]);
+    _inheritMany(W.EventTarget, [W.Node0, W.FileWriter, W.HttpRequestEventTarget, W.SourceBuffer, W._SourceBufferList_EventTarget_ListMixin, W.TextTrack, W.TextTrackCue, W._TextTrackList_EventTarget_ListMixin, W.VideoTrackList, W.Window, P.AudioTrackList, P.BaseAudioContext]);
+    _inheritMany(W.Node0, [W.Element, W.CharacterData, W.Document]);
+    _inherit(W.HtmlElement, W.Element);
+    _inheritMany(W.HtmlElement, [W.AnchorElement, W.AreaElement, W.MediaElement, W.CanvasElement, W.DivElement, W.FormElement, W.SelectElement]);
+    _inherit(W.AudioElement, W.MediaElement);
     _inheritMany(W.CssStyleValue, [W.CssNumericValue, W.CssTransformValue, W.CssUnparsedValue]);
     _inherit(W.CssPerspective, W.CssTransformComponent);
     _inherit(W.CssStyleDeclaration, W._CssStyleDeclaration_Interceptor_CssStyleDeclarationBase);
@@ -7965,15 +10181,16 @@
     _inherit(W.FileList, W._FileList_Interceptor_ListMixin_ImmutableListMixin);
     _inherit(W._HtmlCollection_Interceptor_ListMixin_ImmutableListMixin, W._HtmlCollection_Interceptor_ListMixin);
     _inherit(W.HtmlCollection, W._HtmlCollection_Interceptor_ListMixin_ImmutableListMixin);
+    _inherit(W.HttpRequest, W.HttpRequestEventTarget);
     _inherit(W.MidiInputMap, W._MidiInputMap_Interceptor_MapMixin);
     _inherit(W.MidiOutputMap, W._MidiOutputMap_Interceptor_MapMixin);
     _inherit(W._MimeTypeArray_Interceptor_ListMixin_ImmutableListMixin, W._MimeTypeArray_Interceptor_ListMixin);
     _inherit(W.MimeTypeArray, W._MimeTypeArray_Interceptor_ListMixin_ImmutableListMixin);
-    _inherit(W._ChildNodeListLazy, P.ListBase);
     _inherit(W._NodeList_Interceptor_ListMixin_ImmutableListMixin, W._NodeList_Interceptor_ListMixin);
     _inherit(W.NodeList, W._NodeList_Interceptor_ListMixin_ImmutableListMixin);
     _inherit(W._PluginArray_Interceptor_ListMixin_ImmutableListMixin, W._PluginArray_Interceptor_ListMixin);
     _inherit(W.PluginArray, W._PluginArray_Interceptor_ListMixin_ImmutableListMixin);
+    _inherit(W.ProgressEvent, W.Event);
     _inherit(W.RtcStatsReport, W._RtcStatsReport_Interceptor_MapMixin);
     _inherit(W._SourceBufferList_EventTarget_ListMixin_ImmutableListMixin, W._SourceBufferList_EventTarget_ListMixin);
     _inherit(W.SourceBufferList, W._SourceBufferList_EventTarget_ListMixin_ImmutableListMixin);
@@ -7997,14 +10214,14 @@
     _inherit(W._SpeechRecognitionResultList, W.__SpeechRecognitionResultList_Interceptor_ListMixin_ImmutableListMixin);
     _inherit(W.__StyleSheetList_Interceptor_ListMixin_ImmutableListMixin, W.__StyleSheetList_Interceptor_ListMixin);
     _inherit(W._StyleSheetList, W.__StyleSheetList_Interceptor_ListMixin_ImmutableListMixin);
-    _inherit(W._ElementAttributeMap, W._AttributeMap);
-    _inherit(W._TemplatingNodeValidator, W._SimpleNodeValidator);
+    _inherit(W._EventStream, P.Stream);
+    _inherit(W._EventStreamSubscription, P.StreamSubscription);
+    _inherit(P._AcceptStructuredCloneDart2Js, P._AcceptStructuredClone);
     _inherit(P.Rectangle, P._RectangleBase);
     _inherit(P._LengthList_Interceptor_ListMixin_ImmutableListMixin, P._LengthList_Interceptor_ListMixin);
     _inherit(P.LengthList, P._LengthList_Interceptor_ListMixin_ImmutableListMixin);
     _inherit(P._NumberList_Interceptor_ListMixin_ImmutableListMixin, P._NumberList_Interceptor_ListMixin);
     _inherit(P.NumberList, P._NumberList_Interceptor_ListMixin_ImmutableListMixin);
-    _inherit(P.ScriptElement, P.SvgElement);
     _inherit(P._StringList_Interceptor_ListMixin_ImmutableListMixin, P._StringList_Interceptor_ListMixin);
     _inherit(P.StringList, P._StringList_Interceptor_ListMixin_ImmutableListMixin);
     _inherit(P._TransformList_Interceptor_ListMixin_ImmutableListMixin, P._TransformList_Interceptor_ListMixin);
@@ -8013,13 +10230,14 @@
     _inherit(P.OfflineAudioContext, P.BaseAudioContext);
     _inherit(P._SqlResultSetRowList_Interceptor_ListMixin_ImmutableListMixin, P._SqlResultSetRowList_Interceptor_ListMixin);
     _inherit(P.SqlResultSetRowList, P._SqlResultSetRowList_Interceptor_ListMixin_ImmutableListMixin);
-    _inheritMany(G.NamedEntity, [G.UniformGroup, G.MeshData, G.RenderProgram]);
-    _inherit(G.TypedTexture, G.Texture);
+    _inheritMany(G.NamedEntity, [G.UniformGroup, G.MeshData, G.RenderProgram, G.Spatial, A.RenderPhase, A.Scene]);
+    _inheritMany(G.UniformGroup, [G.Material, G.Perspective]);
+    _inherit(R.RenderPhaseResizeAware, A.RenderPhase);
+    _inherit(A.Node, G.Spatial);
     _mixin(H._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin, P.ListMixin);
     _mixin(H._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin_FixedLengthListMixin, H.FixedLengthListMixin);
     _mixin(H._NativeTypedArrayOfInt_NativeTypedArray_ListMixin, P.ListMixin);
     _mixin(H._NativeTypedArrayOfInt_NativeTypedArray_ListMixin_FixedLengthListMixin, H.FixedLengthListMixin);
-    _mixin(P._ListBase_Object_ListMixin, P.ListMixin);
     _mixin(W._CssStyleDeclaration_Interceptor_CssStyleDeclarationBase, W.CssStyleDeclarationBase);
     _mixin(W._DomRectList_Interceptor_ListMixin, P.ListMixin);
     _mixin(W._DomRectList_Interceptor_ListMixin_ImmutableListMixin, W.ImmutableListMixin);
@@ -8073,9 +10291,8 @@
   })();
   (function constants() {
     var makeConstList = hunkHelpers.makeConstList;
-    C.BodyElement_methods = W.BodyElement.prototype;
     C.CanvasElement_methods = W.CanvasElement.prototype;
-    C.DivElement_methods = W.DivElement.prototype;
+    C.HttpRequest_methods = W.HttpRequest.prototype;
     C.Interceptor_methods = J.Interceptor.prototype;
     C.JSArray_methods = J.JSArray.prototype;
     C.JSInt_methods = J.JSInt.prototype;
@@ -8084,10 +10301,9 @@
     C.JavaScriptFunction_methods = J.JavaScriptFunction.prototype;
     C.NativeFloat32List_methods = H.NativeFloat32List.prototype;
     C.NativeUint32List_methods = H.NativeUint32List.prototype;
-    C.NodeList_methods = W.NodeList.prototype;
     C.PlainJavaScriptObject_methods = J.PlainJavaScriptObject.prototype;
-    C.TableElement_methods = W.TableElement.prototype;
     C.UnknownJavaScriptObject_methods = J.UnknownJavaScriptObject.prototype;
+    C.Window_methods = W.Window.prototype;
     C.C_JS_CONST = function getTagFallback(o) {
   var s = Object.prototype.toString.call(o);
   return s.substring(8, s.length - 1);
@@ -8208,11 +10424,8 @@
 };
     C.C_JS_CONST3 = function(hooks) { return hooks; }
 ;
-    C.List_2Zi = H.setRuntimeTypeInfo(makeConstList(["*::class", "*::dir", "*::draggable", "*::hidden", "*::id", "*::inert", "*::itemprop", "*::itemref", "*::itemscope", "*::lang", "*::spellcheck", "*::title", "*::translate", "A::accesskey", "A::coords", "A::hreflang", "A::name", "A::shape", "A::tabindex", "A::target", "A::type", "AREA::accesskey", "AREA::alt", "AREA::coords", "AREA::nohref", "AREA::shape", "AREA::tabindex", "AREA::target", "AUDIO::controls", "AUDIO::loop", "AUDIO::mediagroup", "AUDIO::muted", "AUDIO::preload", "BDO::dir", "BODY::alink", "BODY::bgcolor", "BODY::link", "BODY::text", "BODY::vlink", "BR::clear", "BUTTON::accesskey", "BUTTON::disabled", "BUTTON::name", "BUTTON::tabindex", "BUTTON::type", "BUTTON::value", "CANVAS::height", "CANVAS::width", "CAPTION::align", "COL::align", "COL::char", "COL::charoff", "COL::span", "COL::valign", "COL::width", "COLGROUP::align", "COLGROUP::char", "COLGROUP::charoff", "COLGROUP::span", "COLGROUP::valign", "COLGROUP::width", "COMMAND::checked", "COMMAND::command", "COMMAND::disabled", "COMMAND::label", "COMMAND::radiogroup", "COMMAND::type", "DATA::value", "DEL::datetime", "DETAILS::open", "DIR::compact", "DIV::align", "DL::compact", "FIELDSET::disabled", "FONT::color", "FONT::face", "FONT::size", "FORM::accept", "FORM::autocomplete", "FORM::enctype", "FORM::method", "FORM::name", "FORM::novalidate", "FORM::target", "FRAME::name", "H1::align", "H2::align", "H3::align", "H4::align", "H5::align", "H6::align", "HR::align", "HR::noshade", "HR::size", "HR::width", "HTML::version", "IFRAME::align", "IFRAME::frameborder", "IFRAME::height", "IFRAME::marginheight", "IFRAME::marginwidth", "IFRAME::width", "IMG::align", "IMG::alt", "IMG::border", "IMG::height", "IMG::hspace", "IMG::ismap", "IMG::name", "IMG::usemap", "IMG::vspace", "IMG::width", "INPUT::accept", "INPUT::accesskey", "INPUT::align", "INPUT::alt", "INPUT::autocomplete", "INPUT::autofocus", "INPUT::checked", "INPUT::disabled", "INPUT::inputmode", "INPUT::ismap", "INPUT::list", "INPUT::max", "INPUT::maxlength", "INPUT::min", "INPUT::multiple", "INPUT::name", "INPUT::placeholder", "INPUT::readonly", "INPUT::required", "INPUT::size", "INPUT::step", "INPUT::tabindex", "INPUT::type", "INPUT::usemap", "INPUT::value", "INS::datetime", "KEYGEN::disabled", "KEYGEN::keytype", "KEYGEN::name", "LABEL::accesskey", "LABEL::for", "LEGEND::accesskey", "LEGEND::align", "LI::type", "LI::value", "LINK::sizes", "MAP::name", "MENU::compact", "MENU::label", "MENU::type", "METER::high", "METER::low", "METER::max", "METER::min", "METER::value", "OBJECT::typemustmatch", "OL::compact", "OL::reversed", "OL::start", "OL::type", "OPTGROUP::disabled", "OPTGROUP::label", "OPTION::disabled", "OPTION::label", "OPTION::selected", "OPTION::value", "OUTPUT::for", "OUTPUT::name", "P::align", "PRE::width", "PROGRESS::max", "PROGRESS::min", "PROGRESS::value", "SELECT::autocomplete", "SELECT::disabled", "SELECT::multiple", "SELECT::name", "SELECT::required", "SELECT::size", "SELECT::tabindex", "SOURCE::type", "TABLE::align", "TABLE::bgcolor", "TABLE::border", "TABLE::cellpadding", "TABLE::cellspacing", "TABLE::frame", "TABLE::rules", "TABLE::summary", "TABLE::width", "TBODY::align", "TBODY::char", "TBODY::charoff", "TBODY::valign", "TD::abbr", "TD::align", "TD::axis", "TD::bgcolor", "TD::char", "TD::charoff", "TD::colspan", "TD::headers", "TD::height", "TD::nowrap", "TD::rowspan", "TD::scope", "TD::valign", "TD::width", "TEXTAREA::accesskey", "TEXTAREA::autocomplete", "TEXTAREA::cols", "TEXTAREA::disabled", "TEXTAREA::inputmode", "TEXTAREA::name", "TEXTAREA::placeholder", "TEXTAREA::readonly", "TEXTAREA::required", "TEXTAREA::rows", "TEXTAREA::tabindex", "TEXTAREA::wrap", "TFOOT::align", "TFOOT::char", "TFOOT::charoff", "TFOOT::valign", "TH::abbr", "TH::align", "TH::axis", "TH::bgcolor", "TH::char", "TH::charoff", "TH::colspan", "TH::headers", "TH::height", "TH::nowrap", "TH::rowspan", "TH::scope", "TH::valign", "TH::width", "THEAD::align", "THEAD::char", "THEAD::charoff", "THEAD::valign", "TR::align", "TR::bgcolor", "TR::char", "TR::charoff", "TR::valign", "TRACK::default", "TRACK::kind", "TRACK::label", "TRACK::srclang", "UL::compact", "UL::type", "VIDEO::controls", "VIDEO::height", "VIDEO::loop", "VIDEO::mediagroup", "VIDEO::muted", "VIDEO::preload", "VIDEO::width"]), [P.String]);
-    C.List_ego = H.setRuntimeTypeInfo(makeConstList(["HEAD", "AREA", "BASE", "BASEFONT", "BR", "COL", "COLGROUP", "EMBED", "FRAME", "FRAMESET", "HR", "IMAGE", "IMG", "INPUT", "ISINDEX", "LINK", "META", "PARAM", "SOURCE", "STYLE", "TITLE", "WBR"]), [P.String]);
-    C.List_empty = H.setRuntimeTypeInfo(makeConstList([]), [P.String]);
-    C.List_wSV = H.setRuntimeTypeInfo(makeConstList(["bind", "if", "ref", "repeat", "syntax"]), [P.String]);
-    C.List_yrN = H.setRuntimeTypeInfo(makeConstList(["A::href", "AREA::href", "BLOCKQUOTE::cite", "BODY::background", "COMMAND::icon", "DEL::cite", "FORM::action", "IMG::src", "INPUT::src", "INS::cite", "Q::cite", "VIDEO::poster"]), [P.String]);
+    C.C__RootZone = new P._RootZone();
+    C.List_empty = H.setRuntimeTypeInfo(makeConstList([]), [P.Null]);
     C.ShaderVarDesc_IyK = new G.ShaderVarDesc("", 0);
     C.ShaderVarDesc_float_0 = new G.ShaderVarDesc("float", 0);
     C.ShaderVarDesc_float_00 = new G.ShaderVarDesc("float", 0);
@@ -8252,10 +10465,11 @@
     $.dispatchRecordsForInstanceTags = null;
     $.interceptorsForUncacheableTags = null;
     $.initNativeDispatchFlag = null;
-    $.Element__parseDocument = null;
-    $.Element__parseRange = null;
-    $.Element__defaultValidator = null;
-    $.Element__defaultSanitizer = null;
+    $._nextCallback = null;
+    $._lastCallback = null;
+    $._lastPriorityCallback = null;
+    $._isInCallbackLoop = false;
+    $.Zone__current = C.C__RootZone;
     $.gLogLevel = 0;
   })();
   (function lazyInitializers() {
@@ -8330,40 +10544,101 @@
         }
       }());
     });
+    _lazy($, "_AsyncRun__scheduleImmediateClosure", "$get$_AsyncRun__scheduleImmediateClosure", function() {
+      return P._AsyncRun__initializeScheduleImmediate();
+    });
     _lazy($, "_toStringVisiting", "$get$_toStringVisiting", function() {
       return [];
     });
-    _lazy($, "_Html5NodeValidator__allowedElements", "$get$_Html5NodeValidator__allowedElements", function() {
-      return P.LinkedHashSet_LinkedHashSet$from(["A", "ABBR", "ACRONYM", "ADDRESS", "AREA", "ARTICLE", "ASIDE", "AUDIO", "B", "BDI", "BDO", "BIG", "BLOCKQUOTE", "BR", "BUTTON", "CANVAS", "CAPTION", "CENTER", "CITE", "CODE", "COL", "COLGROUP", "COMMAND", "DATA", "DATALIST", "DD", "DEL", "DETAILS", "DFN", "DIR", "DIV", "DL", "DT", "EM", "FIELDSET", "FIGCAPTION", "FIGURE", "FONT", "FOOTER", "FORM", "H1", "H2", "H3", "H4", "H5", "H6", "HEADER", "HGROUP", "HR", "I", "IFRAME", "IMG", "INPUT", "INS", "KBD", "LABEL", "LEGEND", "LI", "MAP", "MARK", "MENU", "METER", "NAV", "NOBR", "OL", "OPTGROUP", "OPTION", "OUTPUT", "P", "PRE", "PROGRESS", "Q", "S", "SAMP", "SECTION", "SELECT", "SMALL", "SOURCE", "SPAN", "STRIKE", "STRONG", "SUB", "SUMMARY", "SUP", "TABLE", "TBODY", "TD", "TEXTAREA", "TFOOT", "TH", "THEAD", "TIME", "TR", "TRACK", "TT", "U", "UL", "VAR", "VIDEO", "WBR"], P.String);
+    _lazy($, "StencilFunctionNone", "$get$StencilFunctionNone", function() {
+      return new G.TheStencilFunction(1281, 0, 4294967295);
     });
-    _lazy($, "_Html5NodeValidator__attributeValidators", "$get$_Html5NodeValidator__attributeValidators", function() {
-      return P.LinkedHashMap_LinkedHashMap$_empty(P.String, P.Function);
+    _lazy($, "BlendEquationNone", "$get$BlendEquationNone", function() {
+      return new G.TheBlendEquation(1281, 1281, 1281);
     });
     _lazy($, "_VarsDb", "$get$_VarsDb", function() {
       return P.LinkedHashMap_LinkedHashMap$_literal(["cBlendEquation", C.ShaderVarDesc_IyK, "cDepthWrite", C.ShaderVarDesc_IyK, "cDepthTest", C.ShaderVarDesc_IyK, "cStencilFunc", C.ShaderVarDesc_IyK, "tPosition", C.ShaderVarDesc_vec3_0, "tSpeed", C.ShaderVarDesc_vec3_0, "tForce", C.ShaderVarDesc_vec3_0, "aColor", C.ShaderVarDesc_vec3_00, "aColorAlpha", C.ShaderVarDesc_vec4_0, "aPosition", C.ShaderVarDesc_vec3_01, "aTexUV", C.ShaderVarDesc_vec2_0, "aNormal", C.ShaderVarDesc_vec3_02, "aBinormal", C.ShaderVarDesc_vec3_03, "aCenter", C.ShaderVarDesc_vec4_00, "aPointSize", C.ShaderVarDesc_float_0, "aBoneIndex", C.ShaderVarDesc_vec4_01, "aBoneWeight", C.ShaderVarDesc_vec4_01, "aTangent", C.ShaderVarDesc_vec3_04, "aBitangent", C.ShaderVarDesc_vec3_05, "iaRotation", C.ShaderVarDesc_vec4_01, "iaTranslation", C.ShaderVarDesc_vec3_0, "iaScale", C.ShaderVarDesc_float_0, "iaColor", C.ShaderVarDesc_vec3_0, "vColor", C.ShaderVarDesc_vec3_00, "vTexUV", C.ShaderVarDesc_vec2_00, "vLightWeighting", C.ShaderVarDesc_vec3_0, "vNormal", C.ShaderVarDesc_vec3_0, "vPosition", C.ShaderVarDesc_vec3_01, "vPositionFromLight", C.ShaderVarDesc_vec4_02, "vCenter", C.ShaderVarDesc_vec4_00, "vDepth", C.ShaderVarDesc_float_00, "uTransformationMatrix", C.ShaderVarDesc_mat4_0, "uModelMatrix", C.ShaderVarDesc_mat4_0, "uNormalMatrix", C.ShaderVarDesc_mat3_0, "uConvolutionMatrix", C.ShaderVarDesc_mat3_0, "uPerspectiveViewMatrix", C.ShaderVarDesc_mat4_0, "uLightPerspectiveViewMatrix", C.ShaderVarDesc_mat4_0, "uShadowMap", C.ShaderVarDesc_sampler2DShadow_0, "uTexture", C.ShaderVarDesc_sampler2D_0, "uTexture2", C.ShaderVarDesc_sampler2D_0, "uTexture3", C.ShaderVarDesc_sampler2D_0, "uTexture4", C.ShaderVarDesc_sampler2D_0, "uSpecularMap", C.ShaderVarDesc_sampler2D_0, "uNormalMap", C.ShaderVarDesc_sampler2D_0, "uBumpMap", C.ShaderVarDesc_sampler2D_0, "uDepthMap", C.ShaderVarDesc_sampler2D_0, "uCubeTexture", C.ShaderVarDesc_samplerCube_0, "uAnimationTable", C.ShaderVarDesc_sampler2D_0, "uTime", C.ShaderVarDesc_float_01, "uCameraNear", C.ShaderVarDesc_float_0, "uCameraFar", C.ShaderVarDesc_float_0, "uFogNear", C.ShaderVarDesc_float_0, "uFogFar", C.ShaderVarDesc_float_0, "uPointSize", C.ShaderVarDesc_float_0, "uScale", C.ShaderVarDesc_float_0, "uAngle", C.ShaderVarDesc_float_0, "uCanvasSize", C.ShaderVarDesc_vec2_00, "uCenter2", C.ShaderVarDesc_vec2_00, "uCutOff", C.ShaderVarDesc_float_0, "uShininess", C.ShaderVarDesc_float_0, "uShadowBias", C.ShaderVarDesc_float_0, "uOpacity", C.ShaderVarDesc_float_0, "uColor", C.ShaderVarDesc_vec3_0, "uAmbientDiffuse", C.ShaderVarDesc_vec3_0, "uColorEmissive", C.ShaderVarDesc_vec3_0, "uColorSpecular", C.ShaderVarDesc_vec3_0, "uColorDiffuse", C.ShaderVarDesc_vec3_0, "uColorAlpha", C.ShaderVarDesc_vec4_01, "uColorAlpha2", C.ShaderVarDesc_vec4_01, "uEyePosition", C.ShaderVarDesc_vec3_0, "uMaterial", C.ShaderVarDesc_mat4_0, "uRange", C.ShaderVarDesc_vec2_00, "uDirection", C.ShaderVarDesc_vec2_00, "uBoneMatrices", C.ShaderVarDesc_mat4_128, "uLightDescs", C.ShaderVarDesc_mat4_4, "uLightCount", C.ShaderVarDesc_float_0, "uLightTypes", C.ShaderVarDesc_float_4, "uBumpScale", C.ShaderVarDesc_float_02, "uNormalScale", C.ShaderVarDesc_float_03], P.String, G.ShaderVarDesc);
     });
-    _lazy($, "TexturePropertiesFramebuffer", "$get$TexturePropertiesFramebuffer", function() {
-      var t1 = new G.TextureProperties(1, 9729, 9729);
-      t1.clamp = true;
-      t1.minFilter = 9728;
-      t1.magFilter = 9728;
-      return t1;
-    });
-    _lazy($, "computeVertexShader", "$get$computeVertexShader", function() {
+    _lazy($, "perlinNoiseVertexShader", "$get$perlinNoiseVertexShader", function() {
       var t1, t2;
-      t1 = G.ShaderObject$("computeVertexShader");
+      t1 = G.ShaderObject$("PerlinNoiseV");
       t2 = [P.String];
       t1.AddAttributeVars$1(H.setRuntimeTypeInfo(["aPosition"], t2));
-      t1.SetBody$1(H.setRuntimeTypeInfo(["void main() {\n  gl_Position = vec4(aPosition, 1.0);\n}\n"], t2));
+      t1.AddVaryingVars$1(H.setRuntimeTypeInfo(["vNormal"], t2));
+      t1.AddUniformVars$1(H.setRuntimeTypeInfo(["uPerspectiveViewMatrix", "uModelMatrix", "uTime"], t2));
+      t1.SetBody$1(H.setRuntimeTypeInfo(["vec3 mod289(vec3 x)\n{\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289(vec4 x)\n{\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute(vec4 x)\n{\n  return mod289(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nvec3 fade(vec3 t) {\n  return t*t*t*(t*(t*6.0-15.0)+10.0);\n}\n\n\n// Classic Perlin noise, periodic variant\nfloat pnoise(vec3 P, vec3 rep)\n{\n  vec3 Pi0 = mod(floor(P), rep); // Integer part, modulo period\n  vec3 Pi1 = mod(Pi0 + vec3(1.0), rep); // Integer part + 1, mod period\n  Pi0 = mod289(Pi0);\n  Pi1 = mod289(Pi1);\n  vec3 Pf0 = fract(P); // Fractional part for interpolation\n  vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0\n  vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);\n  vec4 iy = vec4(Pi0.yy, Pi1.yy);\n  vec4 iz0 = Pi0.zzzz;\n  vec4 iz1 = Pi1.zzzz;\n\n  vec4 ixy = permute(permute(ix) + iy);\n  vec4 ixy0 = permute(ixy + iz0);\n  vec4 ixy1 = permute(ixy + iz1);\n\n  vec4 gx0 = ixy0 * (1.0 / 7.0);\n  vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;\n  gx0 = fract(gx0);\n  vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);\n  vec4 sz0 = step(gz0, vec4(0.0));\n  gx0 -= sz0 * (step(0.0, gx0) - 0.5);\n  gy0 -= sz0 * (step(0.0, gy0) - 0.5);\n\n  vec4 gx1 = ixy1 * (1.0 / 7.0);\n  vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;\n  gx1 = fract(gx1);\n  vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);\n  vec4 sz1 = step(gz1, vec4(0.0));\n  gx1 -= sz1 * (step(0.0, gx1) - 0.5);\n  gy1 -= sz1 * (step(0.0, gy1) - 0.5);\n\n  vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);\n  vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);\n  vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);\n  vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);\n  vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);\n  vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);\n  vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);\n  vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);\n\n  vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));\n  g000 *= norm0.x;\n  g010 *= norm0.y;\n  g100 *= norm0.z;\n  g110 *= norm0.w;\n  vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));\n  g001 *= norm1.x;\n  g011 *= norm1.y;\n  g101 *= norm1.z;\n  g111 *= norm1.w;\n\n  float n000 = dot(g000, Pf0);\n  float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));\n  float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));\n  float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));\n  float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));\n  float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));\n  float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));\n  float n111 = dot(g111, Pf1);\n\n  vec3 fade_xyz = fade(Pf0);\n  vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);\n  vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);\n  float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); \n  return 2.2 * n_xyz;\n}\n", "void main() {\n    vNormal = normalize( aPosition);\n    gl_Position = uPerspectiveViewMatrix * uModelMatrix * vec4(aPosition, 1.0);\n}\n"], t2));
       return t1;
     });
-    _lazy($, "computeFragmentShader", "$get$computeFragmentShader", function() {
-      var t1 = G.ShaderObject$("computeFragmentShader");
-      t1.SetBody$1(H.setRuntimeTypeInfo(["void main() { \n    oFragColor.b = gl_FragCoord.x / 500.0;\n    oFragColor.g = gl_FragCoord.y / 500.0;\n    oFragColor.r = 0.0;\n}\n    "], [P.String]));
+    _lazy($, "IcosahedronFaceList", "$get$IcosahedronFaceList", function() {
+      return H.setRuntimeTypeInfo([G.Face3$(0, 11, 5), G.Face3$(0, 5, 1), G.Face3$(0, 1, 7), G.Face3$(0, 7, 10), G.Face3$(0, 10, 11), G.Face3$(1, 5, 9), G.Face3$(5, 11, 4), G.Face3$(11, 10, 2), G.Face3$(10, 7, 6), G.Face3$(7, 1, 8), G.Face3$(3, 9, 4), G.Face3$(3, 4, 2), G.Face3$(3, 2, 6), G.Face3$(3, 6, 8), G.Face3$(3, 8, 9), G.Face3$(4, 9, 5), G.Face3$(2, 4, 11), G.Face3$(6, 2, 10), G.Face3$(8, 6, 7), G.Face3$(9, 8, 1)], [G.Face3]);
+    });
+    _lazy($, "t", "$get$t", function() {
+      return (1 + P.sqrt(5)) / 2;
+    });
+    _lazy($, "IcosahedronVertexList", "$get$IcosahedronVertexList", function() {
+      var t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12;
+      t1 = $.$get$t();
+      t2 = T.Vector3_Vector3(-1, t1, 0);
+      t2.normalize$0(0);
+      t3 = T.Vector3_Vector3(1, t1, 0);
+      t3.normalize$0(0);
+      if (typeof t1 !== "number")
+        return t1.$negate();
+      t4 = T.Vector3_Vector3(-1, -t1, 0);
+      t4.normalize$0(0);
+      t5 = T.Vector3_Vector3(1, -t1, 0);
+      t5.normalize$0(0);
+      t6 = T.Vector3_Vector3(0, -1, t1);
+      t6.normalize$0(0);
+      t7 = T.Vector3_Vector3(0, 1, t1);
+      t7.normalize$0(0);
+      t8 = T.Vector3_Vector3(0, -1, -t1);
+      t8.normalize$0(0);
+      t9 = T.Vector3_Vector3(0, 1, -t1);
+      t9.normalize$0(0);
+      t10 = T.Vector3_Vector3(t1, 0, -1);
+      t10.normalize$0(0);
+      t11 = T.Vector3_Vector3(t1, 0, 1);
+      t11.normalize$0(0);
+      t12 = T.Vector3_Vector3(-t1, 0, -1);
+      t12.normalize$0(0);
+      t1 = T.Vector3_Vector3(-t1, 0, 1);
+      t1.normalize$0(0);
+      return H.setRuntimeTypeInfo([t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t1], [T.Vector3]);
+    });
+    _lazy($, "_perlinNoiseVertexShader", "$get$_perlinNoiseVertexShader", function() {
+      var t1, t2;
+      t1 = G.ShaderObject$("perlinNoiseVertexShader");
+      t2 = [P.String];
+      t1.AddAttributeVars$1(H.setRuntimeTypeInfo(["aPosition"], t2));
+      t1.AddVaryingVars$1(H.setRuntimeTypeInfo(["vColor"], t2));
+      t1.AddUniformVars$1(H.setRuntimeTypeInfo(["uPerspectiveViewMatrix", "uModelMatrix", "uTime", "uFadeFactor"], t2));
+      t1.SetBody$1(H.setRuntimeTypeInfo(["vec3 mod289(vec3 x)\n{\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289(vec4 x)\n{\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute(vec4 x)\n{\n  return mod289(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nvec3 fade(vec3 t) {\n  return t*t*t*(t*(t*6.0-15.0)+10.0);\n}\n\n\n// Classic Perlin noise, periodic variant\nfloat pnoise(vec3 P, vec3 rep)\n{\n  vec3 Pi0 = mod(floor(P), rep); // Integer part, modulo period\n  vec3 Pi1 = mod(Pi0 + vec3(1.0), rep); // Integer part + 1, mod period\n  Pi0 = mod289(Pi0);\n  Pi1 = mod289(Pi1);\n  vec3 Pf0 = fract(P); // Fractional part for interpolation\n  vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0\n  vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);\n  vec4 iy = vec4(Pi0.yy, Pi1.yy);\n  vec4 iz0 = Pi0.zzzz;\n  vec4 iz1 = Pi1.zzzz;\n\n  vec4 ixy = permute(permute(ix) + iy);\n  vec4 ixy0 = permute(ixy + iz0);\n  vec4 ixy1 = permute(ixy + iz1);\n\n  vec4 gx0 = ixy0 * (1.0 / 7.0);\n  vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;\n  gx0 = fract(gx0);\n  vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);\n  vec4 sz0 = step(gz0, vec4(0.0));\n  gx0 -= sz0 * (step(0.0, gx0) - 0.5);\n  gy0 -= sz0 * (step(0.0, gy0) - 0.5);\n\n  vec4 gx1 = ixy1 * (1.0 / 7.0);\n  vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;\n  gx1 = fract(gx1);\n  vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);\n  vec4 sz1 = step(gz1, vec4(0.0));\n  gx1 -= sz1 * (step(0.0, gx1) - 0.5);\n  gy1 -= sz1 * (step(0.0, gy1) - 0.5);\n\n  vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);\n  vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);\n  vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);\n  vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);\n  vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);\n  vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);\n  vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);\n  vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);\n\n  vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));\n  g000 *= norm0.x;\n  g010 *= norm0.y;\n  g100 *= norm0.z;\n  g110 *= norm0.w;\n  vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));\n  g001 *= norm1.x;\n  g011 *= norm1.y;\n  g101 *= norm1.z;\n  g111 *= norm1.w;\n\n  float n000 = dot(g000, Pf0);\n  float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));\n  float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));\n  float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));\n  float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));\n  float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));\n  float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));\n  float n111 = dot(g111, Pf1);\n\n  vec3 fade_xyz = fade(Pf0);\n  vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);\n  vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);\n  float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); \n  return 2.2 * n_xyz;\n}\n", "vec3 lerp( vec3 vec, float factor) {\n      vec.x += factor * (1. - vec.x);\n      vec.y += factor * (1. - vec.y);\n      vec.z += factor * (1. - vec.z);\n      return vec;\n}\n\nvoid main() {\n    float mytime = uTime / 4.0;\n\n    //float sint = (sin( mytime*10.)+1.0)/2.0;\n\n    float r = pnoise( .75 * ( aPosition*0.25 + mytime ), vec3( 2.0 ) );\n    float g = pnoise( 0.8 * ( aPosition*0.25 + mytime ), vec3( 2.0 ) );\n    float b = pnoise( 0.9 * ( aPosition*0.25 + mytime ), vec3( 2.0 ) );\n    float n = pnoise( 1.5 * ( aPosition*0.25 + mytime ), vec3( 2.0 ) );\n    n = pow( 1., n );\n    //float n = 10.0 * pnoise( 5.0 * ( vNormal + time ), vec3( 10.0 ) ) * pnoise( .5 * ( vNormal + time ), vec3( 10.0 ) );\n    //n += .5 * pnoise( 4.0 * vNormal, vec3( 10.0 ) );\n    //vColor = vec4( 1.0-(r + n), 1.0-(g + n), 1.0-(b + n), 1.0 );\n    //n=0.0;\n    vColor = vec3( (r + n), (g + n), (b + n));\n    vColor = lerp( vColor, uFadeFactor);\n    // float f = 0.5 * pnoise( normal + time, vec3( 10.0 ) );\n    gl_Position = uPerspectiveViewMatrix * uModelMatrix * \n                  vec4( aPosition, 1.0 );\n}\n"], t2));
       return t1;
+    });
+    _lazy($, "_perlinNoiseFragmentShader", "$get$_perlinNoiseFragmentShader", function() {
+      var t1, t2;
+      t1 = G.ShaderObject$("perlinNoiseFragmentShader");
+      t2 = [P.String];
+      t1.AddVaryingVars$1(H.setRuntimeTypeInfo(["vColor"], t2));
+      t1.SetBody$1(H.setRuntimeTypeInfo(["void main(void) {\n  oFragColor.rgb = vColor;\n  oFragColor.a = 1.0;\n}  \n"], t2));
+      return t1;
+    });
+    _lazy($, "deformingPerlinNoiseVertexShader", "$get$deformingPerlinNoiseVertexShader", function() {
+      var t1, t2;
+      t1 = G.ShaderObject$("PerlinNoiseV");
+      t2 = [P.String];
+      t1.AddAttributeVars$1(H.setRuntimeTypeInfo(["aPosition"], t2));
+      t1.AddVaryingVars$1(H.setRuntimeTypeInfo(["vNormal"], t2));
+      t1.AddUniformVars$1(H.setRuntimeTypeInfo(["uPerspectiveViewMatrix", "uModelMatrix", "uTime"], t2));
+      t1.SetBody$1(H.setRuntimeTypeInfo(["vec3 mod289(vec3 x)\n{\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289(vec4 x)\n{\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute(vec4 x)\n{\n  return mod289(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nvec3 fade(vec3 t) {\n  return t*t*t*(t*(t*6.0-15.0)+10.0);\n}\n\n\n// Classic Perlin noise, periodic variant\nfloat pnoise(vec3 P, vec3 rep)\n{\n  vec3 Pi0 = mod(floor(P), rep); // Integer part, modulo period\n  vec3 Pi1 = mod(Pi0 + vec3(1.0), rep); // Integer part + 1, mod period\n  Pi0 = mod289(Pi0);\n  Pi1 = mod289(Pi1);\n  vec3 Pf0 = fract(P); // Fractional part for interpolation\n  vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0\n  vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);\n  vec4 iy = vec4(Pi0.yy, Pi1.yy);\n  vec4 iz0 = Pi0.zzzz;\n  vec4 iz1 = Pi1.zzzz;\n\n  vec4 ixy = permute(permute(ix) + iy);\n  vec4 ixy0 = permute(ixy + iz0);\n  vec4 ixy1 = permute(ixy + iz1);\n\n  vec4 gx0 = ixy0 * (1.0 / 7.0);\n  vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;\n  gx0 = fract(gx0);\n  vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);\n  vec4 sz0 = step(gz0, vec4(0.0));\n  gx0 -= sz0 * (step(0.0, gx0) - 0.5);\n  gy0 -= sz0 * (step(0.0, gy0) - 0.5);\n\n  vec4 gx1 = ixy1 * (1.0 / 7.0);\n  vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;\n  gx1 = fract(gx1);\n  vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);\n  vec4 sz1 = step(gz1, vec4(0.0));\n  gx1 -= sz1 * (step(0.0, gx1) - 0.5);\n  gy1 -= sz1 * (step(0.0, gy1) - 0.5);\n\n  vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);\n  vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);\n  vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);\n  vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);\n  vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);\n  vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);\n  vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);\n  vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);\n\n  vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));\n  g000 *= norm0.x;\n  g010 *= norm0.y;\n  g100 *= norm0.z;\n  g110 *= norm0.w;\n  vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));\n  g001 *= norm1.x;\n  g011 *= norm1.y;\n  g101 *= norm1.z;\n  g111 *= norm1.w;\n\n  float n000 = dot(g000, Pf0);\n  float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));\n  float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));\n  float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));\n  float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));\n  float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));\n  float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));\n  float n111 = dot(g111, Pf1);\n\n  vec3 fade_xyz = fade(Pf0);\n  vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);\n  vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);\n  float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); \n  return 2.2 * n_xyz;\n}\n", "void main() {\n    vec3 normal = normalize(aPosition);\n    float f = 0.5 * pnoise(normal + uTime / 3.0, vec3(10.0));\n    vNormal = normal;\n    gl_Position = uPerspectiveViewMatrix * uModelMatrix * \n                  vec4(aPosition + f * normal, 1.0);\n}\n"], t2));
+      return t1;
+    });
+    _lazy($, "gLoadables", "$get$gLoadables", function() {
+      return H.setRuntimeTypeInfo([], [[P.Future, P.Object]]);
     });
   })();
-  var init = {mangledGlobalNames: {int: "int", double: "double", num: "num", String: "String", bool: "bool", Null: "Null", List: "List"}, mangledNames: {}, getTypeFromName: getGlobalFromName, metadata: [], types: [{func: 1, ret: -1, args: [P.String,,]}, {func: 1, args: [,]}, {func: 1, ret: P.Null, args: [,,]}, {func: 1, ret: P.String, args: [P.int]}, {func: 1, ret: P.bool, args: [W.NodeValidator]}, {func: 1, ret: P.bool, args: [P.String]}, {func: 1, ret: P.bool, args: [W.Element, P.String, P.String, W._Html5NodeValidator]}, {func: 1, args: [, P.String]}, {func: 1, args: [P.String]}, {func: 1, ret: P.bool, args: [W.Node]}, {func: 1, ret: -1, args: [P.String, P.String]}, {func: 1, ret: P.String, args: [P.String]}, {func: 1, ret: -1, args: [W.Node, W.Node]}, {func: 1, ret: P.int, args: [P.int, P.Object]}, {func: 1, ret: P.int, args: [,,]}], interceptorsByTag: null, leafTags: null};
+  var init = {mangledGlobalNames: {int: "int", double: "double", num: "num", String: "String", bool: "bool", Null: "Null", List: "List"}, mangledNames: {}, getTypeFromName: getGlobalFromName, metadata: [], types: [{func: 1, ret: P.Null}, {func: 1, ret: -1}, {func: 1, ret: -1, args: [,]}, {func: 1, ret: -1, args: [P.String,,]}, {func: 1, ret: -1, args: [{func: 1, ret: -1}]}, {func: 1, args: [,]}, {func: 1, ret: P.Null, args: [,]}, {func: 1, ret: P.Null, args: [,,]}, {func: 1, ret: P.String, args: [P.int]}, {func: 1, args: [, P.String]}, {func: 1, args: [P.String]}, {func: 1, ret: P.Null, args: [{func: 1, ret: -1}]}, {func: 1, ret: P.Null, args: [, P.StackTrace]}, {func: 1, ret: P.Null, args: [,], opt: [P.StackTrace]}, {func: 1, ret: [P._Future,,], args: [,]}, {func: 1, ret: -1, args: [P.String, P.String]}, {func: 1, ret: P.Null, args: [P.num]}, {func: 1, args: [W.Event]}, {func: 1, args: [,,]}, {func: 1, ret: -1, args: [W.Event]}, {func: 1, ret: -1, args: [P.double, T.Vector3]}, {func: 1, ret: P.Null, args: [W.ProgressEvent]}, {func: 1, ret: P.int, args: [P.int, P.Object]}, {func: 1, ret: P.Null, args: [P.String]}, {func: 1, ret: -1, args: [P.num]}, {func: 1, ret: P.Null, args: [[P.List,,]]}, {func: 1, ret: P.int, args: [,,]}], interceptorsByTag: null, leafTags: null};
   (function nativeSupport() {
     !function() {
       var intern = function(s) {
@@ -8387,8 +10662,8 @@
       }
       init.dispatchPropertyName = init.getIsolateTag("dispatch_record");
     }();
-    hunkHelpers.setOrUpdateInterceptorsByTag({ArrayBuffer: J.Interceptor, AbortPaymentEvent: J.Interceptor, AnimationEffectReadOnly: J.Interceptor, AnimationEffectTiming: J.Interceptor, AnimationEffectTimingReadOnly: J.Interceptor, AnimationEvent: J.Interceptor, AnimationPlaybackEvent: J.Interceptor, AnimationTimeline: J.Interceptor, AnimationWorkletGlobalScope: J.Interceptor, ApplicationCacheErrorEvent: J.Interceptor, AuthenticatorAssertionResponse: J.Interceptor, AuthenticatorAttestationResponse: J.Interceptor, AuthenticatorResponse: J.Interceptor, BackgroundFetchClickEvent: J.Interceptor, BackgroundFetchEvent: J.Interceptor, BackgroundFetchFailEvent: J.Interceptor, BackgroundFetchFetch: J.Interceptor, BackgroundFetchManager: J.Interceptor, BackgroundFetchSettledFetch: J.Interceptor, BackgroundFetchedEvent: J.Interceptor, BarProp: J.Interceptor, BarcodeDetector: J.Interceptor, BeforeInstallPromptEvent: J.Interceptor, BeforeUnloadEvent: J.Interceptor, BlobEvent: J.Interceptor, BluetoothRemoteGATTDescriptor: J.Interceptor, Body: J.Interceptor, BudgetState: J.Interceptor, CacheStorage: J.Interceptor, CanMakePaymentEvent: J.Interceptor, CanvasGradient: J.Interceptor, CanvasPattern: J.Interceptor, Client: J.Interceptor, Clients: J.Interceptor, ClipboardEvent: J.Interceptor, CloseEvent: J.Interceptor, CompositionEvent: J.Interceptor, CookieStore: J.Interceptor, Coordinates: J.Interceptor, Credential: J.Interceptor, CredentialUserData: J.Interceptor, CredentialsContainer: J.Interceptor, Crypto: J.Interceptor, CryptoKey: J.Interceptor, CSS: J.Interceptor, CSSVariableReferenceValue: J.Interceptor, CustomElementRegistry: J.Interceptor, CustomEvent: J.Interceptor, DataTransfer: J.Interceptor, DataTransferItem: J.Interceptor, DeprecatedStorageInfo: J.Interceptor, DeprecatedStorageQuota: J.Interceptor, DeprecationReport: J.Interceptor, DetectedBarcode: J.Interceptor, DetectedFace: J.Interceptor, DetectedText: J.Interceptor, DeviceAcceleration: J.Interceptor, DeviceMotionEvent: J.Interceptor, DeviceOrientationEvent: J.Interceptor, DeviceRotationRate: J.Interceptor, DirectoryEntry: J.Interceptor, DirectoryReader: J.Interceptor, DocumentOrShadowRoot: J.Interceptor, DocumentTimeline: J.Interceptor, DOMError: J.Interceptor, DOMImplementation: J.Interceptor, Iterator: J.Interceptor, DOMMatrix: J.Interceptor, DOMMatrixReadOnly: J.Interceptor, DOMParser: J.Interceptor, DOMPoint: J.Interceptor, DOMPointReadOnly: J.Interceptor, DOMQuad: J.Interceptor, DOMStringMap: J.Interceptor, Entry: J.Interceptor, ErrorEvent: J.Interceptor, Event: J.Interceptor, InputEvent: J.Interceptor, ExtendableEvent: J.Interceptor, ExtendableMessageEvent: J.Interceptor, External: J.Interceptor, FaceDetector: J.Interceptor, FederatedCredential: J.Interceptor, FetchEvent: J.Interceptor, FileEntry: J.Interceptor, DOMFileSystem: J.Interceptor, FocusEvent: J.Interceptor, FontFace: J.Interceptor, FontFaceSetLoadEvent: J.Interceptor, FontFaceSource: J.Interceptor, ForeignFetchEvent: J.Interceptor, FormData: J.Interceptor, GamepadButton: J.Interceptor, GamepadEvent: J.Interceptor, GamepadPose: J.Interceptor, Geolocation: J.Interceptor, Position: J.Interceptor, HashChangeEvent: J.Interceptor, Headers: J.Interceptor, HTMLHyperlinkElementUtils: J.Interceptor, IdleDeadline: J.Interceptor, ImageBitmap: J.Interceptor, ImageBitmapRenderingContext: J.Interceptor, ImageCapture: J.Interceptor, ImageData: J.Interceptor, InputDeviceCapabilities: J.Interceptor, InstallEvent: J.Interceptor, IntersectionObserver: J.Interceptor, IntersectionObserverEntry: J.Interceptor, InterventionReport: J.Interceptor, KeyboardEvent: J.Interceptor, KeyframeEffect: J.Interceptor, KeyframeEffectReadOnly: J.Interceptor, MediaCapabilities: J.Interceptor, MediaCapabilitiesInfo: J.Interceptor, MediaDeviceInfo: J.Interceptor, MediaEncryptedEvent: J.Interceptor, MediaError: J.Interceptor, MediaKeyMessageEvent: J.Interceptor, MediaKeyStatusMap: J.Interceptor, MediaKeySystemAccess: J.Interceptor, MediaKeys: J.Interceptor, MediaKeysPolicy: J.Interceptor, MediaMetadata: J.Interceptor, MediaQueryListEvent: J.Interceptor, MediaSession: J.Interceptor, MediaSettingsRange: J.Interceptor, MediaStreamEvent: J.Interceptor, MediaStreamTrackEvent: J.Interceptor, MemoryInfo: J.Interceptor, MessageChannel: J.Interceptor, MessageEvent: J.Interceptor, Metadata: J.Interceptor, MIDIConnectionEvent: J.Interceptor, MIDIMessageEvent: J.Interceptor, MouseEvent: J.Interceptor, DragEvent: J.Interceptor, MutationEvent: J.Interceptor, MutationObserver: J.Interceptor, WebKitMutationObserver: J.Interceptor, MutationRecord: J.Interceptor, NavigationPreloadManager: J.Interceptor, Navigator: J.Interceptor, NavigatorAutomationInformation: J.Interceptor, NavigatorConcurrentHardware: J.Interceptor, NavigatorCookies: J.Interceptor, NavigatorUserMediaError: J.Interceptor, NodeFilter: J.Interceptor, NodeIterator: J.Interceptor, NonDocumentTypeChildNode: J.Interceptor, NonElementParentNode: J.Interceptor, NoncedElement: J.Interceptor, NotificationEvent: J.Interceptor, OffscreenCanvasRenderingContext2D: J.Interceptor, OverconstrainedError: J.Interceptor, PageTransitionEvent: J.Interceptor, PaintRenderingContext2D: J.Interceptor, PaintSize: J.Interceptor, PaintWorkletGlobalScope: J.Interceptor, PasswordCredential: J.Interceptor, Path2D: J.Interceptor, PaymentAddress: J.Interceptor, PaymentInstruments: J.Interceptor, PaymentManager: J.Interceptor, PaymentRequestEvent: J.Interceptor, PaymentRequestUpdateEvent: J.Interceptor, PaymentResponse: J.Interceptor, PerformanceEntry: J.Interceptor, PerformanceLongTaskTiming: J.Interceptor, PerformanceMark: J.Interceptor, PerformanceMeasure: J.Interceptor, PerformanceNavigation: J.Interceptor, PerformanceNavigationTiming: J.Interceptor, PerformanceObserver: J.Interceptor, PerformanceObserverEntryList: J.Interceptor, PerformancePaintTiming: J.Interceptor, PerformanceResourceTiming: J.Interceptor, PerformanceServerTiming: J.Interceptor, PerformanceTiming: J.Interceptor, Permissions: J.Interceptor, PhotoCapabilities: J.Interceptor, PointerEvent: J.Interceptor, PopStateEvent: J.Interceptor, PositionError: J.Interceptor, Presentation: J.Interceptor, PresentationConnectionAvailableEvent: J.Interceptor, PresentationConnectionCloseEvent: J.Interceptor, PresentationReceiver: J.Interceptor, ProgressEvent: J.Interceptor, PromiseRejectionEvent: J.Interceptor, PublicKeyCredential: J.Interceptor, PushEvent: J.Interceptor, PushManager: J.Interceptor, PushMessageData: J.Interceptor, PushSubscription: J.Interceptor, PushSubscriptionOptions: J.Interceptor, Range: J.Interceptor, RelatedApplication: J.Interceptor, ReportBody: J.Interceptor, ReportingObserver: J.Interceptor, ResizeObserver: J.Interceptor, ResizeObserverEntry: J.Interceptor, RTCCertificate: J.Interceptor, RTCDataChannelEvent: J.Interceptor, RTCDTMFToneChangeEvent: J.Interceptor, RTCIceCandidate: J.Interceptor, mozRTCIceCandidate: J.Interceptor, RTCLegacyStatsReport: J.Interceptor, RTCPeerConnectionIceEvent: J.Interceptor, RTCRtpContributingSource: J.Interceptor, RTCRtpReceiver: J.Interceptor, RTCRtpSender: J.Interceptor, RTCSessionDescription: J.Interceptor, mozRTCSessionDescription: J.Interceptor, RTCStatsResponse: J.Interceptor, RTCTrackEvent: J.Interceptor, Screen: J.Interceptor, ScrollState: J.Interceptor, ScrollTimeline: J.Interceptor, SecurityPolicyViolationEvent: J.Interceptor, Selection: J.Interceptor, SensorErrorEvent: J.Interceptor, SharedArrayBuffer: J.Interceptor, SpeechRecognitionAlternative: J.Interceptor, SpeechRecognitionError: J.Interceptor, SpeechRecognitionEvent: J.Interceptor, SpeechSynthesisEvent: J.Interceptor, SpeechSynthesisVoice: J.Interceptor, StaticRange: J.Interceptor, StorageEvent: J.Interceptor, StorageManager: J.Interceptor, StyleMedia: J.Interceptor, StylePropertyMap: J.Interceptor, StylePropertyMapReadonly: J.Interceptor, SyncEvent: J.Interceptor, SyncManager: J.Interceptor, TaskAttributionTiming: J.Interceptor, TextDetector: J.Interceptor, TextEvent: J.Interceptor, TextMetrics: J.Interceptor, TouchEvent: J.Interceptor, TrackDefault: J.Interceptor, TrackEvent: J.Interceptor, TransitionEvent: J.Interceptor, WebKitTransitionEvent: J.Interceptor, TreeWalker: J.Interceptor, TrustedHTML: J.Interceptor, TrustedScriptURL: J.Interceptor, TrustedURL: J.Interceptor, UIEvent: J.Interceptor, UnderlyingSourceBase: J.Interceptor, URLSearchParams: J.Interceptor, VRCoordinateSystem: J.Interceptor, VRDeviceEvent: J.Interceptor, VRDisplayCapabilities: J.Interceptor, VRDisplayEvent: J.Interceptor, VREyeParameters: J.Interceptor, VRFrameData: J.Interceptor, VRFrameOfReference: J.Interceptor, VRPose: J.Interceptor, VRSessionEvent: J.Interceptor, VRStageBounds: J.Interceptor, VRStageBoundsPoint: J.Interceptor, VRStageParameters: J.Interceptor, ValidityState: J.Interceptor, VideoPlaybackQuality: J.Interceptor, VideoTrack: J.Interceptor, VTTRegion: J.Interceptor, WheelEvent: J.Interceptor, WindowClient: J.Interceptor, WorkletAnimation: J.Interceptor, WorkletGlobalScope: J.Interceptor, XPathEvaluator: J.Interceptor, XPathExpression: J.Interceptor, XPathNSResolver: J.Interceptor, XPathResult: J.Interceptor, XMLSerializer: J.Interceptor, XSLTProcessor: J.Interceptor, Bluetooth: J.Interceptor, BluetoothCharacteristicProperties: J.Interceptor, BluetoothRemoteGATTServer: J.Interceptor, BluetoothRemoteGATTService: J.Interceptor, BluetoothUUID: J.Interceptor, BudgetService: J.Interceptor, Cache: J.Interceptor, DOMFileSystemSync: J.Interceptor, DirectoryEntrySync: J.Interceptor, DirectoryReaderSync: J.Interceptor, EntrySync: J.Interceptor, FileEntrySync: J.Interceptor, FileReaderSync: J.Interceptor, FileWriterSync: J.Interceptor, HTMLAllCollection: J.Interceptor, Mojo: J.Interceptor, MojoHandle: J.Interceptor, MojoInterfaceRequestEvent: J.Interceptor, MojoWatcher: J.Interceptor, NFC: J.Interceptor, PagePopupController: J.Interceptor, Report: J.Interceptor, Request: J.Interceptor, ResourceProgressEvent: J.Interceptor, Response: J.Interceptor, SubtleCrypto: J.Interceptor, USBAlternateInterface: J.Interceptor, USBConfiguration: J.Interceptor, USBConnectionEvent: J.Interceptor, USBDevice: J.Interceptor, USBEndpoint: J.Interceptor, USBInTransferResult: J.Interceptor, USBInterface: J.Interceptor, USBIsochronousInTransferPacket: J.Interceptor, USBIsochronousInTransferResult: J.Interceptor, USBIsochronousOutTransferPacket: J.Interceptor, USBIsochronousOutTransferResult: J.Interceptor, USBOutTransferResult: J.Interceptor, WorkerLocation: J.Interceptor, WorkerNavigator: J.Interceptor, Worklet: J.Interceptor, IDBCursor: J.Interceptor, IDBCursorWithValue: J.Interceptor, IDBFactory: J.Interceptor, IDBIndex: J.Interceptor, IDBKeyRange: J.Interceptor, IDBObjectStore: J.Interceptor, IDBObservation: J.Interceptor, IDBObserver: J.Interceptor, IDBObserverChanges: J.Interceptor, IDBVersionChangeEvent: J.Interceptor, SVGAngle: J.Interceptor, SVGAnimatedAngle: J.Interceptor, SVGAnimatedBoolean: J.Interceptor, SVGAnimatedEnumeration: J.Interceptor, SVGAnimatedInteger: J.Interceptor, SVGAnimatedLength: J.Interceptor, SVGAnimatedLengthList: J.Interceptor, SVGAnimatedNumber: J.Interceptor, SVGAnimatedNumberList: J.Interceptor, SVGAnimatedPreserveAspectRatio: J.Interceptor, SVGAnimatedRect: J.Interceptor, SVGAnimatedString: J.Interceptor, SVGAnimatedTransformList: J.Interceptor, SVGMatrix: J.Interceptor, SVGPoint: J.Interceptor, SVGPreserveAspectRatio: J.Interceptor, SVGRect: J.Interceptor, SVGUnitTypes: J.Interceptor, AudioListener: J.Interceptor, AudioParam: J.Interceptor, AudioProcessingEvent: J.Interceptor, AudioTrack: J.Interceptor, AudioWorkletGlobalScope: J.Interceptor, AudioWorkletProcessor: J.Interceptor, OfflineAudioCompletionEvent: J.Interceptor, PeriodicWave: J.Interceptor, WebGLActiveInfo: J.Interceptor, ANGLEInstancedArrays: J.Interceptor, ANGLE_instanced_arrays: J.Interceptor, WebGLCanvas: J.Interceptor, WebGLColorBufferFloat: J.Interceptor, WebGLCompressedTextureASTC: J.Interceptor, WebGLCompressedTextureATC: J.Interceptor, WEBGL_compressed_texture_atc: J.Interceptor, WebGLCompressedTextureETC1: J.Interceptor, WEBGL_compressed_texture_etc1: J.Interceptor, WebGLCompressedTextureETC: J.Interceptor, WebGLCompressedTexturePVRTC: J.Interceptor, WEBGL_compressed_texture_pvrtc: J.Interceptor, WebGLCompressedTextureS3TC: J.Interceptor, WEBGL_compressed_texture_s3tc: J.Interceptor, WebGLCompressedTextureS3TCsRGB: J.Interceptor, WebGLContextEvent: J.Interceptor, WebGLDebugRendererInfo: J.Interceptor, WEBGL_debug_renderer_info: J.Interceptor, WebGLDebugShaders: J.Interceptor, WEBGL_debug_shaders: J.Interceptor, WebGLDepthTexture: J.Interceptor, WEBGL_depth_texture: J.Interceptor, WebGLDrawBuffers: J.Interceptor, WEBGL_draw_buffers: J.Interceptor, EXTsRGB: J.Interceptor, EXT_sRGB: J.Interceptor, EXTBlendMinMax: J.Interceptor, EXT_blend_minmax: J.Interceptor, EXTColorBufferFloat: J.Interceptor, EXTColorBufferHalfFloat: J.Interceptor, EXTDisjointTimerQuery: J.Interceptor, EXTDisjointTimerQueryWebGL2: J.Interceptor, EXTFragDepth: J.Interceptor, EXT_frag_depth: J.Interceptor, EXTShaderTextureLOD: J.Interceptor, EXT_shader_texture_lod: J.Interceptor, EXTTextureFilterAnisotropic: J.Interceptor, EXT_texture_filter_anisotropic: J.Interceptor, WebGLGetBufferSubDataAsync: J.Interceptor, WebGLLoseContext: J.Interceptor, WebGLExtensionLoseContext: J.Interceptor, WEBGL_lose_context: J.Interceptor, OESElementIndexUint: J.Interceptor, OES_element_index_uint: J.Interceptor, OESStandardDerivatives: J.Interceptor, OES_standard_derivatives: J.Interceptor, OESTextureFloat: J.Interceptor, OES_texture_float: J.Interceptor, OESTextureFloatLinear: J.Interceptor, OES_texture_float_linear: J.Interceptor, OESTextureHalfFloat: J.Interceptor, OES_texture_half_float: J.Interceptor, OESTextureHalfFloatLinear: J.Interceptor, OES_texture_half_float_linear: J.Interceptor, OESVertexArrayObject: J.Interceptor, OES_vertex_array_object: J.Interceptor, WebGLQuery: J.Interceptor, WebGLRenderbuffer: J.Interceptor, WebGLSampler: J.Interceptor, WebGLShaderPrecisionFormat: J.Interceptor, WebGLSync: J.Interceptor, WebGLTimerQueryEXT: J.Interceptor, WebGLTransformFeedback: J.Interceptor, WebGLVertexArrayObjectOES: J.Interceptor, WebGL: J.Interceptor, WebGL2RenderingContextBase: J.Interceptor, Database: J.Interceptor, SQLError: J.Interceptor, SQLResultSet: J.Interceptor, SQLTransaction: J.Interceptor, DataView: H.NativeTypedData, ArrayBufferView: H.NativeTypedData, Float64Array: H.NativeTypedArrayOfDouble, Float32Array: H.NativeFloat32List, Int16Array: H.NativeInt16List, Int32Array: H.NativeInt32List, Int8Array: H.NativeInt8List, Uint16Array: H.NativeUint16List, Uint32Array: H.NativeUint32List, Uint8ClampedArray: H.NativeUint8ClampedList, CanvasPixelArray: H.NativeUint8ClampedList, Uint8Array: H.NativeUint8List, HTMLAudioElement: W.HtmlElement, HTMLBRElement: W.HtmlElement, HTMLButtonElement: W.HtmlElement, HTMLContentElement: W.HtmlElement, HTMLDListElement: W.HtmlElement, HTMLDataElement: W.HtmlElement, HTMLDataListElement: W.HtmlElement, HTMLDetailsElement: W.HtmlElement, HTMLDialogElement: W.HtmlElement, HTMLEmbedElement: W.HtmlElement, HTMLFieldSetElement: W.HtmlElement, HTMLHRElement: W.HtmlElement, HTMLHeadElement: W.HtmlElement, HTMLHeadingElement: W.HtmlElement, HTMLHtmlElement: W.HtmlElement, HTMLIFrameElement: W.HtmlElement, HTMLImageElement: W.HtmlElement, HTMLInputElement: W.HtmlElement, HTMLLIElement: W.HtmlElement, HTMLLabelElement: W.HtmlElement, HTMLLegendElement: W.HtmlElement, HTMLLinkElement: W.HtmlElement, HTMLMapElement: W.HtmlElement, HTMLMediaElement: W.HtmlElement, HTMLMenuElement: W.HtmlElement, HTMLMetaElement: W.HtmlElement, HTMLMeterElement: W.HtmlElement, HTMLModElement: W.HtmlElement, HTMLOListElement: W.HtmlElement, HTMLObjectElement: W.HtmlElement, HTMLOptGroupElement: W.HtmlElement, HTMLOptionElement: W.HtmlElement, HTMLOutputElement: W.HtmlElement, HTMLParagraphElement: W.HtmlElement, HTMLParamElement: W.HtmlElement, HTMLPictureElement: W.HtmlElement, HTMLPreElement: W.HtmlElement, HTMLProgressElement: W.HtmlElement, HTMLQuoteElement: W.HtmlElement, HTMLScriptElement: W.HtmlElement, HTMLShadowElement: W.HtmlElement, HTMLSlotElement: W.HtmlElement, HTMLSourceElement: W.HtmlElement, HTMLSpanElement: W.HtmlElement, HTMLStyleElement: W.HtmlElement, HTMLTableCaptionElement: W.HtmlElement, HTMLTableCellElement: W.HtmlElement, HTMLTableDataCellElement: W.HtmlElement, HTMLTableHeaderCellElement: W.HtmlElement, HTMLTableColElement: W.HtmlElement, HTMLTextAreaElement: W.HtmlElement, HTMLTimeElement: W.HtmlElement, HTMLTitleElement: W.HtmlElement, HTMLTrackElement: W.HtmlElement, HTMLUListElement: W.HtmlElement, HTMLUnknownElement: W.HtmlElement, HTMLVideoElement: W.HtmlElement, HTMLDirectoryElement: W.HtmlElement, HTMLFontElement: W.HtmlElement, HTMLFrameElement: W.HtmlElement, HTMLFrameSetElement: W.HtmlElement, HTMLMarqueeElement: W.HtmlElement, HTMLElement: W.HtmlElement, AccessibleNodeList: W.AccessibleNodeList, HTMLAnchorElement: W.AnchorElement, HTMLAreaElement: W.AreaElement, HTMLBaseElement: W.BaseElement, Blob: W.Blob, HTMLBodyElement: W.BodyElement, HTMLCanvasElement: W.CanvasElement, CanvasRenderingContext2D: W.CanvasRenderingContext2D, CDATASection: W.CharacterData, CharacterData: W.CharacterData, Comment: W.CharacterData, ProcessingInstruction: W.CharacterData, Text: W.CharacterData, CSSNumericValue: W.CssNumericValue, CSSUnitValue: W.CssNumericValue, CSSPerspective: W.CssPerspective, CSSCharsetRule: W.CssRule, CSSConditionRule: W.CssRule, CSSFontFaceRule: W.CssRule, CSSGroupingRule: W.CssRule, CSSImportRule: W.CssRule, CSSKeyframeRule: W.CssRule, MozCSSKeyframeRule: W.CssRule, WebKitCSSKeyframeRule: W.CssRule, CSSKeyframesRule: W.CssRule, MozCSSKeyframesRule: W.CssRule, WebKitCSSKeyframesRule: W.CssRule, CSSMediaRule: W.CssRule, CSSNamespaceRule: W.CssRule, CSSPageRule: W.CssRule, CSSRule: W.CssRule, CSSStyleRule: W.CssRule, CSSSupportsRule: W.CssRule, CSSViewportRule: W.CssRule, CSSStyleDeclaration: W.CssStyleDeclaration, MSStyleCSSProperties: W.CssStyleDeclaration, CSS2Properties: W.CssStyleDeclaration, CSSImageValue: W.CssStyleValue, CSSKeywordValue: W.CssStyleValue, CSSPositionValue: W.CssStyleValue, CSSResourceValue: W.CssStyleValue, CSSURLImageValue: W.CssStyleValue, CSSStyleValue: W.CssStyleValue, CSSMatrixComponent: W.CssTransformComponent, CSSRotation: W.CssTransformComponent, CSSScale: W.CssTransformComponent, CSSSkew: W.CssTransformComponent, CSSTranslation: W.CssTransformComponent, CSSTransformComponent: W.CssTransformComponent, CSSTransformValue: W.CssTransformValue, CSSUnparsedValue: W.CssUnparsedValue, DataTransferItemList: W.DataTransferItemList, HTMLDivElement: W.DivElement, DOMException: W.DomException, ClientRectList: W.DomRectList, DOMRectList: W.DomRectList, DOMRectReadOnly: W.DomRectReadOnly, DOMStringList: W.DomStringList, DOMTokenList: W.DomTokenList, Element: W.Element, AbsoluteOrientationSensor: W.EventTarget, Accelerometer: W.EventTarget, AccessibleNode: W.EventTarget, AmbientLightSensor: W.EventTarget, Animation: W.EventTarget, ApplicationCache: W.EventTarget, DOMApplicationCache: W.EventTarget, OfflineResourceList: W.EventTarget, BackgroundFetchRegistration: W.EventTarget, BatteryManager: W.EventTarget, BroadcastChannel: W.EventTarget, CanvasCaptureMediaStreamTrack: W.EventTarget, DedicatedWorkerGlobalScope: W.EventTarget, EventSource: W.EventTarget, FileReader: W.EventTarget, FontFaceSet: W.EventTarget, Gyroscope: W.EventTarget, XMLHttpRequest: W.EventTarget, XMLHttpRequestEventTarget: W.EventTarget, XMLHttpRequestUpload: W.EventTarget, LinearAccelerationSensor: W.EventTarget, Magnetometer: W.EventTarget, MediaDevices: W.EventTarget, MediaKeySession: W.EventTarget, MediaQueryList: W.EventTarget, MediaRecorder: W.EventTarget, MediaSource: W.EventTarget, MediaStream: W.EventTarget, MediaStreamTrack: W.EventTarget, MessagePort: W.EventTarget, MIDIAccess: W.EventTarget, MIDIInput: W.EventTarget, MIDIOutput: W.EventTarget, MIDIPort: W.EventTarget, NetworkInformation: W.EventTarget, Notification: W.EventTarget, OffscreenCanvas: W.EventTarget, OrientationSensor: W.EventTarget, PaymentRequest: W.EventTarget, Performance: W.EventTarget, PermissionStatus: W.EventTarget, PresentationAvailability: W.EventTarget, PresentationConnection: W.EventTarget, PresentationConnectionList: W.EventTarget, PresentationRequest: W.EventTarget, RelativeOrientationSensor: W.EventTarget, RemotePlayback: W.EventTarget, RTCDataChannel: W.EventTarget, DataChannel: W.EventTarget, RTCDTMFSender: W.EventTarget, RTCPeerConnection: W.EventTarget, webkitRTCPeerConnection: W.EventTarget, mozRTCPeerConnection: W.EventTarget, ScreenOrientation: W.EventTarget, Sensor: W.EventTarget, ServiceWorker: W.EventTarget, ServiceWorkerContainer: W.EventTarget, ServiceWorkerGlobalScope: W.EventTarget, ServiceWorkerRegistration: W.EventTarget, SharedWorker: W.EventTarget, SharedWorkerGlobalScope: W.EventTarget, SpeechRecognition: W.EventTarget, SpeechSynthesis: W.EventTarget, SpeechSynthesisUtterance: W.EventTarget, VR: W.EventTarget, VRDevice: W.EventTarget, VRDisplay: W.EventTarget, VRSession: W.EventTarget, VisualViewport: W.EventTarget, WebSocket: W.EventTarget, Window: W.EventTarget, DOMWindow: W.EventTarget, Worker: W.EventTarget, WorkerGlobalScope: W.EventTarget, WorkerPerformance: W.EventTarget, BluetoothDevice: W.EventTarget, BluetoothRemoteGATTCharacteristic: W.EventTarget, Clipboard: W.EventTarget, MojoInterfaceInterceptor: W.EventTarget, USB: W.EventTarget, IDBDatabase: W.EventTarget, IDBOpenDBRequest: W.EventTarget, IDBVersionChangeRequest: W.EventTarget, IDBRequest: W.EventTarget, IDBTransaction: W.EventTarget, AnalyserNode: W.EventTarget, RealtimeAnalyserNode: W.EventTarget, AudioBufferSourceNode: W.EventTarget, AudioDestinationNode: W.EventTarget, AudioNode: W.EventTarget, AudioScheduledSourceNode: W.EventTarget, AudioWorkletNode: W.EventTarget, BiquadFilterNode: W.EventTarget, ChannelMergerNode: W.EventTarget, AudioChannelMerger: W.EventTarget, ChannelSplitterNode: W.EventTarget, AudioChannelSplitter: W.EventTarget, ConstantSourceNode: W.EventTarget, ConvolverNode: W.EventTarget, DelayNode: W.EventTarget, DynamicsCompressorNode: W.EventTarget, GainNode: W.EventTarget, AudioGainNode: W.EventTarget, IIRFilterNode: W.EventTarget, MediaElementAudioSourceNode: W.EventTarget, MediaStreamAudioDestinationNode: W.EventTarget, MediaStreamAudioSourceNode: W.EventTarget, OscillatorNode: W.EventTarget, Oscillator: W.EventTarget, PannerNode: W.EventTarget, AudioPannerNode: W.EventTarget, webkitAudioPannerNode: W.EventTarget, ScriptProcessorNode: W.EventTarget, JavaScriptAudioNode: W.EventTarget, StereoPannerNode: W.EventTarget, WaveShaperNode: W.EventTarget, EventTarget: W.EventTarget, File: W.File, FileList: W.FileList, FileWriter: W.FileWriter, HTMLFormElement: W.FormElement, Gamepad: W.Gamepad, History: W.History, HTMLCollection: W.HtmlCollection, HTMLFormControlsCollection: W.HtmlCollection, HTMLOptionsCollection: W.HtmlCollection, Location: W.Location, MediaList: W.MediaList, MIDIInputMap: W.MidiInputMap, MIDIOutputMap: W.MidiOutputMap, MimeType: W.MimeType, MimeTypeArray: W.MimeTypeArray, Document: W.Node, DocumentFragment: W.Node, HTMLDocument: W.Node, ShadowRoot: W.Node, XMLDocument: W.Node, DocumentType: W.Node, Node: W.Node, NodeList: W.NodeList, RadioNodeList: W.NodeList, Plugin: W.Plugin, PluginArray: W.PluginArray, RTCStatsReport: W.RtcStatsReport, HTMLSelectElement: W.SelectElement, SourceBuffer: W.SourceBuffer, SourceBufferList: W.SourceBufferList, SpeechGrammar: W.SpeechGrammar, SpeechGrammarList: W.SpeechGrammarList, SpeechRecognitionResult: W.SpeechRecognitionResult, Storage: W.Storage, CSSStyleSheet: W.StyleSheet, StyleSheet: W.StyleSheet, HTMLTableElement: W.TableElement, HTMLTableRowElement: W.TableRowElement, HTMLTableSectionElement: W.TableSectionElement, HTMLTemplateElement: W.TemplateElement, TextTrack: W.TextTrack, TextTrackCue: W.TextTrackCue, VTTCue: W.TextTrackCue, TextTrackCueList: W.TextTrackCueList, TextTrackList: W.TextTrackList, TimeRanges: W.TimeRanges, Touch: W.Touch, TouchList: W.TouchList, TrackDefaultList: W.TrackDefaultList, URL: W.Url, VideoTrackList: W.VideoTrackList, Attr: W._Attr, CSSRuleList: W._CssRuleList, ClientRect: W._DomRect, DOMRect: W._DomRect, GamepadList: W._GamepadList, NamedNodeMap: W._NamedNodeMap, MozNamedAttrMap: W._NamedNodeMap, SpeechRecognitionResultList: W._SpeechRecognitionResultList, StyleSheetList: W._StyleSheetList, SVGLength: P.Length, SVGLengthList: P.LengthList, SVGNumber: P.Number, SVGNumberList: P.NumberList, SVGPointList: P.PointList, SVGScriptElement: P.ScriptElement, SVGStringList: P.StringList, SVGAElement: P.SvgElement, SVGAnimateElement: P.SvgElement, SVGAnimateMotionElement: P.SvgElement, SVGAnimateTransformElement: P.SvgElement, SVGAnimationElement: P.SvgElement, SVGCircleElement: P.SvgElement, SVGClipPathElement: P.SvgElement, SVGDefsElement: P.SvgElement, SVGDescElement: P.SvgElement, SVGDiscardElement: P.SvgElement, SVGEllipseElement: P.SvgElement, SVGFEBlendElement: P.SvgElement, SVGFEColorMatrixElement: P.SvgElement, SVGFEComponentTransferElement: P.SvgElement, SVGFECompositeElement: P.SvgElement, SVGFEConvolveMatrixElement: P.SvgElement, SVGFEDiffuseLightingElement: P.SvgElement, SVGFEDisplacementMapElement: P.SvgElement, SVGFEDistantLightElement: P.SvgElement, SVGFEFloodElement: P.SvgElement, SVGFEFuncAElement: P.SvgElement, SVGFEFuncBElement: P.SvgElement, SVGFEFuncGElement: P.SvgElement, SVGFEFuncRElement: P.SvgElement, SVGFEGaussianBlurElement: P.SvgElement, SVGFEImageElement: P.SvgElement, SVGFEMergeElement: P.SvgElement, SVGFEMergeNodeElement: P.SvgElement, SVGFEMorphologyElement: P.SvgElement, SVGFEOffsetElement: P.SvgElement, SVGFEPointLightElement: P.SvgElement, SVGFESpecularLightingElement: P.SvgElement, SVGFESpotLightElement: P.SvgElement, SVGFETileElement: P.SvgElement, SVGFETurbulenceElement: P.SvgElement, SVGFilterElement: P.SvgElement, SVGForeignObjectElement: P.SvgElement, SVGGElement: P.SvgElement, SVGGeometryElement: P.SvgElement, SVGGraphicsElement: P.SvgElement, SVGImageElement: P.SvgElement, SVGLineElement: P.SvgElement, SVGLinearGradientElement: P.SvgElement, SVGMarkerElement: P.SvgElement, SVGMaskElement: P.SvgElement, SVGMetadataElement: P.SvgElement, SVGPathElement: P.SvgElement, SVGPatternElement: P.SvgElement, SVGPolygonElement: P.SvgElement, SVGPolylineElement: P.SvgElement, SVGRadialGradientElement: P.SvgElement, SVGRectElement: P.SvgElement, SVGSetElement: P.SvgElement, SVGStopElement: P.SvgElement, SVGStyleElement: P.SvgElement, SVGSVGElement: P.SvgElement, SVGSwitchElement: P.SvgElement, SVGSymbolElement: P.SvgElement, SVGTSpanElement: P.SvgElement, SVGTextContentElement: P.SvgElement, SVGTextElement: P.SvgElement, SVGTextPathElement: P.SvgElement, SVGTextPositioningElement: P.SvgElement, SVGTitleElement: P.SvgElement, SVGUseElement: P.SvgElement, SVGViewElement: P.SvgElement, SVGGradientElement: P.SvgElement, SVGComponentTransferFunctionElement: P.SvgElement, SVGFEDropShadowElement: P.SvgElement, SVGMPathElement: P.SvgElement, SVGElement: P.SvgElement, SVGTransform: P.Transform, SVGTransformList: P.TransformList, AudioBuffer: P.AudioBuffer, AudioParamMap: P.AudioParamMap, AudioTrackList: P.AudioTrackList, AudioContext: P.BaseAudioContext, webkitAudioContext: P.BaseAudioContext, BaseAudioContext: P.BaseAudioContext, OfflineAudioContext: P.OfflineAudioContext, WebGLBuffer: P.Buffer, WebGLFramebuffer: P.Framebuffer0, WebGLProgram: P.Program, WebGLRenderingContext: P.RenderingContext, WebGL2RenderingContext: P.RenderingContext2, WebGLShader: P.Shader, WebGLTexture: P.Texture0, WebGLUniformLocation: P.UniformLocation, WebGLVertexArrayObject: P.VertexArrayObject, SQLResultSetRowList: P.SqlResultSetRowList});
-    hunkHelpers.setOrUpdateLeafTags({ArrayBuffer: true, AbortPaymentEvent: true, AnimationEffectReadOnly: true, AnimationEffectTiming: true, AnimationEffectTimingReadOnly: true, AnimationEvent: true, AnimationPlaybackEvent: true, AnimationTimeline: true, AnimationWorkletGlobalScope: true, ApplicationCacheErrorEvent: true, AuthenticatorAssertionResponse: true, AuthenticatorAttestationResponse: true, AuthenticatorResponse: true, BackgroundFetchClickEvent: true, BackgroundFetchEvent: true, BackgroundFetchFailEvent: true, BackgroundFetchFetch: true, BackgroundFetchManager: true, BackgroundFetchSettledFetch: true, BackgroundFetchedEvent: true, BarProp: true, BarcodeDetector: true, BeforeInstallPromptEvent: true, BeforeUnloadEvent: true, BlobEvent: true, BluetoothRemoteGATTDescriptor: true, Body: true, BudgetState: true, CacheStorage: true, CanMakePaymentEvent: true, CanvasGradient: true, CanvasPattern: true, Client: true, Clients: true, ClipboardEvent: true, CloseEvent: true, CompositionEvent: true, CookieStore: true, Coordinates: true, Credential: true, CredentialUserData: true, CredentialsContainer: true, Crypto: true, CryptoKey: true, CSS: true, CSSVariableReferenceValue: true, CustomElementRegistry: true, CustomEvent: true, DataTransfer: true, DataTransferItem: true, DeprecatedStorageInfo: true, DeprecatedStorageQuota: true, DeprecationReport: true, DetectedBarcode: true, DetectedFace: true, DetectedText: true, DeviceAcceleration: true, DeviceMotionEvent: true, DeviceOrientationEvent: true, DeviceRotationRate: true, DirectoryEntry: true, DirectoryReader: true, DocumentOrShadowRoot: true, DocumentTimeline: true, DOMError: true, DOMImplementation: true, Iterator: true, DOMMatrix: true, DOMMatrixReadOnly: true, DOMParser: true, DOMPoint: true, DOMPointReadOnly: true, DOMQuad: true, DOMStringMap: true, Entry: true, ErrorEvent: true, Event: true, InputEvent: true, ExtendableEvent: true, ExtendableMessageEvent: true, External: true, FaceDetector: true, FederatedCredential: true, FetchEvent: true, FileEntry: true, DOMFileSystem: true, FocusEvent: true, FontFace: true, FontFaceSetLoadEvent: true, FontFaceSource: true, ForeignFetchEvent: true, FormData: true, GamepadButton: true, GamepadEvent: true, GamepadPose: true, Geolocation: true, Position: true, HashChangeEvent: true, Headers: true, HTMLHyperlinkElementUtils: true, IdleDeadline: true, ImageBitmap: true, ImageBitmapRenderingContext: true, ImageCapture: true, ImageData: true, InputDeviceCapabilities: true, InstallEvent: true, IntersectionObserver: true, IntersectionObserverEntry: true, InterventionReport: true, KeyboardEvent: true, KeyframeEffect: true, KeyframeEffectReadOnly: true, MediaCapabilities: true, MediaCapabilitiesInfo: true, MediaDeviceInfo: true, MediaEncryptedEvent: true, MediaError: true, MediaKeyMessageEvent: true, MediaKeyStatusMap: true, MediaKeySystemAccess: true, MediaKeys: true, MediaKeysPolicy: true, MediaMetadata: true, MediaQueryListEvent: true, MediaSession: true, MediaSettingsRange: true, MediaStreamEvent: true, MediaStreamTrackEvent: true, MemoryInfo: true, MessageChannel: true, MessageEvent: true, Metadata: true, MIDIConnectionEvent: true, MIDIMessageEvent: true, MouseEvent: true, DragEvent: true, MutationEvent: true, MutationObserver: true, WebKitMutationObserver: true, MutationRecord: true, NavigationPreloadManager: true, Navigator: true, NavigatorAutomationInformation: true, NavigatorConcurrentHardware: true, NavigatorCookies: true, NavigatorUserMediaError: true, NodeFilter: true, NodeIterator: true, NonDocumentTypeChildNode: true, NonElementParentNode: true, NoncedElement: true, NotificationEvent: true, OffscreenCanvasRenderingContext2D: true, OverconstrainedError: true, PageTransitionEvent: true, PaintRenderingContext2D: true, PaintSize: true, PaintWorkletGlobalScope: true, PasswordCredential: true, Path2D: true, PaymentAddress: true, PaymentInstruments: true, PaymentManager: true, PaymentRequestEvent: true, PaymentRequestUpdateEvent: true, PaymentResponse: true, PerformanceEntry: true, PerformanceLongTaskTiming: true, PerformanceMark: true, PerformanceMeasure: true, PerformanceNavigation: true, PerformanceNavigationTiming: true, PerformanceObserver: true, PerformanceObserverEntryList: true, PerformancePaintTiming: true, PerformanceResourceTiming: true, PerformanceServerTiming: true, PerformanceTiming: true, Permissions: true, PhotoCapabilities: true, PointerEvent: true, PopStateEvent: true, PositionError: true, Presentation: true, PresentationConnectionAvailableEvent: true, PresentationConnectionCloseEvent: true, PresentationReceiver: true, ProgressEvent: true, PromiseRejectionEvent: true, PublicKeyCredential: true, PushEvent: true, PushManager: true, PushMessageData: true, PushSubscription: true, PushSubscriptionOptions: true, Range: true, RelatedApplication: true, ReportBody: true, ReportingObserver: true, ResizeObserver: true, ResizeObserverEntry: true, RTCCertificate: true, RTCDataChannelEvent: true, RTCDTMFToneChangeEvent: true, RTCIceCandidate: true, mozRTCIceCandidate: true, RTCLegacyStatsReport: true, RTCPeerConnectionIceEvent: true, RTCRtpContributingSource: true, RTCRtpReceiver: true, RTCRtpSender: true, RTCSessionDescription: true, mozRTCSessionDescription: true, RTCStatsResponse: true, RTCTrackEvent: true, Screen: true, ScrollState: true, ScrollTimeline: true, SecurityPolicyViolationEvent: true, Selection: true, SensorErrorEvent: true, SharedArrayBuffer: true, SpeechRecognitionAlternative: true, SpeechRecognitionError: true, SpeechRecognitionEvent: true, SpeechSynthesisEvent: true, SpeechSynthesisVoice: true, StaticRange: true, StorageEvent: true, StorageManager: true, StyleMedia: true, StylePropertyMap: true, StylePropertyMapReadonly: true, SyncEvent: true, SyncManager: true, TaskAttributionTiming: true, TextDetector: true, TextEvent: true, TextMetrics: true, TouchEvent: true, TrackDefault: true, TrackEvent: true, TransitionEvent: true, WebKitTransitionEvent: true, TreeWalker: true, TrustedHTML: true, TrustedScriptURL: true, TrustedURL: true, UIEvent: true, UnderlyingSourceBase: true, URLSearchParams: true, VRCoordinateSystem: true, VRDeviceEvent: true, VRDisplayCapabilities: true, VRDisplayEvent: true, VREyeParameters: true, VRFrameData: true, VRFrameOfReference: true, VRPose: true, VRSessionEvent: true, VRStageBounds: true, VRStageBoundsPoint: true, VRStageParameters: true, ValidityState: true, VideoPlaybackQuality: true, VideoTrack: true, VTTRegion: true, WheelEvent: true, WindowClient: true, WorkletAnimation: true, WorkletGlobalScope: true, XPathEvaluator: true, XPathExpression: true, XPathNSResolver: true, XPathResult: true, XMLSerializer: true, XSLTProcessor: true, Bluetooth: true, BluetoothCharacteristicProperties: true, BluetoothRemoteGATTServer: true, BluetoothRemoteGATTService: true, BluetoothUUID: true, BudgetService: true, Cache: true, DOMFileSystemSync: true, DirectoryEntrySync: true, DirectoryReaderSync: true, EntrySync: true, FileEntrySync: true, FileReaderSync: true, FileWriterSync: true, HTMLAllCollection: true, Mojo: true, MojoHandle: true, MojoInterfaceRequestEvent: true, MojoWatcher: true, NFC: true, PagePopupController: true, Report: true, Request: true, ResourceProgressEvent: true, Response: true, SubtleCrypto: true, USBAlternateInterface: true, USBConfiguration: true, USBConnectionEvent: true, USBDevice: true, USBEndpoint: true, USBInTransferResult: true, USBInterface: true, USBIsochronousInTransferPacket: true, USBIsochronousInTransferResult: true, USBIsochronousOutTransferPacket: true, USBIsochronousOutTransferResult: true, USBOutTransferResult: true, WorkerLocation: true, WorkerNavigator: true, Worklet: true, IDBCursor: true, IDBCursorWithValue: true, IDBFactory: true, IDBIndex: true, IDBKeyRange: true, IDBObjectStore: true, IDBObservation: true, IDBObserver: true, IDBObserverChanges: true, IDBVersionChangeEvent: true, SVGAngle: true, SVGAnimatedAngle: true, SVGAnimatedBoolean: true, SVGAnimatedEnumeration: true, SVGAnimatedInteger: true, SVGAnimatedLength: true, SVGAnimatedLengthList: true, SVGAnimatedNumber: true, SVGAnimatedNumberList: true, SVGAnimatedPreserveAspectRatio: true, SVGAnimatedRect: true, SVGAnimatedString: true, SVGAnimatedTransformList: true, SVGMatrix: true, SVGPoint: true, SVGPreserveAspectRatio: true, SVGRect: true, SVGUnitTypes: true, AudioListener: true, AudioParam: true, AudioProcessingEvent: true, AudioTrack: true, AudioWorkletGlobalScope: true, AudioWorkletProcessor: true, OfflineAudioCompletionEvent: true, PeriodicWave: true, WebGLActiveInfo: true, ANGLEInstancedArrays: true, ANGLE_instanced_arrays: true, WebGLCanvas: true, WebGLColorBufferFloat: true, WebGLCompressedTextureASTC: true, WebGLCompressedTextureATC: true, WEBGL_compressed_texture_atc: true, WebGLCompressedTextureETC1: true, WEBGL_compressed_texture_etc1: true, WebGLCompressedTextureETC: true, WebGLCompressedTexturePVRTC: true, WEBGL_compressed_texture_pvrtc: true, WebGLCompressedTextureS3TC: true, WEBGL_compressed_texture_s3tc: true, WebGLCompressedTextureS3TCsRGB: true, WebGLContextEvent: true, WebGLDebugRendererInfo: true, WEBGL_debug_renderer_info: true, WebGLDebugShaders: true, WEBGL_debug_shaders: true, WebGLDepthTexture: true, WEBGL_depth_texture: true, WebGLDrawBuffers: true, WEBGL_draw_buffers: true, EXTsRGB: true, EXT_sRGB: true, EXTBlendMinMax: true, EXT_blend_minmax: true, EXTColorBufferFloat: true, EXTColorBufferHalfFloat: true, EXTDisjointTimerQuery: true, EXTDisjointTimerQueryWebGL2: true, EXTFragDepth: true, EXT_frag_depth: true, EXTShaderTextureLOD: true, EXT_shader_texture_lod: true, EXTTextureFilterAnisotropic: true, EXT_texture_filter_anisotropic: true, WebGLGetBufferSubDataAsync: true, WebGLLoseContext: true, WebGLExtensionLoseContext: true, WEBGL_lose_context: true, OESElementIndexUint: true, OES_element_index_uint: true, OESStandardDerivatives: true, OES_standard_derivatives: true, OESTextureFloat: true, OES_texture_float: true, OESTextureFloatLinear: true, OES_texture_float_linear: true, OESTextureHalfFloat: true, OES_texture_half_float: true, OESTextureHalfFloatLinear: true, OES_texture_half_float_linear: true, OESVertexArrayObject: true, OES_vertex_array_object: true, WebGLQuery: true, WebGLRenderbuffer: true, WebGLSampler: true, WebGLShaderPrecisionFormat: true, WebGLSync: true, WebGLTimerQueryEXT: true, WebGLTransformFeedback: true, WebGLVertexArrayObjectOES: true, WebGL: true, WebGL2RenderingContextBase: true, Database: true, SQLError: true, SQLResultSet: true, SQLTransaction: true, DataView: true, ArrayBufferView: false, Float64Array: true, Float32Array: true, Int16Array: true, Int32Array: true, Int8Array: true, Uint16Array: true, Uint32Array: true, Uint8ClampedArray: true, CanvasPixelArray: true, Uint8Array: false, HTMLAudioElement: true, HTMLBRElement: true, HTMLButtonElement: true, HTMLContentElement: true, HTMLDListElement: true, HTMLDataElement: true, HTMLDataListElement: true, HTMLDetailsElement: true, HTMLDialogElement: true, HTMLEmbedElement: true, HTMLFieldSetElement: true, HTMLHRElement: true, HTMLHeadElement: true, HTMLHeadingElement: true, HTMLHtmlElement: true, HTMLIFrameElement: true, HTMLImageElement: true, HTMLInputElement: true, HTMLLIElement: true, HTMLLabelElement: true, HTMLLegendElement: true, HTMLLinkElement: true, HTMLMapElement: true, HTMLMediaElement: true, HTMLMenuElement: true, HTMLMetaElement: true, HTMLMeterElement: true, HTMLModElement: true, HTMLOListElement: true, HTMLObjectElement: true, HTMLOptGroupElement: true, HTMLOptionElement: true, HTMLOutputElement: true, HTMLParagraphElement: true, HTMLParamElement: true, HTMLPictureElement: true, HTMLPreElement: true, HTMLProgressElement: true, HTMLQuoteElement: true, HTMLScriptElement: true, HTMLShadowElement: true, HTMLSlotElement: true, HTMLSourceElement: true, HTMLSpanElement: true, HTMLStyleElement: true, HTMLTableCaptionElement: true, HTMLTableCellElement: true, HTMLTableDataCellElement: true, HTMLTableHeaderCellElement: true, HTMLTableColElement: true, HTMLTextAreaElement: true, HTMLTimeElement: true, HTMLTitleElement: true, HTMLTrackElement: true, HTMLUListElement: true, HTMLUnknownElement: true, HTMLVideoElement: true, HTMLDirectoryElement: true, HTMLFontElement: true, HTMLFrameElement: true, HTMLFrameSetElement: true, HTMLMarqueeElement: true, HTMLElement: false, AccessibleNodeList: true, HTMLAnchorElement: true, HTMLAreaElement: true, HTMLBaseElement: true, Blob: false, HTMLBodyElement: true, HTMLCanvasElement: true, CanvasRenderingContext2D: true, CDATASection: true, CharacterData: true, Comment: true, ProcessingInstruction: true, Text: true, CSSNumericValue: true, CSSUnitValue: true, CSSPerspective: true, CSSCharsetRule: true, CSSConditionRule: true, CSSFontFaceRule: true, CSSGroupingRule: true, CSSImportRule: true, CSSKeyframeRule: true, MozCSSKeyframeRule: true, WebKitCSSKeyframeRule: true, CSSKeyframesRule: true, MozCSSKeyframesRule: true, WebKitCSSKeyframesRule: true, CSSMediaRule: true, CSSNamespaceRule: true, CSSPageRule: true, CSSRule: true, CSSStyleRule: true, CSSSupportsRule: true, CSSViewportRule: true, CSSStyleDeclaration: true, MSStyleCSSProperties: true, CSS2Properties: true, CSSImageValue: true, CSSKeywordValue: true, CSSPositionValue: true, CSSResourceValue: true, CSSURLImageValue: true, CSSStyleValue: false, CSSMatrixComponent: true, CSSRotation: true, CSSScale: true, CSSSkew: true, CSSTranslation: true, CSSTransformComponent: false, CSSTransformValue: true, CSSUnparsedValue: true, DataTransferItemList: true, HTMLDivElement: true, DOMException: true, ClientRectList: true, DOMRectList: true, DOMRectReadOnly: false, DOMStringList: true, DOMTokenList: true, Element: false, AbsoluteOrientationSensor: true, Accelerometer: true, AccessibleNode: true, AmbientLightSensor: true, Animation: true, ApplicationCache: true, DOMApplicationCache: true, OfflineResourceList: true, BackgroundFetchRegistration: true, BatteryManager: true, BroadcastChannel: true, CanvasCaptureMediaStreamTrack: true, DedicatedWorkerGlobalScope: true, EventSource: true, FileReader: true, FontFaceSet: true, Gyroscope: true, XMLHttpRequest: true, XMLHttpRequestEventTarget: true, XMLHttpRequestUpload: true, LinearAccelerationSensor: true, Magnetometer: true, MediaDevices: true, MediaKeySession: true, MediaQueryList: true, MediaRecorder: true, MediaSource: true, MediaStream: true, MediaStreamTrack: true, MessagePort: true, MIDIAccess: true, MIDIInput: true, MIDIOutput: true, MIDIPort: true, NetworkInformation: true, Notification: true, OffscreenCanvas: true, OrientationSensor: true, PaymentRequest: true, Performance: true, PermissionStatus: true, PresentationAvailability: true, PresentationConnection: true, PresentationConnectionList: true, PresentationRequest: true, RelativeOrientationSensor: true, RemotePlayback: true, RTCDataChannel: true, DataChannel: true, RTCDTMFSender: true, RTCPeerConnection: true, webkitRTCPeerConnection: true, mozRTCPeerConnection: true, ScreenOrientation: true, Sensor: true, ServiceWorker: true, ServiceWorkerContainer: true, ServiceWorkerGlobalScope: true, ServiceWorkerRegistration: true, SharedWorker: true, SharedWorkerGlobalScope: true, SpeechRecognition: true, SpeechSynthesis: true, SpeechSynthesisUtterance: true, VR: true, VRDevice: true, VRDisplay: true, VRSession: true, VisualViewport: true, WebSocket: true, Window: true, DOMWindow: true, Worker: true, WorkerGlobalScope: true, WorkerPerformance: true, BluetoothDevice: true, BluetoothRemoteGATTCharacteristic: true, Clipboard: true, MojoInterfaceInterceptor: true, USB: true, IDBDatabase: true, IDBOpenDBRequest: true, IDBVersionChangeRequest: true, IDBRequest: true, IDBTransaction: true, AnalyserNode: true, RealtimeAnalyserNode: true, AudioBufferSourceNode: true, AudioDestinationNode: true, AudioNode: true, AudioScheduledSourceNode: true, AudioWorkletNode: true, BiquadFilterNode: true, ChannelMergerNode: true, AudioChannelMerger: true, ChannelSplitterNode: true, AudioChannelSplitter: true, ConstantSourceNode: true, ConvolverNode: true, DelayNode: true, DynamicsCompressorNode: true, GainNode: true, AudioGainNode: true, IIRFilterNode: true, MediaElementAudioSourceNode: true, MediaStreamAudioDestinationNode: true, MediaStreamAudioSourceNode: true, OscillatorNode: true, Oscillator: true, PannerNode: true, AudioPannerNode: true, webkitAudioPannerNode: true, ScriptProcessorNode: true, JavaScriptAudioNode: true, StereoPannerNode: true, WaveShaperNode: true, EventTarget: false, File: true, FileList: true, FileWriter: true, HTMLFormElement: true, Gamepad: true, History: true, HTMLCollection: true, HTMLFormControlsCollection: true, HTMLOptionsCollection: true, Location: true, MediaList: true, MIDIInputMap: true, MIDIOutputMap: true, MimeType: true, MimeTypeArray: true, Document: true, DocumentFragment: true, HTMLDocument: true, ShadowRoot: true, XMLDocument: true, DocumentType: true, Node: false, NodeList: true, RadioNodeList: true, Plugin: true, PluginArray: true, RTCStatsReport: true, HTMLSelectElement: true, SourceBuffer: true, SourceBufferList: true, SpeechGrammar: true, SpeechGrammarList: true, SpeechRecognitionResult: true, Storage: true, CSSStyleSheet: true, StyleSheet: true, HTMLTableElement: true, HTMLTableRowElement: true, HTMLTableSectionElement: true, HTMLTemplateElement: true, TextTrack: true, TextTrackCue: true, VTTCue: true, TextTrackCueList: true, TextTrackList: true, TimeRanges: true, Touch: true, TouchList: true, TrackDefaultList: true, URL: true, VideoTrackList: true, Attr: true, CSSRuleList: true, ClientRect: true, DOMRect: true, GamepadList: true, NamedNodeMap: true, MozNamedAttrMap: true, SpeechRecognitionResultList: true, StyleSheetList: true, SVGLength: true, SVGLengthList: true, SVGNumber: true, SVGNumberList: true, SVGPointList: true, SVGScriptElement: true, SVGStringList: true, SVGAElement: true, SVGAnimateElement: true, SVGAnimateMotionElement: true, SVGAnimateTransformElement: true, SVGAnimationElement: true, SVGCircleElement: true, SVGClipPathElement: true, SVGDefsElement: true, SVGDescElement: true, SVGDiscardElement: true, SVGEllipseElement: true, SVGFEBlendElement: true, SVGFEColorMatrixElement: true, SVGFEComponentTransferElement: true, SVGFECompositeElement: true, SVGFEConvolveMatrixElement: true, SVGFEDiffuseLightingElement: true, SVGFEDisplacementMapElement: true, SVGFEDistantLightElement: true, SVGFEFloodElement: true, SVGFEFuncAElement: true, SVGFEFuncBElement: true, SVGFEFuncGElement: true, SVGFEFuncRElement: true, SVGFEGaussianBlurElement: true, SVGFEImageElement: true, SVGFEMergeElement: true, SVGFEMergeNodeElement: true, SVGFEMorphologyElement: true, SVGFEOffsetElement: true, SVGFEPointLightElement: true, SVGFESpecularLightingElement: true, SVGFESpotLightElement: true, SVGFETileElement: true, SVGFETurbulenceElement: true, SVGFilterElement: true, SVGForeignObjectElement: true, SVGGElement: true, SVGGeometryElement: true, SVGGraphicsElement: true, SVGImageElement: true, SVGLineElement: true, SVGLinearGradientElement: true, SVGMarkerElement: true, SVGMaskElement: true, SVGMetadataElement: true, SVGPathElement: true, SVGPatternElement: true, SVGPolygonElement: true, SVGPolylineElement: true, SVGRadialGradientElement: true, SVGRectElement: true, SVGSetElement: true, SVGStopElement: true, SVGStyleElement: true, SVGSVGElement: true, SVGSwitchElement: true, SVGSymbolElement: true, SVGTSpanElement: true, SVGTextContentElement: true, SVGTextElement: true, SVGTextPathElement: true, SVGTextPositioningElement: true, SVGTitleElement: true, SVGUseElement: true, SVGViewElement: true, SVGGradientElement: true, SVGComponentTransferFunctionElement: true, SVGFEDropShadowElement: true, SVGMPathElement: true, SVGElement: false, SVGTransform: true, SVGTransformList: true, AudioBuffer: true, AudioParamMap: true, AudioTrackList: true, AudioContext: true, webkitAudioContext: true, BaseAudioContext: false, OfflineAudioContext: true, WebGLBuffer: true, WebGLFramebuffer: true, WebGLProgram: true, WebGLRenderingContext: true, WebGL2RenderingContext: true, WebGLShader: true, WebGLTexture: true, WebGLUniformLocation: true, WebGLVertexArrayObject: true, SQLResultSetRowList: true});
+    hunkHelpers.setOrUpdateInterceptorsByTag({ArrayBuffer: J.Interceptor, AnimationEffectReadOnly: J.Interceptor, AnimationEffectTiming: J.Interceptor, AnimationEffectTimingReadOnly: J.Interceptor, AnimationTimeline: J.Interceptor, AnimationWorkletGlobalScope: J.Interceptor, AuthenticatorAssertionResponse: J.Interceptor, AuthenticatorAttestationResponse: J.Interceptor, AuthenticatorResponse: J.Interceptor, BackgroundFetchFetch: J.Interceptor, BackgroundFetchManager: J.Interceptor, BackgroundFetchSettledFetch: J.Interceptor, BarProp: J.Interceptor, BarcodeDetector: J.Interceptor, BluetoothRemoteGATTDescriptor: J.Interceptor, Body: J.Interceptor, BudgetState: J.Interceptor, CacheStorage: J.Interceptor, CanvasGradient: J.Interceptor, CanvasPattern: J.Interceptor, Client: J.Interceptor, Clients: J.Interceptor, CookieStore: J.Interceptor, Coordinates: J.Interceptor, Credential: J.Interceptor, CredentialUserData: J.Interceptor, CredentialsContainer: J.Interceptor, Crypto: J.Interceptor, CryptoKey: J.Interceptor, CSS: J.Interceptor, CSSVariableReferenceValue: J.Interceptor, CustomElementRegistry: J.Interceptor, DataTransfer: J.Interceptor, DataTransferItem: J.Interceptor, DeprecatedStorageInfo: J.Interceptor, DeprecatedStorageQuota: J.Interceptor, DeprecationReport: J.Interceptor, DetectedBarcode: J.Interceptor, DetectedFace: J.Interceptor, DetectedText: J.Interceptor, DeviceAcceleration: J.Interceptor, DeviceRotationRate: J.Interceptor, DirectoryEntry: J.Interceptor, DirectoryReader: J.Interceptor, DocumentOrShadowRoot: J.Interceptor, DocumentTimeline: J.Interceptor, DOMError: J.Interceptor, DOMImplementation: J.Interceptor, Iterator: J.Interceptor, DOMMatrix: J.Interceptor, DOMMatrixReadOnly: J.Interceptor, DOMParser: J.Interceptor, DOMPoint: J.Interceptor, DOMPointReadOnly: J.Interceptor, DOMQuad: J.Interceptor, DOMStringMap: J.Interceptor, Entry: J.Interceptor, External: J.Interceptor, FaceDetector: J.Interceptor, FederatedCredential: J.Interceptor, FileEntry: J.Interceptor, DOMFileSystem: J.Interceptor, FontFace: J.Interceptor, FontFaceSource: J.Interceptor, FormData: J.Interceptor, GamepadButton: J.Interceptor, GamepadPose: J.Interceptor, Geolocation: J.Interceptor, Position: J.Interceptor, Headers: J.Interceptor, HTMLHyperlinkElementUtils: J.Interceptor, IdleDeadline: J.Interceptor, ImageBitmap: J.Interceptor, ImageBitmapRenderingContext: J.Interceptor, ImageCapture: J.Interceptor, ImageData: J.Interceptor, InputDeviceCapabilities: J.Interceptor, IntersectionObserver: J.Interceptor, IntersectionObserverEntry: J.Interceptor, InterventionReport: J.Interceptor, KeyframeEffect: J.Interceptor, KeyframeEffectReadOnly: J.Interceptor, MediaCapabilities: J.Interceptor, MediaCapabilitiesInfo: J.Interceptor, MediaDeviceInfo: J.Interceptor, MediaError: J.Interceptor, MediaKeyStatusMap: J.Interceptor, MediaKeySystemAccess: J.Interceptor, MediaKeys: J.Interceptor, MediaKeysPolicy: J.Interceptor, MediaMetadata: J.Interceptor, MediaSession: J.Interceptor, MediaSettingsRange: J.Interceptor, MemoryInfo: J.Interceptor, MessageChannel: J.Interceptor, Metadata: J.Interceptor, MutationObserver: J.Interceptor, WebKitMutationObserver: J.Interceptor, MutationRecord: J.Interceptor, NavigationPreloadManager: J.Interceptor, Navigator: J.Interceptor, NavigatorAutomationInformation: J.Interceptor, NavigatorConcurrentHardware: J.Interceptor, NavigatorCookies: J.Interceptor, NavigatorUserMediaError: J.Interceptor, NodeFilter: J.Interceptor, NodeIterator: J.Interceptor, NonDocumentTypeChildNode: J.Interceptor, NonElementParentNode: J.Interceptor, NoncedElement: J.Interceptor, OffscreenCanvasRenderingContext2D: J.Interceptor, OverconstrainedError: J.Interceptor, PaintRenderingContext2D: J.Interceptor, PaintSize: J.Interceptor, PaintWorkletGlobalScope: J.Interceptor, PasswordCredential: J.Interceptor, Path2D: J.Interceptor, PaymentAddress: J.Interceptor, PaymentInstruments: J.Interceptor, PaymentManager: J.Interceptor, PaymentResponse: J.Interceptor, PerformanceEntry: J.Interceptor, PerformanceLongTaskTiming: J.Interceptor, PerformanceMark: J.Interceptor, PerformanceMeasure: J.Interceptor, PerformanceNavigation: J.Interceptor, PerformanceNavigationTiming: J.Interceptor, PerformanceObserver: J.Interceptor, PerformanceObserverEntryList: J.Interceptor, PerformancePaintTiming: J.Interceptor, PerformanceResourceTiming: J.Interceptor, PerformanceServerTiming: J.Interceptor, PerformanceTiming: J.Interceptor, Permissions: J.Interceptor, PhotoCapabilities: J.Interceptor, PositionError: J.Interceptor, Presentation: J.Interceptor, PresentationReceiver: J.Interceptor, PublicKeyCredential: J.Interceptor, PushManager: J.Interceptor, PushMessageData: J.Interceptor, PushSubscription: J.Interceptor, PushSubscriptionOptions: J.Interceptor, Range: J.Interceptor, RelatedApplication: J.Interceptor, ReportBody: J.Interceptor, ReportingObserver: J.Interceptor, ResizeObserver: J.Interceptor, ResizeObserverEntry: J.Interceptor, RTCCertificate: J.Interceptor, RTCIceCandidate: J.Interceptor, mozRTCIceCandidate: J.Interceptor, RTCLegacyStatsReport: J.Interceptor, RTCRtpContributingSource: J.Interceptor, RTCRtpReceiver: J.Interceptor, RTCRtpSender: J.Interceptor, RTCSessionDescription: J.Interceptor, mozRTCSessionDescription: J.Interceptor, RTCStatsResponse: J.Interceptor, Screen: J.Interceptor, ScrollState: J.Interceptor, ScrollTimeline: J.Interceptor, Selection: J.Interceptor, SharedArrayBuffer: J.Interceptor, SpeechRecognitionAlternative: J.Interceptor, SpeechSynthesisVoice: J.Interceptor, StaticRange: J.Interceptor, StorageManager: J.Interceptor, StyleMedia: J.Interceptor, StylePropertyMap: J.Interceptor, StylePropertyMapReadonly: J.Interceptor, SyncManager: J.Interceptor, TaskAttributionTiming: J.Interceptor, TextDetector: J.Interceptor, TextMetrics: J.Interceptor, TrackDefault: J.Interceptor, TreeWalker: J.Interceptor, TrustedHTML: J.Interceptor, TrustedScriptURL: J.Interceptor, TrustedURL: J.Interceptor, UnderlyingSourceBase: J.Interceptor, URLSearchParams: J.Interceptor, VRCoordinateSystem: J.Interceptor, VRDisplayCapabilities: J.Interceptor, VREyeParameters: J.Interceptor, VRFrameData: J.Interceptor, VRFrameOfReference: J.Interceptor, VRPose: J.Interceptor, VRStageBounds: J.Interceptor, VRStageBoundsPoint: J.Interceptor, VRStageParameters: J.Interceptor, ValidityState: J.Interceptor, VideoPlaybackQuality: J.Interceptor, VideoTrack: J.Interceptor, VTTRegion: J.Interceptor, WindowClient: J.Interceptor, WorkletAnimation: J.Interceptor, WorkletGlobalScope: J.Interceptor, XPathEvaluator: J.Interceptor, XPathExpression: J.Interceptor, XPathNSResolver: J.Interceptor, XPathResult: J.Interceptor, XMLSerializer: J.Interceptor, XSLTProcessor: J.Interceptor, Bluetooth: J.Interceptor, BluetoothCharacteristicProperties: J.Interceptor, BluetoothRemoteGATTServer: J.Interceptor, BluetoothRemoteGATTService: J.Interceptor, BluetoothUUID: J.Interceptor, BudgetService: J.Interceptor, Cache: J.Interceptor, DOMFileSystemSync: J.Interceptor, DirectoryEntrySync: J.Interceptor, DirectoryReaderSync: J.Interceptor, EntrySync: J.Interceptor, FileEntrySync: J.Interceptor, FileReaderSync: J.Interceptor, FileWriterSync: J.Interceptor, HTMLAllCollection: J.Interceptor, Mojo: J.Interceptor, MojoHandle: J.Interceptor, MojoWatcher: J.Interceptor, NFC: J.Interceptor, PagePopupController: J.Interceptor, Report: J.Interceptor, Request: J.Interceptor, Response: J.Interceptor, SubtleCrypto: J.Interceptor, USBAlternateInterface: J.Interceptor, USBConfiguration: J.Interceptor, USBDevice: J.Interceptor, USBEndpoint: J.Interceptor, USBInTransferResult: J.Interceptor, USBInterface: J.Interceptor, USBIsochronousInTransferPacket: J.Interceptor, USBIsochronousInTransferResult: J.Interceptor, USBIsochronousOutTransferPacket: J.Interceptor, USBIsochronousOutTransferResult: J.Interceptor, USBOutTransferResult: J.Interceptor, WorkerLocation: J.Interceptor, WorkerNavigator: J.Interceptor, Worklet: J.Interceptor, IDBCursor: J.Interceptor, IDBCursorWithValue: J.Interceptor, IDBFactory: J.Interceptor, IDBIndex: J.Interceptor, IDBKeyRange: J.Interceptor, IDBObjectStore: J.Interceptor, IDBObservation: J.Interceptor, IDBObserver: J.Interceptor, IDBObserverChanges: J.Interceptor, SVGAngle: J.Interceptor, SVGAnimatedAngle: J.Interceptor, SVGAnimatedBoolean: J.Interceptor, SVGAnimatedEnumeration: J.Interceptor, SVGAnimatedInteger: J.Interceptor, SVGAnimatedLength: J.Interceptor, SVGAnimatedLengthList: J.Interceptor, SVGAnimatedNumber: J.Interceptor, SVGAnimatedNumberList: J.Interceptor, SVGAnimatedPreserveAspectRatio: J.Interceptor, SVGAnimatedRect: J.Interceptor, SVGAnimatedString: J.Interceptor, SVGAnimatedTransformList: J.Interceptor, SVGMatrix: J.Interceptor, SVGPoint: J.Interceptor, SVGPreserveAspectRatio: J.Interceptor, SVGRect: J.Interceptor, SVGUnitTypes: J.Interceptor, AudioListener: J.Interceptor, AudioParam: J.Interceptor, AudioTrack: J.Interceptor, AudioWorkletGlobalScope: J.Interceptor, AudioWorkletProcessor: J.Interceptor, PeriodicWave: J.Interceptor, WebGLActiveInfo: J.Interceptor, ANGLEInstancedArrays: J.Interceptor, ANGLE_instanced_arrays: J.Interceptor, WebGLCanvas: J.Interceptor, WebGLColorBufferFloat: J.Interceptor, WebGLCompressedTextureASTC: J.Interceptor, WebGLCompressedTextureATC: J.Interceptor, WEBGL_compressed_texture_atc: J.Interceptor, WebGLCompressedTextureETC1: J.Interceptor, WEBGL_compressed_texture_etc1: J.Interceptor, WebGLCompressedTextureETC: J.Interceptor, WebGLCompressedTexturePVRTC: J.Interceptor, WEBGL_compressed_texture_pvrtc: J.Interceptor, WebGLCompressedTextureS3TC: J.Interceptor, WEBGL_compressed_texture_s3tc: J.Interceptor, WebGLCompressedTextureS3TCsRGB: J.Interceptor, WebGLDebugRendererInfo: J.Interceptor, WEBGL_debug_renderer_info: J.Interceptor, WebGLDebugShaders: J.Interceptor, WEBGL_debug_shaders: J.Interceptor, WebGLDepthTexture: J.Interceptor, WEBGL_depth_texture: J.Interceptor, WebGLDrawBuffers: J.Interceptor, WEBGL_draw_buffers: J.Interceptor, EXTsRGB: J.Interceptor, EXT_sRGB: J.Interceptor, EXTBlendMinMax: J.Interceptor, EXT_blend_minmax: J.Interceptor, EXTColorBufferFloat: J.Interceptor, EXTColorBufferHalfFloat: J.Interceptor, EXTDisjointTimerQuery: J.Interceptor, EXTDisjointTimerQueryWebGL2: J.Interceptor, EXTFragDepth: J.Interceptor, EXT_frag_depth: J.Interceptor, EXTShaderTextureLOD: J.Interceptor, EXT_shader_texture_lod: J.Interceptor, EXTTextureFilterAnisotropic: J.Interceptor, EXT_texture_filter_anisotropic: J.Interceptor, WebGLGetBufferSubDataAsync: J.Interceptor, WebGLLoseContext: J.Interceptor, WebGLExtensionLoseContext: J.Interceptor, WEBGL_lose_context: J.Interceptor, OESElementIndexUint: J.Interceptor, OES_element_index_uint: J.Interceptor, OESStandardDerivatives: J.Interceptor, OES_standard_derivatives: J.Interceptor, OESTextureFloat: J.Interceptor, OES_texture_float: J.Interceptor, OESTextureFloatLinear: J.Interceptor, OES_texture_float_linear: J.Interceptor, OESTextureHalfFloat: J.Interceptor, OES_texture_half_float: J.Interceptor, OESTextureHalfFloatLinear: J.Interceptor, OES_texture_half_float_linear: J.Interceptor, OESVertexArrayObject: J.Interceptor, OES_vertex_array_object: J.Interceptor, WebGLQuery: J.Interceptor, WebGLRenderbuffer: J.Interceptor, WebGLSampler: J.Interceptor, WebGLShaderPrecisionFormat: J.Interceptor, WebGLSync: J.Interceptor, WebGLTimerQueryEXT: J.Interceptor, WebGLTransformFeedback: J.Interceptor, WebGLVertexArrayObjectOES: J.Interceptor, WebGL: J.Interceptor, WebGL2RenderingContextBase: J.Interceptor, Database: J.Interceptor, SQLError: J.Interceptor, SQLResultSet: J.Interceptor, SQLTransaction: J.Interceptor, DataView: H.NativeTypedData, ArrayBufferView: H.NativeTypedData, Float64Array: H.NativeTypedArrayOfDouble, Float32Array: H.NativeFloat32List, Int16Array: H.NativeInt16List, Int32Array: H.NativeInt32List, Int8Array: H.NativeInt8List, Uint16Array: H.NativeUint16List, Uint32Array: H.NativeUint32List, Uint8ClampedArray: H.NativeUint8ClampedList, CanvasPixelArray: H.NativeUint8ClampedList, Uint8Array: H.NativeUint8List, HTMLBRElement: W.HtmlElement, HTMLBaseElement: W.HtmlElement, HTMLBodyElement: W.HtmlElement, HTMLButtonElement: W.HtmlElement, HTMLContentElement: W.HtmlElement, HTMLDListElement: W.HtmlElement, HTMLDataElement: W.HtmlElement, HTMLDataListElement: W.HtmlElement, HTMLDetailsElement: W.HtmlElement, HTMLDialogElement: W.HtmlElement, HTMLEmbedElement: W.HtmlElement, HTMLFieldSetElement: W.HtmlElement, HTMLHRElement: W.HtmlElement, HTMLHeadElement: W.HtmlElement, HTMLHeadingElement: W.HtmlElement, HTMLHtmlElement: W.HtmlElement, HTMLIFrameElement: W.HtmlElement, HTMLImageElement: W.HtmlElement, HTMLInputElement: W.HtmlElement, HTMLLIElement: W.HtmlElement, HTMLLabelElement: W.HtmlElement, HTMLLegendElement: W.HtmlElement, HTMLLinkElement: W.HtmlElement, HTMLMapElement: W.HtmlElement, HTMLMenuElement: W.HtmlElement, HTMLMetaElement: W.HtmlElement, HTMLMeterElement: W.HtmlElement, HTMLModElement: W.HtmlElement, HTMLOListElement: W.HtmlElement, HTMLObjectElement: W.HtmlElement, HTMLOptGroupElement: W.HtmlElement, HTMLOptionElement: W.HtmlElement, HTMLOutputElement: W.HtmlElement, HTMLParagraphElement: W.HtmlElement, HTMLParamElement: W.HtmlElement, HTMLPictureElement: W.HtmlElement, HTMLPreElement: W.HtmlElement, HTMLProgressElement: W.HtmlElement, HTMLQuoteElement: W.HtmlElement, HTMLScriptElement: W.HtmlElement, HTMLShadowElement: W.HtmlElement, HTMLSlotElement: W.HtmlElement, HTMLSourceElement: W.HtmlElement, HTMLSpanElement: W.HtmlElement, HTMLStyleElement: W.HtmlElement, HTMLTableCaptionElement: W.HtmlElement, HTMLTableCellElement: W.HtmlElement, HTMLTableDataCellElement: W.HtmlElement, HTMLTableHeaderCellElement: W.HtmlElement, HTMLTableColElement: W.HtmlElement, HTMLTableElement: W.HtmlElement, HTMLTableRowElement: W.HtmlElement, HTMLTableSectionElement: W.HtmlElement, HTMLTemplateElement: W.HtmlElement, HTMLTextAreaElement: W.HtmlElement, HTMLTimeElement: W.HtmlElement, HTMLTitleElement: W.HtmlElement, HTMLTrackElement: W.HtmlElement, HTMLUListElement: W.HtmlElement, HTMLUnknownElement: W.HtmlElement, HTMLDirectoryElement: W.HtmlElement, HTMLFontElement: W.HtmlElement, HTMLFrameElement: W.HtmlElement, HTMLFrameSetElement: W.HtmlElement, HTMLMarqueeElement: W.HtmlElement, HTMLElement: W.HtmlElement, AccessibleNodeList: W.AccessibleNodeList, HTMLAnchorElement: W.AnchorElement, HTMLAreaElement: W.AreaElement, HTMLAudioElement: W.AudioElement, Blob: W.Blob, HTMLCanvasElement: W.CanvasElement, CanvasRenderingContext2D: W.CanvasRenderingContext2D, CDATASection: W.CharacterData, CharacterData: W.CharacterData, Comment: W.CharacterData, ProcessingInstruction: W.CharacterData, Text: W.CharacterData, CSSNumericValue: W.CssNumericValue, CSSUnitValue: W.CssNumericValue, CSSPerspective: W.CssPerspective, CSSCharsetRule: W.CssRule, CSSConditionRule: W.CssRule, CSSFontFaceRule: W.CssRule, CSSGroupingRule: W.CssRule, CSSImportRule: W.CssRule, CSSKeyframeRule: W.CssRule, MozCSSKeyframeRule: W.CssRule, WebKitCSSKeyframeRule: W.CssRule, CSSKeyframesRule: W.CssRule, MozCSSKeyframesRule: W.CssRule, WebKitCSSKeyframesRule: W.CssRule, CSSMediaRule: W.CssRule, CSSNamespaceRule: W.CssRule, CSSPageRule: W.CssRule, CSSRule: W.CssRule, CSSStyleRule: W.CssRule, CSSSupportsRule: W.CssRule, CSSViewportRule: W.CssRule, CSSStyleDeclaration: W.CssStyleDeclaration, MSStyleCSSProperties: W.CssStyleDeclaration, CSS2Properties: W.CssStyleDeclaration, CSSImageValue: W.CssStyleValue, CSSKeywordValue: W.CssStyleValue, CSSPositionValue: W.CssStyleValue, CSSResourceValue: W.CssStyleValue, CSSURLImageValue: W.CssStyleValue, CSSStyleValue: W.CssStyleValue, CSSMatrixComponent: W.CssTransformComponent, CSSRotation: W.CssTransformComponent, CSSScale: W.CssTransformComponent, CSSSkew: W.CssTransformComponent, CSSTranslation: W.CssTransformComponent, CSSTransformComponent: W.CssTransformComponent, CSSTransformValue: W.CssTransformValue, CSSUnparsedValue: W.CssUnparsedValue, DataTransferItemList: W.DataTransferItemList, HTMLDivElement: W.DivElement, Document: W.Document, HTMLDocument: W.Document, XMLDocument: W.Document, DOMException: W.DomException, ClientRectList: W.DomRectList, DOMRectList: W.DomRectList, DOMRectReadOnly: W.DomRectReadOnly, DOMStringList: W.DomStringList, DOMTokenList: W.DomTokenList, SVGAElement: W.Element, SVGAnimateElement: W.Element, SVGAnimateMotionElement: W.Element, SVGAnimateTransformElement: W.Element, SVGAnimationElement: W.Element, SVGCircleElement: W.Element, SVGClipPathElement: W.Element, SVGDefsElement: W.Element, SVGDescElement: W.Element, SVGDiscardElement: W.Element, SVGEllipseElement: W.Element, SVGFEBlendElement: W.Element, SVGFEColorMatrixElement: W.Element, SVGFEComponentTransferElement: W.Element, SVGFECompositeElement: W.Element, SVGFEConvolveMatrixElement: W.Element, SVGFEDiffuseLightingElement: W.Element, SVGFEDisplacementMapElement: W.Element, SVGFEDistantLightElement: W.Element, SVGFEFloodElement: W.Element, SVGFEFuncAElement: W.Element, SVGFEFuncBElement: W.Element, SVGFEFuncGElement: W.Element, SVGFEFuncRElement: W.Element, SVGFEGaussianBlurElement: W.Element, SVGFEImageElement: W.Element, SVGFEMergeElement: W.Element, SVGFEMergeNodeElement: W.Element, SVGFEMorphologyElement: W.Element, SVGFEOffsetElement: W.Element, SVGFEPointLightElement: W.Element, SVGFESpecularLightingElement: W.Element, SVGFESpotLightElement: W.Element, SVGFETileElement: W.Element, SVGFETurbulenceElement: W.Element, SVGFilterElement: W.Element, SVGForeignObjectElement: W.Element, SVGGElement: W.Element, SVGGeometryElement: W.Element, SVGGraphicsElement: W.Element, SVGImageElement: W.Element, SVGLineElement: W.Element, SVGLinearGradientElement: W.Element, SVGMarkerElement: W.Element, SVGMaskElement: W.Element, SVGMetadataElement: W.Element, SVGPathElement: W.Element, SVGPatternElement: W.Element, SVGPolygonElement: W.Element, SVGPolylineElement: W.Element, SVGRadialGradientElement: W.Element, SVGRectElement: W.Element, SVGScriptElement: W.Element, SVGSetElement: W.Element, SVGStopElement: W.Element, SVGStyleElement: W.Element, SVGElement: W.Element, SVGSVGElement: W.Element, SVGSwitchElement: W.Element, SVGSymbolElement: W.Element, SVGTSpanElement: W.Element, SVGTextContentElement: W.Element, SVGTextElement: W.Element, SVGTextPathElement: W.Element, SVGTextPositioningElement: W.Element, SVGTitleElement: W.Element, SVGUseElement: W.Element, SVGViewElement: W.Element, SVGGradientElement: W.Element, SVGComponentTransferFunctionElement: W.Element, SVGFEDropShadowElement: W.Element, SVGMPathElement: W.Element, Element: W.Element, AbortPaymentEvent: W.Event, AnimationEvent: W.Event, AnimationPlaybackEvent: W.Event, ApplicationCacheErrorEvent: W.Event, BackgroundFetchClickEvent: W.Event, BackgroundFetchEvent: W.Event, BackgroundFetchFailEvent: W.Event, BackgroundFetchedEvent: W.Event, BeforeInstallPromptEvent: W.Event, BeforeUnloadEvent: W.Event, BlobEvent: W.Event, CanMakePaymentEvent: W.Event, ClipboardEvent: W.Event, CloseEvent: W.Event, CompositionEvent: W.Event, CustomEvent: W.Event, DeviceMotionEvent: W.Event, DeviceOrientationEvent: W.Event, ErrorEvent: W.Event, ExtendableEvent: W.Event, ExtendableMessageEvent: W.Event, FetchEvent: W.Event, FocusEvent: W.Event, FontFaceSetLoadEvent: W.Event, ForeignFetchEvent: W.Event, GamepadEvent: W.Event, HashChangeEvent: W.Event, InstallEvent: W.Event, KeyboardEvent: W.Event, MediaEncryptedEvent: W.Event, MediaKeyMessageEvent: W.Event, MediaQueryListEvent: W.Event, MediaStreamEvent: W.Event, MediaStreamTrackEvent: W.Event, MessageEvent: W.Event, MIDIConnectionEvent: W.Event, MIDIMessageEvent: W.Event, MouseEvent: W.Event, DragEvent: W.Event, MutationEvent: W.Event, NotificationEvent: W.Event, PageTransitionEvent: W.Event, PaymentRequestEvent: W.Event, PaymentRequestUpdateEvent: W.Event, PointerEvent: W.Event, PopStateEvent: W.Event, PresentationConnectionAvailableEvent: W.Event, PresentationConnectionCloseEvent: W.Event, PromiseRejectionEvent: W.Event, PushEvent: W.Event, RTCDataChannelEvent: W.Event, RTCDTMFToneChangeEvent: W.Event, RTCPeerConnectionIceEvent: W.Event, RTCTrackEvent: W.Event, SecurityPolicyViolationEvent: W.Event, SensorErrorEvent: W.Event, SpeechRecognitionError: W.Event, SpeechRecognitionEvent: W.Event, SpeechSynthesisEvent: W.Event, StorageEvent: W.Event, SyncEvent: W.Event, TextEvent: W.Event, TouchEvent: W.Event, TrackEvent: W.Event, TransitionEvent: W.Event, WebKitTransitionEvent: W.Event, UIEvent: W.Event, VRDeviceEvent: W.Event, VRDisplayEvent: W.Event, VRSessionEvent: W.Event, WheelEvent: W.Event, MojoInterfaceRequestEvent: W.Event, USBConnectionEvent: W.Event, IDBVersionChangeEvent: W.Event, AudioProcessingEvent: W.Event, OfflineAudioCompletionEvent: W.Event, WebGLContextEvent: W.Event, Event: W.Event, InputEvent: W.Event, AbsoluteOrientationSensor: W.EventTarget, Accelerometer: W.EventTarget, AccessibleNode: W.EventTarget, AmbientLightSensor: W.EventTarget, Animation: W.EventTarget, ApplicationCache: W.EventTarget, DOMApplicationCache: W.EventTarget, OfflineResourceList: W.EventTarget, BackgroundFetchRegistration: W.EventTarget, BatteryManager: W.EventTarget, BroadcastChannel: W.EventTarget, CanvasCaptureMediaStreamTrack: W.EventTarget, DedicatedWorkerGlobalScope: W.EventTarget, EventSource: W.EventTarget, FileReader: W.EventTarget, FontFaceSet: W.EventTarget, Gyroscope: W.EventTarget, LinearAccelerationSensor: W.EventTarget, Magnetometer: W.EventTarget, MediaDevices: W.EventTarget, MediaKeySession: W.EventTarget, MediaQueryList: W.EventTarget, MediaRecorder: W.EventTarget, MediaSource: W.EventTarget, MediaStream: W.EventTarget, MediaStreamTrack: W.EventTarget, MessagePort: W.EventTarget, MIDIAccess: W.EventTarget, MIDIInput: W.EventTarget, MIDIOutput: W.EventTarget, MIDIPort: W.EventTarget, NetworkInformation: W.EventTarget, Notification: W.EventTarget, OffscreenCanvas: W.EventTarget, OrientationSensor: W.EventTarget, PaymentRequest: W.EventTarget, Performance: W.EventTarget, PermissionStatus: W.EventTarget, PresentationAvailability: W.EventTarget, PresentationConnection: W.EventTarget, PresentationConnectionList: W.EventTarget, PresentationRequest: W.EventTarget, RelativeOrientationSensor: W.EventTarget, RemotePlayback: W.EventTarget, RTCDataChannel: W.EventTarget, DataChannel: W.EventTarget, RTCDTMFSender: W.EventTarget, RTCPeerConnection: W.EventTarget, webkitRTCPeerConnection: W.EventTarget, mozRTCPeerConnection: W.EventTarget, ScreenOrientation: W.EventTarget, Sensor: W.EventTarget, ServiceWorker: W.EventTarget, ServiceWorkerContainer: W.EventTarget, ServiceWorkerGlobalScope: W.EventTarget, ServiceWorkerRegistration: W.EventTarget, SharedWorker: W.EventTarget, SharedWorkerGlobalScope: W.EventTarget, SpeechRecognition: W.EventTarget, SpeechSynthesis: W.EventTarget, SpeechSynthesisUtterance: W.EventTarget, VR: W.EventTarget, VRDevice: W.EventTarget, VRDisplay: W.EventTarget, VRSession: W.EventTarget, VisualViewport: W.EventTarget, WebSocket: W.EventTarget, Worker: W.EventTarget, WorkerGlobalScope: W.EventTarget, WorkerPerformance: W.EventTarget, BluetoothDevice: W.EventTarget, BluetoothRemoteGATTCharacteristic: W.EventTarget, Clipboard: W.EventTarget, MojoInterfaceInterceptor: W.EventTarget, USB: W.EventTarget, IDBDatabase: W.EventTarget, IDBOpenDBRequest: W.EventTarget, IDBVersionChangeRequest: W.EventTarget, IDBRequest: W.EventTarget, IDBTransaction: W.EventTarget, AnalyserNode: W.EventTarget, RealtimeAnalyserNode: W.EventTarget, AudioBufferSourceNode: W.EventTarget, AudioDestinationNode: W.EventTarget, AudioNode: W.EventTarget, AudioScheduledSourceNode: W.EventTarget, AudioWorkletNode: W.EventTarget, BiquadFilterNode: W.EventTarget, ChannelMergerNode: W.EventTarget, AudioChannelMerger: W.EventTarget, ChannelSplitterNode: W.EventTarget, AudioChannelSplitter: W.EventTarget, ConstantSourceNode: W.EventTarget, ConvolverNode: W.EventTarget, DelayNode: W.EventTarget, DynamicsCompressorNode: W.EventTarget, GainNode: W.EventTarget, AudioGainNode: W.EventTarget, IIRFilterNode: W.EventTarget, MediaElementAudioSourceNode: W.EventTarget, MediaStreamAudioDestinationNode: W.EventTarget, MediaStreamAudioSourceNode: W.EventTarget, OscillatorNode: W.EventTarget, Oscillator: W.EventTarget, PannerNode: W.EventTarget, AudioPannerNode: W.EventTarget, webkitAudioPannerNode: W.EventTarget, ScriptProcessorNode: W.EventTarget, JavaScriptAudioNode: W.EventTarget, StereoPannerNode: W.EventTarget, WaveShaperNode: W.EventTarget, EventTarget: W.EventTarget, File: W.File, FileList: W.FileList, FileWriter: W.FileWriter, HTMLFormElement: W.FormElement, Gamepad: W.Gamepad, History: W.History, HTMLCollection: W.HtmlCollection, HTMLFormControlsCollection: W.HtmlCollection, HTMLOptionsCollection: W.HtmlCollection, XMLHttpRequest: W.HttpRequest, XMLHttpRequestUpload: W.HttpRequestEventTarget, XMLHttpRequestEventTarget: W.HttpRequestEventTarget, Location: W.Location, HTMLVideoElement: W.MediaElement, HTMLMediaElement: W.MediaElement, MediaList: W.MediaList, MIDIInputMap: W.MidiInputMap, MIDIOutputMap: W.MidiOutputMap, MimeType: W.MimeType, MimeTypeArray: W.MimeTypeArray, DocumentFragment: W.Node0, ShadowRoot: W.Node0, Attr: W.Node0, DocumentType: W.Node0, Node: W.Node0, NodeList: W.NodeList, RadioNodeList: W.NodeList, Plugin: W.Plugin, PluginArray: W.PluginArray, ProgressEvent: W.ProgressEvent, ResourceProgressEvent: W.ProgressEvent, RTCStatsReport: W.RtcStatsReport, HTMLSelectElement: W.SelectElement, SourceBuffer: W.SourceBuffer, SourceBufferList: W.SourceBufferList, SpeechGrammar: W.SpeechGrammar, SpeechGrammarList: W.SpeechGrammarList, SpeechRecognitionResult: W.SpeechRecognitionResult, Storage: W.Storage, CSSStyleSheet: W.StyleSheet, StyleSheet: W.StyleSheet, TextTrack: W.TextTrack, TextTrackCue: W.TextTrackCue, VTTCue: W.TextTrackCue, TextTrackCueList: W.TextTrackCueList, TextTrackList: W.TextTrackList, TimeRanges: W.TimeRanges, Touch: W.Touch, TouchList: W.TouchList, TrackDefaultList: W.TrackDefaultList, URL: W.Url, VideoTrackList: W.VideoTrackList, Window: W.Window, DOMWindow: W.Window, CSSRuleList: W._CssRuleList, ClientRect: W._DomRect, DOMRect: W._DomRect, GamepadList: W._GamepadList, NamedNodeMap: W._NamedNodeMap, MozNamedAttrMap: W._NamedNodeMap, SpeechRecognitionResultList: W._SpeechRecognitionResultList, StyleSheetList: W._StyleSheetList, SVGLength: P.Length, SVGLengthList: P.LengthList, SVGNumber: P.Number, SVGNumberList: P.NumberList, SVGPointList: P.PointList, SVGStringList: P.StringList, SVGTransform: P.Transform, SVGTransformList: P.TransformList, AudioBuffer: P.AudioBuffer, AudioParamMap: P.AudioParamMap, AudioTrackList: P.AudioTrackList, AudioContext: P.BaseAudioContext, webkitAudioContext: P.BaseAudioContext, BaseAudioContext: P.BaseAudioContext, OfflineAudioContext: P.OfflineAudioContext, WebGLBuffer: P.Buffer, WebGLFramebuffer: P.Framebuffer0, WebGLProgram: P.Program, WebGLRenderingContext: P.RenderingContext, WebGL2RenderingContext: P.RenderingContext2, WebGLShader: P.Shader, WebGLTexture: P.Texture0, WebGLUniformLocation: P.UniformLocation, WebGLVertexArrayObject: P.VertexArrayObject, SQLResultSetRowList: P.SqlResultSetRowList});
+    hunkHelpers.setOrUpdateLeafTags({ArrayBuffer: true, AnimationEffectReadOnly: true, AnimationEffectTiming: true, AnimationEffectTimingReadOnly: true, AnimationTimeline: true, AnimationWorkletGlobalScope: true, AuthenticatorAssertionResponse: true, AuthenticatorAttestationResponse: true, AuthenticatorResponse: true, BackgroundFetchFetch: true, BackgroundFetchManager: true, BackgroundFetchSettledFetch: true, BarProp: true, BarcodeDetector: true, BluetoothRemoteGATTDescriptor: true, Body: true, BudgetState: true, CacheStorage: true, CanvasGradient: true, CanvasPattern: true, Client: true, Clients: true, CookieStore: true, Coordinates: true, Credential: true, CredentialUserData: true, CredentialsContainer: true, Crypto: true, CryptoKey: true, CSS: true, CSSVariableReferenceValue: true, CustomElementRegistry: true, DataTransfer: true, DataTransferItem: true, DeprecatedStorageInfo: true, DeprecatedStorageQuota: true, DeprecationReport: true, DetectedBarcode: true, DetectedFace: true, DetectedText: true, DeviceAcceleration: true, DeviceRotationRate: true, DirectoryEntry: true, DirectoryReader: true, DocumentOrShadowRoot: true, DocumentTimeline: true, DOMError: true, DOMImplementation: true, Iterator: true, DOMMatrix: true, DOMMatrixReadOnly: true, DOMParser: true, DOMPoint: true, DOMPointReadOnly: true, DOMQuad: true, DOMStringMap: true, Entry: true, External: true, FaceDetector: true, FederatedCredential: true, FileEntry: true, DOMFileSystem: true, FontFace: true, FontFaceSource: true, FormData: true, GamepadButton: true, GamepadPose: true, Geolocation: true, Position: true, Headers: true, HTMLHyperlinkElementUtils: true, IdleDeadline: true, ImageBitmap: true, ImageBitmapRenderingContext: true, ImageCapture: true, ImageData: true, InputDeviceCapabilities: true, IntersectionObserver: true, IntersectionObserverEntry: true, InterventionReport: true, KeyframeEffect: true, KeyframeEffectReadOnly: true, MediaCapabilities: true, MediaCapabilitiesInfo: true, MediaDeviceInfo: true, MediaError: true, MediaKeyStatusMap: true, MediaKeySystemAccess: true, MediaKeys: true, MediaKeysPolicy: true, MediaMetadata: true, MediaSession: true, MediaSettingsRange: true, MemoryInfo: true, MessageChannel: true, Metadata: true, MutationObserver: true, WebKitMutationObserver: true, MutationRecord: true, NavigationPreloadManager: true, Navigator: true, NavigatorAutomationInformation: true, NavigatorConcurrentHardware: true, NavigatorCookies: true, NavigatorUserMediaError: true, NodeFilter: true, NodeIterator: true, NonDocumentTypeChildNode: true, NonElementParentNode: true, NoncedElement: true, OffscreenCanvasRenderingContext2D: true, OverconstrainedError: true, PaintRenderingContext2D: true, PaintSize: true, PaintWorkletGlobalScope: true, PasswordCredential: true, Path2D: true, PaymentAddress: true, PaymentInstruments: true, PaymentManager: true, PaymentResponse: true, PerformanceEntry: true, PerformanceLongTaskTiming: true, PerformanceMark: true, PerformanceMeasure: true, PerformanceNavigation: true, PerformanceNavigationTiming: true, PerformanceObserver: true, PerformanceObserverEntryList: true, PerformancePaintTiming: true, PerformanceResourceTiming: true, PerformanceServerTiming: true, PerformanceTiming: true, Permissions: true, PhotoCapabilities: true, PositionError: true, Presentation: true, PresentationReceiver: true, PublicKeyCredential: true, PushManager: true, PushMessageData: true, PushSubscription: true, PushSubscriptionOptions: true, Range: true, RelatedApplication: true, ReportBody: true, ReportingObserver: true, ResizeObserver: true, ResizeObserverEntry: true, RTCCertificate: true, RTCIceCandidate: true, mozRTCIceCandidate: true, RTCLegacyStatsReport: true, RTCRtpContributingSource: true, RTCRtpReceiver: true, RTCRtpSender: true, RTCSessionDescription: true, mozRTCSessionDescription: true, RTCStatsResponse: true, Screen: true, ScrollState: true, ScrollTimeline: true, Selection: true, SharedArrayBuffer: true, SpeechRecognitionAlternative: true, SpeechSynthesisVoice: true, StaticRange: true, StorageManager: true, StyleMedia: true, StylePropertyMap: true, StylePropertyMapReadonly: true, SyncManager: true, TaskAttributionTiming: true, TextDetector: true, TextMetrics: true, TrackDefault: true, TreeWalker: true, TrustedHTML: true, TrustedScriptURL: true, TrustedURL: true, UnderlyingSourceBase: true, URLSearchParams: true, VRCoordinateSystem: true, VRDisplayCapabilities: true, VREyeParameters: true, VRFrameData: true, VRFrameOfReference: true, VRPose: true, VRStageBounds: true, VRStageBoundsPoint: true, VRStageParameters: true, ValidityState: true, VideoPlaybackQuality: true, VideoTrack: true, VTTRegion: true, WindowClient: true, WorkletAnimation: true, WorkletGlobalScope: true, XPathEvaluator: true, XPathExpression: true, XPathNSResolver: true, XPathResult: true, XMLSerializer: true, XSLTProcessor: true, Bluetooth: true, BluetoothCharacteristicProperties: true, BluetoothRemoteGATTServer: true, BluetoothRemoteGATTService: true, BluetoothUUID: true, BudgetService: true, Cache: true, DOMFileSystemSync: true, DirectoryEntrySync: true, DirectoryReaderSync: true, EntrySync: true, FileEntrySync: true, FileReaderSync: true, FileWriterSync: true, HTMLAllCollection: true, Mojo: true, MojoHandle: true, MojoWatcher: true, NFC: true, PagePopupController: true, Report: true, Request: true, Response: true, SubtleCrypto: true, USBAlternateInterface: true, USBConfiguration: true, USBDevice: true, USBEndpoint: true, USBInTransferResult: true, USBInterface: true, USBIsochronousInTransferPacket: true, USBIsochronousInTransferResult: true, USBIsochronousOutTransferPacket: true, USBIsochronousOutTransferResult: true, USBOutTransferResult: true, WorkerLocation: true, WorkerNavigator: true, Worklet: true, IDBCursor: true, IDBCursorWithValue: true, IDBFactory: true, IDBIndex: true, IDBKeyRange: true, IDBObjectStore: true, IDBObservation: true, IDBObserver: true, IDBObserverChanges: true, SVGAngle: true, SVGAnimatedAngle: true, SVGAnimatedBoolean: true, SVGAnimatedEnumeration: true, SVGAnimatedInteger: true, SVGAnimatedLength: true, SVGAnimatedLengthList: true, SVGAnimatedNumber: true, SVGAnimatedNumberList: true, SVGAnimatedPreserveAspectRatio: true, SVGAnimatedRect: true, SVGAnimatedString: true, SVGAnimatedTransformList: true, SVGMatrix: true, SVGPoint: true, SVGPreserveAspectRatio: true, SVGRect: true, SVGUnitTypes: true, AudioListener: true, AudioParam: true, AudioTrack: true, AudioWorkletGlobalScope: true, AudioWorkletProcessor: true, PeriodicWave: true, WebGLActiveInfo: true, ANGLEInstancedArrays: true, ANGLE_instanced_arrays: true, WebGLCanvas: true, WebGLColorBufferFloat: true, WebGLCompressedTextureASTC: true, WebGLCompressedTextureATC: true, WEBGL_compressed_texture_atc: true, WebGLCompressedTextureETC1: true, WEBGL_compressed_texture_etc1: true, WebGLCompressedTextureETC: true, WebGLCompressedTexturePVRTC: true, WEBGL_compressed_texture_pvrtc: true, WebGLCompressedTextureS3TC: true, WEBGL_compressed_texture_s3tc: true, WebGLCompressedTextureS3TCsRGB: true, WebGLDebugRendererInfo: true, WEBGL_debug_renderer_info: true, WebGLDebugShaders: true, WEBGL_debug_shaders: true, WebGLDepthTexture: true, WEBGL_depth_texture: true, WebGLDrawBuffers: true, WEBGL_draw_buffers: true, EXTsRGB: true, EXT_sRGB: true, EXTBlendMinMax: true, EXT_blend_minmax: true, EXTColorBufferFloat: true, EXTColorBufferHalfFloat: true, EXTDisjointTimerQuery: true, EXTDisjointTimerQueryWebGL2: true, EXTFragDepth: true, EXT_frag_depth: true, EXTShaderTextureLOD: true, EXT_shader_texture_lod: true, EXTTextureFilterAnisotropic: true, EXT_texture_filter_anisotropic: true, WebGLGetBufferSubDataAsync: true, WebGLLoseContext: true, WebGLExtensionLoseContext: true, WEBGL_lose_context: true, OESElementIndexUint: true, OES_element_index_uint: true, OESStandardDerivatives: true, OES_standard_derivatives: true, OESTextureFloat: true, OES_texture_float: true, OESTextureFloatLinear: true, OES_texture_float_linear: true, OESTextureHalfFloat: true, OES_texture_half_float: true, OESTextureHalfFloatLinear: true, OES_texture_half_float_linear: true, OESVertexArrayObject: true, OES_vertex_array_object: true, WebGLQuery: true, WebGLRenderbuffer: true, WebGLSampler: true, WebGLShaderPrecisionFormat: true, WebGLSync: true, WebGLTimerQueryEXT: true, WebGLTransformFeedback: true, WebGLVertexArrayObjectOES: true, WebGL: true, WebGL2RenderingContextBase: true, Database: true, SQLError: true, SQLResultSet: true, SQLTransaction: true, DataView: true, ArrayBufferView: false, Float64Array: true, Float32Array: true, Int16Array: true, Int32Array: true, Int8Array: true, Uint16Array: true, Uint32Array: true, Uint8ClampedArray: true, CanvasPixelArray: true, Uint8Array: false, HTMLBRElement: true, HTMLBaseElement: true, HTMLBodyElement: true, HTMLButtonElement: true, HTMLContentElement: true, HTMLDListElement: true, HTMLDataElement: true, HTMLDataListElement: true, HTMLDetailsElement: true, HTMLDialogElement: true, HTMLEmbedElement: true, HTMLFieldSetElement: true, HTMLHRElement: true, HTMLHeadElement: true, HTMLHeadingElement: true, HTMLHtmlElement: true, HTMLIFrameElement: true, HTMLImageElement: true, HTMLInputElement: true, HTMLLIElement: true, HTMLLabelElement: true, HTMLLegendElement: true, HTMLLinkElement: true, HTMLMapElement: true, HTMLMenuElement: true, HTMLMetaElement: true, HTMLMeterElement: true, HTMLModElement: true, HTMLOListElement: true, HTMLObjectElement: true, HTMLOptGroupElement: true, HTMLOptionElement: true, HTMLOutputElement: true, HTMLParagraphElement: true, HTMLParamElement: true, HTMLPictureElement: true, HTMLPreElement: true, HTMLProgressElement: true, HTMLQuoteElement: true, HTMLScriptElement: true, HTMLShadowElement: true, HTMLSlotElement: true, HTMLSourceElement: true, HTMLSpanElement: true, HTMLStyleElement: true, HTMLTableCaptionElement: true, HTMLTableCellElement: true, HTMLTableDataCellElement: true, HTMLTableHeaderCellElement: true, HTMLTableColElement: true, HTMLTableElement: true, HTMLTableRowElement: true, HTMLTableSectionElement: true, HTMLTemplateElement: true, HTMLTextAreaElement: true, HTMLTimeElement: true, HTMLTitleElement: true, HTMLTrackElement: true, HTMLUListElement: true, HTMLUnknownElement: true, HTMLDirectoryElement: true, HTMLFontElement: true, HTMLFrameElement: true, HTMLFrameSetElement: true, HTMLMarqueeElement: true, HTMLElement: false, AccessibleNodeList: true, HTMLAnchorElement: true, HTMLAreaElement: true, HTMLAudioElement: true, Blob: false, HTMLCanvasElement: true, CanvasRenderingContext2D: true, CDATASection: true, CharacterData: true, Comment: true, ProcessingInstruction: true, Text: true, CSSNumericValue: true, CSSUnitValue: true, CSSPerspective: true, CSSCharsetRule: true, CSSConditionRule: true, CSSFontFaceRule: true, CSSGroupingRule: true, CSSImportRule: true, CSSKeyframeRule: true, MozCSSKeyframeRule: true, WebKitCSSKeyframeRule: true, CSSKeyframesRule: true, MozCSSKeyframesRule: true, WebKitCSSKeyframesRule: true, CSSMediaRule: true, CSSNamespaceRule: true, CSSPageRule: true, CSSRule: true, CSSStyleRule: true, CSSSupportsRule: true, CSSViewportRule: true, CSSStyleDeclaration: true, MSStyleCSSProperties: true, CSS2Properties: true, CSSImageValue: true, CSSKeywordValue: true, CSSPositionValue: true, CSSResourceValue: true, CSSURLImageValue: true, CSSStyleValue: false, CSSMatrixComponent: true, CSSRotation: true, CSSScale: true, CSSSkew: true, CSSTranslation: true, CSSTransformComponent: false, CSSTransformValue: true, CSSUnparsedValue: true, DataTransferItemList: true, HTMLDivElement: true, Document: true, HTMLDocument: true, XMLDocument: true, DOMException: true, ClientRectList: true, DOMRectList: true, DOMRectReadOnly: false, DOMStringList: true, DOMTokenList: true, SVGAElement: true, SVGAnimateElement: true, SVGAnimateMotionElement: true, SVGAnimateTransformElement: true, SVGAnimationElement: true, SVGCircleElement: true, SVGClipPathElement: true, SVGDefsElement: true, SVGDescElement: true, SVGDiscardElement: true, SVGEllipseElement: true, SVGFEBlendElement: true, SVGFEColorMatrixElement: true, SVGFEComponentTransferElement: true, SVGFECompositeElement: true, SVGFEConvolveMatrixElement: true, SVGFEDiffuseLightingElement: true, SVGFEDisplacementMapElement: true, SVGFEDistantLightElement: true, SVGFEFloodElement: true, SVGFEFuncAElement: true, SVGFEFuncBElement: true, SVGFEFuncGElement: true, SVGFEFuncRElement: true, SVGFEGaussianBlurElement: true, SVGFEImageElement: true, SVGFEMergeElement: true, SVGFEMergeNodeElement: true, SVGFEMorphologyElement: true, SVGFEOffsetElement: true, SVGFEPointLightElement: true, SVGFESpecularLightingElement: true, SVGFESpotLightElement: true, SVGFETileElement: true, SVGFETurbulenceElement: true, SVGFilterElement: true, SVGForeignObjectElement: true, SVGGElement: true, SVGGeometryElement: true, SVGGraphicsElement: true, SVGImageElement: true, SVGLineElement: true, SVGLinearGradientElement: true, SVGMarkerElement: true, SVGMaskElement: true, SVGMetadataElement: true, SVGPathElement: true, SVGPatternElement: true, SVGPolygonElement: true, SVGPolylineElement: true, SVGRadialGradientElement: true, SVGRectElement: true, SVGScriptElement: true, SVGSetElement: true, SVGStopElement: true, SVGStyleElement: true, SVGElement: true, SVGSVGElement: true, SVGSwitchElement: true, SVGSymbolElement: true, SVGTSpanElement: true, SVGTextContentElement: true, SVGTextElement: true, SVGTextPathElement: true, SVGTextPositioningElement: true, SVGTitleElement: true, SVGUseElement: true, SVGViewElement: true, SVGGradientElement: true, SVGComponentTransferFunctionElement: true, SVGFEDropShadowElement: true, SVGMPathElement: true, Element: false, AbortPaymentEvent: true, AnimationEvent: true, AnimationPlaybackEvent: true, ApplicationCacheErrorEvent: true, BackgroundFetchClickEvent: true, BackgroundFetchEvent: true, BackgroundFetchFailEvent: true, BackgroundFetchedEvent: true, BeforeInstallPromptEvent: true, BeforeUnloadEvent: true, BlobEvent: true, CanMakePaymentEvent: true, ClipboardEvent: true, CloseEvent: true, CompositionEvent: true, CustomEvent: true, DeviceMotionEvent: true, DeviceOrientationEvent: true, ErrorEvent: true, ExtendableEvent: true, ExtendableMessageEvent: true, FetchEvent: true, FocusEvent: true, FontFaceSetLoadEvent: true, ForeignFetchEvent: true, GamepadEvent: true, HashChangeEvent: true, InstallEvent: true, KeyboardEvent: true, MediaEncryptedEvent: true, MediaKeyMessageEvent: true, MediaQueryListEvent: true, MediaStreamEvent: true, MediaStreamTrackEvent: true, MessageEvent: true, MIDIConnectionEvent: true, MIDIMessageEvent: true, MouseEvent: true, DragEvent: true, MutationEvent: true, NotificationEvent: true, PageTransitionEvent: true, PaymentRequestEvent: true, PaymentRequestUpdateEvent: true, PointerEvent: true, PopStateEvent: true, PresentationConnectionAvailableEvent: true, PresentationConnectionCloseEvent: true, PromiseRejectionEvent: true, PushEvent: true, RTCDataChannelEvent: true, RTCDTMFToneChangeEvent: true, RTCPeerConnectionIceEvent: true, RTCTrackEvent: true, SecurityPolicyViolationEvent: true, SensorErrorEvent: true, SpeechRecognitionError: true, SpeechRecognitionEvent: true, SpeechSynthesisEvent: true, StorageEvent: true, SyncEvent: true, TextEvent: true, TouchEvent: true, TrackEvent: true, TransitionEvent: true, WebKitTransitionEvent: true, UIEvent: true, VRDeviceEvent: true, VRDisplayEvent: true, VRSessionEvent: true, WheelEvent: true, MojoInterfaceRequestEvent: true, USBConnectionEvent: true, IDBVersionChangeEvent: true, AudioProcessingEvent: true, OfflineAudioCompletionEvent: true, WebGLContextEvent: true, Event: false, InputEvent: false, AbsoluteOrientationSensor: true, Accelerometer: true, AccessibleNode: true, AmbientLightSensor: true, Animation: true, ApplicationCache: true, DOMApplicationCache: true, OfflineResourceList: true, BackgroundFetchRegistration: true, BatteryManager: true, BroadcastChannel: true, CanvasCaptureMediaStreamTrack: true, DedicatedWorkerGlobalScope: true, EventSource: true, FileReader: true, FontFaceSet: true, Gyroscope: true, LinearAccelerationSensor: true, Magnetometer: true, MediaDevices: true, MediaKeySession: true, MediaQueryList: true, MediaRecorder: true, MediaSource: true, MediaStream: true, MediaStreamTrack: true, MessagePort: true, MIDIAccess: true, MIDIInput: true, MIDIOutput: true, MIDIPort: true, NetworkInformation: true, Notification: true, OffscreenCanvas: true, OrientationSensor: true, PaymentRequest: true, Performance: true, PermissionStatus: true, PresentationAvailability: true, PresentationConnection: true, PresentationConnectionList: true, PresentationRequest: true, RelativeOrientationSensor: true, RemotePlayback: true, RTCDataChannel: true, DataChannel: true, RTCDTMFSender: true, RTCPeerConnection: true, webkitRTCPeerConnection: true, mozRTCPeerConnection: true, ScreenOrientation: true, Sensor: true, ServiceWorker: true, ServiceWorkerContainer: true, ServiceWorkerGlobalScope: true, ServiceWorkerRegistration: true, SharedWorker: true, SharedWorkerGlobalScope: true, SpeechRecognition: true, SpeechSynthesis: true, SpeechSynthesisUtterance: true, VR: true, VRDevice: true, VRDisplay: true, VRSession: true, VisualViewport: true, WebSocket: true, Worker: true, WorkerGlobalScope: true, WorkerPerformance: true, BluetoothDevice: true, BluetoothRemoteGATTCharacteristic: true, Clipboard: true, MojoInterfaceInterceptor: true, USB: true, IDBDatabase: true, IDBOpenDBRequest: true, IDBVersionChangeRequest: true, IDBRequest: true, IDBTransaction: true, AnalyserNode: true, RealtimeAnalyserNode: true, AudioBufferSourceNode: true, AudioDestinationNode: true, AudioNode: true, AudioScheduledSourceNode: true, AudioWorkletNode: true, BiquadFilterNode: true, ChannelMergerNode: true, AudioChannelMerger: true, ChannelSplitterNode: true, AudioChannelSplitter: true, ConstantSourceNode: true, ConvolverNode: true, DelayNode: true, DynamicsCompressorNode: true, GainNode: true, AudioGainNode: true, IIRFilterNode: true, MediaElementAudioSourceNode: true, MediaStreamAudioDestinationNode: true, MediaStreamAudioSourceNode: true, OscillatorNode: true, Oscillator: true, PannerNode: true, AudioPannerNode: true, webkitAudioPannerNode: true, ScriptProcessorNode: true, JavaScriptAudioNode: true, StereoPannerNode: true, WaveShaperNode: true, EventTarget: false, File: true, FileList: true, FileWriter: true, HTMLFormElement: true, Gamepad: true, History: true, HTMLCollection: true, HTMLFormControlsCollection: true, HTMLOptionsCollection: true, XMLHttpRequest: true, XMLHttpRequestUpload: true, XMLHttpRequestEventTarget: false, Location: true, HTMLVideoElement: true, HTMLMediaElement: false, MediaList: true, MIDIInputMap: true, MIDIOutputMap: true, MimeType: true, MimeTypeArray: true, DocumentFragment: true, ShadowRoot: true, Attr: true, DocumentType: true, Node: false, NodeList: true, RadioNodeList: true, Plugin: true, PluginArray: true, ProgressEvent: true, ResourceProgressEvent: true, RTCStatsReport: true, HTMLSelectElement: true, SourceBuffer: true, SourceBufferList: true, SpeechGrammar: true, SpeechGrammarList: true, SpeechRecognitionResult: true, Storage: true, CSSStyleSheet: true, StyleSheet: true, TextTrack: true, TextTrackCue: true, VTTCue: true, TextTrackCueList: true, TextTrackList: true, TimeRanges: true, Touch: true, TouchList: true, TrackDefaultList: true, URL: true, VideoTrackList: true, Window: true, DOMWindow: true, CSSRuleList: true, ClientRect: true, DOMRect: true, GamepadList: true, NamedNodeMap: true, MozNamedAttrMap: true, SpeechRecognitionResultList: true, StyleSheetList: true, SVGLength: true, SVGLengthList: true, SVGNumber: true, SVGNumberList: true, SVGPointList: true, SVGStringList: true, SVGTransform: true, SVGTransformList: true, AudioBuffer: true, AudioParamMap: true, AudioTrackList: true, AudioContext: true, webkitAudioContext: true, BaseAudioContext: false, OfflineAudioContext: true, WebGLBuffer: true, WebGLFramebuffer: true, WebGLProgram: true, WebGLRenderingContext: true, WebGL2RenderingContext: true, WebGLShader: true, WebGLTexture: true, WebGLUniformLocation: true, WebGLVertexArrayObject: true, SQLResultSetRowList: true});
     H.NativeTypedArray.$nativeSuperclassTag = "ArrayBufferView";
     H._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin.$nativeSuperclassTag = "ArrayBufferView";
     H._NativeTypedArrayOfDouble_NativeTypedArray_ListMixin_FixedLengthListMixin.$nativeSuperclassTag = "ArrayBufferView";
@@ -8423,10 +10698,10 @@
   })(function(currentScript) {
     init.currentScript = currentScript;
     if (typeof dartMainRunner === "function")
-      dartMainRunner(B.main, []);
+      dartMainRunner(R.main, []);
     else
-      B.main([]);
+      R.main([]);
   });
 })();
 
-//# sourceMappingURL=compute.dart.js.map
+//# sourceMappingURL=tunnel_vision.dart.js.map
