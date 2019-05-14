@@ -103,7 +103,6 @@ GeometryBuilder TorusKnotGeometryWireframeFriendly({double radius = 20.0,
   pointsAndTangents.add(pointsAndTangents[1]);
   final int h = segmentsR + 1;
   assert(pointsAndTangents.length == 2 * h);
-
   final List<List<VM.Vector3>> bands =
   TubeHullBands(pointsAndTangents, segmentsT, tubeRadius);
   for (List<VM.Vector3> b in bands) {
@@ -119,7 +118,7 @@ GeometryBuilder TorusKnotGeometryWireframeFriendly({double radius = 20.0,
       final int ip = i + 1;
       final int jp = j + 1;
       gb.AddFaces4(1);
-      gb.AddVertices([
+      gb.AddVerticesTakeOwnership([
         bands[i][jp * 2],
         bands[ip][jp * 2],
         bands[ip][j * 2],
@@ -130,11 +129,11 @@ GeometryBuilder TorusKnotGeometryWireframeFriendly({double radius = 20.0,
 
   if (computeUVs) {
     gb..EnableAttribute(aTexUV);
-    for (int i = 0; i < segmentsR; ++i) {
+    for (int i = segmentsR-1; i >= 0; --i) {
       for (int j = 0; j < segmentsT; ++j) {
         final int ip = i + 1;
         final int jp = j + 1;
-        gb.AddAttributesVector2(aTexUV, [
+        gb.AddAttributesVector2TakeOwnership(aTexUV, [
           VM.Vector2(i / segmentsR, jp / segmentsT),
           VM.Vector2(ip / segmentsR, jp / segmentsT),
           VM.Vector2(ip / segmentsR, j / segmentsT),
