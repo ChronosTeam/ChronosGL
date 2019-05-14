@@ -126,14 +126,16 @@ class TheNodes {
     // ctLogo.enabled = true;
     final Node active = ctLogo.enabled ? ctLogo : icoSmall;
     final double pos = now / flySpeedDivider + amp + 1.1 - tween;
+
     PositionInTorus(pos, _p1);
     PositionInTorus(pos + cameraTargetDistance, _p2);
+    active.rotZ(now / 1000.0);
     active.setPosFromVec(_p1);
 
     //active.lookAt(_p2, camera.getUp());
+    //active.setPosFromVec(_p1);
     // we want the ct sign to stand upward
     // why does this change the position?
-    active.rotZ(now / 1000.0);
   }
 }
 
@@ -223,13 +225,13 @@ void main() {
   double startMs = -1.0;
   void animate(num timeMs) {
     if (startMs < 0.0) startMs = timeMs;
-    // double now = (timeMs - startMs) * 0.001 *  2.0;
+    //final double now = (timeMs - startMs) * 0.001 *  2.0 + 20;
     final double now = musicElement.currentTime;
     if (musicElement.ended || now > 192.0) {
       infoElement.text = about;
     } else {
       theNodes.advanceTimeline(now);
-      infoElement.text = "${now}";
+      //infoElement.text = "${now}";
     }
 
     theNodes.material.ForceUniform(uTime, timeMs / 1000.0);
