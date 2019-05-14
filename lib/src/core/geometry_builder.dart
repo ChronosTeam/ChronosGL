@@ -116,6 +116,47 @@ class GeometryBuilder {
     return attributes.containsKey(canonical);
   }
 
+  void MergeAndTakeOwnership(GeometryBuilder other, [VM.Matrix4 mat = null]) {
+    if (other.vertices.length == 0) return;
+    final int offset = vertices.length;
+
+    assert(pointsOnly == other.pointsOnly);
+    for (String a in attributes.keys) {
+      assert(other.attributes.containsKey(a));
+    }
+    for (String a in other.attributes.keys) {
+      assert(attributes.containsKey(a));
+      attributes[a].addAll(other.attributes[a]);
+    }
+    other.attributes.clear();
+
+    for (VM.Vector3 v in other.vertices) {
+      if (mat == null) {
+        vertices.add(v);
+      } else {
+        vertices.add(v..applyMatrix4(mat));
+      }
+    }
+    other.vertices.clear();
+
+    for (Face3 face in other._faces3) {
+      face.a += offset;
+      face.b += offset;
+      face.c += offset;
+      _faces3.add(face);
+    }
+    other._faces3.clear();
+
+    for (Face4 face in other._faces4) {
+      face.a += offset;
+      face.b += offset;
+      face.c += offset;
+      face.d += offset;
+      _faces4.add(face);
+    }
+    other._faces4.clear();
+  }
+
   void SanityCheck() {
     if (pointsOnly) {
       assert(_faces3.length == 0);
