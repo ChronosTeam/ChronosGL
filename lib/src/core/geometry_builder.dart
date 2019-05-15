@@ -234,6 +234,10 @@ class GeometryBuilder {
     vertices.add(v.clone());
   }
 
+  void AddVertexTakeOwnership(VM.Vector3 v) {
+    vertices.add(v);
+  }
+
   void AddVerticesFace3(List<VM.Vector3> vs) {
     assert(vs.length == 3);
     int i = vertices.length;
@@ -533,7 +537,7 @@ class GeometryBuilder {
     List<VM.Vector2> uvs = [];
     attributes[aTexUV] = uvs;
 
-    for (int y = 0; y < h; ++y) {
+    for (int y = h-1; y >=0 ; --y) {
       for (int x = 0; x < w; ++x) {
         // we interchange x and y for historical reasons here
         uvs.add(VM.Vector2(y / (h - 1), x / (w - 1)));

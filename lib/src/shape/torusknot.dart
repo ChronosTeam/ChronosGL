@@ -55,10 +55,10 @@ GeometryBuilder TorusKnotGeometry({double radius = 20.0,
   assert(bands[0].length == 2 * w);
 
   final GeometryBuilder gb = GeometryBuilder();
-
+  
   for (List<VM.Vector3> lst in bands) {
     for (int i = 0; i < lst.length; i += 2) {
-      gb.AddVertex(lst[i]);
+      gb.AddVertexTakeOwnership(lst[i]);
     }
   }
   assert(gb.vertices.length == w * h);
@@ -66,6 +66,7 @@ GeometryBuilder TorusKnotGeometry({double radius = 20.0,
   gb.GenerateRegularGridFaces(w, h, wrap);
 
   if (computeUVs) {
+    assert (!wrap, "uvs do not work well with wrapping");
     gb.GenerateRegularGridUV(w, h);
     assert(gb.attributes[aTexUV].length == gb.vertices.length);
   }
