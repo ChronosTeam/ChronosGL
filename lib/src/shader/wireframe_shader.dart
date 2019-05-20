@@ -1,5 +1,7 @@
 part of chronosshader;
 
+// http://codeflow.org/entries/2012/aug/02/easy-wireframe-display-with-barycentric-coordinates/
+
 const String _WireframeF = """
 // the 3 vertices of a Face3 (w == 0) have the centers:
 // (1, 0, 0, 0)) 

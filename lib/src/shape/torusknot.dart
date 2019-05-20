@@ -55,7 +55,7 @@ GeometryBuilder TorusKnotGeometry({double radius = 20.0,
   assert(bands[0].length == 2 * w);
 
   final GeometryBuilder gb = GeometryBuilder();
-  
+
   for (List<VM.Vector3> lst in bands) {
     for (int i = 0; i < lst.length; i += 2) {
       gb.AddVertexTakeOwnership(lst[i]);
@@ -93,7 +93,8 @@ GeometryBuilder TorusKnotGeometryWireframeFriendly({double radius = 20.0,
   int q = 3,
   double heightScale = 1.0,
   bool computeUVs = true,
-  bool computeNormals = true}) {
+  bool computeNormals = true,
+  bool inside = false}) {
   void curveFunc(double u, VM.Vector3 out) {
     TorusKnotGetPos(u, q, p, radius, heightScale, out);
   }
@@ -119,18 +120,27 @@ GeometryBuilder TorusKnotGeometryWireframeFriendly({double radius = 20.0,
       final int ip = i + 1;
       final int jp = j + 1;
       gb.AddFaces4(1);
-      gb.AddVerticesTakeOwnership([
-        bands[i][jp * 2],
-        bands[ip][jp * 2],
-        bands[ip][j * 2],
-        bands[i][j * 2]
-      ]);
+      if (inside) {
+        gb.AddVerticesTakeOwnership([
+          bands[i][j * 2],
+          bands[ip][j * 2],
+          bands[ip][jp * 2],
+          bands[i][jp * 2],
+        ]);
+      } else {
+        gb.AddVerticesTakeOwnership([
+          bands[i][jp * 2],
+          bands[ip][jp * 2],
+          bands[ip][j * 2],
+          bands[i][j * 2]
+        ]);
+      }
     }
   }
 
   if (computeUVs) {
     gb..EnableAttribute(aTexUV);
-    for (int i = segmentsR-1; i >= 0; --i) {
+    for (int i = segmentsR - 1; i >= 0; --i) {
       for (int j = 0; j < segmentsT; ++j) {
         final int ip = i + 1;
         final int jp = j + 1;
