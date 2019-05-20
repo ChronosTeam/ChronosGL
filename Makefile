@@ -47,7 +47,13 @@ webserver:
 #@ webdev - Launch the continous build webdev server
 #@
 serve:
-	webdev serve example/
+	webdev serve --verbose web/
+
+
+#@ publish - Update package at pub.dartlang.org
+#@
+publish:
+	$(PUB) publish 
 
 buildall:
 	webdev build --output web:build
@@ -58,14 +64,6 @@ buildall:
 presubmit: tests buildall
 
 
-#@ publish - Update pub.dartlang.org/packages/chronosgl
-#@
-publish:
-	$(PUB) publish
-
-tag:
-	git tag $(VERSION) -m "$(VERSION)"
-	git show $(VERSION)
 
 #@ documentation - Extract the class_glossary.md files from the source
 #@
