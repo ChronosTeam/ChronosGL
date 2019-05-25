@@ -81,10 +81,10 @@ class GeometryBuilder {
 
   // if true we have have point cloud
   final bool pointsOnly;
-  final List<Face3> _faces3 = []; // only used if pointsOnly == false
-  final List<Face4> _faces4 = []; // only used if pointsOnly == false
+  final List<Face3> faces3 = []; // only used if pointsOnly == false
+  final List<Face4> faces4 = []; // only used if pointsOnly == false
   final List<VM.Vector3> vertices = [];
-  Map<String, List> attributes = {};
+  final Map<String, List> attributes = {};
 
   void EnableAttribute(String canonical) {
     assert(!attributes.containsKey(canonical),
@@ -116,7 +116,7 @@ class GeometryBuilder {
     return attributes.containsKey(canonical);
   }
 
-  void MergeAndTakeOwnership(GeometryBuilder other, [VM.Matrix4 mat = null]) {
+  void MergeAndTakeOwnership(GeometryBuilder other, [VM.Matrix4 mat]) {
     if (other.vertices.length == 0) return;
     final int offset = vertices.length;
 
@@ -139,39 +139,39 @@ class GeometryBuilder {
     }
     other.vertices.clear();
 
-    for (Face3 face in other._faces3) {
+    for (Face3 face in other.faces3) {
       face.a += offset;
       face.b += offset;
       face.c += offset;
-      _faces3.add(face);
+      faces3.add(face);
     }
-    other._faces3.clear();
+    other.faces3.clear();
 
-    for (Face4 face in other._faces4) {
+    for (Face4 face in other.faces4) {
       face.a += offset;
       face.b += offset;
       face.c += offset;
       face.d += offset;
-      _faces4.add(face);
+      faces4.add(face);
     }
-    other._faces4.clear();
+    other.faces4.clear();
   }
 
   void SanityCheck() {
     if (pointsOnly) {
-      assert(_faces3.length == 0);
-      assert(_faces4.length == 0);
+      assert(faces3.length == 0);
+      assert(faces4.length == 0);
       return;
     }
     int maxIndexFace3 = -1;
-    for (Face3 f in _faces3) {
+    for (Face3 f in faces3) {
       if (f.a > maxIndexFace3) maxIndexFace3 = f.a;
       if (f.b > maxIndexFace3) maxIndexFace3 = f.b;
       if (f.c > maxIndexFace3) maxIndexFace3 = f.c;
     }
 
     int maxIndexFace4 = -1;
-    for (Face4 f in _faces4) {
+    for (Face4 f in faces4) {
       if (f.a > maxIndexFace4) maxIndexFace4 = f.a;
       if (f.b > maxIndexFace4) maxIndexFace4 = f.b;
       if (f.c > maxIndexFace4) maxIndexFace4 = f.c;
@@ -191,13 +191,13 @@ class GeometryBuilder {
 
   void AddFace3(int a, int b, int c) {
     assert(pointsOnly == false, "pointsOnly must be false");
-    _faces3.add(Face3(a, b, c));
+    faces3.add(Face3(a, b, c));
   }
 
   void AddFace4(int a, int b, int c, int d) {
     assert(pointsOnly == false, "pointsOnly must be false");
 
-    _faces4.add(Face4(a, b, c, d));
+    faces4.add(Face4(a, b, c, d));
   }
 
   void AddFaces3(int n) {
@@ -205,7 +205,7 @@ class GeometryBuilder {
 
     int v = vertices.length;
     for (int i = 0; i < n; i++, v += 3) {
-      _faces3.add(Face3(v + 0, v + 1, v + 2));
+      faces3.add(Face3(v + 0, v + 1, v + 2));
     }
   }
 
@@ -213,7 +213,7 @@ class GeometryBuilder {
     assert(pointsOnly == false);
     int v = vertices.length;
     for (int i = 0; i < n; i++, v += 4) {
-      _faces4.add(Face4(v + 0, v + 1, v + 2, v + 3));
+      faces4.add(Face4(v + 0, v + 1, v + 2, v + 3));
     }
   }
 
@@ -370,16 +370,16 @@ class GeometryBuilder {
   // generateFaces is usually only called once to initialize _faces.
   // Its main purpose is to convert Face4 into two triangles
   List<int> GenerateFaceIndices() {
-    assert(_faces3.length > 0 || _faces4.length > 0);
-    List<int> faces = List<int>(_faces3.length * 3 + _faces4.length * 6);
+    assert(faces3.length > 0 || faces4.length > 0);
+    List<int> faces = List<int>(faces3.length * 3 + faces4.length * 6);
     int i = 0;
-    for (Face3 f3 in _faces3) {
+    for (Face3 f3 in faces3) {
       faces[i + 0] = f3.a;
       faces[i + 1] = f3.b;
       faces[i + 2] = f3.c;
       i += 3;
     }
-    for (Face4 f4 in _faces4) {
+    for (Face4 f4 in faces4) {
       faces[i + 0] = f4.a;
       faces[i + 1] = f4.b;
       faces[i + 2] = f4.c;
@@ -394,9 +394,9 @@ class GeometryBuilder {
   }
 
   List<int> GenerateLineIndices() {
-    List<int> lines = List<int>(_faces3.length * 6 + _faces4.length * 8);
+    List<int> lines = List<int>(faces3.length * 6 + faces4.length * 8);
     int i = 0;
-    for (Face3 f3 in _faces3) {
+    for (Face3 f3 in faces3) {
       lines[i + 0] = f3.a;
       lines[i + 1] = f3.b;
       lines[i + 2] = f3.b;
@@ -405,7 +405,7 @@ class GeometryBuilder {
       lines[i + 5] = f3.a;
       i += 6;
     }
-    for (Face4 f4 in _faces4) {
+    for (Face4 f4 in faces4) {
       lines[i + 0] = f4.a;
       lines[i + 1] = f4.b;
       lines[i + 2] = f4.b;
@@ -424,7 +424,7 @@ class GeometryBuilder {
     List<VM.Vector3> normals = List<VM.Vector3>(vertices.length);
     VM.Vector3 temp = VM.Vector3.zero();
     VM.Vector3 norm = VM.Vector3.zero();
-    for (Face3 f3 in _faces3) {
+    for (Face3 f3 in faces3) {
       NormalFromPoints(
           vertices[f3.a], vertices[f3.b], vertices[f3.c], temp, norm);
       normals[f3.a] = norm.clone();
@@ -432,7 +432,7 @@ class GeometryBuilder {
       normals[f3.c] = norm.clone();
     }
 
-    for (Face4 f4 in _faces4) {
+    for (Face4 f4 in faces4) {
       NormalFromPoints(
           vertices[f4.a], vertices[f4.b], vertices[f4.c], temp, norm);
       normals[f4.a] = norm.clone();
@@ -461,7 +461,7 @@ class GeometryBuilder {
       }
     }
 
-    for (Face3 f3 in _faces3) {
+    for (Face3 f3 in faces3) {
       NormalFromPoints(
           vertices[f3.a], vertices[f3.b], vertices[f3.c], temp, norm);
       VM.Vector3 n = norm.clone();
@@ -470,7 +470,7 @@ class GeometryBuilder {
       add(f3.c, n);
     }
 
-    for (Face4 f4 in _faces4) {
+    for (Face4 f4 in faces4) {
       NormalFromPoints(
           vertices[f4.a], vertices[f4.b], vertices[f4.c], temp, norm);
       VM.Vector3 n = norm.clone()..scale(2.0);
@@ -510,7 +510,7 @@ class GeometryBuilder {
     VM.Vector4 b3 = VM.Vector4(0.0, 1.0, 0.0, 0.0);
     VM.Vector4 c3 = VM.Vector4(0.0, 0.0, 1.0, 0.0);
 
-    for (Face3 f in _faces3) {
+    for (Face3 f in faces3) {
       center[f.a] = a3.clone();
       center[f.b] = b3.clone();
       center[f.c] = c3.clone();
@@ -521,7 +521,7 @@ class GeometryBuilder {
     VM.Vector4 c4 = VM.Vector4(0.0, 1.0, 0.0, 1.0);
     VM.Vector4 d4 = VM.Vector4(0.0, 0.0, 0.0, 1.0);
 
-    for (Face4 f in _faces4) {
+    for (Face4 f in faces4) {
       center[f.a] = a4.clone();
       center[f.b] = b4.clone();
       center[f.c] = c4.clone();
@@ -560,9 +560,9 @@ class GeometryBuilder {
       }
     }
     if (wrapped) {
-      assert(_faces4.length == w * h, "face4 length mismatch");
+      assert(faces4.length == w * h, "face4 length mismatch");
     } else {
-      assert(_faces4.length == (w - 1) * (h - 1), "face4 length mismatch");
+      assert(faces4.length == (w - 1) * (h - 1), "face4 length mismatch");
     }
   }
 
@@ -583,7 +583,7 @@ class GeometryBuilder {
       }
     }
 
-    for (Face3 f3 in _faces3) {
+    for (Face3 f3 in faces3) {
       VM.Vector3 va = vertices[f3.a];
       VM.Vector3 vb = vertices[f3.b];
       VM.Vector3 vc = vertices[f3.c];
@@ -592,7 +592,7 @@ class GeometryBuilder {
       }
     }
 
-    for (Face4 f4 in _faces4) {
+    for (Face4 f4 in faces4) {
       VM.Vector3 va = vertices[f4.a];
       VM.Vector3 vb = vertices[f4.b];
       VM.Vector3 vc = vertices[f4.c];
@@ -660,8 +660,8 @@ class GeometryBuilder {
     List<String> s = [
       "GB:",
       "V[${vertices.length}]",
-      "f3[${_faces3.length}]",
-      "f4[${_faces4.length}]"
+      "f3[${faces3.length}]",
+      "f4[${faces4.length}]"
     ];
     for (String canonical in attributes.keys) {
       String type = RetrieveShaderVarDesc(canonical).type;
