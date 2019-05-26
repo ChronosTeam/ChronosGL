@@ -1,5 +1,5 @@
 name: chronosgl
-version: 3.8.0
+version: 3.9.0
 authors:
 - Robert Muth <robert@muth.org>
 - Ray Hulha <java4life@gmail.com>
@@ -19,4 +19,4 @@ dev_dependencies:
   vm_service_client: ">= 0.2.6"
 
 environment:
-  sdk: ">= 2.2.0 <=2.3.0"
+  sdk: ">= 2.2.0 < 3.0.0"
