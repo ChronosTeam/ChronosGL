@@ -116,7 +116,8 @@ class GeometryBuilder {
     return attributes.containsKey(canonical);
   }
 
-  void MergeAndTakeOwnership(GeometryBuilder other, [VM.Matrix4 mat]) {
+  void MergeAndTakeOwnership(GeometryBuilder other,
+      [VM.Matrix4 mat, VM.Matrix3 matNormal]) {
     if (other.vertices.length == 0) return;
     final int offset = vertices.length;
 
@@ -126,7 +127,16 @@ class GeometryBuilder {
     }
     for (String a in other.attributes.keys) {
       assert(attributes.containsKey(a));
-      attributes[a].addAll(other.attributes[a]);
+      switch (a) {
+        case aNormal:
+          assert(matNormal != null, "no normal matrix provided");
+          for (VM.Vector3 v in other.attributes[a]) {
+            attributes[a].add(v..applyMatrix3(matNormal));
+          }
+          break;
+        default:
+          attributes[a].addAll(other.attributes[a]);
+      }
     }
     other.attributes.clear();
 
@@ -537,7 +547,7 @@ class GeometryBuilder {
     List<VM.Vector2> uvs = [];
     attributes[aTexUV] = uvs;
 
-    for (int y = h-1; y >=0 ; --y) {
+    for (int y = h - 1; y >= 0; --y) {
       for (int x = 0; x < w; ++x) {
         // we interchange x and y for historical reasons here
         uvs.add(VM.Vector2(y / (h - 1), x / (w - 1)));
