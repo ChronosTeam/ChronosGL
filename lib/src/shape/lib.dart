@@ -2,6 +2,7 @@ library shape;
 
 import 'dart:math' as Math;
 import 'package:vector_math/vector_math.dart' as VM;
+import 'dart:typed_data';
 
 /// # Layer: Shape (uses Core Layer)
 /// contains helpers for creating **GeometryBuilder**

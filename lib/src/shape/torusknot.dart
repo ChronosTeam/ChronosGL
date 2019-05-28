@@ -58,7 +58,7 @@ GeometryBuilder TorusKnotGeometry({double radius = 20.0,
 
   for (List<VM.Vector3> lst in bands) {
     for (int i = 0; i < lst.length; i += 2) {
-      gb.AddVertex(lst[i]);
+      gb.AddVertexTakeOwnership(lst[i]);
     }
   }
   assert(gb.vertices.length == w * h);
@@ -66,6 +66,7 @@ GeometryBuilder TorusKnotGeometry({double radius = 20.0,
   gb.GenerateRegularGridFaces(w, h, wrap);
 
   if (computeUVs) {
+    assert (!wrap, "uvs do not work well with wrapping");
     gb.GenerateRegularGridUV(w, h);
     assert(gb.attributes[aTexUV].length == gb.vertices.length);
   }
@@ -92,7 +93,8 @@ GeometryBuilder TorusKnotGeometryWireframeFriendly({double radius = 20.0,
   int q = 3,
   double heightScale = 1.0,
   bool computeUVs = true,
-  bool computeNormals = true}) {
+  bool computeNormals = true,
+  bool inside = false}) {
   void curveFunc(double u, VM.Vector3 out) {
     TorusKnotGetPos(u, q, p, radius, heightScale, out);
   }
@@ -103,7 +105,6 @@ GeometryBuilder TorusKnotGeometryWireframeFriendly({double radius = 20.0,
   pointsAndTangents.add(pointsAndTangents[1]);
   final int h = segmentsR + 1;
   assert(pointsAndTangents.length == 2 * h);
-
   final List<List<VM.Vector3>> bands =
   TubeHullBands(pointsAndTangents, segmentsT, tubeRadius);
   for (List<VM.Vector3> b in bands) {
@@ -119,22 +120,31 @@ GeometryBuilder TorusKnotGeometryWireframeFriendly({double radius = 20.0,
       final int ip = i + 1;
       final int jp = j + 1;
       gb.AddFaces4(1);
-      gb.AddVertices([
-        bands[i][jp * 2],
-        bands[ip][jp * 2],
-        bands[ip][j * 2],
-        bands[i][j * 2]
-      ]);
+      if (inside) {
+        gb.AddVerticesTakeOwnership([
+          bands[i][j * 2],
+          bands[ip][j * 2],
+          bands[ip][jp * 2],
+          bands[i][jp * 2],
+        ]);
+      } else {
+        gb.AddVerticesTakeOwnership([
+          bands[i][jp * 2],
+          bands[ip][jp * 2],
+          bands[ip][j * 2],
+          bands[i][j * 2]
+        ]);
+      }
     }
   }
 
   if (computeUVs) {
     gb..EnableAttribute(aTexUV);
-    for (int i = 0; i < segmentsR; ++i) {
+    for (int i = segmentsR - 1; i >= 0; --i) {
       for (int j = 0; j < segmentsT; ++j) {
         final int ip = i + 1;
         final int jp = j + 1;
-        gb.AddAttributesVector2(aTexUV, [
+        gb.AddAttributesVector2TakeOwnership(aTexUV, [
           VM.Vector2(i / segmentsR, jp / segmentsT),
           VM.Vector2(ip / segmentsR, jp / segmentsT),
           VM.Vector2(ip / segmentsR, j / segmentsT),

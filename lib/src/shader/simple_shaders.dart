@@ -61,3 +61,18 @@ final ShaderObject demoVertexShader = ShaderObject("FixedVertexColorV")
 final ShaderObject demoFragmentShader = ShaderObject("FixedVertexColorF")
   ..AddVaryingVars([vColor])
   ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1.0 );"]);
+
+final ShaderObject multiColorVertexShader = ShaderObject("MultiColorVertexColorV")
+  ..AddAttributeVars([aPosition, aColor])
+  ..AddUniformVars([uPerspectiveViewMatrix, uModelMatrix])
+  ..AddVaryingVars([vColor])
+  ..SetBodyWithMain([
+    StdVertexBody,
+    "${vColor} = ${aColor};",
+  ], prolog: [
+    StdLibShader
+  ]);
+
+final ShaderObject multiColorFragmentShader = ShaderObject("MultiColorVertexColorF")
+  ..AddVaryingVars([vColor])
+  ..SetBodyWithMain(["${oFragColor} = vec4( ${vColor}, 1.0 );"]);
