@@ -1,5 +1,5 @@
 name: chronosgl
-version: 3.9.1
+version: 3.9.2
 authors:
 - Robert Muth <robert@muth.org>
 - Ray Hulha <java4life@gmail.com>
@@ -10,10 +10,11 @@ dependencies:
   js: ">= 0.6.1 <0.7.0"
 dev_dependencies:
   build_runner: "any"
+  build_daemon: ">=1.0.0 <2.0.0"
   build_test: "any"
   test: ">=1.5.3"
   args: ">=0.13.0"
-  build_web_compilers: ">= 1.2.0 <=1.2.0"
+  build_web_compilers: "any"
   io: ">=0.3.3"
   http: ">=0.11.3+17"
   vm_service_client: ">= 0.2.6"
