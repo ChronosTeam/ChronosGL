@@ -27,7 +27,8 @@ GeometryBuilder TorusKnotGeometry({double radius = 20.0,
   // wrap false => start and end node are separate vertices
   bool wrap = false,
   bool computeUVs = true,
-  bool computeNormals = true}) {
+  bool computeNormals = true,
+  bool inside = false}) {
   void curveFunc(double u, VM.Vector3 out) {
     TorusKnotGetPos(u, q, p, radius, heightScale, out);
   }
@@ -63,7 +64,7 @@ GeometryBuilder TorusKnotGeometry({double radius = 20.0,
   }
   assert(gb.vertices.length == w * h);
 
-  gb.GenerateRegularGridFaces(w, h, wrap);
+  gb.GenerateRegularGridFaces(w, h, wrap, inside);
 
   if (computeUVs) {
     assert (!wrap, "uvs do not work well with wrapping");
@@ -119,22 +120,13 @@ GeometryBuilder TorusKnotGeometryWireframeFriendly({double radius = 20.0,
     for (int j = 0; j < segmentsT; ++j) {
       final int ip = i + 1;
       final int jp = j + 1;
-      gb.AddFaces4(1);
-      if (inside) {
-        gb.AddVerticesTakeOwnership([
-          bands[i][j * 2],
-          bands[ip][j * 2],
-          bands[ip][jp * 2],
-          bands[i][jp * 2],
-        ]);
-      } else {
-        gb.AddVerticesTakeOwnership([
-          bands[i][jp * 2],
-          bands[ip][jp * 2],
-          bands[ip][j * 2],
-          bands[i][j * 2]
-        ]);
-      }
+      gb.AddFaces4(1, inside);
+      gb.AddVerticesTakeOwnership([
+        bands[i][jp * 2],
+        bands[ip][jp * 2],
+        bands[ip][j * 2],
+        bands[i][j * 2]
+      ]);
     }
   }
 

@@ -88,7 +88,7 @@ class GeometryBuilder {
 
   void EnableAttribute(String canonical) {
     assert(!attributes.containsKey(canonical),
-        "attribute ${canonical} already exists");
+    "attribute ${canonical} already exists");
     assert(canonical.startsWith("a"), "${canonical} is not an attribute");
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     switch (desc.type) {
@@ -195,7 +195,7 @@ class GeometryBuilder {
 
     for (String canonical in attributes.keys) {
       assert(attributes[canonical].length == vertices.length,
-          "bad attribute ${canonical}");
+      "bad attribute ${canonical}");
     }
   }
 
@@ -204,10 +204,9 @@ class GeometryBuilder {
     faces3.add(Face3(a, b, c));
   }
 
-  void AddFace4(int a, int b, int c, int d) {
+  void AddFace4(int a, int b, int c, int d, [bool reverse = false]) {
     assert(pointsOnly == false, "pointsOnly must be false");
-
-    faces4.add(Face4(a, b, c, d));
+    faces4.add(reverse ? Face4(d, c, b, a) : Face4(a, b, c, d));
   }
 
   void AddFaces3(int n) {
@@ -219,11 +218,11 @@ class GeometryBuilder {
     }
   }
 
-  void AddFaces4(int n) {
+  void AddFaces4(int n, [bool reverse = false]) {
     assert(pointsOnly == false);
     int v = vertices.length;
     for (int i = 0; i < n; i++, v += 4) {
-      faces4.add(Face4(v + 0, v + 1, v + 2, v + 3));
+      AddFace4(v + 0, v + 1, v + 2, v + 3, reverse);
     }
   }
 
@@ -286,8 +285,8 @@ class GeometryBuilder {
     }
   }
 
-  void AddAttributesVector2TakeOwnership(
-      String canonical, List<VM.Vector2> lst) {
+  void AddAttributesVector2TakeOwnership(String canonical,
+      List<VM.Vector2> lst) {
     List<VM.Vector2> ts = attributes[canonical];
     for (VM.Vector2 v in lst) {
       ts.add(v);
@@ -306,8 +305,8 @@ class GeometryBuilder {
     }
   }
 
-  void AddAttributesVector3TakeOwnership(
-      String canonical, List<VM.Vector3> lst) {
+  void AddAttributesVector3TakeOwnership(String canonical,
+      List<VM.Vector3> lst) {
     List<VM.Vector3> ts = attributes[canonical];
     for (VM.Vector3 v in lst) {
       ts.add(v);
@@ -326,8 +325,8 @@ class GeometryBuilder {
     }
   }
 
-  void AddAttributesVector4TakeOwnership(
-      String canonical, List<VM.Vector4> lst) {
+  void AddAttributesVector4TakeOwnership(String canonical,
+      List<VM.Vector4> lst) {
     List ts = attributes[canonical];
     for (VM.Vector4 v in lst) {
       ts.add(v);
@@ -483,7 +482,8 @@ class GeometryBuilder {
     for (Face4 f4 in faces4) {
       NormalFromPoints(
           vertices[f4.a], vertices[f4.b], vertices[f4.c], temp, norm);
-      VM.Vector3 n = norm.clone()..scale(2.0);
+      VM.Vector3 n = norm.clone()
+        ..scale(2.0);
       add(f4.a, n);
       add(f4.b, n);
       add(f4.c, n);
@@ -491,7 +491,8 @@ class GeometryBuilder {
     }
 
     for (VM.Vector3 key in avg.keys) {
-      avg[key] = avg[key]..normalize();
+      avg[key] = avg[key]
+        ..normalize();
     }
     List<VM.Vector3> normals = List<VM.Vector3>(vertices.length);
     for (int i = 0; i < vertices.length; ++i) {
@@ -556,7 +557,8 @@ class GeometryBuilder {
     assert(uvs.length == w * h, "grid uvs lengths mismatch");
   }
 
-  void GenerateRegularGridFaces(int w, int h, bool wrapped) {
+  void GenerateRegularGridFaces(int w, int h, bool wrapped,
+      [bool reverse = false]) {
     assert(vertices.length == w * h);
     for (int i = 0; i < h - (wrapped ? 0 : 1); ++i) {
       for (int j = 0; j < w - (wrapped ? 0 : 1); ++j) {
@@ -566,7 +568,7 @@ class GeometryBuilder {
           ip = ip % h;
           jp = jp % w;
         }
-        AddFace4(i * w + jp, ip * w + jp, ip * w + j, i * w + j);
+        AddFace4(i * w + jp, ip * w + jp, ip * w + j, i * w + j, reverse);
       }
     }
     if (wrapped) {
@@ -579,7 +581,7 @@ class GeometryBuilder {
   // http://pages.mtu.edu/~shene/COURSES/cs3621/SLIDES/Mesh.pdf
   bool IsOrientableManifoldWithBoundaries() {
     final LinkedHashMap<Edge3, Object> incidenceE =
-        LinkedHashMap<Edge3, Object>();
+    LinkedHashMap<Edge3, Object>();
 
     bool addEdge(VM.Vector3 v1, VM.Vector3 v2, Object face) {
       final Edge3 edge = Edge3(v1, v2);
@@ -608,12 +610,12 @@ class GeometryBuilder {
       VM.Vector3 vc = vertices[f4.c];
       VM.Vector3 vd = vertices[f4.d];
       if (addEdge(va, vb, f4) |
-          addEdge(vb, vc, f4) |
-          addEdge(vc, va, f4) |
-          // same split as in  GenerateFaceIndices()
-          addEdge(va, vc, f4) |
-          addEdge(vc, vd, f4) |
-          addEdge(vd, va, f4)) {
+      addEdge(vb, vc, f4) |
+      addEdge(vc, va, f4) |
+      // same split as in  GenerateFaceIndices()
+      addEdge(va, vc, f4) |
+      addEdge(vc, vd, f4) |
+      addEdge(vd, va, f4)) {
         return false;
       }
     }
@@ -629,7 +631,7 @@ class GeometryBuilder {
     // fan property
     // print("build incidenceV from ${incidenceE.length} edges");
     final LinkedHashMap<VM.Vector3, List<VM.Vector3>> incidenceV =
-        LinkedHashMap<VM.Vector3, List<VM.Vector3>>(hashCode: hashVector3);
+    LinkedHashMap<VM.Vector3, List<VM.Vector3>>(hashCode: hashVector3);
     for (Edge3 e in incidenceE.keys) {
       incidenceV.putIfAbsent(e.v1, () => <VM.Vector3>[]).add(e.v2);
     }
