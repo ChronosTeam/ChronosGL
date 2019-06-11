@@ -105,6 +105,9 @@ class RenderProgram extends NamedEntity {
           _cgl.disable(GL_DEPTH_TEST);
         }
         break;
+         case cDepthFunc:
+          _cgl.depthFunc(val);
+        break;
       case cStencilFunc:
         TheStencilFunction sfun = val as TheStencilFunction;
         if (sfun.func == GL_INVALID_VALUE) {

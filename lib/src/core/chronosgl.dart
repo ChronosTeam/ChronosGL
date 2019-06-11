@@ -221,6 +221,10 @@ class ChronosGL {
     _gl.depthMask(flag);
   }
 
+  void depthFunc(int func) {
+    _gl.depthFunc(func);
+  }
+
   void blendFunc(int srcFactor, int dstFactor) {
     _gl.blendFunc(srcFactor, dstFactor);
   }

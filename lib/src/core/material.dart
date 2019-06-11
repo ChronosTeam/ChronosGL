@@ -39,6 +39,7 @@ final TheBlendEquation BlendEquationAdd =
 /// of a mesh.
 class Material extends UniformGroup {
   Material(String name) : super(name) {
+    SetUniform(cDepthFunc, GL_LESS);
     SetUniform(cDepthTest, true);
     SetUniform(cDepthWrite, true);
     SetUniform(cBlendEquation, BlendEquationNone);
@@ -46,6 +47,7 @@ class Material extends UniformGroup {
   }
 
   Material.Transparent(String name, TheBlendEquation beq) : super(name) {
+    SetUniform(cDepthFunc, GL_LESS);
     SetUniform(cDepthTest, true);
     SetUniform(cDepthWrite, false);
     SetUniform(cBlendEquation, beq);

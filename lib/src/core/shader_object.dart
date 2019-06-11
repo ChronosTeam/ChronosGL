@@ -75,6 +75,7 @@ const String oFragColor = "oFragColor";
 // ===========================================================
 const int prefixControl = 0x63; // 'c;
 
+const String cDepthFunc = "cDepthFunc";
 const String cDepthTest = "cDepthTest";
 const String cDepthWrite = "cDepthWrite";
 const String cBlendEquation = "cBlendEquation";
