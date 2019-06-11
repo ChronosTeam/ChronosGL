@@ -105,8 +105,8 @@ class RenderProgram extends NamedEntity {
           _cgl.disable(GL_DEPTH_TEST);
         }
         break;
-         case cDepthFunc:
-          _cgl.depthFunc(val);
+      case cDepthFunc:
+        _cgl.depthFunc(val);
         break;
       case cStencilFunc:
         TheStencilFunction sfun = val as TheStencilFunction;
@@ -136,7 +136,8 @@ class RenderProgram extends NamedEntity {
   void _SetUniform(String group, String canonical, Object val) {
     // enable only for debug
     if (_uniformsInitialized.containsKey(canonical)) {
-      LogError("${name}:  ${canonical} : group [${group}] overwrites [${canonical}] (${_uniformsInitialized[canonical]})");
+      LogError(
+          "${name}:  ${canonical} : group [${group}] overwrites [${canonical}] (${_uniformsInitialized[canonical]})");
     }
     _uniformsInitialized[canonical] = group;
 
@@ -262,8 +263,14 @@ class RenderProgram extends NamedEntity {
 
     // TODO: put this behind a flag
     _uniformsInitialized.clear();
+    bool haveSeenMaterial = false;
     for (UniformGroup u in uniforms) {
       _ActivateUniforms(u.name, u.GetUniforms());
+      if (u is Material) {
+        assert(!haveSeenMaterial,
+            "in program ${name}: multiple materials specified");
+        haveSeenMaterial = true;
+      }
     }
 
     _attributesInitialized.clear();

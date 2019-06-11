@@ -37,6 +37,8 @@ final TheBlendEquation BlendEquationAdd =
 
 /// is a light weight container for uniforms related to the appearance
 /// of a mesh.
+/// At most one Material can be passed to the RenderProgram::Draw() call
+/// because it controls the depth, stencil, and blending behavior
 class Material extends UniformGroup {
   Material(String name) : super(name) {
     SetUniform(cDepthFunc, GL_LESS);
