@@ -14,6 +14,14 @@ final TheStencilFunction StencilFunctionNone =
 final TheStencilFunction StencilFunctionAlways =
     TheStencilFunction(GL_ALWAYS, 0, ~0);
 
+class TheStencilOp {
+  TheStencilOp(this.fail, this.zfail, this.zpass);
+
+  int fail;
+  int zfail;
+  int zpass;
+}
+
 class TheBlendEquation {
   TheBlendEquation(this.equation, this.srcFactor, this.dstFactor);
 
@@ -45,7 +53,6 @@ class Material extends UniformGroup {
     SetUniform(cDepthTest, true);
     SetUniform(cDepthWrite, true);
     SetUniform(cBlendEquation, BlendEquationNone);
-    SetUniform(cStencilFunc, StencilFunctionNone);
   }
 
   Material.Transparent(String name, TheBlendEquation beq) : super(name) {
@@ -53,6 +60,7 @@ class Material extends UniformGroup {
     SetUniform(cDepthTest, true);
     SetUniform(cDepthWrite, false);
     SetUniform(cBlendEquation, beq);
-    SetUniform(cStencilFunc, StencilFunctionNone);
   }
+
+  Material.Empty(String name) : super(name);
 }
