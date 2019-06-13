@@ -1,5 +1,4 @@
 import 'dart:html' as HTML;
-import 'package:vector_math/vector_math.dart' as VM;
 import 'dart:typed_data';
 
 import 'package:chronosgl/chronosgl.dart';
@@ -7,33 +6,69 @@ import 'package:chronosgl/chronosgl.dart';
 final HTML.InputElement gStencil =
     HTML.document.querySelector('#stencil') as HTML.InputElement;
 
+final ShaderObject stencilVertexShader = ShaderObject("stencilV")
+  ..AddAttributeVars([aPosition, aTexUV])
+  ..AddVaryingVars([vTexUV])
+  ..SetBody([NullVertexShaderWithTextureForwardString]);
+
+final ShaderObject stencilFragmentShader = ShaderObject("stencilF")
+  ..AddUniformVars([
+    uTexture,
+  ])
+  ..AddVaryingVars([vTexUV])
+  ..SetBody([
+    """
+void main() {
+   vec4 p = texture(${uTexture}, ${vTexUV});
+   if (p.r > 0.0 || p.g >  0.0 || p.b > 0.0) {
+      // It does not really matter what we write.
+      // Any write will set the stencil buffer to 1
+      ${oFragColor} = vec4(1.0, 1.0, 0.0, 1.0);   
+   } else {
+      // do not set color and hence do not change stencil buffer 
+      discard;
+   }
+}
+"""
+  ]);
+
 TypedTextureMutable MakeStripedStencilBuffer(
     ChronosGL cgl, int width, int height, int stripeWidth) {
-  Uint32List data = Uint32List(width * height);
-  for (int x = 0; x < width; ++x) {
-    for (int y = 0; y < height; ++y) {
-      data[y * width + x] = x % (2 * stripeWidth) < stripeWidth ? 0 : 1;
+  Uint8List data = Uint8List(width * height * 4);
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      int mask = x % (2 * stripeWidth) < stripeWidth ? 0 : 0xff;
+      int offset = 4 * (y * width + x);
+      data[offset + 0] = mask;
+      data[offset + 1] = mask;
+      data[offset + 2] = mask;
+      data[offset + 3] = mask;
     }
   }
 
-  return TypedTextureMutable(
-      cgl,
-      "frame::depth.stencil",
-      width,
-      height,
-      GL_DEPTH24_STENCIL8,
-      TexturePropertiesFramebuffer,
-      GL_DEPTH_STENCIL,
-      GL_UNSIGNED_INT_24_8,
-      data);
+  return TypedTextureMutable(cgl, "frame::depth.stencil", width, height,
+      GL_RGBA, TexturePropertiesFramebuffer, GL_RGBA, GL_UNSIGNED_BYTE, data);
 }
+
+final TheStencilFunction StencilEqualZero =
+    TheStencilFunction(GL_EQUAL, 0, 0xff);
+
+final TheStencilFunction StencilNotEqualZero =
+    TheStencilFunction(GL_NOTEQUAL, 0, 0xff);
+
+final TheStencilFunction StencilAlways = TheStencilFunction(GL_ALWAYS, 1, 0xff);
+
+final TheStencilOp StencilWriteNever = TheStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+final TheStencilOp StencilWriteIfPixelSet =
+    TheStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 void main() {
   StatsFps fps =
       StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
 
   HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
+  ChronosGL cgl = ChronosGL(canvas, faceCulling: true, preserveDrawingBuffer: true);
   OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
   Perspective perspective = Perspective(orbit, 0.1, 1000.0);
 
@@ -43,71 +78,68 @@ void main() {
   canvas.height = height;
   perspective.AdjustAspect(width, height);
 
-  // I could not get this work by writing directly to the screen.
-  // so we write to fb first and then copy that to the screen.
-  TypedTexture colorBuffer = TypedTexture(cgl, "frame::color", width, height,
-      GL_RGBA8, TexturePropertiesFramebuffer);
-  TypedTextureMutable depthStencilBuffer =
-      MakeStripedStencilBuffer(cgl, width, height, 8);
-  Framebuffer fb =
-      Framebuffer(cgl, colorBuffer, depthStencilBuffer, null, true);
+  // Initialize Stencil Buffer
+  // Not we do not suppress writes to color/depth buffers which is
+  // nice for debugging. These buffers will be cleared when we write
+  // scene. Obviously, we preserve the stencil buffer.
 
-  RenderPhase phase = RenderPhase("main", cgl, fb)
+  final TypedTextureMutable stencilBuffer =
+      MakeStripedStencilBuffer(cgl, width, height, 8);
+
+  final Material matGenStencil = Material("stencil")
+    ..SetUniform(uTexture, stencilBuffer)
+    ..ForceUniform(cStencilFunc, StencilAlways)
+    ..ForceUniform(cStencilOp, StencilWriteIfPixelSet)
+    ..ForceUniform(cStencilWrite, 0xff); // only write stencil
+
+
+  final RenderProgram stencilWriter =
+      RenderProgram("stencil", cgl, stencilVertexShader, stencilFragmentShader);
+
+  cgl.viewport(0, 0, width, height);
+  stencilWriter.Draw(ShapeQuad(stencilWriter, 1), [matGenStencil]);
+
+  RenderPhase phase = RenderPhase("main", cgl)
     ..viewPortW = width
     ..viewPortH = height
     ..clearStencilBuffer = false;
 
-  Scene scene = Scene(
-      "solid",
-      RenderProgram(
-          "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
-      [perspective]);
-  phase.add(scene);
-
   final Material matRed = Material("red")
     ..SetUniform(uColor, ColorRed)
-    ..ForceUniform(cStencilFunc, StencilFunctionNone);
+    ..ForceUniform(cStencilFunc, StencilNotEqualZero)
+    ..ForceUniform(cStencilOp, StencilWriteNever)
+    ..ForceUniform(cStencilWrite, 0x0);
 
-  final TheStencilFunction StencilEqualOne =
-      TheStencilFunction(GL_EQUAL, 1, 0xff);
 
-  final Material matBlueStencil = Material("blue")
+  final Material matBlue = Material("blue")
     ..SetUniform(uColor, ColorBlue)
-    ..ForceUniform(cStencilFunc, StencilEqualOne);
+    ..ForceUniform(cStencilFunc, StencilEqualZero)
+    ..ForceUniform(cStencilOp, StencilWriteNever)
+    ..ForceUniform(cStencilWrite, 0x0);
 
-  scene.add(Node("sphere", ShapeIcosahedron(scene.program, subdivisions: 3), matRed)
-    ..setPos(0.0, 0.0, 0.0));
+  {
+    Scene scene = Scene(
+        "solid",
+        RenderProgram(
+            "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
+        [perspective]);
+    phase.add(scene);
 
-  scene.add(Node("cube", ShapeCube(scene.program), matBlueStencil)
-    ..setPos(-5.0, 0.0, -5.0));
+    scene.add(
+        Node("sphere", ShapeIcosahedron(scene.program, subdivisions: 3), matRed)
+          ..setPos(0.0, 0.0, 0.0));
 
-  scene.add(
-      Node("cylinder", ShapeCylinder(scene.program, 1.0, 3.0, 2.0, 32), matRed)
-        ..setPos(5.0, 0.0, -5.0));
+    scene.add(Node("cube", ShapeCube(scene.program), matBlue)
+      ..setPos(-5.0, 0.0, -5.0));
 
-  scene.add(Node(
-      "torus",
-      ShapeTorusKnot(scene.program, radius: 1.0, tubeRadius: 0.4),
-      matBlueStencil)
-    ..setPos(5.0, 0.0, 5.0));
+    scene.add(Node(
+        "cylinder", ShapeCylinder(scene.program, 1.0, 3.0, 2.0, 32), matRed)
+      ..setPos(5.0, 0.0, -5.0));
 
-  // using a phase for this simple effect is overkill - this is just
-  // demonstrating that it can be done.
-  RenderPhase phase2 = RenderPhase("copy", cgl)
-    ..viewPortW = width
-    ..viewPortH = height;
-
-  UniformGroup uniforms = UniformGroup("plain")
-    ..SetUniform(uCanvasSize, VM.Vector2(0.0 + width, 0.0 + height))
-    ..SetUniform(uTexture, fb.colorTexture);
-
-  Scene postproc = Scene(
-      "postproc",
-      RenderProgram("postproc", cgl, copyVertexShader, copyFragmentShader),
-      [uniforms]);
-  phase2.add(postproc);
-
-  postproc.add(UnitNode(postproc.program));
+    scene.add(Node("torus",
+        ShapeTorusKnot(scene.program, radius: 1.0, tubeRadius: 0.4), matBlue)
+      ..setPos(5.0, 0.0, 5.0));
+  }
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
@@ -116,12 +148,14 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
 
-    matBlueStencil.ForceUniform(
-        cStencilFunc, gStencil.checked ? StencilEqualOne : StencilFunctionNone);
+    matBlue.ForceUniform(cStencilFunc,
+        gStencil.checked ? StencilEqualZero : StencilFunctionNone);
+
+    matRed.ForceUniform(cStencilFunc,
+        gStencil.checked ? StencilNotEqualZero : StencilFunctionNone);
 
     List<DrawStats> stats = [];
     phase.Draw(stats);
-    phase2.Draw(stats);
     List<String> out = [];
     for (DrawStats d in stats) {
       out.add(d.toString());

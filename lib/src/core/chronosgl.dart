@@ -258,10 +258,9 @@ class ChronosGL {
     _gl.stencilMask(mask);
   }
 
-   void colorMask(bool r, bool g, bool b, bool a) {
+  void colorMask(bool r, bool g, bool b, bool a) {
     _gl.colorMask(r, g, b, a);
   }
-
 
   void clear(int kind) {
     _gl.clear(kind);

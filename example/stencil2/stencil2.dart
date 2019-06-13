@@ -89,24 +89,6 @@ void main() {
     ..ForceUniform(cColorWrite, [true, true, true, true])
     ..ForceUniform(cDepthTest, true);
 
-  {
-    Scene scene = Scene(
-        "onstencil",
-        RenderProgram(
-            "onstencil", cgl, solidColorVertexShader, solidColorFragmentShader),
-        [perspective]);
-    phase.add(scene);
-    scene.add(Node("cylinder", ShapeCylinder(scene.program, 2.0, 4.0, 4.0, 32),
-        matOnStencil)
-      ..setPos(10.0, 0.0, -10.0));
-
-    scene.add(Node(
-        "torus",
-        ShapeTorusKnot(scene.program, radius: 2.5, tubeRadius: 0.8),
-        matOnStencil)
-      ..setPos(10.0, 0.0, 10.0));
-  }
-
   final Material matOffStencil = Material("offstencil")
     ..SetUniform(uColor, ColorBlue)
     ..ForceUniform(cStencilFunc, StencilEqualZero)
@@ -123,6 +105,16 @@ void main() {
             "onstencil", cgl, solidColorVertexShader, solidColorFragmentShader),
         [perspective]);
     phase.add(scene);
+    scene.add(Node("cylinder", ShapeCylinder(scene.program, 2.0, 4.0, 4.0, 32),
+        matOnStencil)
+      ..setPos(10.0, 0.0, -10.0));
+
+    scene.add(Node(
+        "torus",
+        ShapeTorusKnot(scene.program, radius: 2.5, tubeRadius: 0.8),
+        matOnStencil)
+      ..setPos(10.0, 0.0, 10.0));
+
     scene.add(Node(
         "sphere",
         ShapeIcosahedron(scene.program, subdivisions: 3, scale: 5.0),
@@ -142,8 +134,7 @@ void main() {
     orbit.animate(elapsed);
 
     //print ("@@ ${timeMs / 2000.0 % 1.0} ");
-    matGenStencil.ForceUniform(
-        uTime, (Math.sin(timeMs / 2000.0) + 1.0) * 0.25);
+    matGenStencil.ForceUniform(uTime, (Math.sin(timeMs / 2000.0) + 1.0) * 0.25);
 
     List<DrawStats> stats = [];
     phase.Draw(stats);
