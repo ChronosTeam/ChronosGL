@@ -221,6 +221,10 @@ class ChronosGL {
     _gl.depthMask(flag);
   }
 
+  void depthFunc(int func) {
+    _gl.depthFunc(func);
+  }
+
   void blendFunc(int srcFactor, int dstFactor) {
     _gl.blendFunc(srcFactor, dstFactor);
   }
@@ -245,6 +249,19 @@ class ChronosGL {
     if (instanced) _gl.vertexAttribDivisor(index, 0);
   }
 */
+
+  void stencilOp(int fail, int zfail, int zpass) {
+    _gl.stencilOp(fail, zfail, zpass);
+  }
+
+  void stencilMask(int mask) {
+    _gl.stencilMask(mask);
+  }
+
+  void colorMask(bool r, bool g, bool b, bool a) {
+    _gl.colorMask(r, g, b, a);
+  }
+
   void clear(int kind) {
     _gl.clear(kind);
   }

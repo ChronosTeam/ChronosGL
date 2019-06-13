@@ -105,8 +105,11 @@ class RenderProgram extends NamedEntity {
           _cgl.disable(GL_DEPTH_TEST);
         }
         break;
+      case cDepthFunc:
+        _cgl.depthFunc(val);
+        break;
       case cStencilFunc:
-        TheStencilFunction sfun = val as TheStencilFunction;
+        final TheStencilFunction sfun = val as TheStencilFunction;
         if (sfun.func == GL_INVALID_VALUE) {
           _cgl.disable(GL_STENCIL_TEST);
         } else {
@@ -114,11 +117,15 @@ class RenderProgram extends NamedEntity {
           _cgl.stencilFunc(sfun.func, sfun.value, sfun.mask);
         }
         break;
+      case cStencilOp:
+        final TheStencilOp op = val as TheStencilOp;
+        _cgl.stencilOp(op.fail, op.zfail, op.zpass);
+        break;
       case cDepthWrite:
         _cgl.depthMask(val);
         break;
       case cBlendEquation:
-        TheBlendEquation beq = val as TheBlendEquation;
+        final TheBlendEquation beq = val as TheBlendEquation;
         if (beq.equation == GL_INVALID_VALUE) {
           _cgl.disable(GL_BLEND);
         } else {
@@ -127,13 +134,24 @@ class RenderProgram extends NamedEntity {
           _cgl.blendEquation(beq.equation);
         }
         break;
+      case cColorWrite:
+        final List<bool> bb = val as List<bool>;
+        _cgl.colorMask(bb[0], bb[1], bb[2], bb[3]);
+        break;
+      case cStencilWrite:
+        _cgl.stencilMask(val);
+        break;
+
+      default:
+        assert(false, "unknown control canonical ${canonical}");
     }
   }
 
   void _SetUniform(String group, String canonical, Object val) {
     // enable only for debug
     if (_uniformsInitialized.containsKey(canonical)) {
-      LogError("${name}:  ${canonical} : group [${group}] overwrites [${canonical}] (${_uniformsInitialized[canonical]})");
+      LogError(
+          "${name}:  ${canonical} : group [${group}] overwrites [${canonical}] (${_uniformsInitialized[canonical]})");
     }
     _uniformsInitialized[canonical] = group;
 
@@ -259,8 +277,14 @@ class RenderProgram extends NamedEntity {
 
     // TODO: put this behind a flag
     _uniformsInitialized.clear();
+    bool haveSeenMaterial = false;
     for (UniformGroup u in uniforms) {
       _ActivateUniforms(u.name, u.GetUniforms());
+      if (u is Material) {
+        assert(!haveSeenMaterial,
+            "in program ${name}: multiple materials specified");
+        haveSeenMaterial = true;
+      }
     }
 
     _attributesInitialized.clear();

@@ -14,6 +14,14 @@ final TheStencilFunction StencilFunctionNone =
 final TheStencilFunction StencilFunctionAlways =
     TheStencilFunction(GL_ALWAYS, 0, ~0);
 
+class TheStencilOp {
+  TheStencilOp(this.fail, this.zfail, this.zpass);
+
+  int fail;
+  int zfail;
+  int zpass;
+}
+
 class TheBlendEquation {
   TheBlendEquation(this.equation, this.srcFactor, this.dstFactor);
 
@@ -37,18 +45,22 @@ final TheBlendEquation BlendEquationAdd =
 
 /// is a light weight container for uniforms related to the appearance
 /// of a mesh.
+/// At most one Material can be passed to the RenderProgram::Draw() call
+/// because it controls the depth, stencil, and blending behavior
 class Material extends UniformGroup {
   Material(String name) : super(name) {
+    SetUniform(cDepthFunc, GL_LESS);
     SetUniform(cDepthTest, true);
     SetUniform(cDepthWrite, true);
     SetUniform(cBlendEquation, BlendEquationNone);
-    SetUniform(cStencilFunc, StencilFunctionNone);
   }
 
   Material.Transparent(String name, TheBlendEquation beq) : super(name) {
+    SetUniform(cDepthFunc, GL_LESS);
     SetUniform(cDepthTest, true);
     SetUniform(cDepthWrite, false);
     SetUniform(cBlendEquation, beq);
-    SetUniform(cStencilFunc, StencilFunctionNone);
   }
+
+  Material.Empty(String name) : super(name);
 }

@@ -75,13 +75,17 @@ const String oFragColor = "oFragColor";
 // ===========================================================
 const int prefixControl = 0x63; // 'c;
 
+const String cDepthFunc = "cDepthFunc";
 const String cDepthTest = "cDepthTest";
 const String cDepthWrite = "cDepthWrite";
 const String cBlendEquation = "cBlendEquation";
 const String cStencilFunc = "cStencilFunc";
+const String cStencilOp = "cStencilOp";
 const String cNumItems = "cNumItems";
 const String cNumInstances = "cNumInstances";
 const String cDrawMode = "cDrawMode";
+const String cColorWrite = "cColorWrite";
+const String cStencilWrite = "cStencilWrite";
 
 // ===========================================================
 // TransformFeedback
