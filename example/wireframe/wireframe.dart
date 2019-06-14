@@ -85,6 +85,16 @@ void main() {
     scene.add(torus);
   }
 
+  {
+    GeometryBuilder gb = TorusKnotGeometryTriangularWireframeFriendly(
+        radius: 1.0, tubeRadius: 0.4)
+      ..GenerateWireframeCenters();
+    Node torus = Node("torus",
+        GeometryBuilderToMeshData("torus", scene.program, gb), matWireframe)
+      ..setPos(0.0, 5.0, 0.0);
+    scene.add(torus);
+  }
+
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;
