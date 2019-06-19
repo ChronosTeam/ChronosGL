@@ -197,6 +197,7 @@ const String uOpacity = "uOpacity";
 const String uShadowBias = "uShadowBias";
 const String uRange = "uRange";
 const String uDirection = "uDirection";
+const String uThickness = "uThickness";
 
 const String uMaterial = "uMaterial";
 
@@ -287,6 +288,7 @@ final Map<String, ShaderVarDesc> _VarsDb = {
   uShininess: const ShaderVarDesc(VarTypeFloat, ""),
   uShadowBias: const ShaderVarDesc(VarTypeFloat, ""),
   uOpacity: const ShaderVarDesc(VarTypeFloat, ""),
+  uThickness: const ShaderVarDesc(VarTypeFloat, ""),
   uColor: const ShaderVarDesc(VarTypeVec3, ""),
   uColorAmbient: const ShaderVarDesc(VarTypeVec3, ""),
   uColorEmissive: const ShaderVarDesc(VarTypeVec3, ""),

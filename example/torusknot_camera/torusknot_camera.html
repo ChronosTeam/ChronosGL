@@ -2,9 +2,18 @@
 <head>
 <title>TestTKC</title>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+ <link rel="stylesheet" href="../style.css">
 </head>
 
 <body marginheight="0" marginwidth="0" bgcolor="black" id="body" >
+<div class="info" style="color: gray">
+  Mode:
+  <select id="mode">
+    <option selected>texture</option>
+    <option>rectangles</option>
+    <option>hexagons</option>
+  </select>
+</div>
   <canvas id="webgl-canvas" style="border: none; cursor:crosshair; width:100%; height: 100%"></canvas>
   <canvas width="256" height=256 style="position: absolute; bottom: 2%; right: 2%" id="texture"></canvas>
   <script defer src="torusknot_camera.dart.js"></script>

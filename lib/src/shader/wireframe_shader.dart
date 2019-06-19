@@ -9,7 +9,7 @@ const String _WireframeF = """
 // (0, 0, 1, 0)
 float edgeFactorFace3(vec3 center) {
     vec3 d = fwidth(center);
-    vec3 a3 = smoothstep(vec3(0.0), d * 1.5, center);
+    vec3 a3 = smoothstep(vec3(0.0), d * ${uThickness}, center);
     return min(min(a3.x, a3.y), a3.z);
 }
 
@@ -20,7 +20,7 @@ float edgeFactorFace3(vec3 center) {
 // (0, 0, 0, 1)
 float edgeFactorFace4(vec2 center) {
     vec2 d = fwidth(center);
-    vec2 a2 = smoothstep(vec2(0.0), d * 1.5, center);
+    vec2 a2 = smoothstep(vec2(0.0), d * ${uThickness}, center);
     return min(a2.x, a2.y);
 }
 
@@ -44,5 +44,5 @@ final ShaderObject wireframeVertexShader = ShaderObject("WireframeV")
 
 final ShaderObject wireframeFragmentShader = ShaderObject("WireframeF")
   ..AddVaryingVars([vCenter])
-  ..AddUniformVars([uColorAlpha, uColorAlpha2])
+  ..AddUniformVars([uColorAlpha, uColorAlpha2, uThickness])
   ..SetBody([_WireframeF]);

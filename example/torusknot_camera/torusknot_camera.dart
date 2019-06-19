@@ -31,16 +31,6 @@ class TorusKnotCamera extends Spatial {
   }
 }
 
-Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
-  Scene scene = Scene(
-      "stars",
-      RenderProgram(
-          "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader),
-      [perspective]);
-  scene.add(Utils.MakeParticles(scene.program, num));
-  return scene;
-}
-
 void updateTorusTexture(double time, HTML.CanvasElement canvas) {
   HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
   double sint = Math.sin(time);
@@ -91,34 +81,156 @@ MeshData TorusKnotWithCustumUV(RenderProgram program) {
   return GeometryBuilderToMeshData("torusknot", program, gb);
 }
 
+void AddHexagonalWireframeCenters(GeometryBuilder gb) {
+  List<VM.Vector4> center = List<VM.Vector4>(gb.vertices.length);
+
+  List<VM.Vector4> center3 = [
+    VM.Vector4(1.0, 100.0, 0.0, 0.0),
+    VM.Vector4(100.0, 1.0, 0.0, 0.0),
+    VM.Vector4(100.0, 100.0, 1.0, 0.0),
+    VM.Vector4(1.0, 100.0, 100.0, 0.0),
+    VM.Vector4(0.0, 1.0, 100.0, 0.0),
+    VM.Vector4(0.0, 100.0, 1.0, 0.0),
+    VM.Vector4(1.0, 100.0, 100.0, 0.0),
+    VM.Vector4(0.0, 1.0, 100.0, 0.0),
+    VM.Vector4(0.0, 100.0, 1.0, 0.0),
+    VM.Vector4(1.0, 100.0, 0.0, 0.0),
+    VM.Vector4(100.0, 1.0, 0.0, 0.0),
+    VM.Vector4(100.0, 100.0, 1.0, 0.0),
+    VM.Vector4(1.0, 0.0, 100.0, 0.0),
+    VM.Vector4(100.0, 1.0, 100.0, 0.0),
+    VM.Vector4(100.0, 0.0, 1.0, 0.0),
+    VM.Vector4(1.0, 0.0, 100.0, 0.0),
+    VM.Vector4(100.0, 1.0, 100.0, 0.0),
+    VM.Vector4(100.0, 0.0, 1.0, 0.0),
+  ];
+
+  int count = 0;
+  for (Face3 f in gb.faces3) {
+    center[f.a] = center3[count + 0];
+    center[f.b] = center3[count + 1];
+    center[f.c] = center3[count + 2];
+    count += 3;
+    if (count == center3.length) count = 0;
+  }
+
+  VM.Vector4 a4 = VM.Vector4(1.0, 0.0, 0.0, 1.0);
+  VM.Vector4 b4 = VM.Vector4(1.0, 1.0, 0.0, 1.0);
+  VM.Vector4 c4 = VM.Vector4(0.0, 1.0, 0.0, 1.0);
+  VM.Vector4 d4 = VM.Vector4(0.0, 0.0, 0.0, 1.0);
+
+  for (Face4 f in gb.faces4) {
+    center[f.a] = a4.clone();
+    center[f.b] = b4.clone();
+    center[f.c] = c4.clone();
+    center[f.d] = d4.clone();
+  }
+  gb.attributes[aCenter] = center;
+}
+
+class SimpleScene {
+  void Draw(ChronosGL cgl, double timeMs, Perspective perspective) {
+    program.Draw(mesh, [perspective, mat]);
+  }
+
+  Material mat;
+  RenderProgram program;
+  MeshData mesh;
+}
+
+class SceneStars extends SimpleScene {
+  SceneStars(ChronosGL cgl, int num, double dim) {
+    program = RenderProgram(
+        "stars", cgl, pointSpritesVertexShader, pointSpritesFragmentShader);
+    mat = Utils.MakeStarMaterial(cgl)
+      ..SetUniform(uModelMatrix, VM.Matrix4.identity());
+    mesh = Utils.MakeStarMesh(program, 2000, dim);
+  }
+}
+
+class SceneTextured extends SimpleScene {
+  SceneTextured(ChronosGL cgl) {
+    canvas2d = HTML.document.querySelector('#texture');
+    updateTorusTexture(0.0, canvas2d);
+    generatedTexture = ImageTexture(cgl, "gen", canvas2d);
+    mat = Material.Transparent("torus", BlendEquationMix)
+      ..SetUniform(uTexture, generatedTexture)
+      ..SetUniform(uModelMatrix, VM.Matrix4.identity())
+      ..SetUniform(uColor, VM.Vector3.zero());
+    program = RenderProgram(
+        "textured", cgl, texturedVertexShader, texturedFragmentShader);
+    mesh = TorusKnotWithCustumUV(program);
+  }
+
+  void Draw(ChronosGL cgl, double timeMs, Perspective perspective) {
+    updateTorusTexture(timeMs / 1000, canvas2d);
+    generatedTexture.SetImageData(canvas2d);
+    program.Draw(mesh, [perspective, mat]);
+  }
+
+  HTML.CanvasElement canvas2d;
+  ImageTexture generatedTexture;
+}
+
+class SceneWireframe extends SimpleScene {
+  SceneWireframe(ChronosGL cgl, GeometryBuilder torus) {
+    mat = Material("wf")
+      ..SetUniform(uModelMatrix, VM.Matrix4.identity())
+      //..SetUniform(uWidth, 1.5)
+      ..ForceUniform(cBlendEquation, BlendEquationStandard)
+      ..SetUniform(uThickness, 10.0)
+      ..SetUniform(uColorAlpha, VM.Vector4(0.0, 0.0, 1.0, 1.0))
+      ..SetUniform(uColorAlpha2, VM.Vector4(0.0, 0.0, 0.1, 0.1));
+
+    program = RenderProgram(
+        "wf", cgl, wireframeVertexShader, wireframeFragmentShader);
+
+    mesh = GeometryBuilderToMeshData("wf", program, torus);
+  }
+
+  factory SceneWireframe.Quad(ChronosGL cgl) {
+    final GeometryBuilder torus = TorusKnotGeometryWireframeFriendly(
+        computeUVs: false, computeNormals: false, inside: true);
+
+    torus.GenerateWireframeCenters();
+    return SceneWireframe(cgl, torus);
+  }
+
+  factory SceneWireframe.Triangle(ChronosGL cgl) {
+    final GeometryBuilder torus =
+        TorusKnotGeometryTriangularWireframeFriendly(inside: true);
+    torus.GenerateWireframeCenters();
+    return SceneWireframe(cgl, torus);
+  }
+
+  factory SceneWireframe.Hexagon(ChronosGL cgl) {
+    final GeometryBuilder torus = TorusKnotGeometryTriangularWireframeFriendly(
+        segmentsR: 192, segmentsT: 48, inside: true);
+    AddHexagonalWireframeCenters(torus);
+    return SceneWireframe(cgl, torus);
+  }
+  /*
+      double alpha = Math.sin(timeMs / 2000.0) * 10.0 + 11.0;
+      insideWireframe.mat.ForceUniform(uWidth, alpha);
+      insideWireframeHex.mat.ForceUniform(uWidth, alpha);
+      */
+}
+
 void main() {
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = ChronosGL(canvas);
-  TorusKnotCamera tkc = TorusKnotCamera();
-  Perspective perspective = Perspective(tkc, 0.1, 1000.0);
+  final HTML.SelectElement modeInput =
+      HTML.document.querySelector('#mode') as HTML.SelectElement;
+  final HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas');
+  final ChronosGL cgl = ChronosGL(canvas);
+  final TorusKnotCamera tkc = TorusKnotCamera();
+  final Perspective perspective =
+      PerspectiveResizeAware(cgl, canvas, tkc, 0.1, 1000.0)..UpdateFov(100.0);
 
-  final Scene scene = Scene(
-      "objects",
-      RenderProgram(
-          "textured", cgl, texturedVertexShader, texturedFragmentShader),
-      [perspective]);
-  final RenderPhaseResizeAware phase =
-      RenderPhaseResizeAware("main", cgl, canvas, perspective)
-        ..add(MakeStarScene(cgl, perspective, 2000))
-        ..add(scene);
-
-  // int d = 512;
-  // HTML.CanvasElement canvas2d = new HTML.CanvasElement(width: d, height: d);
-  final HTML.CanvasElement canvas2d = HTML.document.querySelector('#texture');
-  updateTorusTexture(0.0, canvas2d);
-  final ImageTexture generatedTexture = ImageTexture(cgl, "gen", canvas2d);
-
-  // Maybe disable depth test?
-  final Material mat = Material.Transparent("torus", BlendEquationMix)
-    ..SetUniform(uTexture, generatedTexture)
-    ..SetUniform(uColor, VM.Vector3.zero());
-
-  scene.add(Node("torus", TorusKnotWithCustumUV(scene.program), mat));
+  final SceneStars sceneStars = SceneStars(cgl, 2000, 1000);
+  final SceneTextured sceneTextures = SceneTextured(cgl);
+  final SceneWireframe sceneQuad = SceneWireframe.Quad(cgl);
+  final SceneWireframe sceneTriangle = SceneWireframe.Triangle(cgl);
+  final SceneWireframe sceneHexgon = SceneWireframe.Hexagon(cgl);
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
@@ -126,10 +238,21 @@ void main() {
 
     tkc.animate(_lastTimeMs);
 
-    updateTorusTexture(timeMs / 1000, canvas2d);
-    generatedTexture.SetImageData(canvas2d);
+    sceneStars.Draw(cgl, timeMs, perspective);
 
-    phase.Draw();
+    switch (modeInput.value) {
+      case "texture":
+        sceneTextures.Draw(cgl, timeMs, perspective);
+        break;
+      case "rectangles":
+        sceneQuad.Draw(cgl, timeMs, perspective);
+        break;
+      case "hexagons":
+        sceneHexgon.Draw(cgl, timeMs, perspective);
+        break;
+      default:
+        print("unexpected mode ${modeInput.value}");
+    }
     HTML.window.animationFrame.then(animate);
   }
 

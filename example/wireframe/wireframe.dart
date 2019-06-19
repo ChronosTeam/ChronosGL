@@ -3,7 +3,7 @@ import 'dart:html' as HTML;
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
-// TODO: the torusknot cannot be seen through the other objects -why
+// TODO: the 2torusknot cannot be seen through the other objects -why
 
 final HTML.InputElement gOpaque =
     HTML.document.querySelector('#opaque') as HTML.InputElement;
@@ -28,6 +28,7 @@ void main() {
   phase.add(scene);
 
   final Material matWireframe = Material("wire")
+    ..SetUniform(uThickness, 2.0)
     ..SetUniform(uColorAlpha, VM.Vector4(1.0, 1.0, 0.0, 1.0))
     ..SetUniform(uColorAlpha2, VM.Vector4(0.0, 0.0, 0.0, 0.5));
 
