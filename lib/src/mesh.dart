@@ -6,9 +6,9 @@ class Mesh extends Node {
   bool depthTest = true;
   bool depthWrite = true;
   bool blend = false;
-  int blend_sFactor = SRC_ALPHA;
-  int blend_dFactor = ONE_MINUS_SRC_ALPHA; // This was ONE;
-  int blendEquation = FUNC_ADD;
+  int blend_sFactor = WebGL.SRC_ALPHA;
+  int blend_dFactor = WebGL.ONE_MINUS_SRC_ALPHA; // This was ONE;
+  int blendEquation = WebGL.FUNC_ADD;
 
   bool drawPoints;
 
@@ -27,39 +27,41 @@ class Mesh extends Node {
     gl = ChronosGL.globalGL;
 
     verticesBuffer = gl.createBuffer();
-    gl.bindBuffer(ARRAY_BUFFER, verticesBuffer);
-    gl.bufferDataTyped(ARRAY_BUFFER, meshData.vertices as Float32List, STATIC_DRAW);
+    gl.bindBuffer(WebGL.ARRAY_BUFFER, verticesBuffer);
+    gl.bufferData(WebGL.ARRAY_BUFFER, meshData.vertices as Float32List, WebGL.STATIC_DRAW);
 
     if (meshData.colors != null) {
       colorsBuffer = gl.createBuffer();
-      gl.bindBuffer(ARRAY_BUFFER, colorsBuffer);
-      gl.bufferDataTyped(ARRAY_BUFFER, meshData.colors as Float32List, STATIC_DRAW);
+      gl.bindBuffer(WebGL.ARRAY_BUFFER, colorsBuffer);
+      gl.bufferData(WebGL.ARRAY_BUFFER, meshData.colors as Float32List, WebGL.STATIC_DRAW);
     }
 
     if (meshData.textureCoords != null) {
       textureCoordBuffer = gl.createBuffer();
-      gl.bindBuffer(ARRAY_BUFFER, textureCoordBuffer);
-      gl.bufferDataTyped(ARRAY_BUFFER, meshData.textureCoords as Float32List, STATIC_DRAW);
+      gl.bindBuffer(WebGL.ARRAY_BUFFER, textureCoordBuffer);
+      gl.bufferData(WebGL.ARRAY_BUFFER, meshData.textureCoords as Float32List, WebGL.STATIC_DRAW);
     }
 
     if (meshData.normals != null) {
       normalsBuffer = gl.createBuffer();
-      gl.bindBuffer(ARRAY_BUFFER, normalsBuffer);
-      gl.bufferDataTyped(ARRAY_BUFFER, meshData.normals as Float32List, STATIC_DRAW);
+      gl.bindBuffer(WebGL.ARRAY_BUFFER, normalsBuffer);
+      gl.bufferData(WebGL.ARRAY_BUFFER, meshData.normals as Float32List, WebGL.STATIC_DRAW);
     }
 
     if (meshData.binormals != null) {
       binormalsBuffer = gl.createBuffer();
-      gl.bindBuffer(ARRAY_BUFFER, binormalsBuffer);
-      gl.bufferDataTyped(ARRAY_BUFFER, meshData.binormals as Float32List, STATIC_DRAW);
+      gl.bindBuffer(WebGL.ARRAY_BUFFER, binormalsBuffer);
+      gl.bufferData(WebGL.ARRAY_BUFFER, meshData.binormals as Float32List, WebGL.STATIC_DRAW);
     }
 
     if (meshData.vertexIndices != null) {
       numItems = meshData.vertexIndices.length;
       vertexIndexBuffer = gl.createBuffer();
-      gl.bindBuffer(ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
-      if (ChronosGL.useElementIndexUint) gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, meshData.vertexIndices as Uint32List, STATIC_DRAW);
-      else gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, meshData.vertexIndices as Uint16List, STATIC_DRAW);
+      gl.bindBuffer(WebGL.ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
+      if (ChronosGL.useElementIndexUint)
+        gl.bufferData(WebGL.ELEMENT_ARRAY_BUFFER, meshData.vertexIndices as Uint32List, WebGL.STATIC_DRAW);
+      else
+        gl.bufferData(WebGL.ELEMENT_ARRAY_BUFFER, meshData.vertexIndices as Uint16List, WebGL.STATIC_DRAW);
     } else {
       numItems = meshData.vertices.length ~/ 3;
     }
@@ -96,13 +98,13 @@ class Mesh extends Node {
     }
 
     if (blend) {
-      gl.enable(BLEND);
+      gl.enable(WebGL.BLEND);
       gl.blendFunc(blend_sFactor, blend_dFactor);
       gl.blendEquation(blendEquation);
     }
 
     if (!depthTest) {
-      gl.disable(DEPTH_TEST);
+      gl.disable(WebGL.DEPTH_TEST);
     }
     if (!depthWrite) {
       gl.depthMask(false);
@@ -122,21 +124,21 @@ class Mesh extends Node {
     gl.uniformMatrix4fv(program.modelViewMatrixUniform, false, mvMatrix.array);
 
     if (drawPoints) {
-      gl.drawArrays(POINTS, 0, numItems);
+      gl.drawArrays(WebGL.POINTS, 0, numItems);
     } else if (vertexIndexBuffer == null) {
-      gl.drawArrays(TRIANGLES, 0, numItems);
+      gl.drawArrays(WebGL.TRIANGLES, 0, numItems);
     } else {
-      gl.bindBuffer(ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
-      gl.drawElements(TRIANGLES, numItems, ChronosGL.useElementIndexUint ? UNSIGNED_INT : UNSIGNED_SHORT, 0);
+      gl.bindBuffer(WebGL.ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
+      gl.drawElements(WebGL.TRIANGLES, numItems, ChronosGL.useElementIndexUint ? WebGL.UNSIGNED_INT : WebGL.UNSIGNED_SHORT, 0);
     }
 
     if (debug) print(gl.getProgramInfoLog(program.program));
 
     if (blend) {
-      gl.disable(BLEND);
+      gl.disable(WebGL.BLEND);
     }
     if (!depthTest) {
-      gl.enable(DEPTH_TEST);
+      gl.enable(WebGL.DEPTH_TEST);
     }
     if (!depthWrite) {
       gl.depthMask(true);
@@ -144,47 +146,47 @@ class Mesh extends Node {
   }
 
   void bindBuffers(ShaderProgram program) {
-    gl.bindBuffer(ARRAY_BUFFER, verticesBuffer);
-    gl.vertexAttribPointer(program.vertexPositionAttribute, 3, FLOAT, false, 0, 0);
+    gl.bindBuffer(WebGL.ARRAY_BUFFER, verticesBuffer);
+    gl.vertexAttribPointer(program.vertexPositionAttribute, 3, WebGL.FLOAT, false, 0, 0);
 
     if (program.shaderObject.colorsAttribute != null) {
-      gl.bindBuffer(ARRAY_BUFFER, colorsBuffer);
-      gl.vertexAttribPointer(program.colorsAttribute, 3, FLOAT, false, 0, 0);
+      gl.bindBuffer(WebGL.ARRAY_BUFFER, colorsBuffer);
+      gl.vertexAttribPointer(program.colorsAttribute, 3, WebGL.FLOAT, false, 0, 0);
     }
 
     if (program.shaderObject.textureCoordinatesAttribute != null) {
-      gl.bindBuffer(ARRAY_BUFFER, textureCoordBuffer);
-      gl.vertexAttribPointer(program.textureCoordAttribute, 2, FLOAT, false, 0, 0);
+      gl.bindBuffer(WebGL.ARRAY_BUFFER, textureCoordBuffer);
+      gl.vertexAttribPointer(program.textureCoordAttribute, 2, WebGL.FLOAT, false, 0, 0);
     }
 
     if (program.shaderObject.normalAttribute != null) {
-      gl.bindBuffer(ARRAY_BUFFER, normalsBuffer);
-      gl.vertexAttribPointer(program.normalAttribute, 3, FLOAT, false, 0, 0);
+      gl.bindBuffer(WebGL.ARRAY_BUFFER, normalsBuffer);
+      gl.vertexAttribPointer(program.normalAttribute, 3, WebGL.FLOAT, false, 0, 0);
     }
 
     if (program.shaderObject.binormalAttribute != null) {
-      gl.bindBuffer(ARRAY_BUFFER, binormalsBuffer);
-      gl.vertexAttribPointer(program.binormalAttribute, 3, FLOAT, false, 0, 0);
+      gl.bindBuffer(WebGL.ARRAY_BUFFER, binormalsBuffer);
+      gl.vertexAttribPointer(program.binormalAttribute, 3, WebGL.FLOAT, false, 0, 0);
     }
   }
 
   void bindTextures(ShaderProgram program) {
     int activeTextureCounter = 0;
     if (program.shaderObject.textureSamplerUniform != null) {
-      gl.activeTexture(TEXTURE0 + activeTextureCounter);
-      gl.bindTexture(TEXTURE_2D, texture);
+      gl.activeTexture(WebGL.TEXTURE0 + activeTextureCounter);
+      gl.bindTexture(WebGL.TEXTURE_2D, texture);
       gl.uniform1i(program.textureSamplerUniform, activeTextureCounter++);
     }
 
     if (program.shaderObject.texture2SamplerUniform != null) {
-      gl.activeTexture(TEXTURE0 + activeTextureCounter);
-      gl.bindTexture(TEXTURE_2D, texture2);
+      gl.activeTexture(WebGL.TEXTURE0 + activeTextureCounter);
+      gl.bindTexture(WebGL.TEXTURE_2D, texture2);
       gl.uniform1i(program.texture2SamplerUniform, activeTextureCounter++);
     }
 
     if (program.shaderObject.textureCubeSamplerUniform != null) {
-      gl.activeTexture(TEXTURE0 + activeTextureCounter);
-      gl.bindTexture(TEXTURE_CUBE_MAP, textureCube);
+      gl.activeTexture(WebGL.TEXTURE0 + activeTextureCounter);
+      gl.bindTexture(WebGL.TEXTURE_CUBE_MAP, textureCube);
       gl.uniform1i(program.textureCubeSamplerUniform, activeTextureCounter++);
     }
   }

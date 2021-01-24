@@ -40,7 +40,7 @@ part "src/shader/plasma_shader.dart";
 part "src/shader/generate_shader.dart";
 
 abstract class Animatable {
-  bool active=true;
+  bool active = true;
   void animate(double elapsed);
 }
 
@@ -114,7 +114,7 @@ class ChronosGL {
     //print( gl.getSupportedExtensions());
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(DEPTH_TEST);
+    gl.enable(WebGL.DEPTH_TEST);
 
     programBasic = createProgram(createTexturedShader());
 
@@ -169,8 +169,7 @@ class ChronosGL {
 
   void animate(num timeNow, double elapsed) {
     for (Animatable a in animatables.values) {
-      if(a.active)
-        a.animate(elapsed);
+      if (a.active) a.animate(elapsed);
     }
     for (Function f in animateCallbacks.values) {
       f(elapsed, timeNow);
@@ -188,7 +187,7 @@ class ChronosGL {
 
   void draw() {
     if (fxFramebuffer != null) {
-      gl.bindFramebuffer(FRAMEBUFFER, fxFramebuffer.framebuffer);
+      gl.bindFramebuffer(WebGL.FRAMEBUFFER, fxFramebuffer.framebuffer);
     }
 
     if (_lastWidth != _canvas.clientWidth || _lastHeight != _canvas.clientHeight) {
@@ -200,15 +199,15 @@ class ChronosGL {
       _lastWidth = _canvas.clientWidth;
       _lastHeight = _canvas.clientHeight;
     }
-    gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+    gl.clear(WebGL.COLOR_BUFFER_BIT | WebGL.DEPTH_BUFFER_BIT);
 
     for (ShaderProgram prg in programs.values) {
       prg.draw(_pMatrix);
     }
 
     if (fxFramebuffer != null && fxFramebuffer.ready()) {
-      gl.bindFramebuffer(FRAMEBUFFER, null);
-      gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+      gl.bindFramebuffer(WebGL.FRAMEBUFFER, null);
+      gl.clear(WebGL.COLOR_BUFFER_BIT | WebGL.DEPTH_BUFFER_BIT);
       fxProgram.draw(fxMatrix, fxMatrix);
     }
   }
@@ -218,7 +217,7 @@ class ChronosGL {
   }
 
   double _lastTime = 0.0;
-  void run([double timeNow]) {
+  void run(num timeNow) {
     if (timeNow == null) timeNow = 0.0;
     if (_lastTime == 0) _lastTime = timeNow;
     double elapsed = timeNow - _lastTime;

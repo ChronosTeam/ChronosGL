@@ -14,6 +14,6 @@ void main() {
     chronosGL.programs["CubeMap"].add(m);
 
     chronosGL.getUtils().addParticles(200);
-    chronosGL.run();
+    chronosGL.run(1);
   });
 }

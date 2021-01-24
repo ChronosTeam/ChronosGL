@@ -1,20 +1,19 @@
 part of chronosgl;
 
 class Camera extends Spatial {
-  
   Spatial parent;
-  
+
   // Get the model view matrix. The view matrix is the inverse of the camera’s transformation matrix in world-space.
   void getMVMatrix(Matrix4 mvMatrix, bool translate) {
     transform.toRotationMat(mvMatrix); // why does this seem to be already inverted/transposed ?
     if (translate) {
       // The eye position is negated which is equivalent to the inverse of the translation matrix: T(v)^-1 == T(-v)
       // T = translation matrix, v = eye position.
-      mvMatrix.translateLocal(
-          -transform[12], -transform[13], -transform[14]); // short cut for rotationMatrixInverted * translationMatrixInverted, see http://3dgep.com/understanding-the-view-matrix/#Look_At_Camera
+      mvMatrix.translateLocal(-transform[12], -transform[13],
+          -transform[14]); // short cut for rotationMatrixInverted * translationMatrixInverted, see http://3dgep.com/understanding-the-view-matrix/#Look_At_Camera
     }
-    
-    if(parent!= null){
+
+    if (parent != null) {
       mvMatrix.multiplyWith(parent.transform);
     }
   }
@@ -33,7 +32,6 @@ class OrbitCamera extends Animatable {
 
   Map<int, bool> cpk = currentlyPressedKeys;
   Map<String, bool> cpmb = currentlyPressedMouseButtons;
-
 
   OrbitCamera(this.camera, this.radius, [this.azimuth = 0.0, this.polar = 0.0]) {
     HTML.document.onMouseWheel.listen((HTML.WheelEvent e) {
@@ -103,7 +101,7 @@ class OrbitCamera extends Animatable {
       azimuth = 0.0;
       polar = 0.0;
     }
-    polar = polar.clamp(-Math.PI / 2 + 0.1, Math.PI / 2 - 0.1);
+    polar = polar.clamp(-Math.pi / 2 + 0.1, Math.pi / 2 - 0.1);
     _setPosFromSpherical(radius, azimuth, polar);
   }
 }
@@ -144,24 +142,29 @@ class FlyingCamera extends Animatable {
     back.negate();
     momentum.lerp(back, amount);
   }
+
   void moveBackward(double amount) {
     Vector back = camera.getBack();
     momentum.lerp(back, amount);
   }
+
   void moveUp(num amount) {
     Vector up = camera.getUp();
     momentum.lerp(up, amount);
   }
+
   void moveDown(num amount) {
     Vector up = camera.getUp();
     up.negate();
     momentum.lerp(up, amount);
   }
+
   void moveLeft(num amount) {
     Vector right = camera.getRight();
     right.negate();
     momentum.lerp(right, amount);
   }
+
   void moveRight(num amount) {
     Vector right = camera.getRight();
     momentum.lerp(right, amount);

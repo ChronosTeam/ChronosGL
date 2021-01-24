@@ -25,6 +25,6 @@ void main() {
     perlinNoise.add(m2);
 
     chronosGL.getUtils().addParticles(2000, 100);
-    chronosGL.run();
+    chronosGL.run(1);
   });
 }

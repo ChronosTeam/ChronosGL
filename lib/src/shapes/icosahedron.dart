@@ -61,7 +61,6 @@ class Icosahedron extends MeshData {
       MeshData tempMeshData2 = new MeshData.empty();
 
       for (int i = 0, l = tempMeshData.vertexIndices.length ~/ 3; i < l; i++) {
-
         // replace each triangle by 4 triangles
 
         List<int> face = tempMeshData.vertexIndices.sublist(i * 3, i * 3 + 3);
@@ -120,15 +119,15 @@ class Icosahedron extends MeshData {
   }
 
   double getU2(double z, double x) {
-    return 0.5 * (1.0 + Math.atan2(z, x) * (1 / Math.PI));
+    return 0.5 * (1.0 + Math.atan2(z, x) * (1 / Math.pi));
   }
 
   double getV2(double y) {
-    return Math.acos(y) * (1 / Math.PI);
+    return Math.acos(y) * (1 / Math.pi);
   }
 
   double getU1(double z, double x) {
-    return 1 - (((Math.atan2(z, x) + Math.PI) % Math.PI) / Math.PI * 0.5);
+    return 1 - (((Math.atan2(z, x) + Math.pi) % Math.pi) / Math.pi * 0.5);
   }
 
   double getV1(double y) {

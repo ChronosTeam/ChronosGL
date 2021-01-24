@@ -81,7 +81,7 @@ class Quaternion {
     double dot = _tempLookAt.dot(Vector.BACK);
 
     if ((dot + 1.0).abs() < 0.000001) {
-      return set(0.0, 1.0, 0.0, Math.PI);
+      return set(0.0, 1.0, 0.0, Math.pi);
     }
     if ((dot - 1.0).abs() < 0.000001) {
       return set(0.0, 0.0, 0.0, 1.0);
@@ -136,18 +136,7 @@ class Quaternion {
 
   // only sets the rotation part, leaves translation and other fields untouched
   void toRotationMatrix4(Matrix4 out) {
-    double x2 = x + x,
-        y2 = y + y,
-        z2 = z + z,
-        xx = x * x2,
-        yx = y * x2,
-        yy = y * y2,
-        zx = z * x2,
-        zy = z * y2,
-        zz = z * z2,
-        wx = w * x2,
-        wy = w * y2,
-        wz = w * z2;
+    double x2 = x + x, y2 = y + y, z2 = z + z, xx = x * x2, yx = y * x2, yy = y * y2, zx = z * x2, zy = z * y2, zz = z * z2, wx = w * x2, wy = w * y2, wz = w * z2;
 
     out[0] = 1 - yy - zz;
     out[4] = yx - wz;
@@ -163,14 +152,8 @@ class Quaternion {
   }
 
   Quaternion slerp(Quaternion a, Quaternion b, double t) {
-    double ax = a[0],
-        ay = a[1],
-        az = a[2],
-        aw = a[3];
-    double bx = b[0],
-        by = b[1],
-        bz = b[2],
-        bw = b[3];
+    double ax = a[0], ay = a[1], az = a[2], aw = a[3];
+    double bx = b[0], by = b[1], bz = b[2], bw = b[3];
     double omega, cosom, sinom, scale0, scale1;
 
     // calc cosine

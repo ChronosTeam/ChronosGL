@@ -10,19 +10,19 @@ class Utils {
     textureCache = chronosGL.getTextureCache();
   }
 
-  Texture createTextureFromCanvas(HTML.CanvasElement canvas, {int minFilter: LINEAR, int magFilter: LINEAR, bool mipmap: false, bool flipY: true}) {
+  Texture createTextureFromCanvas(HTML.CanvasElement canvas, {int minFilter: WebGL.LINEAR, int magFilter: WebGL.LINEAR, bool mipmap: false, bool flipY: true}) {
     var texture = gl.createTexture();
-    gl.bindTexture(TEXTURE_2D, texture);
+    gl.bindTexture(WebGL.TEXTURE_2D, texture);
     if (flipY) {
-      gl.pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
+      gl.pixelStorei(WebGL.UNPACK_FLIP_Y_WEBGL, 1);
     }
-    gl.texImage2D(TEXTURE_2D, 0, RGBA, RGBA, UNSIGNED_BYTE, canvas);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, minFilter);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, magFilter);
+    gl.texImage2D(WebGL.TEXTURE_2D, 0, WebGL.RGBA, WebGL.RGBA, WebGL.UNSIGNED_BYTE, canvas);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MIN_FILTER, minFilter);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MAG_FILTER, magFilter);
     if (mipmap) {
-      gl.generateMipmap(TEXTURE_2D);
+      gl.generateMipmap(WebGL.TEXTURE_2D);
     }
-    gl.bindTexture(TEXTURE_2D, null);
+    gl.bindTexture(WebGL.TEXTURE_2D, null);
     return texture;
   }
 
@@ -37,15 +37,15 @@ class Utils {
   Texture createCheckerboardTexture() {
     var pixels = new Uint8List.fromList([255, 255, 255, 0, 0, 0, 0, 0, 0, 255, 255, 255]);
     var texture = gl.createTexture();
-    gl.bindTexture(TEXTURE_2D, texture);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_WRAP_T, CLAMP_TO_EDGE);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, NEAREST);
+    gl.bindTexture(WebGL.TEXTURE_2D, texture);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_S, WebGL.CLAMP_TO_EDGE);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_T, WebGL.CLAMP_TO_EDGE);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MIN_FILTER, WebGL.NEAREST);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MAG_FILTER, WebGL.NEAREST);
     //  gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR);
     //  gl.texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR);
-    gl.pixelStorei(UNPACK_ALIGNMENT, 1);
-    gl.texImage2DTyped(TEXTURE_2D, 0, RGB, 2, 2, 0, RGB, UNSIGNED_BYTE, pixels);
+    gl.pixelStorei(WebGL.UNPACK_ALIGNMENT, 1);
+    gl.texImage2D(WebGL.TEXTURE_2D, 0, WebGL.RGB, 2, 2, 0, WebGL.RGB, WebGL.UNSIGNED_BYTE, pixels);
     return texture;
   }
 
@@ -84,8 +84,7 @@ class Utils {
   HTML.CanvasElement createParticleCanvas() {
     int d = 64;
     return createCanvas(null, (HTML.CanvasRenderingContext2D ctx) {
-      int x = d ~/ 2,
-          y = d ~/ 2;
+      int x = d ~/ 2, y = d ~/ 2;
 
       var gradient = ctx.createRadialGradient(x, y, 1, x, y, 22);
       gradient.addColorStop(0, 'gray');
@@ -100,7 +99,7 @@ class Utils {
 
       ctx.globalAlpha = 0.9;
       ctx.fillStyle = gradient;
-      ctx.arc(x, y, 4, 0, 2 * Math.PI);
+      ctx.arc(x, y, 4, 0, 2 * Math.pi);
       ctx.fill();
     }, d);
   }
@@ -136,29 +135,29 @@ class Utils {
 
     Mesh skybox_px = createQuad(tpx, 1004);
     skybox_px.setPos(-2.0, 2.0, 1000.0);
-    skybox_px.rotY(Math.PI);
+    skybox_px.rotY(Math.pi);
     chronosGL.programBasic.addFollowCameraObject(skybox_px);
 
     Mesh skybox_nz = createQuad(tnz, 1004);
     skybox_nz.setPos(-1000.0, 2.0, -2.0);
-    skybox_nz.rotY(0.5 * Math.PI);
+    skybox_nz.rotY(0.5 * Math.pi);
     chronosGL.programBasic.addFollowCameraObject(skybox_nz);
 
     Mesh skybox_pz = createQuad(tpz, 1004);
     skybox_pz.setPos(1000.0, 2.0, -2.0);
-    skybox_pz.rotY(1.5 * Math.PI);
+    skybox_pz.rotY(1.5 * Math.pi);
     chronosGL.programBasic.addFollowCameraObject(skybox_pz);
 
     Mesh skybox_ny = createQuad(tny, 1004);
     skybox_ny.setPos(-2.0, -1000.0, -2.0);
-    skybox_ny.rotX(1.5 * Math.PI);
-    skybox_ny.rotZ(1.5 * Math.PI);
+    skybox_ny.rotX(1.5 * Math.pi);
+    skybox_ny.rotZ(1.5 * Math.pi);
     chronosGL.programBasic.addFollowCameraObject(skybox_ny);
 
     Mesh skybox_py = createQuad(tpy, 1004);
     skybox_py.setPos(-2.0, 1000.0, -2.0);
-    skybox_py.rotX(0.5 * Math.PI);
-    skybox_py.rotZ(0.5 * Math.PI);
+    skybox_py.rotX(0.5 * Math.pi);
+    skybox_py.rotZ(0.5 * Math.pi);
     chronosGL.programBasic.addFollowCameraObject(skybox_py);
   }
 
@@ -193,7 +192,8 @@ class Utils {
   Mesh addTorusKnot({double radius: 20.0, double tube: 4.0, int segmentsR: 128, int segmentsT: 16, int p: 2, int q: 3, double heightScale: 1.0, TextureWrapper textureWrapper}) {
     Texture t;
     if (textureWrapper != null) t = textureWrapper.texture;
-    return chronosGL.programBasic.add(createTorusKnotMesh(radius: radius, tube: tube, segmentsR: segmentsR, segmentsT: segmentsT, p: p, q: q, heightScale: heightScale, texture: t));
+    return chronosGL.programBasic
+        .add(createTorusKnotMesh(radius: radius, tube: tube, segmentsR: segmentsR, segmentsT: segmentsT, p: p, q: q, heightScale: heightScale, texture: t));
   }
 
   void addParticles(int numPoints, [int dimension = 100]) {
@@ -214,16 +214,16 @@ class Utils {
     Mesh m = new Mesh(md, drawPoints: true, texture: texture);
     m.blend = true;
     m.depthWrite = false;
-    m.blend_dFactor = ONE_MINUS_SRC_COLOR;
+    m.blend_dFactor = WebGL.ONE_MINUS_SRC_COLOR;
     m.name = 'point_sprites_mesh_' + pssp.objects.length.toString();
     pssp.add(m);
   }
 
-  Future<Object> loadFile(String url, [bool binary = false]) {
-    Completer c = new Completer();
+  Future<String> loadTextFile(String url) {
+    Completer<String> c = new Completer<String>();
+    //HTML.Window.fetch();
     HTML.HttpRequest hr = new HTML.HttpRequest();
     hr.open("GET", url);
-    if (binary) hr.responseType = "arraybuffer";
     hr.onLoadEnd.listen((e) {
       c.complete(hr.response);
     });
@@ -231,16 +231,25 @@ class Utils {
     return c.future;
   }
 
-  Future<Object> loadBinaryFile(String url) {
-    return loadFile(url, true);
+  Future<ByteBuffer> loadBinaryFile(String url) {
+    Completer<ByteBuffer> c = new Completer<ByteBuffer>();
+    //HTML.Window.fetch();
+    HTML.HttpRequest hr = new HTML.HttpRequest();
+    hr.open("GET", url);
+    hr.responseType = "arraybuffer";
+    hr.onLoadEnd.listen((e) {
+      c.complete(hr.response);
+    });
+    hr.send();
+    return c.future;
   }
 
-  Future<Object> loadJsonFile(String url) {
-    Completer c = new Completer();
+  Future<String> loadJsonFile(String url) {
+    Completer<String> c = new Completer<String>();
     HTML.HttpRequest hr = new HTML.HttpRequest();
     hr.open("GET", url);
     hr.onLoadEnd.listen((e) {
-      c.complete(JSON.decode(hr.responseText));
+      c.complete(jsonDecode(hr.responseText));
     });
     hr.send();
     return c.future;

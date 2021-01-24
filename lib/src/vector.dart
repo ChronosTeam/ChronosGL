@@ -238,4 +238,12 @@ class Vector {
   String toString() {
     return array.toString();
   }
+
+  Vector operator+( Vector b) {
+    return new Vector.fromVector(this).add(b);
+  }
+  Vector operator*( double d) {
+    return new Vector.fromVector(this).scale(d);
+  }
+
 }

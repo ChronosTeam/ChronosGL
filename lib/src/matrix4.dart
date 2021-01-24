@@ -65,26 +65,22 @@ class Matrix3 {
     m[5] = m[7];
     m[7] = t;
   }
-  
+
   void multiply(Matrix3 m) {
-    var m00 = array[0], m01 = array[3], m02 = array[6],
-        m10 = array[1], m11 = array[4], m12 = array[7],
-        m20 = array[2], m21 = array[5], m22 = array[8];
-      var n00 = m.array[0], n01 = m.array[3], n02 = m.array[6],
-        n10 = m.array[1], n11 = m.array[4], n12 = m.array[7],
-        n20 = m.array[2], n21 = m.array[5], n22 = m.array[8];
+    var m00 = array[0], m01 = array[3], m02 = array[6], m10 = array[1], m11 = array[4], m12 = array[7], m20 = array[2], m21 = array[5], m22 = array[8];
+    var n00 = m.array[0], n01 = m.array[3], n02 = m.array[6], n10 = m.array[1], n11 = m.array[4], n12 = m.array[7], n20 = m.array[2], n21 = m.array[5], n22 = m.array[8];
 
-      array[0] = m00 * n00 + m01 * n10 + m02 * n20;
-      array[3] = m00 * n01 + m01 * n11 + m02 * n21;
-      array[6] = m00 * n02 + m01 * n12 + m02 * n22;
+    array[0] = m00 * n00 + m01 * n10 + m02 * n20;
+    array[3] = m00 * n01 + m01 * n11 + m02 * n21;
+    array[6] = m00 * n02 + m01 * n12 + m02 * n22;
 
-      array[1] = m10 * n00 + m11 * n10 + m12 * n20;
-      array[4] = m10 * n01 + m11 * n11 + m12 * n21;
-      array[7] = m10 * n02 + m11 * n12 + m12 * n22;
+    array[1] = m10 * n00 + m11 * n10 + m12 * n20;
+    array[4] = m10 * n01 + m11 * n11 + m12 * n21;
+    array[7] = m10 * n02 + m11 * n12 + m12 * n22;
 
-      array[2] = m20 * n00 + m21 * n10 + m22 * n20;
-      array[5] = m20 * n01 + m21 * n11 + m22 * n21;
-      array[8] = m20 * n02 + m21 * n12 + m22 * n22;
+    array[2] = m20 * n00 + m21 * n10 + m22 * n20;
+    array[5] = m20 * n01 + m21 * n11 + m22 * n21;
+    array[8] = m20 * n02 + m21 * n12 + m22 * n22;
   }
 }
 
@@ -101,18 +97,10 @@ class Matrix4 {
     identity();
   }
 
-  static int RIGHTX = 0,
-      RIGHTY = 4,
-      RIGHTZ = 8;
-  static int UPX = 1,
-      UPY = 5,
-      UPZ = 9;
-  static int BACKX = 2,
-      BACKY = 6,
-      BACKZ = 10;
-  static int POSX = 12,
-      POSY = 13,
-      POSZ = 14;
+  static int RIGHTX = 0, RIGHTY = 4, RIGHTZ = 8;
+  static int UPX = 1, UPY = 5, UPZ = 9;
+  static int BACKX = 2, BACKY = 6, BACKZ = 10;
+  static int POSX = 12, POSY = 13, POSZ = 14;
 
   double operator [](int index) {
     return array[index];
@@ -136,9 +124,7 @@ class Matrix4 {
   }
 
   void frustum(double left, double right, double bottom, double top, double near, double far) {
-    double rl = (right - left),
-        tb = (top - bottom),
-        fn = (far - near);
+    double rl = (right - left), tb = (top - bottom), fn = (far - near);
     clear();
     array[0] = (near * 2) / rl;
     array[5] = (near * 2) / tb;
@@ -150,13 +136,12 @@ class Matrix4 {
   }
 
   void setPerspective(int fovy, double aspect, double near, double far) {
-    double top = near * Math.tan(fovy * Math.PI / 360.0);
+    double top = near * Math.tan(fovy * Math.pi / 360.0);
     double right = top * aspect;
     frustum(-right, right, -top, top, near, far);
   }
 
   bool invert() {
-
     // Cache the matrix values (makes for huge speed increases!)
     double a00 = array[0],
         a01 = array[1],
@@ -349,16 +334,7 @@ class Matrix4 {
   }
 
   void rotateZ(double angle) {
-    double s = Math.sin(angle),
-        c = Math.cos(angle),
-        a00 = array[0],
-        a01 = array[1],
-        a02 = array[2],
-        a03 = array[3],
-        a10 = array[4],
-        a11 = array[5],
-        a12 = array[6],
-        a13 = array[7];
+    double s = Math.sin(angle), c = Math.cos(angle), a00 = array[0], a01 = array[1], a02 = array[2], a03 = array[3], a10 = array[4], a11 = array[5], a12 = array[6], a13 = array[7];
 
     // Perform axis-specific matrix multiplication
     array[0] = a00 * c + a10 * s;
@@ -382,28 +358,13 @@ class Matrix4 {
 
   multiplyWith(Matrix4 other) {
 // Cache the matrix values (makes for huge speed increases!)
-    double a00 = array[0],
-        a01 = array[1],
-        a02 = array[2],
-        a03 = array[3];
-    double a10 = array[4],
-        a11 = array[5],
-        a12 = array[6],
-        a13 = array[7];
-    double a20 = array[8],
-        a21 = array[9],
-        a22 = array[10],
-        a23 = array[11];
-    double a30 = array[12],
-        a31 = array[13],
-        a32 = array[14],
-        a33 = array[15];
+    double a00 = array[0], a01 = array[1], a02 = array[2], a03 = array[3];
+    double a10 = array[4], a11 = array[5], a12 = array[6], a13 = array[7];
+    double a20 = array[8], a21 = array[9], a22 = array[10], a23 = array[11];
+    double a30 = array[12], a31 = array[13], a32 = array[14], a33 = array[15];
 
     // Cache only the current line of the second matrix
-    double b0 = other.array[0],
-        b1 = other.array[1],
-        b2 = other.array[2],
-        b3 = other.array[3];
+    double b0 = other.array[0], b1 = other.array[1], b2 = other.array[2], b3 = other.array[3];
     array[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
     array[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
     array[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
@@ -439,10 +400,7 @@ class Matrix4 {
 
   // dest = Vector4
   void multiplyVec4(List<double> vec4) {
-    var x = vec4[0],
-        y = vec4[1],
-        z = vec4[2],
-        w = vec4[3];
+    var x = vec4[0], y = vec4[1], z = vec4[2], w = vec4[3];
 
     vec4[0] = array[0] * x + array[4] * y + array[8] * z + array[12] * w;
     vec4[1] = array[1] * x + array[5] * y + array[9] * z + array[13] * w;
@@ -504,7 +462,7 @@ class Matrix4 {
     array[0] = from.array[0];
     array[1] = from.array[1];
     array[2] = from.array[2];
-    
+
     array[4] = from.array[3];
     array[5] = from.array[4];
     array[6] = from.array[5];
@@ -518,7 +476,7 @@ class Matrix4 {
     array[0] = from.array[0];
     array[1] = from.array[1];
     array[2] = from.array[2];
-    
+
     array[4] = from.array[4];
     array[5] = from.array[5];
     array[6] = from.array[6];
@@ -586,12 +544,7 @@ class Matrix4 {
   }
 
   void transpose() {
-    double a01 = array[1],
-        a02 = array[2],
-        a03 = array[3],
-        a12 = array[6],
-        a13 = array[7],
-        a23 = array[11];
+    double a01 = array[1], a02 = array[2], a03 = array[3], a12 = array[6], a13 = array[7], a23 = array[11];
 
     array[1] = array[4];
     array[2] = array[8];
@@ -608,9 +561,7 @@ class Matrix4 {
   }
 
   void transposeRotation() {
-    double a01 = array[1],
-        a02 = array[2],
-        a12 = array[6];
+    double a01 = array[1], a02 = array[2], a12 = array[6];
 
     array[1] = array[4];
     array[2] = array[8];

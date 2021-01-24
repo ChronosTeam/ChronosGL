@@ -106,5 +106,5 @@ void main() {
 
   chronosGL.getUtils().addParticles(2000);
 
-  chronosGL.run();
+  chronosGL.run(1);
 }

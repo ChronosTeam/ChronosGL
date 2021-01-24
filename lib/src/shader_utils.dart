@@ -13,9 +13,11 @@ class Uniform {
   void setValue1f(num v) {
     gl.uniform1f(uniformLocation, v);
   }
+
   void setValue3f(num x, num y, num z) {
     gl.uniform3f(uniformLocation, x, y, z);
   }
+
   void setValue3fv(Vector v) {
     gl.uniform3fv(uniformLocation, v.array);
   }
@@ -32,7 +34,7 @@ class ShaderUtils {
     gl.shaderSource(shader, text);
     gl.compileShader(shader);
 
-    var result = gl.getShaderParameter(shader, COMPILE_STATUS);
+    var result = gl.getShaderParameter(shader, WebGL.COMPILE_STATUS);
     if (result != null && result == false) {
       throw gl.getShaderInfoLog(shader);
     }
@@ -41,11 +43,11 @@ class ShaderUtils {
 
   Program getProgram(String vertexShaderText, String fragmentShaderText) {
     Program program = gl.createProgram();
-    gl.attachShader(program, getShader(VERTEX_SHADER, vertexShaderText));
-    gl.attachShader(program, getShader(FRAGMENT_SHADER, fragmentShaderText));
+    gl.attachShader(program, getShader(WebGL.VERTEX_SHADER, vertexShaderText));
+    gl.attachShader(program, getShader(WebGL.FRAGMENT_SHADER, fragmentShaderText));
     gl.linkProgram(program);
 
-    if (!gl.getProgramParameter(program, LINK_STATUS)) {
+    if (!gl.getProgramParameter(program, WebGL.LINK_STATUS)) {
       throw gl.getProgramInfoLog(program);
     }
 

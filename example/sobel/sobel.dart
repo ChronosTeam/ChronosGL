@@ -17,6 +17,6 @@ void main() {
     //n.matrix.scale(0.02);
 
     prg.add(mesh);
-    chronosGL.run();
+    chronosGL.run(1);
   });
 }

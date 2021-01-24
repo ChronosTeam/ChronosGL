@@ -19,6 +19,6 @@ void main() {
     n.lookAt(new Vector(100, 0, 0));
     //n.matrix.scale(0.02);
     prg.add(n);
-    chronosGL.run();
+    chronosGL.run(1);
   });
 }

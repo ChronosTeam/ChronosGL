@@ -221,5 +221,5 @@ void main(void)
 
 void main() {
   ChronosGL chronosGL = new ChronosGL('#webgl-canvas', useFramebuffer: true, fxShader: createSphericalGyroidShader(), near: 0.1, far: 2520.0);
-  chronosGL.run();
+  chronosGL.run(1);
 }

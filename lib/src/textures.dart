@@ -6,31 +6,32 @@ class TextureCache {
   RenderingContext gl;
   bool flipY = true;
   bool mipmap = false;
-  int minFilter = LINEAR; // LINEAR_MIPMAP_LINEAR
-  int magFilter = LINEAR;
+  int minFilter = WebGL.LINEAR; // LINEAR_MIPMAP_LINEAR
+  int magFilter = WebGL.LINEAR;
 
   TextureCache(this.chronosGL) {
     gl = chronosGL.gl;
   }
 
   TextureWrapper add(String url, [bool clamp = false]) {
-    return textureCache[url] = new TextureWrapper(this.gl, clamp: clamp, type: TEXTURE_2D);
+    return textureCache[url] = new TextureWrapper(this.gl, clamp: clamp, type: WebGL.TEXTURE_2D);
   }
 
-  void addCube(String name, String prefix, String suffix, {bool clamp: false, String nx: "nx", String px: "px", String ny: "ny", String py: "py", String nz: "nz", String pz: "pz"}) {
-    TextureWrapper tw = textureCache[name] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP);
+  void addCube(String name, String prefix, String suffix,
+      {bool clamp: false, String nx: "nx", String px: "px", String ny: "ny", String py: "py", String nz: "nz", String pz: "pz"}) {
+    TextureWrapper tw = textureCache[name] = new TextureWrapper(this.gl, cubemap: true, type: WebGL.TEXTURE_CUBE_MAP);
     TextureWrapper temp;
-    temp = textureCache[prefix + nx + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_NEGATIVE_X);
+    temp = textureCache[prefix + nx + suffix] = new TextureWrapper(this.gl, cubemap: true, type: WebGL.TEXTURE_CUBE_MAP_NEGATIVE_X);
     tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + px + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_POSITIVE_X);
+    temp = textureCache[prefix + px + suffix] = new TextureWrapper(this.gl, cubemap: true, type: WebGL.TEXTURE_CUBE_MAP_POSITIVE_X);
     tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + ny + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_NEGATIVE_Y);
+    temp = textureCache[prefix + ny + suffix] = new TextureWrapper(this.gl, cubemap: true, type: WebGL.TEXTURE_CUBE_MAP_NEGATIVE_Y);
     tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + py + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_POSITIVE_Y);
+    temp = textureCache[prefix + py + suffix] = new TextureWrapper(this.gl, cubemap: true, type: WebGL.TEXTURE_CUBE_MAP_POSITIVE_Y);
     tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + nz + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_NEGATIVE_Z);
+    temp = textureCache[prefix + nz + suffix] = new TextureWrapper(this.gl, cubemap: true, type: WebGL.TEXTURE_CUBE_MAP_NEGATIVE_Z);
     tw.cubeTextureChildren.add(temp);
-    temp = textureCache[prefix + pz + suffix] = new TextureWrapper(this.gl, cubemap: true, type: TEXTURE_CUBE_MAP_POSITIVE_Z);
+    temp = textureCache[prefix + pz + suffix] = new TextureWrapper(this.gl, cubemap: true, type: WebGL.TEXTURE_CUBE_MAP_POSITIVE_Z);
     tw.cubeTextureChildren.add(temp);
 
     tw.loaded = true;
@@ -57,13 +58,13 @@ class TextureCache {
   TextureWrapper getTW(String url) {
     return textureCache[url];
   }
-  
+
   void loadAllThenExecute(callBackFunc()) {
-    loadAll().then((_){
+    loadAll().then((_) {
       callBackFunc();
-    });    
+    });
   }
-  
+
   Future<dynamic> loadAll() {
     List<Future<HTML.Event>> futures = new List<Future<HTML.Event>>();
 
@@ -83,37 +84,37 @@ class TextureCache {
     return Future.wait(futures).then((List list) {
       for (String url in textureCache.keys) {
         TextureWrapper textureWrapper = textureCache[url];
-        if (textureWrapper.loaded && textureWrapper.type != TEXTURE_CUBE_MAP) continue;
+        if (textureWrapper.loaded && textureWrapper.type != WebGL.TEXTURE_CUBE_MAP) continue;
 
-        if (textureWrapper.cubemap && textureWrapper.type != TEXTURE_CUBE_MAP) continue;
+        if (textureWrapper.cubemap && textureWrapper.type != WebGL.TEXTURE_CUBE_MAP) continue;
 
         gl.bindTexture(textureWrapper.type, textureWrapper.texture);
 
         if (flipY) {
-          gl.pixelStorei(UNPACK_FLIP_Y_WEBGL, 1);
+          gl.pixelStorei(WebGL.UNPACK_FLIP_Y_WEBGL, 1);
         }
 
-        gl.texParameteri(textureWrapper.type, TEXTURE_MAG_FILTER, magFilter);
-        gl.texParameteri(textureWrapper.type, TEXTURE_MIN_FILTER, minFilter);
+        gl.texParameteri(textureWrapper.type, WebGL.TEXTURE_MAG_FILTER, magFilter);
+        gl.texParameteri(textureWrapper.type, WebGL.TEXTURE_MIN_FILTER, minFilter);
 
         if (textureWrapper.clamp) {
-          gl.texParameteri(textureWrapper.type, TEXTURE_WRAP_S, CLAMP_TO_EDGE); // this fixes glitches on skybox seams
-          gl.texParameteri(textureWrapper.type, TEXTURE_WRAP_T, CLAMP_TO_EDGE);
+          gl.texParameteri(textureWrapper.type, WebGL.TEXTURE_WRAP_S, WebGL.CLAMP_TO_EDGE); // this fixes glitches on skybox seams
+          gl.texParameteri(textureWrapper.type, WebGL.TEXTURE_WRAP_T, WebGL.CLAMP_TO_EDGE);
         }
 
-        if (textureWrapper.type == TEXTURE_CUBE_MAP) {
+        if (textureWrapper.type == WebGL.TEXTURE_CUBE_MAP) {
           for (TextureWrapper tw in textureWrapper.cubeTextureChildren) {
-            gl.texImage2D(tw.type, 0, RGBA, RGBA, UNSIGNED_BYTE, tw.image);
+            gl.texImage2D(tw.type, 0, WebGL.RGBA, WebGL.RGBA, WebGL.UNSIGNED_BYTE, tw.image);
           }
         } else {
-          gl.texImage2D(textureWrapper.type, 0, RGBA, RGBA, UNSIGNED_BYTE, textureWrapper.image);
+          gl.texImage2D(textureWrapper.type, 0, WebGL.RGBA, WebGL.RGBA, WebGL.UNSIGNED_BYTE, textureWrapper.image);
         }
 
         if (mipmap) {
-          gl.generateMipmap(TEXTURE_2D);
+          gl.generateMipmap(WebGL.TEXTURE_2D);
         }
 
-        gl.bindTexture(TEXTURE_2D, null);
+        gl.bindTexture(WebGL.TEXTURE_2D, null);
         textureWrapper.loaded = true;
 
         print("loaded: $url");
@@ -143,7 +144,7 @@ class TextureWrapper {
   int type;
   List<TextureWrapper> cubeTextureChildren = new List<TextureWrapper>();
 
-  TextureWrapper(RenderingContext gl, {this.clamp: false, this.cubemap: false, this.type: TEXTURE_2D}) {
+  TextureWrapper(RenderingContext gl, {this.clamp: false, this.cubemap: false, this.type: WebGL.TEXTURE_2D}) {
     texture = gl.createTexture();
   }
 

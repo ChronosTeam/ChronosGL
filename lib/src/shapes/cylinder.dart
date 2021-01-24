@@ -20,8 +20,8 @@ MeshData createCylinderInternal(double radius, double height, int radialSubdivis
   for (int i = 0; i < radialSubdivisions; i++) {
     double u = i / radialSubdivisions;
 
-    double xpos = radius * Math.sin(u * Math.PI * 2);
-    double zpos = radius * Math.cos(u * Math.PI * 2);
+    double xpos = radius * Math.sin(u * Math.pi * 2);
+    double zpos = radius * Math.cos(u * Math.pi * 2);
 
     vertices.addAll([xpos, halfHeight, zpos]);
     uvs.addAll([u, u]);

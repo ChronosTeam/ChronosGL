@@ -6,7 +6,7 @@ Vector p2 = new Vector();
 MeshData createTorusKnotInternal({double radius: 20.0, double tube: 4.0, int segmentsR: 128, int segmentsT: 16, int p: 2, int q: 3, double heightScale: 1.0}) {
   List<double> vertices = new List<double>();
   List<double> uvs = new List<double>();
-  List<double> normals = new List<double>();
+  //List<double> normals = new List<double>();
   List<int> indices = new List<int>();
 
   Vector tang = new Vector();
@@ -17,7 +17,7 @@ MeshData createTorusKnotInternal({double radius: 20.0, double tube: 4.0, int seg
   for (int i = 0; i < segmentsR; ++i) {
     grid[i] = new List<int>(segmentsT);
 
-    double u = i / segmentsR * 2 * p * Math.PI;
+    double u = i / segmentsR * 2 * p * Math.pi;
     getTorusKnotPos(u, q, p, radius, heightScale, p1);
     getTorusKnotPos(u + 0.02, q, p, radius, heightScale, p2);
 
@@ -32,7 +32,7 @@ MeshData createTorusKnotInternal({double radius: 20.0, double tube: 4.0, int seg
     n.cross2(bitan, tang).normalize();
 
     for (int j = 0; j < segmentsT; ++j) {
-      double v = j / segmentsT * 2 * Math.PI;
+      double v = j / segmentsT * 2 * Math.pi;
       double cx, cy;
 
       cx = tube * Math.cos(v); // TODO: Hack: Negating it so it faces outside.

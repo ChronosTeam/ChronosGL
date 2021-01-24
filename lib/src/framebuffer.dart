@@ -13,13 +13,15 @@ class ChronosFramebuffer {
 
   Texture initTexture([bool depth = false]) {
     Texture texture = gl.createTexture();
-    gl.bindTexture(TEXTURE_2D, texture);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, NEAREST);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_WRAP_T, CLAMP_TO_EDGE);
-    if (depth) gl.texImage2DTyped(TEXTURE_2D, 0, DEPTH_COMPONENT, width, height, 0, DEPTH_COMPONENT, UNSIGNED_SHORT, null);
-    else gl.texImage2DTyped(TEXTURE_2D, 0, RGB, width, height, 0, RGB, UNSIGNED_BYTE, null);
+    gl.bindTexture(WebGL.TEXTURE_2D, texture);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MAG_FILTER, WebGL.NEAREST);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MIN_FILTER, WebGL.NEAREST);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_S, WebGL.CLAMP_TO_EDGE);
+    gl.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_T, WebGL.CLAMP_TO_EDGE);
+    if (depth)
+      gl.texImage2D(WebGL.TEXTURE_2D, 0, WebGL.DEPTH_COMPONENT, width, height, 0, WebGL.DEPTH_COMPONENT, WebGL.UNSIGNED_SHORT, null);
+    else
+      gl.texImage2D(WebGL.TEXTURE_2D, 0, WebGL.RGB, width, height, 0, WebGL.RGB, WebGL.UNSIGNED_BYTE, null);
     return texture;
   }
 
@@ -34,13 +36,13 @@ class ChronosFramebuffer {
     colorTexture = initTexture();
     depthTexture = initTexture(true);
 
-    gl.bindFramebuffer(FRAMEBUFFER, framebuffer);
+    gl.bindFramebuffer(WebGL.FRAMEBUFFER, framebuffer);
 
-    gl.framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, TEXTURE_2D, colorTexture, 0);
-    gl.framebufferTexture2D(FRAMEBUFFER, DEPTH_ATTACHMENT, TEXTURE_2D, depthTexture, 0);
+    gl.framebufferTexture2D(WebGL.FRAMEBUFFER, WebGL.COLOR_ATTACHMENT0, WebGL.TEXTURE_2D, colorTexture, 0);
+    gl.framebufferTexture2D(WebGL.FRAMEBUFFER, WebGL.DEPTH_ATTACHMENT, WebGL.TEXTURE_2D, depthTexture, 0);
 
-    gl.bindTexture(TEXTURE_2D, null);
-    gl.bindFramebuffer(FRAMEBUFFER, null);
+    gl.bindTexture(WebGL.TEXTURE_2D, null);
+    gl.bindFramebuffer(WebGL.FRAMEBUFFER, null);
   }
 
   ChronosFramebuffer.old(this.gl, this.width, this.height) {
@@ -49,22 +51,22 @@ class ChronosFramebuffer {
 
     colorTexture = initTexture();
 
-    gl.bindRenderbuffer(RENDERBUFFER, renderbuffer);
-    gl.bindFramebuffer(FRAMEBUFFER, framebuffer);
+    gl.bindRenderbuffer(WebGL.RENDERBUFFER, renderbuffer);
+    gl.bindFramebuffer(WebGL.FRAMEBUFFER, framebuffer);
 
-    gl.renderbufferStorage(RENDERBUFFER, DEPTH_COMPONENT16, width, height);
+    gl.renderbufferStorage(WebGL.RENDERBUFFER, WebGL.DEPTH_COMPONENT16, width, height);
 
-    gl.framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, TEXTURE_2D, colorTexture, 0);
+    gl.framebufferTexture2D(WebGL.FRAMEBUFFER, WebGL.COLOR_ATTACHMENT0, WebGL.TEXTURE_2D, colorTexture, 0);
 
-    gl.framebufferRenderbuffer(FRAMEBUFFER, DEPTH_ATTACHMENT, RENDERBUFFER, renderbuffer);
+    gl.framebufferRenderbuffer(WebGL.FRAMEBUFFER, WebGL.DEPTH_ATTACHMENT, WebGL.RENDERBUFFER, renderbuffer);
 
-    gl.bindTexture(TEXTURE_2D, null);
-    gl.bindRenderbuffer(RENDERBUFFER, null);
-    gl.bindFramebuffer(FRAMEBUFFER, null);
+    gl.bindTexture(WebGL.TEXTURE_2D, null);
+    gl.bindRenderbuffer(WebGL.RENDERBUFFER, null);
+    gl.bindFramebuffer(WebGL.FRAMEBUFFER, null);
   }
 
   bool ready() {
-    bool result = gl.checkFramebufferStatus(FRAMEBUFFER) == FRAMEBUFFER_COMPLETE;
+    bool result = gl.checkFramebufferStatus(WebGL.FRAMEBUFFER) == WebGL.FRAMEBUFFER_COMPLETE;
     if (!result) {
       print("FRAMEBUFFER_INCOMPLETE");
     }

@@ -30,5 +30,5 @@ void main() {
   ShaderProgram prg = chronosGL.createProgram(instancer.instancedShader);
   prg.addInstancer(instancer);
   chronosGL.getUtils().addParticles(2000, 100);
-  chronosGL.run();
+  chronosGL.run(1);
 }
