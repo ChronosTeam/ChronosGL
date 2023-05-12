@@ -18,9 +18,10 @@ Future<HTML.VideoElement> MakeVideoElementFromCamera() {
 
 HTML.CanvasElement MakeSolidColorCanvas(String fillStyle) {
   HTML.CanvasElement canvas = HTML.CanvasElement(width: 2, height: 2);
-  HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
+  HTML.CanvasRenderingContext2D ctx =
+      canvas.getContext('2d') as HTML.CanvasRenderingContext2D;
   ctx.fillStyle = fillStyle;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, canvas.width!, canvas.height!);
   return canvas;
 }
 

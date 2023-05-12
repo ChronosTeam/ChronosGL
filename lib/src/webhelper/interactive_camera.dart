@@ -60,7 +60,7 @@ class OrbitCamera extends Spatial {
       polar = 0.0;
     }
 
-    double d = mouse.wheelDeltaY * mouseWheelFactor;
+    double d = mouse.wheelDeltaY.toDouble() * mouseWheelFactor;
     if (_radius - d > 0) _radius -= d;
 
     polar = polar.clamp(-Math.pi / 2 + 0.1, Math.pi / 2 - 0.1);

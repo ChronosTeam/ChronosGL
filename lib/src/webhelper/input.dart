@@ -6,13 +6,13 @@ class Keyboard {
     if (elem == null) elem = HTML.document;
 
     elem.onKeyDown.listen((HTML.KeyboardEvent e) {
-      _currentlyPressedKeys.add(e.which);
-      _justPressedKeys.add(e.which);
+      _currentlyPressedKeys.add(e.which!);
+      _justPressedKeys.add(e.which!);
     });
 
     elem.onKeyUp.listen((HTML.KeyboardEvent e) {
-      _currentlyPressedKeys.remove(e.which);
-      _justReleasedKeys.add(e.which);
+      _currentlyPressedKeys.remove(e.which!);
+      _justReleasedKeys.add(e.which!);
     });
   }
 
@@ -97,11 +97,11 @@ class Mouse {
     elem.onMouseMove.listen((HTML.MouseEvent e) {
       e.preventDefault();
 
-      currentX = e.offset.x;
-      currentY = e.offset.y;
+      currentX = e.offset.x.toInt();
+      currentY = e.offset.y.toInt();
 
-      moveDeltaX = e.movement.x;
-      moveDeltaY = e.movement.y;
+      moveDeltaX = e.movement.x.toInt();
+      moveDeltaY = e.movement.y.toInt();
       //print ("MOVE ${moveDeltaX}x${moveDeltaY}");
     });
 
@@ -120,7 +120,7 @@ class Mouse {
 
     elem.onMouseWheel.listen((HTML.WheelEvent e) {
       e.preventDefault();
-      wheelDeltaY = e.deltaY;
+      wheelDeltaY = e.deltaY.toInt();
     });
 
     /*
