@@ -84,8 +84,9 @@ void main() {
   IntroduceNewShaderVar(uRandomSeed, const ShaderVarDesc("float", ""));
 
   StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
+  HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   final int w = canvas.clientWidth;
   final int h = canvas.clientHeight;
   canvas.width = w;
@@ -119,21 +120,23 @@ void main() {
     ..ForceUniform(uFlameThrottle, 0.248); // needs to smaller than 1/4.0
 
   // Event Handling
-  for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
+  for (HTML.Node node in HTML.document.getElementsByTagName("input")) {
+    HTML.Element input = node as HTML.Element;
     input.onChange.listen((HTML.Event e) {
       HTML.InputElement input = e.target as HTML.InputElement;
       if (input.type == "range") {
         HTML.OutputElement output =
-            HTML.document.getElementById(input.id + "2");
-        ug.ForceUniform(input.id, double.parse(input.value));
+            HTML.document.getElementById(input.id + "2") as HTML.OutputElement;
+        ug.ForceUniform(input.id, double.parse(input.value!));
         output.value = input.value;
       }
     });
   }
 
   // Trigger handlers
-  for (HTML.Element e in HTML.document.getElementsByTagName("input")) {
-    e.dispatchEvent(HTML.Event("change"));
+  for (HTML.Node node in HTML.document.getElementsByTagName("input")) {
+    HTML.Element input = node as HTML.Element;
+    input.dispatchEvent(HTML.Event("change"));
   }
 
   double _lastTimeMs = 0.0;

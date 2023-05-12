@@ -40,8 +40,9 @@ Node Triangle(RenderProgram program) {
 
 void main() {
   StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
+  HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   ChronosGL cgl = ChronosGL(canvas);
 
   OrbitCamera orbit = OrbitCamera(20.0, 0.0, 0.0, canvas);
@@ -58,7 +59,7 @@ void main() {
 
   scene.add(Triangle(scene.program));
 
-  void resolutionChange(HTML.Event ev) {
+  void resolutionChange(HTML.Event? ev) {
     int w = canvas.clientWidth;
     int h = canvas.clientHeight;
     canvas.width = w;

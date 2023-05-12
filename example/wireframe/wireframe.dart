@@ -10,9 +10,10 @@ final HTML.InputElement gOpaque =
 
 void main() {
   StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
 
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
 
   OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
@@ -103,7 +104,7 @@ void main() {
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
     matWireframe.ForceUniform(cBlendEquation,
-        gOpaque.checked ? BlendEquationNone : BlendEquationStandard);
+        gOpaque.checked! ? BlendEquationNone : BlendEquationStandard);
     phase.Draw();
 
     HTML.window.animationFrame.then(animate);

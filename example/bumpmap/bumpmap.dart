@@ -64,9 +64,9 @@ final double angle = MATH.pi / 6.0;
 
 void main() {
   final StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   final ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
 
   final OrbitCamera orbit = OrbitCamera(0.3, 0.0, 0.0, canvas)
@@ -75,7 +75,6 @@ void main() {
 
   final DirectionalLight light =
       DirectionalLight("dir", dirLight, colDiffuse, colSpecular, 40.0);
-
 
   final Illumination illumination = Illumination();
   illumination.AddLight(light);

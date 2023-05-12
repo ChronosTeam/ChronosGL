@@ -10,9 +10,9 @@ final List<Future<Object>> gLoadables = [];
 
 void main() {
   final StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   final ChronosGL cgl = ChronosGL(canvas);
   final OrbitCamera orbit = OrbitCamera(25.0, 0.0, 0.0, canvas);
   final PerspectiveResizeAware perspective =
@@ -21,7 +21,7 @@ void main() {
   final RenderProgram progDemo =
       RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader);
 
-  MeshData ctLogo; // we be initialized when loaded
+  late MeshData ctLogo; // we be initialized when loaded
   var future = LoadRaw(modelFile)
     ..then((String content) {
       GeometryBuilder gb = ImportGeometryFromWavefront(content);

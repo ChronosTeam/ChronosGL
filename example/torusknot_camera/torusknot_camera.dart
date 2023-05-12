@@ -32,13 +32,14 @@ class TorusKnotCamera extends Spatial {
 }
 
 void updateTorusTexture(double time, HTML.CanvasElement canvas) {
-  HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
+  HTML.CanvasRenderingContext2D ctx =
+      canvas.getContext('2d') as HTML.CanvasRenderingContext2D;
   double sint = Math.sin(time);
   double n = (sint + 1) / 2;
-  ctx.rect(0, 0, canvas.width, canvas.height);
+  ctx.rect(0, 0, canvas.width!, canvas.height!);
   // Direction of gradient is diagonal
   HTML.CanvasGradient grad =
-      ctx.createLinearGradient(0, 0, canvas.width * n, canvas.height);
+      ctx.createLinearGradient(0, 0, canvas.width! * n, canvas.height!);
   double cs1 = (360 * n).floorToDouble();
   double cs2 = (90 * n).floorToDouble();
   grad.addColorStop(0, 'hsla($cs1, 100%, 40%, 1)');
@@ -82,7 +83,8 @@ MeshData TorusKnotWithCustumUV(RenderProgram program) {
 }
 
 void AddHexagonalWireframeCenters(GeometryBuilder gb) {
-  List<VM.Vector4> center = List<VM.Vector4>(gb.vertices.length);
+  List<VM.Vector4> center =
+      List.generate(gb.vertices.length, (i) => VM.Vector4.zero());
 
   List<VM.Vector4> center3 = [
     VM.Vector4(1.0, 100.0, 0.0, 0.0),
@@ -133,9 +135,9 @@ class SimpleScene {
     program.Draw(mesh, [perspective, mat]);
   }
 
-  Material mat;
-  RenderProgram program;
-  MeshData mesh;
+  late Material mat;
+  late RenderProgram program;
+  late MeshData mesh;
 }
 
 class SceneStars extends SimpleScene {
@@ -150,7 +152,7 @@ class SceneStars extends SimpleScene {
 
 class SceneTextured extends SimpleScene {
   SceneTextured(ChronosGL cgl) {
-    canvas2d = HTML.document.querySelector('#texture');
+    canvas2d = HTML.document.querySelector('#texture') as HTML.CanvasElement;
     updateTorusTexture(0.0, canvas2d);
     generatedTexture = ImageTexture(cgl, "gen", canvas2d);
     mat = Material.Transparent("torus", BlendEquationMix)
@@ -162,14 +164,15 @@ class SceneTextured extends SimpleScene {
     mesh = TorusKnotWithCustumUV(program);
   }
 
+  @override
   void Draw(ChronosGL cgl, double timeMs, Perspective perspective) {
     updateTorusTexture(timeMs / 1000, canvas2d);
     generatedTexture.SetImageData(canvas2d);
     program.Draw(mesh, [perspective, mat]);
   }
 
-  HTML.CanvasElement canvas2d;
-  ImageTexture generatedTexture;
+  late HTML.CanvasElement canvas2d;
+  late ImageTexture generatedTexture;
 }
 
 class SceneWireframe extends SimpleScene {
@@ -220,7 +223,7 @@ void main() {
   final HTML.SelectElement modeInput =
       HTML.document.querySelector('#mode') as HTML.SelectElement;
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   final ChronosGL cgl = ChronosGL(canvas);
   final TorusKnotCamera tkc = TorusKnotCamera();
   final Perspective perspective =
@@ -230,25 +233,28 @@ void main() {
   final SceneTextured sceneTextures = SceneTextured(cgl);
   final SceneWireframe sceneQuad = SceneWireframe.Quad(cgl);
   final SceneWireframe sceneTriangle = SceneWireframe.Triangle(cgl);
-  final SceneWireframe sceneHexgon = SceneWireframe.Hexagon(cgl);
+  final SceneWireframe sceneHexagon = SceneWireframe.Hexagon(cgl);
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
-    _lastTimeMs = timeMs + 0.0;
+    _lastTimeMs = timeMs.toDouble();
 
     tkc.animate(_lastTimeMs);
 
-    sceneStars.Draw(cgl, timeMs, perspective);
+    sceneStars.Draw(cgl, _lastTimeMs, perspective);
 
     switch (modeInput.value) {
       case "texture":
-        sceneTextures.Draw(cgl, timeMs, perspective);
+        sceneTextures.Draw(cgl, _lastTimeMs, perspective);
         break;
       case "rectangles":
-        sceneQuad.Draw(cgl, timeMs, perspective);
+        sceneQuad.Draw(cgl, _lastTimeMs, perspective);
+        break;
+      case "triangles":
+        sceneTriangle.Draw(cgl, _lastTimeMs, perspective);
         break;
       case "hexagons":
-        sceneHexgon.Draw(cgl, timeMs, perspective);
+        sceneHexagon.Draw(cgl, _lastTimeMs, perspective);
         break;
       default:
         print("unexpected mode ${modeInput.value}");

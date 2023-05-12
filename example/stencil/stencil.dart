@@ -65,10 +65,12 @@ final TheStencilOp StencilWriteIfPixelSet =
 
 void main() {
   StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
 
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
-  ChronosGL cgl = ChronosGL(canvas, faceCulling: true, preserveDrawingBuffer: true);
+  HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
+  ChronosGL cgl =
+      ChronosGL(canvas, faceCulling: true, preserveDrawingBuffer: true);
   OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
   Perspective perspective = Perspective(orbit, 0.1, 1000.0);
 
@@ -92,7 +94,6 @@ void main() {
     ..ForceUniform(cStencilOp, StencilWriteIfPixelSet)
     ..ForceUniform(cStencilWrite, 0xff); // only write stencil
 
-
   final RenderProgram stencilWriter =
       RenderProgram("stencil", cgl, stencilVertexShader, stencilFragmentShader);
 
@@ -109,7 +110,6 @@ void main() {
     ..ForceUniform(cStencilFunc, StencilNotEqualZero)
     ..ForceUniform(cStencilOp, StencilWriteNever)
     ..ForceUniform(cStencilWrite, 0x0);
-
 
   final Material matBlue = Material("blue")
     ..SetUniform(uColor, ColorBlue)
@@ -149,10 +149,10 @@ void main() {
     orbit.animate(elapsed);
 
     matBlue.ForceUniform(cStencilFunc,
-        gStencil.checked ? StencilEqualZero : StencilFunctionNone);
+        gStencil.checked! ? StencilEqualZero : StencilFunctionNone);
 
     matRed.ForceUniform(cStencilFunc,
-        gStencil.checked ? StencilNotEqualZero : StencilFunctionNone);
+        gStencil.checked! ? StencilNotEqualZero : StencilFunctionNone);
 
     List<DrawStats> stats = [];
     phase.Draw(stats);

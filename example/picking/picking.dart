@@ -13,14 +13,16 @@ Map<String, VM.Vector3> ShapeToColor = {
 };
 
 void main() {
-  final HTML.DivElement info = HTML.document.querySelector('#info');
+  final HTML.DivElement info =
+      HTML.document.querySelector('#info') as HTML.DivElement;
 
   final StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
 
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
-  final Object ext = cgl.getExtension("WEBGL_get_buffer_sub_data_async");
+  final Object? ext = cgl.getExtension("WEBGL_get_buffer_sub_data_async");
   print("Ext ${ext}");
   OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
 
@@ -36,7 +38,7 @@ void main() {
 
   {
     String name = "sphere";
-    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]);
+    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]!);
     Node node =
         Node(name, ShapeIcosahedron(scene.program, subdivisions: 3), mat)
           ..setPos(0.0, 0.0, 0.0);
@@ -44,7 +46,7 @@ void main() {
   }
   {
     String name = "cube";
-    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]);
+    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]!);
     Node node = Node(name, ShapeCube(scene.program), mat)
       ..setPos(-5.0, 0.0, -5.0);
     scene.add(node);
@@ -52,28 +54,28 @@ void main() {
 
   {
     String name = "cylinder";
-    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]);
+    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]!);
     Node node = Node(name, ShapeCylinder(scene.program, 3.0, 6.0, 2.0, 32), mat)
       ..setPos(5.0, 0.0, -5.0);
     scene.add(node);
   }
   {
     String name = "quad";
-    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]);
+    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]!);
     Node node = Node(name, ShapeQuad(scene.program, 2), mat)
       ..setPos(-5.0, 0.0, 5.0);
     scene.add(node);
   }
   {
     String name = "torus";
-    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]);
+    Material mat = Material(name)..SetUniform(uColor, ShapeToColor[name]!);
     Node node = Node(
         name, ShapeTorusKnot(scene.program, radius: 1.0, tubeRadius: 0.4), mat)
       ..setPos(5.0, 0.0, 5.0);
     scene.add(node);
   }
 
-  void resolutionChange(HTML.Event ev) {
+  void resolutionChange(HTML.Event? ev) {
     int w = canvas.clientWidth;
     int h = canvas.clientHeight;
     canvas.width = w;
@@ -88,7 +90,7 @@ void main() {
   HTML.window.onResize.listen(resolutionChange);
 
   final Uint8List pixelData = Uint8List(1 * 4);
-  final Object pbo = cgl.createBuffer();
+  final GlBuffer pbo = cgl.createBuffer();
   cgl.BufferDataSetSize(GL_PIXEL_PACK_BUFFER, pbo, 4, GL_DYNAMIC_READ);
 
   String getShapeUnderCusorInfo() {
@@ -97,11 +99,11 @@ void main() {
     int y = canvas.clientHeight - orbit.mouse.currentY;
     VM.Vector3 pick;
     if (ext != null && false) {
-      cgl.bindBuffer(GL_PIXEL_PACK_BUFFER, pbo);
-      cgl.readPixelsToBuffer(x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-      cgl.bindBuffer(GL_PIXEL_PACK_BUFFER, null);
-      //print("@@@@ promise ${promise}");
-      pick = VM.Vector3.zero();
+      // cgl.bindBuffer(GL_PIXEL_PACK_BUFFER, pbo);
+      // cgl.readPixelsToBuffer(x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+      // cgl.bindBuffer(GL_PIXEL_PACK_BUFFER, null);
+      // //print("@@@@ promise ${promise}");
+      // pick = VM.Vector3.zero();
     } else {
       // This also works
       //new Framebuffer.Screen(cgl).ExtractByteData(pixelData, x, y, 1, 1);

@@ -103,9 +103,9 @@ void main() {
   IntroduceNewShaderVar(uSpeed, const ShaderVarDesc("float", ""));
 
   final StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   final int w = canvas.clientWidth;
   final int h = canvas.clientHeight;
   canvas.width = w;
@@ -123,23 +123,26 @@ void main() {
     ..ForceUniform(uCanvasSize, VM.Vector2(w + 0.0, h + 0.0));
 
   // Event Handling
-  for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
+  for (HTML.Node node in HTML.document.getElementsByTagName("input")) {
+    HTML.Element input = node as HTML.Element;
     input.onChange.listen((HTML.Event e) {
       HTML.InputElement input = e.target as HTML.InputElement;
       if (input.type == "range") {
-        HTML.OutputElement output = HTML.document.getElementById(input.name);
-        uniforms.ForceUniform(input.name, double.parse(input.value));
+        HTML.OutputElement output =
+            HTML.document.getElementById(input.name!) as HTML.OutputElement;
+        uniforms.ForceUniform(input.name!, double.parse(input.value!));
         output.value = input.value;
       }
       if (input.type == "radio") {
-        uniforms.ForceUniform(input.name, double.parse(input.value));
+        uniforms.ForceUniform(input.name!, double.parse(input.value!));
       }
     });
   }
 
   // Trigger handlers
-  for (HTML.InputElement input in HTML.document.getElementsByTagName("input")) {
-    if (input.type == "radio" && !input.checked) continue;
+  for (HTML.Node node in HTML.document.getElementsByTagName("input")) {
+    HTML.InputElement input = node as HTML.InputElement;
+    if (input.type! == "radio" && !input.checked!) continue;
     input.dispatchEvent(HTML.Event("change"));
   }
 

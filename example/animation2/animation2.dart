@@ -71,8 +71,9 @@ final double kAnimTimeStep = 0.0333;
 
 void main() {
   StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
+  HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   ChronosGL cgl = ChronosGL(canvas);
 
   OrbitCamera orbit = OrbitCamera(20.0, 0.0, 0.0, canvas);
@@ -107,9 +108,9 @@ void main() {
   final Material matWire = Material("wire")
     ..SetUniform(uColor, VM.Vector3(1.0, 1.0, 0.0));
 
-  BoneVisualizer boneVisualizer;
-  TypedTextureMutable animationTable;
-  List<double> animationSteps;
+  late BoneVisualizer boneVisualizer;
+  late TypedTextureMutable animationTable;
+  late List<double> animationSteps;
 
   Material mat = Material("mat");
 
@@ -119,17 +120,19 @@ void main() {
     "idAnimation": sceneAnim.program,
   };
 
-  for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
+  for (HTML.Node node in HTML.document.getElementsByTagName("input")) {
+    HTML.Element input = node as HTML.Element;
     input.onChange.listen((HTML.Event e) {
       HTML.InputElement input = e.target as HTML.InputElement;
       print("${input.id} toggle ${input.checked}");
-      programMap[input.id].enabled = input.checked;
+      programMap[input.id]!.enabled = input.checked!;
     });
   }
 
-  for (HTML.Element e in HTML.document.getElementsByTagName("input")) {
-    print("initialize inputs ${e.id}");
-    e.dispatchEvent(HTML.Event("change"));
+  for (HTML.Node node in HTML.document.getElementsByTagName("input")) {
+    HTML.Element input = node as HTML.Element;
+    print("initialize inputs ${input.id}");
+    input.dispatchEvent(HTML.Event("change"));
   }
 
   double _lastTimeMs = 0.0;

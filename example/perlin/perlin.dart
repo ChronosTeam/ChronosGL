@@ -7,8 +7,9 @@ final List<Future<Object>> gLoadables = [];
 
 void main() {
   final StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
+  HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
 
   final ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
   final OrbitCamera orbit = OrbitCamera(165.0, 0.0, 0.0, canvas);
@@ -60,9 +61,7 @@ void main() {
     fps.UpdateFrameCount(_lastTimeMs);
   }
 
-
   Future.wait(gLoadables).then((List list) {
-
     animate(0.0);
   });
 }

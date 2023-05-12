@@ -100,8 +100,9 @@ Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
 
 void main() {
   StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
+  HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = OrbitCamera(65.0, 0.0, 0.0, canvas);
   Perspective perspective = Perspective(orbit, 0.1, 1000.0);
@@ -154,7 +155,7 @@ void main() {
       HTML.document.querySelector('#myselect') as HTML.SelectElement;
   myselect.onChange.listen((HTML.Event e) {
     scenes[activeScene].remove(cube);
-    activeScene = myselect.selectedIndex;
+    activeScene = myselect.selectedIndex!;
     scenes[(activeScene)].add(cube);
   });
 

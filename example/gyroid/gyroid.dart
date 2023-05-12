@@ -199,7 +199,8 @@ final ShaderObject gyroidFragmentShader = ShaderObject("SphericalGyroidF")
   ..SetBody([_FragmentShader]);
 
 void main() {
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   // Make sure canvas is really full screen
   final int w = canvas.clientWidth;
   final int h = canvas.clientHeight;

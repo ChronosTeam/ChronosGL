@@ -16,14 +16,8 @@ Scene MakeStarScene(ChronosGL cgl, UniformGroup perspective, int num) {
 }
 
 VM.Quaternion slerp(VM.Quaternion a, VM.Quaternion b, double t) {
-  double ax = a[0],
-      ay = a[1],
-      az = a[2],
-      aw = a[3];
-  double bx = b[0],
-      by = b[1],
-      bz = b[2],
-      bw = b[3];
+  double ax = a[0], ay = a[1], az = a[2], aw = a[3];
+  double bx = b[0], by = b[1], bz = b[2], bw = b[3];
   double omega, cosom, sinom, scale0, scale1;
 
   // calc cosine
@@ -59,12 +53,12 @@ final List<Future<Object>> gLoadables = [];
 
 void main() {
   final HTML.CanvasElement canvas =
-  HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   final ChronosGL cgl = ChronosGL(canvas);
   final OrbitCamera orbit = OrbitCamera(15.0, -45.0, 0.3, canvas);
   final Perspective perspective = Perspective(orbit, 1.0, 1000.0);
   final RenderPhaseResizeAware phase =
-  RenderPhaseResizeAware("main", cgl, canvas, perspective);
+      RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
   final Scene scene = Scene(
       "demo",
@@ -82,7 +76,6 @@ void main() {
   final Node node = Node.Container("wrapper");
   scene.add(node);
   node.lookAt(VM.Vector3(100.0, 0.0, -100.0));
-
 
   var future = LoadRaw(modelFile)
     ..then((String content) {

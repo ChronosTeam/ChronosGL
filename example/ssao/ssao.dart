@@ -14,10 +14,10 @@ final HTML.InputElement gSSAO =
 
 void main() {
   final StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
 
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   final width = canvas.clientWidth;
   final height = canvas.clientHeight;
   canvas.width = width;
@@ -41,12 +41,12 @@ void main() {
     ..SetUniform(uCameraNear, 0.1)
     ..SetUniform(uCameraFar, 2529.0)
     ..SetUniform(uCanvasSize, VM.Vector2(0.0 + width, 0.0 + height))
-    ..SetUniform(uDepthMap, fb.depthTexture)
-    ..SetUniform(uTexture, fb.colorTexture);
+    ..SetUniform(uDepthMap, fb.depthTexture!)
+    ..SetUniform(uTexture, fb.colorTexture!);
 
   final MeshData unitQuad = ShapeQuad(progSSAO, 1);
 
-  MeshData ctLogo;
+  late MeshData ctLogo;
   var future = LoadRaw(modelFile)
     ..then((String content) {
       GeometryBuilder gb = ImportGeometryFromWavefront(content);
@@ -64,7 +64,7 @@ void main() {
     _lastTimeMs = timeMs + 0.0;
     orbit.azimuth += 0.001;
     orbit.animate(elapsed);
-    if (gSSAO.checked) {
+    if (gSSAO.checked!) {
       fb.Activate(GL_CLEAR_ALL, 0, 0, width, height);
       progSolid.Draw(ctLogo, [perspective, material]);
       screen.Activate(GL_CLEAR_ALL, 0, 0, width, height);

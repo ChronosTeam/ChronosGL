@@ -4,24 +4,26 @@ import 'package:chronosgl/chronosgl.dart';
 
 import 'package:vector_math/vector_math.dart' as VM;
 
-final HTML.InputElement gWidth = HTML.document.querySelector('#width');
-final HTML.InputElement gHeight = HTML.document.querySelector('#height');
-final HTML.InputElement gSegments = HTML.document.querySelector('#segments');
+final HTML.InputElement gWidth =
+    HTML.document.querySelector('#width') as HTML.InputElement;
+final HTML.InputElement gHeight =
+    HTML.document.querySelector('#height') as HTML.InputElement;
+final HTML.InputElement gSegments =
+    HTML.document.querySelector('#segments') as HTML.InputElement;
 
 final HTML.SelectElement gEasingWidth =
-    HTML.document.querySelector('#easingWidth');
+    HTML.document.querySelector('#easingWidth') as HTML.SelectElement;
 final HTML.SelectElement gEasingHeight =
-    HTML.document.querySelector('#easingHeight');
-
+    HTML.document.querySelector('#easingHeight') as HTML.SelectElement;
 final List<VM.Vector2> gBase = ContourCircle(20, 10.0);
 final List<VM.Vector2> gGrad = GetContourGradient(gBase);
 
 MeshData MakeBevelMesh(RenderProgram prog) {
-  double width = gWidth.valueAsNumber + 0.0;
-  double height = gHeight.valueAsNumber + 0.0;
-  Easing easingWidth = MapStringToEasing[gEasingWidth.value];
-  Easing easingHeight = MapStringToEasing[gEasingHeight.value];
-  int segments = gSegments.valueAsNumber;
+  double width = gWidth.valueAsNumber! + 0.0;
+  double height = gHeight.valueAsNumber! + 0.0;
+  Easing easingWidth = MapStringToEasing[gEasingWidth.value]!;
+  Easing easingHeight = MapStringToEasing[gEasingHeight.value]!;
+  int segments = gSegments.valueAsNumber!.toInt();
   List<VM.Vector2> supports = BevelSupportPoints(width, height, segments,
       widthEasing: easingWidth, heightEasing: easingHeight);
   List<List<VM.Vector3>> strips =
@@ -33,9 +35,10 @@ MeshData MakeBevelMesh(RenderProgram prog) {
 
 void main() {
   StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
 
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   ChronosGL cgl = ChronosGL(canvas);
 
   OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);

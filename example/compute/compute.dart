@@ -54,11 +54,12 @@ String ExtractAndSummarizeFloat(Framebuffer fb, int w, int h) {
 }
 
 void main() {
-  final HTML.DivElement results = HTML.document.querySelector('#results');
+  final HTML.DivElement results =
+      HTML.document.querySelector('#results') as HTML.DivElement;
 
   // The canvas is what we render the 3d scene into.
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   canvas
     ..width = kDim
     ..height = kDim;
@@ -73,17 +74,21 @@ void main() {
   {
     final Framebuffer fb = Framebuffer.Default(cgl, kDim, kDim);
 
-    results.innerHtml += "<h3>Drawing into default format FB</h3>";
+    results.innerHtml =
+        results.innerHtml! + "<h3>Drawing into default format FB</h3>";
     fb.Activate(GL_CLEAR_ALL, 0, 0, kDim, kDim);
     program.Draw(unitQuad, []);
-    results.innerHtml += ExtractAndSummarizeBytes(fb, kDim, kDim) + "\n";
+    results.innerHtml =
+        results.innerHtml! + ExtractAndSummarizeBytes(fb, kDim, kDim) + "\n";
   }
 
   {
-    results.innerHtml += "<h3>Drawing into float format FB</h3>";
+    results.innerHtml =
+        results.innerHtml! + "<h3>Drawing into float format FB</h3>";
     var ext = cgl.getExtension("EXT_color_buffer_float");
     if (ext == null) {
-      results.innerHtml += "extension not available: EXT_color_buffer_float";
+      results.innerHtml = results.innerHtml! +
+          "extension not available: EXT_color_buffer_float";
     }
     TypedTexture tex = TypedTexture(
         cgl, "float", kDim, kDim, GL_RGBA32F, TexturePropertiesFramebuffer);
@@ -91,6 +96,7 @@ void main() {
     Framebuffer fb = Framebuffer(cgl, tex);
     fb.Activate(GL_CLEAR_ALL, 0, 0, kDim, kDim);
     program.Draw(unitQuad, []);
-    results.innerHtml += ExtractAndSummarizeFloat(fb, kDim, kDim) + "\n";
+    results.innerHtml =
+        results.innerHtml! + ExtractAndSummarizeFloat(fb, kDim, kDim) + "\n";
   }
 }

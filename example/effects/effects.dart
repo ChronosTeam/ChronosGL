@@ -225,9 +225,10 @@ void RegisterEffects(ChronosGL cgl, Texture fb) {
 
 void main() {
   StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
 
-  final HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  final HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   final width = canvas.clientWidth;
   final height = canvas.clientHeight;
   canvas.width = width;
@@ -243,13 +244,13 @@ void main() {
 
   final Framebuffer fb = Framebuffer.Default(cgl, width, height);
 
-  RegisterEffects(cgl, fb.colorTexture);
+  RegisterEffects(cgl, fb.colorTexture!);
 
   final RenderProgram progDemo =
       RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader);
 
-  MeshData unitQuad = ShapeQuad(Effect.all["dot"].program, 1);
-  MeshData ctLogo;
+  MeshData unitQuad = ShapeQuad(Effect.all["dot"]!.program, 1);
+  late MeshData ctLogo;
 
   Material material = Material("mat")
     ..SetUniform(uColor, ColorGray8)
@@ -262,7 +263,7 @@ void main() {
     orbit.azimuth += 0.01;
     orbit.animate(elapsed);
 
-    Effect active = Effect.all[gEffect.value];
+    Effect active = Effect.all[gEffect.value]!;
     final double timeSec = timeMs / 1000.0;
 
     if (gEffect.value == "tv-distortion") {

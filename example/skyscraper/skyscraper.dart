@@ -41,8 +41,9 @@ void main() {
 
 void main() {
   StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
+  HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   int w = canvas.clientWidth;
   int h = canvas.clientHeight;
   canvas.width = w;
@@ -78,7 +79,7 @@ void main() {
   VM.Vector2 q = VM.Vector2(0.01, 0.01);
   GeometryBuilder gb = CubeGeometry(
       x: 1.0, y: 2.0, z: 1.0, uMin: 0.01, uMax: 0.99, vMin: 0.01, vMax: 0.99);
-  List uvs = gb.attributes[aTexUV];
+  List uvs = gb.attributes[aTexUV]!;
   // change top and bottom face
   for (int i = 2 * 4; i < 4 * 4; i++) {
     uvs[i].setFrom(q);

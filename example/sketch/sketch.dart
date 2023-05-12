@@ -137,7 +137,7 @@ void main() {
   """
   ]);
 
-void AddInstanceData(MeshData md,  Math.Random rand, int count) {
+void AddInstanceData(MeshData md, Math.Random rand, int count) {
   final Float32List scales = Float32List(count * 1);
   final Float32List translations = Float32List(count * 3);
   final Float32List rotations = Float32List(count * 4);
@@ -169,7 +169,7 @@ class Phase {
   final RenderProgram program;
   final MeshData md;
 
-  void Run(int width, int height, [List<UniformGroup> extra]) {
+  void Run(int width, int height, [List<UniformGroup>? extra]) {
     fb.Activate(GL_CLEAR_ALL, 0, 0, width, height);
     List<UniformGroup> uniforms = [mat];
     if (extra != null) {
@@ -187,12 +187,12 @@ Framebuffer MakePrepareFb(ChronosGL cgl, int width, int height) {
   return Framebuffer(cgl, tex, depthTexture);
 }
 
-Texture MakeNoiseTesture(ChronosGL cgl , Math.Random rand) {
+Texture MakeNoiseTesture(ChronosGL cgl, Math.Random rand) {
   HTML.CanvasElement canvas = new HTML.CanvasElement();
   canvas.width = 512;
   canvas.height = 512;
   var context = canvas.context2D;
-  var image = context.getImageData(0, 0, canvas.width, canvas.height);
+  var image = context.getImageData(0, 0, canvas.width!, canvas.height!);
 
   for (int i = 0; i < image.data.length; i += 4) {
     int v = 30 + rand.nextInt(225);
@@ -208,8 +208,9 @@ Texture MakeNoiseTesture(ChronosGL cgl , Math.Random rand) {
 
 void main() {
   StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
+  HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
 
   final ChronosGL cgl = ChronosGL(canvas, faceCulling: false)
     ..clearColor(0.5, 0.5, 0.5, 1.0);
@@ -252,7 +253,7 @@ void main() {
     ..mat.SetUniform(uModelMatrix, VM.Matrix4.identity())
     ..mat.SetUniform(uShininess, 10.0)
     ..mat.SetUniform(uTexture2, MakeNoiseTesture(cgl, rand))
-    ..mat.SetUniform(uTexture, prepare.fb.colorTexture);
+    ..mat.SetUniform(uTexture, prepare.fb.colorTexture!);
 
 /*
   // The lines show aliasing problems but the experiments below

@@ -25,7 +25,11 @@ void main() {
   ]);
 
 final ShaderObject fireworksFragmentShader = ShaderObject("FireWorksF")
-  ..AddUniformVars([uTime, uColor, uTexture])
+  ..AddUniformVars([
+    uTime,
+    //uColor,
+    uTexture
+  ])
   ..SetBody([
     """
 void main() {
@@ -59,7 +63,8 @@ MeshData getRocket(RenderProgram prog) {
 }
 
 void main() {
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+  HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   // Make sure canvas is really full screen
   final int w = canvas.clientWidth;
   final int h = canvas.clientHeight;

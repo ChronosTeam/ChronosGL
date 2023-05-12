@@ -33,7 +33,11 @@ final ShaderObject lightFragmentShaderBlinnPhongWithShadow =
     ShaderObject("LightBlinnPhongShadowF")
       ..AddVaryingVars([vPosition, vNormal, vPositionFromLight])
       ..AddUniformVars([uLightDescs, uLightTypes, uShininess])
-      ..AddUniformVars([uShadowMap, uEyePosition, uColor, uShadowBias])
+      ..AddUniformVars([
+        uShadowMap, uEyePosition,
+        //uShadowBias,
+        uColor,
+      ])
       ..SetBody([
         """
 void main() {
@@ -81,14 +85,14 @@ final Map<String, Light> lightSources = {
   idPoint: PointLight("point", posLight, ColorLiteBlue, ColorBlue, range),
 };
 
-Light gActiveLight;
+late Light gActiveLight;
 
 void EventRadioChanged(String name) {
   print("${name} toggle ");
-  gActiveLight = lightSources[name];
-  lightSources[name].enabled = true;
+  gActiveLight = lightSources[name]!;
+  lightSources[name]!.enabled = true;
   for (String n in lightSources.keys) {
-    if (n != name) lightSources[n].enabled = false;
+    if (n != name) lightSources[n]!.enabled = false;
   }
 }
 
@@ -117,7 +121,6 @@ void EventDirectionChanged(String name, double value) {
       (lightSources[idSpot] as SpotLight).dir.x = value;
       (lightSources[idDirectional] as DirectionalLight).dir.x = value;
       break;
-      break;
     case "diry":
       (lightSources[idSpot] as SpotLight).dir.y = value;
       (lightSources[idDirectional] as DirectionalLight).dir.y = value;
@@ -130,7 +133,7 @@ void EventDirectionChanged(String name, double value) {
 }
 
 double GetInputValue(HTML.InputElement e) {
-  return double.parse(e.value);
+  return double.parse(e.value!);
 }
 
 void SwallowEvent(HTML.Event e) {
@@ -178,9 +181,9 @@ double kFar = 50.0;
 
 void main() {
   final StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   final ChronosGL cgl = ChronosGL(canvas, faceCulling: false);
 
   final OrbitCamera orbit = OrbitCamera(25.0, 10.0, 0.0, canvas);
@@ -230,7 +233,8 @@ void main() {
   sceneFixed.add(Node("light", mdLight, lightSourceMat));
 
   // Event Handling
-  for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
+  for (HTML.Node node in HTML.document.getElementsByTagName("input")) {
+    HTML.InputElement input = node as HTML.InputElement;
     input.onChange.listen((HTML.Event e) {
       HTML.InputElement input = e.target as HTML.InputElement;
       if (input.type == "radio") {
@@ -257,13 +261,14 @@ void main() {
     input.onMouseMove.listen(SwallowEvent);
   }
 
-  for (HTML.Element e in HTML.document.getElementsByTagName("input")) {
-    print("initialize inputs ${e.id}");
-    e.dispatchEvent(HTML.Event("change"));
-    e.dispatchEvent(HTML.Event("input"));
+  for (HTML.Node node in HTML.document.getElementsByTagName("input")) {
+    HTML.InputElement input = node as HTML.InputElement;
+    print("initialize inputs ${input.id}");
+    input.dispatchEvent(HTML.Event("change"));
+    input.dispatchEvent(HTML.Event("input"));
   }
 
-  void resolutionChange(HTML.Event ev) {
+  void resolutionChange(HTML.Event? ev) {
     int w = canvas.clientWidth;
     int h = canvas.clientHeight;
     canvas.width = w;

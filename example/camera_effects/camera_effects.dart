@@ -111,7 +111,10 @@ void RegisterEffects(ChronosGL cgl) {
         ..SetUniform(uConvolutionMatrix, ConvolutionMatrixBlur)
         ..SetUniform(uColor, ConvolutionOffsetBlur));
 
-  assert(gEffect != null);
+  Effect(cgl, medianFilter3Shader, UniformGroup("median3"));
+
+  Effect(cgl, medianFilter5Shader, UniformGroup("median5"));
+
   for (String o in Effect.all.keys) {
     gEffect.appendHtml("<option>$o</option>");
   }
@@ -125,9 +128,9 @@ void main2(HTML.VideoElement video) {
   }
 
   final StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   // Make sure canvas has full screen resolution
   final width = canvas.clientWidth;
   final height = canvas.clientHeight;
@@ -144,10 +147,12 @@ void main2(HTML.VideoElement video) {
   final Material material = Material("mat")..SetUniform(uTexture, texture);
   final MeshData unitQuad = ShapeQuad(progScale, 1);
 
-  final Framebuffer fb = Framebuffer.Default(cgl, width, height);
+  final Framebuffer fb0 = Framebuffer.Default(cgl, width, height);
+  final Framebuffer fb1 = Framebuffer.Default(cgl, width, height);
+
   RegisterEffects(cgl);
   assert(
-      Effect.all["dot"].program.HasDownwardCompatibleAttributesTo(progScale));
+      Effect.all["dot"]!.program.HasDownwardCompatibleAttributesTo(progScale));
 
   void animate(num timeMs) {
     try {
@@ -158,16 +163,23 @@ void main2(HTML.VideoElement video) {
     }
 
     // scale
-    fb.Activate(GL_CLEAR_ALL, 0, 0, width, height);
+    fb0.Activate(GL_CLEAR_ALL, 0, 0, width, height);
     progScale.Draw(unitQuad, [material]);
 
-    // apply effect
-    screen.Activate(GL_CLEAR_ALL, 0, 0, width, height);
-    Effect active = Effect.all[gEffect.value];
-    active.uniforms.ForceUniform(uTime, timeMs / 1000.0);
-    active.uniforms.ForceUniform(uTexture, fb.colorTexture);
-    active.program.Draw(unitQuad, [active.uniforms]);
+    int rounds = 1;
+    for (int i = 0; i < rounds; ++i) {
+      Framebuffer src = i % 2 == 0 ? fb0 : fb1;
+      Framebuffer dst = i % 2 == 0 ? fb1 : fb0;
 
+      if (i == rounds - 1) dst = screen;
+
+      dst.Activate(GL_CLEAR_ALL, 0, 0, width, height);
+      // apply effect
+      Effect active = Effect.all[gEffect.value]!;
+      active.uniforms.ForceUniform(uTime, timeMs / 1000.0);
+      active.uniforms.ForceUniform(uTexture, src.colorTexture!);
+      active.program.Draw(unitQuad, [active.uniforms]);
+    }
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(timeMs + 0.0);
   }

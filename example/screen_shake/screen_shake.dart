@@ -72,7 +72,7 @@ class CameraShaker {
 void main() {
   // The canvas is what we render the 3d scene into.
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
 
   gLogLevel = 1; // enable more logging
   // Create a ChronosGL object for the canvas.
@@ -80,7 +80,7 @@ void main() {
 
   // Create interactive camera, listening to 'body' element for
   // control inputs like mouse drag events.
-  final OrbitCamera orbit = OrbitCamera(5.0, 0.0, 0.0, HTML.document.body);
+  final OrbitCamera orbit = OrbitCamera(5.0, 0.0, 0.0, HTML.document.body!);
   // Create a perspective. We use a combined view+perspective matrix,
   // which is obtained by combining te view matrix from the camera with
   // the perspective matrix.
@@ -114,8 +114,8 @@ void main() {
   // Main loop body
   double _lastShakeMs = 0.0;
   double _lastTimeMs = 0.0;
-  const  double shakeIntervalMs = 2000.0;
-  const  double shakeDurationMs = 500.0;
+  const double shakeIntervalMs = 2000.0;
+  const double shakeDurationMs = 500.0;
 
   void animate(num timeMs) {
     double elapsed = timeMs - _lastTimeMs;

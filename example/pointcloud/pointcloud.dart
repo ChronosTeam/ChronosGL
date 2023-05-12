@@ -1,4 +1,5 @@
 import 'dart:html' as HTML;
+import 'dart:typed_data';
 
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
@@ -83,13 +84,13 @@ void main() {
   IntroduceNewShaderVar(aCurrentPosition, const ShaderVarDesc(VarTypeVec3, ""));
 
   StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
 
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   final ChronosGL cgl = ChronosGL(canvas);
 
-  final OrbitCamera orbit = OrbitCamera(7.0, 0.0, 0.0, HTML.document.body);
+  final OrbitCamera orbit = OrbitCamera(7.0, 0.0, 0.0, HTML.document.body!);
 
   final PerspectiveResizeAware perspective =
       PerspectiveResizeAware(cgl, canvas, orbit, 0.1, 1000.0);
@@ -113,7 +114,7 @@ void main() {
   points.AddAttribute(aCurrentPosition, points.GetAttribute(aPosition), 3);
 
   MeshData out = prog.MakeMeshData("out", GL_POINTS)
-    ..AddVertices(points.GetAttribute(aPosition));
+    ..AddVertices(points.GetAttribute(aPosition) as Float32List);
 
   cgl.bindBuffer(GL_ARRAY_BUFFER, null);
   cgl.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex, null);

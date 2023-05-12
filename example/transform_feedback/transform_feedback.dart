@@ -13,10 +13,11 @@ final VM.Vector3 kVecOutOfBounds = VM.Vector3.all(kMaxDistance * 100.0);
 const String uSources = "uSources";
 const String uSinks = "uSinks";
 
-final HTML.SelectElement gParticles = HTML.document.querySelector('#particles');
+final HTML.SelectElement gParticles =
+    HTML.document.querySelector('#particles') as HTML.SelectElement;
 
 final HTML.InputElement gCpuCompute =
-    HTML.document.querySelector('#cpucompute');
+    HTML.document.querySelector('#cpucompute') as HTML.InputElement;
 
 final ShaderObject particleVertexShader = ShaderObject("ParticleV")
   ..AddAttributeVars([aPosition])
@@ -194,12 +195,12 @@ void main() {
       uSinks, const ShaderVarDesc(VarTypeVec3, "", arraySize: 5));
 
   final StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
 
   final Math.Random rng = Math.Random(0);
 
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   final int width = canvas.clientWidth;
   final int height = canvas.clientHeight;
   canvas.width = width;
@@ -247,8 +248,8 @@ void main() {
   MeshData mdIn = programGPU.MakeMeshData("ionsIn", GL_POINTS)
     ..AddVertices(ionsPos);
 
-  void ResizeIons(HTML.Event ev) {
-    int n = int.parse(gParticles.value);
+  void ResizeIons(HTML.Event? ev) {
+    int n = int.parse(gParticles.value!);
     print("resize to $n ions");
     ions.clear();
     for (int i = 0; i < n; i++) {
@@ -282,7 +283,7 @@ void main() {
     orbit.azimuth += 0.002;
     orbit.animate(0.0); // argument is not used
 
-    if (gCpuCompute.checked) {
+    if (gCpuCompute.checked!) {
       UpdateIonsJS(0.06);
       programJS.Draw(mdJS, [perspective, matJS]);
     } else {

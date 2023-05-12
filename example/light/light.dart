@@ -37,7 +37,7 @@ Scene LightSourceVisualizerScene(ChronosGL cgl, List<UniformGroup> uniforms) {
   Material lightSourceMat = Material("light")..SetUniform(uColor, ColorYellow);
   for (String k in gLightSources.keys) {
     gLightVisualizers[k] = Node(
-        k, LightVisualizer(scene.program, gLightSources[k]), lightSourceMat);
+        k, LightVisualizer(scene.program, gLightSources[k]!), lightSourceMat);
   }
   for (Node n in gLightVisualizers.values) {
     scene.add(n);
@@ -89,9 +89,9 @@ void MakeSceneCubeSphere(ChronosGL cgl, RenderProgram prog, Node container) {
 
 void main() {
   final StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   final ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
 
   final OrbitCamera orbit = OrbitCamera(50.0, 10.0, 0.0, canvas)
@@ -141,38 +141,39 @@ void main() {
 
   HTML.SelectElement selectPhase =
       HTML.document.querySelector('#phase') as HTML.SelectElement;
-  assert(selectPhase != null);
   selectPhase.selectedIndex = 0;
 
-  for (HTML.Element input in HTML.document.getElementsByTagName("input")) {
+  for (HTML.Node node in HTML.document.getElementsByTagName("input")) {
+    HTML.Element input = node as HTML.Element;
     input.onChange.listen((HTML.Event e) {
       HTML.InputElement input = e.target as HTML.InputElement;
       final String tag = input.id;
       print("${tag} toggle ${input.checked}");
       if (tag == "lightDiffuse") {
         for (Light light in gLightSources.values) {
-          double v = input.checked ? 1.0 : 0.0;
+          double v = input.checked! ? 1.0 : 0.0;
           light.colorDiffuse.setValues(v, v, v);
         }
       } else if (tag == "lightSpecular") {
         for (Light light in gLightSources.values) {
-          double v = input.checked ? 1.0 : 0.0;
+          double v = input.checked! ? 1.0 : 0.0;
           light.colorSpecular.setValues(v, v, v);
         }
       } else {
-        gLightSources[tag].enabled = input.checked;
-        gLightVisualizers[tag].enabled = input.checked;
+        gLightSources[tag]!.enabled = input.checked!;
+        gLightVisualizers[tag]!.enabled = input.checked!;
       }
     });
   }
 
   // Update default settings
-  for (HTML.Element e in HTML.document.getElementsByTagName("input")) {
-    print("initialize inputs ${e.id}");
-    e.dispatchEvent(HTML.Event("change"));
+  for (HTML.Node node in HTML.document.getElementsByTagName("input")) {
+    HTML.Element input = node as HTML.Element;
+    print("initialize inputs ${input.id}");
+    input.dispatchEvent(HTML.Event("change"));
   }
 
-  void resolutionChange(HTML.Event ev) {
+  void resolutionChange(HTML.Event? ev) {
     int w = canvas.clientWidth;
     int h = canvas.clientHeight;
     canvas.width = w;

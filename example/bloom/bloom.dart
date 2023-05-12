@@ -3,8 +3,10 @@ import 'dart:html' as HTML;
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
-final HTML.InputElement gLuminance = HTML.document.querySelector('#luminance');
-final HTML.InputElement gIntensity = HTML.document.querySelector('#intensity');
+final HTML.InputElement gLuminance =
+    HTML.document.querySelector('#luminance') as HTML.InputElement;
+final HTML.InputElement gIntensity =
+    HTML.document.querySelector('#intensity') as HTML.InputElement;
 
 class BloomEffect {
   BloomEffect(ChronosGL cgl, this.w, this.h, this.radius, int scale, this.fbIn,
@@ -32,21 +34,21 @@ class BloomEffect {
     uniformsHighPass = UniformGroup("uniformsHighPass")
       ..SetUniform(uRange, VM.Vector2(0.65, 0.65 + 0.01))
       ..SetUniform(uColorAlpha, VM.Vector4.zero())
-      ..SetUniform(uTexture, fbIn.colorTexture);
+      ..SetUniform(uTexture, fbIn.colorTexture!);
 
     uniformsBloomH = UniformGroup("Bloom Horizontal")
       ..SetUniform(uDirection, VM.Vector2(1.5, 0.0))
-      ..SetUniform(uTexture, fb2.colorTexture);
+      ..SetUniform(uTexture, fb2.colorTexture!);
 
     uniformsBloomV = UniformGroup("Bloom Vertical")
       ..SetUniform(uDirection, VM.Vector2(0.0, 1.5))
-      ..SetUniform(uTexture, fb1.colorTexture);
+      ..SetUniform(uTexture, fb1.colorTexture!);
 
     uniformsApply = UniformGroup("uniformApply")
-      ..SetUniform(uTexture, fbIn.colorTexture)
+      ..SetUniform(uTexture, fbIn.colorTexture!)
       ..SetUniform(uScale, 0.6)
       ..SetUniform(uColor, ColorWhite)
-      ..SetUniform(uTexture2, fb2.colorTexture);
+      ..SetUniform(uTexture2, fb2.colorTexture!);
   }
 
   final int radius;
@@ -56,9 +58,12 @@ class BloomEffect {
   final int hSmall;
   final Framebuffer fbIn, fb1, fb2, fbOut;
 
-  RenderProgram progHighPass, progBloom, progApplyBloom;
-  UniformGroup uniformsHighPass, uniformsBloomH, uniformsBloomV, uniformsApply;
-  MeshData unitQuad;
+  late RenderProgram progHighPass, progBloom, progApplyBloom;
+  late UniformGroup uniformsHighPass,
+      uniformsBloomH,
+      uniformsBloomV,
+      uniformsApply;
+  late MeshData unitQuad;
 
   void Draw(double luminosity, double intensity) {
     // Copy high intensity areas from fb to fb2
@@ -84,8 +89,9 @@ class BloomEffect {
 
 void main() {
   StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
-  HTML.CanvasElement canvas = HTML.document.querySelector('#webgl-canvas');
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
+  HTML.CanvasElement canvas =
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   ChronosGL cgl = ChronosGL(canvas, faceCulling: true);
   OrbitCamera orbit = OrbitCamera(165.0, 0.0, 0.0, canvas);
   Perspective perspective = Perspective(orbit, 0.1, 1000.0);
@@ -121,7 +127,8 @@ void main() {
     // Draw un-bloomed object to fb
     fb.Activate(GL_CLEAR_ALL, 0, 0, width, height);
     progPerlinNoise.Draw(torus, [perspective, material]);
-    bloom.Draw(gLuminance.valueAsNumber * 1.0, gIntensity.valueAsNumber * 1.0);
+    bloom.Draw(
+        gLuminance.valueAsNumber! * 1.0, gIntensity.valueAsNumber! * 1.0);
 
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(_lastTimeMs);

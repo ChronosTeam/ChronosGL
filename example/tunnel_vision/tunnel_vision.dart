@@ -59,12 +59,12 @@ class TheNodes {
     PositionInTorus(cameraIntroEnd, cameraIntroEndPoint);
   }
 
-  Material material;
-  Node knot;
-  Node icoBig;
-  Node icoSmall;
-  Node ctLogo;
-  Spatial camera;
+  late Material material;
+  late Node knot;
+  late Node icoBig;
+  late Node icoSmall;
+  late Node ctLogo;
+  late Spatial camera;
   final VM.Vector3 cameraIntroStartPoint = VM.Vector3(60.0, -70.0, 150.0);
   final VM.Vector3 cameraIntroEndPoint = VM.Vector3.zero();
   bool switched = false;
@@ -141,10 +141,12 @@ class TheNodes {
 
 void main() {
   IntroduceNewShaderVar(uFadeFactor, const ShaderVarDesc("float", ""));
-  final HTML.DivElement infoElement = HTML.document.getElementById("info");
+  final HTML.DivElement infoElement =
+      HTML.document.getElementById("info") as HTML.DivElement;
   final HTML.CanvasElement canvas =
-      HTML.document.getElementById("webgl-canvas");
-  final HTML.AudioElement musicElement = HTML.document.getElementById("music");
+      HTML.document.getElementById("webgl-canvas") as HTML.CanvasElement;
+  final HTML.AudioElement musicElement =
+      HTML.document.getElementById("music") as HTML.AudioElement;
   final ChronosGL cgl = ChronosGL(canvas);
   final theNodes = TheNodes();
 
@@ -196,7 +198,9 @@ void main() {
   scene_pncb.add(theNodes.icoBig);
 
   // =========================================
-  final RenderProgram pnc = RenderProgram("flying_deformaning_ball", cgl,
+  final RenderProgram pnc = RenderProgram(
+      "flying_deformaning_ball",
+      cgl,
       deformingPerlinNoiseVertexShader,
       makePerlinNoiseColorFragmentShader(false));
 
@@ -206,7 +210,6 @@ void main() {
       ShapeIcosahedron(scene_pnc.program, subdivisions: 4), theNodes.material)
     ..enabled = false;
   scene_pnc.add(theNodes.icoSmall);
-
 
   var future = LoadRaw(modelFile)
     ..then((String content) {
@@ -224,9 +227,9 @@ void main() {
 
   double startMs = -1.0;
   void animate(num timeMs) {
-    if (startMs < 0.0) startMs = timeMs;
+    if (startMs < 0.0) startMs = timeMs.toDouble();
     //final double now = (timeMs - startMs) * 0.001 *  2.0 + 20;
-    final double now = musicElement.currentTime;
+    final double now = musicElement.currentTime.toDouble();
     if (musicElement.ended || now > 192.0) {
       infoElement.text = about;
     } else {

@@ -38,7 +38,7 @@ void main() {
 void main() {
   // The canvas is what we render the 3d scene into.
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
 
   gLogLevel = 1; // enable more logging
   // Create a ChronosGL object for the canvas.
@@ -46,7 +46,8 @@ void main() {
 
   // Create interactive camera, listening to 'body' element for
   // control inputs like mouse drag events.
-  final OrbitCamera orbit = OrbitCamera(5.0, 0.0, 0.0, HTML.document.body);
+  final OrbitCamera orbit =
+      OrbitCamera(5.0, 0.0, 0.0, HTML.document.body as HTML.Element);
   // Create a perspective. We use a combined view+perspective matrix,
   // which is obtained by combining te view matrix from the camera with
   // the perspective matrix.

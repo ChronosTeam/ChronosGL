@@ -10,10 +10,10 @@ void main2(HTML.VideoElement video) {
     return;
   }
   final StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats"), "blue", "gray");
+      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
 
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   final ChronosGL cgl = ChronosGL(canvas);
   final OrbitCamera orbit = OrbitCamera(15.0, 10.0, 0.0, canvas);
   final PerspectiveResizeAware perspective =
@@ -55,10 +55,8 @@ void main2(HTML.VideoElement video) {
 }
 
 void main() {
-  MakeVideoElementFromCamera().then(main2).catchError((
-      AsyncError asyncError) {
-     HTML.window
+  MakeVideoElementFromCamera().then(main2).catchError((AsyncError asyncError) {
+    HTML.window
         .alert("Camera error ${asyncError}: - do you have a camera installed?");
   });
 }
-
