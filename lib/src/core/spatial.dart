@@ -177,7 +177,7 @@ class Spatial extends NamedEntity {
     transform.rotate(getUp(), amount);
   }
 
-  void lookAt(VM.Vector3 target, [VM.Vector3 up]) {
+  void lookAt(VM.Vector3 target, [VM.Vector3? up]) {
     if (up == null) up = VM.Vector3(0.0, 1.0, 0.0);
     VM.setViewMatrix(transform, getPos(), target, up);
   }

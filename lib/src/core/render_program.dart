@@ -20,32 +20,32 @@ class DrawStats {
 class RenderProgram extends NamedEntity {
   RenderProgram(
       String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
-      : _program = _cgl.CompileWholeProgram(_shaderObjectV.shader,
-            _shaderObjectF.shader, _shaderObjectV.transformVars),
+      : _program = _cgl.CompileWholeProgram(_shaderObjectV.shader!,
+            _shaderObjectF.shader!, _shaderObjectV.transformVars),
         _attributes = Set.from(_shaderObjectV.attributeVars),
         super(name) {
     for (String v in _shaderObjectV.uniformVars) {
-      _uniformLocations[v] = _cgl.getUniformLocation(_program, v);
+      _uniformLocations[v] = _cgl.getUniformLocation(_program, v)!;
     }
 
     for (String v in _shaderObjectF.uniformVars) {
       // This can happen! Example both shaders use uTime.
       // assert(!uniformLocations.containsKey(v));
-      _uniformLocations[v] = _cgl.getUniformLocation(_program, v);
+      _uniformLocations[v] = _cgl.getUniformLocation(_program, v)!;
     }
   }
 
   final ChronosGL _cgl;
   final ShaderObject _shaderObjectV;
   final ShaderObject _shaderObjectF;
-  final Object /* gl  Program */ _program;
+  final GlProgram /* gl  Program */ _program;
 
   final Set<String> _attributes;
-  final Map<String, Object /* WEBGL.UniformLocation */ > _uniformLocations = {};
+  final Map<String, GlUniformLocation> _uniformLocations = {};
   final Map<String, String> _uniformsInitialized = {};
   final Set<String> _attributesInitialized = <String>{};
 
-  int _nextTextureUnit;
+  int _nextTextureUnit = 0;
 
   ShaderObject get shaderObjectV => _shaderObjectV;
 
@@ -96,7 +96,7 @@ class RenderProgram extends NamedEntity {
     return _uniformLocations.containsKey(canonical);
   }
 
-  void _SetControl(String canonical, Object val) {
+  void _SetControl(String canonical, dynamic val) {
     switch (canonical) {
       case cDepthTest:
         if (val == true) {
@@ -147,7 +147,7 @@ class RenderProgram extends NamedEntity {
     }
   }
 
-  void _SetUniform(String group, String canonical, Object val) {
+  void _SetUniform(String group, String canonical, dynamic val) {
     // enable only for debug
     if (_uniformsInitialized.containsKey(canonical)) {
       LogError(
@@ -160,7 +160,7 @@ class RenderProgram extends NamedEntity {
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "unknown ${canonical}";
     assert(_uniformLocations.containsKey(canonical));
-    Object /* UniformLocation */ l = _uniformLocations[canonical];
+    dynamic /* UniformLocation */ l = _uniformLocations[canonical];
     switch (desc.type) {
       case VarTypeInt:
         if (desc.arraySize == 0) {
@@ -270,7 +270,8 @@ class RenderProgram extends NamedEntity {
     LogDebug("setting ${count} var in ${delta}");
   }
 
-  void Draw(MeshData md, List<UniformGroup> uniforms, [List<DrawStats> stats]) {
+  void Draw(MeshData md, List<UniformGroup> uniforms,
+      [List<DrawStats>? stats]) {
     final DateTime start = DateTime.now();
     _cgl.useProgram(_program);
     _ClearState();
@@ -307,7 +308,7 @@ class RenderProgram extends NamedEntity {
     bool hasTransforms = _shaderObjectV.transformVars.length > 0;
     _cgl.draw(md.drawMode, md.GetNumItems(), md.elementArrayBufferType, 0,
         md.GetNumInstances(), hasTransforms);
-    if (debug) print(_cgl.getProgramInfoLog(_program));
+    if (debug) print(_cgl.getProgramInfoLog(_program as WEBGL.Program));
     if (stats != null) {
       stats.add(DrawStats(name, md.GetNumInstances(), md.GetNumItems(),
           md.drawMode, DateTime.now().difference(start)));

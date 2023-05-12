@@ -10,7 +10,7 @@ class Scene extends NamedEntity {
   /// @param name
   /// @param this.program
   /// @param unis
-  Scene(String name, this.program, [List<UniformGroup> unis])
+  Scene(String name, this.program, [List<UniformGroup>? unis])
       : uniforms = unis == null ? <UniformGroup>[] : unis,
         super(name);
 
@@ -18,9 +18,12 @@ class Scene extends NamedEntity {
   final List<UniformGroup> uniforms;
   final List<Node> nodes = [];
 
-  void add(Node n) {
-    assert(n != null);
-    nodes.add(n);
+  void add(Node node) {
+    nodes.add(node);
+  }
+
+  void addAll(List<Node> nodes) {
+    for (Node node in nodes) add(node);
   }
 
   void remove(Node n) {
@@ -33,7 +36,7 @@ class Scene extends NamedEntity {
 }
 
 void drawRecursively(RenderProgram prog, Node node, final VM.Matrix4 parent,
-    List<DrawStats> stats, List<UniformGroup> uniforms) {
+    List<DrawStats>? stats, List<UniformGroup> uniforms) {
   if (!node.enabled) return;
   // m is read-only!
   final VM.Matrix4 m = node.UpdateModelMatrix(parent);
@@ -51,11 +54,12 @@ void drawRecursively(RenderProgram prog, Node node, final VM.Matrix4 parent,
 
 /// represents a sequence of Scenes.
 class RenderPhase extends NamedEntity {
-  RenderPhase(String name, this._cgl, [this._framebuffer]) : super(name) {
-    if (_framebuffer == null) _framebuffer = Framebuffer.Screen(_cgl);
-  }
+  RenderPhase(String name, this._cgl, [Framebuffer? framebuffer])
+      : _framebuffer =
+            framebuffer != null ? framebuffer : Framebuffer.Screen(_cgl),
+        super(name);
 
-  Framebuffer _framebuffer;
+  late Framebuffer _framebuffer;
   final ChronosGL _cgl;
   final List<Scene> _scenes = <Scene>[];
   int _clear_mode = GL_CLEAR_ALL;
@@ -89,12 +93,11 @@ class RenderPhase extends NamedEntity {
   }
 
   void add(Scene s) {
-    assert(s != null);
     _scenes.add(s);
   }
 
   // Draw all scenes in order of registration
-  void Draw([List<DrawStats> stats]) {
+  void Draw([List<DrawStats>? stats]) {
     _framebuffer.Activate(
         _clear_mode, viewPortX, viewPortY, viewPortW, viewPortH);
 

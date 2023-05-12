@@ -8,7 +8,7 @@ part of scene;
 /// Non leaf Nodes are just containers for other Nodes
 /// Each Node is a Spatial so it be re-oriented with respect to its parent
 class Node extends Spatial {
-  Node.Container(String name, [Node child]) : super(name) {
+  Node.Container(String name, [Node? child]) : super(name) {
     if (child != null) children.add(child);
   }
 
@@ -16,17 +16,17 @@ class Node extends Spatial {
     //if (!meshData.isOptimized) meshData.optimize();
   }
 
-  Material _material;
-  MeshData _meshData;
+  Material? _material;
+  MeshData? _meshData;
 
   // children inherent the parent matrix for its rotation and position
   final List<Node> children = [];
   final VM.Matrix3 _normMatrix = VM.Matrix3.zero();
   final VM.Matrix4 _modelMatrix = VM.Matrix4.identity();
 
-  Material get material => _material;
+  Material get material => _material!;
 
-  MeshData get meshData => _meshData;
+  MeshData get meshData => _meshData!;
 
   void set meshData(MeshData md) {
     _meshData = md;

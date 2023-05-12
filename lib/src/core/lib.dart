@@ -44,6 +44,14 @@ part "projection.dart";
 part "geometry_builder.dart";
 part "illumination.dart";
 
+typedef GlBuffer = WEBGL.Buffer;
+typedef GlFramebuffer = WEBGL.Framebuffer;
+typedef GlVertexArrayObject = WEBGL.VertexArrayObject;
+typedef GlTexture = WEBGL.Texture;
+typedef GlTransformFeedback = WEBGL.TransformFeedback;
+typedef GlUniformLocation = WEBGL.UniformLocation;
+typedef GlProgram = WEBGL.Program;
+
 int gLogLevel = 0;
 
 void LogInfo(String s) {

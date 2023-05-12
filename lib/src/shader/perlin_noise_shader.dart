@@ -24,7 +24,10 @@ ShaderObject makePerlinNoiseColorFragmentShader(bool blackVariant) {
   }
   return ShaderObject(name + " F")
     ..AddVaryingVars([vNormal])
-    ..AddUniformVars([uTime, uTransformationMatrix])
+    ..AddUniformVars([
+      // uTransformationMatrix,
+      uTime
+    ])
     ..SetBody([
       define,
       PerlinNoiseFunctions,
@@ -39,7 +42,6 @@ void main() {
 #endif
   float period = 10.0;
   float factor = 1.0; // sin( ${uTime})/4.0+2.0;
-  vec3 translation = ${uTransformationMatrix}[3].xyz;
   float r = pnoise( .75 * ( ${vNormal} *factor + mytime ), vec3( period ) );
   float g = pnoise( 0.8 * ( ${vNormal} *factor + mytime ), vec3( period ) );
   float b = pnoise( 0.9 * ( ${vNormal} *factor + mytime ), vec3( period ) );

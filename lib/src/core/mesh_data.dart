@@ -1,6 +1,6 @@
 part of core;
 
-Float32List FlattenVector3List(List<VM.Vector3> v, [Float32List data]) {
+Float32List FlattenVector3List(List<VM.Vector3> v, [Float32List? data]) {
   if (data == null) data = Float32List(v.length * 3);
   for (int i = 0; i < v.length; ++i) {
     data[i * 3 + 0] = v[i].x;
@@ -10,7 +10,7 @@ Float32List FlattenVector3List(List<VM.Vector3> v, [Float32List data]) {
   return data;
 }
 
-Float32List FlattenVector2List(List<VM.Vector2> v, [Float32List data]) {
+Float32List FlattenVector2List(List<VM.Vector2> v, [Float32List? data]) {
   if (data == null) data = Float32List(v.length * 2);
   for (int i = 0; i < v.length; ++i) {
     data[i * 2 + 0] = v[i].x;
@@ -19,7 +19,7 @@ Float32List FlattenVector2List(List<VM.Vector2> v, [Float32List data]) {
   return data;
 }
 
-Float32List FlattenVector4List(List<VM.Vector4> v, [Float32List data]) {
+Float32List FlattenVector4List(List<VM.Vector4> v, [Float32List? data]) {
   if (data == null) data = Float32List(v.length * 4);
   for (int i = 0; i < v.length; ++i) {
     data[i * 4 + 0] = v[i].x;
@@ -30,7 +30,7 @@ Float32List FlattenVector4List(List<VM.Vector4> v, [Float32List data]) {
   return data;
 }
 
-Uint32List FlattenUvec4List(List<List<int>> v, [Uint32List data]) {
+Uint32List FlattenUvec4List(List<List<int>> v, [Uint32List? data]) {
   if (data == null) data = Uint32List(v.length * 4);
   for (int i = 0; i < v.length; ++i) {
     data[i * 4 + 0] = v[i][0];
@@ -41,7 +41,7 @@ Uint32List FlattenUvec4List(List<List<int>> v, [Uint32List data]) {
   return data;
 }
 
-Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List data]) {
+Float32List FlattenMatrix4List(List<VM.Matrix4> v, [Float32List? data]) {
   if (data == null) data = Float32List(v.length * 16);
   for (int i = 0; i < v.length; ++i) {
     VM.Matrix4 m = v[i];
@@ -64,17 +64,17 @@ class MeshData extends NamedEntity {
         super("meshdata:" + name);
 
   final ChronosGL _cgl;
-  final Object _vao;
+  final dynamic /* */ _vao;
   final int _drawMode;
-  final Map<String, Object /* gl Buffer */ > _buffers = {};
+  final Map<String, dynamic /* gl Buffer */ > _buffers = {};
   final Map<String, int> _locationMap;
-  Object /* gl Buffer */ _indexBuffer;
+  dynamic /* gl Buffer */ _indexBuffer;
   int _instances = 0;
   int _indexBufferType = -1;
 
-  Float32List _vertices;
-  List<int> _faces;
-  Map<String, Float32List> _attributes = {};
+  late Float32List _vertices;
+  List<int>? _faces;
+  Map<String, List> _attributes = {};
 
   void clearData() {
     for (String canonical in _buffers.keys) {
@@ -95,7 +95,7 @@ class MeshData extends NamedEntity {
           "wrong size for attribute: ${canonical} expected: ${_vertices.length ~/ 3} got: ${data.length ~/ width}");
     }
     _attributes[canonical] = data;
-    _cgl.ChangeArrayBuffer(_buffers[canonical], data);
+    _cgl.ChangeArrayBuffer(_buffers[canonical] as WEBGL.Buffer, data);
   }
 
   void ChangeVertices(Float32List data) {
@@ -114,7 +114,7 @@ class MeshData extends NamedEntity {
 
   int GetNumItems() {
     if (_faces != null) {
-      return _faces.length;
+      return _faces!.length;
     }
     return _vertices.length ~/ 3;
   }
@@ -123,8 +123,8 @@ class MeshData extends NamedEntity {
     return _instances;
   }
 
-  Float32List GetAttribute(String canonical) {
-    return _attributes[canonical];
+  List GetAttribute(String canonical) {
+    return _attributes[canonical]!;
   }
 
   dynamic GetBuffer(String canonical) {
@@ -143,11 +143,11 @@ class MeshData extends NamedEntity {
     assert(_locationMap.containsKey(canonical),
         "unexpected attribute ${canonical}");
 
-    final int index = _locationMap[canonical];
+    final int index = _locationMap[canonical]!;
     _cgl.bindVertexArray(_vao);
     _cgl.enableVertexAttribArray(index, instanced ? 1 : 0);
-    _cgl.vertexAttribPointer(
-        _buffers[canonical], index, desc.GetSize(), GL_FLOAT, false, 0, 0);
+    _cgl.vertexAttribPointer(_buffers[canonical] as WEBGL.Buffer, index,
+        desc.GetSize(), GL_FLOAT, false, 0, 0);
   }
 
   void AddVertices(Float32List data) {
@@ -157,11 +157,11 @@ class MeshData extends NamedEntity {
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "Unknown canonical ${canonical}";
     assert(_locationMap.containsKey(canonical));
-    int index = _locationMap[canonical];
+    int index = _locationMap[canonical]!;
     _cgl.bindVertexArray(_vao);
     _cgl.enableVertexAttribArray(index, 0);
-    _cgl.vertexAttribPointer(
-        _buffers[canonical], index, desc.GetSize(), GL_FLOAT, false, 0, 0);
+    _cgl.vertexAttribPointer(_buffers[canonical] as WEBGL.Buffer, index,
+        desc.GetSize(), GL_FLOAT, false, 0, 0);
   }
 
   void ChangeFaces(List<int> faces) {
@@ -178,7 +178,8 @@ class MeshData extends NamedEntity {
     }
 
     _cgl.bindVertexArray(_vao);
-    _cgl.ChangeElementArrayBuffer(_indexBuffer, _faces as TypedData);
+    _cgl.ChangeElementArrayBuffer(
+        _indexBuffer as WEBGL.Buffer, _faces as TypedData);
   }
 
   void AddFaces(List<int> faces) {
@@ -196,10 +197,10 @@ class MeshData extends NamedEntity {
 
   @override
   String toString() {
-    int nf = _faces == null ? 0 : _faces.length;
+    int nf = _faces == null ? 0 : _faces!.length;
     List<String> lst = ["Faces:${nf}"];
     for (String c in _attributes.keys) {
-      lst.add("${c}:${_attributes[c].length}");
+      lst.add("${c}:${_attributes[c]!.length}");
     }
 
     return "MESH[${name}] " + lst.join("  ");
@@ -212,7 +213,7 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
       LogInfo("Dropping unnecessary attribute: ${canonical}");
       continue;
     }
-    List lst = gb.attributes[canonical];
+    List lst = gb.attributes[canonical]!;
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
 
     //print("${md.name} ${canonical} ${lst}");
@@ -245,16 +246,20 @@ void _GeometryBuilderAttributesToMeshData(GeometryBuilder gb, MeshData md) {
 
 MeshData GeometryBuilderToMeshData(
     String name, RenderProgram prog, GeometryBuilder gb) {
+  final DateTime start = DateTime.now();
   MeshData md =
       prog.MakeMeshData(name, gb.pointsOnly ? GL_POINTS : GL_TRIANGLES);
   md.AddVertices(FlattenVector3List(gb.vertices));
   if (!gb.pointsOnly) md.AddFaces(gb.GenerateFaceIndices());
   _GeometryBuilderAttributesToMeshData(gb, md);
+  final Duration delta = DateTime.now().difference(start);
+  LogInfo("GeometryBuilderToMeshData took (${delta}) ${md}");
   return md;
 }
 
 MeshData _ExtractWireframeNormals(
     MeshData out, List<double> vertices, List<double> normals, double scale) {
+  assert(false);
   assert(vertices.length == normals.length);
   Float32List v = Float32List(2 * vertices.length);
   for (int i = 0; i < vertices.length; i += 3) {
@@ -268,10 +273,7 @@ MeshData _ExtractWireframeNormals(
   out.AddVertices(v);
 
   final int n = 2 * vertices.length ~/ 3;
-  List<int> lines = List<int>(n);
-  for (int i = 0; i < n; i++) {
-    lines[i] = i;
-  }
+  List<int> lines = List.generate(n, (i) => i);
 
   out.AddFaces(lines);
   return out;
@@ -299,8 +301,7 @@ MeshData LineEndPointsToMeshData(
     String name, RenderProgram prog, List<VM.Vector3> points) {
   MeshData md = prog.MakeMeshData(name, GL_LINES);
   md.AddVertices(FlattenVector3List(points));
-  List<int> faces = List<int>(points.length);
-  for (int i = 0; i < points.length; ++i) faces[i] = i;
+  List<int> faces = List.generate(points.length, (i) => i);
   md.AddFaces(faces);
   return md;
 }
@@ -309,17 +310,19 @@ MeshData ExtractWireframeNormals(RenderProgram prog, MeshData md,
     [double scale = 1.0]) {
   assert(md._drawMode == GL_TRIANGLES, "expected GL_TRIANGLES");
   MeshData out = prog.MakeMeshData(md.name, GL_LINES);
-  final Float32List vertices = md.GetAttribute(aPosition);
-  final Float32List normals = md.GetAttribute(aNormal);
+  final Float32List vertices = md.GetAttribute(aPosition) as Float32List;
+  final Float32List normals = md.GetAttribute(aNormal) as Float32List;
   return _ExtractWireframeNormals(out, vertices, normals, scale);
 }
 
 MeshData ExtractWireframe(RenderProgram prog, MeshData md) {
+  assert(false);
   assert(md._drawMode == GL_TRIANGLES);
   MeshData out = prog.MakeMeshData(md.name, GL_LINES);
   out.AddVertices(md._vertices);
-  final List<int> faces = md._faces;
-  List<int> lines = List<int>(faces.length * 2);
+  final List<int> faces = md._faces!;
+  // Probably wrong
+  List<int> lines = List.generate(faces.length * 2, (i) => i);
   for (int i = 0; i < faces.length; i += 3) {
     lines[i * 2 + 0] = faces[i + 0];
     lines[i * 2 + 1] = faces[i + 1];

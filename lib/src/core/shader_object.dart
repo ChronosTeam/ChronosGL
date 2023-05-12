@@ -318,7 +318,7 @@ void IntroduceNewShaderVar(String canonical, ShaderVarDesc desc) {
 }
 
 ShaderVarDesc RetrieveShaderVarDesc(String canonical) {
-  return _VarsDb[canonical];
+  return _VarsDb[canonical]!;
 }
 
 // Describes a shader (either fragment or vertex) and its
@@ -329,7 +329,7 @@ class ShaderObject {
   ShaderObject(this.name);
 
   final String name;
-  String shader;
+  String? shader;
 
   final List<String> attributeVars = [];
   final List<String> uniformVars = [];
@@ -340,7 +340,7 @@ class ShaderObject {
   Map<String, int> _canonicalToLayoutPos = {};
 
   int GetAttributeLayoutPos(String canonical) =>
-      _canonicalToLayoutPos[canonical];
+      _canonicalToLayoutPos[canonical]!;
 
   int GetTransformBindingIndex(String canonical) =>
       transformVars.indexOf(canonical);
@@ -393,12 +393,12 @@ class ShaderObject {
     transformVars.sort();
   }
 
-  void SetBodyWithMain(List<String> body, {List<String> prolog}) {
+  void SetBodyWithMain(List<String> body, {List<String>? prolog}) {
     assert(shader == null);
     shader = _CreateShader(true, body, prolog);
   }
 
-  void SetBody(List<String> body, {List<String> prolog}) {
+  void SetBody(List<String> body, {List<String>? prolog}) {
     assert(shader == null);
     shader = _CreateShader(false, body, prolog);
   }
@@ -406,7 +406,7 @@ class ShaderObject {
   /// _CreateShader updates the shader field from header and body.
   /// If you have set shader manually do not call this.
   String _CreateShader(
-      bool addWrapperForMain, List<String> body, List<String> prolog) {
+      bool addWrapperForMain, List<String> body, List<String>? prolog) {
     assert(shader == null);
     // Hack
     bool isFragmentShader = attributeVars.isEmpty;
@@ -417,7 +417,7 @@ class ShaderObject {
       ""
     ];
     for (String a in attributeVars) {
-      ShaderVarDesc d = _VarsDb[a];
+      ShaderVarDesc d = _VarsDb[a]!;
       int pos = GetAttributeLayoutPos(a);
       out.add("layout (location=${pos}) in ${d.type} ${a};");
     }
@@ -429,16 +429,16 @@ class ShaderObject {
     }
 
     for (String v in varyingVars) {
-      ShaderVarDesc d = _VarsDb[v];
+      ShaderVarDesc d = _VarsDb[v]!;
       out.add("${modifier} ${d.type} ${v};");
     }
     for (String v in transformVars) {
-      ShaderVarDesc d = _VarsDb[v];
+      ShaderVarDesc d = _VarsDb[v]!;
       out.add("${modifier} ${d.type} ${v};");
     }
     out.add("");
     for (String v in uniformVars) {
-      ShaderVarDesc d = _VarsDb[v];
+      ShaderVarDesc d = _VarsDb[v]!;
       String suffix = d.arraySize == 0 ? "" : "[${d.arraySize}]";
       out.add("uniform ${d.type} ${v}${suffix};");
     }

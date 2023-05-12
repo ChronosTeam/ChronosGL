@@ -55,7 +55,7 @@ class FramebufferFormat {
   }
 
   final int format;
-  int channels;
+  late int channels;
   final int type;
 
   @override
@@ -74,7 +74,7 @@ class Framebuffer {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     if (colorTexture != null) {
       _cgl.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-          GL_TEXTURE_2D, colorTexture.GetTexture(), 0);
+          GL_TEXTURE_2D, colorTexture!.GetTexture(), 0);
     }
     if (depthTexture != null) {
       _cgl.framebufferTexture2D(
@@ -83,14 +83,14 @@ class Framebuffer {
               ? GL_DEPTH_STENCIL_ATTACHMENT
               : GL_DEPTH_ATTACHMENT,
           GL_TEXTURE_2D,
-          depthTexture.GetTexture(),
+          depthTexture!.GetTexture(),
           0);
     }
     if (stencilTexture != null) {
       assert(!depthStencilCombined,
           "in combined mode - the stencil parameter must be null");
       _cgl.framebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
-          GL_TEXTURE_2D, stencilTexture.GetTexture(), 0);
+          GL_TEXTURE_2D, stencilTexture!.GetTexture(), 0);
     }
 
     int err = _cgl.checkFramebufferStatus(GL_FRAMEBUFFER);
@@ -120,9 +120,9 @@ class Framebuffer {
   ChronosGL _cgl;
 
   dynamic /* gl Framebuffer */ _framebuffer;
-  Texture colorTexture;
-  Texture depthTexture;
-  Texture stencilTexture;
+  Texture? colorTexture;
+  Texture? depthTexture;
+  Texture? stencilTexture;
 
   void Activate(int clear_mode, int viewPortX, int viewPortY, int viewPortW,
       int viewPortH) {
@@ -138,7 +138,7 @@ class Framebuffer {
   }
 
   /// If buf is non-null it must have size 4*w*h elements
-  Float32List ExtractFloatData(Float32List buf, int x, int y, int w, int h) {
+  Float32List ExtractFloatData(Float32List? buf, int x, int y, int w, int h) {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     if (buf == null) {
       buf = Float32List(4 * w * h);
@@ -149,7 +149,7 @@ class Framebuffer {
   }
 
   /// If buf is non-null it must have size 4*w*h elements
-  Uint8List ExtractByteData(Uint8List buf, int x, int y, int w, int h) {
+  Uint8List ExtractByteData(Uint8List? buf, int x, int y, int w, int h) {
     _cgl.bindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
     if (buf == null) {
       buf = Uint8List(4 * w * h);

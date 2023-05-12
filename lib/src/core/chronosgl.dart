@@ -165,7 +165,7 @@ class ChronosGL {
     return _gl.createFramebuffer();
   }
 
-  void bindFramebuffer(int kind, WEBGL.Framebuffer framebuffer) {
+  void bindFramebuffer(int kind, WEBGL.Framebuffer? framebuffer) {
     _gl.bindFramebuffer(kind, framebuffer);
   }
 
@@ -178,12 +178,12 @@ class ChronosGL {
     _gl.framebufferTexture2D(target, attachment, textarget, texture, level);
   }
 
-  WEBGL.Texture createTexture() {
+  GlTexture createTexture() {
     return _gl.createTexture();
   }
 
-  void bindTexture(int kind, WEBGL.Texture texture) {
-    _gl.bindTexture(kind, texture);
+  void bindTexture(int kind, Object? texture) {
+    _gl.bindTexture(kind, texture as WEBGL.Texture?);
   }
 
   WEBGL.TransformFeedback createTransformFeedback() {
@@ -195,7 +195,7 @@ class ChronosGL {
     _gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, transform);
   }
 
-  void bindBufferBase(int kind, int offset, Object buffer) {
+  void bindBufferBase(int kind, int offset, dynamic buffer) {
     // in case buffer is still bound
     // _gl.bindBuffer(GL_ARRAY_BUFFER, null);
     _gl.bindBufferBase(kind, offset, buffer);
@@ -336,9 +336,13 @@ class ChronosGL {
     return _gl.createShader(kind);
   }
 
-  WEBGL.UniformLocation getUniformLocation(
-      WEBGL.Program program, String uniform) {
-    return _gl.getUniformLocation(program, uniform);
+  GlUniformLocation? getUniformLocation(GlProgram program, String uniform) {
+    try {
+      return _gl.getUniformLocation(program, uniform);
+    } catch (e) {
+      LogError("Unknown uniform [${uniform}] for ${program}");
+      return null;
+    }
   }
 
   WEBGL.Sampler createSampler() {
@@ -372,7 +376,7 @@ class ChronosGL {
     return _gl.getSupportedExtensions();
   }
 
-  Object getExtension(String name) {
+  Object? getExtension(String name) {
     return _gl.getExtension(name);
   }
 
