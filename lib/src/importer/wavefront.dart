@@ -15,21 +15,28 @@ GeometryBuilder ImportGeometryFromWavefront(String text) {
   // whose value is a 2 element array with [<first index>, <num indices>]
   Map<String, int> groups = {};
 
-  List<String> lines = text.split("\n");
+  final RegExp lineEnd = RegExp(r"\s*\n");
+  final dynamic sep = RegExp(r"\s+");
 
-  List<VM.Vector3> vertices = [];
-  List<VM.Vector3> normals = [];
-  List<VM.Vector2> uvs = [];
+  final List<VM.Vector3> vertices = [];
+  final List<VM.Vector3> normals = [];
+  final List<VM.Vector2> uvs = [];
 
   final DateTime start = DateTime.now();
 
-  final dynamic sep = RegExp(r"\s+");
-  final dynamic trail = RegExp(r'\s\s*\$');
-  for (String line2 in lines) {
-    String line = line2.replaceAll(sep, " ").replaceFirst(trail, "");
+  final List<VM.Vector3> faceVertices = [];
+  final List<VM.Vector3> faceNormal = [];
+  final List<VM.Vector2> faceUvs = [];
+
+  final List<String> lines = text.split(lineEnd);
+
+  for (String line in lines) {
     // ignore comments
-    if (line.length == 0 || line[0] == "#") continue;
-    List<String> array = line.split(" ");
+    if (line.isEmpty || line[0] == "#") continue;
+    List<String> array = line.split(sep);
+    assert(!array.isEmpty);
+    assert(!array.last.isEmpty);
+
     //print("### ${array}");
 
     if (array[0] == "g") {
@@ -49,9 +56,10 @@ GeometryBuilder ImportGeometryFromWavefront(String text) {
         continue;
       }
 
-      final List<VM.Vector3> faceVertices = [];
-      final List<VM.Vector3> faceNormal = [];
-      final List<VM.Vector2> faceUvs = [];
+      faceVertices.clear();
+      faceNormal.clear();
+      faceUvs.clear();
+
       for (int i = 1; i < array.length; ++i) {
         // add a new entry to the map and arrays
         List<String> f = array[i].split("/");
@@ -74,7 +82,7 @@ GeometryBuilder ImportGeometryFromWavefront(String text) {
         } else if (tex != -1 && tex < uvs.length) {
           faceUvs.add(uvs[tex]);
         } else {
-          print("problem uv $i ${tex}");
+          LogWarn("problem uv $i ${tex}");
           faceUvs.add(VM.Vector2.zero());
         }
         if (normals.length == 0) {
@@ -82,20 +90,20 @@ GeometryBuilder ImportGeometryFromWavefront(String text) {
         } else if (nor != -1 && nor < normals.length) {
           faceNormal.add(normals[nor]);
         } else {
-          print("problem normals $i ${nor}");
+          LogWarn("problem normals $i ${nor}");
           faceNormal.add(VM.Vector3.zero());
         }
       }
       if (array.length == 4) {
-        gb.AddVerticesFace3(faceVertices);
+        gb.AddVerticesFace3TakeOwnership(faceVertices);
       } else {
-        gb.AddVerticesFace4(faceVertices);
+        gb.AddVerticesFace4TakeOwnership(faceVertices);
       }
       gb.AddAttributesVector3(aNormal, faceNormal);
       gb.AddAttributesVector2(aTexUV, faceUvs);
     }
   }
   final Duration delta = DateTime.now().difference(start);
-  print("loaded (${delta}) ${gb}");
+  LogInfo("loaded in (${delta}) ${gb}");
   return gb;
 }

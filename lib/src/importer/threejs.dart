@@ -1,14 +1,14 @@
 part of importer;
 
-int _FindSkinMultiplier(Map json) {
-  final List SkinIndex = json["skinIndices"];
-  final List SkinWeight = json["skinWeights"];
+int _FindSkinMultiplier(Map<dynamic, dynamic> json) {
+  final List? SkinIndex = json["skinIndices"];
+  final List? SkinWeight = json["skinWeights"];
   if (SkinIndex == null || SkinIndex.length == 0) return 0;
   final int vertexLength = json["vertices"].length ~/ 3;
   final int skinMultiplier = SkinIndex.length ~/ vertexLength;
 
   assert(vertexLength * skinMultiplier == SkinIndex.length);
-  assert(vertexLength * skinMultiplier == SkinWeight.length);
+  assert(vertexLength * skinMultiplier == SkinWeight!.length);
   assert(skinMultiplier <= 4);
   print("Skin multiplier is ${skinMultiplier}");
   return skinMultiplier;
@@ -23,11 +23,11 @@ List<GeometryBuilder> ImportGeometryFromThreeJsJson(Map json) {
 
   final List<VM.Vector3> Vertices = ConvertToVector3List(json["vertices"]);
   final List<VM.Vector3> Normals = ConvertToVector3List(json["normals"]);
-  final List<VM.Vector4> SkinIndex = skinMultiplier == 0
+  final List<VM.Vector4>? SkinIndex = skinMultiplier == 0
       ? null
       : ConvertToVector4List(skinMultiplier, json["skinIndices"]);
 
-  final List<VM.Vector4> SkinWeight = skinMultiplier == 0
+  final List<VM.Vector4>? SkinWeight = skinMultiplier == 0
       ? null
       : ConvertToVector4List(skinMultiplier, _Floatify(json["skinWeights"]));
   if (SkinWeight != null) {
@@ -132,14 +132,14 @@ List<GeometryBuilder> ImportGeometryFromThreeJsJson(Map json) {
     }
 
     if (skinMultiplier > 0) {
-      assert(Vertices.length == SkinIndex.length);
-      assert(Vertices.length == SkinWeight.length);
+      assert(Vertices.length == SkinIndex!.length);
+      assert(Vertices.length == SkinWeight!.length);
 
       List<VM.Vector4> boneIndex = [];
       List<VM.Vector4> boneWeight = [];
       for (int i in indices) {
-        boneIndex.add(SkinIndex[i]);
-        boneWeight.add(SkinWeight[i]);
+        boneIndex.add(SkinIndex![i]);
+        boneWeight.add(SkinWeight![i]);
       }
       gb.AddAttributesVector4(aBoneIndex, boneIndex);
       gb.AddAttributesVector4(aBoneWeight, boneWeight);
@@ -193,8 +193,8 @@ SkeletalAnimation ImportAnimationFromThreeJsJson(
 List<Bone> ImportSkeletonFromThreeJsJson(Map json) {
   final Map metadata = json["metadata"];
   final List Bones = json["bones"];
-  List<Bone> out = List<Bone>(metadata["bones"]);
-  for (int i = 0; i < Bones.length; i++) {
+  assert(Bones.length == metadata["bones"]);
+  List<Bone> out = List.generate(Bones.length, (i) {
     Map m = Bones[i];
     String name = m["name"];
     int parent = m["parent"];
@@ -206,8 +206,8 @@ List<Bone> ImportSkeletonFromThreeJsJson(Map json) {
     if (i != 0 && parent < 0) {
       print("found unusal root node ${i} ${parent}");
     }
-    out[i] = Bone(name, i, parent, mat, VM.Matrix4.identity());
-  }
+    return Bone(name, i, parent, mat, VM.Matrix4.identity());
+  });
   print("bones: ${out.length}");
   RecomputeLocalOffsets(out);
   return out;

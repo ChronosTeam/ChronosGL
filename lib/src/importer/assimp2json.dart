@@ -4,31 +4,26 @@
 part of importer;
 
 List<double> _Floatify(List lst) {
-  List<double> out = List<double>(lst.length);
-  for (int i = 0; i < lst.length; ++i) {
+  List<double> out = List.generate(lst.length, (i) {
     if (lst[i] is int)
-      out[i] = lst[i].toDouble();
+      return lst[i].toDouble();
     else if (lst[i] is double)
-      out[i] = lst[i];
-    else
+      return lst[i];
+    else {
       assert(false, "bad numeric type [${lst[i]}]");
-  }
+      return 0.0;
+    }
+  });
   return out;
 }
 
 List<int> _Intify(List lst) {
-  List<int> out = List<int>(lst.length);
-  for (int i = 0; i < lst.length; ++i) {
-    out[i] = lst[i];
-  }
+  List<int> out = List.generate(lst.length, (i) => lst[i].toInt());
   return out;
 }
 
 List<List<int>> _ListIntify(List lst) {
-  List<List<int>> out = List<List<int>>(lst.length);
-  for (int i = 0; i < lst.length; ++i) {
-    out[i] = _Intify(lst[i]);
-  }
+  List<List<int>> out = List.generate(lst.length, (i) => _Intify(lst[i]));
   return out;
 }
 
@@ -70,15 +65,11 @@ GeometryBuilder ImportGeometryFromAssimp2JsonMesh(
     Map<String, Bone> name2bone = <String, Bone>{};
     skeleton.forEach((b) => name2bone[b.boneName] = b);
     final int n = mesh['normals'].length ~/ 3;
-    List<VM.Vector4> indices = List<VM.Vector4>(n);
-    List<VM.Vector4> weights = List<VM.Vector4>(n);
-    for (int i = 0; i < n; ++i) {
-      indices[i] = VM.Vector4.zero();
-      weights[i] = VM.Vector4.zero();
-    }
+    List<VM.Vector4> indices = List.generate(n, (i) => VM.Vector4.zero());
+    List<VM.Vector4> weights = List.generate(n, (i) => VM.Vector4.zero());
     for (Map<String, dynamic> b in mesh["bones"]) {
       assert(name2bone.containsKey(b["name"]));
-      final Bone bone = name2bone[b["name"]];
+      final Bone bone = name2bone[b["name"]] as Bone;
       // Note: Surprising side-effect
       bone.offsetTransform.copyFromArray(_Floatify(b["offsetmatrix"]));
       bone.offsetTransform.transpose();
@@ -154,7 +145,7 @@ SkeletalAnimation ImportAnimationFromAssimp2Json(
   print("animated bones: ${channels.length}");
   for (Map<String, dynamic> c in channels) {
     assert(name2bone.containsKey(c["name"]));
-    final Bone bone = name2bone[c["name"]];
+    final Bone bone = name2bone[c["name"]] as Bone;
 
     List<double> positionTimes = [];
     List<VM.Vector3> positionValues = [];
