@@ -104,6 +104,6 @@ GeometryBuilder ImportGeometryFromWavefront(String text) {
     }
   }
   final Duration delta = DateTime.now().difference(start);
-  LogInfo("loaded in (${delta}) ${gb}");
+  LogInfo("Wavefront loaded in (${delta}) ${gb}");
   return gb;
 }

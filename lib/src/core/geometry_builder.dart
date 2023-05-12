@@ -300,9 +300,7 @@ class GeometryBuilder {
   void AddAttributesVector3TakeOwnership(
       String canonical, List<VM.Vector3> lst) {
     List<VM.Vector3> ts = attributes[canonical] as List<VM.Vector3>;
-    for (VM.Vector3 v in lst) {
-      ts.add(v);
-    }
+    ts.addAll(lst);
   }
 
   void AddAttributeVector4(String canonical, VM.Vector4 v) {
@@ -320,9 +318,7 @@ class GeometryBuilder {
   void AddAttributesVector4TakeOwnership(
       String canonical, List<VM.Vector4> lst) {
     List<VM.Vector4> ts = attributes[canonical] as List<VM.Vector4>;
-    for (VM.Vector4 v in lst) {
-      ts.add(v);
-    }
+    ts.addAll(lst);
   }
 
   void AddAttributesUvec4(String canonical, List<List<int>> lst) {
