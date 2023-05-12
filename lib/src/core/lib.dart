@@ -51,6 +51,8 @@ typedef GlTexture = WEBGL.Texture;
 typedef GlTransformFeedback = WEBGL.TransformFeedback;
 typedef GlUniformLocation = WEBGL.UniformLocation;
 typedef GlProgram = WEBGL.Program;
+typedef GlSampler = WEBGL.Sampler;
+typedef GlShader = WEBGL.Shader;
 
 int gLogLevel = 0;
 

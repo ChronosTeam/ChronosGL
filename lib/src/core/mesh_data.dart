@@ -66,9 +66,9 @@ class MeshData extends NamedEntity {
   final ChronosGL _cgl;
   final dynamic /* */ _vao;
   final int _drawMode;
-  final Map<String, dynamic /* gl Buffer */ > _buffers = {};
+  final Map<String, GlBuffer> _buffers = {};
   final Map<String, int> _locationMap;
-  dynamic /* gl Buffer */ _indexBuffer;
+  GlBuffer? _indexBuffer;
   int _instances = 0;
   int _indexBufferType = -1;
 
@@ -78,10 +78,10 @@ class MeshData extends NamedEntity {
 
   void clearData() {
     for (String canonical in _buffers.keys) {
-      _cgl.deleteBuffer(_buffers[canonical]);
+      _cgl.deleteBuffer(_buffers[canonical]!);
     }
     if (_indexBuffer != null) {
-      _cgl.deleteBuffer(_indexBuffer);
+      _cgl.deleteBuffer(_indexBuffer!);
     }
   }
 
@@ -259,7 +259,6 @@ MeshData GeometryBuilderToMeshData(
 
 MeshData _ExtractWireframeNormals(
     MeshData out, List<double> vertices, List<double> normals, double scale) {
-  assert(false);
   assert(vertices.length == normals.length);
   Float32List v = Float32List(2 * vertices.length);
   for (int i = 0; i < vertices.length; i += 3) {

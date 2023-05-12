@@ -20,8 +20,8 @@ String _AddLineNumbers(String text) {
   return out.join("\n");
 }
 
-WEBGL.Shader _CompileShader(dynamic gl, int type, String text) {
-  WEBGL.Shader shader = gl.createShader(type);
+GlShader _CompileShader(dynamic gl, int type, String text) {
+  GlShader shader = gl.createShader(type);
 
   gl.shaderSource(shader, text);
   gl.compileShader(shader);
@@ -75,14 +75,14 @@ class ChronosGL {
 
   final dynamic _canvas;
 
-  WEBGL.Program CompileWholeProgram(String vertShaderText,
-      String fragShaderText, List<String> transformVarying) {
-    WEBGL.Program program = _gl.createProgram();
-    WEBGL.Shader vs = _CompileShader(_gl, GL_VERTEX_SHADER, vertShaderText);
+  GlProgram CompileWholeProgram(String vertShaderText, String fragShaderText,
+      List<String> transformVarying) {
+    GlProgram program = _gl.createProgram();
+    GlShader vs = _CompileShader(_gl, GL_VERTEX_SHADER, vertShaderText);
     _gl.attachShader(program, vs);
     // delete shader vs?
 
-    WEBGL.Shader fs = _CompileShader(_gl, GL_FRAGMENT_SHADER, fragShaderText);
+    GlShader fs = _CompileShader(_gl, GL_FRAGMENT_SHADER, fragShaderText);
     _gl.attachShader(program, fs);
     // delete shader fs?
 
@@ -100,39 +100,39 @@ class ChronosGL {
     return program;
   }
 
-  void ChangeArrayBuffer(WEBGL.Buffer buffer, List data) {
+  void ChangeArrayBuffer(GlBuffer buffer, List data) {
     _gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
     _gl.bufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW);
   }
 
-  void GetArrayBuffer(WEBGL.Buffer buffer, List data) {
+  void GetArrayBuffer(GlBuffer buffer, List data) {
     _gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
     _gl.getBufferSubData(GL_ARRAY_BUFFER, 0, data);
   }
 
-  void BufferDataSetSize(int kind, WEBGL.Buffer buf, int size, int usage) {
+  void BufferDataSetSize(int kind, GlBuffer buf, int size, int usage) {
     _gl.bindBuffer(kind, buf);
     _gl.bufferData(kind, size, usage);
     _gl.bindBuffer(kind, null);
   }
 
-  void GetTransformBuffer(WEBGL.Buffer buf, TypedData data) {
+  void GetTransformBuffer(GlBuffer buf, TypedData data) {
     _gl.bindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, buf);
     _gl.getBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, data.buffer);
   }
 
-  WEBGL.Buffer createBuffer() {
+  GlBuffer createBuffer() {
     return _gl.createBuffer();
   }
 
-  void ChangeElementArrayBuffer(WEBGL.Buffer buf, TypedData data) {
+  void ChangeElementArrayBuffer(GlBuffer buf, TypedData data) {
     assert((data is Uint16List) || (data is Uint32List) || (data is Uint8List));
     _gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, buf);
     _gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW);
   }
 
   // Not really useful other than tesying
-  void ChangeTransformBuffer(WEBGL.Buffer buffer, List data) {
+  void ChangeTransformBuffer(GlBuffer buffer, List data) {
     _gl.bindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, buffer);
     _gl.bufferData(GL_TRANSFORM_FEEDBACK_BUFFER, data, GL_DYNAMIC_DRAW);
   }
@@ -140,19 +140,19 @@ class ChronosGL {
   // Why all these shims?
   // They are useful for instrumentation and may allow us some day
   // to interface with dart-gl
-  void deleteBuffer(WEBGL.Buffer buffer) {
+  void deleteBuffer(GlBuffer buffer) {
     _gl.deleteBuffer(buffer);
   }
 
-  void bindBuffer(int kind, dynamic buffer) {
+  void bindBuffer(int kind, GlBuffer? buffer) {
     _gl.bindBuffer(kind, buffer);
   }
 
-  WEBGL.VertexArrayObject createVertexArray() {
+  GlVertexArrayObject createVertexArray() {
     return _gl.createVertexArray();
   }
 
-  void bindVertexArray(WEBGL.VertexArrayObject vao) {
+  void bindVertexArray(GlVertexArrayObject vao) {
     _gl.bindVertexArray(vao);
   }
 
@@ -161,11 +161,11 @@ class ChronosGL {
     _gl.copyBufferSubData(srcBuffer, dstBuffer, srcOffset, dstOffset, size);
   }
 
-  WEBGL.Framebuffer createFramebuffer() {
+  GlFramebuffer createFramebuffer() {
     return _gl.createFramebuffer();
   }
 
-  void bindFramebuffer(int kind, WEBGL.Framebuffer? framebuffer) {
+  void bindFramebuffer(int kind, GlFramebuffer? framebuffer) {
     _gl.bindFramebuffer(kind, framebuffer);
   }
 
@@ -173,8 +173,8 @@ class ChronosGL {
     return _gl.checkFramebufferStatus(kind);
   }
 
-  void framebufferTexture2D(int target, int attachment, int textarget,
-      WEBGL.Texture texture, int level) {
+  void framebufferTexture2D(
+      int target, int attachment, int textarget, GlTexture texture, int level) {
     _gl.framebufferTexture2D(target, attachment, textarget, texture, level);
   }
 
@@ -183,10 +183,10 @@ class ChronosGL {
   }
 
   void bindTexture(int kind, Object? texture) {
-    _gl.bindTexture(kind, texture as WEBGL.Texture?);
+    _gl.bindTexture(kind, texture as GlTexture?);
   }
 
-  WEBGL.TransformFeedback createTransformFeedback() {
+  GlTransformFeedback createTransformFeedback() {
     return _gl.createTransformFeedback();
   }
 
@@ -286,7 +286,7 @@ class ChronosGL {
     return _gl.getParameter(kind);
   }
 
-  void vertexAttribPointer(WEBGL.Buffer buffer, int index, int size, int type,
+  void vertexAttribPointer(GlBuffer buffer, int index, int size, int type,
       bool normalized, int stride, int offset) {
     _gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
     _gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
@@ -320,15 +320,15 @@ class ChronosGL {
     _gl.activeTexture(target);
   }
 
-  dynamic createProgram() {
+  GlProgram createProgram() {
     return _gl.createProgram();
   }
 
-  void linkProgram(WEBGL.Program obj) {
+  void linkProgram(GlProgram obj) {
     _gl.linkProgram(obj);
   }
 
-  void useProgram(WEBGL.Program obj) {
+  void useProgram(GlProgram obj) {
     _gl.useProgram(obj);
   }
 
@@ -345,7 +345,7 @@ class ChronosGL {
     }
   }
 
-  WEBGL.Sampler createSampler() {
+  GlSampler createSampler() {
     return _gl.createSampler();
   }
 
@@ -364,7 +364,7 @@ class ChronosGL {
     _gl.readPixels2(x, y, w, h, implFormat, implType, offset);
   }
 
-  String getProgramInfoLog(WEBGL.Program program) {
+  String getProgramInfoLog(GlProgram program) {
     return _gl.getProgramInfoLog(program);
   }
 
@@ -416,41 +416,41 @@ class ChronosGL {
     if (hasTransforms) _gl.endTransformFeedback();
   }
 
-  void uniform1f(WEBGL.UniformLocation location, double value) {
+  void uniform1f(GlUniformLocation location, double value) {
     _gl.uniform1f(location, value);
   }
 
-  void uniform1i(WEBGL.UniformLocation location, int value) {
+  void uniform1i(GlUniformLocation location, int value) {
     _gl.uniform1i(location, value);
   }
 
-  void uniform1iv(WEBGL.UniformLocation location, Int32List value) {
+  void uniform1iv(GlUniformLocation location, Int32List value) {
     _gl.uniform1iv(location, value);
   }
 
-  void uniform1fv(WEBGL.UniformLocation location, Float32List value) {
+  void uniform1fv(GlUniformLocation location, Float32List value) {
     _gl.uniform1fv(location, value);
   }
 
-  void uniform2fv(WEBGL.UniformLocation location, Float32List value) {
+  void uniform2fv(GlUniformLocation location, Float32List value) {
     _gl.uniform2fv(location, value);
   }
 
-  void uniform3fv(WEBGL.UniformLocation location, Float32List value) {
+  void uniform3fv(GlUniformLocation location, Float32List value) {
     _gl.uniform3fv(location, value);
   }
 
-  void uniform4fv(WEBGL.UniformLocation location, Float32List value) {
+  void uniform4fv(GlUniformLocation location, Float32List value) {
     _gl.uniform4fv(location, value);
   }
 
   void uniformMatrix4fv(
-      WEBGL.UniformLocation location, bool transpose, Float32List value) {
+      GlUniformLocation location, bool transpose, Float32List value) {
     _gl.uniformMatrix4fv(location, transpose, value);
   }
 
   void uniformMatrix3fv(
-      WEBGL.UniformLocation location, bool transpose, Float32List value) {
+      GlUniformLocation location, bool transpose, Float32List value) {
     _gl.uniformMatrix3fv(location, transpose, value);
   }
 
