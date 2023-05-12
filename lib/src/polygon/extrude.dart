@@ -53,12 +53,11 @@ final Map<String, Easing> MapStringToEasing = {
 List<VM.Vector2> BevelSupportPoints(double width, double height, int nSupports,
     {Easing widthEasing = EasingCosine, Easing heightEasing = EasingSine}) {
   // out[0]
-  List<VM.Vector2> out = List<VM.Vector2>(nSupports);
-  for (int i = 0; i < nSupports; ++i) {
+  List<VM.Vector2> out = List.generate(nSupports, (i) {
     // make sure t assumes zero and one at the extremes
     double t = i / (nSupports - 1);
-    out[i] = VM.Vector2(-width * widthEasing(t), height * heightEasing(t));
-  }
+    return VM.Vector2(-width * widthEasing(t), height * heightEasing(t));
+  });
   return out;
 }
 
@@ -76,13 +75,12 @@ List<List<VM.Vector3>> BevelStrips(List<VM.Vector2> contour,
   List<List<VM.Vector3>> out = [];
   VM.Vector3 v = VM.Vector3.zero();
   for (VM.Vector2 s in supports) {
-    List<VM.Vector3> c = List<VM.Vector3>(contour.length);
-    for (int i = 0; i < c.length; ++i) {
+    List<VM.Vector3> c = List.generate(contour.length, (i) {
       v.x = contour[i].x + gradient[i].x * s.x;
       v.y = contour[i].y + gradient[i].y * s.x;
       v.z = s.y;
-      c[i] = m * v;
-    }
+      return m * v;
+    });
     out.add(c);
   }
   return out;

@@ -70,7 +70,7 @@ GeometryBuilder TorusKnotGeometry(
   if (computeUVs) {
     assert(!wrap, "uvs do not work well with wrapping");
     gb.GenerateRegularGridUV(w, h);
-    assert(gb.attributes[aTexUV].length == gb.vertices.length);
+    assert(gb.attributes[aTexUV]?.length == gb.vertices.length);
   }
 
   if (computeNormals) {
@@ -80,7 +80,7 @@ GeometryBuilder TorusKnotGeometry(
         gb.AddAttributeVector3(aNormal, lst[i + 1]);
       }
     }
-    assert(gb.attributes[aNormal].length == gb.vertices.length);
+    assert(gb.attributes[aNormal]?.length == gb.vertices.length);
   }
   return gb;
 }
@@ -191,7 +191,7 @@ GeometryBuilder TorusKnotGeometryTriangularWireframeFriendly(
       gb.AddFaces3(2, inside);
       VM.Vector3 b(int x, int y) => bands[x % segmentsR][(y % segmentsT) * 2];
 
-      gb.AddVerticesTakeOwnership([b(i, jp + 2),  b(i + 1, jp + 1), b(i, jp)]);
+      gb.AddVerticesTakeOwnership([b(i, jp + 2), b(i + 1, jp + 1), b(i, jp)]);
 
       gb.AddVerticesTakeOwnership(
           [b(i + 1, jp + 3), b(i + 1, jp + 1), b(i, jp + 2)]);

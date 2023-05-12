@@ -44,8 +44,7 @@ void UpdateDirectionalLightVisualizer(
   }
 
   md.ChangeVertices(FlattenVector3List(points));
-  List<int> faces = List<int>(points.length);
-  for (int i = 0; i < points.length; ++i) faces[i] = i;
+  List<int> faces = List.generate(points.length, (index) => index);
   md.ChangeFaces(faces);
 }
 

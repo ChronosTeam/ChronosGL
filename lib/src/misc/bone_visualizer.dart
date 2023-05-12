@@ -40,12 +40,12 @@ class BoneVisualizer {
   }
 
   VM.Matrix4 _globalOffsetTransform = VM.Matrix4.identity();
-  MeshData _mdWire;
+  late MeshData _mdWire;
   List<Bone> _skeleton;
   SkeletalAnimation _anim;
-  AnimatedSkeleton _animatedSkeleton;
+  late AnimatedSkeleton _animatedSkeleton;
 
-  Node mesh;
+  late Node mesh;
 
   void Update(double time) {
     UpdateAnimatedSkeleton(_skeleton, _globalOffsetTransform, _anim,

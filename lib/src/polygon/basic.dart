@@ -48,7 +48,7 @@ bool IsInTriangle(final VM.Vector2 a, final VM.Vector2 b, final VM.Vector2 c,
 
 // http://stackoverflow.com/questions/2931573/determining-if-two-rays-intersect
 // http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
-VM.Vector2 LineIntersection(final VM.Vector2 pointa, final VM.Vector2 dira,
+VM.Vector2? LineIntersection(final VM.Vector2 pointa, final VM.Vector2 dira,
     final VM.Vector2 pointb, final VM.Vector2 dirb) {
   double det = dira.cross(dirb);
   // Parallel check
@@ -153,8 +153,8 @@ VM.Vector2 _getMovement(VM.Vector2 prev, VM.Vector2 curr, VM.Vector2 next) {
   VM.Vector2 prev_shifted = prev + cp_ortho;
   VM.Vector2 next_shifted = next + nc_ortho;
 
-  VM.Vector2 x = LineIntersection(prev_shifted, cp, next_shifted, nc);
-  return x - curr;
+  VM.Vector2? x = LineIntersection(prev_shifted, cp, next_shifted, nc);
+  return x! - curr;
 }
 
 // GetContourGradient is to shrink or expand a contour.
@@ -178,23 +178,21 @@ List<VM.Vector2> GetContourGradient(List<VM.Vector2> contour) {
 
 List<VM.Vector2> ContourCircle(int nSegmemts, double radius,
     [bool ccw = true]) {
-  List<VM.Vector2> out = List<VM.Vector2>(nSegmemts);
-  for (int i = 0; i < nSegmemts; ++i) {
+  List<VM.Vector2> out = List.generate(nSegmemts, (i) {
     double angle = Math.pi * 2 * i / nSegmemts * (ccw ? 1.0 : -1.0);
-    out[i] = VM.Vector2(radius * Math.cos(angle), radius * Math.sin(angle));
-  }
+    return VM.Vector2(radius * Math.cos(angle), radius * Math.sin(angle));
+  });
   return out;
 }
 
 List<VM.Vector3> GeneralProjection(List<VM.Vector2> contour, VM.Matrix3 mat) {
   VM.Vector3 t = VM.Vector3.zero();
   t.z = 1.0;
-  List<VM.Vector3> out = List<VM.Vector3>(contour.length);
-  for (int i = 0; i < contour.length; ++i) {
+  List<VM.Vector3> out = List.generate(contour.length, (i) {
     t.x = contour[i].x;
     t.y = contour[i].y;
-    out[i] = mat * t;
-  }
+    return mat * t;
+  });
   return out;
 }
 

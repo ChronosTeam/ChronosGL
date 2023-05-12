@@ -41,9 +41,12 @@ GeometryBuilder GridGeometry(
   final double ydelta = xlen / ystrips;
 
   VM.Vector3 normal = VM.Vector3(0.0, 0.0, 1.0);
-  List<VM.Vector3> vertices = List<VM.Vector3>((xstrips + 1) * (ystrips + 1));
-  List<VM.Vector3> normals = List<VM.Vector3>((xstrips + 1) * (ystrips + 1));
-  List<VM.Vector2> uvs = List<VM.Vector2>((xstrips + 1) * (ystrips + 1));
+  List<VM.Vector3> vertices =
+      List.generate((xstrips + 1) * (ystrips + 1), (i) => VM.Vector3.zero());
+  List<VM.Vector3> normals =
+      List.generate((xstrips + 1) * (ystrips + 1), (i) => VM.Vector3.zero());
+  List<VM.Vector2> uvs =
+      List.generate((xstrips + 1) * (ystrips + 1), (i) => VM.Vector2.zero());
 
   int index(int x, int y) {
     return x * (xstrips + 1) + y;

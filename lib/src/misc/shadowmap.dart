@@ -79,7 +79,11 @@ final ShaderObject visualizeShadowmapVertexShaderLinearDepth16 =
 final ShaderObject visualizeShadowmapFragmentShaderLinearDepth16 =
     ShaderObject("copyF")
       ..AddVaryingVars([vTexUV])
-      ..AddUniformVars([uTexture, uCutOff, uCameraFar, uCameraNear])
+      ..AddUniformVars([
+        uTexture,
+        // uCutOff,
+        uCameraFar, uCameraNear
+      ])
       ..SetBody([
         """
 void main() {     
@@ -144,17 +148,17 @@ class ShadowMap {
   }
 
   final ChronosGL _cgl;
-  Texture _depthTexture;
-  RenderPhase _phaseCompute;
-  Framebuffer _shadowBuffer;
-  Scene _programCompute;
+  late Texture _depthTexture;
+  late RenderPhase _phaseCompute;
+  late Framebuffer _shadowBuffer;
+  late Scene _programCompute;
 
-  RenderPhase _phaseVisualize;
+  late RenderPhase _phaseVisualize;
   UniformGroup _uniforms = UniformGroup("uniforms");
 
-  Scene _programVisualize;
+  late Scene _programVisualize;
 
-  VM.Vector2 _mapSize;
+  late VM.Vector2 _mapSize;
 
   void SetVisualizationViewPort(int x, int y, int w, int h) {
     _phaseVisualize

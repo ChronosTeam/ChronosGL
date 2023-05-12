@@ -38,13 +38,9 @@ class Bone {
 /// represents a Skeleton ready to be used for skinning.
 class AnimatedSkeleton {
   AnimatedSkeleton(int length)
-      : globalTransforms = List<VM.Matrix4>(length),
-        skinningTransforms = List<VM.Matrix4>(length) {
-    for (int i = 0; i < length; i++) {
-      globalTransforms[i] = VM.Matrix4.zero();
-      skinningTransforms[i] = VM.Matrix4.zero();
-    }
-  }
+      : globalTransforms = List.generate(length, (index) => VM.Matrix4.zero()),
+        skinningTransforms =
+            List.generate(length, (index) => VM.Matrix4.zero());
 
   // one for each bone
   final List<VM.Matrix4> globalTransforms;
@@ -53,7 +49,8 @@ class AnimatedSkeleton {
 
 void RecomputeLocalOffsets(List<Bone> skeleton) {
   print("recomputing local transform");
-  final List<VM.Matrix4> toRoot = List<VM.Matrix4>(skeleton.length);
+  final List<VM.Matrix4> toRoot =
+      List.generate(skeleton.length, (i) => VM.Matrix4.zero());
   for (int i = 0; i < skeleton.length; i++) {
     Bone bone = skeleton[i];
     if (bone.parentNum < 0) {
@@ -81,7 +78,7 @@ void UpdateAnimatedSkeleton(
     } else {
       t.setFrom(posedSkeleton.globalTransforms[bone.parentNum]);
     }
-    BoneAnimation a = animation.animList[i];
+    BoneAnimation? a = animation.animList[i];
     if (a != null) {
       a.setBoneMatrixAtTick(time, tmp);
       t.multiply(tmp);
@@ -207,10 +204,10 @@ class BoneAnimation {
 /// represents Key frame animation data for an entire skeleton.
 class SkeletalAnimation {
   SkeletalAnimation(this.name, this.duration, int length)
-      : animList = List<BoneAnimation>(length);
+      : animList = List<BoneAnimation?>.generate(length, (i) => null);
 
   final String name;
-  final List<BoneAnimation> animList;
+  final List<BoneAnimation?> animList;
   final double duration;
 
   void InsertBone(BoneAnimation ba) {

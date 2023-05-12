@@ -62,7 +62,7 @@ class Stats {
   void AddRawValue(int v) {
     if (v < 0) v = 0;
     if (v > _graphHeight) v = _graphHeight;
-    HTML.Element e = _graph.firstChild;
+    HTML.Element e = _graph.firstChild! as HTML.Element;
     e.style.height = "${v}px";
     _graph.append(e);
   }

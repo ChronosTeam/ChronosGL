@@ -27,7 +27,8 @@ class Utils {
   static HTML.CanvasElement createParticleCanvas() {
     int d = 64;
     HTML.CanvasElement canvas = HTML.CanvasElement(width: d, height: d);
-    HTML.CanvasRenderingContext2D ctx = canvas.getContext('2d');
+    HTML.CanvasRenderingContext2D ctx =
+        canvas.getContext('2d') as HTML.CanvasRenderingContext2D;
     int x = d ~/ 2, y = d ~/ 2;
 
     var gradient = ctx.createRadialGradient(x, y, 1, x, y, 22);
@@ -196,7 +197,7 @@ class RenderPhaseResizeAware extends RenderPhase {
   final HTML.CanvasElement _canvas;
   final Perspective _perspective;
 
-  void resolutionChange(HTML.Event ev) {
+  void resolutionChange(HTML.Event? ev) {
     int w = _canvas.clientWidth;
     int h = _canvas.clientHeight;
     _canvas.width = w;
@@ -219,7 +220,7 @@ class PerspectiveResizeAware extends Perspective {
   final HTML.CanvasElement _canvas;
   final ChronosGL _cgl;
 
-  void resolutionChange(HTML.Event ev) {
+  void resolutionChange(HTML.Event? ev) {
     int w = _canvas.clientWidth;
     int h = _canvas.clientHeight;
     _canvas.width = w;
