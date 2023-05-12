@@ -119,7 +119,7 @@ class Framebuffer {
 
   ChronosGL _cgl;
 
-  dynamic /* gl Framebuffer */ _framebuffer;
+  GlFramebuffer? _framebuffer;
   Texture? colorTexture;
   Texture? depthTexture;
   Texture? stencilTexture;

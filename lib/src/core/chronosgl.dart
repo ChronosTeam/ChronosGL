@@ -182,20 +182,20 @@ class ChronosGL {
     return _gl.createTexture();
   }
 
-  void bindTexture(int kind, Object? texture) {
-    _gl.bindTexture(kind, texture as GlTexture?);
+  void bindTexture(int kind, GlTexture? texture) {
+    _gl.bindTexture(kind, texture);
   }
 
   GlTransformFeedback createTransformFeedback() {
     return _gl.createTransformFeedback();
   }
 
-  void bindTransformFeedback(dynamic transform) {
+  void bindTransformFeedback(GlTransformFeedback transform) {
     //_gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, null);
     _gl.bindTransformFeedback(GL_TRANSFORM_FEEDBACK, transform);
   }
 
-  void bindBufferBase(int kind, int offset, dynamic buffer) {
+  void bindBufferBase(int kind, int offset, GlBuffer? buffer) {
     // in case buffer is still bound
     // _gl.bindBuffer(GL_ARRAY_BUFFER, null);
     _gl.bindBufferBase(kind, offset, buffer);
@@ -332,7 +332,7 @@ class ChronosGL {
     _gl.useProgram(obj);
   }
 
-  dynamic createShader(int kind) {
+  GlShader createShader(int kind) {
     return _gl.createShader(kind);
   }
 

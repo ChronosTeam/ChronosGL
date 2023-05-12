@@ -160,7 +160,7 @@ class RenderProgram extends NamedEntity {
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     if (desc == null) throw "unknown ${canonical}";
     assert(_uniformLocations.containsKey(canonical));
-    dynamic /* UniformLocation */ l = _uniformLocations[canonical];
+    GlUniformLocation l = _uniformLocations[canonical]!;
     switch (desc.type) {
       case VarTypeInt:
         if (desc.arraySize == 0) {

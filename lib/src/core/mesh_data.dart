@@ -64,7 +64,7 @@ class MeshData extends NamedEntity {
         super("meshdata:" + name);
 
   final ChronosGL _cgl;
-  final dynamic /* */ _vao;
+  final GlVertexArrayObject _vao;
   final int _drawMode;
   final Map<String, GlBuffer> _buffers = {};
   final Map<String, int> _locationMap;
@@ -95,7 +95,7 @@ class MeshData extends NamedEntity {
           "wrong size for attribute: ${canonical} expected: ${_vertices.length ~/ 3} got: ${data.length ~/ width}");
     }
     _attributes[canonical] = data;
-    _cgl.ChangeArrayBuffer(_buffers[canonical] as WEBGL.Buffer, data);
+    _cgl.ChangeArrayBuffer(_buffers[canonical]!, data);
   }
 
   void ChangeVertices(Float32List data) {
@@ -127,8 +127,8 @@ class MeshData extends NamedEntity {
     return _attributes[canonical]!;
   }
 
-  dynamic GetBuffer(String canonical) {
-    return _buffers[canonical];
+  GlBuffer GetBuffer(String canonical) {
+    return _buffers[canonical]!;
   }
 
   void AddAttribute(String canonical, List data, int width) {
@@ -146,8 +146,8 @@ class MeshData extends NamedEntity {
     final int index = _locationMap[canonical]!;
     _cgl.bindVertexArray(_vao);
     _cgl.enableVertexAttribArray(index, instanced ? 1 : 0);
-    _cgl.vertexAttribPointer(_buffers[canonical] as WEBGL.Buffer, index,
-        desc.GetSize(), GL_FLOAT, false, 0, 0);
+    _cgl.vertexAttribPointer(
+        _buffers[canonical]!, index, desc.GetSize(), GL_FLOAT, false, 0, 0);
   }
 
   void AddVertices(Float32List data) {
@@ -160,8 +160,8 @@ class MeshData extends NamedEntity {
     int index = _locationMap[canonical]!;
     _cgl.bindVertexArray(_vao);
     _cgl.enableVertexAttribArray(index, 0);
-    _cgl.vertexAttribPointer(_buffers[canonical] as WEBGL.Buffer, index,
-        desc.GetSize(), GL_FLOAT, false, 0, 0);
+    _cgl.vertexAttribPointer(
+        _buffers[canonical]!, index, desc.GetSize(), GL_FLOAT, false, 0, 0);
   }
 
   void ChangeFaces(List<int> faces) {
@@ -178,8 +178,7 @@ class MeshData extends NamedEntity {
     }
 
     _cgl.bindVertexArray(_vao);
-    _cgl.ChangeElementArrayBuffer(
-        _indexBuffer as WEBGL.Buffer, _faces as TypedData);
+    _cgl.ChangeElementArrayBuffer(_indexBuffer!, _faces as TypedData);
   }
 
   void AddFaces(List<int> faces) {
