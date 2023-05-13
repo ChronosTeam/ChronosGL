@@ -2,7 +2,8 @@ export PATH := $(PATH):$(HOME)/.pub-cache/bin:.
 
 .PHONY=documentation examples tests presubmit buildall
 
-PUB=/usr/lib/dart/bin/pub
+DART=/bin/dart 
+PUB=/bin/dart pub
 PORT=8000
 
 VERSION := $(shell grep version pubspec.yaml | cut -f 2 -d\ )
@@ -16,9 +17,11 @@ help:
 
 #@ get - Download package dependencies and install tools
 #@       (needs to be run at lease once after `git clone`
+#@       https://dart.dev/tools/webdev
 #@
 get:
 	$(PUB) get
+	$(PUB) add build_runner build_web_compilers --dev
 	${PUB} global activate webdev
 
 #@ examples - Build (release mode) all the examples into build_example/
@@ -42,12 +45,12 @@ examples_debug:
 #@
 webserver:
 	@echo Launching webserver on port $(PORT)
-	python -m SimpleHTTPServer $(PORT)
+	python3 -m -m http.server $(PORT)
 
-#@ webdev - Launch the continous build webdev server
+#@ serve - Launch the continous build webdev server
 #@
 serve:
-	webdev serve --verbose web/
+	webdev serve --verbose build_example/
 
 
 #@ publish - Update package at pub.dartlang.org
@@ -76,17 +79,17 @@ documentation:
 # TODO(robertm): vm tests are failing on exit:
 # Invalid argument(s): Illegal argument in isolate message : (object is a regular Dart Instance)
 start_test_server:
-	$(PUB) serve example --web-compiler=dartdevc --port 8111
+	$(DART) serve example --web-compiler=dartdevc --port 8111
 
 browser_tests:
-	$(PUB) run test  -p chrome --pub-serve=8111 test/geometry.dart
+	$(DART) run test  -p chrome --pub-serve=8111 test/geometry.dart
 
 brower_tests_old:
-	-$(PUB) run test  -p chrome --pub-serve=8111 test/geometry.dart
-	$(PUB) run test   -p dartium test/shader_syntax.dart
-	$(PUB) run test   -p dartium test/show_extensions.dart
+	-$(DART) run test  -p chrome --pub-serve=8111 test/geometry.dart
+	$(DART) run test   -p dartium test/shader_syntax.dart
+	$(DART) run test   -p dartium test/show_extensions.dart
 
 tests:
-	$(PUB) run test   -p vm test/polygon.dart
-	$(PUB) run test   -p chrome test/geometry.dart
-	$(PUB) run test   -p chrome test/shader_syntax.dart
+	$(DART) run test   -p vm test/polygon.dart
+	$(DART) run test   -p chrome test/geometry.dart
+	$(DART) run test   -p chrome test/shader_syntax.dart
