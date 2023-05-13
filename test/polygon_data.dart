@@ -148,12 +148,11 @@ final List<double> HardExample2Data = [
 List<VM.Vector2> MakeContour(List<num> data, double scalex, double scaley,
     [double offsetx = 0.0, double offsety = 0.0]) {
   assert(data.length & 1 == 0);
-  List<VM.Vector2> out = new List<VM.Vector2>(data.length ~/ 2);
-  for (int i = 0; i < data.length; i += 2) {
-    double x = (data[i] + offsetx) * scalex;
-    double y = (data[i + 1] + offsety) * scaley;
-    out[i ~/ 2] = new VM.Vector2(x, y);
-  }
+  List<VM.Vector2> out = List.generate(
+      data.length ~/ 2,
+      (i) => VM.Vector2((data[2 * i] + offsetx) * scalex,
+          (data[2 * i + 1] + offsety) * scaley));
+
   return out;
 }
 

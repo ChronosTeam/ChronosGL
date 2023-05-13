@@ -86,7 +86,7 @@ void main() {
   test("basic_triangulation", () {
     {
       final List<VM.Vector2> d = DATA.Triangle;
-      final List<int> triangles = Triangulate(d);
+      final List<int> triangles = Triangulate(d)!;
       expect(triangles.length, equals(3 * (d.length - 2)));
       double area = GetSignedArea(d);
       double tarea = getTrianguatedArea(triangles, d);
@@ -94,7 +94,7 @@ void main() {
     }
     {
       final List<VM.Vector2> d = DATA.Square;
-      List<int> triangles = Triangulate(d);
+      List<int> triangles = Triangulate(d)!;
       expect(triangles.length, equals(3 * (d.length - 2)));
       double area = GetSignedArea(d);
       double tarea = getTrianguatedArea(triangles, d);
@@ -102,7 +102,7 @@ void main() {
     }
     {
       final List<VM.Vector2> d = DATA.Bird;
-      List<int> triangles = Triangulate(d);
+      List<int> triangles = Triangulate(d)!;
       expect(triangles.length, equals(3 * (d.length - 2)));
       double area = GetSignedArea(d);
       double tarea = getTrianguatedArea(triangles, d);
