@@ -2,31 +2,19 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Basic Shapes</title>
+    <title>Midi</title>
     <link rel="stylesheet" href="../style.css">
   </head>
 
   <body>
-    <div id="stats"></div>
+    <table>
+        <tr><th>Kind</th><th>Device</th><th>Message</th></tr>
+      <tbody id="tab"><tbody>
+    </table>
+    <div id="info"></div>
     <canvas id="webgl-canvas"></canvas>
     <script defer src="midi_input.dart.js"></script>make e
     <script>
-
-    navigator.requestMIDIAccess().then(function (x) {
-      console.log("@@ all ", x.inputs);
-      for (let k of x.inputs.values()) {
-         console.log("@@ one ", k);
-         let i = k;
-         i.onstatechange = function(e) {
-            //console.log("@@ state change", e.port.name, e.port.manufacturer, e.port.state);
-            };
-          i.onmidimessage = function(e) {
-            //console.log("@@mesg", e.data);
-            };
-      }
-
-    });
-
   </script>
   </body>
 </html>

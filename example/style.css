@@ -27,6 +27,11 @@ html, body {
 	background: white;
 }
 
+#tab {
+	color: white;
+	background: black;
+}
+
 #info {
 	z-index: 10;
 	position: absolute;
