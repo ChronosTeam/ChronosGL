@@ -49,8 +49,8 @@ webserver:
 
 #@ serve - Launch the continous build webdev server
 #@
-serve:
-	webdev serve --verbose build_example/
+serve_debug:
+	webdev serve --verbose --debug example
 
 
 #@ publish - Update package at pub.dartlang.org
