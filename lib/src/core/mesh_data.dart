@@ -334,11 +334,83 @@ MeshData ExtractWireframe(RenderProgram prog, MeshData md) {
   return out;
 }
 
-MeshData ExtractPointCloud(RenderProgram prog, MeshData md) {
+MeshData ExtractPointCloud(RenderProgram prog, MeshData md, int num_points) {
   assert(md._drawMode == GL_TRIANGLES, "expected GL_TRIANGLES");
   assert(md.SupportsAttribute(aNormal), "expected support for aNormal");
+  final List<int> faces = md._faces!;
+  final Float32List norms = md.GetAttribute(aNormal) as Float32List;
+  final Float32List verts = md._vertices;
+  assert(norms.length == verts.length);
+
+  VM.Vector3 v0 = VM.Vector3.zero();
+  VM.Vector3 v1 = VM.Vector3.zero();
+  VM.Vector3 v2 = VM.Vector3.zero();
+  VM.Vector3 n0 = VM.Vector3.zero();
+  VM.Vector3 n1 = VM.Vector3.zero();
+  VM.Vector3 n2 = VM.Vector3.zero();
+
+  void getVertsForFace(int f) {
+    int i0 = faces[3 * f + 0];
+    int i1 = faces[3 * f + 1];
+    int i2 = faces[3 * f + 2];
+    //
+    v0.setValues(verts[3 * i0], verts[3 * i0 + 1], verts[3 * i0 + 2]);
+    v1.setValues(verts[3 * i1], verts[3 * i1 + 1], verts[3 * i1 + 2]);
+    v2.setValues(verts[3 * i2], verts[3 * i2 + 1], verts[3 * i2 + 2]);
+    //
+    n0.setValues(norms[3 * i0], norms[3 * i0 + 1], norms[3 * i0 + 2]);
+    n1.setValues(norms[3 * i1], norms[3 * i1 + 1], norms[3 * i1 + 2]);
+    n2.setValues(norms[3 * i2], norms[3 * i2 + 1], norms[3 * i2 + 2]);
+  }
+
+  var areas = List<double>.filled(faces.length ~/ 3, 0.0);
+  for (int f = 0; f < areas.length; ++f) {
+    getVertsForFace(f);
+    v1.sub(v0);
+    v2.sub(v0);
+    v1.crossInto(v2, v0);
+    areas[f] = v0.length;
+  }
+  double total_area = 0.0;
+  areas.forEach((d) => total_area += d);
+  print(
+      "vertices: ${md._vertices.length ~/ 3}  faces: ${faces.length}  total: ${total_area}");
+  final double area_per_point = total_area / num_points;
+  double ceiling = 0.0;
+  int current_face = 0;
+  ceiling += areas[current_face];
+  getVertsForFace(current_face);
+
+  var rng = Math.Random();
+  Float32List sampled_verts = Float32List(3 * num_points);
+  Float32List sampled_norms = Float32List(3 * num_points);
+
+  for (int i = 0; i < num_points; ++i) {
+    double x = i * area_per_point;
+    while (x > ceiling) {
+      ++current_face;
+      ceiling += areas[current_face];
+      getVertsForFace(current_face);
+    }
+    // https://chrischoy.github.io/research/barycentric-coordinate-for-mesh-sampling/
+    // Random sampling is easy but not really what we want.
+    // We want uniform covering
+    double sqrt_u = Math.sqrt(rng.nextDouble());
+    double v = rng.nextDouble();
+
+    double a = 1 - sqrt_u;
+    double b = sqrt_u - sqrt_u * v;
+    double c = sqrt_u * v;
+    sampled_verts[3 * i + 0] = a * v0.x + b * v1.x + c * v2.x;
+    sampled_verts[3 * i + 1] = a * v0.y + b * v1.y + c * v2.y;
+    sampled_verts[3 * i + 2] = a * v0.z + b * v1.z + c * v2.z;
+    //
+    sampled_norms[3 * i + 0] = a * n0.x + b * n1.x + c * n2.x;
+    sampled_norms[3 * i + 1] = a * n0.y + b * n1.y + c * n2.y;
+    sampled_norms[3 * i + 2] = a * n0.z + b * n1.z + c * n2.z;
+  }
   MeshData out = prog.MakeMeshData(md.name, GL_POINTS);
-  out.AddVertices(md._vertices);
-  out.AddAttribute(aNormal, md.GetAttribute(aNormal), 3);
+  out.AddVertices(sampled_verts);
+  out.AddAttribute(aNormal, sampled_norms, 3);
   return out;
 }

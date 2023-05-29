@@ -100,17 +100,17 @@ void main() {
   final int bindingIndex = prog.GetTransformBindingIndex(tPosition);
 
   final Material material = Material("torus-mat")
-    ..SetUniform(uPointSize, 10.0)
+    ..SetUniform(uPointSize, 20.0)
     ..SetUniform(uModelMatrix, VM.Matrix4.identity());
 
-  final detail = 8;
+  final detail = 2;
   final MeshData torus = ShapeTorusKnot(prog,
       radius: 1.0,
       tubeRadius: 0.2,
       computeNormals: true,
       segmentsR: 256 * detail,
       segmentsT: 16 * detail);
-  final MeshData points = ExtractPointCloud(prog, torus);
+  final MeshData points = ExtractPointCloud(prog, torus, 50000);
   points.AddAttribute(aCurrentPosition, points.GetAttribute(aPosition), 3);
 
   MeshData out = prog.MakeMeshData("out", GL_POINTS)
