@@ -35,7 +35,6 @@ HTML.Element _MakeGraph(String fg, String bg, int bars, int height) {
 class Stats {
   Stats(this._root, String fg, String bg)
       : _graph = _MakeGraph(fg, bg, _numBars, _graphHeight) {
-    if (_root == null) throw "no element provided";
     _root.style
       ..color = fg
       ..fontFamily = "Helvetica,Arial,sans-serif"

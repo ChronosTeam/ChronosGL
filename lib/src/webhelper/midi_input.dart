@@ -1,13 +1,13 @@
 part of webhelper;
 
 class MidiInput {
-   MidiInput() {
+  MidiInput() {
     //HTML.window.navigator.requestMidiAccess()
   }
 
   // Dart HTML bindings are broken
-  final Map<int, int> _currentControlValue = <int, int>{};
-  final Set<int> _justUpdatedControls = <int>{};
+  // final Map<int, int> _currentControlValue = <int, int>{};
+  // final Set<int> _justUpdatedControls = <int>{};
 
   int moveDeltaX = 0;
   int moveDeltaY = 0;

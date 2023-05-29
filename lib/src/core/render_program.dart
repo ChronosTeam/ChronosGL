@@ -38,7 +38,7 @@ class RenderProgram extends NamedEntity {
   final ChronosGL _cgl;
   final ShaderObject _shaderObjectV;
   final ShaderObject _shaderObjectF;
-  final GlProgram /* gl  Program */ _program;
+  final GlProgram _program;
 
   final Set<String> _attributes;
   final Map<String, GlUniformLocation> _uniformLocations = {};
@@ -308,7 +308,7 @@ class RenderProgram extends NamedEntity {
     bool hasTransforms = _shaderObjectV.transformVars.length > 0;
     _cgl.draw(md.drawMode, md.GetNumItems(), md.elementArrayBufferType, 0,
         md.GetNumInstances(), hasTransforms);
-    if (debug) print(_cgl.getProgramInfoLog(_program as WEBGL.Program));
+    if (debug) print(_cgl.getProgramInfoLog(_program));
     if (stats != null) {
       stats.add(DrawStats(name, md.GetNumInstances(), md.GetNumItems(),
           md.drawMode, DateTime.now().difference(start)));

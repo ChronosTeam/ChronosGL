@@ -140,7 +140,6 @@ SkeletalAnimation ImportAnimationFromAssimp2Json(
   double tickspersecond = json["tickspersecond"].toDouble();
   double duration = json["duration"];
   List channels = json["channels"];
-  assert(channels != null);
   SkeletalAnimation anim = SkeletalAnimation(name, duration, skeleton.length);
   print("animated bones: ${channels.length}");
   for (Map<String, dynamic> c in channels) {
