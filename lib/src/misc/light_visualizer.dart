@@ -43,7 +43,7 @@ void UpdateDirectionalLightVisualizer(
     }
   }
 
-  md.ChangeVertices(FlattenVector3List(points));
+  md.ChangeVertexData(FlattenVector3List(points));
   List<int> faces = List.generate(points.length, (index) => index);
   md.ChangeFaces(faces);
 }
@@ -95,7 +95,7 @@ void UpdateSpotLightVisualizer(
       faces.add(i);
     }
   }
-  md.ChangeVertices(FlattenVector3List(points));
+  md.ChangeVertexData(FlattenVector3List(points));
   md.ChangeFaces(faces);
 }
 
@@ -134,7 +134,7 @@ void UpdatePointLightVisualizer(MeshData md, VM.Vector3 pos, double range) {
     points.add(pos + (v * range));
   }
   points.add(pos);
-  md.ChangeVertices(FlattenVector3List(points));
+  md.ChangeVertexData(FlattenVector3List(points));
   md.ChangeFaces(faces);
 }
 

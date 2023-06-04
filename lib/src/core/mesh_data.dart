@@ -85,7 +85,7 @@ class MeshData extends NamedEntity {
     }
   }
 
-  void ChangeAttribute(String canonical, List data, int width) {
+  void ChangeAttributeData(String canonical, List data, int width) {
     if (debug) print("ChangeBuffer ${canonical} ${data.length}");
     if (canonical.codeUnitAt(0) == prefixInstancer) {
       assert(
@@ -98,10 +98,10 @@ class MeshData extends NamedEntity {
     _cgl.ChangeArrayBuffer(_buffers[canonical]!, data);
   }
 
-  void ChangeVertices(Float32List data) {
+  void ChangeVertexData(Float32List data) {
     final String canonical = aPosition;
     _vertices = data;
-    ChangeAttribute(canonical, data, 3);
+    ChangeAttributeData(canonical, data, 3);
   }
 
   bool SupportsAttribute(String canonical) {
@@ -131,37 +131,30 @@ class MeshData extends NamedEntity {
     return _buffers[canonical]!;
   }
 
+  void ChangeAttributeBuffer(String canonical, GlBuffer buffer) {
+    _buffers[canonical] = buffer;
+    final bool instanced = canonical.codeUnitAt(0) == prefixInstancer;
+    final ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
+    final int index = _locationMap[canonical]!;
+    _cgl.bindVertexArray(_vao);
+    _cgl.enableVertexAttribArray(index, instanced ? 1 : 0);
+    _cgl.vertexAttribPointer(
+        buffer, index, desc.GetSize(), GL_FLOAT, false, 0, 0);
+  }
+
   void AddAttribute(String canonical, List data, int width) {
     final bool instanced = canonical.codeUnitAt(0) == prefixInstancer;
     if (instanced && _instances == 0) {
       _instances = data.length ~/ width;
     }
-    _buffers[canonical] = _cgl.createBuffer();
-    ChangeAttribute(canonical, data, width);
-    ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
-    if (desc == null) throw "Unknown canonical ${canonical}";
-    assert(_locationMap.containsKey(canonical),
-        "unexpected attribute ${canonical}");
-
-    final int index = _locationMap[canonical]!;
-    _cgl.bindVertexArray(_vao);
-    _cgl.enableVertexAttribArray(index, instanced ? 1 : 0);
-    _cgl.vertexAttribPointer(
-        _buffers[canonical]!, index, desc.GetSize(), GL_FLOAT, false, 0, 0);
+    ChangeAttributeBuffer(canonical, _cgl.createBuffer());
+    ChangeAttributeData(canonical, data, width);
   }
 
   void AddVertices(Float32List data) {
     final String canonical = aPosition;
-    _buffers[canonical] = _cgl.createBuffer();
-    ChangeVertices(data);
-    ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
-    if (desc == null) throw "Unknown canonical ${canonical}";
-    assert(_locationMap.containsKey(canonical));
-    int index = _locationMap[canonical]!;
-    _cgl.bindVertexArray(_vao);
-    _cgl.enableVertexAttribArray(index, 0);
-    _cgl.vertexAttribPointer(
-        _buffers[canonical]!, index, desc.GetSize(), GL_FLOAT, false, 0, 0);
+    ChangeAttributeBuffer(canonical, _cgl.createBuffer());
+    ChangeVertexData(data);
   }
 
   void ChangeFaces(List<int> faces) {

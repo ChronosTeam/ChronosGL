@@ -52,6 +52,6 @@ class BoneVisualizer {
         _animatedSkeleton, time % _anim.duration);
     List<VM.Vector3> bonePos =
         BonePosFromAnimatedSkeleton(_skeleton, _animatedSkeleton);
-    _mdWire.ChangeVertices(FlattenVector3List(bonePos));
+    _mdWire.ChangeVertexData(FlattenVector3List(bonePos));
   }
 }

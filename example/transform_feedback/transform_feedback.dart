@@ -260,8 +260,8 @@ void main() {
     ExtractIonPos(ions, ionsPos);
     cgl.bindBuffer(GL_ARRAY_BUFFER, null);
     cgl.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex, null);
-    mdOut.ChangeVertices(ionsPos);
-    mdIn.ChangeVertices(ionsPos);
+    mdOut.ChangeVertexData(ionsPos);
+    mdIn.ChangeVertexData(ionsPos);
     cgl.bindBufferBase(
         GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex, mdOut.GetBuffer(aPosition));
   }
@@ -271,7 +271,7 @@ void main() {
       ion.Update(srcPoles, dstPoles, rng, t);
     }
     ExtractIonPos(ions, ionsPos);
-    mdJS.ChangeVertices(ionsPos);
+    mdJS.ChangeVertexData(ionsPos);
   }
 
   var transform = cgl.createTransformFeedback();
