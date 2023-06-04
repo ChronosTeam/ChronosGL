@@ -110,16 +110,16 @@ void main() {
       computeNormals: true,
       segmentsR: 256 * detail,
       segmentsT: 16 * detail);
-  final MeshData points = ExtractPointCloud(prog, torus, 50000);
+  final MeshData points = ExtractPointCloud(prog, torus, 200000);
   points.AddAttribute(aCurrentPosition, points.GetAttribute(aPosition), 3);
 
-  MeshData out = prog.MakeMeshData("out", GL_POINTS)
+  MeshData out0 = prog.MakeMeshData("out", GL_POINTS)
+    ..AddVertices(points.GetAttribute(aPosition) as Float32List);
+  MeshData out1 = prog.MakeMeshData("out", GL_POINTS)
     ..AddVertices(points.GetAttribute(aPosition) as Float32List);
 
-  cgl.bindBuffer(GL_ARRAY_BUFFER, null);
-  cgl.bindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex, null);
   cgl.bindBufferBase(
-      GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex, out.GetBuffer(aPosition));
+      GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex, out0.GetBuffer(aPosition));
 
   double _lastTimeMs = 0.0;
   void animate(num timeMs) {
@@ -131,12 +131,13 @@ void main() {
     orbit.animate(elapsed);
 
     material.ForceUniform(uTime, timeMs / 1000.0);
+    cgl.bindBufferBase(
+        GL_TRANSFORM_FEEDBACK_BUFFER, bindingIndex, out0.GetBuffer(aPosition));
+    points.ChangeAttributeBuffer(aCurrentPosition, out1.GetBuffer(aPosition));
     prog.Draw(points, [perspective, material]);
-    // use vertex shader output as aCurrentPositions for next round
-    cgl.bindBuffer(GL_ARRAY_BUFFER, points.GetBuffer(aCurrentPosition));
-    cgl.bindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, out.GetBuffer(aPosition));
-    cgl.copyBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, GL_ARRAY_BUFFER, 0, 0,
-        points.GetNumItems() * 3 * 4);
+    var t = out0;
+    out0 = out1;
+    out1 = t;
 
     HTML.window.animationFrame.then(animate);
     fps.UpdateFrameCount(timeMs + 0.0);
