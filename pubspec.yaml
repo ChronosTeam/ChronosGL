@@ -17,4 +17,4 @@ dev_dependencies:
   http: ">=0.11.3+17"
 
 environment:
-  sdk: ">3.0.0 <=4.0.0"
+  sdk: ">3.0.0 <4.0.0"
