@@ -3,9 +3,9 @@ version: 4.1.0
 description: A simple WebGL2 engine written in Dart
 homepage: https://github.com/ChronosTeam/ChronosGL
 dependencies:
-  vector_math: ">=2.1.4"
-  js_interop: "any"
-  web: "any"
+  vector_math: "^2.1.4"
+  js_interop: "^0.0.1"
+  web: "^0.5.1"
 dev_dependencies:
   build_runner: ">=2.4.4"
   build_daemon: ">=2.1.0"
