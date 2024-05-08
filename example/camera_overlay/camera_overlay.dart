@@ -1,15 +1,11 @@
 import 'dart:html' as HTML;
-import 'dart:async';
 import 'package:chronosgl/chronosgl.dart';
 
 // This scene is responsible for filling the entire screen with a texture
 // gleaned from the camera
 Scene BackgroundScene(ChronosGL cgl, ImageTexture texture) {
-  final Scene scene = Scene(
-      "bg",
-      RenderProgram(
-          "bg", cgl, scalingCopyVertexShader, scalingCopyFragmentShader),
-      []);
+  final Scene scene =
+      Scene("bg", RenderProgram("bg", cgl, scalingCopyVertexShader, scalingCopyFragmentShader), []);
 
   final Material matBackground = Material("bg")
     ..ForceUniform(cDepthWrite, false)
@@ -21,30 +17,24 @@ Scene BackgroundScene(ChronosGL cgl, ImageTexture texture) {
 
 Scene CubeScene(ChronosGL cgl, List<UniformGroup> uniforms) {
   // This scene renders the a red cube in front of the background
-  Scene scene = Scene(
-      "objects",
-      RenderProgram(
-          "solid", cgl, solidColorVertexShader, solidColorFragmentShader),
-      uniforms);
+  Scene scene = Scene("objects",
+      RenderProgram("solid", cgl, solidColorVertexShader, solidColorFragmentShader), uniforms);
 
   final Material matCube = Material("cube")..SetUniform(uColor, ColorRed);
 
   double dim = 0.2;
-  Node cube =
-      Node("cube", ShapeCube(scene.program, x: dim, y: dim, z: dim), matCube)
-        ..setPos(-5.0, 0.0, -5.0);
+  Node cube = Node("cube", ShapeCube(scene.program, x: dim, y: dim, z: dim), matCube)
+    ..setPos(-5.0, 0.0, -5.0);
   scene.add(cube);
   return scene;
 }
 
 void main2(HTML.VideoElement? video) {
   if (video == null) {
-    HTML.window
-        .alert("Could not access camera - do you have a camera installed?");
+    HTML.window.alert("Could not access camera - do you have a camera installed?");
     return;
   }
-  final StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
+  final StatsFps fps = StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
 
   final HTML.CanvasElement canvas =
       HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
@@ -53,11 +43,9 @@ void main2(HTML.VideoElement? video) {
   final OrbitCamera orbit = OrbitCamera(15.0, 10.0, 0.0, canvas);
   final Perspective perspective = Perspective(orbit, 0.1, 1000.0);
 
-  final ImageTexture texture =
-      ImageTexture(cgl, "video", video, TexturePropertiesVideo);
+  final ImageTexture texture = ImageTexture(cgl, "video", video, TexturePropertiesVideo);
 
-  final RenderPhaseResizeAware phase =
-      RenderPhaseResizeAware("main", cgl, canvas, perspective);
+  final RenderPhaseResizeAware phase = RenderPhaseResizeAware("main", cgl, canvas, perspective);
 
   phase.add(BackgroundScene(cgl, texture));
   final Scene cubeScene = CubeScene(cgl, [perspective]);
@@ -93,8 +81,7 @@ void main2(HTML.VideoElement? video) {
 }
 
 void main() {
-  MakeVideoElementFromCamera().then(main2).catchError((AsyncError asyncError) {
-    HTML.window
-        .alert("Camera error ${asyncError}: - do you have a camera installed?");
+  MakeVideoElementFromCamera().then(main2).catchError((Object error) {
+    HTML.window.alert("Camera error ${error}: - do you have a camera installed?");
   });
 }

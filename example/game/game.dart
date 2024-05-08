@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 import 'dart:math' as Math;
 import 'dart:html' as HTML;
-//import 'dart:js' as JS;
+
+import 'package:web/web.dart' as JS;
 
 import 'package:vector_math/vector_math.dart' as VM;
 
@@ -16,7 +17,7 @@ void main(void) {
     gl_Position = vec4(${aPosition}.xy, 0.0, 1.0);
     gl_PointSize = ${aPointSize};
     ${vColor} = ${aColor};
-} 
+}
 """
   ]);
 
@@ -168,61 +169,43 @@ void ExtractSpriteSizes(List<Sprite> sprites, Float32List out) {
   }
 }
 
-final HTML.DivElement info = HTML.document.querySelector('#info');
+final HTML.DivElement info = HTML.document.querySelector('#info') as HTML.DivElement;
 
 class Gamepad {
-  int _index;
-  HTML.Gamepad _gp;
+  Gamepad();
+
   double x = 0.0;
   double y = 0.0;
   bool button = false;
   bool justPressed = false;
   bool justReleased = false;
 
-  Gamepad([this._index = -1]);
-
-  bool _LazyInitialize() {
-    if (_gp != null) return true;
-    var pads = HTML.window.navigator.getGamepads();
-    int count = 0;
-    for (HTML.Gamepad p in pads) {
-      // print("${_index} $p");
-      if ((count == _index || _index == -1) && p != null) {
-        print("found gamepad: ${p.id} ${p.mapping}");
-        print("buttons: ${p.buttons.length} axes: ${p.axes.length}");
-        _gp = p;
-        _index = count;
-        return true;
-      }
-      count++;
-    }
-    return false;
-  }
-
   void Poll() {
-    if (!_LazyInitialize()) {
-      info.innerHtml = "no joystick detected";
-      return;
+    dynamic gp;
+    dynamic pads = JS.window.navigator.getGamepads();
+    for (var p in pads) {
+      gp = p;
+      break;
     }
-    // https://github.com/dart-lang/sdk/issues/33148
-    // This reloading should not be necessary
-    _gp = HTML.window.navigator.getGamepads()[_index];
-    List<bool> bs = [];
-    for (var b in _gp.buttons) {
-      bs.add(b.pressed);
-    }
-    info.innerHtml =
-        "device[${_index}]: ${_gp.id}<br>axes: ${_gp.axes}<br>buttons: ${bs}";
-    x = _gp.axes[0] + 0.0;
-    y = _gp.axes[1] + 0.0;
-    if (button != _gp.buttons[0].pressed) {
-      if (button) {
-        justReleased = true;
-      } else {
-        justPressed = true;
+    print("polling");
+    if (gp != null) {
+      List<bool> bs = [];
+      for (dynamic b in gp.buttons) {
+        bs.add(b.pressed!);
       }
+      info.innerHtml = "${gp.id}<br>axes: ${gp.axes}<br>buttons: ${bs}";
     }
-    button = _gp.buttons[0].pressed;
+
+    // x = _gp!.axes[0] + 0.0;
+    // y = _gp!.axes[1] + 0.0;
+    // if (button != _gp!.buttons[0].pressed) {
+    //   if (button) {
+    //     justReleased = true;
+    //   } else {
+    //     justPressed = true;
+    //   }
+    // }
+    // button = _gp!.buttons[0].pressed;
   }
 
   void AfterFrameCleanup() {
@@ -261,7 +244,7 @@ void HandleUseInput(Keyboard input, Gamepad gamepad, List<Sprite> sprites) {
 void main() {
   final Math.Random rng = Math.Random();
   final HTML.CanvasElement canvas =
-      HTML.document.querySelector('#webgl-canvas');
+      HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   final int w = canvas.clientWidth;
   final int h = canvas.clientHeight;
   final int d = Math.min(w, h);
@@ -270,7 +253,7 @@ void main() {
   canvas.height = d;
 
   final Keyboard input = Keyboard(null);
-  final Gamepad gamepad = Gamepad(-1);
+  final Gamepad gamepad = Gamepad();
 
   final List<Sprite> sprites = [Sprite(true, 50.0, rng)];
   for (int i = 0; i < NumBullets; ++i) {
@@ -279,8 +262,7 @@ void main() {
 
   final ChronosGL cgl = ChronosGL(canvas, antialiasing: false);
   // Create the main shader program for displaying the torus.
-  final RenderProgram prog =
-      RenderProgram("basic", cgl, demoVertexShader, demoFragmentShader);
+  final RenderProgram prog = RenderProgram("basic", cgl, demoVertexShader, demoFragmentShader);
 
   final Float32List points = Float32List(3 * (sprites.length + 2));
   final Float32List sizes = Float32List(sprites.length + 2);
@@ -311,7 +293,7 @@ void main() {
     HandleUseInput(input, gamepad, sprites);
 
     ExtractSpritePositions(sprites, points);
-    mesh.ChangeVertices(points);
+    mesh.ChangeVertexData(points);
 
     prog.Draw(mesh, [mat]);
     HTML.window.animationFrame.then(animate);

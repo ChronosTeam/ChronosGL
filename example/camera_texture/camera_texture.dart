@@ -1,16 +1,13 @@
 import 'dart:html' as HTML;
-import 'dart:async';
 import 'package:chronosgl/chronosgl.dart';
 import 'package:vector_math/vector_math.dart' as VM;
 
-void main2(HTML.VideoElement video) {
+void main2(HTML.VideoElement? video) {
   if (video == null) {
-    HTML.window
-        .alert("Could not access camera - do you have a camera installed?");
+    HTML.window.alert("Could not access camera - do you have a camera installed?");
     return;
   }
-  final StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
+  final StatsFps fps = StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
 
   final HTML.CanvasElement canvas =
       HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
@@ -24,8 +21,7 @@ void main2(HTML.VideoElement video) {
 
   MeshData cube = ShapeCube(program);
 
-  final ImageTexture texture =
-      ImageTexture(cgl, "video", video, TexturePropertiesVideo);
+  final ImageTexture texture = ImageTexture(cgl, "video", video, TexturePropertiesVideo);
 
   final Material mat = Material("cube")
     ..SetUniform(uColor, ColorBlack)
@@ -55,8 +51,7 @@ void main2(HTML.VideoElement video) {
 }
 
 void main() {
-  MakeVideoElementFromCamera().then(main2).catchError((AsyncError asyncError) {
-    HTML.window
-        .alert("Camera error ${asyncError}: - do you have a camera installed?");
+  MakeVideoElementFromCamera().then(main2).catchError((Object error) {
+    HTML.window.alert("Camera error ${error}: - do you have a camera installed?");
   });
 }

@@ -27,19 +27,22 @@ A simple WebGL2 engine written in Dart
 
 ## Examples
 
+To run examples see Makefile
+
 * [Live Examples](http://chronosteam.github.io/ChronosGL/Examples/)
 * [Simple example HTML part (simple.html)](https://github.com/ChronosTeam/ChronosGL/tree/master/example/simple/simple.html)
 * [Simple example Dart part (simple.dart)](https://github.com/ChronosTeam/ChronosGL/tree/master/example/simple/simple.dart)
+
 
 ## Usage
 
 
 Create a new Dart webapp project, add this as a `pubspec.yaml` dependency:
-``` 
+```
     dependencies:
         chronosgl: any
 ```
-You also need the `vector_math` library which is the only library that 
+You also need the `vector_math` library which is the only library that
 ChronosGL is dependent on.
 
 As a test copy `simple.html` and `simple.dart` from above into
@@ -53,4 +56,3 @@ If you need to import `dart:html`, do so as follows:
 import 'dart:html' as HTML;
 ```
 This will avoid a naming conflict for `Node`.
-

@@ -1,6 +1,5 @@
-import 'package:js_bindings/bindings/all_bindings.dart';
-import 'package:js_bindings/js_bindings.dart' as JS;
 import 'dart:html' as HTML;
+// import 'dart:web' as JS;
 
 // https://users.cs.cf.ac.uk/dave/Multimedia/node158.html
 const MIDI_NOTE_OFF = 8;
@@ -18,11 +17,13 @@ void LogEvent(String kind, String device_channel, dynamic data) {
   if (gTab.children.length > 20) {
     gTab.children.removeAt(0);
   }
-  gTab.innerHtml = gTab.innerHtml! +
-      "<tr><td>${kind}</td><td>${device_channel}</td><td>${data}</td></tr>";
+  gTab.innerHtml =
+      gTab.innerHtml! + "<tr><td>${kind}</td><td>${device_channel}</td><td>${data}</td></tr>";
 }
 
-final List<MIDIPort> gMidiPorts = [];
+// MIDI NOT CURRENTLY AVAILABLE VIA dart:web
+
+// final List<MIDIPort> gMidiPorts = [];
 final Map<String, int> gMidiIdToPortIndex = {};
 
 void EventHandler(int device, dynamic msg) {
@@ -41,12 +42,19 @@ void EventHandler(int device, dynamic msg) {
 }
 
 dynamic make_handler(int device) {
+  print("init");
+  // MIDI NOT CURRENTLY AVAILABLE VIA dart:web
+  /*
   LogEvent("Registering", "${device}", "${gMidiPorts[device]}");
   return (dynamic msg) => EventHandler(device, msg);
+  */
 }
 
+// MIDI NOT CURRENTLY AVAILABLE VIA dart:web
+/*
 void InitMidiDevice(JS.MIDIPort port) {
   print("init");
+
   if (!gMidiIdToPortIndex.containsKey(port.id)) {
     LogEvent("InitDevice", "${port.type}", "${port.name}: ${port.id}");
     int index = gMidiPorts.length;
@@ -61,8 +69,11 @@ void InitMidiDevice(JS.MIDIPort port) {
     LogEvent("IgnoredDevice", "${port.type}", "${port.name}: ${port.id}");
   }
 }
+*/
 
 void InitMidi() async {
+  // MIDI NOT CURRENTLY AVAILABLE VIA dart:web
+  /*
   final opts = JS.MIDIOptions(sysex: false, software: true);
   final JS.MIDIAccess gMidiAccess =
       await JS.window.navigator.requestMIDIAccess(opts);
@@ -79,6 +90,7 @@ void InitMidi() async {
   gMidiAccess.outputs.forEach((MIDIPort port, var k, var m) {
     InitMidiDevice(port);
   });
+  */
 }
 
 void main() async {

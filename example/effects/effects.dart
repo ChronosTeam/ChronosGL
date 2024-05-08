@@ -7,11 +7,9 @@ import 'package:vector_math/vector_math.dart' as VM;
 
 const String modelFile = "../ct_logo.obj";
 
-HTML.SelectElement gEffect =
-    HTML.document.querySelector('#effect') as HTML.SelectElement;
+HTML.SelectElement gEffect = HTML.document.querySelector('#effect') as HTML.SelectElement;
 
-HTML.SelectElement gScene =
-    HTML.document.querySelector('#scene') as HTML.SelectElement;
+HTML.SelectElement gScene = HTML.document.querySelector('#scene') as HTML.SelectElement;
 
 double RangeOverTime(double a, double b, double interval, double t) {
   //double s = t % interval * 2.0 * Math.PI;
@@ -21,8 +19,7 @@ double RangeOverTime(double a, double b, double interval, double t) {
 class Effect {
   Effect(ChronosGL cgl, ShaderObject shader, this.uniforms)
       : name = uniforms.name,
-        program =
-            RenderProgram(uniforms.name, cgl, effectVertexShader, shader) {
+        program = RenderProgram(uniforms.name, cgl, effectVertexShader, shader) {
     all[uniforms.name] = this;
   }
 
@@ -34,11 +31,9 @@ class Effect {
 }
 
 void RegisterEffects(ChronosGL cgl, Texture fb) {
-  Effect(
-      cgl, copyFragmentShader, UniformGroup("none")..SetUniform(uTexture, fb));
+  Effect(cgl, copyFragmentShader, UniformGroup("none")..SetUniform(uTexture, fb));
 
-  Effect(
-      cgl, toonFragmentShader, UniformGroup("toon")..SetUniform(uTexture, fb));
+  Effect(cgl, toonFragmentShader, UniformGroup("toon")..SetUniform(uTexture, fb));
 
   Effect(
       cgl,
@@ -155,11 +150,9 @@ void RegisterEffects(ChronosGL cgl, Texture fb) {
         ..SetUniform(uRange, VM.Vector2(120.0, 240.0))
         ..SetUniform(uTexture, fb));
 
-  Effect(cgl, waterFragmentShader,
-      UniformGroup("water")..SetUniform(uTexture, fb));
+  Effect(cgl, waterFragmentShader, UniformGroup("water")..SetUniform(uTexture, fb));
 
-  Effect(cgl, CrosshatchFragmentShader(0),
-      UniformGroup("crosshatch")..SetUniform(uTexture, fb));
+  Effect(cgl, CrosshatchFragmentShader(0), UniformGroup("crosshatch")..SetUniform(uTexture, fb));
 
   Effect(
       cgl,
@@ -169,11 +162,9 @@ void RegisterEffects(ChronosGL cgl, Texture fb) {
         ..SetUniform(uColorAlpha, VM.Vector4.zero())
         ..SetUniform(uTexture, fb));
 
-  Effect(cgl, fisheyeFragmentShader,
-      UniformGroup("fisheye")..SetUniform(uTexture, fb));
+  Effect(cgl, fisheyeFragmentShader, UniformGroup("fisheye")..SetUniform(uTexture, fb));
 
-  Effect(
-      cgl, filmFragmentShader, UniformGroup("film")..SetUniform(uTexture, fb));
+  Effect(cgl, filmFragmentShader, UniformGroup("film")..SetUniform(uTexture, fb));
 
   Effect(
       cgl,
@@ -216,16 +207,13 @@ void RegisterEffects(ChronosGL cgl, Texture fb) {
         ..SetUniform(uConvolutionMatrix, ConvolutionMatrixBlur)
         ..SetUniform(uColor, ConvolutionOffsetBlur));
 
-  assert(gEffect != null);
-
   for (String o in Effect.all.keys) {
     gEffect.appendHtml("<option>$o</option>");
   }
 }
 
 void main() {
-  StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
+  StatsFps fps = StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
 
   final HTML.CanvasElement canvas =
       HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
@@ -237,8 +225,7 @@ void main() {
   final ChronosGL cgl = ChronosGL(canvas);
 
   final OrbitCamera orbit = OrbitCamera(15.0, -45.0, 0.3, canvas);
-  final Perspective perspective = Perspective(orbit, 0.1, 2520.0)
-    ..AdjustAspect(width, height);
+  final Perspective perspective = Perspective(orbit, 0.1, 2520.0)..AdjustAspect(width, height);
 
   final Framebuffer screen = Framebuffer.Screen(cgl);
 
@@ -246,8 +233,7 @@ void main() {
 
   RegisterEffects(cgl, fb.colorTexture!);
 
-  final RenderProgram progDemo =
-      RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader);
+  final RenderProgram progDemo = RenderProgram("demo", cgl, demoVertexShader, demoFragmentShader);
 
   MeshData unitQuad = ShapeQuad(Effect.all["dot"]!.program, 1);
   late MeshData ctLogo;
@@ -269,14 +255,11 @@ void main() {
     if (gEffect.value == "tv-distortion") {
       active.uniforms.ForceUniform(uTime, timeSec);
     } else if (gEffect.value == "hexalate-varying") {
-      active.uniforms
-          .ForceUniform(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
+      active.uniforms.ForceUniform(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
     } else if (gEffect.value == "square-varying") {
-      active.uniforms
-          .ForceUniform(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
+      active.uniforms.ForceUniform(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
     } else if (gEffect.value == "lumidots-varying") {
-      active.uniforms
-          .ForceUniform(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
+      active.uniforms.ForceUniform(uPointSize, RangeOverTime(4.0, 30.0, 20.0, timeSec));
     } else if (gEffect.value == "water") {
       active.uniforms.ForceUniform(uTime, _lastTimeMs / 1000.0);
     }

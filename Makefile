@@ -2,7 +2,7 @@ export PATH := $(PATH):$(HOME)/.pub-cache/bin:.
 
 .PHONY=documentation examples tests presubmit buildall
 
-DART=/bin/dart 
+DART=/bin/dart
 PUB=/bin/dart pub
 PORT=8000
 
@@ -45,7 +45,7 @@ examples_debug:
 #@
 webserver:
 	@echo Launching webserver on port $(PORT)
-	python3 -m -m http.server $(PORT)
+	python3 -m http.server $(PORT)
 
 #@ serve - Launch the continous build webdev server
 #@
@@ -56,7 +56,7 @@ serve_debug:
 #@ publish - Update package at pub.dartlang.org
 #@
 publish:
-	$(PUB) publish 
+	$(PUB) publish
 
 buildall:
 	webdev build --output web:build

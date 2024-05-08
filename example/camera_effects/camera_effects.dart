@@ -1,17 +1,14 @@
 import 'dart:html' as HTML;
 import 'package:vector_math/vector_math.dart' as VM;
 
-import 'dart:async';
 import 'package:chronosgl/chronosgl.dart';
 
-HTML.SelectElement gEffect =
-    HTML.document.querySelector('#effect') as HTML.SelectElement;
+HTML.SelectElement gEffect = HTML.document.querySelector('#effect') as HTML.SelectElement;
 
 class Effect {
   Effect(ChronosGL cgl, ShaderObject shader, this.uniforms)
       : name = uniforms.name,
-        program =
-            RenderProgram(uniforms.name, cgl, effectVertexShader, shader) {
+        program = RenderProgram(uniforms.name, cgl, effectVertexShader, shader) {
     all[uniforms.name] = this;
   }
 
@@ -49,11 +46,9 @@ void RegisterEffects(ChronosGL cgl) {
         ..SetUniform(uScale, 0.0009)
         ..SetUniform(uTime, 0.0));
 
-  Effect(cgl, lumidotsFragmentShader,
-      UniformGroup("lumidots-4")..SetUniform(uPointSize, 4.0));
+  Effect(cgl, lumidotsFragmentShader, UniformGroup("lumidots-4")..SetUniform(uPointSize, 4.0));
 
-  Effect(cgl, squarePixelateFragmentShader,
-      UniformGroup("square-4")..SetUniform(uPointSize, 4.0));
+  Effect(cgl, squarePixelateFragmentShader, UniformGroup("square-4")..SetUniform(uPointSize, 4.0));
 
   Effect(cgl, scanlineFragmentShader,
       UniformGroup("scanline")..SetUniform(uRange, VM.Vector2(120.0, 240.0)));
@@ -62,8 +57,7 @@ void RegisterEffects(ChronosGL cgl) {
 
   Effect(cgl, CrosshatchFragmentShader(0), UniformGroup("crosshatch"));
 
-  Effect(
-      cgl, sepiaFragmentShader, UniformGroup("sepia")..SetUniform(uScale, 0.5));
+  Effect(cgl, sepiaFragmentShader, UniformGroup("sepia")..SetUniform(uScale, 0.5));
 
   Effect(cgl, techicolorFragmentShader, UniformGroup("technicolor"));
 
@@ -120,15 +114,13 @@ void RegisterEffects(ChronosGL cgl) {
   }
 }
 
-void main2(HTML.VideoElement video) {
+void main2(HTML.VideoElement? video) {
   if (video == null) {
-    HTML.window
-        .alert("Could not access camera - do you have a camera installed?");
+    HTML.window.alert("Could not access camera - do you have a camera installed?");
     return;
   }
 
-  final StatsFps fps =
-      StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
+  final StatsFps fps = StatsFps(HTML.document.getElementById("stats")!, "blue", "gray");
   final HTML.CanvasElement canvas =
       HTML.document.querySelector('#webgl-canvas') as HTML.CanvasElement;
   // Make sure canvas has full screen resolution
@@ -139,11 +131,10 @@ void main2(HTML.VideoElement video) {
 
   final ChronosGL cgl = ChronosGL(canvas);
 
-  final ImageTexture texture =
-      ImageTexture(cgl, "video", video, TexturePropertiesVideo);
+  final ImageTexture texture = ImageTexture(cgl, "video", video, TexturePropertiesVideo);
   final Framebuffer screen = Framebuffer.Screen(cgl);
-  final RenderProgram progScale = RenderProgram(
-      "bg", cgl, scalingCopyVertexShader, scalingCopyFragmentShader);
+  final RenderProgram progScale =
+      RenderProgram("bg", cgl, scalingCopyVertexShader, scalingCopyFragmentShader);
   final Material material = Material("mat")..SetUniform(uTexture, texture);
   final MeshData unitQuad = ShapeQuad(progScale, 1);
 
@@ -151,8 +142,7 @@ void main2(HTML.VideoElement video) {
   final Framebuffer fb1 = Framebuffer.Default(cgl, width, height);
 
   RegisterEffects(cgl);
-  assert(
-      Effect.all["dot"]!.program.HasDownwardCompatibleAttributesTo(progScale));
+  assert(Effect.all["dot"]!.program.HasDownwardCompatibleAttributesTo(progScale));
 
   void animate(num timeMs) {
     try {
@@ -188,8 +178,7 @@ void main2(HTML.VideoElement video) {
 }
 
 void main() {
-  MakeVideoElementFromCamera().then(main2).catchError((AsyncError asyncError) {
-    HTML.window
-        .alert("Camera error ${asyncError}: - do you have a camera installed?");
+  MakeVideoElementFromCamera().then(main2).catchError((Object error) {
+    HTML.window.alert("Camera error ${error}: - do you have a camera installed?");
   });
 }

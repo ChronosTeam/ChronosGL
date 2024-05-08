@@ -38,11 +38,10 @@ void main(List<String> arguments) {
     List<Bone> skeleton = ImportSkeletonFromAssimp2Json(jsonData);
 
     print("Bones: ${skeleton.length}");
-    GeometryBuilder gb = ImportGeometryFromAssimp2JsonMesh(jsonData["meshes"][0], skeleton);
+    GeometryBuilder gb = ImportGeometryFromAssimp2JsonMesh(jsonData["meshes"]?[0], skeleton);
     print(gb);
 
-    SkeletalAnimation anim =
-        ImportAnimationFromAssimp2Json(jsonData["animations"][0], skeleton);
+    SkeletalAnimation anim = ImportAnimationFromAssimp2Json(jsonData["animations"]?[0], skeleton);
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(">>>>>>>>>> Bones");
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
@@ -53,15 +52,14 @@ void main(List<String> arguments) {
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(">>>>>>>>>> BoneAnims");
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-    for (BoneAnimation ba in anim.animList) {
+    for (BoneAnimation? ba in anim.animList) {
       print(ba);
     }
 
     VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
 
     AnimatedSkeleton animatedSkeleton = new AnimatedSkeleton(skeleton.length);
-    UpdateAnimatedSkeleton(
-        skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
+    UpdateAnimatedSkeleton(skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
 
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(">>>>>>>>>> Animated");

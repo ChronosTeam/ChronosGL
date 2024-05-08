@@ -117,8 +117,7 @@ void ShowInfo(Map json) {
   }
   List<int> faces = json["faces"];
   List bones = json["bones"];
-  List<Map> morphTargets = json["morphTargets"];
-  if (morphTargets == null) morphTargets = [];
+  List<Map> morphTargets = json["morphTargets"] ?? [];
 
   List<int> skinIndices = json["skinIndices"];
   List<double> skinWeights = json["skinWeights"];
@@ -128,7 +127,7 @@ void ShowInfo(Map json) {
   print("meta: ${metadata}");
   print("materials: ${materials.length}");
   print("vertices: ${vertices.length}  ${vertices.length ~/ 3}");
-  print("normals: ${normals.length} ${normals.length ~/3}");
+  print("normals: ${normals.length} ${normals.length ~/ 3}");
   print("colors: ${colors.length}");
   print("uvs: ${uvs.length}  ${uvs.length ~/ 2}");
   print("faces: ${faces.length} ${faces.length ~/ 3}");
@@ -151,7 +150,7 @@ void main(List<String> arguments) {
 
     print("reading mesh from: ${p}");
     var meshData = new File(p).readAsStringSync();
-    Object jsonData = json.decode(meshData);
+    dynamic jsonData = json.decode(meshData);
     ShowInfo(jsonData);
     DumpFaces(jsonData, argResults['faces']);
 
@@ -170,15 +169,14 @@ void main(List<String> arguments) {
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(">>>>>>>>>> BoneAnims");
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-    for (BoneAnimation ba in anim.animList) {
+    for (BoneAnimation? ba in anim.animList) {
       print(ba);
     }
 
     VM.Matrix4 globalOffsetTransform = new VM.Matrix4.identity();
 
     AnimatedSkeleton animatedSkeleton = new AnimatedSkeleton(skeleton.length);
-    UpdateAnimatedSkeleton(
-        skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
+    UpdateAnimatedSkeleton(skeleton, globalOffsetTransform, anim, animatedSkeleton, 0.0);
 
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     print(">>>>>>>>>> Animated");

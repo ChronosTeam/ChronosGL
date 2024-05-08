@@ -35,8 +35,8 @@ class Scene extends NamedEntity {
   }
 }
 
-void drawRecursively(RenderProgram prog, Node node, final VM.Matrix4 parent,
-    List<DrawStats>? stats, List<UniformGroup> uniforms) {
+void drawRecursively(RenderProgram prog, Node node, final VM.Matrix4 parent, List<DrawStats>? stats,
+    List<UniformGroup> uniforms) {
   if (!node.enabled) return;
   // m is read-only!
   final VM.Matrix4 m = node.UpdateModelMatrix(parent);
@@ -55,8 +55,7 @@ void drawRecursively(RenderProgram prog, Node node, final VM.Matrix4 parent,
 /// represents a sequence of Scenes.
 class RenderPhase extends NamedEntity {
   RenderPhase(String name, this._cgl, [Framebuffer? framebuffer])
-      : _framebuffer =
-            framebuffer != null ? framebuffer : Framebuffer.Screen(_cgl),
+      : _framebuffer = framebuffer != null ? framebuffer : Framebuffer.Screen(_cgl),
         super(name);
 
   late Framebuffer _framebuffer;
@@ -98,8 +97,7 @@ class RenderPhase extends NamedEntity {
 
   // Draw all scenes in order of registration
   void Draw([List<DrawStats>? stats]) {
-    _framebuffer.Activate(
-        _clear_mode, viewPortX, viewPortY, viewPortW, viewPortH);
+    _framebuffer.Activate(_clear_mode, viewPortX, viewPortY, viewPortW, viewPortH);
 
     for (Scene scene in _scenes) {
       if (!scene.enabled) continue;

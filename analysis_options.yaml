@@ -16,8 +16,6 @@ linter:
     - camel_case_types
     - empty_constructor_bodies
     - empty_statements
-    - iterable_contains_unrelated_type
-    - list_remove_unrelated_type
     - no_adjacent_strings_in_list
     - no_duplicate_case_values
     - one_member_abstracts
@@ -35,4 +33,3 @@ linter:
     - unrelated_type_equality_checks
     - use_string_buffers
     - valid_regexps
-
