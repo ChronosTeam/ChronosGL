@@ -24,8 +24,8 @@ class Face4 {
   int a, b, c, d;
 }
 
-bool NormalFromPoints(VM.Vector3 a, VM.Vector3 b, VM.Vector3 c, VM.Vector3 temp,
-    VM.Vector3 normal) {
+bool NormalFromPoints(
+    VM.Vector3 a, VM.Vector3 b, VM.Vector3 c, VM.Vector3 temp, VM.Vector3 normal) {
   temp
     ..setFrom(b)
     ..sub(a);
@@ -65,8 +65,7 @@ class Edge3 {
   String toString() => "${v1} -> ${v2}";
 
   @override
-  bool operator ==(Object other) =>
-      other is Edge3 && v1 == other.v1 && v2 == other.v2;
+  bool operator ==(Object other) => other is Edge3 && v1 == other.v1 && v2 == other.v2;
 
   @override
   int get hashCode => hashVector3(v1) ^ hashVector3(v2);
@@ -87,8 +86,7 @@ class GeometryBuilder {
   final Map<String, List> attributes = {};
 
   void EnableAttribute(String canonical) {
-    assert(!attributes.containsKey(canonical),
-        "attribute ${canonical} already exists");
+    assert(!attributes.containsKey(canonical), "attribute ${canonical} already exists");
     assert(canonical.startsWith("a"), "${canonical} is not an attribute");
     ShaderVarDesc desc = RetrieveShaderVarDesc(canonical);
     switch (desc.type) {
@@ -112,12 +110,45 @@ class GeometryBuilder {
     }
   }
 
+  bool isEmpty() {
+    return faces3.isEmpty && faces4.isEmpty && vertices.isEmpty;
+  }
+
   bool HasAttribute(String canonical) {
     return attributes.containsKey(canonical);
   }
 
-  void MergeAndTakeOwnership(GeometryBuilder other,
-      [VM.Matrix4? mat, VM.Matrix3? matNormal]) {
+  // Note: the normal matrix should be a submatrix mat
+  void ApplyTransform([VM.Matrix4? mat, VM.Matrix3? matNormal]) {
+    if (attributes.containsKey(aNormal)) {
+      assert(matNormal != null, "no normal matrix provided");
+      for (VM.Vector3 v in attributes[aNormal] as List<VM.Vector3>) {
+        v..applyMatrix3(matNormal!);
+      }
+    }
+    if (mat != null) {
+      for (VM.Vector3 v in vertices) {
+        v..applyMatrix4(mat);
+      }
+    }
+  }
+
+  // Same as above but use Quaternions + translation
+  void ApplyTransform2(VM.Quaternion rot, VM.Vector3 translate) {
+    if (attributes.containsKey(aNormal)) {
+      for (VM.Vector3 v in attributes[aNormal] as List<VM.Vector3>) {
+        v.applyQuaternion(rot);
+      }
+    }
+
+    for (VM.Vector3 v in vertices) {
+      v.applyQuaternion(rot);
+      v.add(translate);
+    }
+  }
+
+  // Simple means the vertex coordinated in other are not changed
+  void MergeAndTakeOwnershipSimple(GeometryBuilder other) {
     if (other.vertices.length == 0) return;
     final int offset = vertices.length;
 
@@ -125,28 +156,20 @@ class GeometryBuilder {
     for (String a in attributes.keys) {
       assert(other.attributes.containsKey(a));
     }
-    for (String a in other.attributes.keys) {
-      assert(attributes.containsKey(a));
-      switch (a) {
-        case aNormal:
-          assert(matNormal != null, "no normal matrix provided");
-          for (VM.Vector3 v in other.attributes[a] as List<VM.Vector3>) {
-            attributes[a]!.add(v..applyMatrix3(matNormal!));
-          }
-          break;
-        default:
-          attributes[a]!.addAll(other.attributes[a] as List);
+
+    if (isEmpty()) {
+      for (String a in other.attributes.keys) {
+        attributes[a] = other.attributes[a]!;
+      }
+    } else {
+      for (String a in other.attributes.keys) {
+        assert(attributes.containsKey(a), "missing attribute ${a}");
+        attributes[a]!.addAll(other.attributes[a] as List);
       }
     }
     other.attributes.clear();
 
-    for (VM.Vector3 v in other.vertices) {
-      if (mat == null) {
-        vertices.add(v);
-      } else {
-        vertices.add(v..applyMatrix4(mat));
-      }
-    }
+    vertices.addAll(other.vertices);
     other.vertices.clear();
 
     for (Face3 face in other.faces3) {
@@ -194,9 +217,18 @@ class GeometryBuilder {
     assert(maxIndexFace4 < n, "${maxIndexFace4} vs $n");
 
     for (String canonical in attributes.keys) {
-      assert(attributes[canonical]!.length == vertices.length,
-          "bad attribute ${canonical}");
+      assert(attributes[canonical]!.length == vertices.length, "bad attribute ${canonical}");
     }
+  }
+
+  void MergeAndTakeOwnership(GeometryBuilder other, [VM.Matrix4? mat, VM.Matrix3? matNormal]) {
+    other.ApplyTransform(mat, matNormal);
+    MergeAndTakeOwnershipSimple(other);
+  }
+
+  void MergeAndTakeOwnership2(GeometryBuilder other, VM.Quaternion rot, VM.Vector3 translation) {
+    other.ApplyTransform2(rot, translation);
+    MergeAndTakeOwnershipSimple(other);
   }
 
   void AddFace3(int a, int b, int c, [bool reverse = false]) {
@@ -227,24 +259,32 @@ class GeometryBuilder {
   }
 
   // Extract the triplets from vertex
-  void AddVertices(List<VM.Vector3> vs) {
+  int AddVertices(List<VM.Vector3> vs) {
+    int size = vertices.length;
     for (VM.Vector3 v in vs) {
       vertices.add(v.clone());
     }
+    return size;
   }
 
-  void AddVerticesTakeOwnership(List<VM.Vector3> vs) {
+  int AddVerticesTakeOwnership(List<VM.Vector3> vs) {
+    int size = vertices.length;
     for (VM.Vector3 v in vs) {
       vertices.add(v);
     }
+    return size;
   }
 
-  void AddVertex(VM.Vector3 v) {
+  int AddVertex(VM.Vector3 v) {
+    int size = vertices.length;
     vertices.add(v.clone());
+    return size;
   }
 
-  void AddVertexTakeOwnership(VM.Vector3 v) {
+  int AddVertexTakeOwnership(VM.Vector3 v) {
+    int size = vertices.length;
     vertices.add(v);
+    return size;
   }
 
   void AddVerticesFace3(List<VM.Vector3> vs) {
@@ -280,8 +320,7 @@ class GeometryBuilder {
     }
   }
 
-  void AddAttributesVector2TakeOwnership(
-      String canonical, List<VM.Vector2> lst) {
+  void AddAttributesVector2TakeOwnership(String canonical, List<VM.Vector2> lst) {
     attributes[canonical]!.addAll(lst);
   }
 
@@ -297,8 +336,7 @@ class GeometryBuilder {
     }
   }
 
-  void AddAttributesVector3TakeOwnership(
-      String canonical, List<VM.Vector3> lst) {
+  void AddAttributesVector3TakeOwnership(String canonical, List<VM.Vector3> lst) {
     List<VM.Vector3> ts = attributes[canonical] as List<VM.Vector3>;
     ts.addAll(lst);
   }
@@ -315,8 +353,7 @@ class GeometryBuilder {
     }
   }
 
-  void AddAttributesVector4TakeOwnership(
-      String canonical, List<VM.Vector4> lst) {
+  void AddAttributesVector4TakeOwnership(String canonical, List<VM.Vector4> lst) {
     List<VM.Vector4> ts = attributes[canonical] as List<VM.Vector4>;
     ts.addAll(lst);
   }
@@ -353,8 +390,7 @@ class GeometryBuilder {
     }
   }
 
-  void AddFaces4Strips(List<List<VM.Vector3>> strips, bool closed,
-      [bool flip = false]) {
+  void AddFaces4Strips(List<List<VM.Vector3>> strips, bool closed, [bool flip = false]) {
     for (int i = 0; i < strips.length - 1; ++i) {
       if (flip) {
         AddFaces4Strip(strips[i], strips[i + 1], closed);
@@ -368,8 +404,7 @@ class GeometryBuilder {
   // Its main purpose is to convert Face4 into two triangles
   List<int> GenerateFaceIndices() {
     assert(faces3.length > 0 || faces4.length > 0);
-    List<int> faces =
-        List.generate(faces3.length * 3 + faces4.length * 6, (i) => 0);
+    List<int> faces = List.generate(faces3.length * 3 + faces4.length * 6, (i) => 0);
     int i = 0;
     for (Face3 f3 in faces3) {
       faces[i + 0] = f3.a;
@@ -392,8 +427,7 @@ class GeometryBuilder {
   }
 
   List<int> GenerateLineIndices() {
-    List<int> lines =
-        List.generate(faces3.length * 6 + faces4.length * 8, (i) => 0);
+    List<int> lines = List.generate(faces3.length * 6 + faces4.length * 8, (i) => 0);
     int i = 0;
     for (Face3 f3 in faces3) {
       lines[i + 0] = f3.a;
@@ -420,21 +454,18 @@ class GeometryBuilder {
   }
 
   void GenerateNormalsAssumingTriangleMode() {
-    List<VM.Vector3> normals =
-        List.generate(vertices.length, (i) => VM.Vector3.zero());
+    List<VM.Vector3> normals = List.generate(vertices.length, (i) => VM.Vector3.zero());
     VM.Vector3 temp = VM.Vector3.zero();
     VM.Vector3 norm = VM.Vector3.zero();
     for (Face3 f3 in faces3) {
-      NormalFromPoints(
-          vertices[f3.a], vertices[f3.b], vertices[f3.c], temp, norm);
+      NormalFromPoints(vertices[f3.a], vertices[f3.b], vertices[f3.c], temp, norm);
       normals[f3.a] = norm.clone();
       normals[f3.b] = norm.clone();
       normals[f3.c] = norm.clone();
     }
 
     for (Face4 f4 in faces4) {
-      NormalFromPoints(
-          vertices[f4.a], vertices[f4.b], vertices[f4.c], temp, norm);
+      NormalFromPoints(vertices[f4.a], vertices[f4.b], vertices[f4.c], temp, norm);
       normals[f4.a] = norm.clone();
       normals[f4.b] = norm.clone();
       normals[f4.c] = norm.clone();
@@ -462,8 +493,7 @@ class GeometryBuilder {
     }
 
     for (Face3 f3 in faces3) {
-      NormalFromPoints(
-          vertices[f3.a], vertices[f3.b], vertices[f3.c], temp, norm);
+      NormalFromPoints(vertices[f3.a], vertices[f3.b], vertices[f3.c], temp, norm);
       VM.Vector3 n = norm.clone();
       add(f3.a, n);
       add(f3.b, n);
@@ -471,8 +501,7 @@ class GeometryBuilder {
     }
 
     for (Face4 f4 in faces4) {
-      NormalFromPoints(
-          vertices[f4.a], vertices[f4.b], vertices[f4.c], temp, norm);
+      NormalFromPoints(vertices[f4.a], vertices[f4.b], vertices[f4.c], temp, norm);
       VM.Vector3 n = norm.clone()..scale(2.0);
       add(f4.a, n);
       add(f4.b, n);
@@ -483,8 +512,7 @@ class GeometryBuilder {
     for (VM.Vector3 key in avg.keys) {
       avg[key] = avg[key]!..normalize();
     }
-    List<VM.Vector3> normals =
-        List.generate(vertices.length, (i) => avg[vertices[i]]!);
+    List<VM.Vector3> normals = List.generate(vertices.length, (i) => avg[vertices[i]]!);
 
     attributes[aNormal] = normals;
   }
@@ -501,8 +529,7 @@ class GeometryBuilder {
 
 // populate aCenter Input
   void GenerateWireframeCenters() {
-    List<VM.Vector4> center =
-        List.generate(vertices.length, (i) => VM.Vector4.zero());
+    List<VM.Vector4> center = List.generate(vertices.length, (i) => VM.Vector4.zero());
 
     VM.Vector4 a3 = VM.Vector4(1.0, 0.0, 0.0, 0.0);
     VM.Vector4 b3 = VM.Vector4(0.0, 1.0, 0.0, 0.0);
@@ -544,8 +571,7 @@ class GeometryBuilder {
     assert(uvs.length == w * h, "grid uvs lengths mismatch");
   }
 
-  void GenerateRegularGridFaces(int w, int h, bool wrapped,
-      [bool reverse = false]) {
+  void GenerateRegularGridFaces(int w, int h, bool wrapped, [bool reverse = false]) {
     assert(vertices.length == w * h);
     for (int i = 0; i < h - (wrapped ? 0 : 1); ++i) {
       for (int j = 0; j < w - (wrapped ? 0 : 1); ++j) {
@@ -567,8 +593,7 @@ class GeometryBuilder {
 
   // http://pages.mtu.edu/~shene/COURSES/cs3621/SLIDES/Mesh.pdf
   bool IsOrientableManifoldWithBoundaries() {
-    final LinkedHashMap<Edge3, Object> incidenceE =
-        LinkedHashMap<Edge3, Object>();
+    final LinkedHashMap<Edge3, Object> incidenceE = LinkedHashMap<Edge3, Object>();
 
     bool addEdge(VM.Vector3 v1, VM.Vector3 v2, Object face) {
       final Edge3 edge = Edge3(v1, v2);
