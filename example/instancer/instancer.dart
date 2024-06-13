@@ -50,7 +50,7 @@ void AddInstanceData(MeshData md) {
         translations.setAll(pos * 3, spatial.getPos().storage);
         VM.Quaternion q =
             VM.Quaternion.fromRotation(spatial.transform.getRotation());
-        rotations.setAll(pos * 3, q.storage);
+        rotations.setAll(pos * 4, q.storage);
         pos++;
       }
     }

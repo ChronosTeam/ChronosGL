@@ -315,6 +315,35 @@ MeshData ExtractWireframe(RenderProgram prog, MeshData md) {
   return out;
 }
 
+List<double> _GetMeshFaceAreas(List<int> faces, Float32List verts) {
+  VM.Vector3 v0 = VM.Vector3.zero();
+  VM.Vector3 v1 = VM.Vector3.zero();
+  VM.Vector3 v2 = VM.Vector3.zero();
+  var areas = List<double>.filled(faces.length ~/ 3, 0.0);
+  for (int f = 0; f < areas.length; ++f) {
+    int i0 = faces[3 * f + 0];
+    int i1 = faces[3 * f + 1];
+    int i2 = faces[3 * f + 2];
+    //
+    v0.setValues(verts[3 * i0], verts[3 * i0 + 1], verts[3 * i0 + 2]);
+    v1.setValues(verts[3 * i1], verts[3 * i1 + 1], verts[3 * i1 + 2]);
+    v2.setValues(verts[3 * i2], verts[3 * i2 + 1], verts[3 * i2 + 2]);
+    v1.sub(v0);
+    v2.sub(v0);
+    v1.crossInto(v2, v0);
+    areas[f] = v0.length;
+  }
+
+  return areas;
+}
+
+double GetMeshFaceArea(MeshData md) {
+  List<double> areas = _GetMeshFaceAreas(md._faces!, md._vertices);
+  double total_area = 0.0;
+  areas.forEach((d) => total_area += d);
+  return total_area;
+}
+
 MeshData ExtractPointCloud(RenderProgram prog, MeshData md, int num_points,
     {bool extract_normal = true, bool extract_color = false}) {
   assert(md._drawMode == GL_TRIANGLES, "expected GL_TRIANGLES");
@@ -367,14 +396,7 @@ MeshData ExtractPointCloud(RenderProgram prog, MeshData md, int num_points,
     }
   }
 
-  var areas = List<double>.filled(faces.length ~/ 3, 0.0);
-  for (int f = 0; f < areas.length; ++f) {
-    getVertsForFace(f);
-    v1.sub(v0);
-    v2.sub(v0);
-    v1.crossInto(v2, v0);
-    areas[f] = v0.length;
-  }
+  List<double> areas = _GetMeshFaceAreas(faces, verts);
   double total_area = 0.0;
   areas.forEach((d) => total_area += d);
   print("vertices: ${md._vertices.length ~/ 3}  faces: ${faces.length}  total: ${total_area}");
