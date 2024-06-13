@@ -1,5 +1,5 @@
 name: chronosgl
-version: 4.1.1
+version: 4.1.2
 description: A simple WebGL2 engine written in Dart
 homepage: https://github.com/ChronosTeam/ChronosGL
 dependencies:
