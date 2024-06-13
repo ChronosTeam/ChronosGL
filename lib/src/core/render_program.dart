@@ -2,8 +2,7 @@ part of core;
 
 /// Helper class for holding info produced by RenderProgram::Draw().
 class DrawStats {
-  DrawStats(this.name, this.numInstances, this.numItems, this.drawMode,
-      this.duration);
+  DrawStats(this.name, this.numInstances, this.numItems, this.drawMode, this.duration);
 
   final String name;
   final int numInstances;
@@ -18,10 +17,9 @@ class DrawStats {
 
 /// represents program (Fragment + Vertex Shader) running on the GPU with an API to invoke it.
 class RenderProgram extends NamedEntity {
-  RenderProgram(
-      String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
-      : _program = _cgl.CompileWholeProgram(_shaderObjectV.shader!,
-            _shaderObjectF.shader!, _shaderObjectV.transformVars),
+  RenderProgram(String name, this._cgl, this._shaderObjectV, this._shaderObjectF)
+      : _program = _cgl.CompileWholeProgram(
+            _shaderObjectV.shader!, _shaderObjectF.shader!, _shaderObjectV.transformVars),
         _attributes = Set.from(_shaderObjectV.attributeVars),
         super(name) {
     for (String v in _shaderObjectV.uniformVars) {
@@ -56,8 +54,7 @@ class RenderProgram extends NamedEntity {
   }
 
   MeshData MakeMeshData(String name, int drawMode) {
-    return MeshData(
-        name, _cgl, drawMode, _shaderObjectV.GetAttributeLayoutMap());
+    return MeshData(name, _cgl, drawMode, _shaderObjectV.GetAttributeLayoutMap());
   }
 
   /// If you want to re-use meshes across programs you can use
@@ -270,8 +267,7 @@ class RenderProgram extends NamedEntity {
     LogDebug("setting ${count} var in ${delta}");
   }
 
-  void Draw(MeshData md, List<UniformGroup> uniforms,
-      [List<DrawStats>? stats]) {
+  void Draw(MeshData md, List<UniformGroup> uniforms, [List<DrawStats>? stats]) {
     final DateTime start = DateTime.now();
     _cgl.useProgram(_program);
     _ClearState();
@@ -282,8 +278,7 @@ class RenderProgram extends NamedEntity {
     for (UniformGroup u in uniforms) {
       _ActivateUniforms(u.name, u.GetUniforms());
       if (u is Material) {
-        assert(!haveSeenMaterial,
-            "in program ${name}: multiple materials specified");
+        assert(!haveSeenMaterial, "in program ${name}: multiple materials specified");
         haveSeenMaterial = true;
       }
     }
@@ -292,26 +287,24 @@ class RenderProgram extends NamedEntity {
     for (String a in md.GetAttributes()) {
       _attributesInitialized.add(a);
     }
-    if (debug)
-      print(
-          "[${name}] draw points: ${md.drawMode} instances${md.GetNumInstances()}");
+    if (debug) print("[${name}] draw points: ${md.drawMode} instances${md.GetNumInstances()}");
     // TODO: put this behind a flag
     List<String> uninitialized = UninitializedInputs();
     if (uninitialized.isNotEmpty) {
       String mesg =
-          "${name} ${md.drawMode}: uninitialized inputs: ${uninitialized}";
+          "${name} mesh:${md.name} mode:${md.drawMode}: uninitialized inputs: ${uninitialized}";
       LogError(mesg);
       //throw mesg;
     }
 
     md.Activate();
     bool hasTransforms = _shaderObjectV.transformVars.length > 0;
-    _cgl.draw(md.drawMode, md.GetNumItems(), md.elementArrayBufferType, 0,
-        md.GetNumInstances(), hasTransforms);
+    _cgl.draw(md.drawMode, md.GetNumItems(), md.elementArrayBufferType, 0, md.GetNumInstances(),
+        hasTransforms);
     if (debug) print(_cgl.getProgramInfoLog(_program));
     if (stats != null) {
-      stats.add(DrawStats(name, md.GetNumInstances(), md.GetNumItems(),
-          md.drawMode, DateTime.now().difference(start)));
+      stats.add(DrawStats(name, md.GetNumInstances(), md.GetNumItems(), md.drawMode,
+          DateTime.now().difference(start)));
     }
   }
 }
